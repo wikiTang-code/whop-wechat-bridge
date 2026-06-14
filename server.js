@@ -1082,17 +1082,64 @@ async function fetchLMStudioEmbedding(text) {
   }
 }
 
+
+async function fetchGeminiEmbedding(text) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('GEMINI_API_KEY not set');
+  
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=' + apiKey;
+  
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'models/gemini-embedding-001',
+        content: { parts: [{ text: text }] }
+      }),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!res.ok) {
+      throw new Error('Gemini embedding HTTP ' + res.status);
+    }
+    
+    const data = await res.json();
+    if (data && data.embedding && data.embedding.values) {
+      return data.embedding.values;
+    } else {
+      throw new Error('Invalid Gemini embedding response');
+    }
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+}
+
+async function fetchEmbedding(text) {
+  try {
+    return await fetchLMStudioEmbedding(text);
+  } catch (err) {
+    return await fetchGeminiEmbedding(text);
+  }
+}
+
 async function checkEmbeddingApi() {
   try {
-    console.log('[RAG] Testing LM Studio embedding connection...');
-    const testVector = await fetchLMStudioEmbedding('test string');
+    console.log('[RAG] Testing embedding API (LM Studio -> Gemini fallback)...');
+    const testVector = await fetchEmbedding('test string');
     if (Array.isArray(testVector) && testVector.length > 0) {
       isVectorSearchEnabled = true;
-      console.log(`[RAG] LM Studio embedding API active. Vector size: ${testVector.length}. Vector search enabled.`);
+      console.log('[RAG] Embedding API active. Vector size: ' + testVector.length + '. Vector search enabled.');
       startBackgroundEmbedder();
     }
   } catch (err) {
-    console.warn(`[RAG] LM Studio embedding API not available. Vector search disabled. Falling back to keyword search. Error: ${err.message}`);
+    console.warn('[RAG] Embedding API not available. Falling back to keyword search. Error: ' + err.message);
   }
 }
 
@@ -1128,7 +1175,7 @@ async function startBackgroundEmbedder() {
         }
         
         try {
-          const embedding = await fetchLMStudioEmbedding(msg.content);
+          const embedding = await fetchEmbedding(msg.content);
           saveMessageEmbedding(msg.id, embedding);
           await new Promise(resolve => setTimeout(resolve, 100));
         } catch (err) {
