@@ -20,7 +20,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "longbridge": "latest"
+    "longbridge": "latest",
+    "longbridge-linux-x64-gnu": "^0.2.77"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
