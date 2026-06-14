@@ -135,8 +135,11 @@ function initLayoutResizer() {
 }
 
 function setupEventListeners() {
-  // Sync button
-  document.getElementById('btn-sync').addEventListener('click', triggerSync);
+  // Sync & Report buttons
+  document.getElementById('btn-sync-realtime').addEventListener('click', triggerSyncRealtime);
+  document.getElementById('btn-sync-archive').addEventListener('click', triggerSyncArchive);
+  document.getElementById('btn-report-rolling').addEventListener('click', triggerReportRolling);
+  document.getElementById('btn-report-kline').addEventListener('click', triggerReportKline);
   
   // Settings modal open/close
   document.getElementById('btn-settings').addEventListener('click', openSettingsModal);
@@ -402,19 +405,18 @@ async function fetchQuantData() {
   }
 }
 
-async function triggerSync() {
-  const syncBtn = document.getElementById('btn-sync');
-  const syncBtnText = document.getElementById('sync-btn-text');
-  const syncIcon = document.getElementById('sync-icon');
+async function triggerSyncRealtime() {
+  const syncBtn = document.getElementById('btn-sync-realtime');
+  const syncBtnText = document.getElementById('sync-realtime-btn-text');
+  const syncIcon = document.getElementById('sync-realtime-icon');
   
-  // Set loading state
   syncBtn.disabled = true;
-  syncBtnText.innerText = '正在同步中...';
+  syncBtnText.innerText = '同步跟单中...';
   syncIcon.classList.add('spin-animation');
   
   try {
     const csrfToken = await ensureCsrfToken();
-    const response = await fetch('/api/sync', {
+    const response = await fetch('/api/sync/realtime', {
       method: 'POST',
       headers: {
         'X-CSRF-Token': csrfToken || '',
@@ -424,25 +426,134 @@ async function triggerSync() {
     const result = await response.json();
     
     if (result.success) {
-      // Refresh views
       await fetchConfig();
       await fetchMessages();
       await fetchReports();
-      await fetchQuantData(); // also refresh quant data
+      await fetchQuantData();
       
       const newMsgs = result.newSpeakerMessagesCount || 0;
-      showNotification(newMsgs > 0 ? `同步成功！发现 ${newMsgs} 条新发言并已触发自动跟单或生成 AI 研报。` : '同步成功，但未发现群主新发言。', 'success');
+      showNotification(newMsgs > 0 ? `同步成功！发现 ${newMsgs} 条新发言并已触发自动跟单或推送。` : '同步成功，但未发现实时新发言。', 'success');
     } else {
-      showNotification(`同步失败: ${result.reason}`, 'error');
+      showNotification(`实时同步失败: ${result.reason}`, 'error');
     }
   } catch (error) {
-    console.error('Sync error:', error);
-    showNotification('网络错误，无法触发同步任务。', 'error');
+    console.error('Realtime sync error:', error);
+    showNotification('网络错误，无法触发实时同步跟单。', 'error');
   } finally {
-    // Reset state
     syncBtn.disabled = false;
-    syncBtnText.innerText = '立即同步';
+    syncBtnText.innerText = '实时跟单同步';
     syncIcon.classList.remove('spin-animation');
+  }
+}
+
+async function triggerSyncArchive() {
+  const syncBtn = document.getElementById('btn-sync-archive');
+  const syncBtnText = document.getElementById('sync-archive-btn-text');
+  const syncIcon = document.getElementById('sync-archive-icon');
+  
+  if (!confirm('您确定要开始历史归档吗？这将回溯拉取大量历史数据，可能会消耗较长的时间。此操作只做数据录入和RAG向量化，绝不上单或推送通知。')) {
+    return;
+  }
+
+  syncBtn.disabled = true;
+  syncBtnText.innerText = '深度归档中...';
+  syncIcon.classList.add('spin-animation');
+  
+  try {
+    const csrfToken = await ensureCsrfToken();
+    const response = await fetch('/api/sync/archive', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      }
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      await fetchConfig();
+      await fetchMessages();
+      showNotification(`历史归档完成！成功抓取并导入了 ${result.newMessagesCount} 条历史消息归档，已启动后台向量化。`, 'success');
+    } else {
+      showNotification(`归档失败: ${result.reason}`, 'error');
+    }
+  } catch (error) {
+    console.error('Archive sync error:', error);
+    showNotification('网络错误，无法触发历史归档任务。', 'error');
+  } finally {
+    syncBtn.disabled = false;
+    syncBtnText.innerText = '历史数据归档';
+    syncIcon.classList.remove('spin-animation');
+  }
+}
+
+async function triggerReportRolling() {
+  const btn = document.getElementById('btn-report-rolling');
+  const originalText = btn.innerHTML;
+  
+  btn.disabled = true;
+  btn.innerHTML = '<span class="btn-icon spin-animation">🔄</span><span>分析中...</span>';
+  
+  try {
+    const csrfToken = await ensureCsrfToken();
+    const response = await fetch('/api/reports/global-rolling', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      }
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      await fetchReports();
+      if (result.updated) {
+        showNotification('全局滚动投资简报更新成功，已发布并推送企业微信！', 'success');
+      } else {
+        showNotification('简报已是最新状态，无新发言需合并。', 'info');
+      }
+    } else {
+      showNotification(`策略简报生成失败: ${result.reason}`, 'error');
+    }
+  } catch (error) {
+    console.error('Rolling report error:', error);
+    showNotification('网络错误，无法生成全局滚动简报。', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  }
+}
+
+async function triggerReportKline() {
+  const btn = document.getElementById('btn-report-kline');
+  const originalText = btn.innerHTML;
+  
+  btn.disabled = true;
+  btn.innerHTML = '<span class="btn-icon spin-animation">🔄</span><span>诊断中...</span>';
+  
+  try {
+    const csrfToken = await ensureCsrfToken();
+    const response = await fetch('/api/reports/kline-combined', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      }
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      await fetchReports();
+      showNotification('K线走势与大V策略融合诊断研报生成成功！已推送到企业微信！', 'success');
+    } else {
+      showNotification(`融合分析生成失败: ${result.reason}`, 'error');
+    }
+  } catch (error) {
+    console.error('Kline report error:', error);
+    showNotification('网络错误，无法生成K线走势融合研报。', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
   }
 }
 
