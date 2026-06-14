@@ -2,7 +2,7 @@
 import dotenv from 'dotenv';
 import http from 'http';
 import https from 'https';
-import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb } from './database.js';
+import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed } from './database.js';
 import { executeOrder, getUnifiedPortfolio } from './trading.js';
 
 dotenv.config();
@@ -921,64 +921,100 @@ export async function syncAndAnalyze({ backfill = false } = {}) {
       return { success: true, newMessagesCount: 0, newSpeakerMessagesCount: 0 };
     }
 
+    // Sort chronologically (oldest first) before saving to database to ensure physical order
+    allNormalizedMessages.sort((a, b) => a.created_at - b.created_at);
+
     // Save all synchronized messages to the database
     saveMessages(allNormalizedMessages);
 
-    // Filter messages from target speakers
-    const speakerMessages = allNormalizedMessages.filter((msg) =>
-      targetSpeakers.includes(msg.sender_id)
-    );
-
-    // Get the latest general report end time from the DB
+    // Query pending messages for target speakers from DB where either is_traded or is_pushed is 0
     const conn = getDb();
-    const lastReportRow = conn.prepare('SELECT end_time FROM reports WHERE strategy IS NULL ORDER BY created_at DESC LIMIT 1').get();
-    const lastReportEndTime = lastReportRow ? lastReportRow.end_time : 0;
+    const placeholders = targetSpeakers.map(() => '?').join(',');
+    const pendingMessages = conn.prepare(`
+      SELECT * FROM messages 
+      WHERE sender_id IN (${placeholders}) AND (is_traded = 0 OR is_pushed = 0)
+      ORDER BY created_at ASC
+    `).all(...targetSpeakers);
 
-    const newSpeakerMessages = speakerMessages.filter(
-      (msg) => msg.created_at > lastReportEndTime
-    );
-
-    if (newSpeakerMessages.length === 0) {
-      console.log('No NEW messages from target speakers since the last AI report.');
+    if (pendingMessages.length === 0) {
       return { success: true, newMessagesCount: totalNewMessagesCount, newSpeakerMessagesCount: 0 };
     }
 
-    const newestMessage = newSpeakerMessages[newSpeakerMessages.length - 1];
+    const now = Date.now();
+    const REALTIME_THRESHOLD_MS = 30 * 60 * 1000; // 30 minutes threshold for real-time messages
 
-    // Check memory lock to prevent triggering duplicate background AI report generation
-    if (lastProcessedMessageId === newestMessage.id) {
-      // Already triggered or currently processing the AI report for these messages
-      return { success: true, newMessagesCount: totalNewMessagesCount, newSpeakerMessagesCount: 0 };
+    const realTimePushMsgs = [];
+    const realTimeTradeMsgs = [];
+    const oldMsgsToMark = [];
+
+    for (const msg of pendingMessages) {
+      const isRealtime = (now - msg.created_at) < REALTIME_THRESHOLD_MS;
+      if (isRealtime) {
+        if (msg.is_pushed === 0) realTimePushMsgs.push(msg);
+        if (msg.is_traded === 0) realTimeTradeMsgs.push(msg);
+      } else {
+        oldMsgsToMark.push(msg);
+      }
     }
 
-    console.log(`Found ${newSpeakerMessages.length} new messages from target speakers. Running real-time copy-trading and pushing to WeChat.`);
-
-    // 1. Push raw target speaker messages to WeChat Work instantly
-    for (const msg of newSpeakerMessages) {
-      pushRawMessageToWeChat(msg).catch(err => console.error('[即时微信推送错误]:', err.message));
+    // 1. Instantly mark old historical messages as processed in DB to prevent backfill trigger risks
+    if (oldMsgsToMark.length > 0) {
+      console.log(`[同步防回溯] 发现 ${oldMsgsToMark.length} 条老旧历史发言。自动将其在数据库中标记为已处理，跳过微信推送与跟单信号提取。`);
+      const updateTraded = conn.prepare('UPDATE messages SET is_traded = 1 WHERE id = ?');
+      const updatePushed = conn.prepare('UPDATE messages SET is_pushed = 1 WHERE id = ?');
+      conn.transaction((msgs) => {
+        for (const m of msgs) {
+          updateTraded.run(m.id);
+          updatePushed.run(m.id);
+        }
+      })(oldMsgsToMark);
     }
 
-    // 2. Extract and execute trades instantly (awaited, fast, critical)
-    const provider = process.env.AI_PROVIDER || 'gemini';
-    const primarySpeakerName = newSpeakerMessages[0].sender_name;
+    // 2. Push real-time messages to WeChat Work
+    if (realTimePushMsgs.length > 0) {
+      console.log(`[实时通知] 发现 ${realTimePushMsgs.length} 条大V实时新发言，触发即时推送...`);
+      for (const msg of realTimePushMsgs) {
+        await pushRawMessageToWeChat(msg).catch(err => console.error('[即时微信推送错误]:', err.message));
+        markMessagePushed(msg.id, 1);
+      }
+    }
+
+    // 3. Extract and execute trades on real-time messages
     let tradeResults = null;
-    try {
-      tradeResults = await extractAndExecuteTrades(newSpeakerMessages, provider, primarySpeakerName);
-    } catch (tradeErr) {
-      console.error('Failed in extractAndExecuteTrades:', tradeErr);
+    if (realTimeTradeMsgs.length > 0) {
+      console.log(`[自动跟单] 发现 ${realTimeTradeMsgs.length} 条大V实时新发言，触发交易信号提取与执行...`);
+      const provider = process.env.AI_PROVIDER || 'gemini';
+      const primarySpeakerName = realTimeTradeMsgs[0].sender_name;
+      try {
+        tradeResults = await extractAndExecuteTrades(realTimeTradeMsgs, provider, primarySpeakerName);
+      } catch (tradeErr) {
+        console.error('Failed in extractAndExecuteTrades:', tradeErr);
+      }
+      
+      const updateTraded = conn.prepare('UPDATE messages SET is_traded = 1 WHERE id = ?');
+      conn.transaction((msgs) => {
+        for (const m of msgs) {
+          updateTraded.run(m.id);
+        }
+      })(realTimeTradeMsgs);
     }
 
-    // 3. Trigger heavy AI report generation asynchronously in the background
-    // We update the memory lock immediately
-    lastProcessedMessageId = newestMessage.id;
-    
-    generateAIReportBackground(newSpeakerMessages, provider, primarySpeakerName, channelIds, channelMappings)
-      .catch(err => console.error('[Background AI Report Error]:', err.message));
+    // 4. Trigger heavy AI report generation asynchronously in the background
+    if (realTimePushMsgs.length > 0) {
+      const newestMessage = realTimePushMsgs[realTimePushMsgs.length - 1];
+      if (lastProcessedMessageId !== newestMessage.id) {
+        lastProcessedMessageId = newestMessage.id;
+        const provider = process.env.AI_PROVIDER || 'gemini';
+        const primarySpeakerName = realTimePushMsgs[0].sender_name;
+        generateAIReportBackground(realTimePushMsgs, provider, primarySpeakerName, channelIds, channelMappings)
+          .catch(err => console.error('[Background AI Report Error]:', err.message));
+      }
+    }
 
     return {
       success: true,
       newMessagesCount: totalNewMessagesCount,
-      newSpeakerMessagesCount: newSpeakerMessages.length,
+      newSpeakerMessagesCount: realTimePushMsgs.length,
       tradeResults
     };
   } catch (error) {

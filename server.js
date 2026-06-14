@@ -465,6 +465,163 @@ function updateEnvFile(newConfig) {
   }
 }
 
+// ==========================================================================
+// Map-Reduce 分批合并处理大语言模型核心函数
+// ==========================================================================
+
+// Helper for Map-Reduce AI calling
+async function callAI(provider, prompt) {
+  if (provider === 'gemini') {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment.');
+    return await analyzeWithGemini(apiKey, prompt);
+  } else if (provider === 'ollama') {
+    const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+    const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
+    return await analyzeWithOllama(baseUrl, model, prompt);
+  } else if (provider === 'lm-studio') {
+    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
+    const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
+    return await analyzeWithLMStudio(baseUrl, model, prompt);
+  } else {
+    throw new Error(`Unsupported AI provider: ${provider}`);
+  }
+}
+
+// Generate the final reduce prompt based on whether it is from Map-Reduce or raw messages
+function getFinalReducePrompt(inputText, primarySpeakerName, isStrategyMode, extraParam, isFromMapReduce = false) {
+  const dataSourceDesc = isFromMapReduce 
+    ? `美股社区大V [${primarySpeakerName}] 的历史发言核心要点精炼汇总记录` 
+    : `美股社区大V [${primarySpeakerName}] 的历史发言原始归档记录`;
+
+  if (isStrategyMode) {
+    const strategyName = extraParam;
+    return `你是一位资深的美股量化与宏观投资策略分析师，精通美股交易规则、期权定价、以及各种实战战法。
+以下是${dataSourceDesc}。
+请对这些发言要点内容进行深度的系统整理、复盘与提炼，生成一份极其专业的“战法专项技术分析与实战总结报告”，以帮助订阅者深入学习大V的操作逻辑和风控思想。
+
+你必须生成一份极其详尽且结构化的 Markdown 总结，格式如下：
+
+# 📈 【${strategyName}】战法专项技术分析报告
+
+## 📌 一、战法核心逻辑与思路提炼
+- 详细提炼大V在该战法下的**核心操盘逻辑**是什么？大V在什么市场环境下倾向于使用此战法？
+- 大V操作思路是侧重防守（降本、锁利、避险）还是进攻？有哪些核心技术要点？
+
+## 🎯 二、具体执行细节与仓位管理
+深入解析发言中体现出的执行细节：
+- **买入与加仓时机**：如何寻找介入点？有什么明确的信号或技术支撑位判断？
+- **卖出与止损/止利**：何时出局？如何博弈波动率（IV）或日内急涨急跌？
+- **仓位配比与仓位分级**：该战法一般占用多少仓位？如何分批建仓与减仓？
+
+## 📊 三、涉及标的与操作盘口汇总
+整理发言中提及的重点个股，并制作一个 Markdown 表格，列出以下内容（如未提及则填“未明确说明”）：
+| 股票代码 | 交易方向 (买入/卖出/做T/防御/观望) | 点位与价格区间 | 仓位管理 (半仓/轻仓/底仓等) | 核心支撑/压力位与执行逻辑 |
+
+## 🛡️ 四、大V跟单风控金句与实战避坑指南
+- 提炼这批发言中关于【${strategyName}】最核心的**风控金句或原则**（用引用块 \`>\` 突出）。
+- 普通投资者在使用该战法或跟单时，最容易犯的错误是什么？应该如何进行心态建设和风控防线设计？
+
+以下是分析的数据源：
+${inputText}`;
+  } else {
+    const filterStr = extraParam;
+    return `你是一位资深的美股量化与宏观投资策略分析师，精通美股交易规则、期权定价、以及各种实战战法（如财报战法、做T、尾盘强平、节日被动减仓、单调减仓等）。
+以下是${dataSourceDesc}。
+请对这些发言要点内容进行深度的系统整理、复盘与提炼，生成一份极其专业的“维度复盘与策略学习总结报告”，以帮助订阅者深入学习大V的操作逻辑和风控思想。
+
+你必须生成一份极其详尽且结构化的 Markdown 总结，格式如下：
+
+# 📈 [${filterStr}] 维度复盘与策略总结报告
+
+## 📌 一、核心观点与交易思路提炼
+- 总结大V在这些发言中的**核心观点**是什么？他对这些个股或板块的看法经历了怎样的变化？
+- 在这个特定维度下，大V的操作是偏向防御性（如节日被动减仓、弹性股防御）还是进攻性（如财报战法、做T）？
+
+## 🎯 二、策略战法实战解析
+深入解析发言中体现出的实战战法（如果涉及）：
+- **财报战法**：如何控制仓位？如何博弈财报发布前后的预期差和隐波（IV）？
+- **做T/波段策略**：做T的节奏是什么？他是如何利用急涨急跌、日内低吸高抛来降本的？
+- **尾盘强平与资金博弈**：发言中是如何博弈尾盘强平时段（如3点到3点半）的低点和高点的？
+- **节日及资金面防守**：大V对于假前减仓、节日被动减仓等避险操作有哪些要求？
+- **单调减仓**：大V在判断单边下跌时，是如何进行单调减仓防守的？
+
+## 📊 三、标的物与执行细节汇总
+整理发言中提及的重点个股，并制作一个 Markdown 表格，列出以下内容（如未提及则填“未明确说明”）：
+| 股票代码 | 操作类型 (买入/卖出/做T/观望) | 点位与价格区间 | 仓位管理 (如半仓/轻仓) | 核心逻辑与技术支撑位 |
+
+## 🛡️ 四、学习要点与跟单风控指南（金句提炼）
+- 提炼这批发言中含金量最高、最适合反复学习和遵守的**风控金句或原则**（请用引用块 \`>\` 突出）。
+- 普通订阅者在面临类似行情或使用该战法时，应该如何做仓位和心理建设？
+
+以下是分析的数据源：
+${inputText}`;
+  }
+}
+
+// Master Map-Reduce analysis scheduler
+async function runMapReduceAnalysis(messages, provider, isStrategyMode, extraParam) {
+  const CHUNK_SIZE = 60; // Optimal batch size for 8k VRAM limit
+  
+  if (messages.length <= CHUNK_SIZE) {
+    console.log(`[AI Map-Reduce] 消息总数为 ${messages.length}，少于分批阈值 ${CHUNK_SIZE}，执行单次直连分析。`);
+    const messagesText = messages
+      .map((msg) => {
+        const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+        return `[${timeStr}] [${msg.channel_name || '讨论区'}] ${msg.sender_name}: ${msg.content}`;
+      })
+      .join('\n\n');
+      
+    const primarySpeakerName = messages[0].sender_name;
+    const prompt = getFinalReducePrompt(messagesText, primarySpeakerName, isStrategyMode, extraParam);
+    return await callAI(provider, prompt);
+  }
+
+  console.log(`[AI Map-Reduce] 消息总数为 ${messages.length}，超过阈值 ${CHUNK_SIZE}。将执行分批合并（Map-Reduce）处理。`);
+  const chunks = [];
+  for (let i = 0; i < messages.length; i += CHUNK_SIZE) {
+    chunks.push(messages.slice(i, i + CHUNK_SIZE));
+  }
+
+  const chunkSummaries = [];
+  const primarySpeakerName = messages[0].sender_name;
+
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i];
+    console.log(`[AI Map-Reduce] 正在进行 Map 阶段分析 (${i + 1}/${chunks.length})，处理 ${chunk.length} 条发言...`);
+    
+    const chunkText = chunk
+      .map((msg) => {
+        const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+        return `[${timeStr}] [${msg.channel_name || '讨论区'}] ${msg.sender_name}: ${msg.content}`;
+      })
+      .join('\n\n');
+
+    const mapPrompt = `你是一个专业的投资策略数据精炼助手。以下是一份美股大V [${primarySpeakerName}] 历史发言归档的一部分（批次：${i + 1}/${chunks.length}）。
+请从这批发言中提取出大V透露的所有核心观点、具体交易策略（如财报战法、做T操作相关）、关注个股的具体点位/区间与逻辑，以及关键的风控原则。
+要求：内容必须高度精炼，删去日常闲聊，只保留核心要点，格式使用简洁的 Markdown 列表。
+发言记录：
+${chunkText}`;
+
+    try {
+      const summary = await callAI(provider, mapPrompt);
+      chunkSummaries.push(`### 📅 批次数据回顾 (${i + 1}/${chunks.length})\n\n${summary}`);
+    } catch (err) {
+      console.error(`[AI Map-Reduce] 批次 ${i + 1} Map 分析失败:`, err.message);
+    }
+  }
+
+  if (chunkSummaries.length === 0) {
+    throw new Error('分批 Map 提炼全部失败，无法生成最终总结。');
+  }
+
+  console.log(`[AI Map-Reduce] 正在进行 Reduce 阶段整合，融合所有批次的摘要...`);
+  const aggregatedSummariesText = chunkSummaries.join('\n\n=======================\n\n');
+  
+  const finalPrompt = getFinalReducePrompt(aggregatedSummariesText, primarySpeakerName, isStrategyMode, extraParam, true);
+  return await callAI(provider, finalPrompt);
+}
+
 // 4. GET /api/config - Retrieve current config (secrets masked)
 app.get('/api/config', (req, res) => {
   const mask = (str) => {
@@ -621,8 +778,8 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
   }
 });
 
-// 7. POST /api/reports/dimensional-summary - Generate a customized AI report from filtered messages
-app.post('/api/reports/dimensional-summary', async (req, res) => {
+// 7. POST /api/reports/dimensional-summary - Generate a customized AI report from filtered messages (CSRF protected)
+app.post('/api/reports/dimensional-summary', requireCsrf, async (req, res) => {
   try {
     const { search, onlySpeakers, channelId, channelName, ticker, sector, strategy, startDate, endDate } = req.body;
     console.log('[API Reports] req.body:', req.body);
@@ -656,14 +813,6 @@ app.post('/api/reports/dimensional-summary', async (req, res) => {
     // Sort chronologically (oldest first)
     const messages = [...data.messages].sort((a, b) => a.created_at - b.created_at);
     
-    // Generate custom summary
-    const messagesText = messages
-      .map((msg) => {
-        const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-        return `[${timeStr}] [${msg.channel_name || '讨论区'}] ${msg.sender_name}: ${msg.content}`;
-      })
-      .join('\n\n');
-
     const primarySpeakerName = messages[0].sender_name;
     const filterDesc = [];
     if (sector) filterDesc.push(`板块:${sector}`);
@@ -672,59 +821,11 @@ app.post('/api/reports/dimensional-summary', async (req, res) => {
     if (startDate || endDate) filterDesc.push(`时间:${startDate || '起'}至${endDate || '至今'}`);
     const filterStr = filterDesc.length > 0 ? filterDesc.join(', ') : '全维度历史';
 
-    const aiPrompt = `你是一位资深的美股量化与宏观投资策略分析师，精通美股交易规则、期权定价、以及各种实战战法（如财报战法、做T、尾盘强平、节日被动减仓、单调减仓等）。
-以下是美股社区大V [${primarySpeakerName}] 在以下过滤维度 [${filterStr}] 下的一段历史发言记录。
-请对这些发言内容进行深度的系统整理、复盘与提炼，生成一份极其专业的“维度复盘与策略学习总结报告”，以帮助订阅者深入学习大V的操作逻辑和风控思想。
-
-你必须生成一份极其详尽且结构化的 Markdown 总结，格式如下：
-
-# 📈 [${filterStr}] 维度复盘与策略总结报告
-
-## 📌 一、核心观点与交易思路提炼
-- 总结大V在这些发言中的**核心观点**是什么？他对这些个股或板块的看法经历了怎样的变化？
-- 在这个特定维度下，大V的操作是偏向防御性（如节日被动减仓、弹性股防御）还是进攻性（如财报战法、做T）？
-
-## 🎯 二、策略战法实战解析
-深入解析发言中体现出的实战战法（如果涉及）：
-- **财报战法**：如何控制仓位？如何博弈财报发布前后的预期差和隐波（IV）？
-- **做T/波段策略**：做T的节奏是什么？他是如何利用急涨急跌、日内低吸高抛来降本的？
-- **尾盘强平与资金博弈**：发言中是如何博弈尾盘强平时段（如3点到3点半）的低点和高点的？
-- **节日及资金面防守**：大V对于假前减仓、节日被动减仓等避险操作有哪些要求？
-- **单调减仓**：大V在判断单边下跌时，是如何进行单调减仓防守的？
-
-## 📊 三、标的物与执行细节汇总
-整理发言中提及的重点个股，并制作一个 Markdown 表格，列出以下内容（如未提及则填“未明确说明”）：
-| 股票代码 | 操作类型 (买入/卖出/做T/观望) | 点位与价格区间 | 仓位管理 (如半仓/轻仓) | 核心逻辑与技术支撑位 |
-
-## 🛡️ 四、学习要点与跟单风控指南（金句提炼）
-- 提炼这批发言中含金量最高、最适合反复学习和遵守的**风控金句或原则**（请用引用块 \`>\` 突出）。
-- 普通订阅者在面临类似行情或使用该战法时，应该如何做仓位和心理建设？
-
-    发言记录如下（按时间先后顺序排列）：
-
-${messagesText}`;
-
     const provider = process.env.AI_PROVIDER || 'gemini';
-    let summaryContent = '';
     
-    console.log(`[AI 维度复盘] 开始调用 AI (${provider}) 生成维度总结报告...`);
+    console.log(`[AI 维度复盘] 开始调用 AI (${provider})，采用分批合并机制生成维度总结报告...`);
     const startTimeAI = Date.now();
-    if (provider === 'gemini') {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment.');
-      summaryContent = await analyzeWithGemini(apiKey, aiPrompt);
-    } else if (provider === 'ollama') {
-      const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-      const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
-      summaryContent = await analyzeWithOllama(baseUrl, model, aiPrompt);
-    } else if (provider === 'lm-studio') {
-      const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
-      const model = process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b';
-      summaryContent = await analyzeWithLMStudio(baseUrl, model, aiPrompt);
-    } else {
-      throw new Error(`Unsupported AI provider: ${provider}`);
-    }
-
+    const summaryContent = await runMapReduceAnalysis(messages, provider, false, filterStr);
     const durationAI = ((Date.now() - startTimeAI) / 1000).toFixed(1);
     console.log(`[AI 维度复盘] 维度总结报告生成成功！耗时: ${durationAI}秒。`);
 
@@ -811,8 +912,8 @@ app.get('/api/strategies', (req, res) => {
   }
 });
 
-// POST /api/strategies/analyze - 对指定战法触发 AI 研报深度分析
-app.post('/api/strategies/analyze', async (req, res) => {
+// POST /api/strategies/analyze - 对指定战法触发 AI 研报深度分析 (CSRF protected)
+app.post('/api/strategies/analyze', requireCsrf, async (req, res) => {
   try {
     const { strategy } = req.body;
     if (!strategy) {
@@ -839,67 +940,11 @@ app.post('/api/strategies/analyze', async (req, res) => {
     // 按时间先后顺序排列 (最早的消息排在最前面)
     const messages = [...data.messages].sort((a, b) => a.created_at - b.created_at);
     
-    // 生成格式化的文本
-    const messagesText = messages
-      .map((msg) => {
-        const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-        return `[${timeStr}] [${msg.channel_name || '讨论区'}] ${msg.sender_name}: ${msg.content}`;
-      })
-      .join('\n\n');
-
-    const primarySpeakerName = messages[0].sender_name;
-
-    const aiPrompt = `你是一位资深的美股量化与宏观投资策略分析师，精通美股交易规则、期权定价、以及各种实战战法。
-以下是美股社区大V [${primarySpeakerName}] 针对战法策略【${strategy}】的历史发言归档。
-请对这些发言内容进行深度的系统整理、复盘与提炼，生成一份极其专业的“战法专项技术分析与实战总结报告”，以帮助订阅者深入学习大V的操作逻辑和风控思想。
-
-你必须生成一份极其详尽且结构化的 Markdown 总结，格式如下：
-
-# 📈 【${strategy}】战法专项技术分析报告
-
-## 📌 一、战法核心逻辑与思路提炼
-- 详细提炼大V在该战法下的**核心操盘逻辑**是什么？大V在什么市场环境下倾向于使用此战法？
-- 大V的操作思路是侧重防守（降本、锁利、避险）还是进攻？有哪些核心技术要点？
-
-## 🎯 二、具体执行细节与仓位管理
-深入解析发言中体现出的执行细节：
-- **买入与加仓时机**：如何寻找介入点？有什么明确的信号或技术支撑位判断？
-- **卖出与止损/止利**：何时出局？如何博弈波动率（IV）或日内急涨急跌？
-- **仓位配比与仓位分级**：该战法一般占用多少仓位？如何分批建仓与减仓？
-
-## 📊 三、涉及标的与操作盘口汇总
-整理发言中提及的重点个股，并制作一个 Markdown 表格，列出以下内容（如未提及则填“未明确说明”）：
-| 股票代码 | 交易方向 (买入/卖出/做T/防御/观望) | 点位与价格区间 | 仓位管理 (半仓/轻仓/底仓等) | 核心支撑/压力位与执行逻辑 |
-
-## 🛡️ 四、大V跟单风控金句与实战避坑指南
-- 提炼这批发言中关于【${strategy}】最核心的**风控金句或原则**（用引用块 \`>\` 突出）。
-- 普通投资者在使用该战法或跟单时，最容易犯的错误是什么？应该如何进行心态建设和风控防线设计？
-
-发言记录如下（按时间先后顺序排列）：
-
-${messagesText}`;
-
     const provider = process.env.AI_PROVIDER || 'gemini';
-    let summaryContent = '';
     
-    console.log(`[AI 战法分析] 开始调用 AI (${provider}) 生成【${strategy}】专项研报...`);
+    console.log(`[AI 战法分析] 开始调用 AI (${provider})，采用分批合并机制生成【${strategy}】专项研报...`);
     const startTimeAI = Date.now();
-    if (provider === 'gemini') {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment.');
-      summaryContent = await analyzeWithGemini(apiKey, aiPrompt);
-    } else if (provider === 'ollama') {
-      const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-      const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
-      summaryContent = await analyzeWithOllama(baseUrl, model, aiPrompt);
-    } else if (provider === 'lm-studio') {
-      const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
-      const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
-      summaryContent = await analyzeWithLMStudio(baseUrl, model, aiPrompt);
-    } else {
-      throw new Error(`Unsupported AI provider: ${provider}`);
-    }
-
+    const summaryContent = await runMapReduceAnalysis(messages, provider, true, strategy);
     const durationAI = ((Date.now() - startTimeAI) / 1000).toFixed(1);
     console.log(`[AI 战法分析] 【${strategy}】专项研报生成成功！耗时: ${durationAI}秒。`);
 
@@ -1055,8 +1100,8 @@ function testLMStudioVectorSize() {
   return 384;
 }
 
-// POST /api/rag/query - Ask natural language questions grounded on historical whop chats
-app.post('/api/rag/query', async (req, res) => {
+// POST /api/rag/query - Ask natural language questions grounded on historical whop chats (CSRF protected)
+app.post('/api/rag/query', requireCsrf, async (req, res) => {
   try {
     const { question } = req.body;
     if (!question || question.trim() === '') {

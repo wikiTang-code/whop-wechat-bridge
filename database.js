@@ -62,6 +62,25 @@ export function initDb() {
     }
   }
 
+  // Migration: Add is_traded and is_pushed columns if they don't exist
+  try {
+    db.prepare("ALTER TABLE messages ADD COLUMN is_traded INTEGER DEFAULT 0").run();
+    console.log("Migration: Added is_traded column to messages table.");
+  } catch (err) {
+    if (!err.message.includes('duplicate column name')) {
+      console.warn("Migration warning for is_traded:", err.message);
+    }
+  }
+
+  try {
+    db.prepare("ALTER TABLE messages ADD COLUMN is_pushed INTEGER DEFAULT 0").run();
+    console.log("Migration: Added is_pushed column to messages table.");
+  } catch (err) {
+    if (!err.message.includes('duplicate column name')) {
+      console.warn("Migration warning for is_pushed:", err.message);
+    }
+  }
+
   // Create indices on search columns
   try {
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at DESC)`).run();
@@ -850,5 +869,17 @@ export function getMessageContext({ messageId, limit = 10 }) {
     messages: combined,
     targetId: messageId
   };
+}
+
+// Update message is_traded status
+export function markMessageTraded(id, status = 1) {
+  const conn = getDb();
+  conn.prepare('UPDATE messages SET is_traded = ? WHERE id = ?').run(status, id);
+}
+
+// Update message is_pushed status
+export function markMessagePushed(id, status = 1) {
+  const conn = getDb();
+  conn.prepare('UPDATE messages SET is_pushed = ? WHERE id = ?').run(status, id);
 }
 
