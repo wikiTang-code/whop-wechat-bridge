@@ -19,17 +19,10 @@ let state = {
 async function ensureCsrfToken() {
   if (state.csrfToken) return state.csrfToken;
   try {
-    const csrfToken = await ensureCsrfToken();
-    const response = await fetch('/api/rag/query', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfToken || '',
-        'X-Session-Id': state.sessionId
-      },
-      body: JSON.stringify({ question })
+    const response = await fetch('/api/csrf-token', {
+      headers: { 'X-Session-Id': state.sessionId }
     });
-    const data = await res.json();
+    const data = await response.json();
     if (data.success) {
       state.csrfToken = data.csrfToken;
       return state.csrfToken;
@@ -441,7 +434,7 @@ async function triggerSyncRealtime() {
       const newMsgs = result.newSpeakerMessagesCount || 0;
       showNotification(newMsgs > 0 ? `同步成功！发现 ${newMsgs} 条新发言并已触发自动跟单或推送。` : '同步成功，但未发现实时新发言。', 'success');
     } else {
-      showNotification(`实时同步失败: ${result.reason}`, 'error');
+      showNotification(`实时同步失败: ${result.reason || result.error || '未知错误'}`, 'error');
     }
   } catch (error) {
     console.error('Realtime sync error:', error);
@@ -482,7 +475,7 @@ async function triggerSyncArchive() {
       await fetchMessages();
       showNotification(`历史归档完成！成功抓取并导入了 ${result.newMessagesCount} 条历史消息归档，已启动后台向量化。`, 'success');
     } else {
-      showNotification(`归档失败: ${result.reason}`, 'error');
+      showNotification(`归档失败: ${result.reason || result.error || '未知错误'}`, 'error');
     }
   } catch (error) {
     console.error('Archive sync error:', error);
@@ -520,7 +513,7 @@ async function triggerReportRolling() {
         showNotification('简报已是最新状态，无新发言需合并。', 'info');
       }
     } else {
-      showNotification(`策略简报生成失败: ${result.reason}`, 'error');
+      showNotification(`策略简报生成失败: ${result.reason || result.error || '未知错误'}`, 'error');
     }
   } catch (error) {
     console.error('Rolling report error:', error);
@@ -553,7 +546,7 @@ async function triggerReportKline() {
       await fetchReports();
       showNotification('K线走势与大V策略融合诊断研报生成成功！已推送到企业微信！', 'success');
     } else {
-      showNotification(`融合分析生成失败: ${result.reason}`, 'error');
+      showNotification(`融合分析生成失败: ${result.reason || result.error || '未知错误'}`, 'error');
     }
   } catch (error) {
     console.error('Kline report error:', error);
@@ -676,7 +669,7 @@ async function handleManualTrade(e) {
       // Refresh trading data
       fetchQuantData();
     } else {
-      showNotification(`下单失败: ${result.reason}`, 'error');
+      showNotification(`下单失败: ${result.reason || result.error || '未知错误'}`, 'error');
       fetchQuantData(); // refresh to show rejected log
     }
   } catch (error) {
@@ -705,6 +698,8 @@ async function handleResetPortfolio() {
     if (result.success) {
       showNotification(result.message, 'success');
       fetchQuantData();
+    } else {
+      showNotification(`账户重置失败: ${result.reason || result.error || '未知错误'}`, 'error');
     }
   } catch (error) {
     showNotification('账户重置请求失败。', 'error');
@@ -1233,7 +1228,7 @@ async function triggerAIReview() {
         created_at: result.created_at
       });
     } else {
-      showNotification(`复盘总结生成失败: ${result.error}`, 'error');
+      showNotification(`复盘总结生成失败: ${result.reason || result.error || '未知错误'}`, 'error');
     }
   } catch (error) {
     console.error('Error generating AI review:', error);
@@ -1299,7 +1294,7 @@ async function handleRagSubmit(e) {
         citationCountBadge.innerText = `${result.citations.length} 引用`;
       }
     } else {
-      appendRagMessage('assistant', `<p style="color: var(--accent-red);">提问发生错误: ${result.error || '未知错误'}</p>`);
+      appendRagMessage('assistant', `<p style="color: var(--accent-red);">提问发生错误: ${result.error || result.reason || '未知错误'}</p>`);
     }
   } catch (err) {
     if (loadingMsg) loadingMsg.remove();
@@ -1730,7 +1725,7 @@ window.updateStrategyAnalysis = async function(btn, strategyKey) {
         created_at: result.created_at
       });
     } else {
-      showNotification(`更新失败: ${result.error}`, 'error');
+      showNotification(`更新失败: ${result.error || result.reason || '未知错误'}`, 'error');
     }
   } catch (error) {
     console.error('Error updating strategy analysis:', error);
