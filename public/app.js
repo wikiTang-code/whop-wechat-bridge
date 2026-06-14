@@ -19,8 +19,15 @@ let state = {
 async function ensureCsrfToken() {
   if (state.csrfToken) return state.csrfToken;
   try {
-    const res = await fetch('/api/csrf-token', {
-      headers: { 'X-Session-Id': state.sessionId }
+    const csrfToken = await ensureCsrfToken();
+    const response = await fetch('/api/rag/query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      },
+      body: JSON.stringify({ question })
     });
     const data = await res.json();
     if (data.success) {
@@ -1200,9 +1207,14 @@ async function triggerAIReview() {
   };
   
   try {
+    const csrfToken = await ensureCsrfToken();
     const response = await fetch('/api/reports/dimensional-summary', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      },
       body: JSON.stringify(payload)
     });
     
@@ -1257,9 +1269,14 @@ async function handleRagSubmit(e) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
   
   try {
+    const csrfToken = await ensureCsrfToken();
     const response = await fetch('/api/rag/query', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      },
       body: JSON.stringify({ question })
     });
     
@@ -1687,9 +1704,14 @@ window.updateStrategyAnalysis = async function(btn, strategyKey) {
   showNotification(`AI 正在深度分析【${strategyKey}】相关的历史发言并更新专项文档，这可能需要数十秒，请稍候...`, 'success');
 
   try {
+    const csrfToken = await ensureCsrfToken();
     const response = await fetch('/api/strategies/analyze', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      },
       body: JSON.stringify({ strategy: strategyKey })
     });
     
