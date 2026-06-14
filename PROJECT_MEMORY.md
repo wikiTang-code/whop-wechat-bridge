@@ -52,5 +52,10 @@ To avoid spamming requests and rate limits during US stock quiet hours, `server.
   4. **Multi-Channel Alerts:** Pushes summaries, trade execution fills, and risk rejection warnings to WeChat Work webhook.
   5. **Premium Web Dashboard:** Seamless dark glassmorphic control center for real-time monitoring and parameter modifications.
 - **Future Enhancements:**
-  1. **uSMART API Integration:** Obtain SDK zip/HMAC signing credentials from the user to support uSMART execution.
-  2. **Quantitative Backtesting (Python Integration):** Build a Python FastAPI helper service (using `Backtrader` or `vectorbt`) to audit strategies on historical chats archived in `whop_archive.db`.
+  1. **uSMART API Integration**: Obtain SDK zip/HMAC signing credentials from the user to support uSMART execution.
+  2. **Quantitative Backtesting (Python Integration)**: Build a Python FastAPI helper service (using `Backtrader` or `vectorbt`) to audit strategies on historical chats archived in `whop_archive.db`.
+
+---
+
+## 6. 开发协作与提效规则
+- **本地大模型并行分流**：在项目的开发、调试与策略研究过程中，若遇到耗时或数据量庞大的非实时任务（如大段代码的重构思路设计、历史数据分析、量化算法方案探索等），AI 助手应主动且优先将这些任务丢给本地运行的 LM Studio/Ollama 模型并行运行。这能充分榨干本地 AMD 7900 XT 的免代币（Zero-cost）硬件算力，大幅节省云端 API Token，同时提升 Pair Programming 的协同研发效率。
