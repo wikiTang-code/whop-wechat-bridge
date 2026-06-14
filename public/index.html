@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whop AI 美股投资跟单助手</title>
+  <link rel="stylesheet" href="app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
+</head>
+<body>
+  
+  <!-- Main Glass container -->
+  <div class="app-container">
+    
+    <!-- Top Navigation Header -->
+    <header class="main-header">
+      <div class="logo-area">
+        <span class="logo-emoji">🤖</span>
+        <div>
+          <h1>Whop AI Analyst</h1>
+          <p class="subtitle">美股跟单与投资策略助手</p>
+        </div>
+      </div>
+      
+      <!-- Status Badges -->
+      <div class="header-status">
+        <div class="status-card">
+          <span class="status-dot green animate-pulse"></span>
+          <div class="status-info">
+            <span class="label">系统状态</span>
+            <span class="value" id="status-text">监控中</span>
+          </div>
+        </div>
+        <div class="status-card">
+          <span class="status-icon">📅</span>
+          <div class="status-info">
+            <span class="label">上次同步</span>
+            <span class="value" id="last-sync-time">尚未同步</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <button id="btn-sync" class="btn btn-primary btn-glow">
+          <span class="btn-icon" id="sync-icon">🔄</span>
+          <span id="sync-btn-text">立即同步</span>
+        </button>
+        <button id="btn-settings" class="btn btn-secondary">
+          <span class="btn-icon">⚙️</span>
+          <span>系统设置</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Tabs Navigation Bar -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="tab-analyst">🔍 智能分析与消息监控</button>
+      <button class="tab-btn" data-tab="tab-strategies">🎨 战法策略看板</button>
+      <button class="tab-btn" data-tab="tab-trading">💰 实时量化跟单看板</button>
+      <button class="tab-btn" data-tab="tab-rag">💬 AI 问答 / 知识库</button>
+    </div>
+
+    <!-- Dashboard Content Area -->
+    <main class="main-content">
+      
+      <!-- Tab 1: Analyst & Messages Monitor -->
+      <div id="tab-analyst" class="tab-content active dashboard-grid">
+        <!-- Left Column: AI Reports Panel -->
+        <section class="panel-section col-reports">
+          <div class="panel-header">
+            <h2>📊 AI 研报归档</h2>
+            <span class="badge" id="report-count">0 篇</span>
+          </div>
+          
+          <div class="reports-container" id="reports-list">
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <p>正在加载 AI 报告...</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Layout Splitter -->
+        <div class="layout-splitter" id="analyst-splitter"></div>
+
+        <!-- Right Column: Raw Messages Feed -->
+        <section class="panel-section col-messages">
+          <div class="panel-header">
+            <h2>💬 发言历史</h2>
+          </div>
+          
+          <div class="messages-filter-bar">
+            <div class="header-filters">
+              <label class="toggle-container">
+                <input type="checkbox" id="chk-only-speakers" checked>
+                <span class="toggle-label">只看大V</span>
+              </label>
+              <select id="filter-sector" class="filter-select">
+                <option value="">全部板块</option>
+                <option value="科技/AI芯片">科技/AI芯片</option>
+                <option value="新能源汽车">新能源汽车</option>
+                <option value="巨头/科技龙头">巨头/科技龙头</option>
+                <option value="加密货币/区块链">加密货币/区块链</option>
+                <option value="中概股">中概股</option>
+                <option value="大盘/债汇/指数">大盘/债汇/指数</option>
+                <option value="光通信/其他">光通信/其他</option>
+                <option value="其他个股">其他个股</option>
+              </select>
+              <select id="filter-strategy" class="filter-select">
+                <option value="">全部策略</option>
+                <option value="财报战法">财报战法</option>
+                <option value="节日被动减">节日被动减</option>
+                <option value="单调减">单调减</option>
+                <option value="尾盘强平">尾盘强平</option>
+                <option value="做T">做T</option>
+                <option value="弹性股防御">弹性股防御</option>
+                <option value="规律总结">规律总结</option>
+              </select>
+              <div class="date-filter-group">
+                <input type="date" id="filter-start-date" class="filter-date-input" title="开始日期">
+                <span class="date-separator">至</span>
+                <input type="date" id="filter-end-date" class="filter-date-input" title="结束日期">
+              </div>
+              <button id="btn-ai-review" class="btn btn-primary btn-glow btn-compact" title="生成当前维度的历史消息分析总结">
+                <span class="btn-icon">🤖</span>
+                <span>AI 维度复盘</span>
+              </button>
+              <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" placeholder="搜索代码或关键字..." autocomplete="off">
+                <button id="btn-clear-search" class="clear-search-btn" style="display: none;">✕</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="messages-container" id="messages-list">
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <p>正在加载发言历史...</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab 1.5: Strategy Kanban -->
+      <div id="tab-strategies" class="tab-content strategies-dashboard-container" style="display: none;">
+        <div class="strategies-header">
+          <div class="header-info">
+            <h2>🎨 战法策略看板 (Strategy Analytics)</h2>
+            <p class="subtitle">针对大V发言中涉及的 7 大核心交易战法进行系统统计、复盘与 AI 专项研报文档更新</p>
+          </div>
+          <div class="strategies-stats-bar">
+            <div class="stat-item">
+              <span class="label">监控战法总数</span>
+              <span class="value">7 个</span>
+            </div>
+            <div class="stat-item">
+              <span class="label">已生成研报</span>
+              <span class="value" id="generated-strategies-count">0 / 7</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="strategies-grid" id="strategies-card-grid">
+          <div class="loading-state full-width">
+            <div class="spinner"></div>
+            <p>正在拉取战法策略数据...</p>
+          </div>
+        </div>
+      </div>
+      <div id="tab-trading" class="tab-content dashboard-grid" style="display: none;">
+        <!-- Left Column: Portfolio & Active Positions -->
+        <section class="panel-section col-portfolio">
+          <div class="panel-header">
+            <h2>💼 账户持仓与资产</h2>
+            <div class="trading-mode-indicator" id="trade-mode-badge">
+              沙盒模拟模式
+            </div>
+          </div>
+          
+          <div class="portfolio-container">
+            <!-- Asset Cards -->
+            <div class="asset-grid">
+              <div class="asset-mini-card">
+                <span class="label">账户净值 (Equity)</span>
+                <span class="value number" id="equity-value">$0.00</span>
+              </div>
+              <div class="asset-mini-card">
+                <span class="label">可用现金 (Cash)</span>
+                <span class="value number" id="cash-value">$0.00</span>
+              </div>
+              <div class="asset-mini-card">
+                <span class="label">持仓市值 (Market Value)</span>
+                <span class="value number" id="positions-value">$0.00</span>
+              </div>
+              <div class="asset-mini-card">
+                <span class="label">未实现损益 (Unrealized PnL)</span>
+                <span class="value number" id="pnl-value">$0.00</span>
+              </div>
+            </div>
+
+            <!-- Positions Table -->
+            <div class="positions-table-wrapper">
+              <h3>📈 当前持仓明细</h3>
+              <table class="quant-table" id="positions-table">
+                <thead>
+                  <tr>
+                    <th>股票代码</th>
+                    <th>持股数量</th>
+                    <th>平均买入价</th>
+                    <th>最新价</th>
+                    <th>持仓市值</th>
+                    <th>未实现盈亏</th>
+                  </tr>
+                </thead>
+                <tbody id="positions-table-body">
+                  <tr>
+                    <td colspan="6" class="table-empty">暂无持仓</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Column: Order Log & Trade Executor -->
+        <section class="panel-section col-orders">
+          <div class="panel-header">
+            <h2>⚡ 自动跟单交易日志</h2>
+            <button id="btn-reset-portfolio" class="btn btn-secondary btn-small">
+              <span>🧹 重置模拟账户</span>
+            </button>
+          </div>
+          
+          <div class="orders-container">
+            <!-- Mock Trade Tester -->
+            <div class="manual-trade-card">
+              <h3>🧪 手动下单测试面版 (触发风控重算)</h3>
+              <form id="manual-trade-form" class="trade-inline-form">
+                <div class="form-row-compact">
+                  <input type="text" id="trade_ticker" placeholder="代码: TSLA" required>
+                  <select id="trade_action">
+                    <option value="BUY">买入 (BUY)</option>
+                    <option value="SELL">卖出 (SELL)</option>
+                  </select>
+                  <input type="number" id="trade_price" step="0.01" placeholder="价格: $200.0" required>
+                  <input type="number" id="trade_qty" min="1" placeholder="股数" required>
+                  <input type="number" id="trade_sl" step="0.01" placeholder="止损价 (选填)">
+                  <button type="submit" class="btn btn-primary btn-compact">下单</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="orders-table-wrapper">
+              <table class="quant-table" id="orders-table">
+                <thead>
+                  <tr>
+                    <th>时间</th>
+                    <th>股票</th>
+                    <th>动作</th>
+                    <th>价格</th>
+                    <th>股数</th>
+                    <th>状态</th>
+                    <th>成交/拦截原因</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-table-body">
+                  <tr>
+                    <td colspan="7" class="table-empty">暂无跟单订单记录</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab 3: AI RAG Q&A / Knowledge Base -->
+      <div id="tab-rag" class="tab-content dashboard-grid" style="display: none;">
+        <!-- Left Column: Search & Q&A Box -->
+        <section class="panel-section col-rag-chat">
+          <div class="panel-header">
+            <h2>🤖 AI 知识库智能问答</h2>
+            <div class="header-status">
+              <div class="status-card compact">
+                <span class="status-dot green animate-pulse"></span>
+                <div class="status-info">
+                  <span class="label" id="rag-retrieval-mode-label">检索模式: 混合检索模式</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="rag-chat-wrapper">
+            <div class="rag-chat-messages" id="rag-chat-messages">
+              <div class="rag-message system">
+                <div class="rag-bubble">
+                  <p>👋 您好！我是基于所有 Whop 历史发言建立的 AI 知识库助手。</p>
+                  <p>您可以输入自然语言问题，我将通过<strong>混合检索（本地 LM Studio 向量嵌入 + 关键字索引）</strong>为您寻找大V相关的历史发言记录，并整合解答您的疑问。</p>
+                  <p>您可以用中文直接提问，例如：</p>
+                  <ul>
+                    <li>💡 <em>“赵哥对于 TSLA 的操作点位和看法是什么？”</em></li>
+                    <li>💡 <em>“财报战法具体在什么时候减仓或强平？”</em></li>
+                    <li>💡 <em>“底仓做T的策略是什么？”</em></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="rag-chat-input-area">
+              <form id="rag-chat-form" class="rag-chat-form">
+                <input type="text" id="rag-chat-input" placeholder="向 AI 知识库提问有关投资策略或历史发言..." autocomplete="off" required>
+                <button type="submit" class="btn btn-primary btn-glow" id="btn-rag-submit">
+                  <span class="btn-icon">⚡</span>
+                  <span>提问</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Column: Citations / Grounded Sources -->
+        <section class="panel-section col-rag-citations">
+          <div class="panel-header">
+            <h2>📚 引用历史消息来源 (Citations)</h2>
+            <span class="badge" id="citation-count-badge">0 引用</span>
+          </div>
+          <div class="citations-container" id="rag-citations-list">
+            <div class="citations-empty-state">
+              <div class="citations-placeholder-icon">📖</div>
+              <p>向知识库提问后，回答中引用的原始发言片段将在此侧边栏同步加载和定位。</p>
+            </div>
+          </div>
+        </section>
+      </div>
+      
+    </main>
+  </div>
+
+  <!-- Settings Modal (Glassmorphic Overlay) -->
+  <div class="modal-overlay" id="settings-modal" style="display: none;">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>⚙️ 系统运行配置</h3>
+        <button class="modal-close" id="btn-close-settings">✕</button>
+      </div>
+      <form id="settings-form" class="modal-body">
+        
+        <!-- Whop Section -->
+        <div class="form-section">
+          <h4>🔑 Whop 账户连接</h4>
+          <div class="form-group">
+            <label for="whop_user_token">个人 User Token (Authorization Bearer)</label>
+            <input type="password" id="whop_user_token" placeholder="已保存加密 Token (输入新 Token 以更新)">
+            <p class="help-text">在浏览器中登录 Whop 后，从开发者工具 (F12) 的 Network 标头中提取的 Bearer 令牌。</p>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="whop_chat_channel_id">监控的聊天频道 ID (英文逗号分隔)</label>
+              <input type="text" id="whop_chat_channel_id" placeholder="例如: chat_feed_1CTr5VAdNHtbZAFaTitvoT,chat_feed_xxxxx" required>
+            </div>
+            <div class="form-group">
+              <label for="whop_signal_channel_ids">官方喊单频道 ID (严格跟单用，逗号分隔)</label>
+              <input type="text" id="whop_signal_channel_ids" placeholder="例如: chat_feed_1CTrCEx44dP13jW3RVkYiS,chat_feed_1CWLuNUVYVVYttro8gAvJ5" required>
+            </div>
+            <div class="form-group">
+              <label for="target_speaker_user_ids">监控的群主 User ID (英文逗号分隔)</label>
+              <input type="text" id="target_speaker_user_ids" placeholder="例如: user_xxxxxxxx,user_yyyy" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Configuration -->
+        <div class="form-section">
+          <h4>🤖 AI 分析引擎</h4>
+          <div class="form-group">
+            <label for="ai_provider">AI 服务提供商</label>
+            <select id="ai_provider">
+              <option value="gemini">Google Gemini API (推荐 - 速度极快)</option>
+              <option value="ollama">Ollama (本地运行大模型 - 免费备份)</option>
+              <option value="lm-studio">LM Studio (本地运行大模型 - OpenAI 协议)</option>
+            </select>
+          </div>
+          
+          <!-- Gemini fields -->
+          <div id="gemini-fields" class="form-group">
+            <label for="gemini_api_key">Gemini API Key</label>
+            <input type="password" id="gemini_api_key" placeholder="已保存 API 密钥 (输入新 Key 以更新)">
+          </div>
+
+          <!-- Ollama fields -->
+          <div id="ollama-fields" class="form-row" style="display: none;">
+            <div class="form-group">
+              <label for="ollama_base_url">Ollama 接口地址</label>
+              <input type="text" id="ollama_base_url" placeholder="http://localhost:11434">
+            </div>
+            <div class="form-group">
+              <label for="ollama_model">Ollama 模型名称</label>
+              <input type="text" id="ollama_model" placeholder="例如: deepseek-r1">
+            </div>
+          </div>
+
+          <!-- LM Studio fields -->
+          <div id="lm-studio-fields" class="form-row" style="display: none;">
+            <div class="form-group">
+              <label for="lm_studio_base_url">LM Studio 接口地址</label>
+              <input type="text" id="lm_studio_base_url" placeholder="http://localhost:1234">
+            </div>
+            <div class="form-group">
+              <label for="lm_studio_model">LM Studio 模型名称</label>
+              <input type="text" id="lm_studio_model" placeholder="例如: qwen3.5-35b-a3b">
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk Control Configuration -->
+        <div class="form-section">
+          <h4>🛡️ 量化跟单与仓位风控</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mock_trading_mode">跟单交易模式</label>
+              <select id="mock_trading_mode">
+                <option value="true">沙盒模拟跟单 (Paper Trading)</option>
+                <option value="false">实盘自动跟单 (绑定长桥/盈立 API)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="auto_trading_level">跟单限制级别</label>
+              <select id="auto_trading_level">
+                <option value="strict">严格跟单：仅限官方喊单频道</option>
+                <option value="relaxed">宽松跟单：包含所有群聊讨论区</option>
+                <option value="none">仅报不跟：关闭自动交易，仅做分析</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="use_dynamic_sizing">启用动态仓位计算</label>
+              <select id="use_dynamic_sizing">
+                <option value="true">开启 (按总资产百分比折算股数)</option>
+                <option value="false">关闭 (使用默认 100 股)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="default_position_pct">默认单笔目标仓位比例 (占总资产 %)</label>
+              <input type="number" id="default_position_pct" step="0.01" min="0.01" max="0.50" placeholder="例如: 0.10 代表 10%" required>
+            </div>
+            <div class="form-group">
+              <label for="auto_substitute_leveraged_etfs">短线自动杠杆代用 (策略)</label>
+              <select id="auto_substitute_leveraged_etfs">
+                <option value="false">不自动代用 (仅在报告中建议)</option>
+                <option value="true">自动代用 (NVDA->NVDL, TSLA->TSLL等)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex: 2;">
+              <label for="leveraged_etf_mapping">2 倍做多 ETF 代用映射关系 (格式: 正股:杠杆股，英文逗号分隔)</label>
+              <input type="text" id="leveraged_etf_mapping" placeholder="例如: NVDA:NVDL,TSLA:TSLL,LITE:LITX" required>
+              <p class="help-text">用于跟单代用。当大V在短线策略中喊单正股时，可用对应的 2 倍做多 ETF 替代交易。</p>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="risk_per_trade_pct">单笔最大预计亏损控制 (账户 %)</label>
+              <input type="number" id="risk_per_trade_pct" step="0.001" min="0.001" max="0.10" required>
+            </div>
+            <div class="form-group">
+              <label for="max_concentration_pct">单股最大集中度 (占总资产 %)</label>
+              <input type="number" id="max_concentration_pct" step="0.01" min="0.01" max="0.50" required>
+            </div>
+            <div class="form-group">
+              <label for="cash_buffer_pct">现金缓冲线 (账户保留现金额 %)</label>
+              <input type="number" id="cash_buffer_pct" step="0.01" min="0.00" max="0.50" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pushing & Scheduling -->
+        <div class="form-section">
+          <h4>📢 推送与轮询设置</h4>
+          <div class="form-group">
+            <label for="wechat_work_webhook_url">企业微信群机器人 Webhook URL</label>
+            <input type="password" id="wechat_work_webhook_url" placeholder="已保存 Webhook 地址 (输入新地址以更新)">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="monitor_interval_minutes">后台自动拉取间隔 (分钟)</label>
+              <input type="number" id="monitor_interval_minutes" min="1" max="1440" required>
+            </div>
+            <div class="form-group">
+              <label for="whop_webhook_secret">Whop Webhook 签名密钥 (面向卖家推送，选填)</label>
+              <input type="password" id="whop_webhook_secret" placeholder="已保存签名密钥 (输入新 Secret 以更新)">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <div id="settings-status-msg" class="status-msg"></div>
+          <button type="button" class="btn btn-secondary" id="btn-cancel-settings">取消</button>
+          <button type="submit" class="btn btn-primary">保存配置</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Report Detail Modal -->
+  <div class="modal-overlay" id="report-modal" style="display: none;">
+    <div class="modal-container report-modal-container">
+      <div class="modal-header">
+        <h3 id="report-modal-title">🤖 AI 投资策略分析报告</h3>
+        <button class="modal-close" id="btn-close-report">✕</button>
+      </div>
+      <div class="modal-body report-modal-body" id="report-modal-content">
+        <!-- Rendered markdown goes here -->
+      </div>
+      <div class="modal-footer">
+        <div class="report-meta-info" id="report-modal-meta">
+          模型: Gemini | 包含消息: 12 条 | 时间: 2026-05-30
+        </div>
+        <button class="btn btn-secondary" id="btn-copy-report">
+          <span>📋 复制报告内容 (Markdown)</span>
+        </button>
+        <button class="btn btn-primary" id="btn-close-report-footer">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Context Messages Modal -->
+  <div class="modal-overlay" id="context-modal" style="display: none;">
+    <div class="modal-container context-modal-container">
+      <div class="modal-header">
+        <h3>💬 附近上下文消息</h3>
+        <button class="modal-close" id="btn-close-context">✕</button>
+      </div>
+      <div class="modal-body context-modal-body" id="context-modal-content">
+        <!-- Messages render here -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btn-close-context-footer">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

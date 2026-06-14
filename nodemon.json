@@ -1,0 +1,18 @@
+{
+  "ignore": [
+    "whop_archive.db",
+    "whop_archive.db-wal",
+    "whop_archive.db-shm",
+    "C:/Users/86597/.gemini/antigravity/scratch/whop-wechat-bridge/whop_archive.db",
+    "C:/Users/86597/.gemini/antigravity/scratch/whop-wechat-bridge/whop_archive.db-wal",
+    "C:/Users/86597/.gemini/antigravity/scratch/whop-wechat-bridge/whop_archive.db-shm",
+    "**/whop_archive.db*",
+    "**/*.db*",
+    "**/*.log",
+    "node_modules",
+    "public",
+    "scratch",
+    "exp_*.txt",
+    "rsc_dump.txt"
+  ]
+}

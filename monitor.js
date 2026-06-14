@@ -1,0 +1,1117 @@
+// Standard Node.js 18+ has native fetch, but we can import or use global fetch. Since Node 18+ global.fetch is stable, we can just use global.fetch or check if it exists.
+import dotenv from 'dotenv';
+import http from 'http';
+import https from 'https';
+import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb } from './database.js';
+import { executeOrder, getUnifiedPortfolio } from './trading.js';
+
+dotenv.config();
+
+let lastProcessedMessageId = null;
+
+// GraphQL query string for Whop Chat Fetch Messages
+const MESSAGES_FETCH_FEED_POSTS_QUERY = `
+query MessagesFetchFeedPosts($feedType: FeedTypes!, $after: BigInt, $before: BigInt, $aroundId: ID, $feedId: ID!, $includeDeleted: Boolean, $includeReactions: Boolean, $limit: Int, $direction: Direction) {
+  feedPosts(
+    feedType: $feedType
+    after: $after
+    before: $before
+    aroundId: $aroundId
+    feedId: $feedId
+    includeDeleted: $includeDeleted
+    includeReactions: $includeReactions
+    limit: $limit
+    direction: $direction
+  ) {
+    posts {
+      __typename
+      ...DmsPostFragment
+      ...ForumPostFragment
+    }
+    users {
+      ...BasicUserProfileDetails
+    }
+    reactions {
+      ...ReactionFragment
+    }
+  }
+}
+
+fragment DmsPostFragment on DmsPost {
+  id
+  createdAt
+  updatedAt
+  isDeleted
+  sortKey
+  isPosterAdmin
+  mentionedUserIds
+  content
+  feedId
+  feedType
+  attachments {
+    ...Attachment
+  }
+  gifs {
+    height
+    provider
+    originalUrl
+    previewUrl
+    slug
+    title
+    width
+  }
+  isEdited
+  isEveryoneMentioned
+  isPinned
+  linkEmbeds {
+    description
+    favicon
+    image
+    processing
+    title
+    url
+    footer {
+      title
+      description
+      icon
+    }
+  }
+  richContent
+  userId
+  viewCount
+  reactionCounts {
+    reactionType
+    userCount
+    value
+  }
+  messageType
+  embed
+  replyingToPostId
+  replyingToPost {
+    id
+    richContent
+    content
+    gifs {
+      __typename
+    }
+    isDeleted
+    linkEmbeds {
+      __typename
+    }
+    mentionedUserIds
+    isEveryoneMentioned
+    messageType
+    attachments {
+      contentType
+    }
+    user {
+      id
+      name
+      username
+      roles
+      profilePicSm: profilePicture {
+        sourceUrl
+      }
+    }
+  }
+  poll {
+    options {
+      id
+      text
+    }
+  }
+  customAuthor {
+    displayName
+    profilePicture {
+      sourceUrl
+    }
+  }
+}
+
+fragment Attachment on AttachmentInterface {
+  __typename
+  id
+  signedId
+  analyzed
+  byteSizeV2
+  filename
+  contentType
+  source(variant: original) {
+    url
+  }
+  ... on ImageAttachment {
+    height
+    width
+    blurhash
+    aspectRatio
+  }
+  ... on VideoAttachment {
+    height
+    width
+    duration
+    aspectRatio
+    preview(variant: original) {
+      url
+    }
+  }
+  ... on AudioAttachment {
+    duration
+    waveformUrl
+  }
+}
+
+fragment BasicUserProfileDetails on PublicProfileUser {
+  id
+  name
+  createdAt
+  bannerImageLg: banner {
+    source(variant: s600x200) {
+      doubleUrl
+    }
+  }
+  profilePicLg: profilePicture {
+    sourceUrl
+  }
+  profilePicSm: profilePicture {
+    sourceUrl
+  }
+  username
+  roles
+  lastSeenAt
+  isPlatformPolice
+}
+
+fragment ReactionFragment on Reaction {
+  id
+  isDeleted
+  createdAt
+  updatedAt
+  feedId
+  feedType
+  postId
+  postType
+  userId
+  reactionType
+  score
+  value
+}
+
+fragment ForumPostFragment on ForumPost {
+  id
+  title
+  createdAt
+  updatedAt
+  isDeleted
+  sortKey
+  content
+  feedId
+  feedType
+  attachments {
+    ...Attachment
+  }
+  userId
+}`;
+
+// Helper to check and use global fetch or node-fetch
+const webFetch = typeof fetch !== 'undefined' ? fetch : global.fetch;
+
+// Format messages into a string for the AI prompt
+function formatMessagesForAI(messages) {
+  return messages
+    .map((msg) => {
+      const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+      const channelStr = msg.channel_name ? `[频道: ${msg.channel_name}] ` : '';
+      return `[${timeStr}] ${channelStr}${msg.sender_name} (${msg.sender_id}): ${msg.content}`;
+    })
+    .join('\n\n');
+}
+
+// Get context-enriched messages from database for a set of target messages
+function getMessagesWithContext(messages, limitBefore = 5) {
+  const db = getDb();
+  const uniqueMessageMap = new Map();
+
+  // Add the original messages
+  for (const msg of messages) {
+    uniqueMessageMap.set(msg.id, {
+      ...msg,
+      is_speaker: true
+    });
+  }
+
+  // For each message, query the preceding messages in the same channel
+  const stmt = db.prepare(`
+    SELECT * FROM messages 
+    WHERE channel_id = ? AND created_at < ? 
+    ORDER BY created_at DESC LIMIT ?
+  `);
+
+  for (const msg of messages) {
+    const before = stmt.all(msg.channel_id, msg.created_at, limitBefore);
+    for (const contextMsg of before) {
+      if (!uniqueMessageMap.has(contextMsg.id)) {
+        uniqueMessageMap.set(contextMsg.id, {
+          ...contextMsg,
+          is_speaker: false
+        });
+      }
+    }
+  }
+
+  // Convert to array and sort chronologically
+  const sortedMessages = Array.from(uniqueMessageMap.values())
+    .sort((a, b) => a.created_at - b.created_at);
+
+  return sortedMessages;
+}
+
+// Format messages with context into a string for the AI prompt
+function formatMessagesWithContextForAI(enrichedMessages) {
+  const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  return enrichedMessages
+    .map((msg) => {
+      const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+      const channelStr = msg.channel_name ? `[频道: ${msg.channel_name}] ` : '';
+      
+      let roleStr = '';
+      if (msg.is_speaker) {
+        roleStr = '[当前分析发言]';
+      } else if (targetSpeakers.includes(msg.sender_id)) {
+        roleStr = '[主发言人上下文]';
+      } else {
+        roleStr = '[群友上下文]';
+      }
+      
+      return `[${timeStr}] ${channelStr}${roleStr} ${msg.sender_name} (${msg.sender_id}): ${msg.content}`;
+    })
+    .join('\n\n');
+}
+
+// Call Google Gemini API
+export async function analyzeWithGemini(apiKey, prompt) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const response = await webFetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [
+            {
+              text: prompt,
+            },
+          ],
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Gemini API failed with status ${response.status}: ${errText}`);
+  }
+
+  const result = await response.json();
+  const content = result.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!content) {
+    throw new Error('Gemini API returned empty content or invalid structure.');
+  }
+
+  return content;
+}
+
+// Custom localFetch function to handle long timeouts for local LLMs
+function localFetch(urlStr, options = {}) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlStr);
+    const client = url.protocol === 'https:' ? https : http;
+    const postData = options.body || '';
+    
+    const reqOptions = {
+      hostname: url.hostname,
+      port: url.port || (url.protocol === 'https:' ? 443 : 80),
+      path: url.pathname + url.search,
+      method: options.method || 'GET',
+      headers: options.headers || {},
+      timeout: 1200000 // 20 minutes timeout for local LLM generation
+    };
+
+    if (postData) {
+      reqOptions.headers['Content-Length'] = Buffer.byteLength(postData);
+    }
+
+    const req = client.request(reqOptions, (res) => {
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        resolve({
+          ok: res.statusCode >= 200 && res.statusCode < 300,
+          status: res.statusCode,
+          text: () => Promise.resolve(data),
+          json: () => {
+            try {
+              return Promise.resolve(JSON.parse(data));
+            } catch (err) {
+              return Promise.reject(err);
+            }
+          }
+        });
+      });
+    });
+
+    req.on('error', (e) => {
+      reject(e);
+    });
+
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('Request timeout (10 minutes) during local LLM generation.'));
+    });
+
+    if (postData) {
+      req.write(postData);
+    }
+    req.end();
+  });
+}
+
+// Call Ollama API for local LLM
+export async function analyzeWithOllama(baseUrl, model, prompt) {
+  const url = `${baseUrl.replace(/\/$/, '')}/api/generate`;
+  const response = await localFetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: model,
+      prompt: prompt,
+      stream: false,
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Ollama API failed with status ${response.status}: ${errText}`);
+  }
+
+  const result = await response.json();
+  let text = result.response || '';
+  
+  // Strip DeepSeek's <think> tags if present for cleaner presentation
+  text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  
+  return text;
+}
+
+// Call LM Studio (OpenAI-compatible) API for local LLM
+export async function analyzeWithLMStudio(baseUrl, model, prompt) {
+  global.isAiGenerating = true;
+  try {
+    const url = `${baseUrl.replace(/\/$/, '')}/v1/chat/completions`;
+    const response = await localFetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: model || 'qwen', // LM Studio usually accepts any name if only one model is loaded
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.2
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`LM Studio API failed with status ${response.status}: ${errText}`);
+    }
+
+    const result = await response.json();
+    let text = result.choices?.[0]?.message?.content;
+    if (!text) {
+      throw new Error('LM Studio API returned empty content or invalid structure.');
+    }
+
+    // Strip DeepSeek/Qwen thinking tags if present
+    text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+
+    return text;
+  } finally {
+    global.isAiGenerating = false;
+  }
+}
+
+// Push report to Enterprise WeChat group robot
+async function pushToWeChat(webhookUrl, markdownContent) {
+  if (!webhookUrl) {
+    console.log('Skipping WeChat push: WECHAT_WORK_WEBHOOK_URL is not set.');
+    return;
+  }
+
+  const response = await webFetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      msgtype: 'markdown',
+      markdown: {
+        content: markdownContent,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    console.error(`Failed to push to Enterprise WeChat: ${response.status} - ${errText}`);
+  } else {
+    console.log('Successfully pushed AI report to Enterprise WeChat.');
+  }
+}
+
+// Strip markdown code fences and parse JSON robustly
+function parseJSONResponse(text) {
+  try {
+    let cleanText = text.trim();
+    if (cleanText.startsWith('```')) {
+      cleanText = cleanText.replace(/^```(?:json)?\s*/i, '');
+      cleanText = cleanText.replace(/\s*```$/, '');
+    }
+    return JSON.parse(cleanText.trim());
+  } catch (e) {
+    console.error('Failed to parse JSON response from AI:', e, 'Raw text:', text);
+    const match = text.match(/\[\s*\{[\s\S]*\}\s*\]/);
+    if (match) {
+      try {
+        return JSON.parse(match[0]);
+      } catch (innerError) {
+        console.error('Failed to parse regex-extracted JSON:', innerError);
+      }
+    }
+    throw new Error('AI 返回的格式无法解析为有效的交易信号 JSON 数组: ' + e.message);
+  }
+}
+async function extractAndExecuteTrades(newSpeakerMessages, provider, primarySpeakerName) {
+  const tradingLevel = process.env.AUTO_TRADING_LEVEL || 'strict';
+  console.log(`[自动跟单] 当前跟单限制级别: ${tradingLevel}`);
+
+  if (tradingLevel === 'none') {
+    console.log('[自动跟单] 自动跟单功能已关闭（仅分析提示模式）。');
+    return { success: true, executedCount: 0, signals: [], reason: '自动跟单已关闭' };
+  }
+
+  // Filter messages by channel if in strict mode
+  const OFFICIAL_SIGNAL_CHANNELS = (process.env.WHOP_SIGNAL_CHANNEL_IDS || 'chat_feed_1CTrCEx44dP13jW3RVkYiS,chat_feed_1CWLuNUVYVVYttro8gAvJ5')
+    .split(',')
+    .map(id => id.trim())
+    .filter(Boolean);
+
+  const filteredMessages = [];
+  for (const msg of newSpeakerMessages) {
+    if (tradingLevel === 'strict' && !OFFICIAL_SIGNAL_CHANNELS.includes(msg.channel_id)) {
+      console.log(`[自动跟单] 消息来自非官方跟单频道 [${msg.channel_name}] (ID: ${msg.channel_id})，在 strict 级别下跳过交易信号提取。`);
+      continue;
+    }
+    filteredMessages.push(msg);
+  }
+
+  if (filteredMessages.length === 0) {
+    console.log('[自动跟单] 经过频道过滤后无有效交易消息。');
+    return { success: true, executedCount: 0, signals: [], reason: '没有来自官方喊单频道的交易消息' };
+  }
+
+  // Get context messages (preceding 3 messages) to resolve implicit references and tickers
+  const enrichedMessages = getMessagesWithContext(filteredMessages, 3);
+  const messagesText = formatMessagesWithContextForAI(enrichedMessages);
+
+  // Retrieve current total equity for position sizing
+  let totalEquity = 100000.00;
+  try {
+    const portfolio = await getUnifiedPortfolio();
+    if (portfolio && portfolio.total_equity) {
+      totalEquity = portfolio.total_equity;
+    }
+  } catch (err) {
+    console.warn('[自动跟单] 无法获取账户资产，将默认按 $100,000.00 进行比例折算:', err.message);
+  }
+
+  const useDynamicSizing = process.env.USE_DYNAMIC_SIZING !== 'false';
+  const autoSubstituteEtfs = process.env.AUTO_SUBSTITUTE_LEVERAGED_ETFS === 'true';
+  const mappingStr = process.env.LEVERAGED_ETF_MAPPING || 'NVDA:NVDL,TSLA:TSLL,LITE:LITX';
+
+  const signalPrompt = `你是一个交易信号提取器。请分析以下美股社区群主/大V [${primarySpeakerName}] 的发言记录，提取其中明确指示的买入(BUY)或卖出(SELL)信号。
+你必须严格输出一个符合以下 JSON 格式 of 数组，不要包含任何额外的解释、Markdown 标记或代码块包裹，仅输出 JSON 本身。如果没有检测到任何明确的交易信号，请输出空数组 []。
+
+当前虚拟账户总资产（Total Equity）为：$${totalEquity.toFixed(2)} 美元。
+启用仓位动态折算股数（USE_DYNAMIC_SIZING）：${useDynamicSizing ? '已开启' : '已关闭'}。
+启用短线两倍做多 ETF 自动代用（AUTO_SUBSTITUTE_LEVERAGED_ETFS）：${autoSubstituteEtfs ? '已开启' : '已关闭'}。
+2倍做多 ETF 映射代用关系为：${mappingStr}。
+
+关于计算股数 (quantity) 的规则：
+1. 如果大V发言中未明确指定买入股数，但在系统启用了动态仓位计算时，请参考股票当前价格和账户总资产来折算股数：
+   - 一个完整仓位（如“常规仓”、“一成仓”、“全仓买入目标”）默认对应账户总资产的 10% 资金（例如：$${(totalEquity * 0.1).toFixed(2)}美元）。
+   - 三分之一仓（如“底仓”、“常规三分之一仓”、“加三分之一”）对应账户总资产的 3.3% 资金（例如：$${(totalEquity * 0.033).toFixed(2)}美元）。
+   - 股数计算公式：股数 = (账户总资产 * 对应仓位比例) / 股票单价（向下取整且必须大于0）。
+   - 如果大V明确说“买2”，表示买入 2 个三分之一仓位（即 6.6% 的资金比例）；“卖1”表示卖出 1 个三分之一仓位（即 3.3% 的资金比例）。
+2. 如果未启用动态仓位计算，或发言极其模糊且公式不适用，请默认填 100。
+
+关于 ETF 自动代用规则（仅在开启时生效）：
+- 如果开启了“短线两倍做多 ETF 自动代用”，且该发言是针对日内短线、做T等策略对上述映射关系左侧的正股进行操作，请在提取的 JSON 中将正股代码替换为对应的 ETF 代码（例如 NVDA 替换为 NVDL，TSLA 替换为 TSLL，LITE 替换为 LITX）。
+- 替换后，请尽量估算折算后的 ETF 价格并填入 price。如果无法估算，可填正股价格，并在 reason 中说明。
+
+发言记录如下（按时间先后顺序排列，其中标有 [主发言人] 的是群主/大V的发言，标有 [群友上下文] 的是群友的背景提问，你必须结合群友上下文的内容来确定大V在说哪只股票，如果大V的消息里没提到代码，但群友上文提到了，例如群友问“谷歌能买吗”，大V回答“355买2”，则提取的 ticker 为 GOOG 或 GOOGL，价格为 355）：
+
+${messagesText}`;
+
+  let jsonText = '';
+  console.log(`[自动跟单] 正在调用 AI (${provider}) 提取交易信号...`);
+  const startTimeTradeAI = Date.now();
+  
+  try {
+    if (provider === 'gemini') {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment.');
+      jsonText = await analyzeWithGemini(apiKey, signalPrompt);
+    } else if (provider === 'ollama') {
+      const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+      const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
+      jsonText = await analyzeWithOllama(baseUrl, model, signalPrompt);
+    } else if (provider === 'lm-studio') {
+      const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
+      const model = process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b';
+      jsonText = await analyzeWithLMStudio(baseUrl, model, signalPrompt);
+    } else {
+      throw new Error(`Unsupported AI provider: ${provider}`);
+    }
+
+    const durationTradeAI = ((Date.now() - startTimeTradeAI) / 1000).toFixed(1);
+    console.log(`[自动跟单] AI 提取信号完成！耗时: ${durationTradeAI}秒。AI 原始响应 JSON:\n${jsonText.trim()}`);
+
+    const signals = parseJSONResponse(jsonText);
+    if (!Array.isArray(signals)) {
+      throw new Error('AI 返回的数据不是一个数组');
+    }
+
+    if (signals.length === 0) {
+      console.log('[自动跟单] 未检测到任何交易信号。');
+      return { success: true, executedCount: 0, signals: [] };
+    }
+
+    console.log(`[自动跟单] AI 提取出 ${signals.length} 个交易信号，准备执行...`);
+    const executionResults = [];
+    
+    for (const signal of signals) {
+      if (!signal.ticker || !signal.action || !signal.price) {
+        console.warn('[自动跟单] 忽略无效的信号对象:', signal);
+        continue;
+      }
+
+      const ticker = String(signal.ticker).toUpperCase();
+      const action = String(signal.action).toUpperCase();
+      const price = parseFloat(signal.price);
+      const quantity = parseInt(signal.quantity || '100', 10);
+      const stopLoss = signal.stopLoss ? parseFloat(signal.stopLoss) : null;
+      const reason = signal.reason || 'AI 自动跟单信号';
+
+      if (action !== 'BUY' && action !== 'SELL') {
+        console.warn(`[自动跟单] 忽略无效的动作 ${action} (仅支持 BUY/SELL)`);
+        continue;
+      }
+
+      console.log(`[自动跟单执行] 触发交易: ${action} ${ticker} ${quantity}股 @ $${price}`);
+      
+      const result = await executeOrder({
+        ticker,
+        action,
+        price,
+        quantity,
+        stopLoss,
+        reason: `[AI 自动跟单] ${reason}`
+      });
+
+      executionResults.push({
+        ticker,
+        action,
+        success: result.success,
+        reason: result.reason || '执行成功'
+      });
+    }
+
+    return { success: true, executedCount: executionResults.length, results: executionResults };
+  } catch (error) {
+    console.error('[自动跟单] 提取/执行交易信号失败:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Core sync and analysis function
+export async function syncAndAnalyze({ backfill = false } = {}) {
+  const userToken = process.env.WHOP_USER_TOKEN;
+  const cookie = process.env.WHOP_COOKIE;
+
+  // Support multiple channels configuration
+  const channelIdsStr = process.env.WHOP_CHAT_CHANNEL_IDS || process.env.WHOP_CHAT_CHANNEL_ID || '';
+  const channelIds = channelIdsStr
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  let channelMappings = {};
+  try {
+    if (process.env.WHOP_CHANNEL_MAPPINGS) {
+      channelMappings = JSON.parse(process.env.WHOP_CHANNEL_MAPPINGS);
+    }
+  } catch (err) {
+    console.error('Failed to parse WHOP_CHANNEL_MAPPINGS from env:', err.message);
+  }
+
+  const CHANNEL_NAME_FALLBACKS = {
+    'chat_feed_1CTr5VAdNHtbZAFaTitvoT': '不用翻墙美股讨论区',
+    'chat_feed_1CTr7QocNpDZ9FXZ6fvWe4': '不用翻墙美股发布',
+    'chat_feed_1CTrCEx44dP13jW3RVkYiS': '不用翻墙期权',
+    'chat_feed_1CWLuNUVYVVYttro8gAvJ5': '历史股票期权记录区',
+    'chat_feed_1CU95KbtifP1JtuqTiVXZb': '讨论区股票记录'
+  };
+
+  // Assign a default name for configured IDs if missing
+  channelIds.forEach(id => {
+    if (!channelMappings[id]) {
+      channelMappings[id] = CHANNEL_NAME_FALLBACKS[id] || `频道:${id}`;
+    }
+  });
+
+  if (!cookie && (!userToken || channelIds.length === 0 || targetSpeakers.length === 0)) {
+    console.warn('Sync skipped: Missing WHOP_COOKIE, WHOP_USER_TOKEN, WHOP_CHAT_CHANNEL_IDS, or TARGET_SPEAKER_USER_IDS in environment.');
+    return { success: false, reason: 'Missing configuration' };
+  }
+
+  let allNormalizedMessages = [];
+  let totalNewMessagesCount = 0;
+
+  try {
+    for (const channelId of channelIds) {
+      const channelName = channelMappings[channelId] || channelId;
+      console.log(`Starting sync for channel: ${channelName} (${channelId})...`);
+
+      let rawMessages = [];
+
+      if (cookie) {
+        console.log(`Fetching messages from Whop GraphQL for channel: ${channelName}...`);
+        let beforeCursor = null;
+        const pagesToFetch = 200; // Let's support up to 200 pages (20,000 messages) for deep backfill
+        
+        for (let page = 1; page <= pagesToFetch; page++) {
+          console.log(`Fetching page ${page} of messages from Whop GraphQL for ${channelName} (before: ${beforeCursor})...`);
+          try {
+            const response = await webFetch('https://whop.com/api/graphql/MessagesFetchFeedPosts/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Cookie': cookie,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              },
+              body: JSON.stringify({
+                query: MESSAGES_FETCH_FEED_POSTS_QUERY,
+                variables: {
+                  feedId: channelId,
+                  feedType: channelId.startsWith('forum_feed_') ? 'forum_feed' : 'chat_feed',
+                  limit: 100,
+                  before: beforeCursor,
+                  direction: 'desc',
+                  includeDeleted: false
+                },
+                operationName: 'MessagesFetchFeedPosts'
+              })
+            });
+
+            if (!response.ok) {
+              const errText = await response.text();
+              console.error(`Failed to fetch Whop messages page ${page} for ${channelName}: ${response.status} - ${errText}`);
+              break;
+            }
+
+            const resJson = await response.json();
+            if (resJson.errors) {
+              console.error(`GraphQL errors for ${channelName}:`, JSON.stringify(resJson.errors));
+            }
+            const posts = resJson.data?.feedPosts?.posts || [];
+            const users = resJson.data?.feedPosts?.users || [];
+
+            if (posts.length === 0) {
+              console.log(`No more posts found on page ${page} for ${channelName}.`);
+              break;
+            }
+
+            // Check if the oldest message on this page is already in the database
+            const oldestPost = posts[posts.length - 1];
+            let shouldStopAfterPage = false;
+            if (!backfill && oldestPost && oldestPost.id && isMessageArchived(oldestPost.id)) {
+              console.log(`Oldest post on page ${page} (${oldestPost.id}) is already archived in DB. Stopping historical fetch after this page.`);
+              shouldStopAfterPage = true;
+            }
+
+            // Create user dictionary for mapping
+            const userMap = new Map();
+            if (Array.isArray(users)) {
+              for (const u of users) {
+                userMap.set(u.id, u.name || u.username || 'Unknown User');
+              }
+            }
+
+            // Convert GraphQL posts to normalized format with image attachments
+            const pageMessages = posts.map(post => {
+              const timeNum = Number(post.createdAt || Date.now());
+              const timeMs = timeNum < 9999999999 ? timeNum * 1000 : timeNum;
+              
+              let content = post.content || '';
+              if (post.title) {
+                content = `【${post.title}】\n${content}`;
+              }
+              if (Array.isArray(post.attachments)) {
+                const imageUrls = post.attachments
+                  .filter(a => a.contentType?.startsWith('image/') || a.__typename === 'ImageAttachment')
+                  .map(a => a.source?.url)
+                  .filter(Boolean);
+                
+                if (imageUrls.length > 0) {
+                  content += '\n' + imageUrls.map(url => `[IMAGE:${url}]`).join('\n');
+                }
+              }
+
+              return {
+                id: post.id,
+                message_id: post.id,
+                content: content,
+                user: {
+                  id: post.userId,
+                  username: userMap.get(post.userId) || post.customAuthor?.displayName || 'Unknown User'
+                },
+                created_at: new Date(timeMs).toISOString()
+              };
+            });
+
+            rawMessages.push(...pageMessages);
+
+            if (shouldStopAfterPage) {
+              break;
+            }
+
+            // Get cursor for next page
+            const oldestOfPage = posts[posts.length - 1];
+            if (oldestOfPage && oldestOfPage.createdAt) {
+              beforeCursor = oldestOfPage.createdAt.toString();
+            } else {
+              break;
+            }
+          } catch (fetchErr) {
+            console.error(`Network error fetching Whop page ${page} for ${channelName}:`, fetchErr.message);
+            break;
+          }
+        }
+      } else {
+        console.log(`Fetching messages from Whop REST API for channel: ${channelName}...`);
+        const url = `https://api.whop.com/api/v1/messages?channel_id=${channelId}&limit=100`;
+        try {
+          const response = await webFetch(url, {
+            headers: {
+              'Authorization': `Bearer ${userToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            const errText = await response.text();
+            console.error(`Failed to fetch Whop messages for ${channelName}: ${response.status} - ${errText}`);
+            continue;
+          }
+
+          const resJson = await response.json();
+          let normalizedRest = [];
+          if (Array.isArray(resJson)) {
+            normalizedRest = resJson;
+          } else if (resJson && Array.isArray(resJson.data)) {
+            normalizedRest = resJson.data;
+          } else if (resJson && Array.isArray(resJson.messages)) {
+            normalizedRest = resJson.messages;
+          }
+
+          const restMessages = normalizedRest.map(msg => {
+            let content = msg.content || msg.text || msg.body || '';
+            if (Array.isArray(msg.attachments)) {
+              const imageUrls = msg.attachments
+                .filter(a => a.content_type?.startsWith('image/') || a.contentType?.startsWith('image/') || a.url)
+                .map(a => a.url || a.source?.url)
+                .filter(Boolean);
+              
+              if (imageUrls.length > 0) {
+                content += '\n' + imageUrls.map(url => `[IMAGE:${url}]`).join('\n');
+              }
+            }
+            return {
+              ...msg,
+              content
+            };
+          });
+          rawMessages.push(...restMessages);
+        } catch (err) {
+          console.error(`REST API error fetching ${channelName}:`, err.message);
+          continue;
+        }
+      }
+
+      if (rawMessages.length === 0) {
+        console.log(`No messages found in channel: ${channelName}`);
+        continue;
+      }
+
+      // Parse and normalize messages
+      const normalizedMessages = rawMessages.map((msg) => {
+        const id = msg.id || msg.message_id || `temp_${Math.random().toString(36).substr(2, 9)}`;
+        const content = msg.content || msg.text || msg.body || '';
+        
+        let senderId = '';
+        let senderName = 'Unknown User';
+        if (msg.user) {
+          senderId = msg.user.id || '';
+          senderName = msg.user.username || msg.user.name || 'Unknown User';
+        } else if (msg.author) {
+          senderId = msg.author.id || '';
+          senderName = msg.author.username || msg.author.name || 'Unknown User';
+        } else {
+          senderId = msg.sender_id || '';
+        }
+
+        return {
+          id,
+          channel_id: msg.channel_id || channelId,
+          channel_name: msg.channel_name || channelName,
+          sender_id: senderId,
+          sender_name: senderName,
+          content,
+          created_at: typeof msg.created_at === 'number' ? msg.created_at : new Date(msg.created_at || Date.now()).getTime()
+        };
+      });
+
+      // Filter out messages that are already in the DB to count actual new ones
+      const actuallyNewMessages = normalizedMessages.filter(msg => !isMessageArchived(msg.id));
+
+      allNormalizedMessages.push(...normalizedMessages);
+      totalNewMessagesCount += actuallyNewMessages.length;
+    }
+
+    if (allNormalizedMessages.length === 0) {
+      return { success: true, newMessagesCount: 0, newSpeakerMessagesCount: 0 };
+    }
+
+    // Save all synchronized messages to the database
+    saveMessages(allNormalizedMessages);
+
+    // Filter messages from target speakers
+    const speakerMessages = allNormalizedMessages.filter((msg) =>
+      targetSpeakers.includes(msg.sender_id)
+    );
+
+    // Get the latest general report end time from the DB
+    const conn = getDb();
+    const lastReportRow = conn.prepare('SELECT end_time FROM reports WHERE strategy IS NULL ORDER BY created_at DESC LIMIT 1').get();
+    const lastReportEndTime = lastReportRow ? lastReportRow.end_time : 0;
+
+    const newSpeakerMessages = speakerMessages.filter(
+      (msg) => msg.created_at > lastReportEndTime
+    );
+
+    if (newSpeakerMessages.length === 0) {
+      console.log('No NEW messages from target speakers since the last AI report.');
+      return { success: true, newMessagesCount: totalNewMessagesCount, newSpeakerMessagesCount: 0 };
+    }
+
+    const newestMessage = newSpeakerMessages[newSpeakerMessages.length - 1];
+
+    // Check memory lock to prevent triggering duplicate background AI report generation
+    if (lastProcessedMessageId === newestMessage.id) {
+      // Already triggered or currently processing the AI report for these messages
+      return { success: true, newMessagesCount: totalNewMessagesCount, newSpeakerMessagesCount: 0 };
+    }
+
+    console.log(`Found ${newSpeakerMessages.length} new messages from target speakers. Running real-time copy-trading and pushing to WeChat.`);
+
+    // 1. Push raw target speaker messages to WeChat Work instantly
+    for (const msg of newSpeakerMessages) {
+      pushRawMessageToWeChat(msg).catch(err => console.error('[即时微信推送错误]:', err.message));
+    }
+
+    // 2. Extract and execute trades instantly (awaited, fast, critical)
+    const provider = process.env.AI_PROVIDER || 'gemini';
+    const primarySpeakerName = newSpeakerMessages[0].sender_name;
+    let tradeResults = null;
+    try {
+      tradeResults = await extractAndExecuteTrades(newSpeakerMessages, provider, primarySpeakerName);
+    } catch (tradeErr) {
+      console.error('Failed in extractAndExecuteTrades:', tradeErr);
+    }
+
+    // 3. Trigger heavy AI report generation asynchronously in the background
+    // We update the memory lock immediately
+    lastProcessedMessageId = newestMessage.id;
+    
+    generateAIReportBackground(newSpeakerMessages, provider, primarySpeakerName, channelIds, channelMappings)
+      .catch(err => console.error('[Background AI Report Error]:', err.message));
+
+    return {
+      success: true,
+      newMessagesCount: totalNewMessagesCount,
+      newSpeakerMessagesCount: newSpeakerMessages.length,
+      tradeResults
+    };
+  } catch (error) {
+    console.error('Error in syncAndAnalyze:', error);
+    const detail = error.cause ? ` (原因: ${error.cause.message || error.cause})` : '';
+    return { success: false, reason: error.message + detail };
+  }
+}
+
+// --------------------------------------------------------------------------
+// Helper Functions for Instant WeChat Push & Background AI Report
+// --------------------------------------------------------------------------
+
+// Push raw message from target speaker instantly to WeChat Work
+async function pushRawMessageToWeChat(msg) {
+  const webhookUrl = process.env.WECHAT_WORK_WEBHOOK_URL;
+  if (!webhookUrl) return;
+
+  const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+  const channelStr = msg.channel_name ? `[${msg.channel_name}]` : '';
+  const text = `### 💬 大V最新发言通知
+**发言人**: ${msg.sender_name}
+**频道**: ${channelStr}
+**时间**: ${timeStr}
+
+**内容**:
+> ${msg.content.replace(/\n/g, '\n> ')}
+
+---
+*系统已同步获取并开始处理量化跟单。*`;
+
+  try {
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        msgtype: 'markdown',
+        markdown: { content: text }
+      })
+    });
+    console.log(`[即时消息推送] 成功推送大V发言到微信: ${msg.id}`);
+  } catch (err) {
+    console.error(`[即时消息推送失败] 无法推送大V发言到微信:`, err.message);
+  }
+}
+
+// Generate AI Report asynchronously in the background
+async function generateAIReportBackground(newSpeakerMessages, provider, primarySpeakerName, channelIds, channelMappings) {
+  console.log(`[Background AI] Starting async AI report generation for ${newSpeakerMessages.length} messages...`);
+  const startTimeAI = Date.now();
+  
+  // Get context messages (preceding 3 messages for brevity and speed)
+  const enrichedMessages = getMessagesWithContext(newSpeakerMessages, 3);
+  const messagesText = formatMessagesWithContextForAI(enrichedMessages);
+  const mappingStr = process.env.LEVERAGED_ETF_MAPPING || 'NVDA:NVDL,TSLA:TSLL,LITE:LITX';
+
+  const aiPrompt = `你是一位资深的美股金融投资分析师。以下是美股社区群主/大V [${primarySpeakerName}] 在近期的一段发言记录，其中包含群友提问的前后上下文背景。
+请根据这些发言内容，进行专业的整理、提炼和深度分析，为订阅者提供交易参考。
+
+你必须生成一份结构化的 Markdown 简报，格式如下：
+
+### 📌 宏观与大盘分析
+- [宏观态度与大盘走势判断，看多/看空/防守等]
+
+### 🎯 策略战法分类识别
+对以下战法/策略概念进行识别并分类总结（如果发言中提及或隐含了该策略，请写出具体操作和标的；如未提及则写“无”）：
+- **财报战法**（利用财报事件/预期进行博弈）：
+- **节日被动减仓**（因节假日放假避险或资金周转进行的被动减仓）：
+- **单调减仓**（仓位持续递减、只出不进）：
+- **尾盘强平/买入**（尾盘阶段进行的强行平仓或尾盘交易）：
+- **做T/波段套利**（底仓基础上的日内/波段T+0操作）：
+- **弹性股防御**（市场防守期选择弹性好的个股或特定防御标的）：
+
+### 📈 关注个股及板块梳理
+按板块列出涉及的个股，并说明其投资逻辑：
+- **[板块名称，如科技/AI芯片、新能源汽车、加密货币等]**：
+  - **[股票代码]**（请用粗体高亮，如 **TSLA**）：[具体仓位、操作价格区间、止盈止损线及核心逻辑支撑]
+
+### 🛡️ 跟单建议与风控提示
+- [对普通投资者的具体跟单操作指引与防守风控要点]
+- [战略性提示：对于做日内短线、做T等操作，如果被分析的正股价格较贵或其股性波动较小，提示订阅者可以考虑使用对应的 2 倍做多 ETF 代替（代用映射参考：${mappingStr}），但强调这仅是备选策略，而非最终下单决策。]
+
+注意要求：
+- 如果发言仅是日常闲聊、没有具体的投资交易信号，请做简要总结，并在报告顶部声明“本次同步未检测到具体交易信号”，不要胡乱编造。
+- 必须严格遵循上述指定的 Markdown 结构和标题输出。排版要精美、段落清晰、重点突出。
+
+发言记录如下（按时间先后顺序排列，其中标有 [主发言人] 的是群主/大V的发言，标有 [群友上下文] 的是群友的提问，你必须结合群友上下文的问题背景来准确理解大V的简短回答）：
+${messagesText}`;
+
+  let summaryContent = '';
+  if (provider === 'gemini') {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment.');
+    summaryContent = await analyzeWithGemini(apiKey, aiPrompt);
+  } else if (provider === 'ollama') {
+    const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+    const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
+    summaryContent = await analyzeWithOllama(baseUrl, model, aiPrompt);
+  } else if (provider === 'lm-studio') {
+    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
+    const model = process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b';
+    summaryContent = await analyzeWithLMStudio(baseUrl, model, aiPrompt);
+  } else {
+    throw new Error(`Unsupported AI provider: ${provider}`);
+  }
+
+  const durationAI = ((Date.now() - startTimeAI) / 1000).toFixed(1);
+  console.log(`[Background AI] AI Strategy report generated successfully! Elapsed: ${durationAI}s. Length: ${summaryContent.length} chars.`);
+
+  // Save report to DB
+  const startTime = newSpeakerMessages[0].created_at;
+  const endTime = newSpeakerMessages[newSpeakerMessages.length - 1].created_at;
+  
+  let modelNameUsed = 'Gemini';
+  if (provider === 'ollama') {
+    modelNameUsed = `Ollama (${process.env.OLLAMA_MODEL || 'deepseek-r1'})`;
+  } else if (provider === 'lm-studio') {
+    modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b'})`;
+  }
+
+  saveReport({
+    startTime,
+    endTime,
+    summaryContent,
+    aiModel: modelNameUsed,
+    rawMessagesCount: newSpeakerMessages.length,
+  });
+  console.log(`[Background AI] Report saved to local SQLite.`);
+
+  // Push to WeChat Work
+  const activeChannelsStr = channelIds.map(id => channelMappings[id] || id).join(', ');
+  const title = `### 🤖 Whop AI 投资策略简报\n**发言人**: ${primarySpeakerName}\n**监控频道**: ${activeChannelsStr}\n**时间区间**: ${new Date(startTime).toLocaleString('zh-CN')} - ${new Date(endTime).toLocaleString('zh-CN')}\n**分析模型**: ${modelNameUsed}\n\n---\n\n`;
+  
+  await pushToWeChat(process.env.WECHAT_WORK_WEBHOOK_URL, title + summaryContent);
+  console.log(`[Background AI] Strategy report pushed to WeChat.`);
+}
