@@ -42,9 +42,13 @@
       
       <!-- Header Actions -->
       <div class="header-actions">
-        <button id="btn-sync" class="btn btn-primary btn-glow">
-          <span class="btn-icon" id="sync-icon">🔄</span>
-          <span id="sync-btn-text">立即同步</span>
+        <button id="btn-sync-realtime" class="btn btn-primary btn-glow" title="实时同步大V最新发言，执行即时微信推送并触发量化跟单下单">
+          <span class="btn-icon" id="sync-realtime-icon">⚡</span>
+          <span id="sync-realtime-btn-text">实时跟单同步</span>
+        </button>
+        <button id="btn-sync-archive" class="btn btn-secondary" title="历史深层数据拉取存盘，仅用于知识库RAG向量化，不进行推送也不下单">
+          <span class="btn-icon" id="sync-archive-icon">📦</span>
+          <span id="sync-archive-btn-text">历史数据归档</span>
         </button>
         <button id="btn-settings" class="btn btn-secondary">
           <span class="btn-icon">⚙️</span>
@@ -122,6 +126,14 @@
                 <span class="date-separator">至</span>
                 <input type="date" id="filter-end-date" class="filter-date-input" title="结束日期">
               </div>
+              <button id="btn-report-rolling" class="btn btn-primary btn-glow btn-compact" title="增量合并大V近期发言与行情数据，更新全局策略简报文档">
+                <span class="btn-icon">🔄</span>
+                <span>全局滚动简报</span>
+              </button>
+              <button id="btn-report-kline" class="btn btn-primary btn-glow btn-compact" title="融合大V发言与对应美股K线、均线波动走势做精密分析诊断">
+                <span class="btn-icon">📊</span>
+                <span>K线走势融合分析</span>
+              </button>
               <button id="btn-ai-review" class="btn btn-primary btn-glow btn-compact" title="生成当前维度的历史消息分析总结">
                 <span class="btn-icon">🤖</span>
                 <span>AI 维度复盘</span>

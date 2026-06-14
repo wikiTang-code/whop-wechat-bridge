@@ -35,7 +35,9 @@ import {
   syncAndAnalyze,
   analyzeWithGemini,
   analyzeWithOllama,
-  analyzeWithLMStudio
+  analyzeWithLMStudio,
+  generateGlobalRollingReport,
+  generateKlineCombinedReport
 } from './monitor.js';
 import { executeOrder, getUnifiedPortfolio, getUnifiedPositions } from './trading.js';
 
@@ -339,14 +341,66 @@ app.get('/api/reports', (req, res) => {
   }
 });
 
-// 3. POST /api/sync - Manually trigger sync and analysis (CSRF protected)
+// 3. POST /api/sync - Legacy general manual trigger sync (redirects to realtime)
 app.post('/api/sync', requireCsrf, async (req, res) => {
   try {
-    console.log('Manual sync triggered by Web UI');
-    const result = await syncAndAnalyze({ backfill: true });
+    console.log('Manual sync triggered (fallback)');
+    const result = await syncAndAnalyze({ backfill: false, skipTrades: false, skipWeChat: false, skipReport: false });
     if (result && result.success) {
       setLastSyncTime(Date.now());
     }
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/sync/realtime - Fast realtime sync with copy-trading and notifications
+app.post('/api/sync/realtime', requireCsrf, async (req, res) => {
+  try {
+    console.log('Real-time sync triggered by Web UI');
+    const result = await syncAndAnalyze({ backfill: false, skipTrades: false, skipWeChat: false, skipReport: false });
+    if (result && result.success) {
+      setLastSyncTime(Date.now());
+    }
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/sync/archive - Deep backfill for RAG archiving (no trades, no WeChat alerts)
+app.post('/api/sync/archive', requireCsrf, async (req, res) => {
+  try {
+    console.log('Deep historical archive sync triggered by Web UI');
+    const result = await syncAndAnalyze({ backfill: true, skipTrades: true, skipWeChat: true, skipReport: true });
+    if (result && result.success) {
+      setLastSyncTime(Date.now());
+    }
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/reports/global-rolling - Incremental rolling global briefing report
+app.post('/api/reports/global-rolling', requireCsrf, async (req, res) => {
+  try {
+    console.log('Global rolling report generation triggered by Web UI');
+    const provider = process.env.AI_PROVIDER || 'gemini';
+    const result = await generateGlobalRollingReport(provider);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/reports/kline-combined - K-line technical analysis combined report
+app.post('/api/reports/kline-combined', requireCsrf, async (req, res) => {
+  try {
+    console.log('Kline-combined report generation triggered by Web UI');
+    const provider = process.env.AI_PROVIDER || 'gemini';
+    const result = await generateKlineCombinedReport(provider);
     res.json(result);
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

@@ -1,9 +1,9 @@
-// Standard Node.js 18+ has native fetch, but we can import or use global fetch. Since Node 18+ global.fetch is stable, we can just use global.fetch or check if it exists.
 import dotenv from 'dotenv';
 import http from 'http';
 import https from 'https';
-import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed } from './database.js';
+import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions } from './database.js';
 import { executeOrder, getUnifiedPortfolio } from './trading.js';
+import { getMarketContextForTickers } from './kline.js';
 
 dotenv.config();
 
@@ -674,7 +674,7 @@ ${messagesText}`;
 }
 
 // Core sync and analysis function
-export async function syncAndAnalyze({ backfill = false } = {}) {
+export async function syncAndAnalyze({ backfill = false, skipTrades = false, skipWeChat = false, skipReport = false } = {}) {
   const userToken = process.env.WHOP_USER_TOKEN;
   const cookie = process.env.WHOP_COOKIE;
 
@@ -988,23 +988,34 @@ export async function syncAndAnalyze({ backfill = false } = {}) {
 
     // 2. Push real-time messages to WeChat Work
     if (realTimePushMsgs.length > 0) {
-      console.log(`[实时通知] 发现 ${realTimePushMsgs.length} 条大V实时新发言，触发即时推送...`);
-      for (const msg of realTimePushMsgs) {
-        await pushRawMessageToWeChat(msg).catch(err => console.error('[即时微信推送错误]:', err.message));
-        markMessagePushed(msg.id, 1);
+      if (!skipWeChat) {
+        console.log(`[实时通知] 发现 ${realTimePushMsgs.length} 条大V实时新发言，触发即时推送...`);
+        for (const msg of realTimePushMsgs) {
+          await pushRawMessageToWeChat(msg).catch(err => console.error('[即时微信推送错误]:', err.message));
+          markMessagePushed(msg.id, 1);
+        }
+      } else {
+        console.log(`[实时通知] 发现 ${realTimePushMsgs.length} 条大V新发言。已忽略推送 (skipWeChat = true)。`);
+        for (const msg of realTimePushMsgs) {
+          markMessagePushed(msg.id, 1);
+        }
       }
     }
 
     // 3. Extract and execute trades on real-time messages
     let tradeResults = null;
     if (realTimeTradeMsgs.length > 0) {
-      console.log(`[自动跟单] 发现 ${realTimeTradeMsgs.length} 条大V实时新发言，触发交易信号提取与执行...`);
-      const provider = process.env.AI_PROVIDER || 'gemini';
-      const primarySpeakerName = realTimeTradeMsgs[0].sender_name;
-      try {
-        tradeResults = await extractAndExecuteTrades(realTimeTradeMsgs, provider, primarySpeakerName);
-      } catch (tradeErr) {
-        console.error('Failed in extractAndExecuteTrades:', tradeErr);
+      if (!skipTrades) {
+        console.log(`[自动跟单] 发现 ${realTimeTradeMsgs.length} 条大V实时新发言，触发交易信号提取与执行...`);
+        const provider = process.env.AI_PROVIDER || 'gemini';
+        const primarySpeakerName = realTimeTradeMsgs[0].sender_name;
+        try {
+          tradeResults = await extractAndExecuteTrades(realTimeTradeMsgs, provider, primarySpeakerName);
+        } catch (tradeErr) {
+          console.error('Failed in extractAndExecuteTrades:', tradeErr);
+        }
+      } else {
+        console.log(`[自动跟单] 发现 ${realTimeTradeMsgs.length} 条新发言。已忽略自动跟单 (skipTrades = true)。`);
       }
       
       const updateTraded = conn.prepare('UPDATE messages SET is_traded = 1 WHERE id = ?');
@@ -1016,7 +1027,7 @@ export async function syncAndAnalyze({ backfill = false } = {}) {
     }
 
     // 4. Trigger heavy AI report generation asynchronously in the background
-    if (realTimePushMsgs.length > 0) {
+    if (realTimePushMsgs.length > 0 && !skipReport) {
       const newestMessage = realTimePushMsgs[realTimePushMsgs.length - 1];
       if (lastProcessedMessageId !== newestMessage.id) {
         lastProcessedMessageId = newestMessage.id;
@@ -1153,4 +1164,295 @@ ${messagesText}`;
   
   await pushToWeChat(process.env.WECHAT_WORK_WEBHOOK_URL, title + summaryContent);
   console.log(`[Background AI] Strategy report pushed to WeChat.`);
+}
+
+// Helper for AI calls within monitor.js
+async function callMonitorAI(provider, prompt) {
+  if (provider === 'gemini') {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment.');
+    return await analyzeWithGemini(apiKey, prompt);
+  } else if (provider === 'ollama') {
+    const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+    const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
+    return await analyzeWithOllama(baseUrl, model, prompt);
+  } else if (provider === 'lm-studio') {
+    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
+    const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
+    return await analyzeWithLMStudio(baseUrl, model, prompt);
+  } else {
+    throw new Error(`Unsupported AI provider: ${provider}`);
+  }
+}
+
+// Extract tickers as array from message content
+function getTickersFromMessages(messages) {
+  const tickers = new Set();
+  for (const msg of messages) {
+    const dims = extractTradingDimensions(msg.content);
+    if (dims.tickers) {
+      const list = dims.tickers.split(',').filter(Boolean);
+      list.forEach(t => tickers.add(t));
+    }
+  }
+  return Array.from(tickers);
+}
+
+// Incremental Global AI Rolling Strategy briefing
+export async function generateGlobalRollingReport(provider = 'gemini') {
+  console.log('[Global Report] Starting incremental global rolling strategy briefing generation...');
+  const conn = getDb();
+  
+  // Find the latest rolling report
+  const latestGlobalReport = conn.prepare(`
+    SELECT * FROM reports 
+    WHERE strategy = 'GLOBAL_ROLLING' 
+    ORDER BY created_at DESC LIMIT 1
+  `).get();
+
+  const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  if (targetSpeakers.length === 0) {
+    return { success: false, reason: 'TARGET_SPEAKER_USER_IDS not set' };
+  }
+
+  const placeholders = targetSpeakers.map(() => '?').join(',');
+  
+  let newMessages = [];
+  let previousReportContent = '';
+  let startTimeMs = 0;
+  let endTimeMs = 0;
+
+  if (!latestGlobalReport) {
+    console.log('[Global Report] No previous global report found. Initializing global report with the last 120 messages...');
+    // Initial run: fetch the last 120 messages
+    newMessages = conn.prepare(`
+      SELECT * FROM (
+        SELECT * FROM messages 
+        WHERE sender_id IN (${placeholders}) 
+        ORDER BY created_at DESC LIMIT 120
+      ) ORDER BY created_at ASC
+    `).all(...targetSpeakers);
+
+    if (newMessages.length === 0) {
+      return { success: false, reason: 'No influencer messages found in database to summarize.' };
+    }
+
+    startTimeMs = newMessages[0].created_at;
+    endTimeMs = newMessages[newMessages.length - 1].created_at;
+  } else {
+    console.log(`[Global Report] Found previous global report (ID: ${latestGlobalReport.id}, End Time: ${new Date(latestGlobalReport.end_time).toLocaleString()}). Fetching incremental new messages...`);
+    
+    newMessages = conn.prepare(`
+      SELECT * FROM messages 
+      WHERE sender_id IN (${placeholders}) AND created_at > ?
+      ORDER BY created_at ASC
+    `).all(...targetSpeakers, latestGlobalReport.end_time);
+
+    if (newMessages.length === 0) {
+      console.log('[Global Report] No new messages since last update. Skipping briefing generation.');
+      return { success: true, updated: false, report: latestGlobalReport };
+    }
+
+    previousReportContent = latestGlobalReport.summary_content;
+    startTimeMs = latestGlobalReport.start_time;
+    endTimeMs = newMessages[newMessages.length - 1].created_at;
+  }
+
+  // Format messages
+  const newMessagesText = newMessages
+    .map(msg => `[${new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}] ${msg.sender_name}: ${msg.content}`)
+    .join('\n\n');
+
+  // Fetch K-line market data for mentioned tickers in the new batch
+  const tickers = getTickersFromMessages(newMessages);
+  const klineStats = await getMarketContextForTickers(tickers);
+
+  let prompt = '';
+  if (!latestGlobalReport) {
+    // Initial prompt
+    prompt = `你是一位顶尖的美股宏观与量化策略投资分析师。请根据以下大V历史发言，生成一份全面的【全局AI投资策略简报】。
+此报告旨在梳理大V的长期宏观观点、核心关注板块及具体操作细节。
+
+最新个股 K 线行情数据参考：
+${klineStats}
+
+大V发言历史数据源：
+${newMessagesText}
+
+你必须生成一份极其详尽且结构化的 Markdown 报告，格式如下：
+
+# 🌐 全局 AI 投资策略简报 (Rolling Briefing)
+
+## 📌 一、宏观大盘走势与多空偏好分析
+- 详细总结大V对美股大盘（如 SPY、QQQ、IWM）当前位置的看法，倾向于看多、看空还是防御防守？
+- 梳理大V在宏观层面的核心判断逻辑。
+
+## 🎯 二、核心战法与策略分类盘点
+- 识别并列举大V目前使用的操盘战法（如：做T/波段、财报战法、假前/节日减仓防守、尾盘强平/买入、弹性股防御、单调减仓等）。
+- 详细解释大V是如何在不同市场环境下实施这些战法的。
+
+## 📊 三、标的物价格区间与执行细节清单
+- 整理发言中提及的重点个股，制作一个 Markdown 表格：
+| 股票代码 | 操作建议/方向 (买入/卖出/做T/观望) | 大V点位/价格区间 | 最新行情 (当前价/5日均线) | 核心风控支撑/压力位与操作逻辑 |
+- 注：最新行情列的数据请结合上方提供的 K线行情数据进行对比填入。
+
+## 🛡️ 四、全局风控指南与实战金句
+- 提炼发言中最核心的投资风控原则（使用引用块 \`>\` 突出）。
+- 普通跟单者在使用此策略时，应该如何做心态管理与仓位配置控制？`;
+  } else {
+    // Incremental prompt
+    prompt = `你是一位顶尖的美股宏观与量化策略投资分析师。
+我们已经有一份基于历史发言生成的【上期全局AI投资策略简报】，现在收到了一批【最新发言数据】和【最新个股K线行情数据】。
+请在【上期全局AI投资策略简报】的基础上进行**增量更新调整**，融合新的发言内容，并输出一份最新的完整全局简报。
+
+要求：
+1. **不要从头重写**：保留上期简报中仍然有效的历史观点、关注板块和风控原则。
+2. **增量整合**：如果最新发言中大V改变了对大盘的看法，或对个股点位做出了修正、加仓、做T或卖出，请在最新简报的相应章节进行更新。
+3. **个股价格更新**：更新标的表格中的最新行情和逻辑点位。
+
+【上期全局AI投资策略简报】：
+${previousReportContent}
+
+【最新个股 K 线行情数据】：
+${klineStats}
+
+【大V最新发言数据】：
+${newMessagesText}
+
+请输出更新后的完整最新 Markdown 全局简报，结构须与上期保持一致。`;
+  }
+
+  console.log('[Global Report] Calling LLM for incremental briefing...');
+  const summaryContent = await callMonitorAI(provider, prompt);
+  
+  let modelNameUsed = 'Gemini';
+  if (provider === 'ollama') {
+    modelNameUsed = `Ollama (${process.env.OLLAMA_MODEL || 'deepseek-r1'})`;
+  } else if (provider === 'lm-studio') {
+    modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b'})`;
+  }
+
+  // Save to DB
+  const reportId = saveReport({
+    startTime: startTimeMs,
+    endTime: endTimeMs,
+    summaryContent: summaryContent,
+    aiModel: modelNameUsed,
+    rawMessagesCount: newMessages.length,
+    strategy: 'GLOBAL_ROLLING'
+  });
+
+  console.log(`[Global Report] Rolling report saved to DB (ID: ${reportId}).`);
+
+  // Push to WeChat
+  const title = `### 🌐 Whop AI 全局滚动策略简报\n**更新时间**: ${new Date().toLocaleString('zh-CN')}\n**分析模型**: ${modelNameUsed}\n**新增发言**: ${newMessages.length} 条\n\n---\n\n`;
+  await pushToWeChat(process.env.WECHAT_WORK_WEBHOOK_URL, title + summaryContent).catch(err => console.error('[微信推送错误]:', err.message));
+
+  return { success: true, updated: true, reportId, summaryContent };
+}
+
+// Generate K-line combined technical analysis report
+export async function generateKlineCombinedReport(provider = 'gemini') {
+  console.log('[Kline Report] Starting K-line combined technical analysis report generation...');
+  const conn = getDb();
+
+  const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  if (targetSpeakers.length === 0) {
+    return { success: false, reason: 'TARGET_SPEAKER_USER_IDS not set' };
+  }
+
+  const placeholders = targetSpeakers.map(() => '?').join(',');
+
+  // Fetch the last 40 messages
+  const messages = conn.prepare(`
+    SELECT * FROM (
+      SELECT * FROM messages 
+      WHERE sender_id IN (${placeholders}) 
+      ORDER BY created_at DESC LIMIT 40
+    ) ORDER BY created_at ASC
+  `).all(...targetSpeakers);
+
+  if (messages.length === 0) {
+    return { success: false, reason: 'No messages found in database.' };
+  }
+
+  const tickers = getTickersFromMessages(messages);
+  if (tickers.length === 0) {
+    return { success: false, reason: 'No tickers found in recent messages to run technical analysis.' };
+  }
+
+  const klineStats = await getMarketContextForTickers(tickers);
+
+  const messagesText = messages
+    .map(msg => `[${new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}] [${msg.channel_name}] ${msg.sender_name}: ${msg.content}`)
+    .join('\n\n');
+
+  const prompt = `你是一位资深的美股技术分析师与量化交易策略师。
+我们将大V近期的社区发言与对应的个股 K 线走势及技术指标进行了融合。
+请编写一份极其专业、基于行情数据支撑的【K线走势融合策略分析研报】。
+
+大V近期社区发言记录：
+${messagesText}
+
+Yahoo Finance 实时个股 K 线技术行情（SMA5、收盘趋势、5日高低范围）：
+${klineStats}
+
+你必须生成一份深度的 Markdown 分析报告，格式如下：
+
+# 📈 K线走势与大V策略融合分析报告
+
+## 📌 一、宏观走势与喊单标的合理性校验
+- 分析当前市场整体背景下，大V针对各个标的的操作方向（多/空）是否与该标的的短期趋势（如收盘趋势、5日均线）相符？
+- 标明哪些操作属于**顺势交易**，哪些属于**逆势博弈**（如超跌低吸、摸顶）。
+
+## 🔍 二、标的技术面诊断与点位校验
+针对涉及的核心股票进行逐一诊断：
+### 1. [股票代码，如 **TSLA**]
+- **大V建议点位**：大V发言中要求的买入价/卖出价/做T区间。
+- **K线形态与均线诊断**：分析当前最新价格与5日均线 (SMA5) 的相对位置，5日收盘趋势显示是在走强还是走弱？
+- **点位可行性评估**：大V要求的买入点位是否在5日波动范围 (Low-High) 内？是否有明确的支撑位支撑？如果价格已经偏离，当前最新的合理介入点位应该是多少？
+
+## 🛡️ 三、精密风控计划与下单跟单指南
+- 综合个股的技术走势，为普通跟单者制定精确的入场方案。
+- 给出每个股票推荐的**止损设置（根据K线低点）**以及**第一止盈区**、**第二止盈区**。
+- 提供大本金与小本金投资者的仓位分级防守建议。`;
+
+  console.log('[Kline Report] Calling LLM for technical report...');
+  const summaryContent = await callMonitorAI(provider, prompt);
+
+  let modelNameUsed = 'Gemini';
+  if (provider === 'ollama') {
+    modelNameUsed = `Ollama (${process.env.OLLAMA_MODEL || 'deepseek-r1'})`;
+  } else if (provider === 'lm-studio') {
+    modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b'})`;
+  }
+
+  // Save report to DB (strategy = 'KLINE_COMBINED')
+  const startTime = messages[0].created_at;
+  const endTime = messages[messages.length - 1].created_at;
+
+  const reportId = saveReport({
+    startTime,
+    endTime,
+    summaryContent,
+    aiModel: modelNameUsed,
+    rawMessagesCount: messages.length,
+    strategy: 'KLINE_COMBINED'
+  });
+
+  console.log(`[Kline Report] Technical report saved to DB (ID: ${reportId}).`);
+
+  // Push to WeChat Work
+  const title = `### 📈 Whop AI K线走势融合分析研报\n**生成时间**: ${new Date().toLocaleString('zh-CN')}\n**分析模型**: ${modelNameUsed}\n**分析个股**: ${tickers.join(', ')}\n\n---\n\n`;
+  await pushToWeChat(process.env.WECHAT_WORK_WEBHOOK_URL, title + summaryContent).catch(err => console.error('[微信推送错误]:', err.message));
+
+  return { success: true, reportId, summaryContent };
 }
