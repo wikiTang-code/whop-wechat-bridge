@@ -74,6 +74,25 @@ export async function getUnifiedPositions() {
  * @returns {Promise<{ allowed: boolean, reason?: string, quantity?: number }>}
  */
 export async function validateRiskLimits({ ticker, action, price, requestedQuantity, stopLoss }) {
+  // 基本输入校验
+  if (!ticker || typeof ticker !== 'string' || ticker.trim().length === 0) {
+    return { allowed: false, reason: '风控拦截：股票代码无效' };
+  }
+  if (action !== 'BUY' && action !== 'SELL') {
+    return { allowed: false, reason: `风控拦截：不支持的交易动作 "${action}"，仅支持 BUY/SELL` };
+  }
+  if (typeof price !== 'number' || price <= 0 || !isFinite(price)) {
+    return { allowed: false, reason: `风控拦截：委托价格无效 ($${price})，价格必须为正数` };
+  }
+  if (typeof requestedQuantity !== 'number' || requestedQuantity <= 0 || !Number.isInteger(requestedQuantity)) {
+    return { allowed: false, reason: `风控拦截：委托股数无效 (${requestedQuantity})，股数必须为正整数` };
+  }
+  if (stopLoss !== null && stopLoss !== undefined) {
+    if (typeof stopLoss !== 'number' || stopLoss <= 0 || !isFinite(stopLoss)) {
+      return { allowed: false, reason: `风控拦截：止损价格无效 ($${stopLoss})` };
+    }
+  }
+
   // 实盘与模拟统一调用当前生效的资产总览
   const portfolio = await getUnifiedPortfolio();
   const totalEquity = portfolio.total_equity;
@@ -111,10 +130,16 @@ export async function validateRiskLimits({ ticker, action, price, requestedQuant
   if (action === 'SELL') {
     const positions = await getUnifiedPositions();
     const existingPosition = positions.find(pos => pos.ticker === ticker);
-    if (!existingPosition || existingPosition.quantity < requestedQuantity) {
+    if (!existingPosition) {
       return { 
         allowed: false, 
-        reason: `交易拦截：可用持仓不足。企图卖出 ${ticker} ${requestedQuantity} 股，当前仅持有 ${existingPosition ? existingPosition.quantity : 0} 股` 
+        reason: `交易拦截：无持仓。企图卖出 ${ticker} ${requestedQuantity} 股，当前未持有该股票` 
+      };
+    }
+    if (existingPosition.quantity < requestedQuantity) {
+      return { 
+        allowed: false, 
+        reason: `交易拦截：可用持仓不足。企图卖出 ${ticker} ${requestedQuantity} 股，当前仅持有 ${existingPosition.quantity} 股` 
       };
     }
   }

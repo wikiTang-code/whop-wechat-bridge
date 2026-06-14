@@ -15,7 +15,7 @@ COPY . .
 # The DB resides in the /app directory by default, which can be mounted as a volume
 VOLUME ["/app"]
 
-EXPOSE 3000
+EXPOSE 8085
 
 ENV NODE_ENV=production
 

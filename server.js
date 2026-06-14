@@ -50,7 +50,34 @@ initDb();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Basic Authentication Middleware (Optional - enabled when DASHBOARD_USERNAME and DASHBOARD_PASSWORD are set in .env)
+// Rate limiter for authentication attempts
+const authAttempts = new Map();
+const AUTH_RATE_LIMIT = 10; // max attempts per window
+const AUTH_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+
+function checkAuthRateLimit(ip) {
+  const now = Date.now();
+  const record = authAttempts.get(ip);
+  if (!record || now - record.windowStart > AUTH_WINDOW_MS) {
+    authAttempts.set(ip, { windowStart: now, count: 1 });
+    return true;
+  }
+  record.count++;
+  return record.count <= AUTH_RATE_LIMIT;
+}
+
+// Timing-safe string comparison
+function safeCompare(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+// Basic Authentication Middleware with rate limiting
 app.use((req, res, next) => {
   // Exclude Whop official Webhook endpoint from authentication
   if (req.path === '/webhook') {
@@ -64,18 +91,30 @@ app.use((req, res, next) => {
     return next();
   }
 
+  const clientIp = req.ip || req.connection.remoteAddress;
+
+  if (!checkAuthRateLimit(clientIp)) {
+    console.warn(`[Auth] Rate limit exceeded for IP: ${clientIp}`);
+    return res.status(429).send('Too many authentication attempts. Please try again later.');
+  }
+
   const authHeader = req.headers.authorization;
-  if (!authHeader) {
+  if (!authHeader || !authHeader.startsWith('Basic ')) {
     res.setHeader('WWW-Authenticate', 'Basic realm="Secure Dashboard"');
     return res.status(401).send('Authentication required.');
   }
 
   try {
-    const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    const user = auth[0];
-    const pass = auth[1];
+    const decoded = Buffer.from(authHeader.split(' ')[1], 'base64').toString('utf-8');
+    const colonIndex = decoded.indexOf(':');
+    if (colonIndex === -1) throw new Error('Invalid auth format');
 
-    if (user === authUser && pass === authPass) {
+    const user = decoded.substring(0, colonIndex);
+    const pass = decoded.substring(colonIndex + 1);
+
+    if (safeCompare(user, authUser) && safeCompare(pass, authPass)) {
+      // Reset rate limit on successful auth
+      authAttempts.delete(clientIp);
       return next();
     }
   } catch (err) {
@@ -91,6 +130,58 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 // Regular JSON body parser for APIs
 app.use(express.json());
+
+// CSRF token management for financial operations
+const csrfTokens = new Map();
+const CSRF_TOKEN_TTL = 60 * 60 * 1000; // 1 hour
+
+function generateCsrfToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+function getOrCreateCsrfToken(sessionId) {
+  const existing = csrfTokens.get(sessionId);
+  if (existing && Date.now() - existing.created < CSRF_TOKEN_TTL) {
+    return existing.token;
+  }
+  const token = generateCsrfToken();
+  csrfTokens.set(sessionId, { token, created: Date.now() });
+  return token;
+}
+
+// Cleanup expired tokens periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of csrfTokens) {
+    if (now - val.created > CSRF_TOKEN_TTL) {
+      csrfTokens.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
+
+// GET /api/csrf-token - Issue a CSRF token for the session
+app.get('/api/csrf-token', (req, res) => {
+  const sessionId = req.headers['x-session-id'] || req.ip;
+  const token = getOrCreateCsrfToken(sessionId);
+  res.json({ success: true, csrfToken: token });
+});
+
+// CSRF validation middleware for state-changing financial endpoints
+function requireCsrf(req, res, next) {
+  const token = req.headers['x-csrf-token'];
+  const sessionId = req.headers['x-session-id'] || req.ip;
+  
+  if (!token) {
+    return res.status(403).json({ success: false, error: 'Missing CSRF token.' });
+  }
+  
+  const record = csrfTokens.get(sessionId);
+  if (!record || record.token !== token || Date.now() - record.created > CSRF_TOKEN_TTL) {
+    return res.status(403).json({ success: false, error: 'Invalid or expired CSRF token.' });
+  }
+  
+  next();
+}
 
 // Background poller task runner
 let pollTimeout = null;
@@ -299,7 +390,7 @@ app.get('/api/quant/orders', (req, res) => {
 });
 
 // POST /api/quant/reset - 重置沙盒模拟账户资金
-app.post('/api/quant/reset', (req, res) => {
+app.post('/api/quant/reset', requireCsrf, (req, res) => {
   try {
     const amount = parseFloat(req.body.amount || '100000.00');
     resetPortfolioCash(amount);
@@ -310,19 +401,31 @@ app.post('/api/quant/reset', (req, res) => {
 });
 
 // POST /api/quant/trade - 手动下单（用于测试风控引擎和下单通道）
-app.post('/api/quant/trade', async (req, res) => {
+app.post('/api/quant/trade', requireCsrf, async (req, res) => {
   try {
     const { ticker, action, price, quantity, stopLoss, reason } = req.body;
-    
-    if (!ticker || !action || !price || !quantity) {
-      return res.status(400).json({ success: false, error: '缺少必要参数 (ticker, action, price, quantity)' });
+
+    // Validate required parameters
+    if (!ticker || typeof ticker !== 'string' || ticker.trim().length === 0) {
+      return res.status(400).json({ success: false, error: '缺少或无效的 ticker 参数' });
+    }
+    if (!action || !['BUY', 'SELL'].includes(action.toUpperCase())) {
+      return res.status(400).json({ success: false, error: 'action 参数必须为 BUY 或 SELL' });
+    }
+    const parsedPrice = parseFloat(price);
+    if (!parsedPrice || parsedPrice <= 0 || !isFinite(parsedPrice)) {
+      return res.status(400).json({ success: false, error: 'price 参数必须为正数' });
+    }
+    const parsedQty = parseInt(quantity, 10);
+    if (!parsedQty || parsedQty <= 0 || !Number.isInteger(parsedQty)) {
+      return res.status(400).json({ success: false, error: 'quantity 参数必须为正整数' });
     }
 
     const result = await executeOrder({
-      ticker: ticker.toUpperCase(),
+      ticker: ticker.trim().toUpperCase(),
       action: action.toUpperCase(),
-      price: parseFloat(price),
-      quantity: parseInt(quantity, 10),
+      price: parsedPrice,
+      quantity: parsedQty,
       stopLoss: stopLoss ? parseFloat(stopLoss) : null,
       reason: reason || '手动触发交易'
     });
