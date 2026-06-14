@@ -403,7 +403,8 @@ app.post('/api/reports/kline-combined', requireCsrf, async (req, res) => {
     const result = await generateKlineCombinedReport(provider);
     res.json(result);
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error('[Kline Report Error]', error.message);
+    res.status(500).json({ success: false, reason: error.message });
   }
 });
 
