@@ -454,6 +454,36 @@ export async function analyzeWithLMStudio(baseUrl, model, prompt) {
   }
 }
 
+
+// Unified LLM call with fallback: primary provider -> Gemini
+export async function analyzeWithFallback(prompt, options = {}) {
+  const primaryProvider = options.provider || process.env.AI_PROVIDER || 'gemini';
+  if (primaryProvider === 'gemini') {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY is not set.');
+    return await analyzeWithGemini(apiKey, prompt);
+  }
+  try {
+    if (primaryProvider === 'lm-studio') {
+      const baseUrl = options.baseUrl || process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
+      const model = options.model || process.env.LM_STUDIO_MODEL || 'qwen';
+      console.log('[LLM] Trying remote LM Studio: ' + baseUrl);
+      return await analyzeWithLMStudio(baseUrl, model, prompt);
+    } else if (primaryProvider === 'ollama') {
+      const baseUrl = options.baseUrl || process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+      const model = options.model || process.env.OLLAMA_MODEL || 'deepseek-r1';
+      console.log('[LLM] Trying Ollama: ' + baseUrl);
+      return await analyzeWithOllama(baseUrl, model, prompt);
+    }
+  } catch (e) {
+    console.warn('[LLM] ' + primaryProvider + ' failed: ' + e.message);
+    console.log('[LLM] Falling back to Gemini...');
+  }
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('Primary LLM failed and GEMINI_API_KEY not set.');
+  return await analyzeWithGemini(apiKey, prompt);
+}
+
 // Push report to Enterprise WeChat group robot
 async function pushToWeChat(webhookUrl, markdownContent) {
   if (!webhookUrl) {
@@ -581,21 +611,7 @@ ${messagesText}`;
   const startTimeTradeAI = Date.now();
   
   try {
-    if (provider === 'gemini') {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment.');
-      jsonText = await analyzeWithGemini(apiKey, signalPrompt);
-    } else if (provider === 'ollama') {
-      const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-      const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
-      jsonText = await analyzeWithOllama(baseUrl, model, signalPrompt);
-    } else if (provider === 'lm-studio') {
-      const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
-      const model = process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b';
-      jsonText = await analyzeWithLMStudio(baseUrl, model, signalPrompt);
-    } else {
-      throw new Error(`Unsupported AI provider: ${provider}`);
-    }
+    jsonText = await analyzeWithFallback(signalPrompt, { provider });
 
     const durationTradeAI = ((Date.now() - startTimeTradeAI) / 1000).toFixed(1);
     console.log(`[自动跟单] AI 提取信号完成！耗时: ${durationTradeAI}秒。AI 原始响应 JSON:\n${jsonText.trim()}`);
@@ -1069,20 +1085,13 @@ async function generateAIReportBackground(newSpeakerMessages, provider, primaryS
 ${messagesText}`;
 
   let summaryContent = '';
-  if (provider === 'gemini') {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment.');
-    summaryContent = await analyzeWithGemini(apiKey, aiPrompt);
-  } else if (provider === 'ollama') {
-    const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-    const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
-    summaryContent = await analyzeWithOllama(baseUrl, model, aiPrompt);
+  summaryContent = await analyzeWithFallback(aiPrompt, { provider });
+  
+  let modelNameUsed = 'Gemini';
+  if (provider === 'ollama') {
+    modelNameUsed = 'Ollama (' + (process.env.OLLAMA_MODEL || 'deepseek-r1') + ')';
   } else if (provider === 'lm-studio') {
-    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
-    const model = process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b';
-    summaryContent = await analyzeWithLMStudio(baseUrl, model, aiPrompt);
-  } else {
-    throw new Error(`Unsupported AI provider: ${provider}`);
+    modelNameUsed = 'LM Studio (' + (process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b') + ')';
   }
 
   const durationAI = ((Date.now() - startTimeAI) / 1000).toFixed(1);
@@ -1092,12 +1101,6 @@ ${messagesText}`;
   const startTime = newSpeakerMessages[0].created_at;
   const endTime = newSpeakerMessages[newSpeakerMessages.length - 1].created_at;
   
-  let modelNameUsed = 'Gemini';
-  if (provider === 'ollama') {
-    modelNameUsed = `Ollama (${process.env.OLLAMA_MODEL || 'deepseek-r1'})`;
-  } else if (provider === 'lm-studio') {
-    modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b'})`;
-  }
 
   saveReport({
     startTime,
