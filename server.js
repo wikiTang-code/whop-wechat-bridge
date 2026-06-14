@@ -1223,7 +1223,7 @@ app.post('/api/rag/query', requireCsrf, async (req, res) => {
     let queryEmbedding = null;
     if (isVectorSearchEnabled) {
       try {
-        queryEmbedding = await fetchLMStudioEmbedding(question);
+        queryEmbedding = await fetchEmbedding(question);
       } catch (err) {
         console.warn(`[RAG] Failed to generate embedding for query, falling back to keyword search: ${err.message}`);
       }
