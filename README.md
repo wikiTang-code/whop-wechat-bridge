@@ -80,10 +80,17 @@ npm start
 ## 💻 Web 管理 Dashboard
 服务启动后（无论何种模式），都可以使用浏览器访问管理后台：
 ```
-http://localhost:3000
+http://localhost:8085
 ```
+
+> **安全说明**：Dashboard 已启用 HTTP Basic Auth 认证。首次访问时浏览器会弹出登录框，请输入 `.env` 中配置的 `DASHBOARD_USERNAME` 和 `DASHBOARD_PASSWORD`。系统内置 IP 速率限制（15分钟内最多10次失败尝试），防止暴力破解。
+
 您可以在 Web Dashboard 上直观地查看：
 - 大V的历史发言汇总
 - AI 策略报告的生成时间与详细 Markdown 汇总内容
 - 模拟交易的持仓、资金净值图表与交易历史
 - 直接在页面修改配置（会自动同步到 `.env` 并重启后台任务）
+- 下单和重置账户操作受 CSRF 令牌保护
+
+### 🌐 公网访问（Cloudflare Tunnel）
+服务启动后会自动创建 Cloudflare 快速隧道，无需域名或端口转发即可从公网访问。隧道地址会在启动日志中输出，也可通过 `npm run pm2:logs` 查看。如需固定域名，建议使用 Cloudflare Named Tunnel 或 Nginx 反向代理。
