@@ -413,7 +413,14 @@ async function triggerSync() {
   syncIcon.classList.add('spin-animation');
   
   try {
-    const response = await fetch('/api/sync', { method: 'POST' });
+    const csrfToken = await ensureCsrfToken();
+    const response = await fetch('/api/sync', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      }
+    });
     const result = await response.json();
     
     if (result.success) {
@@ -482,9 +489,14 @@ async function saveSettings(e) {
   if (whopSecret) payload.WHOP_WEBHOOK_SECRET = whopSecret;
 
   try {
+    const csrfToken = await ensureCsrfToken();
     const response = await fetch('/api/config', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      },
       body: JSON.stringify(payload)
     });
     
@@ -643,7 +655,7 @@ function renderMessages(messages, total) {
     const sectors = msg.sectors ? msg.sectors.split(',').filter(Boolean) : [];
     const strategies = msg.strategies ? msg.strategies.split(',').filter(Boolean) : [];
     
-    const contextBtnHtml = `<button class="btn-msg-context" onclick="event.stopPropagation(); showMessageContext('${msg.id}')">🔍 附近消息</button>`;
+    const contextBtnHtml = `<button class="btn-msg-context" onclick="event.stopPropagation(); showMessageContext('${escapeAttr(msg.id)}')">🔍 附近消息</button>`;
 
     let footerHtml = '';
     if (sectors.length > 0 || strategies.length > 0 || true) {
@@ -651,10 +663,10 @@ function renderMessages(messages, total) {
       if (sectors.length > 0 || strategies.length > 0) {
         footerHtml += '<div class="message-tags">';
         sectors.forEach(s => {
-          footerHtml += `<span class="msg-meta-badge sector-badge">📁 ${s}</span>`;
+          footerHtml += `<span class="msg-meta-badge sector-badge">📁 ${escapeHtml(s)}</span>`;
         });
         strategies.forEach(s => {
-          footerHtml += `<span class="msg-meta-badge strategy-badge">⚡ ${s}</span>`;
+          footerHtml += `<span class="msg-meta-badge strategy-badge">⚡ ${escapeHtml(s)}</span>`;
         });
         footerHtml += '</div>';
       }
@@ -665,7 +677,7 @@ function renderMessages(messages, total) {
     bubble.innerHTML = `
       <div class="message-bubble-header">
         ${senderBadge}
-        ${msg.channel_name ? `<span class="channel-tag">${msg.channel_name}</span>` : ''}
+        ${msg.channel_name ? `<span class="channel-tag">${escapeHtml(msg.channel_name)}</span>` : ''}
         <span class="message-time">${dateStr}</span>
       </div>
       <div class="message-text">${html}</div>

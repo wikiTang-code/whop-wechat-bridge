@@ -339,8 +339,8 @@ app.get('/api/reports', (req, res) => {
   }
 });
 
-// 3. POST /api/sync - Manually trigger sync and analysis
-app.post('/api/sync', async (req, res) => {
+// 3. POST /api/sync - Manually trigger sync and analysis (CSRF protected)
+app.post('/api/sync', requireCsrf, async (req, res) => {
   try {
     console.log('Manual sync triggered by Web UI');
     const result = await syncAndAnalyze({ backfill: true });
@@ -505,8 +505,8 @@ app.get('/api/config', (req, res) => {
   });
 });
 
-// 5. POST /api/config - Save configuration updates
-app.post('/api/config', (req, res) => {
+// 5. POST /api/config - Save configuration updates (CSRF protected)
+app.post('/api/config', requireCsrf, (req, res) => {
   try {
     const updates = req.body;
     const cleanUpdates = {};
