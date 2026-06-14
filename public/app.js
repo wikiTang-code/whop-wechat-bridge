@@ -10,8 +10,44 @@ let state = {
   orders: [],
   messagesOffset: 0,
   messagesLimit: 50,
-  totalMessages: 0
+  totalMessages: 0,
+  csrfToken: null,
+  sessionId: 'sess_' + Math.random().toString(36).substr(2, 12)
 };
+
+// Fetch CSRF token for financial operations
+async function ensureCsrfToken() {
+  if (state.csrfToken) return state.csrfToken;
+  try {
+    const res = await fetch('/api/csrf-token', {
+      headers: { 'X-Session-Id': state.sessionId }
+    });
+    const data = await res.json();
+    if (data.success) {
+      state.csrfToken = data.csrfToken;
+      return state.csrfToken;
+    }
+  } catch (e) {
+    console.error('Failed to fetch CSRF token:', e);
+  }
+  return null;
+}
+
+// Safe HTML attribute escape
+function escapeAttr(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Validate URL is safe (https only)
+function isSafeUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
 
 // ==========================================================================
 // Initialization & Event Listeners
@@ -23,10 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initApp() {
-  fetchConfig();
-  fetchMessages();
-  fetchReports();
-  fetchQuantData(); // Fetch quantitative data
+  // Fetch all data in parallel for faster initial load
+  Promise.all([
+    fetchConfig(),
+    fetchMessages(),
+    fetchReports(),
+    fetchQuantData()
+  ]).catch(err => console.error('Init error:', err));
 }
 
 function initLayoutResizer() {
@@ -374,7 +413,14 @@ async function triggerSync() {
   syncIcon.classList.add('spin-animation');
   
   try {
-    const response = await fetch('/api/sync', { method: 'POST' });
+    const csrfToken = await ensureCsrfToken();
+    const response = await fetch('/api/sync', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      }
+    });
     const result = await response.json();
     
     if (result.success) {
@@ -443,9 +489,14 @@ async function saveSettings(e) {
   if (whopSecret) payload.WHOP_WEBHOOK_SECRET = whopSecret;
 
   try {
+    const csrfToken = await ensureCsrfToken();
     const response = await fetch('/api/config', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      },
       body: JSON.stringify(payload)
     });
     
@@ -485,9 +536,14 @@ async function handleManualTrade(e) {
   };
 
   try {
+    const csrfToken = await ensureCsrfToken();
     const response = await fetch('/api/quant/trade', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      },
       body: JSON.stringify(payload)
     });
 
@@ -517,9 +573,14 @@ async function handleResetPortfolio() {
   }
 
   try {
+    const csrfToken = await ensureCsrfToken();
     const response = await fetch('/api/quant/reset', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken || '',
+        'X-Session-Id': state.sessionId
+      },
       body: JSON.stringify({ amount: 100000.00 })
     });
     const result = await response.json();
@@ -574,23 +635,27 @@ function renderMessages(messages, total) {
     // 3. Highlight tickers
     html = html.replace(/(\b[A-Z]{2,5}\b|\$[a-zA-Z]{2,5})/g, '<span class="ticker-highlight">$1</span>');
 
-    // 4. Re-insert images as HTML tags
+    // 4. Re-insert images as HTML tags (with URL sanitization)
     images.forEach((url, index) => {
-      const imgHtml = `<div class="message-image-container"><img class="message-image" src="${url}" alt="图片" onclick="window.open('${url}', '_blank')"></div>`;
+      const safeUrl = isSafeUrl(url) ? escapeAttr(url) : '';
+      const imgHtml = safeUrl
+        ? `<div class="message-image-container"><img class="message-image" src="${safeUrl}" alt="图片" loading="lazy"></div>`
+        : '';
       html = html.replace(`__IMAGE_PLACEHOLDER_${index}__`, imgHtml);
     });
 
-    // Check if VIP/Main 대V speaker (xiaozhaolucky or user ID)
-    const isVip = msg.sender_name === 'xiaozhaolucky' || msg.sender_id === 'user_4yeplXgbguTu4';
-    const senderBadge = isVip 
-      ? `<span class="sender-name vip-sender">⭐ ${msg.sender_name} <span class="vip-badge">大V</span></span>` 
-      : `<span class="sender-name">👤 ${msg.sender_name}</span>`;
+    // Check if VIP/Main speaker using configured target speaker IDs
+    const targetSpeakerIds = (state.config.TARGET_SPEAKER_USER_IDS || '').split(',').map(s => s.trim()).filter(Boolean);
+    const isVip = targetSpeakerIds.includes(msg.sender_id);
+    const senderBadge = isVip
+      ? `<span class="sender-name vip-sender">⭐ ${escapeHtml(msg.sender_name)} <span class="vip-badge">大V</span></span>`
+      : `<span class="sender-name">👤 ${escapeHtml(msg.sender_name)}</span>`;
 
     // Process strategy & sector tags for footer display
     const sectors = msg.sectors ? msg.sectors.split(',').filter(Boolean) : [];
     const strategies = msg.strategies ? msg.strategies.split(',').filter(Boolean) : [];
     
-    const contextBtnHtml = `<button class="btn-msg-context" onclick="event.stopPropagation(); showMessageContext('${msg.id}')">🔍 附近消息</button>`;
+    const contextBtnHtml = `<button class="btn-msg-context" onclick="event.stopPropagation(); showMessageContext('${escapeAttr(msg.id)}')">🔍 附近消息</button>`;
 
     let footerHtml = '';
     if (sectors.length > 0 || strategies.length > 0 || true) {
@@ -598,10 +663,10 @@ function renderMessages(messages, total) {
       if (sectors.length > 0 || strategies.length > 0) {
         footerHtml += '<div class="message-tags">';
         sectors.forEach(s => {
-          footerHtml += `<span class="msg-meta-badge sector-badge">📁 ${s}</span>`;
+          footerHtml += `<span class="msg-meta-badge sector-badge">📁 ${escapeHtml(s)}</span>`;
         });
         strategies.forEach(s => {
-          footerHtml += `<span class="msg-meta-badge strategy-badge">⚡ ${s}</span>`;
+          footerHtml += `<span class="msg-meta-badge strategy-badge">⚡ ${escapeHtml(s)}</span>`;
         });
         footerHtml += '</div>';
       }
@@ -612,7 +677,7 @@ function renderMessages(messages, total) {
     bubble.innerHTML = `
       <div class="message-bubble-header">
         ${senderBadge}
-        ${msg.channel_name ? `<span class="channel-tag">${msg.channel_name}</span>` : ''}
+        ${msg.channel_name ? `<span class="channel-tag">${escapeHtml(msg.channel_name)}</span>` : ''}
         <span class="message-time">${dateStr}</span>
       </div>
       <div class="message-text">${html}</div>
@@ -1324,14 +1389,18 @@ function renderContextMessages(messages, targetId) {
     html = html.replace(/(\b[A-Z]{2,5}\b|\$[a-zA-Z]{2,5})/g, '<span class="ticker-highlight">$1</span>');
     
     images.forEach((url, index) => {
-      const imgHtml = `<div class="message-image-container"><img class="message-image" src="${url}" alt="图片" onclick="window.open('${url}', '_blank')"></div>`;
+      const safeUrl = isSafeUrl(url) ? escapeAttr(url) : '';
+      const imgHtml = safeUrl
+        ? `<div class="message-image-container"><img class="message-image" src="${safeUrl}" alt="图片" loading="lazy"></div>`
+        : '';
       html = html.replace(`__IMAGE_PLACEHOLDER_${index}__`, imgHtml);
     });
     
-    const isVip = msg.sender_name === 'xiaozhaolucky' || msg.sender_id === 'user_4yeplXgbguTu4';
-    const senderBadge = isVip 
-      ? `<span class="sender-name vip-sender">⭐ ${msg.sender_name} <span class="vip-badge">大V</span></span>` 
-      : `<span class="sender-name">👤 ${msg.sender_name}</span>`;
+    const targetSpeakerIds = (state.config.TARGET_SPEAKER_USER_IDS || '').split(',').map(s => s.trim()).filter(Boolean);
+    const isVip = targetSpeakerIds.includes(msg.sender_id);
+    const senderBadge = isVip
+      ? `<span class="sender-name vip-sender">⭐ ${escapeHtml(msg.sender_name)} <span class="vip-badge">大V</span></span>`
+      : `<span class="sender-name">👤 ${escapeHtml(msg.sender_name)}</span>`;
       
     const sectors = msg.sectors ? msg.sectors.split(',').filter(Boolean) : [];
     const strategies = msg.strategies ? msg.strategies.split(',').filter(Boolean) : [];
