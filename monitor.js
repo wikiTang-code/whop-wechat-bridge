@@ -506,7 +506,13 @@ async function pushToWeChat(webhookUrl, markdownContent) {
 
   if (!response.ok) {
     const errText = await response.text();
-    console.error(`Failed to push to Enterprise WeChat: ${response.status} - ${errText}`);
+    console.error(`Failed to push to Enterprise WeChat: HTTP ${response.status} - ${errText}`);
+    return;
+  }
+
+  const result = await response.json().catch(() => ({}));
+  if (result.errcode !== 0) {
+    console.error(`Enterprise WeChat API error: errcode=${result.errcode}, errmsg=${result.errmsg}`);
   } else {
     console.log('Successfully pushed AI report to Enterprise WeChat.');
   }

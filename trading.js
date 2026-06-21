@@ -369,7 +369,7 @@ async function pushTradeAlertToWeChat({ orderId, ticker, action, price, quantity
 ---\n*可通过后台 Web 仪表盘查看实时持仓与资金变化。*`;
 
   try {
-    await fetch(webhookUrl, {
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -377,6 +377,14 @@ async function pushTradeAlertToWeChat({ orderId, ticker, action, price, quantity
         markdown: { content: text }
       })
     });
+    if (!response.ok) {
+      console.error(`Failed to send trade alert to WeChat: HTTP ${response.status}`);
+      return;
+    }
+    const result = await response.json().catch(() => ({}));
+    if (result.errcode !== 0) {
+      console.error(`Trade alert WeChat API error: errcode=${result.errcode}, errmsg=${result.errmsg}`);
+    }
   } catch (err) {
     console.error('Failed to send trade alert to WeChat:', err);
   }
