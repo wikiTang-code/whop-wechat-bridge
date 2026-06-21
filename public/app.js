@@ -60,9 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function initApp() {
   try {
-    await fetchChannels();
+    await fetchSpeakers();
   } catch (err) {
-    console.error('Error fetching channels during initApp:', err);
+    console.error('Error fetching speakers during initApp:', err);
   }
   
   // Fetch all data in parallel for faster initial load
@@ -314,11 +314,11 @@ async function fetchConfig() {
   }
 }
 
-async function fetchChannels() {
+async function fetchSpeakers() {
   try {
-    const response = await fetch('/api/channels');
+    const response = await fetch('/api/speakers');
     const result = await response.json();
-    if (result.success && Array.isArray(result.data)) {
+    if (result.success && Array.isArray(result.speakers)) {
       const select = document.getElementById('filter-speaker');
       if (select) {
         // Keep the original 2 options
@@ -326,16 +326,16 @@ async function fetchChannels() {
           <option value="speakers">只看大V (赵哥)</option>
           <option value="all">所有人</option>
         `;
-        result.data.forEach(ch => {
+        result.speakers.forEach(spk => {
           const option = document.createElement('option');
-          option.value = `community_${ch.channel_id}`;
-          option.textContent = `群友: ${ch.channel_name || ch.channel_id}`;
+          option.value = spk.sender_id;
+          option.textContent = `群友: ${spk.sender_name || spk.sender_id}`;
           select.appendChild(option);
         });
       }
     }
   } catch (error) {
-    console.error('Error fetching channels:', error);
+    console.error('Error fetching speakers:', error);
   }
 }
 

@@ -330,6 +330,9 @@ app.get('/api/messages', (req, res) => {
     } else if (speakerMode && speakerMode.startsWith('community_')) {
       channelId = speakerMode.replace('community_', '');
       excludeSenderIds = targetSpeakers;
+    } else if (speakerMode) {
+      // 如果是具体发言人 ID，则过滤该发言人
+      senderIds = [speakerMode];
     } else {
       // Fallback for backward compatibility
       const onlySpeakers = req.query.onlySpeakers !== 'false';
@@ -361,6 +364,33 @@ app.get('/api/channels', (req, res) => {
   try {
     const channels = getDistinctChannels();
     res.json({ success: true, data: channels });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 1.3 GET /api/speakers - List unique speakers/senders in the archive database
+app.get('/api/speakers', (req, res) => {
+  try {
+    const db = getDb();
+    
+    // 获取所有的 targetSpeakers
+    const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+      
+    const rows = db.prepare(`
+      SELECT DISTINCT sender_id, sender_name 
+      FROM messages 
+      WHERE sender_name IS NOT NULL AND sender_name != ''
+      ORDER BY sender_name ASC
+    `).all();
+    
+    // 过滤掉大V，剩下的是群友（大V已经有独立的“只看大V”选项了）
+    const communitySpeakers = rows.filter(r => !targetSpeakers.includes(r.sender_id));
+    
+    res.json({ success: true, speakers: communitySpeakers });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
