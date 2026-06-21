@@ -1770,3 +1770,177 @@ window.updateStrategyAnalysis = async function(btn, strategyKey) {
   }
 };
 
+// ==========================================================================
+// 大V行为画像 (Persona Playbook) Feature
+// ==========================================================================
+
+// Button: Generate Persona click listener
+document.getElementById('btn-generate-persona')?.addEventListener('click', async () => {
+  const btn = document.getElementById('btn-generate-persona');
+  const statusArea = document.getElementById('persona-progress-area');
+  const statusText = document.getElementById('persona-status-text');
+  const progressBar = document.getElementById('persona-progress-bar');
+  const contentArea = document.getElementById('persona-content');
+  const metaArea = document.getElementById('persona-meta');
+  
+  btn.disabled = true;
+  btn.querySelector('.btn-text').textContent = '生成中...';
+  statusArea.style.display = 'block';
+  statusText.textContent = '正在启动画像生成引擎...';
+  progressBar.style.width = '0%';
+  contentArea.style.display = 'none';
+  metaArea.style.display = 'none';
+  
+  try {
+    const csrfToken = await ensureCsrfToken();
+    const provider = document.getElementById('ai-provider')?.value || document.getElementById('ai_provider')?.value || 'lm-studio';
+    const res = await fetch('/api/persona/generate', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json', 
+        'X-Session-Id': state.sessionId, 
+        'X-CSRF-Token': csrfToken || '' 
+      },
+      body: JSON.stringify({ provider, maxMonths: 6, forceRefresh: true })
+    });
+    const data = await res.json();
+    if (data.success) {
+      pollPersonaStatus();
+    } else {
+      statusText.textContent = '启动失败: ' + (data.reason || data.error || '未知错误');
+      btn.disabled = false;
+      btn.querySelector('.btn-text').textContent = '生成画像';
+    }
+  } catch (err) {
+    statusText.textContent = '请求错误: ' + err.message;
+    btn.disabled = false;
+    btn.querySelector('.btn-text').textContent = '生成画像';
+  }
+});
+
+let personaPollingTimer = null;
+
+async function pollPersonaStatus() {
+  const statusText = document.getElementById('persona-status-text');
+  const progressBar = document.getElementById('persona-progress-bar');
+  const btn = document.getElementById('btn-generate-persona');
+  
+  try {
+    const res = await fetch('/api/persona/status');
+    const data = await res.json();
+    
+    if (data.status === 'running') {
+      statusText.textContent = data.progress || '处理中...';
+      progressBar.style.width = (data.percent || 0) + '%';
+      personaPollingTimer = setTimeout(pollPersonaStatus, 3000);
+    } else if (data.status === 'done') {
+      statusText.textContent = '✅ 画像生成完成！';
+      progressBar.style.width = '100%';
+      btn.disabled = false;
+      btn.querySelector('.btn-text').textContent = '重新生成';
+      setTimeout(loadPersonaPlaybook, 1000);
+    } else if (data.status === 'error') {
+      btn.disabled = false;
+      btn.querySelector('.btn-text').textContent = '重新生成';
+      statusText.textContent = '❌ ' + (data.error || '生成失败');
+    } else {
+      btn.disabled = false;
+      btn.querySelector('.btn-text').textContent = '生成画像';
+    }
+  } catch (err) {
+    statusText.textContent = '状态查询失败: ' + err.message;
+    personaPollingTimer = setTimeout(pollPersonaStatus, 5000);
+  }
+}
+
+async function loadPersonaPlaybook() {
+  const contentArea = document.getElementById('persona-content');
+  const metaArea = document.getElementById('persona-meta');
+  const progressArea = document.getElementById('persona-progress-area');
+  const btn = document.getElementById('btn-generate-persona');
+  
+  try {
+    const res = await fetch('/api/persona/latest');
+    const data = await res.json();
+    
+    if (data.success && data.playbook) {
+      const pb = data.playbook;
+      const genTime = new Date(pb.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+      const startTime = new Date(pb.start_time).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+      const endTime = new Date(pb.end_time).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+      
+      metaArea.innerHTML = `
+        <div class="persona-meta-grid">
+          <div class="meta-item"><span class="meta-label">📅 生成时间</span><span class="meta-value">${genTime}</span></div>
+          <div class="meta-item"><span class="meta-label">📊 分析发言数</span><span class="meta-value">${pb.raw_messages_count} 条</span></div>
+          <div class="meta-item"><span class="meta-label">📆 覆盖范围</span><span class="meta-value">${startTime} ~ ${endTime}</span></div>
+          <div class="meta-item"><span class="meta-label">🤖 AI 模型</span><span class="meta-value">${pb.ai_model}</span></div>
+        </div>
+      `;
+      metaArea.style.display = 'block';
+      contentArea.innerHTML = renderSimpleMarkdown(pb.summary_content);
+      contentArea.style.display = 'block';
+      progressArea.style.display = 'none';
+      btn.querySelector('.btn-text').textContent = '重新生成';
+    } else {
+      contentArea.innerHTML = `
+        <div class="empty-state">
+          <span class="empty-icon">🧠</span>
+          <p>尚未生成画像白皮书</p>
+          <p class="empty-hint">点击上方「生成画像」按钮开始分析大V历史行为模式</p>
+        </div>
+      `;
+      contentArea.style.display = 'block';
+      metaArea.style.display = 'none';
+      progressArea.style.display = 'none';
+    }
+  } catch (err) {
+    contentArea.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载失败: ${err.message}</p></div>`;
+    contentArea.style.display = 'block';
+  }
+}
+
+function renderSimpleMarkdown(md) {
+  if (!md) return '';
+  
+  // Escape HTML helper
+  const escapeHTML = (str) => str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  
+  let html = escapeHTML(md);
+  
+  // Clean thinking tags
+  html = html.replace(/&lt;think&gt;[\s\S]*?&lt;\/think&gt;/g, '');
+  
+  // Convert markdown to HTML
+  html = html
+    // Headers
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    // Bold
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Italic
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Inline code
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Horizontal rules
+    .replace(/^---$/gm, '<hr>')
+    // Bullet lists
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    // Number lists
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    // Newlines (paragraphs)
+    .replace(/\r?\n\r?\n/g, '</p><p>')
+    .replace(/\r?\n/g, '<br>');
+    
+  // Wrap list items in <ul>
+  html = html.replace(/(<li>[\s\S]+?<\/li>)/g, '<ul>$1</ul>');
+  // De-nest multiple adjacent <ul> tags
+  html = html.replace(/<\/ul>\s*<ul>/g, '');
+  
+  return `<div class="markdown-body"><p>${html}</p></div>`;
+}
+

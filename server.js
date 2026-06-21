@@ -30,8 +30,10 @@ import {
   getLastSyncTime,
   getDb,
   getLatestReportForStrategy,
-  getDistinctChannels
+  getDistinctChannels,
+  getLatestPersonaPlaybook
 } from './database.js';
+import { generatePersonaPlaybook, getPersonaStatus } from './persona-engine.js';
 import { 
   syncAndAnalyze,
   analyzeWithGemini,
@@ -433,6 +435,52 @@ app.post('/api/reports/kline-combined', requireCsrf, async (req, res) => {
   } catch (error) {
     console.error('[Kline Report Error]', error.message);
     res.status(500).json({ success: false, reason: error.message });
+  }
+});
+
+// === Persona Playbook Endpoints ===
+
+// 1. POST /api/persona/generate - Trigger persona playbook generation
+app.post('/api/persona/generate', requireCsrf, async (req, res) => {
+  try {
+    const provider = req.body.provider || process.env.AI_PROVIDER || 'lm-studio';
+    const maxMonths = parseInt(req.body.maxMonths || '6', 10);
+    const forceRefresh = req.body.forceRefresh === true;
+
+    console.log(`[API Persona] Triggering playbook generation with provider=${provider}, maxMonths=${maxMonths}, forceRefresh=${forceRefresh}`);
+    
+    // Generate playbook asynchronously so it doesn't block the HTTP request (as it takes a few minutes)
+    generatePersonaPlaybook({ provider, maxMonths, forceRefresh }).catch(err => {
+      console.error('[API Persona] Asynchronous generation failed:', err.message);
+    });
+
+    res.json({ success: true, message: '大V行为画像生成任务启动成功' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 2. GET /api/persona/status - Get current persona playbook generation status
+app.get('/api/persona/status', (req, res) => {
+  try {
+    const status = getPersonaStatus();
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 3. GET /api/persona/latest - Get the latest generated playbook report
+app.get('/api/persona/latest', (req, res) => {
+  try {
+    const playbook = getLatestPersonaPlaybook();
+    if (playbook) {
+      res.json({ success: true, playbook });
+    } else {
+      res.json({ success: true, playbook: null });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
