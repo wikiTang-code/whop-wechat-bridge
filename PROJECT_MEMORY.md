@@ -57,11 +57,13 @@ To avoid spamming requests and rate limits during US stock quiet hours, `server.
 
 ---
 
-## 6. 部署环境
+## 6. 部署环境与实机调试规则
 - **云平台**: Google Cloud Platform (GCP) VM
 - **SSH 访问**: `ssh gcp-vm`（SSH config 别名，调试和日志分析均在服务器上操作）
 - **服务端口**: 8085，通过 Cloudflare Tunnel 暴露公网
 - **远程调试**: 需要查看日志、排查问题时直接 SSH 到 GCP VM 操作
+- **实机调试代码同步准则**: **在服务器上进行任何实机调试、日志排查或功能测试前，必须确保首先拉取并更新至最新代码**（通过 `git pull origin main`）。防止因代码版本不一致、前后端代码缓存等引起报错误判。
+- **PM2 彻底重载环境变量规则**: **修改 `.env` 配置文件后，必须使用 `pm2 restart whop-wechat-bridge --update-env` 命令重启服务。** 普通的 `pm2 restart` 不会清除并更新内存中的环境变量缓存，会导致新的 API 密钥等配置无法生效。
 
 ---
 
