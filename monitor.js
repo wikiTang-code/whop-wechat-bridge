@@ -491,6 +491,14 @@ async function pushToWeChat(webhookUrl, markdownContent) {
     return;
   }
 
+  // 企业微信 markdown 消息限制 4096 字符
+  const WECHAT_MAX_LENGTH = 4000; // 留 96 字符余量给转义
+  let content = markdownContent;
+  if (content.length > WECHAT_MAX_LENGTH) {
+    content = content.substring(0, WECHAT_MAX_LENGTH) + '\n\n---\n⚠️ *内容过长已截断，完整报告请查看 Web Dashboard*';
+    console.log(`[WeChat Push] Content truncated from ${markdownContent.length} to ${WECHAT_MAX_LENGTH} chars.`);
+  }
+
   const response = await webFetch(webhookUrl, {
     method: 'POST',
     headers: {
@@ -499,7 +507,7 @@ async function pushToWeChat(webhookUrl, markdownContent) {
     body: JSON.stringify({
       msgtype: 'markdown',
       markdown: {
-        content: markdownContent,
+        content: content,
       },
     }),
   });
