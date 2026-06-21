@@ -765,6 +765,10 @@ export function getOrders({ limit = 50, offset = 0 } = {}) {
 export function extractTradingDimensions(content) {
   if (!content) return { tickers: '', sectors: '', strategies: '' };
   
+  // 0. Clean content: strip image tags [IMAGE:...] and standard URLs to avoid URL query params/paths being treated as tickers
+  let cleanContent = content.replace(/\[IMAGE:[^\]]+\]/gi, '');
+  cleanContent = cleanContent.replace(/https?:\/\/[^\s]+/gi, '');
+  
   // Sector mapping
   const sectorMapping = {
     // 科技/AI芯片
@@ -797,21 +801,26 @@ export function extractTradingDimensions(content) {
   const knownTickers = Object.keys(sectorMapping);
   for (const ticker of knownTickers) {
     const regex = new RegExp(`\\b\\$?${ticker}\\b`, 'i');
-    if (regex.test(content)) {
+    if (regex.test(cleanContent)) {
       tickersFound.add(ticker);
     }
   }
 
   // 2. Fallback to match other uppercase words (e.g. unknown new tickers)
   const stopWords = new Set([
-    'BUY', 'SELL', 'CALL', 'PUT', 'GET', 'POST', 'JSON', 'USD', 'CAD', 'ETF', 'API', 
+    'BUY', 'SELL', 'CALL', 'PUT', 'GET', 'POST', 'JSON', 'USD', 'CAD', 'EUR', 'GBP', 'CNY', 'HKD', 'ETF', 'ETFS', 'API', 
     'REST', 'HTML', 'CSS', 'JS', 'AI', 'GPT', 'USA', 'SEC', 'FED', 'FOMC', 'GDP', 
-    'CPI', 'PPI', 'PMI', 'VIX', 'FOR', 'AND', 'THE', 'YOU', 'OUR', 'NOW', 'BUT'
+    'CPI', 'PPI', 'PMI', 'VIX', 'FOR', 'AND', 'THE', 'YOU', 'OUR', 'NOW', 'BUT',
+    'IPO', 'SPAC', 'IV', 'ITM', 'OTM', 'ATM', 'TA', 'DD', 'ATH', 'EOD', 'PM', 'AH',
+    'PNL', 'PL', 'NAV', 'CEO', 'CFO', 'COO', 'UTC', 'EST', 'EDT', 'MACD', 'RSI',
+    'EMA', 'SMA', 'PDF', 'PPT', 'DOC', 'URL', 'URI', 'AWS', 'SSL', 'TLS', 'DNS',
+    'IP', 'VPN', 'APP', 'WEB', 'PC', 'FAQ', 'VS', 'OK', 'FYI', 'DIY', 'NEW', 'OLD', 'NA',
+    'IMAGE', 'HMAC', 'SHA', 'SHA256', 'AMZ', 'CALLS', 'PUTS'
   ]);
   
   const tickerRegex = /\b\$?([A-Z]{2,5})\b/g;
   let match;
-  while ((match = tickerRegex.exec(content)) !== null) {
+  while ((match = tickerRegex.exec(cleanContent)) !== null) {
     const sym = match[1].toUpperCase();
     if (!stopWords.has(sym)) {
       tickersFound.add(sym);
