@@ -28,7 +28,8 @@ Thumbs.db
 
 # Temp/debug files from reverse engineering
 temp_chunks/
-scripts/
+scripts/*
+!scripts/discovery/
 
 # One-off debug/test scripts
 test_*.js

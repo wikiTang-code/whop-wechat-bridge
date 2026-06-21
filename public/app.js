@@ -58,7 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
   initLayoutResizer();
 });
 
-function initApp() {
+async function initApp() {
+  try {
+    await fetchChannels();
+  } catch (err) {
+    console.error('Error fetching channels during initApp:', err);
+  }
+  
   // Fetch all data in parallel for faster initial load
   Promise.all([
     fetchConfig(),
@@ -198,8 +204,8 @@ function setupEventListeners() {
     fetchMessages();
   });
 
-  // Only speakers checkbox change
-  document.getElementById('chk-only-speakers').addEventListener('change', () => {
+  // Speaker mode dropdown filter change
+  document.getElementById('filter-speaker')?.addEventListener('change', () => {
     fetchMessages(state.searchQuery);
   });
 
@@ -259,18 +265,21 @@ function switchTab(tabId) {
   document.querySelectorAll('.tab-content').forEach(content => {
     if (content.id === tabId) {
       content.classList.add('active');
-      content.style.display = 'grid';
+      // Persona tab uses flex layout, not grid
+      content.style.display = (tabId === 'tab-persona') ? 'flex' : 'grid';
     } else {
       content.classList.remove('active');
       content.style.display = 'none';
     }
   });
 
-  // Auto-refresh when entering trading tab
+  // Auto-refresh when entering specific tabs
   if (tabId === 'tab-trading') {
     fetchQuantData();
   } else if (tabId === 'tab-strategies') {
     fetchStrategyData();
+  } else if (tabId === 'tab-persona') {
+    loadPersonaPlaybook();
   }
 }
 
@@ -303,9 +312,34 @@ async function fetchConfig() {
   }
 }
 
+async function fetchChannels() {
+  try {
+    const response = await fetch('/api/channels');
+    const result = await response.json();
+    if (result.success && Array.isArray(result.data)) {
+      const select = document.getElementById('filter-speaker');
+      if (select) {
+        // Keep the original 2 options
+        select.innerHTML = `
+          <option value="speakers">只看大V (赵哥)</option>
+          <option value="all">所有人</option>
+        `;
+        result.data.forEach(ch => {
+          const option = document.createElement('option');
+          option.value = `community_${ch.channel_id}`;
+          option.textContent = `群友: ${ch.channel_name || ch.channel_id}`;
+          select.appendChild(option);
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching channels:', error);
+  }
+}
+
 async function fetchMessages(search = '', append = false) {
   const container = document.getElementById('messages-list');
-  const onlySpeakers = document.getElementById('chk-only-speakers')?.checked !== false;
+  const speakerMode = document.getElementById('filter-speaker')?.value || 'speakers';
   const sector = document.getElementById('filter-sector')?.value || '';
   const strategy = document.getElementById('filter-strategy')?.value || '';
   const startDate = document.getElementById('filter-start-date')?.value || '';
@@ -316,7 +350,7 @@ async function fetchMessages(search = '', append = false) {
   }
   
   try {
-    let url = `/api/messages?onlySpeakers=${onlySpeakers}&limit=${state.messagesLimit}&offset=${state.messagesOffset}`;
+    let url = `/api/messages?speakerMode=${speakerMode}&limit=${state.messagesLimit}&offset=${state.messagesOffset}`;
     if (search) {
       url += `&search=${encodeURIComponent(search)}`;
     }
@@ -1194,7 +1228,7 @@ async function triggerAIReview() {
   
   const payload = {
     search: state.searchQuery,
-    onlySpeakers: document.getElementById('chk-only-speakers')?.checked !== false,
+    speakerMode: document.getElementById('filter-speaker')?.value || 'speakers',
     sector: document.getElementById('filter-sector')?.value || '',
     strategy: document.getElementById('filter-strategy')?.value || '',
     startDate: document.getElementById('filter-start-date')?.value || '',

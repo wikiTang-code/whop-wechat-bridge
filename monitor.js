@@ -326,7 +326,128 @@ export async function analyzeWithGemini(apiKey, prompt) {
   return content;
 }
 
-// Custom localFetch function to handle long timeouts for local LLMs
+// Extract image URLs from message content [IMAGE:url] tags
+export function extractImageUrls(content) {
+  const regex = /\[IMAGE:(https?:\/\/[^\]]+)\]/g;
+  const urls = [];
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    urls.push(match[1]);
+  }
+  return urls;
+}
+
+// Download an image from URL and convert to base64 for Gemini multimodal
+async function downloadImageAsBase64(imageUrl, timeoutMs = 10000) {
+  const client = imageUrl.startsWith('https') ? https : http;
+  
+  return new Promise((resolve, reject) => {
+    const req = client.get(imageUrl, { timeout: timeoutMs }, (res) => {
+      // Handle redirects
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        downloadImageAsBase64(res.headers.location, timeoutMs).then(resolve).catch(reject);
+        return;
+      }
+      
+      if (res.statusCode !== 200) {
+        reject(new Error(`Image download failed: HTTP ${res.statusCode}`));
+        return;
+      }
+
+      const contentType = res.headers['content-type'] || 'image/jpeg';
+      const chunks = [];
+      let totalBytes = 0;
+      const MAX_SIZE = 10 * 1024 * 1024; // 10MB limit
+
+      res.on('data', (chunk) => {
+        totalBytes += chunk.length;
+        if (totalBytes > MAX_SIZE) {
+          req.destroy();
+          reject(new Error(`Image exceeds ${MAX_SIZE / 1024 / 1024}MB limit`));
+          return;
+        }
+        chunks.push(chunk);
+      });
+
+      res.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        // Determine MIME type
+        let mimeType = contentType.split(';')[0].trim();
+        if (!mimeType.startsWith('image/')) {
+          // Infer from URL extension
+          const ext = imageUrl.split('.').pop()?.split('?')[0]?.toLowerCase();
+          const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp' };
+          mimeType = mimeMap[ext] || 'image/jpeg';
+        }
+        resolve({ base64: buffer.toString('base64'), mimeType });
+      });
+
+      res.on('error', reject);
+    });
+
+    req.on('error', reject);
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('Image download timeout'));
+    });
+  });
+}
+
+/**
+ * Gemini 多模态分析（仅用于含图片的消息分析）
+ * 纯文本分析应使用 callMonitorAI → 本地 LM Studio
+ */
+export async function analyzeWithGeminiMultimodal(apiKey, prompt, imageUrls = []) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  
+  const parts = [{ text: prompt }];
+  
+  // Download and encode images (max 5 per call)
+  const urlsToProcess = imageUrls.slice(0, 5);
+  let loadedCount = 0;
+  let failedCount = 0;
+  
+  for (const imgUrl of urlsToProcess) {
+    try {
+      const imageData = await downloadImageAsBase64(imgUrl);
+      parts.push({
+        inlineData: {
+          mimeType: imageData.mimeType,
+          data: imageData.base64
+        }
+      });
+      loadedCount++;
+    } catch (err) {
+      console.warn(`[Multimodal] Failed to load image: ${imgUrl} - ${err.message}`);
+      parts.push({ text: `[图片无法加载: ${imgUrl} - ${err.message}]` });
+      failedCount++;
+    }
+  }
+  
+  console.log(`[Multimodal] Prepared ${loadedCount} images, ${failedCount} failed out of ${urlsToProcess.length} total`);
+
+  const response = await webFetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts }],
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Gemini Multimodal API failed with status ${response.status}: ${errText}`);
+  }
+
+  const result = await response.json();
+  const content = result.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!content) {
+    throw new Error('Gemini Multimodal API returned empty content or invalid structure.');
+  }
+
+  return content;
+}
+
 function localFetch(urlStr, options = {}) {
   return new Promise((resolve, reject) => {
     const url = new URL(urlStr);

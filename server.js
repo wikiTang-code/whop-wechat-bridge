@@ -29,7 +29,8 @@ import {
   setLastSyncTime,
   getLastSyncTime,
   getDb,
-  getLatestReportForStrategy
+  getLatestReportForStrategy,
+  getDistinctChannels
 } from './database.js';
 import { 
   syncAndAnalyze,
@@ -283,25 +284,42 @@ app.get('/api/messages', (req, res) => {
     const search = req.query.search || '';
     const limit = parseInt(req.query.limit || '50', 10);
     const offset = parseInt(req.query.offset || '0', 10);
-    const channelId = req.query.channelId || '';
+    let channelId = req.query.channelId || '';
     const channelName = req.query.channelName || '';
-    const onlySpeakers = req.query.onlySpeakers !== 'false';
     const ticker = req.query.ticker || '';
     const sector = req.query.sector || '';
     const strategy = req.query.strategy || '';
     const startDate = req.query.startDate || '';
     const endDate = req.query.endDate || '';
+    const speakerMode = req.query.speakerMode || '';
 
     const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
       .split(',')
       .map(s => s.trim())
       .filter(Boolean);
 
+    let senderIds = [];
+    let excludeSenderIds = [];
+
+    if (speakerMode === 'speakers') {
+      senderIds = targetSpeakers;
+    } else if (speakerMode === 'all') {
+      // Show everyone
+    } else if (speakerMode && speakerMode.startsWith('community_')) {
+      channelId = speakerMode.replace('community_', '');
+      excludeSenderIds = targetSpeakers;
+    } else {
+      // Fallback for backward compatibility
+      const onlySpeakers = req.query.onlySpeakers !== 'false';
+      senderIds = onlySpeakers ? targetSpeakers : [];
+    }
+
     const data = getMessages({ 
       search, 
       limit, 
       offset, 
-      senderIds: onlySpeakers ? targetSpeakers : [],
+      senderIds,
+      excludeSenderIds,
       channelId,
       channelName,
       ticker,
@@ -311,6 +329,16 @@ app.get('/api/messages', (req, res) => {
       endDate
     });
     res.json({ success: true, data: data.messages, total: data.total });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 1.2 GET /api/channels - List unique channels in the archive database
+app.get('/api/channels', (req, res) => {
+  try {
+    const channels = getDistinctChannels();
+    res.json({ success: true, data: channels });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -836,9 +864,8 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 // 7. POST /api/reports/dimensional-summary - Generate a customized AI report from filtered messages (CSRF protected)
 app.post('/api/reports/dimensional-summary', requireCsrf, async (req, res) => {
   try {
-    const { search, onlySpeakers, channelId, channelName, ticker, sector, strategy, startDate, endDate } = req.body;
+    const { search, onlySpeakers, speakerMode, channelId: bodyChannelId, channelName, ticker, sector, strategy, startDate, endDate } = req.body;
     console.log('[API Reports] req.body:', req.body);
-    console.log('[API Reports] query params:', { search, onlySpeakers, channelId, channelName, ticker, sector, strategy, startDate, endDate });
 
     const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
       .split(',')
@@ -846,13 +873,29 @@ app.post('/api/reports/dimensional-summary', requireCsrf, async (req, res) => {
       .filter(Boolean);
     console.log('[API Reports] targetSpeakers:', targetSpeakers);
 
+    let senderIds = [];
+    let excludeSenderIds = [];
+    let queryChannelId = bodyChannelId || '';
+
+    const effectiveSpeakerMode = speakerMode || (onlySpeakers !== false ? 'speakers' : 'all');
+
+    if (effectiveSpeakerMode === 'speakers') {
+      senderIds = targetSpeakers;
+    } else if (effectiveSpeakerMode === 'all') {
+      // Show everyone
+    } else if (effectiveSpeakerMode && effectiveSpeakerMode.startsWith('community_')) {
+      queryChannelId = effectiveSpeakerMode.replace('community_', '');
+      excludeSenderIds = targetSpeakers;
+    }
+
     // Retrieve up to 200 messages for historical review analysis
     const data = getMessages({ 
       search: search || '', 
       limit: 200, 
       offset: 0, 
-      senderIds: (onlySpeakers !== false) ? targetSpeakers : [],
-      channelId: channelId || '',
+      senderIds,
+      excludeSenderIds,
+      channelId: queryChannelId,
       channelName: channelName || '',
       ticker: ticker || '',
       sector: sector || '',
@@ -870,6 +913,16 @@ app.post('/api/reports/dimensional-summary', requireCsrf, async (req, res) => {
     
     const primarySpeakerName = messages[0].sender_name;
     const filterDesc = [];
+    if (effectiveSpeakerMode === 'speakers') {
+      filterDesc.push('大V发言');
+    } else if (effectiveSpeakerMode.startsWith('community_')) {
+      const db = getDb();
+      const ch = db.prepare("SELECT channel_name FROM messages WHERE channel_id = ? LIMIT 1").get(effectiveSpeakerMode.replace('community_', ''));
+      const chName = ch ? ch.channel_name : '未知频道';
+      filterDesc.push(`频道群友:${chName}`);
+    } else {
+      filterDesc.push('所有人发言');
+    }
     if (sector) filterDesc.push(`板块:${sector}`);
     if (strategy) filterDesc.push(`战法:${strategy}`);
     if (ticker) filterDesc.push(`个股:${ticker}`);

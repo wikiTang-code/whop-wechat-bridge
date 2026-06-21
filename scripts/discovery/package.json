@@ -1,0 +1,13 @@
+{
+  "name": "discovery",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "auto_discover_whop_channels.js",
+  "scripts": {
+    "discover": "node auto_discover_whop_channels.js",
+    "discover:write": "node auto_discover_whop_channels.js --write"
+  },
+  "dependencies": {
+    "puppeteer": "^24.43.1"
+  }
+}

@@ -63,6 +63,7 @@
       <button class="tab-btn" data-tab="tab-strategies">🎨 战法策略看板</button>
       <button class="tab-btn" data-tab="tab-trading">💰 实时量化跟单看板</button>
       <button class="tab-btn" data-tab="tab-rag">💬 AI 问答 / 知识库</button>
+      <button class="tab-btn" data-tab="tab-persona">🧠 大V行为画像</button>
     </div>
 
     <!-- Dashboard Content Area -->
@@ -96,10 +97,10 @@
           
           <div class="messages-filter-bar">
             <div class="header-filters">
-              <label class="toggle-container">
-                <input type="checkbox" id="chk-only-speakers" checked>
-                <span class="toggle-label">只看大V</span>
-              </label>
+              <select id="filter-speaker" class="filter-select">
+                <option value="speakers">只看大V (赵哥)</option>
+                <option value="all">所有人</option>
+              </select>
               <select id="filter-sector" class="filter-select">
                 <option value="">全部板块</option>
                 <option value="科技/AI芯片">科技/AI芯片</option>
@@ -344,6 +345,39 @@
             </div>
           </div>
         </section>
+      </div>
+
+      <!-- Tab 5: Persona Playbook 大V行为画像 -->
+      <div id="tab-persona" class="tab-content persona-tab-container" style="display: none;">
+        <div class="persona-header">
+          <div class="persona-title-area">
+            <h2>🧠 大V行为画像白皮书</h2>
+            <p class="subtitle">基于全量历史发言、交易行为与市场情绪，由 AI 自动生成的大V操盘人格画像深度白皮书</p>
+          </div>
+          <button id="btn-generate-persona" class="btn btn-primary btn-glow">
+            <span class="btn-icon">⚡</span>
+            <span class="btn-text">生成画像</span>
+          </button>
+        </div>
+
+        <div id="persona-meta" class="persona-meta" style="display: none;">
+          <!-- Metadata grid populated by JS -->
+        </div>
+
+        <div id="persona-progress-area" class="persona-progress-area" style="display: none;">
+          <div class="persona-progress-bar-container">
+            <div id="persona-progress-bar" class="persona-progress-bar" style="width: 0%;"></div>
+          </div>
+          <p id="persona-status-text" class="persona-status-text">准备中...</p>
+        </div>
+
+        <div id="persona-content" class="persona-content" style="display: block;">
+          <div class="empty-state">
+            <span class="empty-icon">🧠</span>
+            <p>尚未生成画像白皮书</p>
+            <p class="empty-hint">点击上方「生成画像」按钮开始分析大V历史行为模式</p>
+          </div>
+        </div>
       </div>
       
     </main>

@@ -350,7 +350,7 @@ export function isMessageArchived(id) {
 }
 
 // Retrieve messages with optional search and pagination and speaker filtering
-export function getMessages({ search, limit = 50, offset = 0, senderIds = [], channelId = '', channelName = '', ticker = '', sector = '', strategy = '', startDate = '', endDate = '' } = {}) {
+export function getMessages({ search, limit = 50, offset = 0, senderIds = [], excludeSenderIds = [], channelId = '', channelName = '', ticker = '', sector = '', strategy = '', startDate = '', endDate = '' } = {}) {
   const conn = getDb();
   let query = 'SELECT * FROM messages';
   let countQuery = 'SELECT COUNT(*) as count FROM messages';
@@ -407,6 +407,12 @@ export function getMessages({ search, limit = 50, offset = 0, senderIds = [], ch
     const placeholders = senderIds.map(() => '?').join(',');
     clauses.push(`sender_id IN (${placeholders})`);
     params.push(...senderIds);
+  }
+
+  if (Array.isArray(excludeSenderIds) && excludeSenderIds.length > 0) {
+    const placeholders = excludeSenderIds.map(() => '?').join(',');
+    clauses.push(`sender_id NOT IN (${placeholders})`);
+    params.push(...excludeSenderIds);
   }
 
   if (clauses.length > 0) {
@@ -881,5 +887,250 @@ export function markMessageTraded(id, status = 1) {
 export function markMessagePushed(id, status = 1) {
   const conn = getDb();
   conn.prepare('UPDATE messages SET is_pushed = ? WHERE id = ?').run(status, id);
+}
+
+// ==========================================================================
+// 画像引擎数据查询 API
+// ==========================================================================
+
+/**
+ * 获取排除指定发言人之外的所有消息（群友消息）
+ * 用于提取社区洞察
+ */
+export function getMessagesExcludingSpeakers(excludeSenderIds = [], { limit = 5000, offset = 0, startDate = '', endDate = '' } = {}) {
+  const conn = getDb();
+  const clauses = [];
+  const params = [];
+
+  if (Array.isArray(excludeSenderIds) && excludeSenderIds.length > 0) {
+    const placeholders = excludeSenderIds.map(() => '?').join(',');
+    clauses.push(`sender_id NOT IN (${placeholders})`);
+    params.push(...excludeSenderIds);
+  }
+
+  // Filter out very short/empty messages
+  clauses.push('LENGTH(TRIM(content)) > 5');
+
+  if (startDate) {
+    const startMs = new Date(`${startDate}T00:00:00`).getTime();
+    if (!isNaN(startMs)) {
+      clauses.push('created_at >= ?');
+      params.push(startMs);
+    }
+  }
+
+  if (endDate) {
+    const endMs = new Date(`${endDate}T23:59:59.999`).getTime();
+    if (!isNaN(endMs)) {
+      clauses.push('created_at <= ?');
+      params.push(endMs);
+    }
+  }
+
+  let query = 'SELECT * FROM messages';
+  if (clauses.length > 0) {
+    query += ' WHERE ' + clauses.join(' AND ');
+  }
+  query += ' ORDER BY created_at ASC LIMIT ? OFFSET ?';
+  params.push(limit, offset);
+
+  return conn.prepare(query).all(...params);
+}
+
+/**
+ * 动态查询 mrzhoulucky 关联的所有 sender_id
+ */
+export function getLuckyUserIds() {
+  const conn = getDb();
+  const rows = conn.prepare(`
+    SELECT DISTINCT sender_id 
+    FROM messages 
+    WHERE sender_name LIKE '%mrzhoulucky%' 
+       OR sender_name LIKE '%zhouzhoulucky%'
+  `).all();
+  return rows.map(r => r.sender_id);
+}
+
+/**
+ * 获取特定群友（如 mrzhoulucky）的全部消息
+ */
+export function getSpecificCommunityMessages(senderIds = [], { limit = 5000, startDate = '', endDate = '' } = {}) {
+  const conn = getDb();
+  if (!senderIds || senderIds.length === 0) return [];
+  
+  const clauses = [];
+  const params = [];
+  
+  const placeholders = senderIds.map(() => '?').join(',');
+  clauses.push(`sender_id IN (${placeholders})`);
+  params.push(...senderIds);
+  
+  if (startDate) {
+    const startMs = new Date(`${startDate}T00:00:00`).getTime();
+    if (!isNaN(startMs)) {
+      clauses.push('created_at >= ?');
+      params.push(startMs);
+    }
+  }
+
+  if (endDate) {
+    const endMs = new Date(`${endDate}T23:59:59.999`).getTime();
+    if (!isNaN(endMs)) {
+      clauses.push('created_at <= ?');
+      params.push(endMs);
+    }
+  }
+  
+  let query = 'SELECT * FROM messages';
+  if (clauses.length > 0) {
+    query += ' WHERE ' + clauses.join(' AND ');
+  }
+  query += ' ORDER BY created_at ASC LIMIT ?';
+  params.push(limit);
+  
+  return conn.prepare(query).all(...params);
+}
+
+/**
+ * 获取排除指定发言人和特定群友之外的，且包含特定讨论关键字的消息
+ */
+export function getFilteredCommunityMessages(excludeSenderIds = [], { limit = 5000, startDate = '', endDate = '' } = {}) {
+  const conn = getDb();
+  const clauses = [];
+  const params = [];
+
+  if (Array.isArray(excludeSenderIds) && excludeSenderIds.length > 0) {
+    const placeholders = excludeSenderIds.map(() => '?').join(',');
+    clauses.push(`sender_id NOT IN (${placeholders})`);
+    params.push(...excludeSenderIds);
+  }
+
+  // Filter out very short/empty messages
+  clauses.push('LENGTH(TRIM(content)) > 5');
+
+  // Add keyword filters for valuable tool/strategy discussions
+  const keywords = ['工具', '策略', '量化', '代码', '开发', '数据', '系统', '回测', 'Cursor', 'API', '接口', '指标', '券商', '回放'];
+  const kwClauses = keywords.map(() => 'content LIKE ?').join(' OR ');
+  clauses.push(`(${kwClauses})`);
+  keywords.forEach(kw => params.push(`%${kw}%`));
+
+  if (startDate) {
+    const startMs = new Date(`${startDate}T00:00:00`).getTime();
+    if (!isNaN(startMs)) {
+      clauses.push('created_at >= ?');
+      params.push(startMs);
+    }
+  }
+
+  if (endDate) {
+    const endMs = new Date(`${endDate}T23:59:59.999`).getTime();
+    if (!isNaN(endMs)) {
+      clauses.push('created_at <= ?');
+      params.push(endMs);
+    }
+  }
+
+  let query = 'SELECT * FROM messages';
+  if (clauses.length > 0) {
+    query += ' WHERE ' + clauses.join(' AND ');
+  }
+  query += ' ORDER BY created_at ASC LIMIT ?';
+  params.push(limit);
+
+  return conn.prepare(query).all(...params);
+}
+
+/**
+ * 获取指定发言人的所有消息，按时间正序排列
+ * 用于时间线事件分段
+ */
+export function getAllSpeakerMessagesChronological(senderIds = [], { limit = 10000, startDate = '', endDate = '' } = {}) {
+  const conn = getDb();
+  const clauses = [];
+  const params = [];
+
+  if (Array.isArray(senderIds) && senderIds.length > 0) {
+    const placeholders = senderIds.map(() => '?').join(',');
+    clauses.push(`sender_id IN (${placeholders})`);
+    params.push(...senderIds);
+  }
+
+  if (startDate) {
+    const startMs = new Date(`${startDate}T00:00:00`).getTime();
+    if (!isNaN(startMs)) {
+      clauses.push('created_at >= ?');
+      params.push(startMs);
+    }
+  }
+
+  if (endDate) {
+    const endMs = new Date(`${endDate}T23:59:59.999`).getTime();
+    if (!isNaN(endMs)) {
+      clauses.push('created_at <= ?');
+      params.push(endMs);
+    }
+  }
+
+  let query = 'SELECT * FROM messages';
+  if (clauses.length > 0) {
+    query += ' WHERE ' + clauses.join(' AND ');
+  }
+  query += ' ORDER BY created_at ASC LIMIT ?';
+  params.push(limit);
+
+  return conn.prepare(query).all(...params);
+}
+
+/**
+ * 获取最新的画像白皮书报告
+ */
+export function getLatestPersonaPlaybook() {
+  return getLatestReportForStrategy('PERSONA_PLAYBOOK');
+}
+
+/**
+ * 获取指定消息ID前后的上下文消息（包含群友消息）
+ * 用于画像引擎获取每条大V消息的群友对话上下文
+ */
+export function getContextAroundMessages(messageIds, contextBefore = 3, contextAfter = 1) {
+  const conn = getDb();
+  const results = new Map();
+
+  for (const msgId of messageIds) {
+    const targetMsg = conn.prepare('SELECT * FROM messages WHERE id = ?').get(msgId);
+    if (!targetMsg) continue;
+
+    const before = conn.prepare(`
+      SELECT * FROM messages
+      WHERE created_at < ? AND channel_id = ?
+      ORDER BY created_at DESC LIMIT ?
+    `).all(targetMsg.created_at, targetMsg.channel_id, contextBefore);
+
+    const after = conn.prepare(`
+      SELECT * FROM messages
+      WHERE created_at > ? AND channel_id = ? AND id != ?
+      ORDER BY created_at ASC LIMIT ?
+    `).all(targetMsg.created_at, targetMsg.channel_id, msgId, contextAfter);
+
+    results.set(msgId, {
+      before: before.reverse(),
+      target: targetMsg,
+      after
+    });
+  }
+
+  return results;
+}
+
+/**
+ * 获取数据库中所有唯一的频道信息 (channel_id 和 channel_name)
+ */
+export function getDistinctChannels() {
+  const conn = getDb();
+  return conn.prepare(`
+    SELECT DISTINCT channel_id, channel_name 
+    FROM messages 
+    WHERE channel_id IS NOT NULL AND channel_id != ''
+  `).all();
 }
 
