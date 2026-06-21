@@ -1860,8 +1860,34 @@ async function loadPersonaPlaybook() {
   const metaArea = document.getElementById('persona-meta');
   const progressArea = document.getElementById('persona-progress-area');
   const btn = document.getElementById('btn-generate-persona');
+  const statusText = document.getElementById('persona-status-text');
+  const progressBar = document.getElementById('persona-progress-bar');
   
   try {
+    // 1. 先查询后台当前的运行状态，看是否已经在构建中
+    const statusRes = await fetch('/api/persona/status');
+    const statusData = await statusRes.json();
+    
+    if (statusData.status === 'running') {
+      // 正在后台运行，显示进度条，并开启轮询
+      progressArea.style.display = 'block';
+      contentArea.style.display = 'none';
+      metaArea.style.display = 'none';
+      btn.disabled = true;
+      btn.querySelector('.btn-text').textContent = '生成中...';
+      
+      statusText.textContent = statusData.progress || '处理中...';
+      progressBar.style.width = (statusData.percent || 0) + '%';
+      
+      if (personaPollingTimer) clearTimeout(personaPollingTimer);
+      personaPollingTimer = setTimeout(pollPersonaStatus, 3000);
+      return;
+    } else if (statusData.status === 'error') {
+      statusText.textContent = '❌ 上次生成失败: ' + (statusData.error || '未知错误');
+      progressBar.style.width = '0%';
+    }
+
+    // 2. 没有正在运行的任务，拉取最新生成的白皮书
     const res = await fetch('/api/persona/latest');
     const data = await res.json();
     
@@ -1883,6 +1909,7 @@ async function loadPersonaPlaybook() {
       contentArea.innerHTML = renderSimpleMarkdown(pb.summary_content);
       contentArea.style.display = 'block';
       progressArea.style.display = 'none';
+      btn.disabled = false;
       btn.querySelector('.btn-text').textContent = '重新生成';
     } else {
       contentArea.innerHTML = `
@@ -1895,10 +1922,13 @@ async function loadPersonaPlaybook() {
       contentArea.style.display = 'block';
       metaArea.style.display = 'none';
       progressArea.style.display = 'none';
+      btn.disabled = false;
+      btn.querySelector('.btn-text').textContent = '生成画像';
     }
   } catch (err) {
     contentArea.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载失败: ${err.message}</p></div>`;
     contentArea.style.display = 'block';
+    btn.disabled = false;
   }
 }
 
@@ -2002,41 +2032,91 @@ async function fetchCampaigns() {
       return;
     }
     
-    // 4. 渲染左侧战役列表
-    listContainer.innerHTML = campaigns.map(c => {
-      const pnlText = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? '+' : '') + (c.pnl_ratio * 100).toFixed(2) + '%' : 'N/A';
-      const pnlClass = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? 'positive' : 'negative') : '';
-      const statusText = c.status === 'active' ? '进行中' : '已结束';
+    // 4. 将个股战役按时间相近的宏观事件（5天内）或操盘月份，进行两级分组：事件 (战役) -> 标的A/B/C
+    const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
+    const groups = {}; // key -> { title, dateStr, timestamp, campaigns: [] }
+    
+    campaigns.forEach(c => {
+      let closestEv = null;
+      let minDiff = Infinity;
       
+      // 匹配最近的宏观经济事件
+      (state.macroEvents || []).forEach(ev => {
+        const diff = Math.abs(ev.event_timestamp - c.open_time);
+        if (diff <= FIVE_DAYS_MS && diff < minDiff) {
+          minDiff = diff;
+          closestEv = ev;
+        }
+      });
+      
+      if (closestEv) {
+        const key = `macro_${closestEv.id}`;
+        if (!groups[key]) {
+          groups[key] = {
+            title: closestEv.event_name,
+            dateStr: closestEv.date_str,
+            timestamp: closestEv.event_timestamp,
+            campaigns: []
+          };
+        }
+        groups[key].campaigns.push(c);
+      } else {
+        // 未匹配到相近宏观事件，则按照开仓月份归档
+        const dateObj = new Date(c.open_time);
+        const year = dateObj.getFullYear();
+        const month = dateObj.getMonth() + 1;
+        const key = `month_${year}_${month}`;
+        
+        if (!groups[key]) {
+          groups[key] = {
+            title: `${year}年${month}月 常规操盘战役`,
+            dateStr: `${year}-${String(month).padStart(2, '0')}`,
+            timestamp: new Date(year, month - 1, 1).getTime(),
+            campaigns: []
+          };
+        }
+        groups[key].campaigns.push(c);
+      }
+    });
+    
+    // 按照时间戳降序排序父级事件组
+    const sortedGroups = Object.values(groups).sort((a, b) => b.timestamp - a.timestamp);
+    
+    // 5. 渲染两级层级列表
+    listContainer.innerHTML = sortedGroups.map(group => {
       return `
-        <div class="campaign-item" data-id="${c.id}">
-          <div class="campaign-item-header">
-            <span class="campaign-item-ticker">${c.ticker}</span>
-            <span class="campaign-item-status ${c.status}">${statusText}</span>
+        <div class="event-group" style="margin-bottom: 1.25rem;">
+          <div class="event-group-header" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.25rem; font-weight: 700; font-size: 0.85rem; color: #a78bfa; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 0.5rem;">
+            <span>🌍 ${group.title}</span>
+            <span style="font-size: 0.7rem; font-weight: 400; opacity: 0.6;">(${group.dateStr})</span>
           </div>
-          <div class="campaign-item-meta">
-            <div class="row">
-              <span>建仓参考价:</span>
-              <span>$${c.initial_price ? c.initial_price.toFixed(2) : 'N/A'}</span>
-            </div>
-            <div class="row">
-              <span>当前/平仓价:</span>
-              <span>$${c.exit_price ? c.exit_price.toFixed(2) : 'N/A'}</span>
-            </div>
-            <div class="row">
-              <span>参考收益率:</span>
-              <span class="${pnlClass}" style="font-weight: 700;">${pnlText}</span>
-            </div>
-            <div class="row" style="margin-top: 4px; font-size: 0.7rem; opacity: 0.7;">
-              <span>关联消息数:</span>
-              <span>${c.message_count || 0} 条</span>
-            </div>
+          <div class="event-group-items" style="display: flex; flex-direction: column; gap: 0.5rem; padding-left: 0.5rem;">
+            ${group.campaigns.map(c => {
+              const pnlText = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? '+' : '') + (c.pnl_ratio * 100).toFixed(2) + '%' : 'N/A';
+              const pnlClass = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? 'positive' : 'negative') : '';
+              const statusText = c.status === 'active' ? '进行中' : '已结束';
+              
+              return `
+                <div class="campaign-item" data-id="${c.id}" style="padding: 0.65rem 0.75rem;">
+                  <div class="campaign-item-header" style="margin-bottom: 0.2rem;">
+                    <span class="campaign-item-ticker" style="font-size: 0.95rem;">${c.ticker}</span>
+                    <span class="campaign-item-status ${c.status}" style="font-size: 0.6rem; padding: 0.1rem 0.3rem;">${statusText}</span>
+                  </div>
+                  <div class="campaign-item-meta" style="font-size: 0.7rem;">
+                    <div class="row">
+                      <span>参考收益率:</span>
+                      <span class="${pnlClass}" style="font-weight: 700;">${pnlText}</span>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
           </div>
         </div>
       `;
     }).join('');
     
-    // 5. 绑定点击事件，加载战役详细时间线
+    // 6. 绑定点击事件，加载个股战役详细时间线
     const items = listContainer.querySelectorAll('.campaign-item');
     items.forEach(item => {
       item.addEventListener('click', () => {
