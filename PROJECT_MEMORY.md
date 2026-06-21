@@ -57,7 +57,15 @@ To avoid spamming requests and rate limits during US stock quiet hours, `server.
 
 ---
 
-## 6. 开发协作与提效规则
+## 6. 部署环境
+- **云平台**: Google Cloud Platform (GCP) VM
+- **SSH 访问**: `ssh gcp-vm`（SSH config 别名，调试和日志分析均在服务器上操作）
+- **服务端口**: 8085，通过 Cloudflare Tunnel 暴露公网
+- **远程调试**: 需要查看日志、排查问题时直接 SSH 到 GCP VM 操作
+
+---
+
+## 7. 开发协作与提效规则
 - **本地大模型并行分流**：在项目的开发、调试与策略研究过程中，若遇到耗时或数据量庞大的非实时任务（如大段代码的重构思路设计、历史数据分析、量化算法方案探索等），AI 助手应主动且优先将这些任务丢给本地运行的 LM Studio/Ollama 模型并行运行。这能充分榨干本地 AMD 7900 XT 的免代币（Zero-cost）硬件算力，大幅节省云端 API Token，同时提升 Pair Programming 的协同研发效率。
 - **多 Agent 并行开发容错**：在同一项目或同一 VPS 的同一份本地文件上可能有多个 Agent 并行开发。为防范代码覆盖与工作冲突，必须严格执行以下容错准则：
   - **即时确认状态**：修改文件前必须先重新读取文件最新内容，确认当前最新状态。
