@@ -78,6 +78,13 @@
             <h2>📊 AI 研报归档</h2>
             <span class="badge" id="report-count">0 篇</span>
           </div>
+
+          <div class="report-archive-tabs" id="report-archive-tabs">
+            <button class="report-tab-btn active" data-category="all">全部研报</button>
+            <button class="report-tab-btn" data-category="rolling">全局/双周简报</button>
+            <button class="report-tab-btn" data-category="strategy">战法专项总结</button>
+            <button class="report-tab-btn" data-category="briefing">社区实时简报</button>
+          </div>
           
           <div class="reports-container" id="reports-list">
             <div class="loading-state">
@@ -100,8 +107,31 @@
             <div class="header-filters">
               <select id="filter-speaker" class="filter-select">
                 <option value="speakers">只看大V (赵哥)</option>
-                <option value="all">所有人</option>
+                <option value="all">所有发言人</option>
               </select>
+              
+              <!-- Member Autocomplete -->
+              <div class="autocomplete-wrapper" id="member-autocomplete-wrapper">
+                <input type="text" id="filter-member-input" class="filter-input-text" placeholder="筛选群友..." autocomplete="off">
+                <button type="button" id="btn-clear-member" class="clear-input-btn">✕</button>
+                <div class="autocomplete-suggestions" id="member-suggestions" style="display: none;"></div>
+              </div>
+
+              <!-- Channel Autocomplete -->
+              <div class="autocomplete-wrapper" id="channel-autocomplete-wrapper">
+                <input type="text" id="filter-channel-input" class="filter-input-text" placeholder="筛选频道..." autocomplete="off">
+                <button type="button" id="btn-clear-channel" class="clear-input-btn">✕</button>
+                <div class="autocomplete-suggestions" id="channel-suggestions" style="display: none;"></div>
+              </div>
+
+              <!-- Secondary Message Type Filter -->
+              <select id="filter-msg-type" class="filter-select">
+                <option value="">全部类型</option>
+                <option value="text">仅文字</option>
+                <option value="image">含图片</option>
+                <option value="link">含链接</option>
+              </select>
+
               <select id="filter-sector" class="filter-select">
                 <option value="">全部板块</option>
                 <option value="科技/AI芯片">科技/AI芯片</option>

@@ -1,4 +1,5 @@
 import express from 'express';
+import https from 'https';
 import { spawn } from 'child_process';
 
 process.on('uncaughtException', (err) => {
@@ -314,6 +315,7 @@ app.get('/api/messages', (req, res) => {
     const startDate = req.query.startDate || '';
     const endDate = req.query.endDate || '';
     const speakerMode = req.query.speakerMode || '';
+    const msgType = req.query.msgType || '';
 
     const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
       .split(',')
@@ -351,11 +353,66 @@ app.get('/api/messages', (req, res) => {
       sector,
       strategy,
       startDate,
-      endDate
+      endDate,
+      msgType
     });
     res.json({ success: true, data: data.messages, total: data.total });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET /api/proxy-image - Proxy images from Whop/S3 to avoid CORS/GFW/Expiration issues
+app.get('/api/proxy-image', async (req, res) => {
+  try {
+    const imageUrl = req.query.url;
+    if (!imageUrl) {
+      return res.status(400).send('Missing url parameter');
+    }
+
+    if (!imageUrl.startsWith('https://img-v2-prod.whop.com') && !imageUrl.startsWith('https://assets-2-prod.whop.com')) {
+      return res.status(403).send('Forbidden: Invalid image host');
+    }
+
+    const options = {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
+      }
+    };
+
+    const imgReq = https.get(imageUrl, options, (imgRes) => {
+      // Forward status code (handle redirects if any)
+      if (imgRes.statusCode >= 300 && imgRes.statusCode < 400 && imgRes.headers.location) {
+        // Follow redirect once
+        https.get(imgRes.headers.location, options, (redirectRes) => {
+          res.setHeader('Content-Type', redirectRes.headers['content-type'] || 'image/jpeg');
+          res.setHeader('Cache-Control', 'public, max-age=31536000');
+          redirectRes.pipe(res);
+        }).on('error', (err) => {
+          console.error('[Image Proxy Redirect Error]:', err.message);
+          res.status(500).send('Error loading image');
+        });
+        return;
+      }
+
+      if (imgRes.statusCode !== 200) {
+        console.warn(`[Image Proxy] Failed to fetch image: HTTP ${imgRes.statusCode}`);
+        return res.status(imgRes.statusCode).send('Error loading image');
+      }
+
+      res.setHeader('Content-Type', imgRes.headers['content-type'] || 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+      imgRes.pipe(res);
+    });
+
+    imgReq.on('error', (err) => {
+      console.error('[Image Proxy Error]:', err.message);
+      res.status(500).send('Error loading image');
+    });
+
+  } catch (error) {
+    console.error('[Image Proxy Exception]:', error.stack || error);
+    res.status(500).send('Internal server error');
   }
 });
 
@@ -1499,16 +1556,16 @@ app.post('/api/rag/query', requireCsrf, async (req, res) => {
       console.warn(`[RAG] Failed to read latest persona playbook: ${playbookErr.message}`);
     }
 
-    const aiPrompt = `你现在是社区大V【赵哥】的数字交易助理分身。你的语气风格必须遵循赵哥的交易画像，同时回答内容必须完全基于历史发言记录。
+    const aiPrompt = `你现在是社区大V【赵哥】的数字交易助理分身。你的任务是针对用户的问题，深入分析并梳理【历史发言上下文】中大V的交易逻辑、思考轨迹和操作策略，为用户提供有深度、有逻辑且专业性强的AI分析回答。
+
+【角色与回答要求】：
+1. **深度AI分析**：请不要机械地堆砌检索到的消息，而是要理解大V说话的宏观背景与具体语境，提炼出他的操作意图（如：防守做空、急跌急吸、逢高锁定利润、做T降成本等），并深度剖析其背后的交易逻辑。
+2. **严格基于事实与引用**：你的分析必须紧扣“历史发言上下文”。每一个核心陈述（例如买卖价格、加仓点位、多空方向、后市看法等），都必须在句尾方括号标注对应的“消息 ID”来源（例如：[1]、[2]），确保有据可查，绝不凭空捏造。若上下文无相关记录，直接表明大V近期未提及。
+3. **结合交易画像与常识**：在遵循上下文事实的前提下，可以结合赵哥的【基本交易规则与人格属性】（如：不赌财报、少做长线死拿等习惯）来对大V的操作和决策进行合理的上下文解读。
+4. **精美结构化排版**：不要用单一的文本块。请使用清晰的 Markdown 标题、列表或表格，将分析整理为例如：【核心策略观点】、【具体操作分析】、【风险防御与建议】等板块，字数控制在 600 字以内，既专业深刻又条理清晰。
 
 【基本交易规则与人格属性】（仅用于规范表达方式和基本常识，不要脑补为最新交易动作）：
 ${playbookText || '待生成'}
-
-【请遵循他的全局交易守则与习惯】：
-1. 绝对不要根据“基本交易规则”脑补任何交易记录。如果【历史发言上下文】中没有用户提到的操作，你必须直接回答：“大V近期未提及该标的的操作点位。”
-2. 你的所有回答必须严格忠实于以下提供的“历史发言上下文”，绝对不能编造、臆测任何交易或行情事实。
-3. 每一个核心操作陈述（特别是买卖点位、方向、板块、策略的结论），都必须在句尾使用方括号标注数据来源（例如：[1]、[2]），引用对应的“消息 ID”。
-4. 请用极度精炼、直奔主题的语言来回答，字数控制在 150 字以内。
 
 【历史发言上下文】：
 ${contextText}

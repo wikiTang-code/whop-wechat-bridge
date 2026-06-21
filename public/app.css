@@ -2520,3 +2520,117 @@ min-width: unset;
   }
 }
 
+/* Autocomplete wrapper and inputs */
+.autocomplete-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.filter-input-text {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 0.4rem 1.6rem 0.4rem 0.8rem;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  outline: none;
+  width: 140px;
+  transition: var(--transition-fast);
+}
+
+.filter-input-text:focus {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
+}
+
+.filter-input-text:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Clear button for text inputs */
+.clear-input-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 2px;
+  display: none; /* JS will toggle this */
+  transition: color var(--transition-fast);
+}
+
+.clear-input-btn:hover {
+  color: #fff;
+}
+
+/* Autocomplete suggestion drop-down */
+.autocomplete-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(15px);
+}
+
+.suggestion-item {
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  color: #fff;
+  font-size: 0.8rem;
+  transition: background var(--transition-fast);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestion-item:hover, .suggestion-item.selected {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+/* Report tabs styling */
+.report-archive-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.report-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  transition: var(--transition-fast);
+}
+
+.report-tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.report-tab-btn.active {
+  color: #fff;
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+

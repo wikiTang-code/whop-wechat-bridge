@@ -229,6 +229,31 @@ export function initDb() {
     console.error("Failed to register SQLite function cosine_dist:", err.message);
   }
 
+  // Register custom sqlite functions for secondary filters: text/image/link
+  try {
+    db.function('has_image', (content) => {
+      if (!content) return 0;
+      return /\[IMAGE:https?:\/\/[^\]]+\]/i.test(content) ? 1 : 0;
+    });
+    db.function('has_link', (content) => {
+      if (!content) return 0;
+      // Remove all [IMAGE:url] tags first, then check if there is any http:// or https:// left
+      const cleanContent = content.replace(/\[IMAGE:https?:\/\/[^\]]+\]/gi, '');
+      return /https?:\/\//i.test(cleanContent) ? 1 : 0;
+    });
+    db.function('is_text_only', (content) => {
+      if (!content) return 1;
+      const hasImage = /\[IMAGE:https?:\/\/[^\]]+\]/i.test(content);
+      const cleanContent = content.replace(/\[IMAGE:https?:\/\/[^\]]+\]/gi, '');
+      const hasLink = /https?:\/\//i.test(cleanContent);
+      return (!hasImage && !hasLink) ? 1 : 0;
+    });
+    console.log("SQLite custom filter functions registered successfully.");
+  } catch (err) {
+    console.error("Failed to register SQLite custom filter functions:", err.message);
+  }
+
+
   // Create FTS5 virtual table for keyword search
   try {
     db.prepare(`
@@ -483,12 +508,20 @@ export function isMessageArchived(id) {
 }
 
 // Retrieve messages with optional search and pagination and speaker filtering
-export function getMessages({ search, limit = 50, offset = 0, senderIds = [], excludeSenderIds = [], channelId = '', channelName = '', ticker = '', sector = '', strategy = '', startDate = '', endDate = '' } = {}) {
+export function getMessages({ search, limit = 50, offset = 0, senderIds = [], excludeSenderIds = [], channelId = '', channelName = '', ticker = '', sector = '', strategy = '', startDate = '', endDate = '', msgType = '' } = {}) {
   const conn = getDb();
   let query = 'SELECT * FROM messages';
   let countQuery = 'SELECT COUNT(*) as count FROM messages';
   const params = [];
   const clauses = [];
+
+  if (msgType === 'image') {
+    clauses.push('has_image(content) = 1');
+  } else if (msgType === 'link') {
+    clauses.push('has_link(content) = 1');
+  } else if (msgType === 'text') {
+    clauses.push('is_text_only(content) = 1');
+  }
 
   if (search) {
     clauses.push('content LIKE ?');

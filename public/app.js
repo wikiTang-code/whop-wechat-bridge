@@ -12,7 +12,15 @@ let state = {
   messagesLimit: 50,
   totalMessages: 0,
   csrfToken: null,
-  sessionId: 'sess_' + Math.random().toString(36).substr(2, 12)
+  sessionId: 'sess_' + Math.random().toString(36).substr(2, 12),
+  selectedMember: '',
+  selectedMemberId: '',
+  selectedChannel: '',
+  selectedChannelId: '',
+  selectedMsgType: '',
+  selectedReportCategory: 'all',
+  cachedSpeakers: [],
+  cachedChannels: []
 };
 
 // Fetch CSRF token for financial operations
@@ -60,9 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function initApp() {
   try {
-    await fetchSpeakers();
+    await Promise.all([
+      fetchSpeakers(),
+      fetchChannels()
+    ]);
   } catch (err) {
-    console.error('Error fetching speakers during initApp:', err);
+    console.error('Error fetching speakers or channels during initApp:', err);
   }
   
   // Fetch all data in parallel for faster initial load
@@ -205,7 +216,21 @@ function setupEventListeners() {
   });
 
   // Speaker mode dropdown filter change
-  document.getElementById('filter-speaker')?.addEventListener('change', () => {
+  document.getElementById('filter-speaker')?.addEventListener('change', (e) => {
+    if (e.target.value === 'speakers') {
+      const memberInput = document.getElementById('filter-member-input');
+      if (memberInput) memberInput.value = '';
+      state.selectedMember = '';
+      state.selectedMemberId = '';
+      state.selectedMemberName = '';
+      const clearMemberBtn = document.getElementById('btn-clear-member');
+      if (clearMemberBtn) clearMemberBtn.style.display = 'none';
+    }
+    fetchMessages(state.searchQuery);
+  });
+
+  // Message type dropdown change
+  document.getElementById('filter-msg-type')?.addEventListener('change', () => {
     fetchMessages(state.searchQuery);
   });
 
@@ -237,6 +262,17 @@ function setupEventListeners() {
   if (ragForm) {
     ragForm.addEventListener('submit', handleRagSubmit);
   }
+
+  // Report archive tab switching
+  const reportTabs = document.querySelectorAll('.report-tab-btn');
+  reportTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      reportTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.selectedReportCategory = tab.getAttribute('data-category');
+      renderReports(state.reports);
+    });
+  });
 }
 
 // Helper: Debouncer for search performance
@@ -319,25 +355,166 @@ async function fetchSpeakers() {
     const response = await fetch('/api/speakers');
     const result = await response.json();
     if (result.success && Array.isArray(result.speakers)) {
-      const select = document.getElementById('filter-speaker');
-      if (select) {
-        // Keep the original 2 options
-        select.innerHTML = `
-          <option value="speakers">只看大V (赵哥)</option>
-          <option value="all">所有人</option>
-        `;
-        result.speakers.forEach(spk => {
-          const option = document.createElement('option');
-          option.value = spk.sender_id;
-          option.textContent = `群友: ${spk.sender_name || spk.sender_id}`;
-          select.appendChild(option);
-        });
-      }
+      state.cachedSpeakers = result.speakers;
+      // Setup members autocomplete list
+      setupAutocomplete('filter-member-input', 'member-suggestions', 'btn-clear-member', state.cachedSpeakers, 'sender_name', 'sender_id', (id, name) => {
+        state.selectedMember = id;
+        state.selectedMemberId = id;
+        state.selectedMemberName = name;
+        
+        // If a specific member is selected, automatically switch speaker mode to 'all'
+        const speakerSelect = document.getElementById('filter-speaker');
+        if (speakerSelect && speakerSelect.value === 'speakers') {
+          speakerSelect.value = 'all';
+        }
+        fetchMessages(state.searchQuery, false);
+      }, () => {
+        state.selectedMember = '';
+        state.selectedMemberId = '';
+        state.selectedMemberName = '';
+        fetchMessages(state.searchQuery, false);
+      });
     }
   } catch (error) {
     console.error('Error fetching speakers:', error);
   }
 }
+
+async function fetchChannels() {
+  try {
+    const response = await fetch('/api/channels');
+    const result = await response.json();
+    if (result.success && Array.isArray(result.data)) {
+      state.cachedChannels = result.data;
+      // Setup channels autocomplete list
+      setupAutocomplete('filter-channel-input', 'channel-suggestions', 'btn-clear-channel', state.cachedChannels, 'channel_name', 'channel_id', (id, name) => {
+        state.selectedChannel = id;
+        state.selectedChannelId = id;
+        state.selectedChannelName = name;
+        fetchMessages(state.searchQuery, false);
+      }, () => {
+        state.selectedChannel = '';
+        state.selectedChannelId = '';
+        state.selectedChannelName = '';
+        fetchMessages(state.searchQuery, false);
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching channels:', error);
+  }
+}
+
+function setupAutocomplete(inputId, suggestionsId, clearBtnId, dataList, displayProp, valueProp, onSelect, onClear) {
+  const input = document.getElementById(inputId);
+  const suggestions = document.getElementById(suggestionsId);
+  const clearBtn = document.getElementById(clearBtnId);
+
+  if (!input || !suggestions || !clearBtn) return;
+
+  let activeIndex = -1;
+
+  // Toggle clear button
+  function toggleClearButton() {
+    clearBtn.style.display = input.value ? 'block' : 'none';
+  }
+
+  // Filter and show suggestions
+  function showSuggestions() {
+    const query = input.value.trim().toLowerCase();
+    
+    // Filter list
+    const filtered = dataList.filter(item => {
+      const val = (item[displayProp] || '').toLowerCase();
+      const valId = (item[valueProp] || '').toLowerCase();
+      // Match display property or match value property
+      return val.includes(query) || valId.includes(query);
+    });
+
+    if (filtered.length === 0) {
+      suggestions.innerHTML = '<div class="suggestion-item" style="cursor: default; color: #888;">无匹配结果</div>';
+      suggestions.style.display = 'block';
+      return;
+    }
+
+    suggestions.innerHTML = '';
+    filtered.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = 'suggestion-item';
+      div.innerText = item[displayProp] || item[valueProp];
+      
+      div.addEventListener('mousedown', (e) => {
+        // Prevent input blur before click processes
+        e.preventDefault();
+      });
+
+      div.addEventListener('click', () => {
+        input.value = item[displayProp] || item[valueProp];
+        suggestions.style.display = 'none';
+        toggleClearButton();
+        onSelect(item[valueProp], item[displayProp] || item[valueProp]);
+      });
+      
+      suggestions.appendChild(div);
+    });
+    
+    suggestions.style.display = 'block';
+    activeIndex = -1;
+  }
+
+  input.addEventListener('input', () => {
+    toggleClearButton();
+    showSuggestions();
+  });
+
+  input.addEventListener('focus', () => {
+    showSuggestions();
+  });
+
+  input.addEventListener('blur', () => {
+    // Delay to let click event on suggestion item register
+    setTimeout(() => {
+      suggestions.style.display = 'none';
+    }, 200);
+  });
+
+  // Handle keys (up/down/enter)
+  input.addEventListener('keydown', (e) => {
+    const items = suggestions.querySelectorAll('.suggestion-item');
+    if (suggestions.style.display === 'none' || items.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (activeIndex < items.length - 1) {
+        if (activeIndex >= 0) items[activeIndex].classList.remove('selected');
+        activeIndex++;
+        items[activeIndex].classList.add('selected');
+        items[activeIndex].scrollIntoView({ block: 'nearest' });
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (activeIndex > 0) {
+        items[activeIndex].classList.remove('selected');
+        activeIndex--;
+        items[activeIndex].classList.add('selected');
+        items[activeIndex].scrollIntoView({ block: 'nearest' });
+      }
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeIndex >= 0 && items[activeIndex]) {
+        items[activeIndex].click();
+      }
+    }
+  });
+
+  // Clear button click
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    suggestions.style.display = 'none';
+    toggleClearButton();
+    onClear();
+  });
+}
+
 
 async function fetchMessages(search = '', append = false) {
   const container = document.getElementById('messages-list');
@@ -346,13 +523,19 @@ async function fetchMessages(search = '', append = false) {
   const strategy = document.getElementById('filter-strategy')?.value || '';
   const startDate = document.getElementById('filter-start-date')?.value || '';
   const endDate = document.getElementById('filter-end-date')?.value || '';
+  const msgType = document.getElementById('filter-msg-type')?.value || '';
   
   if (!append) {
     state.messagesOffset = 0;
   }
   
   try {
-    let url = `/api/messages?speakerMode=${speakerMode}&limit=${state.messagesLimit}&offset=${state.messagesOffset}`;
+    let finalSpeakerMode = speakerMode;
+    if (speakerMode === 'all' && state.selectedMember) {
+      finalSpeakerMode = state.selectedMember;
+    }
+
+    let url = `/api/messages?speakerMode=${finalSpeakerMode}&limit=${state.messagesLimit}&offset=${state.messagesOffset}`;
     if (search) {
       url += `&search=${encodeURIComponent(search)}`;
     }
@@ -367,6 +550,12 @@ async function fetchMessages(search = '', append = false) {
     }
     if (endDate) {
       url += `&endDate=${encodeURIComponent(endDate)}`;
+    }
+    if (msgType) {
+      url += `&msgType=${encodeURIComponent(msgType)}`;
+    }
+    if (state.selectedChannel) {
+      url += `&channelId=${encodeURIComponent(state.selectedChannel)}`;
     }
     
     const response = await fetch(url);
@@ -784,11 +973,12 @@ function renderMessages(messages, total) {
     // 3. Highlight tickers
     html = html.replace(/(\b[A-Z]{2,5}\b|\$[a-zA-Z]{2,5})/g, '<span class="ticker-highlight">$1</span>');
 
-    // 4. Re-insert images as HTML tags (with URL sanitization)
+    // 4. Re-insert images as HTML tags (with proxy and URL sanitization)
     images.forEach((url, index) => {
       const safeUrl = isSafeUrl(url) ? escapeAttr(url) : '';
-      const imgHtml = safeUrl
-        ? `<div class="message-image-container"><img class="message-image" src="${safeUrl}" alt="图片" loading="lazy"></div>`
+      const proxyUrl = safeUrl ? `/api/proxy-image?url=${encodeURIComponent(url)}` : '';
+      const imgHtml = proxyUrl
+        ? `<div class="message-image-container"><img class="message-image" src="${proxyUrl}" alt="图片" loading="lazy"></div>`
         : '';
       html = html.replace(`__IMAGE_PLACEHOLDER_${index}__`, imgHtml);
     });
@@ -855,21 +1045,77 @@ function renderMessages(messages, total) {
   }
 }
 
+function getReportTitle(rep) {
+  if (rep.strategy === 'GLOBAL_ROLLING') {
+    return '🌐 全局 AI 滚动策略研报';
+  }
+  if (rep.strategy === 'KLINE_COMBINED') {
+    return '📊 K线走势与大V策略融合研报';
+  }
+  if (rep.strategy) {
+    return `⚡ ${rep.strategy} 专项技术总结研报`;
+  }
+  
+  // For real-time briefs (strategy is null/empty)
+  // Check if it's a "no signals" daily briefing
+  if (rep.summary_content.includes('未检测到具体交易信号') || rep.summary_content.includes('没有具体交易信号') || rep.summary_content.includes('未检测到任何相关的历史发言')) {
+    return '📝 社区日常讨论与情绪归档';
+  }
+  
+  // Extract bold tickers like **TSLA**, **NVDA**
+  const tickerRegex = /\*\*([A-Z]{2,5})\*\*/g;
+  const matches = [];
+  let match;
+  while ((match = tickerRegex.exec(rep.summary_content)) !== null) {
+    if (!matches.includes(match[1])) {
+      matches.push(match[1]);
+    }
+    if (matches.length >= 3) break;
+  }
+  
+  if (matches.length > 0) {
+    return `🤖 策略简报 (${matches.join('/')})`;
+  }
+  
+  return '🤖 社区实时交易策略简报';
+}
+
 function renderReports(reports) {
   const container = document.getElementById('reports-list');
+  const countBadge = document.getElementById('report-count');
+
+  // Filter reports according to selected category
+  const filteredReports = reports.filter(rep => {
+    const cat = state.selectedReportCategory;
+    if (cat === 'all') return true;
+    if (cat === 'rolling') {
+      return rep.strategy === 'GLOBAL_ROLLING' || rep.strategy === 'KLINE_COMBINED';
+    }
+    if (cat === 'strategy') {
+      return rep.strategy && rep.strategy !== 'GLOBAL_ROLLING' && rep.strategy !== 'KLINE_COMBINED';
+    }
+    if (cat === 'briefing') {
+      return !rep.strategy;
+    }
+    return true;
+  });
+
+  if (countBadge) {
+    countBadge.innerText = `${filteredReports.length} 篇`;
+  }
   
-  if (reports.length === 0) {
+  if (filteredReports.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">📊</div>
-        <p>暂无 AI 研报，请点击右上方“立即同步”生成第一篇报告</p>
+        <p>该分类下暂无研报数据</p>
       </div>
     `;
     return;
   }
 
   container.innerHTML = '';
-  reports.forEach((rep) => {
+  filteredReports.forEach((rep) => {
     const card = document.createElement('div');
     card.className = 'report-card';
     card.addEventListener('click', () => openReportDetailModal(rep));
@@ -880,9 +1126,11 @@ function renderReports(reports) {
       .replace(/[#\*`_\-\[\]\(\)]/g, ' ')
       .trim();
 
+    const title = getReportTitle(rep);
+
     card.innerHTML = `
       <div class="report-card-header">
-        <h3 class="report-card-title">🤖 智能投资策略研报</h3>
+        <h3 class="report-card-title">${title}</h3>
         <span class="report-card-date">${dateStr}</span>
       </div>
       <div class="report-card-meta">
@@ -1549,8 +1797,9 @@ function renderContextMessages(messages, targetId) {
     
     images.forEach((url, index) => {
       const safeUrl = isSafeUrl(url) ? escapeAttr(url) : '';
-      const imgHtml = safeUrl
-        ? `<div class="message-image-container"><img class="message-image" src="${safeUrl}" alt="图片" loading="lazy"></div>`
+      const proxyUrl = safeUrl ? `/api/proxy-image?url=${encodeURIComponent(url)}` : '';
+      const imgHtml = proxyUrl
+        ? `<div class="message-image-container"><img class="message-image" src="${proxyUrl}" alt="图片" loading="lazy"></div>`
         : '';
       html = html.replace(`__IMAGE_PLACEHOLDER_${index}__`, imgHtml);
     });
