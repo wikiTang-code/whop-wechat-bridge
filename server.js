@@ -33,7 +33,7 @@ import {
   getDistinctChannels,
   getLatestPersonaPlaybook
 } from './database.js';
-import { generatePersonaPlaybook, getPersonaStatus } from './persona-engine.js';
+import { generatePersonaPlaybook, getPersonaStatus, processPersonaTask } from './persona-engine.js';
 import { 
   syncAndAnalyze,
   analyzeWithGemini,
@@ -43,6 +43,10 @@ import {
   generateKlineCombinedReport
 } from './monitor.js';
 import { executeOrder, getUnifiedPortfolio, getUnifiedPositions } from './trading.js';
+import { runWithRateLimit } from './rate-limiter.js';
+import { startQueueWorker } from './task-queue.js';
+import { seed2026MacroEvents } from './market-data.js';
+import { rebuildHistoricalCampaigns } from './campaign-engine.js';
 
 dotenv.config();
 
@@ -51,6 +55,22 @@ const __dirname = path.dirname(__filename);
 
 // Initialize DB
 initDb();
+seed2026MacroEvents().catch(err => console.error('[Startup] Failed to seed macro events:', err.message));
+
+// Rebuild campaigns if empty
+const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
+for (const speaker of targetSpeakers) {
+  const dbInstance = getDb();
+  const count = dbInstance.prepare("SELECT COUNT(*) as count FROM campaigns WHERE influencer_id = ?").get(speaker)?.count || 0;
+  if (count === 0) {
+    console.log(`[Startup] Campaigns table empty for speaker ${speaker}. Rebuilding historical campaigns...`);
+    rebuildHistoricalCampaigns(speaker).catch(err => console.error(`[Startup] Rebuilding campaigns failed:`, err.message));
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -484,6 +504,63 @@ app.get('/api/persona/latest', (req, res) => {
   }
 });
 
+// === Campaign & Macro Events Endpoints ===
+
+// GET /api/campaigns - Get all campaigns
+app.get('/api/campaigns', (req, res) => {
+  try {
+    const db = getDb();
+    const rows = db.prepare(`
+      SELECT c.*, 
+        (SELECT COUNT(*) FROM campaign_messages WHERE campaign_id = c.id) as message_count
+      FROM campaigns c
+      ORDER BY c.open_time DESC
+    `).all();
+    res.json({ success: true, campaigns: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/campaigns/:id/messages - Get messages associated with a campaign
+app.get('/api/campaigns/:id/messages', (req, res) => {
+  try {
+    const campaignId = parseInt(req.params.id, 10);
+    const db = getDb();
+    
+    const campaign = db.prepare('SELECT * FROM campaigns WHERE id = ?').get(campaignId);
+    if (!campaign) {
+      return res.status(404).json({ success: false, error: '战役未找到' });
+    }
+    
+    const messages = db.prepare(`
+      SELECT m.* 
+      FROM messages m
+      JOIN campaign_messages cm ON m.id = cm.message_id
+      WHERE cm.campaign_id = ?
+      ORDER BY m.created_at ASC
+    `).all(campaignId);
+    
+    res.json({ success: true, campaign, messages });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/macro-events - Get all macro events
+app.get('/api/macro-events', (req, res) => {
+  try {
+    const db = getDb();
+    const rows = db.prepare(`
+      SELECT * FROM macro_events 
+      ORDER BY event_timestamp DESC
+    `).all();
+    res.json({ success: true, events: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // ==========================================================================
 // 量化跟单与交易 API 路由
 // ==========================================================================
@@ -605,7 +682,7 @@ async function callAI(provider, prompt) {
   if (provider === 'gemini') {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment.');
-    return await analyzeWithGemini(apiKey, prompt);
+    return await runWithRateLimit(() => analyzeWithGemini(apiKey, prompt), { priority: 5 });
   } else if (provider === 'ollama') {
     const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
     const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
@@ -1184,56 +1261,60 @@ async function fetchLMStudioEmbedding(text) {
 }
 
 
-async function fetchGeminiEmbedding(text) {
+async function fetchGeminiEmbedding(text, priority = 1) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY not set');
   
   const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=' + apiKey;
   
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
-  
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'models/gemini-embedding-001',
-        content: { parts: [{ text: text }] }
-      }),
-      signal: controller.signal
-    });
+  const callFn = async () => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
     
-    clearTimeout(timeoutId);
-    
-    if (!res.ok) {
-      throw new Error('Gemini embedding HTTP ' + res.status);
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'models/gemini-embedding-001',
+          content: { parts: [{ text: text }] }
+        }),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!res.ok) {
+        throw new Error('Gemini embedding HTTP ' + res.status);
+      }
+      
+      const data = await res.json();
+      if (data && data.embedding && data.embedding.values) {
+        return data.embedding.values;
+      } else {
+        throw new Error('Invalid Gemini embedding response');
+      }
+    } catch (err) {
+      clearTimeout(timeoutId);
+      throw err;
     }
-    
-    const data = await res.json();
-    if (data && data.embedding && data.embedding.values) {
-      return data.embedding.values;
-    } else {
-      throw new Error('Invalid Gemini embedding response');
-    }
-  } catch (err) {
-    clearTimeout(timeoutId);
-    throw err;
-  }
+  };
+
+  return await runWithRateLimit(callFn, { priority });
 }
 
-async function fetchEmbedding(text) {
+async function fetchEmbedding(text, priority = 1) {
   try {
     return await fetchLMStudioEmbedding(text);
   } catch (err) {
-    return await fetchGeminiEmbedding(text);
+    return await fetchGeminiEmbedding(text, priority);
   }
 }
 
 async function checkEmbeddingApi() {
   try {
     console.log('[RAG] Testing embedding API (LM Studio -> Gemini fallback)...');
-    const testVector = await fetchEmbedding('test string');
+    const testVector = await fetchEmbedding('test string', 0);
     if (Array.isArray(testVector) && testVector.length > 0) {
       isVectorSearchEnabled = true;
       console.log('[RAG] Embedding API active. Vector size: ' + testVector.length + '. Vector search enabled.');
@@ -1276,7 +1357,7 @@ async function startBackgroundEmbedder() {
         }
         
         try {
-          const embedding = await fetchEmbedding(msg.content);
+          const embedding = await fetchEmbedding(msg.content, 0);
           saveMessageEmbedding(msg.id, embedding);
           await new Promise(resolve => setTimeout(resolve, 100));
         } catch (err) {
@@ -1324,7 +1405,7 @@ app.post('/api/rag/query', requireCsrf, async (req, res) => {
     let queryEmbedding = null;
     if (isVectorSearchEnabled) {
       try {
-        queryEmbedding = await fetchEmbedding(question);
+        queryEmbedding = await fetchEmbedding(question, 10);
       } catch (err) {
         console.warn(`[RAG] Failed to generate embedding for query, falling back to keyword search: ${err.message}`);
       }
@@ -1378,14 +1459,26 @@ app.post('/api/rag/query', requireCsrf, async (req, res) => {
       return `[消息 ID: ${index + 1}] [时间: ${timeStr}] [频道: ${msg.channel_name || '讨论区'}] ${msg.sender_name}: ${msg.content}`;
     }).join('\n\n');
     
-    const aiPrompt = `你是一位美股社区大V发言记录的智能知识库助理。请严格基于提供的“历史发言上下文”来回答用户的问题。
+    let playbookText = '';
+    try {
+      const latestPlaybook = getLatestPersonaPlaybook();
+      if (latestPlaybook && latestPlaybook.summary_content) {
+        playbookText = latestPlaybook.summary_content.substring(0, 1500);
+      }
+    } catch (playbookErr) {
+      console.warn(`[RAG] Failed to read latest persona playbook: ${playbookErr.message}`);
+    }
 
-【规则】：
-1. 你的所有回答必须严格忠实于以下提供的上下文内容，不要脑补、编造或推测任何不在上下文中的交易操作、买卖点位。
-2. 每一个重要的陈述（特别是关于操作、点位、方向、板块、策略的结论），都必须在句尾使用方括号加数字来标注数据来源（例如：[1]、[2]），引用对应的“消息 ID”。引动的数字必须严格与上下文中的消息 ID 相对应。
-3. 如果一条陈述的信息来自多个消息，可以合并标注，例如：[1][2]。
-4. 如果上下文的信息不足以回答用户的问题，或者和问题不相关，请委婉但明确地告诉用户：“根据已有的历史发言记录，赵哥/大V并未提及这部分内容...”，然后结合上下文中微弱关联的片段进行陈述，绝对不能编造答案。
-5. 请用极度精炼、直奔主题的语言来回答，字数控制在 150 字以内，避免重复和啰嗦，以大幅缩减回答响应时间。
+    const aiPrompt = `你现在是社区大V【赵哥】的数字交易助理分身。你的语气风格必须遵循赵哥的交易画像，同时回答内容必须完全基于历史发言记录。
+
+【基本交易规则与人格属性】（仅用于规范表达方式和基本常识，不要脑补为最新交易动作）：
+${playbookText || '待生成'}
+
+【请遵循他的全局交易守则与习惯】：
+1. 绝对不要根据“基本交易规则”脑补任何交易记录。如果【历史发言上下文】中没有用户提到的操作，你必须直接回答：“大V近期未提及该标的的操作点位。”
+2. 你的所有回答必须严格忠实于以下提供的“历史发言上下文”，绝对不能编造、臆测任何交易或行情事实。
+3. 每一个核心操作陈述（特别是买卖点位、方向、板块、策略的结论），都必须在句尾使用方括号标注数据来源（例如：[1]、[2]），引用对应的“消息 ID”。
+4. 请用极度精炼、直奔主题的语言来回答，字数控制在 150 字以内。
 
 【历史发言上下文】：
 ${contextText}
@@ -1402,7 +1495,7 @@ ${question}`;
     if (provider === 'gemini') {
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) throw new Error('GEMINI_API_KEY is not set.');
-      answer = await analyzeWithGemini(apiKey, aiPrompt);
+      answer = await runWithRateLimit(() => analyzeWithGemini(apiKey, aiPrompt), { priority: 10 });
     } else if (provider === 'ollama') {
       const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
       const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
@@ -1528,6 +1621,13 @@ const server = app.listen(PORT, () => {
   startPoller();
   // Check local LM Studio embedding server and start background worker if active
   checkEmbeddingApi();
+  // Start background task queue worker
+  startQueueWorker(async (task) => {
+    if (task.task_type.startsWith('persona_')) {
+      return await processPersonaTask(task);
+    }
+    throw new Error(`Unsupported task type: ${task.task_type}`);
+  }, 4000);
   // Start Cloudflare Tunnel and push URL to WeChat
   startCloudflareTunnel(PORT);
 });

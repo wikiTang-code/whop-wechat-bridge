@@ -4,6 +4,8 @@ import https from 'https';
 import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions } from './database.js';
 import { executeOrder, getUnifiedPortfolio } from './trading.js';
 import { getMarketContextForTickers } from './kline.js';
+import { runWithRateLimit } from './rate-limiter.js';
+import { processMessageForCampaigns, checkAndCloseStaleCampaigns } from './campaign-engine.js';
 
 dotenv.config();
 
@@ -292,38 +294,43 @@ function formatMessagesWithContextForAI(enrichedMessages) {
 }
 
 // Call Google Gemini API
-export async function analyzeWithGemini(apiKey, prompt) {
+export async function analyzeWithGemini(apiKey, prompt, priority = 10) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-  const response = await webFetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            {
-              text: prompt,
-            },
-          ],
-        },
-      ],
-    }),
-  });
+  
+  const callFn = async () => {
+    const response = await webFetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
+      }),
+    });
 
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Gemini API failed with status ${response.status}: ${errText}`);
-  }
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Gemini API failed with status ${response.status}: ${errText}`);
+    }
 
-  const result = await response.json();
-  const content = result.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!content) {
-    throw new Error('Gemini API returned empty content or invalid structure.');
-  }
+    const result = await response.json();
+    const content = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!content) {
+      throw new Error('Gemini API returned empty content or invalid structure.');
+    }
 
-  return content;
+    return content;
+  };
+
+  return await runWithRateLimit(callFn, { priority });
 }
 
 // Extract image URLs from message content [IMAGE:url] tags
@@ -397,55 +404,59 @@ async function downloadImageAsBase64(imageUrl, timeoutMs = 10000) {
  * Gemini 多模态分析（仅用于含图片的消息分析）
  * 纯文本分析应使用 callMonitorAI → 本地 LM Studio
  */
-export async function analyzeWithGeminiMultimodal(apiKey, prompt, imageUrls = []) {
+export async function analyzeWithGeminiMultimodal(apiKey, prompt, imageUrls = [], priority = 10) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   
-  const parts = [{ text: prompt }];
-  
-  // Download and encode images (max 5 per call)
-  const urlsToProcess = imageUrls.slice(0, 5);
-  let loadedCount = 0;
-  let failedCount = 0;
-  
-  for (const imgUrl of urlsToProcess) {
-    try {
-      const imageData = await downloadImageAsBase64(imgUrl);
-      parts.push({
-        inlineData: {
-          mimeType: imageData.mimeType,
-          data: imageData.base64
-        }
-      });
-      loadedCount++;
-    } catch (err) {
-      console.warn(`[Multimodal] Failed to load image: ${imgUrl} - ${err.message}`);
-      parts.push({ text: `[图片无法加载: ${imgUrl} - ${err.message}]` });
-      failedCount++;
+  const callFn = async () => {
+    const parts = [{ text: prompt }];
+    
+    // Download and encode images (max 5 per call)
+    const urlsToProcess = imageUrls.slice(0, 5);
+    let loadedCount = 0;
+    let failedCount = 0;
+    
+    for (const imgUrl of urlsToProcess) {
+      try {
+        const imageData = await downloadImageAsBase64(imgUrl);
+        parts.push({
+          inlineData: {
+            mimeType: imageData.mimeType,
+            data: imageData.base64
+          }
+        });
+        loadedCount++;
+      } catch (err) {
+        console.warn(`[Multimodal] Failed to load image: ${imgUrl} - ${err.message}`);
+        parts.push({ text: `[图片无法加载: ${imgUrl} - ${err.message}]` });
+        failedCount++;
+      }
     }
-  }
-  
-  console.log(`[Multimodal] Prepared ${loadedCount} images, ${failedCount} failed out of ${urlsToProcess.length} total`);
+    
+    console.log(`[Multimodal] Prepared ${loadedCount} images, ${failedCount} failed out of ${urlsToProcess.length} total`);
 
-  const response = await webFetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts }],
-    }),
-  });
+    const response = await webFetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts }],
+      }),
+    });
 
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Gemini Multimodal API failed with status ${response.status}: ${errText}`);
-  }
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Gemini Multimodal API failed with status ${response.status}: ${errText}`);
+    }
 
-  const result = await response.json();
-  const content = result.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!content) {
-    throw new Error('Gemini Multimodal API returned empty content or invalid structure.');
-  }
+    const result = await response.json();
+    const content = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!content) {
+      throw new Error('Gemini Multimodal API returned empty content or invalid structure.');
+    }
 
-  return content;
+    return content;
+  };
+
+  return await runWithRateLimit(callFn, { priority });
 }
 
 function localFetch(urlStr, options = {}) {
@@ -855,6 +866,7 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
   }
 
   let allNormalizedMessages = [];
+  let newSpeakerMessages = [];
   let totalNewMessagesCount = 0;
 
   try {
@@ -1063,6 +1075,12 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
 
       // Filter out messages that are already in the DB to count actual new ones
       const actuallyNewMessages = normalizedMessages.filter(msg => !isMessageArchived(msg.id));
+      
+      actuallyNewMessages.forEach(msg => {
+        if (targetSpeakers.includes(msg.sender_id)) {
+          newSpeakerMessages.push(msg);
+        }
+      });
 
       allNormalizedMessages.push(...normalizedMessages);
       totalNewMessagesCount += actuallyNewMessages.length;
@@ -1077,6 +1095,22 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
 
     // Save all synchronized messages to the database
     saveMessages(allNormalizedMessages);
+
+    // Process campaigns for new speaker messages
+    for (const msg of newSpeakerMessages) {
+      try {
+        await processMessageForCampaigns(msg);
+      } catch (err) {
+        console.error(`[Campaign Engine] Failed to process campaign for message ${msg.id}:`, err.message);
+      }
+    }
+    
+    // Check and close stale campaigns periodically
+    try {
+      checkAndCloseStaleCampaigns();
+    } catch (err) {
+      console.error('[Campaign Engine] Failed to clean up stale campaigns:', err.message);
+    }
 
     // Query pending messages for target speakers from DB where either is_traded or is_pushed is 0
     const conn = getDb();

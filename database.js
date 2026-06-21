@@ -300,6 +300,139 @@ export function initDb() {
     console.error("Error creating message_embeddings table:", err.message);
   }
 
+  // Create task_queue table
+  try {
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS task_queue (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_type TEXT NOT NULL,
+        priority INTEGER DEFAULT 1,
+        payload TEXT NOT NULL,
+        status TEXT DEFAULT 'pending',
+        result TEXT,
+        retry_count INTEGER DEFAULT 0,
+        max_retries INTEGER DEFAULT 5,
+        run_after INTEGER DEFAULT 0,
+        error_message TEXT,
+        created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')*1000),
+        updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')*1000)
+      )
+    `).run();
+    db.prepare(`
+      CREATE INDEX IF NOT EXISTS idx_task_queue_poll 
+      ON task_queue (status, run_after, priority DESC, created_at ASC)
+    `).run();
+    db.prepare(`
+      CREATE INDEX IF NOT EXISTS idx_task_queue_batch_id 
+      ON task_queue (json_extract(payload, '$.batchId'))
+    `).run();
+    console.log("task_queue table and index initialized.");
+  } catch (err) {
+    console.error("Error creating task_queue table:", err.message);
+  }
+
+  // Create campaigns table
+  try {
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS campaigns (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        influencer_id TEXT NOT NULL,
+        ticker TEXT NOT NULL,
+        status TEXT DEFAULT 'active',
+        open_time INTEGER NOT NULL,
+        close_time INTEGER,
+        open_reason TEXT,
+        close_reason TEXT,
+        initial_price REAL,
+        exit_price REAL,
+        pnl_ratio REAL,
+        created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')*1000),
+        updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')*1000)
+      )
+    `).run();
+    db.prepare(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_active_unique 
+      ON campaigns (influencer_id, ticker) WHERE status = 'active'
+    `).run();
+    console.log("campaigns table and index initialized.");
+  } catch (err) {
+    console.error("Error creating campaigns table:", err.message);
+  }
+
+  // Create campaign_messages table
+  try {
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS campaign_messages (
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+        created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')*1000),
+        PRIMARY KEY (campaign_id, message_id)
+      )
+    `).run();
+    console.log("campaign_messages table initialized.");
+  } catch (err) {
+    console.error("Error creating campaign_messages table:", err.message);
+  }
+
+  // Create campaign_rules table
+  try {
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS campaign_rules (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        influencer_id TEXT NOT NULL,
+        pattern_type TEXT NOT NULL,
+        keyword_regex TEXT NOT NULL,
+        confidence_weight REAL DEFAULT 1.0,
+        created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')*1000)
+      )
+    `).run();
+    db.prepare(`
+      CREATE INDEX IF NOT EXISTS idx_campaign_rules_lookup 
+      ON campaign_rules (influencer_id, pattern_type)
+    `).run();
+    console.log("campaign_rules table and index initialized.");
+  } catch (err) {
+    console.error("Error creating campaign_rules table:", err.message);
+  }
+
+  // Create macro_events table
+  try {
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS macro_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_timestamp INTEGER NOT NULL,
+        date_str TEXT NOT NULL,
+        event_type TEXT NOT NULL,
+        event_name TEXT NOT NULL,
+        description TEXT,
+        actual_value TEXT,
+        expected_value TEXT,
+        market_regime TEXT,
+        spy_change REAL,
+        vix_close REAL,
+        source TEXT DEFAULT 'auto',
+        created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')*1000)
+      )
+    `).run();
+    db.prepare(`
+      CREATE INDEX IF NOT EXISTS idx_macro_events_time 
+      ON macro_events (event_timestamp DESC, event_type)
+    `).run();
+    console.log("macro_events table and index initialized.");
+  } catch (err) {
+    console.error("Error creating macro_events table:", err.message);
+  }
+
+  // Migration: Add event_tag column to messages table if it doesn't exist
+  try {
+    db.prepare("ALTER TABLE messages ADD COLUMN event_tag TEXT").run();
+    console.log("Migration: Added event_tag column to messages table.");
+  } catch (err) {
+    if (!err.message.includes('duplicate column name')) {
+      console.warn("Migration warning for messages event_tag:", err.message);
+    }
+  }
+
   console.log('SQLite Database initialized successfully at:', dbPath);
 }
 
@@ -1133,4 +1266,23 @@ export function getDistinctChannels() {
     WHERE channel_id IS NOT NULL AND channel_id != ''
   `).all();
 }
+
+/**
+ * 增加并获取每日 API 调用计数 (持久化存储，重启不丢失)
+ */
+export function incrementAndGetDailyApiCount() {
+  const db = getDb();
+  const todayStr = new Date().toISOString().split('T')[0];
+  
+  return db.transaction(() => {
+    db.prepare(`
+      INSERT INTO portfolio (key, value) VALUES (?, 1)
+      ON CONFLICT(key) DO UPDATE SET value = value + 1
+    `).run(`gemini_requests_${todayStr}`);
+    
+    const row = db.prepare("SELECT value FROM portfolio WHERE key = ?").get(`gemini_requests_${todayStr}`);
+    return row ? parseInt(row.value, 10) : 1;
+  })();
+}
+
 

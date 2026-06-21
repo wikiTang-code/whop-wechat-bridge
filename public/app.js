@@ -265,8 +265,8 @@ function switchTab(tabId) {
   document.querySelectorAll('.tab-content').forEach(content => {
     if (content.id === tabId) {
       content.classList.add('active');
-      // Persona tab uses flex layout, not grid
-      content.style.display = (tabId === 'tab-persona') ? 'flex' : 'grid';
+      // Persona and Campaigns tab use flex layout, not grid
+      content.style.display = (tabId === 'tab-persona' || tabId === 'tab-campaigns') ? 'flex' : 'grid';
     } else {
       content.classList.remove('active');
       content.style.display = 'none';
@@ -280,6 +280,8 @@ function switchTab(tabId) {
     fetchStrategyData();
   } else if (tabId === 'tab-persona') {
     loadPersonaPlaybook();
+  } else if (tabId === 'tab-campaigns') {
+    fetchCampaigns();
   }
 }
 
@@ -1942,5 +1944,284 @@ function renderSimpleMarkdown(md) {
   html = html.replace(/<\/ul>\s*<ul>/g, '');
   
   return `<div class="markdown-body"><p>${html}</p></div>`;
+}
+
+// ==========================================================================
+// Campaigns Tab Handlers (交易战役时间线)
+// ==========================================================================
+
+async function fetchCampaigns() {
+  const listContainer = document.getElementById('campaigns-list-container');
+  const activeCountEl = document.getElementById('active-campaigns-count');
+  const closedCountEl = document.getElementById('closed-campaigns-count');
+  
+  if (!listContainer) return;
+  
+  listContainer.innerHTML = `
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>正在加载战役列表...</p>
+    </div>
+  `;
+  
+  try {
+    // 1. 获取所有战役
+    const res = await fetch('/api/campaigns');
+    const data = await res.json();
+    
+    if (!data.success) {
+      listContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载失败: ${data.error || '未知错误'}</p></div>`;
+      return;
+    }
+    
+    // 2. 同时获取所有宏观事件，用于在时间线上做自动关联对齐
+    const macroRes = await fetch('/api/macro-events');
+    const macroData = await macroRes.json();
+    if (macroData.success) {
+      state.macroEvents = macroData.events;
+    } else {
+      state.macroEvents = [];
+    }
+    
+    const campaigns = data.campaigns || [];
+    
+    // 3. 更新统计指标
+    const activeCount = campaigns.filter(c => c.status === 'active').length;
+    const closedCount = campaigns.filter(c => c.status === 'closed').length;
+    if (activeCountEl) activeCountEl.textContent = activeCount;
+    if (closedCountEl) closedCountEl.textContent = closedCount;
+    
+    if (campaigns.length === 0) {
+      listContainer.innerHTML = `
+        <div class="empty-state">
+          <span class="empty-icon">📊</span>
+          <p>尚未建立任何交易战役</p>
+          <p class="empty-hint">当大V发布新交易观点后，系统将自动识别并开启个股交易战役</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // 4. 渲染左侧战役列表
+    listContainer.innerHTML = campaigns.map(c => {
+      const pnlText = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? '+' : '') + (c.pnl_ratio * 100).toFixed(2) + '%' : 'N/A';
+      const pnlClass = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? 'positive' : 'negative') : '';
+      const statusText = c.status === 'active' ? '进行中' : '已结束';
+      
+      return `
+        <div class="campaign-item" data-id="${c.id}">
+          <div class="campaign-item-header">
+            <span class="campaign-item-ticker">${c.ticker}</span>
+            <span class="campaign-item-status ${c.status}">${statusText}</span>
+          </div>
+          <div class="campaign-item-meta">
+            <div class="row">
+              <span>建仓参考价:</span>
+              <span>$${c.initial_price ? c.initial_price.toFixed(2) : 'N/A'}</span>
+            </div>
+            <div class="row">
+              <span>当前/平仓价:</span>
+              <span>$${c.exit_price ? c.exit_price.toFixed(2) : 'N/A'}</span>
+            </div>
+            <div class="row">
+              <span>参考收益率:</span>
+              <span class="${pnlClass}" style="font-weight: 700;">${pnlText}</span>
+            </div>
+            <div class="row" style="margin-top: 4px; font-size: 0.7rem; opacity: 0.7;">
+              <span>关联消息数:</span>
+              <span>${c.message_count || 0} 条</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    // 5. 绑定点击事件，加载战役详细时间线
+    const items = listContainer.querySelectorAll('.campaign-item');
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        items.forEach(el => el.classList.remove('active-item'));
+        item.classList.add('active-item');
+        const id = parseInt(item.getAttribute('data-id'), 10);
+        fetchCampaignDetails(id);
+      });
+    });
+    
+  } catch (err) {
+    listContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载异常: ${err.message}</p></div>`;
+  }
+}
+
+async function fetchCampaignDetails(campaignId) {
+  const detailContainer = document.getElementById('campaign-detail-container');
+  if (!detailContainer) return;
+  
+  detailContainer.innerHTML = `
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>正在获取战役详细时间线...</p>
+    </div>
+  `;
+  
+  try {
+    const res = await fetch(`/api/campaigns/${campaignId}/messages`);
+    const data = await res.json();
+    
+    if (!data.success) {
+      detailContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>获取详情失败: ${data.error || '未知错误'}</p></div>`;
+      return;
+    }
+    
+    const c = data.campaign;
+    const messages = data.messages || [];
+    
+    // 1. 格式化战役概览指标
+    const pnlText = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? '+' : '') + (c.pnl_ratio * 100).toFixed(2) + '%' : 'N/A';
+    const pnlClass = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? 'positive' : 'negative') : '';
+    const openTimeStr = new Date(c.open_time).toLocaleString('zh-CN');
+    const closeTimeStr = c.close_time ? new Date(c.close_time).toLocaleString('zh-CN') : '进行中';
+    
+    // 2. 筛选在战役生命周期内的宏观事件进行混合对齐
+    const startMs = c.open_time;
+    const endMs = c.close_time || Date.now();
+    
+    const associatedEvents = (state.macroEvents || []).filter(ev => {
+      return ev.event_timestamp >= startMs && ev.event_timestamp <= endMs;
+    });
+    
+    // 3. 将消息与宏观事件合并，并按时间戳升序排序
+    const timelineItems = [];
+    
+    messages.forEach(msg => {
+      timelineItems.push({
+        type: 'message',
+        timestamp: msg.created_at,
+        data: msg
+      });
+    });
+    
+    associatedEvents.forEach(ev => {
+      timelineItems.push({
+        type: 'macro_event',
+        timestamp: ev.event_timestamp,
+        data: ev
+      });
+    });
+    
+    timelineItems.sort((a, b) => a.timestamp - b.timestamp);
+    
+    // 4. 渲染战役详情头部和统计卡片
+    let detailHtml = `
+      <div class="campaign-detail-header">
+        <div class="campaign-detail-title">
+          <h3>${c.ticker} 交易战役详情</h3>
+          <div class="campaign-detail-time">
+            📅 时间线段: ${openTimeStr} ~ ${closeTimeStr}
+          </div>
+        </div>
+      </div>
+      
+      <div class="campaign-detail-stats">
+        <div class="stat-box">
+          <span class="stat-label">主导大V</span>
+          <span class="stat-value" style="color: var(--accent-purple);">${c.influencer_id}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">建仓价</span>
+          <span class="stat-value">$${c.initial_price ? c.initial_price.toFixed(2) : 'N/A'}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">当前/平仓价</span>
+          <span class="stat-value">$${c.exit_price ? c.exit_price.toFixed(2) : 'N/A'}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">参考收益率</span>
+          <span class="stat-value ${pnlClass}">${pnlText}</span>
+        </div>
+      </div>
+    `;
+    
+    // 增加 AI 摘要建平仓理由的展示
+    if (c.open_reason || c.close_reason) {
+      detailHtml += `
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
+          ${c.open_reason ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; line-height: 1.4;"><strong style="color: var(--accent-green);">建仓原因:</strong> ${c.open_reason}</p>` : ''}
+          ${c.close_reason ? `<p style="margin: 0; font-size: 0.8rem; line-height: 1.4;"><strong style="color: #ef4444;">平仓原因:</strong> ${c.close_reason}</p>` : ''}
+        </div>
+      `;
+    }
+    
+    detailHtml += `
+      <h4 style="margin: 1.5rem 0 0 0; font-size: 0.95rem; color: #fff;">战役生命周期时间线</h4>
+      <div class="campaign-timeline-section">
+    `;
+    
+    if (timelineItems.length === 0) {
+      detailHtml += `<div class="empty-state"><p>该战役下暂无关联的发言和事件记录</p></div>`;
+    } else {
+      detailHtml += timelineItems.map(item => {
+        if (item.type === 'message') {
+          const msg = item.data;
+          let nodeClass = '';
+          let tagText = '';
+          
+          if (msg.event_tag === 'open') {
+            nodeClass = 'open-node';
+            tagText = '🟢 建仓观点';
+          } else if (msg.event_tag === 'close') {
+            nodeClass = 'close-node';
+            tagText = '🔴 平仓观点';
+          } else if (msg.event_tag === 'adjust') {
+            nodeClass = 'adjust-node';
+            tagText = '🟠 调仓观点';
+          }
+          
+          return `
+            <div class="timeline-node ${nodeClass}">
+              <div class="timeline-node-time">${new Date(msg.created_at).toLocaleString('zh-CN')}</div>
+              <div class="timeline-node-card">
+                <div class="timeline-node-sender" style="display:flex; justify-content:space-between; align-items:center;">
+                  <span>${msg.sender_name || '大V'}</span>
+                  ${tagText ? `<span style="font-size:0.7rem; font-weight:600; padding:0.1rem 0.3rem; background:rgba(255,255,255,0.05); border-radius:4px; margin-left:8px;">${tagText}</span>` : ''}
+                </div>
+                <div class="timeline-node-content">${msg.content}</div>
+              </div>
+            </div>
+          `;
+        } else {
+          const ev = item.data;
+          const spyChangeClass = ev.spy_change >= 0 ? 'positive' : 'negative';
+          const spyChangeSign = ev.spy_change > 0 ? '+' : '';
+          
+          return `
+            <div class="timeline-node">
+              <div class="timeline-node-time" style="color: #a78bfa; font-weight: 600;">🌍 宏观事件 • ${new Date(ev.event_timestamp).toLocaleString('zh-CN')}</div>
+              <div class="timeline-node-card" style="border: 1px solid rgba(167, 139, 250, 0.25); background: rgba(167, 139, 250, 0.04);">
+                <div class="timeline-node-sender" style="color: #c084fc;">${ev.event_name} [${ev.event_type}]</div>
+                <div class="timeline-node-content">${ev.description || ''}</div>
+                <div class="timeline-node-assoc-event">
+                  <div>预期值: ${ev.expected_value || 'N/A'} | 实际值: ${ev.actual_value || 'N/A'}</div>
+                  <div style="margin-top: 4px; display:flex; gap: 8px; flex-wrap: wrap;">
+                    <span>SPY 日波动: <strong class="${spyChangeClass}">${ev.spy_change !== null ? spyChangeSign + ev.spy_change.toFixed(2) + '%' : 'N/A'}</strong></span>
+                    <span>| VIX 收盘: <strong>${ev.vix_close !== null ? ev.vix_close.toFixed(2) : 'N/A'}</strong></span>
+                    <span>| 宏观大盘环境: <strong style="color:#c084fc;">${ev.market_regime}</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }).join('');
+    }
+    
+    detailHtml += `
+      </div>
+    `;
+    
+    detailContainer.innerHTML = detailHtml;
+    
+  } catch (err) {
+    detailContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载异常: ${err.message}</p></div>`;
+  }
 }
 

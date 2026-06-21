@@ -25,6 +25,7 @@ import {
   analyzeWithLMStudio,
   analyzeWithOllama
 } from './monitor.js';
+import { addTask } from './task-queue.js';
 
 dotenv.config();
 
@@ -39,7 +40,59 @@ const personaStatus = {
 };
 
 export function getPersonaStatus() {
-  return { ...personaStatus };
+  const db = getDb();
+  
+  // Find the latest persona_reduce task
+  const latestTask = db.prepare(`
+    SELECT id, payload, status, error_message FROM task_queue 
+    WHERE task_type = 'persona_reduce'
+    ORDER BY id DESC LIMIT 1
+  `).get();
+  
+  if (!latestTask) {
+    return { ...personaStatus };
+  }
+  
+  let batchId;
+  try {
+    batchId = JSON.parse(latestTask.payload).batchId;
+  } catch (err) {
+    return { ...personaStatus };
+  }
+  
+  // Query all tasks of this batch
+  const allTasks = db.prepare(`
+    SELECT id, task_type, status, error_message FROM task_queue
+    WHERE json_extract(payload, '$.batchId') = ?
+  `).all(batchId);
+  
+  if (allTasks.length === 0) {
+    return { ...personaStatus };
+  }
+  
+  const total = allTasks.length;
+  const done = allTasks.filter(t => t.status === 'done').length;
+  const running = allTasks.filter(t => t.status === 'running').length;
+  const retry = allTasks.filter(t => t.status === 'retry').length;
+  const failedTask = allTasks.find(t => t.status === 'failed');
+  const reduceTask = allTasks.find(t => t.task_type === 'persona_reduce');
+  
+  let status = 'running';
+  let progress = `正在后台计算大V画像: ${done}/${total} 子任务已完成 (运行中: ${running}, 准备重试: ${retry})`;
+  let percent = Math.round((done / total) * 100);
+  let error = null;
+  
+  if (failedTask) {
+    status = 'error';
+    progress = `画像合成失败: ${failedTask.error_message}`;
+    error = failedTask.error_message;
+  } else if (reduceTask && reduceTask.status === 'done') {
+    status = 'done';
+    progress = '✅ 大V交易行为画像白皮书生成成功！';
+    percent = 100;
+  }
+  
+  return { status, progress, percent, error };
 }
 
 function updateStatus(status, progress, percent) {
@@ -47,14 +100,14 @@ function updateStatus(status, progress, percent) {
   personaStatus.progress = progress;
   personaStatus.percent = percent;
   personaStatus.error = null;
-  console.log(`[Persona] ${progress} (${percent}%)`);
+  console.log(`[Persona Status Update] ${progress} (${percent}%)`);
 }
 
 function setError(error) {
   personaStatus.status = 'error';
   personaStatus.error = error;
   personaStatus.progress = '生成失败: ' + error;
-  console.error(`[Persona] Error: ${error}`);
+  console.error(`[Persona Error Update] Error: ${error}`);
 }
 
 // ============================================================
@@ -89,11 +142,16 @@ const FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
  */
 function getTradingSession(timestampMs) {
   const date = new Date(timestampMs);
-  // Convert to US Eastern time
-  const etStr = date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false });
-  const etDate = new Date(etStr);
-  const hour = etDate.getHours();
-  const min = etDate.getMinutes();
+  // 使用 Intl.DateTimeFormat 精确提取美东时间的组件，避免 localeString 字符串被二次解析为本地时区的漂移
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false
+  });
+  const parts = formatter.formatToParts(date);
+  const hour = parseInt(parts.find(p => p.type === 'hour').value, 10);
+  const min = parseInt(parts.find(p => p.type === 'minute').value, 10);
   const totalMin = hour * 60 + min;
 
   if (totalMin >= 240 && totalMin < 570) return '盘前 Pre-market';    // 4:00-9:30
@@ -537,8 +595,25 @@ export async function generatePersonaPlaybook(options = {}) {
     throw new Error('TARGET_SPEAKER_USER_IDS is not configured.');
   }
 
+  // 1. 检查是否有活跃的后台任务
+  const db = getDb();
+  const activeTask = db.prepare(`
+    SELECT id FROM task_queue 
+    WHERE task_type IN ('persona_map', 'persona_community', 'persona_reduce')
+      AND status IN ('pending', 'running', 'retry')
+    LIMIT 1
+  `).get();
+  
+  if (activeTask) {
+    return { 
+      success: true, 
+      status: 'running', 
+      message: '画像生成任务已经在后台队列中运行。' 
+    };
+  }
+
   try {
-    updateStatus('running', '正在初始化画像引擎...', 0);
+    updateStatus('running', '正在初始化画像任务...', 0);
 
     // Check for existing playbook (for incremental update)
     const existingReport = getLatestPersonaPlaybook();
@@ -549,11 +624,9 @@ export async function generatePersonaPlaybook(options = {}) {
     let startDate;
     
     if (isIncremental) {
-      // Incremental: only fetch messages since last report's end_time
       startDate = new Date(existingReport.end_time);
       console.log(`[Persona] Incremental update since ${startDate.toISOString()}`);
     } else {
-      // Full: go back maxMonths
       startDate = new Date();
       startDate.setMonth(startDate.getMonth() - maxMonths);
       console.log(`[Persona] Full generation, last ${maxMonths} months`);
@@ -580,9 +653,6 @@ export async function generatePersonaPlaybook(options = {}) {
 
     console.log(`[Persona] Found ${speakerMessages.length} speaker messages`);
 
-    updateStatus('running', '正在准备群友筛选规则...', 8);
-    let communityMessages = [];
-
     // ---- Step 2: Segment into events ----
     updateStatus('running', '正在进行时间线事件分段...', 10);
     const events = segmentMessagesIntoEvents(speakerMessages);
@@ -591,39 +661,9 @@ export async function generatePersonaPlaybook(options = {}) {
     const totalImages = events.reduce((sum, e) => sum + e.imageUrls.length, 0);
     console.log(`[Persona] Total images in events: ${totalImages}`);
 
-    // ---- Step 3: Map — Analyze each event ----
-    const eventAnalyses = [];
-    const mapPhaseStart = 15;
-    const mapPhaseEnd = 65;
-
-    for (let i = 0; i < events.length; i++) {
-      const progress = mapPhaseStart + Math.round((mapPhaseEnd - mapPhaseStart) * i / events.length);
-      const hasImg = events[i].imageUrls.length > 0;
-      updateStatus('running',
-        `正在分析事件段 ${i + 1}/${events.length}` +
-        ` [${events[i].date} ${events[i].session}]` +
-        (hasImg ? ` 📸${events[i].imageUrls.length}张图` : '') +
-        ` (本地LM${hasImg ? '+Gemini图片' : ''})`,
-        progress
-      );
-
-      try {
-        const analysis = await analyzeEventSegment(events[i], provider);
-        eventAnalyses.push(`【事件 ${i + 1}: ${events[i].date} ${events[i].session}】\n${analysis}`);
-      } catch (err) {
-        console.error(`[Persona] Failed to analyze event ${i + 1}:`, err.message);
-        eventAnalyses.push(`【事件 ${i + 1}: ${events[i].date} ${events[i].session}】\n分析失败: ${err.message}`);
-      }
-    }
-
-    // ---- Step 4: Extract community insights ----
-    updateStatus('running', '正在提取群友社区洞察...', 66);
-    
-    // 4a. 动态匹配重点关注群友 @mrzhoulucky 的账号
+    // ---- Step 3: Fetch focus and general community messages ----
+    updateStatus('running', '正在准备群友消息...', 12);
     const luckyUserIds = getLuckyUserIds();
-    console.log(`[Persona] Found lucky user IDs: ${luckyUserIds.join(', ')}`);
-    
-    // 4b. 获取重点群友消息（无关键字过滤，全量获取以确保不漏掉细节）
     let focusMessages = [];
     if (luckyUserIds.length > 0) {
       focusMessages = getSpecificCommunityMessages(luckyUserIds, {
@@ -632,63 +672,88 @@ export async function generatePersonaPlaybook(options = {}) {
         limit: 2000
       });
     }
-    console.log(`[Persona] Found ${focusMessages.length} messages from focus community members`);
     
-    // 4c. 获取其他普通群友消息（含关键字预过滤，节省资源并降噪）
     const allExclusions = [...targetSpeakers, ...luckyUserIds];
     const generalFilteredMessages = getFilteredCommunityMessages(allExclusions, {
       startDate: startDateStr,
       endDate: endDateStr,
       limit: 3000
     });
-    console.log(`[Persona] Found ${generalFilteredMessages.length} filtered messages from other community members`);
-    
-    // 4d. 重建 communityMessages 数组以供后续统计使用
-    communityMessages = [...focusMessages, ...generalFilteredMessages];
-    
-    // 4e. 分别进行 AI 洞察提取
-    const focusInsights = await extractCommunityInsights(focusMessages, provider, true);
-    const generalInsights = await extractCommunityInsights(generalFilteredMessages, provider, false);
-    
-    // 4f. 合并提取到的结果
-    const communityInsights = mergeCommunityInsights([focusInsights, generalInsights]);
 
-    // ---- Step 5: Reduce — Synthesize playbook ----
-    updateStatus('running', '正在合成画像白皮书...', 75);
-    const existingContent = isIncremental ? existingReport.summary_content : null;
-    const playbook = await synthesizePlaybook(eventAnalyses, communityInsights, provider, existingContent);
+    // ---- Step 4: Batch Task Scheduling ----
+    const batchId = `persona_batch_${Date.now()}`;
+    console.log(`[Persona] Scheduling Map-Reduce tasks for batch ${batchId}`);
 
-    // ---- Step 6: Save to database ----
-    updateStatus('running', '正在保存画像白皮书...', 98);
+    // 4a. Add Map tasks for each event chunk
+    for (let i = 0; i < events.length; i++) {
+      addTask({
+        taskType: 'persona_map',
+        priority: 1, // P1 priority
+        payload: {
+          batchId,
+          event: events[i],
+          provider,
+          chunkIndex: i,
+          totalChunks: events.length
+        }
+      });
+    }
 
-    const reportStartTime = speakerMessages[0].created_at;
-    const reportEndTime = speakerMessages[speakerMessages.length - 1].created_at;
-    
-    // If incremental, use original start_time
-    const finalStartTime = isIncremental ? existingReport.start_time : reportStartTime;
-
-    const modelName = provider === 'lm-studio' 
-      ? `LM-Studio(${process.env.LM_STUDIO_MODEL || 'local'})` + (totalImages > 0 ? '+Gemini-Vision' : '')
-      : provider;
-
-    saveReport({
-      startTime: finalStartTime,
-      endTime: reportEndTime,
-      summaryContent: playbook,
-      aiModel: modelName,
-      rawMessagesCount: speakerMessages.length + communityMessages.length,
-      strategy: 'PERSONA_PLAYBOOK'
+    // 4b. Add focus group community tasks
+    addTask({
+      taskType: 'persona_community',
+      priority: 1,
+      payload: {
+        batchId,
+        messages: focusMessages,
+        provider,
+        isFocusGroup: true
+      }
     });
 
-    updateStatus('done', `✅ 画像${isIncremental ? '增量更新' : '生成'}完成！分析了 ${events.length} 个事件段，${speakerMessages.length} 条大V消息，${communityMessages.length} 条群友消息，${totalImages} 张图片。`, 100);
+    // 4c. Add general community tasks
+    addTask({
+      taskType: 'persona_community',
+      priority: 1,
+      payload: {
+        batchId,
+        messages: generalFilteredMessages,
+        provider,
+        isFocusGroup: false
+      }
+    });
+
+    // 4d. Add Reduce task (SQL query blocks it until maps are done)
+    const finalStartTime = isIncremental ? existingReport.start_time : (speakerMessages[0]?.created_at || Date.now());
+    const reportEndTime = speakerMessages[speakerMessages.length - 1]?.created_at || Date.now();
+    const rawMessagesCount = speakerMessages.length + focusMessages.length + generalFilteredMessages.length;
+
+    addTask({
+      taskType: 'persona_reduce',
+      priority: 1,
+      payload: {
+        batchId,
+        provider,
+        isIncremental,
+        existingContent: isIncremental ? existingReport.summary_content : null,
+        finalStartTime,
+        reportEndTime,
+        rawMessagesCount,
+        totalImages
+      }
+    });
+
+    const totalSubtasks = events.length + 3;
+    updateStatus('running', `已向队列提交 ${totalSubtasks} 个分析子任务 (Batch ID: ${batchId})。正在排队处理...`, 15);
 
     return {
       success: true,
-      isIncremental,
+      status: 'started',
+      batchId,
       stats: {
         events: events.length,
         speakerMessages: speakerMessages.length,
-        communityMessages: communityMessages.length,
+        communityMessages: focusMessages.length + generalFilteredMessages.length,
         images: totalImages
       }
     };
@@ -696,6 +761,101 @@ export async function generatePersonaPlaybook(options = {}) {
     setError(err.message);
     throw err;
   }
+}
+
+/**
+ * 任务队列消费者入口 — 处理大V画像子任务
+ */
+export async function processPersonaTask(task) {
+  const payload = JSON.parse(task.payload);
+  const { batchId, provider } = payload;
+  
+  if (task.task_type === 'persona_map') {
+    const { event, chunkIndex, totalChunks } = payload;
+    console.log(`[Persona Worker] 正在执行 Map 任务 #${task.id} (批次: ${batchId}, 进度: ${chunkIndex + 1}/${totalChunks})`);
+    
+    // Execute event segment analysis
+    const analysis = await analyzeEventSegment(event, provider);
+    
+    return {
+      batchId,
+      chunkIndex,
+      analysis: `【事件 ${chunkIndex + 1}: ${event.date} ${event.session}】\n${analysis}`
+    };
+  }
+  
+  if (task.task_type === 'persona_community') {
+    const { messages, isFocusGroup } = payload;
+    console.log(`[Persona Worker] 正在执行 Community 任务 #${task.id} (批次: ${batchId}, 重点组: ${isFocusGroup})`);
+    
+    // Execute community insights extraction
+    const insights = await extractCommunityInsights(messages, provider, isFocusGroup);
+    
+    return {
+      batchId,
+      isFocusGroup,
+      insights
+    };
+  }
+  
+  if (task.task_type === 'persona_reduce') {
+    const { isIncremental, existingContent, finalStartTime, reportEndTime, rawMessagesCount, totalImages } = payload;
+    console.log(`[Persona Worker] 正在执行 Reduce 最终合成任务 #${task.id} (批次: ${batchId})...`);
+    
+    const db = getDb();
+    
+    // 1. 从任务队列中提取同批次已经完成的所有 map 与 community 子任务的结果
+    // 性能优化：在 SQLite 级别利用 idx_task_queue_batch_id 索引进行 JSON 批次查询过滤，避免大对象全表加载
+    const siblingTasks = db.prepare(`
+      SELECT task_type, status, result FROM task_queue
+      WHERE task_type IN ('persona_map', 'persona_community')
+        AND status = 'done'
+        AND json_extract(payload, '$.batchId') = ?
+    `).all(batchId);
+    
+    const mapResults = [];
+    const communityResults = [];
+    
+    for (const t of siblingTasks) {
+      const res = JSON.parse(t.result);
+      if (t.task_type === 'persona_map') {
+        mapResults.push(res);
+      } else if (t.task_type === 'persona_community') {
+        communityResults.push(res);
+      }
+    }
+    
+    // 按 chunkIndex 对 map 结果进行排序，保证时间顺序
+    mapResults.sort((a, b) => a.chunkIndex - b.chunkIndex);
+    const eventAnalysesText = mapResults.map(r => r.analysis);
+    
+    // 合并群友的洞察
+    const focusInsight = communityResults.find(r => r.isFocusGroup)?.insights || { tool_suggestions: [], strategy_discussions: [], feature_requests: [], market_insights: [] };
+    const generalInsight = communityResults.find(r => !r.isFocusGroup)?.insights || { tool_suggestions: [], strategy_discussions: [], feature_requests: [], market_insights: [] };
+    const communityInsights = mergeCommunityInsights([focusInsight, generalInsight]);
+    
+    // 2. 调用 LLM 进行最终 Reduce 合成
+    const playbook = await synthesizePlaybook(eventAnalysesText, communityInsights, provider, existingContent);
+    
+    // 3. 保存至 reports 表
+    const modelName = provider === 'gemini' 
+      ? `Gemini-Flash` + (totalImages > 0 ? '+Vision' : '') 
+      : provider;
+      
+    saveReport({
+      startTime: finalStartTime,
+      endTime: reportEndTime,
+      summaryContent: playbook,
+      aiModel: modelName,
+      rawMessagesCount,
+      strategy: 'PERSONA_PLAYBOOK'
+    });
+    
+    console.log(`[Persona Worker] 画像白皮书合成成功，报告已存入数据库！批次: ${batchId}`);
+    return { success: true, batchId };
+  }
+  
+  throw new Error(`Unsupported task type: ${task.task_type}`);
 }
 
 // ============================================================
