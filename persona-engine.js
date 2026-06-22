@@ -325,7 +325,13 @@ async function analyzeEventSegment(event, provider) {
       return await callLocalAI(provider, prompt);
     }
     const prompt = EVENT_ANALYSIS_WITH_IMAGE_PROMPT + header;
-    return await analyzeWithGeminiMultimodal(apiKey, prompt, speakerImageUrls);
+    try {
+      return await analyzeWithGeminiMultimodal(apiKey, prompt, speakerImageUrls);
+    } catch (err) {
+      console.warn(`[Persona] Gemini Multimodal failed for event segment, falling back to local text-only: ${err.message}`);
+      const fallbackPrompt = EVENT_ANALYSIS_PROMPT + header + '\n\n（注意：该事件包含图片但Gemini分析不可用，请仅基于文字分析）';
+      return await callLocalAI(provider, fallbackPrompt);
+    }
   } else {
     // Text-only → local LLM
     const prompt = EVENT_ANALYSIS_PROMPT + header;
