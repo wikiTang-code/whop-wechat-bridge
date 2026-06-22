@@ -1310,21 +1310,28 @@ export function getDistinctChannels() {
 }
 
 /**
- * 增加并获取每日 API 调用计数 (持久化存储，重启不丢失)
+ * 获取当前每日 API 调用计数 (不递增)
  */
-export function incrementAndGetDailyApiCount() {
+export function getDailyApiCount() {
   const db = getDb();
   const todayStr = new Date().toISOString().split('T')[0];
-  
-  return db.transaction(() => {
-    db.prepare(`
-      INSERT INTO portfolio (key, value) VALUES (?, 1)
-      ON CONFLICT(key) DO UPDATE SET value = value + 1
-    `).run(`gemini_requests_${todayStr}`);
-    
-    const row = db.prepare("SELECT value FROM portfolio WHERE key = ?").get(`gemini_requests_${todayStr}`);
-    return row ? parseInt(row.value, 10) : 1;
-  })();
+  const row = db.prepare("SELECT value FROM portfolio WHERE key = ?").get(`gemini_requests_${todayStr}`);
+  return row ? parseInt(row.value, 10) : 0;
+}
+
+/**
+ * 递增每日 API 调用计数 (仅在确认未超限时调用)
+ */
+export function incrementDailyApiCount() {
+  const db = getDb();
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  db.prepare(`
+    INSERT INTO portfolio (key, value) VALUES (?, 1)
+    ON CONFLICT(key) DO UPDATE SET value = value + 1
+  `).run(`gemini_requests_${todayStr}`);
+
+  return getDailyApiCount();
 }
 
 

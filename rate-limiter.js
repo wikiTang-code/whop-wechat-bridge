@@ -1,4 +1,4 @@
-import { incrementAndGetDailyApiCount, getDb } from './database.js';
+import { getDailyApiCount, incrementDailyApiCount, getDb } from './database.js';
 
 // 限速配置
 const RPM_LIMIT = 15;
@@ -66,11 +66,12 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
   // 3. 执行 API 调用，内置指数退避重试 (捕获 429)
   let attempt = 0;
   while (true) {
-    // 检查每日调用上限 (RPD) - 延迟到即将调用 API 前递增，防递归避让导致额度泄漏
-    const dailyCount = incrementAndGetDailyApiCount();
-    if (dailyCount > RPD_LIMIT) {
-      throw new Error(`[Rate Limiter] 每日 API 限制已超标 (${RPD_LIMIT} RPD)。当前计数: ${dailyCount}`);
+    // 检查每日调用上限 (RPD) - 先查后增，防止超限时计数器无限膨胀
+    const currentCount = getDailyApiCount();
+    if (currentCount >= RPD_LIMIT) {
+      throw new Error(`[Rate Limiter] 每日 API 限制已超标 (${RPD_LIMIT} RPD)。当前计数: ${currentCount}`);
     }
+    const dailyCount = incrementDailyApiCount();
 
     try {
       return await apiCallFn();
