@@ -111,24 +111,35 @@ function setError(error) {
 }
 
 // ============================================================
-// AI 调用路由 — 默认走本地 LM Studio
+// AI 调用路由 — 混合策略：本地 15B 处理重型任务，在线 API 处理高质量任务
 // ============================================================
+
+/**
+ * 轻量/重型任务 → 本地 LM Studio（免费，适合批量 Map、分类、提取）
+ */
 async function callLocalAI(provider, prompt) {
-  if (provider === 'lm-studio') {
+  const localProvider = provider === 'ollama' ? 'ollama' : 'lm-studio';
+  if (localProvider === 'lm-studio') {
     const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
     const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
     return await analyzeWithLMStudio(baseUrl, model, prompt);
-  } else if (provider === 'ollama') {
+  } else {
     const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
     const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
     return await analyzeWithOllama(baseUrl, model, prompt);
-  } else if (provider === 'gemini') {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error('GEMINI_API_KEY is not set.');
-    return await analyzeWithGemini(apiKey, prompt);
-  } else {
-    throw new Error(`Unsupported AI provider: ${provider}`);
   }
+}
+
+/**
+ * 高质量任务 → Gemini API（Reduce 合成、最终白皮书生成）
+ */
+async function callCloudAI(prompt) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.warn('[Persona] GEMINI_API_KEY not set, falling back to local model for cloud task');
+    return await callLocalAI('lm-studio', prompt);
+  }
+  return await analyzeWithGemini(apiKey, prompt);
 }
 
 // ============================================================
@@ -521,51 +532,48 @@ const INCREMENTAL_UPDATE_PROMPT = `你是一位资深的美股交易行为分析
 请保持原有的章节结构（八个章节），用 Markdown 格式输出完整更新后的白皮书。`;
 
 /**
- * 合成画像白皮书（全量或增量）
+ * 合成画像白皮书（全量或增量）— 强制走 Gemini API
  */
-async function synthesizePlaybook(eventAnalyses, communityInsights, provider, existingPlaybook = null) {
+async function synthesizePlaybook(eventAnalyses, communityInsights, existingPlaybook = null) {
   // Break event analyses into batches for intermediate synthesis
   const BATCH_SIZE = 12;
   const intermediateSummaries = [];
 
   if (eventAnalyses.length <= BATCH_SIZE) {
-    // Small enough, no intermediate step needed
     intermediateSummaries.push(eventAnalyses.join('\n\n---\n\n'));
   } else {
-    // Batch intermediate synthesis
+    // 中间摘要也走 Gemini（需要跨 chunk 综合理解能力）
     for (let i = 0; i < eventAnalyses.length; i += BATCH_SIZE) {
       const batch = eventAnalyses.slice(i, i + BATCH_SIZE);
       const batchIdx = Math.floor(i / BATCH_SIZE) + 1;
       const totalBatches = Math.ceil(eventAnalyses.length / BATCH_SIZE);
-      updateStatus('running', `正在合成中间摘要... (${batchIdx}/${totalBatches})`, 75 + Math.round(15 * batchIdx / totalBatches));
+      updateStatus('running', `正在合成中间摘要 (Gemini)... (${batchIdx}/${totalBatches})`, 75 + Math.round(15 * batchIdx / totalBatches));
 
       const intermediatePrompt = `以下是对一位美股交易员多个时间段的行为分析结果。请合并这些分析，提炼出关键的交易模式、策略偏好和行为特征。以清晰的要点形式输出中间合成结果。\n\n` + batch.join('\n\n---\n\n');
-      const summary = await callLocalAI(provider, intermediatePrompt);
+      const summary = await callCloudAI(intermediatePrompt);
       intermediateSummaries.push(summary);
     }
   }
 
-  // Final synthesis
-  updateStatus('running', '正在生成最终画像白皮书...', 90);
+  // Final synthesis → Gemini
+  updateStatus('running', '正在生成最终画像白皮书 (Gemini)...', 90);
 
   const allSummaries = intermediateSummaries.join('\n\n===\n\n');
   const communitySection = JSON.stringify(communityInsights, null, 2);
 
   let finalPrompt;
   if (existingPlaybook) {
-    // Incremental update
     finalPrompt = INCREMENTAL_UPDATE_PROMPT +
       `\n\n【已有白皮书】\n${existingPlaybook}` +
       `\n\n【新增行为分析数据】\n${allSummaries}` +
       `\n\n【新增群友社区洞察】\n${communitySection}`;
   } else {
-    // Full generation
     finalPrompt = SYNTHESIS_PROMPT +
       `\n\n【交易行为分析数据】\n${allSummaries}` +
       `\n\n【群友社区洞察】\n${communitySection}`;
   }
 
-  const playbook = await callLocalAI(provider, finalPrompt);
+  const playbook = await callCloudAI(finalPrompt);
   return playbook;
 }
 
@@ -686,46 +694,47 @@ export async function generatePersonaPlaybook(options = {}) {
     const batchId = `persona_batch_${Date.now()}`;
     console.log(`[Persona] Scheduling Map-Reduce tasks for batch ${batchId}`);
 
-    // 4a. Add Map tasks for each event chunk
+    // 4a. Add Map tasks for each event chunk → 强制走本地 LM Studio（免费，15B 足够）
+    const localProvider = provider === 'ollama' ? 'ollama' : 'lm-studio';
     for (let i = 0; i < events.length; i++) {
       addTask({
         taskType: 'persona_map',
-        priority: 1, // P1 priority
+        priority: 1,
         payload: {
           batchId,
           event: events[i],
-          provider,
+          provider: localProvider,
           chunkIndex: i,
           totalChunks: events.length
         }
       });
     }
 
-    // 4b. Add focus group community tasks
+    // 4b. Add focus group community tasks → 本地 LM Studio
     addTask({
       taskType: 'persona_community',
       priority: 1,
       payload: {
         batchId,
         messages: focusMessages,
-        provider,
+        provider: localProvider,
         isFocusGroup: true
       }
     });
 
-    // 4c. Add general community tasks
+    // 4c. Add general community tasks → 本地 LM Studio
     addTask({
       taskType: 'persona_community',
       priority: 1,
       payload: {
         batchId,
         messages: generalFilteredMessages,
-        provider,
+        provider: localProvider,
         isFocusGroup: false
       }
     });
 
-    // 4d. Add Reduce task (SQL query blocks it until maps are done)
+    // 4d. Add Reduce task → 强制走 Gemini API（合成质量要求高）
     const finalStartTime = isIncremental ? existingReport.start_time : (speakerMessages[0]?.created_at || Date.now());
     const reportEndTime = speakerMessages[speakerMessages.length - 1]?.created_at || Date.now();
     const rawMessagesCount = speakerMessages.length + focusMessages.length + generalFilteredMessages.length;
@@ -735,7 +744,7 @@ export async function generatePersonaPlaybook(options = {}) {
       priority: 1,
       payload: {
         batchId,
-        provider,
+        provider: 'gemini', // Reduce 阶段强制走云端
         isIncremental,
         existingContent: isIncremental ? existingReport.summary_content : null,
         finalStartTime,
@@ -802,22 +811,21 @@ export async function processPersonaTask(task) {
   
   if (task.task_type === 'persona_reduce') {
     const { isIncremental, existingContent, finalStartTime, reportEndTime, rawMessagesCount, totalImages } = payload;
-    console.log(`[Persona Worker] 正在执行 Reduce 最终合成任务 #${task.id} (批次: ${batchId})...`);
-    
+    console.log(`[Persona Worker] 正在执行 Reduce 最终合成任务 #${task.id} (批次: ${batchId}, 使用: Gemini API)...`);
+
     const db = getDb();
-    
+
     // 1. 从任务队列中提取同批次已经完成的所有 map 与 community 子任务的结果
-    // 性能优化：在 SQLite 级别利用 idx_task_queue_batch_id 索引进行 JSON 批次查询过滤，避免大对象全表加载
     const siblingTasks = db.prepare(`
       SELECT task_type, status, result FROM task_queue
       WHERE task_type IN ('persona_map', 'persona_community')
         AND status = 'done'
         AND json_extract(payload, '$.batchId') = ?
     `).all(batchId);
-    
+
     const mapResults = [];
     const communityResults = [];
-    
+
     for (const t of siblingTasks) {
       const res = JSON.parse(t.result);
       if (t.task_type === 'persona_map') {
@@ -826,24 +834,22 @@ export async function processPersonaTask(task) {
         communityResults.push(res);
       }
     }
-    
+
     // 按 chunkIndex 对 map 结果进行排序，保证时间顺序
     mapResults.sort((a, b) => a.chunkIndex - b.chunkIndex);
     const eventAnalysesText = mapResults.map(r => r.analysis);
-    
+
     // 合并群友的洞察
     const focusInsight = communityResults.find(r => r.isFocusGroup)?.insights || { tool_suggestions: [], strategy_discussions: [], feature_requests: [], market_insights: [] };
     const generalInsight = communityResults.find(r => !r.isFocusGroup)?.insights || { tool_suggestions: [], strategy_discussions: [], feature_requests: [], market_insights: [] };
     const communityInsights = mergeCommunityInsights([focusInsight, generalInsight]);
-    
-    // 2. 调用 LLM 进行最终 Reduce 合成
-    const playbook = await synthesizePlaybook(eventAnalysesText, communityInsights, provider, existingContent);
-    
+
+    // 2. Reduce 阶段强制走 Gemini API（合成质量要求高）
+    const playbook = await synthesizePlaybook(eventAnalysesText, communityInsights, existingContent);
+
     // 3. 保存至 reports 表
-    const modelName = provider === 'gemini' 
-      ? `Gemini-Flash` + (totalImages > 0 ? '+Vision' : '') 
-      : provider;
-      
+    const modelName = `Gemini-Flash` + (totalImages > 0 ? '+Vision' : '');
+
     saveReport({
       startTime: finalStartTime,
       endTime: reportEndTime,
@@ -852,7 +858,7 @@ export async function processPersonaTask(task) {
       rawMessagesCount,
       strategy: 'PERSONA_PLAYBOOK'
     });
-    
+
     console.log(`[Persona Worker] 画像白皮书合成成功，报告已存入数据库！批次: ${batchId}`);
     return { success: true, batchId };
   }
