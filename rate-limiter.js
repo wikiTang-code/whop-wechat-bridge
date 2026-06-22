@@ -76,17 +76,21 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
     try {
       return await apiCallFn();
     } catch (err) {
-      const isRateLimitError = 
+      const isRetryableError = 
         err.message.includes('429') || 
+        err.message.includes('503') || 
         err.message.toLowerCase().includes('rate limit') || 
         err.message.toLowerCase().includes('too many requests') || 
-        err.message.toLowerCase().includes('quota exceeded');
+        err.message.toLowerCase().includes('quota exceeded') ||
+        err.message.toLowerCase().includes('unavailable') ||
+        err.message.toLowerCase().includes('experiencing high demand') ||
+        err.message.toLowerCase().includes('temporary');
         
-      if (isRateLimitError && attempt < maxRetries) {
+      if (isRetryableError && attempt < maxRetries) {
         attempt++;
         // 指数退避加随机抖动 (Jitter)
         const delay = Math.min(1000 * Math.pow(2, attempt) + Math.random() * 500, 60000);
-        console.warn(`[Rate Limiter] 遇到 API 限速错误 (429)。尝试第 ${attempt}/${maxRetries} 次重试，将在 ${Math.round(delay)}ms 后执行。错误: ${err.message}`);
+        console.warn(`[Rate Limiter] 遇到 API 临时错误 (429/503)。尝试第 ${attempt}/${maxRetries} 次重试，将在 ${Math.round(delay)}ms 后执行。错误: ${err.message}`);
         await sleep(delay);
         
         // 重试前重新执行限速判定
