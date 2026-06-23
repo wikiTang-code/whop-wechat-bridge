@@ -32,9 +32,13 @@ import {
   getDb,
   getLatestReportForStrategy,
   getDistinctChannels,
-  getLatestPersonaPlaybook
+  getLatestPersonaPlaybook,
+  saveNewsSummary,
+  getNewsSummaries,
+  getLatestNewsSummary
 } from './database.js';
 import { generatePersonaPlaybook, getPersonaStatus, processPersonaTask } from './persona-engine.js';
+import { processNewsTask, generateNewsSummary } from './news-engine.js';
 import { 
   syncAndAnalyze,
   analyzeWithGemini,
@@ -586,6 +590,76 @@ app.get('/api/persona/latest', (req, res) => {
     } else {
       res.json({ success: true, playbook: null });
     }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// === News Summaries Endpoints ===
+
+// 1. POST /api/news-summaries/generate - Trigger news/consulting summary generation
+app.post('/api/news-summaries/generate', requireCsrf, async (req, res) => {
+  try {
+    const type = req.body.type || 'briefing';
+    const forceRefresh = req.body.forceRefresh === true;
+
+    console.log(`[API News] Triggering news summary generation for type=${type}, forceRefresh=${forceRefresh}`);
+    
+    const result = await generateNewsSummary(type, { forceRefresh });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 2. GET /api/news-summaries/status - Get latest news summary generation status
+app.get('/api/news-summaries/status', (req, res) => {
+  try {
+    const db = getDb();
+    const latestTask = db.prepare(`
+      SELECT id, status, error_message, updated_at FROM task_queue 
+      WHERE task_type = 'news_reduce'
+      ORDER BY id DESC LIMIT 1
+    `).get();
+
+    if (latestTask) {
+      res.json({
+        success: true,
+        status: latestTask.status,
+        error: latestTask.error_message,
+        updatedAt: latestTask.updated_at
+      });
+    } else {
+      res.json({
+        success: true,
+        status: 'idle',
+        error: null,
+        updatedAt: null
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 3. GET /api/news-summaries - Get news summaries history list
+app.get('/api/news-summaries', (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit || '10', 10);
+    const offset = parseInt(req.query.offset || '0', 10);
+    const summaries = getNewsSummaries(limit, offset);
+    res.json({ success: true, summaries });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 4. GET /api/news-summaries/latest - Get the latest summary
+app.get('/api/news-summaries/latest', (req, res) => {
+  try {
+    const type = req.query.type || null;
+    const summary = getLatestNewsSummary(type);
+    res.json({ success: true, summary });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -1712,6 +1786,9 @@ const server = app.listen(PORT, () => {
   startQueueWorker(async (task) => {
     if (task.task_type.startsWith('persona_')) {
       return await processPersonaTask(task);
+    }
+    if (task.task_type.startsWith('news_')) {
+      return await processNewsTask(task);
     }
     throw new Error(`Unsupported task type: ${task.task_type}`);
   }, 4000);

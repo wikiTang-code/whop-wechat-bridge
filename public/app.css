@@ -2633,4 +2633,299 @@ min-width: unset;
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
+/* ==========================================================================
+   📰 社区资讯总结 (News Summaries) Tab Styles
+   ========================================================================== */
+.news-summaries-tab-container {
+  display: none;
+  flex-direction: row;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  overflow: hidden; /* 防止外层双重滚动条 */
+  height: 100%;
+  width: 100%;
+}
+
+/* 左右分栏面板 */
+.news-left-panel {
+  flex: 0 0 380px; /* 固定宽度 380 像素 */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.news-right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0; /* 防止子元素溢出 */
+}
+
+/* 资讯生成控制台 */
+.news-console-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.news-gen-btn {
+  font-size: 0.8rem !important;
+  padding: 0.6rem 0.4rem !important;
+  text-align: center;
+  justify-content: center !important;
+  border: 1px solid rgba(167, 139, 250, 0.15) !important;
+  background: rgba(167, 139, 250, 0.03) !important;
+  transition: all 0.2s ease !important;
+}
+
+.news-gen-btn:hover:not(:disabled) {
+  background: rgba(167, 139, 250, 0.1) !important;
+  border-color: rgba(167, 139, 250, 0.4) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.15);
+}
+
+.news-progress-area {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.news-progress-bar-container {
+  background: rgba(255, 255, 255, 0.05);
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.news-progress-bar {
+  background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+  height: 100%;
+  transition: width 0.4s ease;
+  box-shadow: 0 0 10px rgba(167, 139, 250, 0.5);
+}
+
+.news-status-text {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* 历史列表卡片墙 */
+.news-list-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+}
+
+.news-list-container {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-right: 4px;
+}
+
+/* 资讯总结卡片 */
+.news-summary-card {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.news-summary-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(167, 139, 250, 0.3);
+  transform: translateX(4px);
+}
+
+.news-summary-card.active {
+  background: rgba(167, 139, 250, 0.06);
+  border-color: rgba(167, 139, 250, 0.5);
+  box-shadow: inset 0 0 12px rgba(167, 139, 250, 0.05), 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.news-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.news-card-time {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.news-card-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
+}
+
+.news-card-meta {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* 资讯类型 Badge 样式 */
+.news-type-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.badge-briefing {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.badge-intraday {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--accent-green);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-closing {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-macro {
+  background: rgba(167, 139, 250, 0.12);
+  color: #a78bfa;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+/* 右侧阅读器面板 */
+.news-reader-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.news-reader-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 2rem;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+/* Markdown 排版微调 */
+.news-reader-content h2 {
+  font-size: 1.2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-weight: 700;
+}
+
+.news-reader-content h2:first-of-type {
+  margin-top: 0;
+}
+
+.news-reader-content p {
+  margin-bottom: 0.8rem;
+  font-size: 0.92rem;
+}
+
+.news-reader-content ul, .news-reader-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.news-reader-content li {
+  font-size: 0.92rem;
+  list-style-type: square;
+}
+
+/* 信源防伪高亮特效样式 */
+.badge-source {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.badge-vip {
+  background: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-community {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* 列表项的整体高光强化效果 */
+li.vip-confirmed-li {
+  border-left: 3px solid #10b981;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+  padding-left: 0.5rem;
+  margin-left: -0.5rem;
+  border-radius: 0 4px 4px 0;
+  list-style: none; /* 去除原本的小正方形，以突显左侧彩条 */
+}
+
+li.community-sentiment-li {
+  border-left: 3px solid rgba(239, 68, 68, 0.4);
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.02) 0%, transparent 100%);
+  padding-left: 0.5rem;
+  margin-left: -0.5rem;
+  border-radius: 0 4px 4px 0;
+  list-style: none;
+  color: rgba(255, 255, 255, 0.5) !important; /* 降低非大V噪音的对比度 */
+}
+
+/* 响应式适配 */
+@media (max-width: 900px) {
+  .news-summaries-tab-container {
+    flex-direction: column;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+  .news-left-panel {
+    flex: none;
+    width: 100%;
+    height: auto;
+  }
+  .news-right-panel {
+    height: 500px;
+    margin-top: 1rem;
+  }
+}
+
 

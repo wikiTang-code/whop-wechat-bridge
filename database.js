@@ -448,6 +448,30 @@ export function initDb() {
     console.error("Error creating macro_events table:", err.message);
   }
 
+  // Create news_summaries table
+  try {
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS news_summaries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        batch_id TEXT NOT NULL,
+        summary_type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        start_time INTEGER NOT NULL,
+        end_time INTEGER NOT NULL,
+        summary_content TEXT NOT NULL,
+        raw_messages_count INTEGER,
+        created_at INTEGER NOT NULL
+      )
+    `).run();
+    db.prepare(`
+      CREATE INDEX IF NOT EXISTS idx_news_summaries_type 
+      ON news_summaries(summary_type)
+    `).run();
+    console.log("news_summaries table and index initialized.");
+  } catch (err) {
+    console.error("Error creating news_summaries table:", err.message);
+  }
+
   // Migration: Add event_tag column to messages table if it doesn't exist
   try {
     db.prepare("ALTER TABLE messages ADD COLUMN event_tag TEXT").run();
@@ -1332,6 +1356,60 @@ export function incrementDailyApiCount() {
   `).run(`gemini_requests_${todayStr}`);
 
   return getDailyApiCount();
+}
+
+/**
+ * 保存一条新的资讯总结
+ */
+export function saveNewsSummary(summary) {
+  const conn = getDb();
+  const stmt = conn.prepare(`
+    INSERT INTO news_summaries (batch_id, summary_type, title, start_time, end_time, summary_content, raw_messages_count, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  const now = Date.now();
+  const info = stmt.run(
+    summary.batchId,
+    summary.summaryType,
+    summary.title,
+    summary.startTime,
+    summary.endTime,
+    summary.summaryContent,
+    summary.rawMessagesCount || null,
+    now
+  );
+  return info.lastInsertRowid;
+}
+
+/**
+ * 获取历史资讯总结列表
+ */
+export function getNewsSummaries(limit = 10, offset = 0) {
+  const conn = getDb();
+  return conn.prepare(`
+    SELECT * FROM news_summaries 
+    ORDER BY created_at DESC 
+    LIMIT ? OFFSET ?
+  `).all(limit, offset);
+}
+
+/**
+ * 获取最新一期资讯总结 (可按类型过滤)
+ */
+export function getLatestNewsSummary(type = null) {
+  const conn = getDb();
+  if (type) {
+    return conn.prepare(`
+      SELECT * FROM news_summaries 
+      WHERE summary_type = ? 
+      ORDER BY created_at DESC LIMIT 1
+    `).get(type);
+  } else {
+    return conn.prepare(`
+      SELECT * FROM news_summaries 
+      ORDER BY created_at DESC LIMIT 1
+    `).get();
+  }
 }
 
 

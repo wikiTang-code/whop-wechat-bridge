@@ -273,6 +273,17 @@ function setupEventListeners() {
       renderReports(state.reports);
     });
   });
+
+  // News summaries console triggers
+  document.querySelectorAll('.news-gen-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.getAttribute('data-type');
+      triggerNewsGeneration(type);
+    });
+  });
+
+  // Copy news markdown
+  document.getElementById('btn-copy-news')?.addEventListener('click', copyNewsToClipboard);
 }
 
 // Helper: Debouncer for search performance
@@ -302,7 +313,7 @@ function switchTab(tabId) {
     if (content.id === tabId) {
       content.classList.add('active');
       // Persona and Campaigns tab use flex layout, not grid
-      content.style.display = (tabId === 'tab-persona' || tabId === 'tab-campaigns') ? 'flex' : 'grid';
+      content.style.display = (tabId === 'tab-persona' || tabId === 'tab-campaigns' || tabId === 'tab-news-summaries') ? 'flex' : 'grid';
     } else {
       content.classList.remove('active');
       content.style.display = 'none';
@@ -318,6 +329,8 @@ function switchTab(tabId) {
     loadPersonaPlaybook();
   } else if (tabId === 'tab-campaigns') {
     fetchCampaigns();
+  } else if (tabId === 'tab-news-summaries') {
+    loadNewsSummaries();
   }
 }
 
@@ -2552,5 +2565,264 @@ async function fetchCampaignDetails(campaignId) {
   } catch (err) {
     detailContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载异常: ${err.message}</p></div>`;
   }
+}
+
+// ==========================================================================
+// 📰 社区资讯总结 Tab 交互控制逻辑
+// ==========================================================================
+
+let newsPollingTimer = null;
+
+/**
+ * 加载资讯列表
+ */
+async function loadNewsSummaries() {
+  const listContainer = document.getElementById('news-list');
+  const countBadge = document.getElementById('news-count');
+  
+  try {
+    // 检查是否有活跃的后台生成任务在跑
+    const statusRes = await fetch('/api/news-summaries/status');
+    const statusData = await statusRes.json();
+    
+    if (statusData.status === 'running' || statusData.status === 'pending' || statusData.status === 'retry') {
+      document.getElementById('news-progress-area').style.display = 'block';
+      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = true);
+      pollNewsStatus();
+    } else {
+      document.getElementById('news-progress-area').style.display = 'none';
+      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+    }
+
+    const res = await fetch('/api/news-summaries?limit=30');
+    const data = await res.json();
+    
+    if (data.success && data.summaries && data.summaries.length > 0) {
+      const list = data.summaries;
+      countBadge.textContent = list.length + ' 篇';
+      renderNewsList(list);
+      
+      // 默认加载并阅读最新的一篇
+      if (!state.selectedNews) {
+        viewNewsDetail(list[0]);
+      }
+    } else {
+      countBadge.textContent = '0 篇';
+      listContainer.innerHTML = `
+        <div class="empty-state">
+          <span class="empty-icon">📅</span>
+          <p>暂无历史速报</p>
+          <p class="empty-hint">请点击上方按钮生成第一篇资讯总结</p>
+        </div>
+      `;
+      document.getElementById('news-reader-content').innerHTML = `
+        <div class="empty-state">
+          <span class="empty-icon">📰</span>
+          <p>请点击控制台按钮生成最新的时段资讯总结。</p>
+        </div>
+      `;
+      document.getElementById('btn-copy-news').style.display = 'none';
+    }
+  } catch (err) {
+    listContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载失败: ${err.message}</p></div>`;
+  }
+}
+
+/**
+ * 渲染左侧资讯列表卡片墙
+ */
+function renderNewsList(summaries) {
+  const container = document.getElementById('news-list');
+  container.innerHTML = summaries.map((s) => {
+    let typeClass = '';
+    let typeLabel = '';
+    
+    switch (s.summary_type) {
+      case 'briefing':
+        typeClass = 'badge-briefing';
+        typeLabel = '盘前速报';
+        break;
+      case 'intraday':
+        typeClass = 'badge-intraday';
+        typeLabel = '盘中总结';
+        break;
+      case 'closing':
+        typeClass = 'badge-closing';
+        typeLabel = '收盘回顾';
+        break;
+      case 'macro':
+        typeClass = 'badge-macro';
+        typeLabel = '宏观周报';
+        break;
+      default:
+        typeClass = 'badge-briefing';
+        typeLabel = '社区速报';
+    }
+    
+    const timeStr = new Date(s.created_at).toLocaleString('zh-CN', { 
+      month: '2-digit', 
+      day: '2-digit', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+    
+    const isActive = state.selectedNews && state.selectedNews.id === s.id ? 'active' : '';
+    
+    return `
+      <div class="news-summary-card ${isActive}" data-id="${s.id}">
+        <div class="news-card-header">
+          <span class="news-type-badge ${typeClass}">${typeLabel}</span>
+          <span class="news-card-time">${timeStr}</span>
+        </div>
+        <div class="news-card-title">${escapeAttr(s.title)}</div>
+        <div class="news-card-meta">📋 消息源: ${s.raw_messages_count || 0} 条</div>
+      </div>
+    `;
+  }).join('');
+  
+  // 绑定卡片点击加载事件
+  container.querySelectorAll('.news-summary-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = parseInt(card.getAttribute('data-id'), 10);
+      const selected = summaries.find(s => s.id === id);
+      if (selected) {
+        container.querySelectorAll('.news-summary-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        viewNewsDetail(selected);
+      }
+    });
+  });
+}
+
+/**
+ * 渲染右侧内容阅读器并应用大V防伪高亮标签特效
+ */
+function viewNewsDetail(summary) {
+  state.selectedNews = summary;
+  
+  document.getElementById('news-reader-title').textContent = '📖 ' + summary.title;
+  document.getElementById('btn-copy-news').style.display = 'block';
+  
+  const contentArea = document.getElementById('news-reader-content');
+  
+  // 1. 调用已有 renderSimpleMarkdown 函数
+  let html = renderSimpleMarkdown(summary.summary_content);
+  
+  // 2. 将大V确认和群友意见文字转化为漂亮的微标样式
+  html = html.replace(/`?\[大V确认\]`?/g, '<span class="badge-source badge-vip">大V确认</span>');
+  html = html.replace(/`?\[群友意见\]`?/g, '<span class="badge-source badge-community">群友意见</span>');
+  
+  contentArea.innerHTML = html;
+  
+  // 3. 对高亮项进行容器类标记，以提供专属的高光侧边栏色彩
+  contentArea.querySelectorAll('li').forEach(li => {
+    if (li.querySelector('.badge-vip')) {
+      li.classList.add('vip-confirmed-li');
+    } else if (li.querySelector('.badge-community')) {
+      li.classList.add('community-sentiment-li');
+    }
+  });
+}
+
+/**
+ * 手动触发新资讯白皮书的调度
+ */
+async function triggerNewsGeneration(type) {
+  const btn = document.querySelector(`.news-gen-btn[data-type="${type}"]`);
+  const statusArea = document.getElementById('news-progress-area');
+  const statusText = document.getElementById('news-status-text');
+  const progressBar = document.getElementById('news-progress-bar');
+  
+  document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = true);
+  statusArea.style.display = 'block';
+  statusText.textContent = '正在初始化资讯生成任务...';
+  progressBar.style.width = '0%';
+  
+  try {
+    const csrfToken = await ensureCsrfToken();
+    const res = await fetch('/api/news-summaries/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Session-Id': state.sessionId,
+        'X-CSRF-Token': csrfToken || ''
+      },
+      body: JSON.stringify({ type, forceRefresh: true })
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+      pollNewsStatus();
+    } else {
+      statusText.textContent = '启动失败: ' + (data.reason || data.error || '未知错误');
+      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+    }
+  } catch (err) {
+    statusText.textContent = '请求错误: ' + err.message;
+    document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+  }
+}
+
+/**
+ * 轮询生成进度并反映到进度条
+ */
+async function pollNewsStatus() {
+  const statusText = document.getElementById('news-status-text');
+  const progressBar = document.getElementById('news-progress-bar');
+  
+  try {
+    const res = await fetch('/api/news-summaries/status');
+    const data = await res.json();
+    
+    if (data.status === 'pending' || data.status === 'retry') {
+      statusText.textContent = '⏳ 任务排队中，等待本地模型分配...';
+      progressBar.style.width = '15%';
+      if (newsPollingTimer) clearTimeout(newsPollingTimer);
+      newsPollingTimer = setTimeout(pollNewsStatus, 3000);
+    } else if (data.status === 'running') {
+      statusText.textContent = '⚙️ 本地大模型正在提炼发言重点并识别信源真伪...';
+      progressBar.style.width = '60%';
+      if (newsPollingTimer) clearTimeout(newsPollingTimer);
+      newsPollingTimer = setTimeout(pollNewsStatus, 3000);
+    } else if (data.status === 'done') {
+      statusText.textContent = '✅ 资讯白皮书生成成功！正在刷新列表...';
+      progressBar.style.width = '100%';
+      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+      
+      setTimeout(() => {
+        document.getElementById('news-progress-area').style.display = 'none';
+        loadNewsSummaries();
+      }, 1500);
+    } else if (data.status === 'failed' || data.status === 'error') {
+      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+      statusText.textContent = '❌ 生成失败: ' + (data.error || '未知错误');
+      progressBar.style.width = '100%';
+    } else {
+      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+      document.getElementById('news-progress-area').style.display = 'none';
+    }
+  } catch (err) {
+    statusText.textContent = '状态获取异常: ' + err.message;
+    if (newsPollingTimer) clearTimeout(newsPollingTimer);
+    newsPollingTimer = setTimeout(pollNewsStatus, 5000);
+  }
+}
+
+/**
+ * 拷贝资讯内容至剪切板
+ */
+function copyNewsToClipboard() {
+  if (!state.selectedNews) return;
+  const tempTextarea = document.createElement('textarea');
+  tempTextarea.value = state.selectedNews.summary_content;
+  document.body.appendChild(tempTextarea);
+  tempTextarea.select();
+  try {
+    document.execCommand('copy');
+    alert('已成功复制资讯白皮书 Markdown 内容到剪贴板！');
+  } catch (err) {
+    console.error('Failed to copy text:', err);
+  }
+  document.body.removeChild(tempTextarea);
 }
 

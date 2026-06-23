@@ -65,6 +65,7 @@
       <button class="tab-btn" data-tab="tab-campaigns">📊 交易战役时间线</button>
       <button class="tab-btn" data-tab="tab-rag">💬 AI 问答 / 知识库</button>
       <button class="tab-btn" data-tab="tab-persona">🧠 大V行为画像</button>
+      <button class="tab-btn" data-tab="tab-news-summaries">📰 社区资讯总结</button>
     </div>
 
     <!-- Dashboard Content Area -->
@@ -451,6 +452,72 @@
             <p class="empty-hint">点击上方「生成画像」按钮开始分析大V历史行为模式</p>
           </div>
         </div>
+      </div>
+
+      <!-- Tab 7: News Summaries 社区资讯总结 -->
+      <div id="tab-news-summaries" class="tab-content news-summaries-tab-container" style="display: none;">
+        
+        <!-- Left Panel: Summaries List & Generator Console -->
+        <div class="news-left-panel">
+          <div class="panel-section news-console-section">
+            <div class="panel-header">
+              <h2>📰 资讯生成控制台</h2>
+            </div>
+            <div class="news-console-buttons">
+              <button class="btn btn-secondary news-gen-btn" data-type="briefing" title="分析夜盘与晨会消息，生成今日开盘提醒">
+                🌅 盘前速报
+              </button>
+              <button class="btn btn-secondary news-gen-btn" data-type="intraday" title="分析开盘后大V言论与盘中变动，生成半天总结">
+                ⚡ 盘中总结
+              </button>
+              <button class="btn btn-secondary news-gen-btn" data-type="closing" title="分析收盘后大V全天发言，生成深度收盘简报">
+                🌆 收盘回顾
+              </button>
+              <button class="btn btn-secondary news-gen-btn" data-type="macro" title="分析过去一周宏观大势与观点汇总">
+                📊 宏观周报
+              </button>
+            </div>
+            
+            <!-- Progress state (similar to persona playbook) -->
+            <div id="news-progress-area" class="news-progress-area" style="display: none;">
+              <div class="news-progress-bar-container">
+                <div id="news-progress-bar" class="news-progress-bar" style="width: 0%;"></div>
+              </div>
+              <p id="news-status-text" class="news-status-text">准备中...</p>
+            </div>
+          </div>
+
+          <div class="panel-section news-list-section">
+            <div class="panel-header">
+              <h2>📅 历史速报列表</h2>
+              <span class="badge" id="news-count">0 篇</span>
+            </div>
+            <div class="news-list-container" id="news-list">
+              <!-- Dynamically populated card timeline -->
+              <div class="loading-state">
+                <div class="spinner"></div>
+                <p>正在加载资讯列表...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel: Markdown Summaries Reader -->
+        <div class="news-right-panel">
+          <div class="panel-section news-reader-section">
+            <div class="panel-header">
+              <h2 id="news-reader-title">📖 资讯阅读器</h2>
+              <button class="btn btn-secondary" id="btn-copy-news" style="display: none;">📋 复制 Markdown</button>
+            </div>
+            <div class="news-reader-content" id="news-reader-content">
+              <div class="empty-state">
+                <span class="empty-icon">📰</span>
+                <p>请选择左侧的历史速报开始阅读，或者点击生成控制台触发最新总结。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
       
     </main>
