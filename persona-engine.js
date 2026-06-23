@@ -254,21 +254,88 @@ export function segmentMessagesIntoEvents(messages) {
 // 2. 单事件 Map 分析器
 // ============================================================
 
+function formatSingleMsg(msg) {
+  const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+  const channel = msg.channel_name ? `[${msg.channel_name}]` : '';
+  let content = msg.content || '';
+  if (content.length > 300) {
+    content = content.substring(0, 300) + '... (内容过长已截断)';
+  }
+  return `[${timeStr}] ${channel} ${msg.sender_name}: ${content}`;
+}
+
 /**
- * 格式化事件段消息为 AI 可读文本
+ * 格式化事件段消息为 AI 可读文本 (支持分频道差异化过滤与会话链评分传播)
  */
 function formatEventMessages(event) {
-  // 仅保留最新的 30 条消息，防止单事件消息过多造成本地大模型 Token 溢出 (8192)
-  const msgs = (event.messages || []).slice(-30);
-  return msgs.map(msg => {
-    const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-    const channel = msg.channel_name ? `[${msg.channel_name}]` : '';
-    let content = msg.content || '';
-    if (content.length > 300) {
-      content = content.substring(0, 300) + '... (内容过长已截断)';
+  const allMsgs = event.messages || [];
+  
+  // 1. 如果消息总数较少，无须过滤直接返回
+  if (allMsgs.length <= 30) {
+    return allMsgs.map(msg => formatSingleMsg(msg)).join('\n');
+  }
+
+  // 2. 差异化评分系统
+  const formattedWithScores = allMsgs.map((msg, index) => {
+    let score = 0;
+    const content = msg.content || '';
+    const channel = (msg.channel_name || '').toLowerCase();
+    
+    // 识别喊单/交易相关频道
+    const isTradeChannel = channel.includes('喊单') || 
+                           channel.includes('交易') || 
+                           channel.includes('信号') || 
+                           channel.includes('仓位') || 
+                           channel.includes('alert') || 
+                           channel.includes('trade');
+    
+    if (isTradeChannel) {
+      score += 100; // 交易喊单频道直接给极高分，确保无损完整保留
     }
-    return `[${timeStr}] ${channel} ${msg.sender_name}: ${content}`;
-  }).join('\n');
+
+    // 操作性词汇评分
+    if (/[买卖进出平仓止损加减仓期权做多做空仓位]/i.test(content) || /buy|sell|call|put|shares|position|close/i.test(content)) {
+      score += 30;
+    }
+    // 包含股票代码加分
+    if (/[A-Z]{2,5}/.test(content)) {
+      score += 15;
+    }
+    // 包含数字与点位加分
+    if (/\b\d+(\.\d+)?\b|\d+%|\$/.test(content)) {
+      score += 10;
+    }
+    // 字数加分（排除纯水贴短句）
+    score += Math.min(content.length / 20, 5);
+
+    return { msg, index, score, isTradeChannel };
+  });
+
+  // 3. 会话链关联权重传播：针对讨论区消息，若大V的回复含金量高，将权重向上传播给群友提问，绑定上下文
+  for (let i = 0; i < formattedWithScores.length; i++) {
+    const current = formattedWithScores[i];
+    
+    // 只要某条消息属于核心表态（得分 >= 30），且属于讨论区
+    if (current.score >= 30 && !current.isTradeChannel) {
+      // 往前寻找 2 条以内的上下文（群友提问），强拉高它们的权重
+      for (let j = Math.max(0, i - 2); j < i; j++) {
+        formattedWithScores[j].score += 20; // 传播权重，绑定问答对
+      }
+      // 往后寻找 1 条以内的追问/确认，微增权重
+      if (i + 1 < formattedWithScores.length) {
+        formattedWithScores[i + 1].score += 10;
+      }
+    }
+  }
+
+  // 4. 按综合评分从高到低排序，筛选出最核心的 30 条消息
+  formattedWithScores.sort((a, b) => b.score - a.score);
+  const selected = formattedWithScores.slice(0, 30);
+
+  // 5. 将筛选出的消息按照时序索引（index）重新进行正序排列，还原真实聊天顺序送入大模型
+  selected.sort((a, b) => a.index - b.index);
+
+  return selected.map(item => formatSingleMsg(item.msg)).join('\n');
 }
 
 const EVENT_ANALYSIS_PROMPT = `你是一位专业的美股交易行为分析师。以下是一位资深交易员在特定时间段内的完整发言记录。
