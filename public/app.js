@@ -282,6 +282,37 @@ function setupEventListeners() {
     });
   });
 
+  // News summaries custom time toggle
+  const customTimeEnabledCheckbox = document.getElementById('news-custom-time-enabled');
+  const customTimeFields = document.getElementById('news-custom-time-fields');
+  
+  if (customTimeEnabledCheckbox && customTimeFields) {
+    customTimeEnabledCheckbox.addEventListener('change', () => {
+      if (customTimeEnabledCheckbox.checked) {
+        customTimeFields.style.display = 'block';
+        // 自动初始化默认时间：结束时间为当前时刻，开始时间为 24 小时前
+        const now = new Date();
+        const past = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        
+        // 格式化为 datetime-local 所要求的 YYYY-MM-DDTHH:mm
+        const formatDateForInput = (d) => {
+          const tzOffset = d.getTimezoneOffset() * 60000; // 偏移毫秒
+          const localISOTime = (new Date(d - tzOffset)).toISOString().slice(0, 16);
+          return localISOTime;
+        };
+        
+        if (!document.getElementById('news-start-time').value) {
+          document.getElementById('news-start-time').value = formatDateForInput(past);
+        }
+        if (!document.getElementById('news-end-time').value) {
+          document.getElementById('news-end-time').value = formatDateForInput(now);
+        }
+      } else {
+        customTimeFields.style.display = 'none';
+      }
+    });
+  }
+
   // Copy news markdown
   document.getElementById('btn-copy-news')?.addEventListener('click', copyNewsToClipboard);
 }
@@ -2737,6 +2768,33 @@ async function triggerNewsGeneration(type) {
   statusArea.style.display = 'block';
   statusText.textContent = '正在初始化资讯生成任务...';
   progressBar.style.width = '0%';
+
+  let customStartTime = null;
+  let customEndTime = null;
+
+  const customTimeEnabledCheckbox = document.getElementById('news-custom-time-enabled');
+  if (customTimeEnabledCheckbox && customTimeEnabledCheckbox.checked) {
+    const startVal = document.getElementById('news-start-time').value;
+    const endVal = document.getElementById('news-end-time').value;
+
+    if (!startVal || !endVal) {
+      statusText.textContent = '❌ 请先填写完整的自定义开始和结束时间！';
+      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+      return;
+    }
+
+    const startMs = new Date(startVal).getTime();
+    const endMs = new Date(endVal).getTime();
+
+    if (startMs >= endMs) {
+      statusText.textContent = '❌ 开始时间必须早于结束时间！';
+      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+      return;
+    }
+
+    customStartTime = new Date(startVal).toISOString();
+    customEndTime = new Date(endVal).toISOString();
+  }
   
   try {
     const csrfToken = await ensureCsrfToken();
@@ -2747,7 +2805,12 @@ async function triggerNewsGeneration(type) {
         'X-Session-Id': state.sessionId,
         'X-CSRF-Token': csrfToken || ''
       },
-      body: JSON.stringify({ type, forceRefresh: true })
+      body: JSON.stringify({ 
+        type, 
+        forceRefresh: true,
+        customStartTime,
+        customEndTime
+      })
     });
     
     const data = await res.json();

@@ -41,7 +41,7 @@ async function callCloudAI(prompt) {
 // 1. 初始化生成任务
 // ============================================================
 export async function generateNewsSummary(type = 'briefing', options = {}) {
-  const { forceRefresh = false } = options;
+  const { forceRefresh = false, customStartTime = null, customEndTime = null } = options;
   const db = getDb();
 
   // 1. 检查是否有活跃的资讯总结任务在跑
@@ -60,31 +60,44 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
     };
   }
 
-  // 2. 根据 type 设定抓取的时间范围
-  const endTime = Date.now();
+  // 2. 设定抓取的时间范围
+  const endTime = customEndTime ? new Date(customEndTime).getTime() : Date.now();
   let startTime;
   let titleType = '';
 
-  switch (type) {
-    case 'briefing':
-      startTime = endTime - (16 * 60 * 60 * 1000); // 过去 16 小时
-      titleType = '盘前速报';
-      break;
-    case 'intraday':
-      startTime = endTime - (4 * 60 * 60 * 1000);   // 过去 4 小时
-      titleType = '盘中总结';
-      break;
-    case 'closing':
-      startTime = endTime - (10 * 60 * 60 * 1000);  // 过去 10 小时
-      titleType = '收盘回顾';
-      break;
-    case 'macro':
-      startTime = endTime - (7 * 24 * 60 * 60 * 1000); // 过去 7 天
-      titleType = '本周宏观总结';
-      break;
-    default:
-      startTime = endTime - (24 * 60 * 60 * 1000);  // 过去 24 小时
-      titleType = '社区资讯总结';
+  if (customStartTime) {
+    startTime = new Date(customStartTime).getTime();
+    const startStr = new Date(startTime).toLocaleString('zh-CN', { hour12: false }).substring(5, 16);
+    const endStr = new Date(endTime).toLocaleString('zh-CN', { hour12: false }).substring(5, 16);
+    switch (type) {
+      case 'briefing': titleType = `盘前速报 (${startStr} 至 ${endStr})`; break;
+      case 'intraday': titleType = `盘中总结 (${startStr} 至 ${endStr})`; break;
+      case 'closing': titleType = `收盘回顾 (${startStr} 至 ${endStr})`; break;
+      case 'macro': titleType = `本周宏观总结 (${startStr} 至 ${endStr})`; break;
+      default: titleType = `自定义资讯总结 (${startStr} 至 ${endStr})`;
+    }
+  } else {
+    switch (type) {
+      case 'briefing':
+        startTime = endTime - (16 * 60 * 60 * 1000); // 过去 16 小时
+        titleType = '盘前速报';
+        break;
+      case 'intraday':
+        startTime = endTime - (4 * 60 * 60 * 1000);   // 过去 4 小时
+        titleType = '盘中总结';
+        break;
+      case 'closing':
+        startTime = endTime - (10 * 60 * 60 * 1000);  // 过去 10 小时
+        titleType = '收盘回顾';
+        break;
+      case 'macro':
+        startTime = endTime - (7 * 24 * 60 * 60 * 1000); // 过去 7 天
+        titleType = '本周宏观总结';
+        break;
+      default:
+        startTime = endTime - (24 * 60 * 60 * 1000);  // 过去 24 小时
+        titleType = '社区资讯总结';
+    }
   }
 
   // 3. 获取大V和群友消息

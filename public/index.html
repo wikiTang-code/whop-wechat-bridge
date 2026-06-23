@@ -478,6 +478,28 @@
               </button>
             </div>
             
+            <!-- 自定义时间范围选择 -->
+            <div class="custom-time-range-toggle">
+              <label class="checkbox-container">
+                <input type="checkbox" id="news-custom-time-enabled">
+                <span class="checkmark"></span>
+                开启自定义时间段
+              </label>
+            </div>
+            
+            <div id="news-custom-time-fields" class="news-custom-time-fields" style="display: none;">
+              <div class="time-field-row">
+                <div class="time-field-group">
+                  <label for="news-start-time">开始时间：</label>
+                  <input type="datetime-local" id="news-start-time">
+                </div>
+                <div class="time-field-group">
+                  <label for="news-end-time">结束时间：</label>
+                  <input type="datetime-local" id="news-end-time">
+                </div>
+              </div>
+            </div>
+            
             <!-- Progress state (similar to persona playbook) -->
             <div id="news-progress-area" class="news-progress-area" style="display: none;">
               <div class="news-progress-bar-container">

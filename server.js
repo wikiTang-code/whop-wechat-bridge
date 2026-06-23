@@ -602,10 +602,16 @@ app.post('/api/news-summaries/generate', requireCsrf, async (req, res) => {
   try {
     const type = req.body.type || 'briefing';
     const forceRefresh = req.body.forceRefresh === true;
+    const customStartTime = req.body.customStartTime || null;
+    const customEndTime = req.body.customEndTime || null;
 
-    console.log(`[API News] Triggering news summary generation for type=${type}, forceRefresh=${forceRefresh}`);
+    console.log(`[API News] Triggering news summary generation for type=${type}, forceRefresh=${forceRefresh}, customStartTime=${customStartTime}, customEndTime=${customEndTime}`);
     
-    const result = await generateNewsSummary(type, { forceRefresh });
+    const result = await generateNewsSummary(type, { 
+      forceRefresh,
+      customStartTime,
+      customEndTime
+    });
     res.json(result);
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
