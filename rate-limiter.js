@@ -71,6 +71,12 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
     if (currentCount >= RPD_LIMIT) {
       throw new Error(`[Rate Limiter] 每日 API 限制已超标 (${RPD_LIMIT} RPD)。当前计数: ${currentCount}`);
     }
+
+    // 警戒线：若 Gemini 每日调用已达 1200 次（剩余 300 次），且不是高优先级交易任务（P < 9），则提前拦截
+    if (currentCount >= (RPD_LIMIT - 300) && priority < 9) {
+      throw new Error(`[Rate Limiter] Gemini 每日配额即将耗尽 (已使用: ${currentCount}/${RPD_LIMIT})。低优先级任务 P${priority} 禁止调用 Gemini API，预留配额给高优先级实盘交易。`);
+    }
+
     const dailyCount = incrementDailyApiCount();
 
     try {

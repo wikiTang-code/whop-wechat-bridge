@@ -100,20 +100,23 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
   // 构建占位符
   const placeholders = targetSpeakers.map(() => '?').join(',');
 
-  // 3a. 大V消息
-  const speakerMessages = db.prepare(`
+  // 3a. 大V消息 - 限制拉取最新的 60 条并反转为正序
+  const speakerMessagesRaw = db.prepare(`
     SELECT sender_name, content, created_at FROM messages
     WHERE sender_id IN (${placeholders}) AND created_at BETWEEN ? AND ?
-    ORDER BY created_at ASC
+    ORDER BY created_at DESC
+    LIMIT 60
   `).all(...targetSpeakers, startTime, endTime);
+  const speakerMessages = speakerMessagesRaw.reverse();
 
-  // 3b. 群友消息
-  const communityMessages = db.prepare(`
+  // 3b. 群友消息 - 限制拉取最新的 50 条并反转为正序，防止本地大模型 Token 溢出
+  const communityMessagesRaw = db.prepare(`
     SELECT sender_name, content, created_at FROM messages
     WHERE sender_id NOT IN (${placeholders}) AND created_at BETWEEN ? AND ?
-    ORDER BY created_at ASC
-    LIMIT 300
+    ORDER BY created_at DESC
+    LIMIT 50
   `).all(...targetSpeakers, startTime, endTime);
+  const communityMessages = communityMessagesRaw.reverse();
 
   if (speakerMessages.length === 0 && communityMessages.length === 0) {
     throw new Error('该时段内没有任何聊天数据，无需生成总结。');

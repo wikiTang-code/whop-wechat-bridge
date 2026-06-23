@@ -10,6 +10,7 @@ import { processMessageForCampaigns, checkAndCloseStaleCampaigns } from './campa
 dotenv.config();
 
 let lastProcessedMessageId = null;
+let lmStudioOfflineUntil = 0; // 本地大模型熔断冷却截止时间戳
 
 // GraphQL query string for Whop Chat Fetch Messages
 const MESSAGES_FETCH_FEED_POSTS_QUERY = `
@@ -587,14 +588,46 @@ export async function analyzeWithLMStudio(baseUrl, model, prompt) {
 }
 
 
+// 辅助函数：判断是否是网络无法访问的异常
+function isNetworkConnectionError(err) {
+  if (!err || !err.message) return false;
+  const msg = err.message.toLowerCase();
+  return msg.includes('econnrefused') || 
+         msg.includes('etimedout') || 
+         msg.includes('enotfound') || 
+         msg.includes('fetch failed') ||
+         msg.includes('connection refused') ||
+         msg.includes('network error') ||
+         msg.includes('socket hang up') ||
+         msg.includes('request timeout');
+}
+
 // Unified LLM call with fallback: primary provider -> Gemini
 export async function analyzeWithFallback(prompt, options = {}) {
   const primaryProvider = options.provider || process.env.AI_PROVIDER || 'gemini';
+  const priority = options.priority !== undefined ? options.priority : 1;
+
+  // 1. 如果主要服务直接就是 gemini，直接调用
   if (primaryProvider === 'gemini') {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error('GEMINI_API_KEY is not set.');
-    return await analyzeWithGemini(apiKey, prompt);
+    return await analyzeWithGemini(apiKey, prompt, priority);
   }
+
+  // 2. 检查本地模型熔断冷却期
+  const isLocalOffline = Date.now() < lmStudioOfflineUntil;
+  if (isLocalOffline) {
+    console.log(`[LLM 熔断保护] 本地大模型处于 ${Math.round((lmStudioOfflineUntil - Date.now()) / 1000)}s 冷却熔断中。`);
+    if (priority < 9) {
+      throw new Error(`[LLM熔断拦截] 本地大模型离线且此任务优先级低(P${priority})，拒绝降级以保护 Gemini 额度，安排推迟重试。`);
+    }
+    console.log(`[LLM 熔断降级] 此任务优先级高(P${priority})，允许跳过本地尝试直接使用 Gemini API...`);
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('Primary LLM failed and GEMINI_API_KEY not set.');
+    return await analyzeWithGemini(apiKey, prompt, priority);
+  }
+
+  // 3. 正常尝试本地连接
   try {
     if (primaryProvider === 'lm-studio') {
       const baseUrl = options.baseUrl || process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
@@ -609,11 +642,23 @@ export async function analyzeWithFallback(prompt, options = {}) {
     }
   } catch (e) {
     console.warn('[LLM] ' + primaryProvider + ' failed: ' + e.message);
+    
+    // 如果是网络连接异常，激活熔断器
+    if (isNetworkConnectionError(e)) {
+      lmStudioOfflineUntil = Date.now() + 5 * 60 * 1000; // 冷却 5 分钟
+      console.warn(`[LLM 熔断激活] 捕获到本地大模型网络连接失败错误。已激活 5 分钟的熔断器。熔断截止: ${new Date(lmStudioOfflineUntil).toLocaleTimeString()}`);
+    }
+
+    // 4. 处理降级策略
+    if (priority < 9) {
+      throw new Error(`[LLM降级拦截] 本地大模型调用失败: ${e.message}。低优先级任务 P${priority} 禁止降级到 Gemini 消耗额度，安排重试。`);
+    }
     console.log('[LLM] Falling back to Gemini...');
   }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('Primary LLM failed and GEMINI_API_KEY not set.');
-  return await analyzeWithGemini(apiKey, prompt);
+  return await analyzeWithGemini(apiKey, prompt, priority);
 }
 
 // Push report to Enterprise WeChat group robot
@@ -757,7 +802,7 @@ ${messagesText}`;
   const startTimeTradeAI = Date.now();
   
   try {
-    jsonText = await analyzeWithFallback(signalPrompt, { provider });
+    jsonText = await analyzeWithFallback(signalPrompt, { provider, priority: 10 });
 
     const durationTradeAI = ((Date.now() - startTimeTradeAI) / 1000).toFixed(1);
     console.log(`[自动跟单] AI 提取信号完成！耗时: ${durationTradeAI}秒。AI 原始响应 JSON:\n${jsonText.trim()}`);
@@ -794,6 +839,45 @@ ${messagesText}`;
       }
 
       let finalQuantity = quantity;
+
+      // 针对买入(BUY)指令，进行资金与仓位大小自适应修正，防止高价股因额度问题被券商拒单，以及低价股下单过小
+      if (action === 'BUY') {
+        try {
+          const portfolio = await getUnifiedPortfolio();
+          const availableCash = portfolio.cash || 0;
+          const totalEquity = portfolio.total_equity || 100000.00;
+
+          const estTotalCost = quantity * price;
+          const isDefaultQty = quantity === 100;
+
+          // 1. 若开启了动态仓位计算，且 AI 返回了默认股数 100，或者该订单所需总金额超过了总资产的 15%（单笔占用过多）
+          if (useDynamicSizing && (isDefaultQty || estTotalCost > totalEquity * 0.15)) {
+            // 单笔标准最大买入比例设定为总资产的 10%
+            const maxSizingAmount = totalEquity * 0.1;
+            const newQty = Math.floor(maxSizingAmount / price);
+            if (newQty > 0) {
+              console.log(`[自动跟单自适应] 检测到 BUY ${ticker} 信号。原定下单数: ${quantity} 股（预估需 $${estTotalCost.toFixed(2)}），当前已开启动态仓位。已重新折算为总资产10%的对应股数: ${newQty} 股（预估需 $${(newQty * price).toFixed(2)}）。`);
+              finalQuantity = newQty;
+            }
+          }
+
+          // 2. 资金安全线限制：不能超过当前账户可用现金（预留 5% 缓冲应对手续费/滑点）
+          const finalCost = finalQuantity * price;
+          if (finalCost > availableCash) {
+            const safeCash = availableCash * 0.95;
+            const maxBuyableQty = Math.floor(safeCash / price);
+            if (maxBuyableQty > 0) {
+              console.log(`[自动跟单自适应] 检测到 BUY ${ticker} 信号所需金额 $${finalCost.toFixed(2)} 超过当前可用现金 $${availableCash.toFixed(2)}。已自动向下修正购买股数为安全值: ${maxBuyableQty} 股。`);
+              finalQuantity = maxBuyableQty;
+            } else {
+              console.warn(`[自动跟单自适应] 当前可用现金 $${availableCash.toFixed(2)} 不足以买入 1 股 ${ticker} (@$${price})。该 BUY 信号已被强行拦截。`);
+              continue;
+            }
+          }
+        } catch (err) {
+          console.error('[自动跟单自适应] 处理 BUY 资金自适应修正时发生异常:', err.message);
+        }
+      }
 
       // 针对卖出(SELL)指令，进行持仓自适应修正，解决因AI缺少持仓数据而硬编码100股导致的拦截失败问题
       if (action === 'SELL') {

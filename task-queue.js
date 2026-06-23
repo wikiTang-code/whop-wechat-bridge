@@ -113,12 +113,37 @@ export function failTask(taskId, errorMessage, errorDetails = '') {
 }
 
 /**
+ * 系统启动自愈：重置所有被卡在 running 状态的任务回 pending 状态
+ */
+export function resetRunningTasks() {
+  const db = getDb();
+  const now = Date.now();
+  
+  try {
+    const info = db.prepare(`
+      UPDATE task_queue 
+      SET status = 'pending', updated_at = ? 
+      WHERE status = 'running'
+    `).run(now);
+    
+    if (info.changes > 0) {
+      console.log(`[Task Queue System] 启动自愈：成功重置了 ${info.changes} 个因系统异常中断而卡在 running 状态的任务。`);
+    }
+  } catch (err) {
+    console.error('[Task Queue System] 启动自愈失败:', err.message);
+  }
+}
+
+/**
  * 启动后台队列消费循环
  * @param {Function} workerFn - 任务处理器 async function(task)
  * @param {number} pollIntervalMs - 空闲轮询间隔
  */
 export function startQueueWorker(workerFn, pollIntervalMs = 5000) {
   let isWorking = false;
+
+  // 启动时自动执行运行中任务重置
+  resetRunningTasks();
 
   async function checkQueue() {
     if (isWorking) return;
