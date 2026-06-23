@@ -258,12 +258,14 @@ export function segmentMessagesIntoEvents(messages) {
  * 格式化事件段消息为 AI 可读文本
  */
 function formatEventMessages(event) {
-  return event.messages.map(msg => {
+  // 仅保留最新的 30 条消息，防止单事件消息过多造成本地大模型 Token 溢出 (8192)
+  const msgs = (event.messages || []).slice(-30);
+  return msgs.map(msg => {
     const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     const channel = msg.channel_name ? `[${msg.channel_name}]` : '';
     let content = msg.content || '';
-    if (content.length > 500) {
-      content = content.substring(0, 500) + '... (内容过长已截断)';
+    if (content.length > 300) {
+      content = content.substring(0, 300) + '... (内容过长已截断)';
     }
     return `[${timeStr}] ${channel} ${msg.sender_name}: ${content}`;
   }).join('\n');
