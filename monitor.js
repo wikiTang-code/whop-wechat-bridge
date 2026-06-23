@@ -793,13 +793,36 @@ ${messagesText}`;
         continue;
       }
 
-      console.log(`[自动跟单执行] 触发交易: ${action} ${ticker} ${quantity}股 @ $${price}`);
+      let finalQuantity = quantity;
+
+      // 针对卖出(SELL)指令，进行持仓自适应修正，解决因AI缺少持仓数据而硬编码100股导致的拦截失败问题
+      if (action === 'SELL') {
+        try {
+          const positions = await getUnifiedPositions();
+          const existingPosition = positions.find(pos => pos.ticker === ticker);
+          const existingQty = existingPosition ? existingPosition.quantity : 0;
+
+          if (existingQty > 0) {
+            // 如果AI默认输出100股，但我们持仓较少，或者大V意图是平仓/清仓，自动将股数修正为实际持仓数
+            if (quantity >= existingQty || reason.includes('平仓') || reason.includes('全卖') || reason.includes('清仓') || reason.includes('卖出全部')) {
+              console.log(`[自动跟单自适应] 检测到 SELL ${ticker} 信号。持仓数: ${existingQty} 股，原定下单数: ${quantity} 股。已自适应修正为最大持仓股数 ${existingQty} 股以正确平仓。`);
+              finalQuantity = existingQty;
+            }
+          } else {
+            console.warn(`[自动跟单自适应] 检测到 SELL ${ticker} 信号，但当前账户没有任何持仓，将继续由交易引擎拦截。`);
+          }
+        } catch (err) {
+          console.error('[自动跟单自适应] 获取持仓进行SELL股数修正时发生异常:', err.message);
+        }
+      }
+
+      console.log(`[自动跟单执行] 触发交易: ${action} ${ticker} ${finalQuantity}股 @ $${price}`);
       
       const result = await executeOrder({
         ticker,
         action,
         price,
-        quantity,
+        quantity: finalQuantity,
         stopLoss,
         reason: `[AI 自动跟单] ${reason}`
       });
