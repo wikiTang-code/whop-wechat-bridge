@@ -261,7 +261,11 @@ function formatEventMessages(event) {
   return event.messages.map(msg => {
     const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     const channel = msg.channel_name ? `[${msg.channel_name}]` : '';
-    return `[${timeStr}] ${channel} ${msg.sender_name}: ${msg.content}`;
+    let content = msg.content || '';
+    if (content.length > 500) {
+      content = content.substring(0, 500) + '... (内容过长已截断)';
+    }
+    return `[${timeStr}] ${channel} ${msg.sender_name}: ${content}`;
   }).join('\n');
 }
 
@@ -403,7 +407,11 @@ async function extractCommunityInsights(communityMessages, provider, isFocusGrou
     const chunk = chunks[i];
     const messagesText = chunk.map(msg => {
       const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-      return `[${timeStr}] ${msg.sender_name}: ${msg.content}`;
+      let content = msg.content || '';
+      if (content.length > 300) {
+        content = content.substring(0, 300) + '... (内容过长已截断)';
+      }
+      return `[${timeStr}] ${msg.sender_name}: ${content}`;
     }).join('\n');
 
     // Check if any messages have images related to quant tools
