@@ -2113,12 +2113,54 @@ document.getElementById('btn-generate-persona')?.addEventListener('click', async
   }
 });
 
+// Button: Resume Persona click listener
+document.getElementById('btn-resume-persona')?.addEventListener('click', async () => {
+  const resumeBtn = document.getElementById('btn-resume-persona');
+  const btn = document.getElementById('btn-generate-persona');
+  const statusText = document.getElementById('persona-status-text');
+  const progressBar = document.getElementById('persona-progress-bar');
+  
+  resumeBtn.disabled = true;
+  resumeBtn.querySelector('.btn-text').textContent = '恢复中...';
+  statusText.textContent = '正在恢复大V画像计算，排队重试失败子任务...';
+  
+  try {
+    const csrfToken = await ensureCsrfToken();
+    const res = await fetch('/api/persona/resume', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Session-Id': state.sessionId,
+        'X-CSRF-Token': csrfToken || ''
+      }
+    });
+    const data = await res.json();
+    if (data.success) {
+      statusText.textContent = '🔄 ' + (data.message || '恢复计算成功！开始轮询进度...');
+      progressBar.style.width = '5%';
+      resumeBtn.style.display = 'none';
+      btn.disabled = true;
+      btn.querySelector('.btn-text').textContent = '生成中...';
+      pollPersonaStatus();
+    } else {
+      statusText.textContent = '❌ 恢复失败: ' + (data.message || data.error || '未知错误');
+      resumeBtn.disabled = false;
+      resumeBtn.querySelector('.btn-text').textContent = '继续计算';
+    }
+  } catch (err) {
+    statusText.textContent = '❌ 请求错误: ' + err.message;
+    resumeBtn.disabled = false;
+    resumeBtn.querySelector('.btn-text').textContent = '继续计算';
+  }
+});
+
 let personaPollingTimer = null;
 
 async function pollPersonaStatus() {
   const statusText = document.getElementById('persona-status-text');
   const progressBar = document.getElementById('persona-progress-bar');
   const btn = document.getElementById('btn-generate-persona');
+  const resumeBtn = document.getElementById('btn-resume-persona');
   
   try {
     const res = await fetch('/api/persona/status');
@@ -2127,20 +2169,24 @@ async function pollPersonaStatus() {
     if (data.status === 'running') {
       statusText.textContent = data.progress || '处理中...';
       progressBar.style.width = (data.percent || 0) + '%';
+      if (resumeBtn) resumeBtn.style.display = 'none';
       personaPollingTimer = setTimeout(pollPersonaStatus, 3000);
     } else if (data.status === 'done') {
       statusText.textContent = '✅ 画像生成完成！';
       progressBar.style.width = '100%';
       btn.disabled = false;
       btn.querySelector('.btn-text').textContent = '重新生成';
+      if (resumeBtn) resumeBtn.style.display = 'none';
       setTimeout(loadPersonaPlaybook, 1000);
     } else if (data.status === 'error') {
       btn.disabled = false;
       btn.querySelector('.btn-text').textContent = '重新生成';
       statusText.textContent = '❌ ' + (data.error || '生成失败');
+      if (resumeBtn) resumeBtn.style.display = 'block';
     } else {
       btn.disabled = false;
       btn.querySelector('.btn-text').textContent = '生成画像';
+      if (resumeBtn) resumeBtn.style.display = 'none';
     }
   } catch (err) {
     statusText.textContent = '状态查询失败: ' + err.message;
@@ -2155,6 +2201,7 @@ async function loadPersonaPlaybook() {
   const btn = document.getElementById('btn-generate-persona');
   const statusText = document.getElementById('persona-status-text');
   const progressBar = document.getElementById('persona-progress-bar');
+  const resumeBtn = document.getElementById('btn-resume-persona');
   
   try {
     // 1. 先查询后台当前的运行状态，看是否已经在构建中
@@ -2171,13 +2218,21 @@ async function loadPersonaPlaybook() {
       
       statusText.textContent = statusData.progress || '处理中...';
       progressBar.style.width = (statusData.percent || 0) + '%';
+      if (resumeBtn) resumeBtn.style.display = 'none';
       
       if (personaPollingTimer) clearTimeout(personaPollingTimer);
       personaPollingTimer = setTimeout(pollPersonaStatus, 3000);
       return;
     } else if (statusData.status === 'error') {
+      progressArea.style.display = 'block';
+      contentArea.style.display = 'none';
+      metaArea.style.display = 'none';
+      btn.disabled = false;
+      btn.querySelector('.btn-text').textContent = '重新生成';
       statusText.textContent = '❌ 上次生成失败: ' + (statusData.error || '未知错误');
       progressBar.style.width = '0%';
+      if (resumeBtn) resumeBtn.style.display = 'block';
+      return;
     }
 
     // 2. 没有正在运行的任务，拉取最新生成的白皮书

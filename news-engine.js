@@ -122,14 +122,44 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
   `).all(...targetSpeakers, startTime, endTime);
   const speakerMessages = speakerMessagesRaw.reverse();
 
-  // 3b. 群友消息 - 限制拉取最新的 50 条并反转为正序，防止本地大模型 Token 溢出
+  // 3b. 群友消息 - 智能筛选高价值代表性发言以规避 Token 溢出，并保护问答语境
   const communityMessagesRaw = db.prepare(`
     SELECT sender_name, content, created_at FROM messages
     WHERE sender_id NOT IN (${placeholders}) AND created_at BETWEEN ? AND ?
     ORDER BY created_at DESC
-    LIMIT 50
+    LIMIT 200
   `).all(...targetSpeakers, startTime, endTime);
-  const communityMessages = communityMessagesRaw.reverse();
+
+  const filteredCommunity = communityMessagesRaw.map(msg => {
+    let score = 0;
+    const content = msg.content || '';
+
+    // 观点及交易倾向加分 (直接保底)
+    if (/[买卖涨跌多空能不收平仓仓位浮亏止损抄底爆仓跟单实盘模拟]/i.test(content)) {
+      score += 30;
+    }
+    // 股票标的提及加分
+    if (/[A-Z]{2,5}/.test(content)) {
+      score += 15;
+    }
+
+    const len = content.length;
+    // 只有当发言极短（少于 5 字），且完全没有命中任何个股或观点词汇时，才判定为水贴扣分过滤
+    if (len < 5 && score === 0) {
+      score -= 20; // 过滤纯无意义水贴，如 "哈哈"、"收到"、"111" 等
+    } else {
+      score += Math.min(len / 20, 5); // 正常讨论句按字数微加分
+    }
+
+    return { msg, score };
+  })
+  .filter(item => item.score >= 0) // 排除噪音水贴
+  .sort((a, b) => b.score - a.score) // 降序排序含金量
+  .slice(0, 50) // 取前 50 条最精华的群友发言
+  .map(item => item.msg);
+
+  // 重新按时间正序排列
+  const communityMessages = filteredCommunity.sort((a, b) => a.created_at - b.created_at);
 
   if (speakerMessages.length === 0 && communityMessages.length === 0) {
     throw new Error('该时段内没有任何聊天数据，无需生成总结。');

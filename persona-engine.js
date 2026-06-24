@@ -981,3 +981,88 @@ function parseJSONSafe(text) {
     return null;
   }
 }
+
+/**
+ * 恢复执行最新批次中失败的白皮书画像子任务，避免全部重新计算
+ */
+export function resumePersonaPlaybook() {
+  const db = getDb();
+  
+  // 1. 获取最新被提交的 persona_reduce 任务 (代表最新的一个画像合成批次)
+  const latestTask = db.prepare(`
+    SELECT id, payload, status FROM task_queue 
+    WHERE task_type = 'persona_reduce'
+    ORDER BY id DESC LIMIT 1
+  `).get();
+  
+  if (!latestTask) {
+    throw new Error('没有找到任何大V画像生成记录，无法恢复计算。');
+  }
+  
+  let batchId;
+  try {
+    batchId = JSON.parse(latestTask.payload).batchId;
+  } catch (err) {
+    throw new Error('无法解析画像任务的 Batch ID。');
+  }
+  
+  // 2. 查询这个批次下所有任务
+  const allTasks = db.prepare(`
+    SELECT id, task_type, status FROM task_queue
+    WHERE json_extract(payload, '$.batchId') = ?
+  `).all(batchId);
+  
+  const failedTasks = allTasks.filter(t => t.status === 'failed');
+  if (failedTasks.length === 0) {
+    // 检查是否有 running, pending, retry
+    const activeTasks = allTasks.filter(t => ['pending', 'running', 'retry'].includes(t.status));
+    if (activeTasks.length > 0) {
+      return {
+        success: true,
+        batchId,
+        message: '画像生成任务目前正在后台执行中，无需恢复。',
+        details: { resumedCount: 0 }
+      };
+    }
+    
+    // 如果全都 done 了
+    const doneTasks = allTasks.filter(t => t.status === 'done');
+    if (doneTasks.length === allTasks.length) {
+      return {
+        success: true,
+        batchId,
+        message: '该批次已全部执行成功，无需恢复。',
+        details: { resumedCount: 0 }
+      };
+    }
+    
+    throw new Error('未在该批次中检测到彻底失败的任务。');
+  }
+  
+  // 3. 把所有 failed 的任务重置为 pending，并且重置重试计数与错误信息
+  const now = Date.now();
+  let resumedCount = 0;
+  
+  const updateStmt = db.prepare(`
+    UPDATE task_queue
+    SET status = 'pending', retry_count = 0, error_message = NULL, updated_at = ?, run_after = ?
+    WHERE id = ?
+  `);
+  
+  const resetTx = db.transaction(() => {
+    for (const t of failedTasks) {
+      updateStmt.run(now, now, t.id);
+      resumedCount++;
+    }
+  });
+  
+  resetTx.immediate();
+  
+  console.log(`[Persona Engine] Resumed ${resumedCount} failed tasks for batch ${batchId}.`);
+  return {
+    success: true,
+    batchId,
+    message: `成功恢复了 ${resumedCount} 个失败的子任务，已重新加入计算队列。`,
+    details: { resumedCount }
+  };
+}
