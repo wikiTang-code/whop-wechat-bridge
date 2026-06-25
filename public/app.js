@@ -467,11 +467,25 @@ function setupAutocomplete(inputId, suggestionsId, clearBtnId, dataList, display
     const query = input.value.trim().toLowerCase();
     
     // Filter list
-    const filtered = dataList.filter(item => {
+    let filtered = dataList.filter(item => {
       const val = (item[displayProp] || '').toLowerCase();
       const valId = (item[valueProp] || '').toLowerCase();
-      // Match display property or match value property
       return val.includes(query) || valId.includes(query);
+    });
+
+    // Sort: Prefix matches first
+    filtered.sort((a, b) => {
+      const aVal = (a[displayProp] || '').toLowerCase();
+      const aValId = (a[valueProp] || '').toLowerCase();
+      const bVal = (b[displayProp] || '').toLowerCase();
+      const bValId = (b[valueProp] || '').toLowerCase();
+
+      const aStarts = aVal.startsWith(query) || aValId.startsWith(query);
+      const bStarts = bVal.startsWith(query) || bValId.startsWith(query);
+
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return aVal.localeCompare(bVal);
     });
 
     if (filtered.length === 0) {
