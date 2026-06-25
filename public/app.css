@@ -2721,10 +2721,16 @@ min-width: unset;
 
 /* 历史列表卡片墙 */
 .news-list-section {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 200px;
+  min-height: 180px;
+  max-height: 800px;
+  resize: vertical;
+  overflow: auto;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .news-list-container {
