@@ -1474,11 +1474,10 @@ async function pushRawMessageToWeChat(msg) {
   const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
   const channelStr = msg.channel_name ? `[${msg.channel_name}]` : '';
 
-  const text = `💬 ${msg.sender_name}${channelStr}:
-${msg.content}
+  const text = `${msg.content}
 
----
-${timeStr} · 已同步处理量化跟单`;
+💬 ${msg.sender_name}${channelStr} · ${timeStr}
+已同步处理量化跟单`;
 
   try {
     await fetch(webhookUrl, {
