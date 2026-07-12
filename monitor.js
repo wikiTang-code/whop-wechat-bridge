@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import http from 'http';
 import https from 'https';
-import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions } from './database.js';
+import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions, getLatestPersonaPlaybook } from './database.js';
 import { executeOrder, getUnifiedPortfolio } from './trading.js';
 import { getMarketContextForTickers } from './kline.js';
 import { runWithRateLimit } from './rate-limiter.js';
@@ -294,11 +294,10 @@ function formatMessagesWithContextForAI(enrichedMessages) {
     .join('\n\n');
 }
 
-// Call Google Gemini API
-export async function analyzeWithGemini(apiKey, prompt, priority = 10) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-  
-  const callFn = async () => {
+// Helper function to execute a single cloud LLM engine
+async function executeSingleEngine(engine, prompt, apiKey) {
+  if (engine === 'gemini') {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     const response = await webFetch(url, {
       method: 'POST',
       headers: {
@@ -329,9 +328,67 @@ export async function analyzeWithGemini(apiKey, prompt, priority = 10) {
     }
 
     return content;
-  };
+  } else {
+    // mimo
+    const mimoApiKey = process.env.MIMO_API_KEY;
+    const mimoBaseUrl = process.env.MIMO_BASE_URL || 'https://api.xiaomimimo.com';
+    const mimoModel = process.env.MIMO_MODEL || 'gemini-2.5-flash';
 
-  return await runWithRateLimit(callFn, { priority });
+    const response = await webFetch(`${mimoBaseUrl}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${mimoApiKey}`,
+        'User-Agent': 'Cursor/0.45.0'
+      },
+      body: JSON.stringify({
+        model: mimoModel,
+        messages: [
+          { role: 'user', content: prompt }
+        ]
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`MIMO API failed with status ${response.status}: ${errText}`);
+    }
+
+    const result = await response.json();
+    const content = result.choices?.[0]?.message?.content;
+    if (!content) {
+      throw new Error('MIMO API returned empty content.');
+    }
+
+    return content;
+  }
+}
+
+// Call Google Gemini API (Heavy refactored for Gemini & MIMO parallel and dynamic routing)
+export async function analyzeWithGemini(apiKey, prompt, priority = 10) {
+  const hasMimo = !!process.env.MIMO_API_KEY;
+  // 50%/50% 随机分流 Gemini 和 MIMO 实现并行吞吐
+  const useMimoFirst = hasMimo && (Math.random() < 0.5);
+  
+  const firstEngine = useMimoFirst ? 'mimo' : 'gemini';
+  const secondEngine = useMimoFirst ? 'gemini' : 'mimo';
+
+  try {
+    const callFn = () => executeSingleEngine(firstEngine, prompt, apiKey);
+    return await runWithRateLimit(callFn, { priority, provider: firstEngine });
+  } catch (firstErr) {
+    if (hasMimo) {
+      console.warn(`[Smart Route] ${firstEngine} 调用异常，正在秒级自动飘移至备用引擎 ${secondEngine}... 错误: ${firstErr.message}`);
+      try {
+        const fallbackCallFn = () => executeSingleEngine(secondEngine, prompt, apiKey);
+        return await runWithRateLimit(fallbackCallFn, { priority, provider: secondEngine });
+      } catch (secondErr) {
+        throw new Error(`Both engines failed. 1st (${firstEngine}): ${firstErr.message} | 2nd (${secondEngine}): ${secondErr.message}`);
+      }
+    } else {
+      throw firstErr;
+    }
+  }
 }
 
 // Extract image URLs from message content [IMAGE:url] tags
@@ -401,18 +458,13 @@ async function downloadImageAsBase64(imageUrl, timeoutMs = 10000) {
   });
 }
 
-/**
- * Gemini 多模态分析（仅用于含图片的消息分析）
- * 纯文本分析应使用 callMonitorAI → 本地 LM Studio
- */
-export async function analyzeWithGeminiMultimodal(apiKey, prompt, imageUrls = [], priority = 10) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-  
-  const callFn = async () => {
+// Helper function to execute a single multimodal LLM engine
+async function executeSingleMultimodalEngine(engine, prompt, imageUrls, apiKey) {
+  const urlsToProcess = imageUrls.slice(0, 5);
+
+  if (engine === 'gemini') {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     const parts = [{ text: prompt }];
-    
-    // Download and encode images (max 5 per call)
-    const urlsToProcess = imageUrls.slice(0, 5);
     let loadedCount = 0;
     let failedCount = 0;
     
@@ -427,13 +479,13 @@ export async function analyzeWithGeminiMultimodal(apiKey, prompt, imageUrls = []
         });
         loadedCount++;
       } catch (err) {
-        console.warn(`[Multimodal] Failed to load image: ${imgUrl} - ${err.message}`);
+        console.warn(`[Multimodal Gemini] Failed to load image: ${imgUrl} - ${err.message}`);
         parts.push({ text: `[图片无法加载: ${imgUrl} - ${err.message}]` });
         failedCount++;
       }
     }
     
-    console.log(`[Multimodal] Prepared ${loadedCount} images, ${failedCount} failed out of ${urlsToProcess.length} total`);
+    console.log(`[Multimodal Gemini] Prepared ${loadedCount} images, ${failedCount} failed out of ${urlsToProcess.length} total`);
 
     const response = await webFetch(url, {
       method: 'POST',
@@ -455,9 +507,83 @@ export async function analyzeWithGeminiMultimodal(apiKey, prompt, imageUrls = []
     }
 
     return content;
-  };
+  } else {
+    // mimo
+    const mimoApiKey = process.env.MIMO_API_KEY;
+    const mimoBaseUrl = process.env.MIMO_BASE_URL || 'https://api.xiaomimimo.com';
+    const mimoModel = process.env.MIMO_MODEL || 'gemini-2.5-flash';
 
-  return await runWithRateLimit(callFn, { priority });
+    const messagesContent = [{ type: 'text', text: prompt }];
+    for (const imgUrl of urlsToProcess) {
+      try {
+        const imageData = await downloadImageAsBase64(imgUrl);
+        messagesContent.push({
+          type: 'image_url',
+          image_url: {
+            url: `data:${imageData.mimeType};base64,${imageData.base64}`
+          }
+        });
+      } catch (err) {
+        console.warn(`[Fallback Multimodal MIMO] Skip image ${imgUrl} - ${err.message}`);
+      }
+    }
+
+    const response = await webFetch(`${mimoBaseUrl}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${mimoApiKey}`,
+        'User-Agent': 'Cursor/0.45.0'
+      },
+      body: JSON.stringify({
+        model: mimoModel,
+        messages: [
+          { role: 'user', content: messagesContent }
+        ]
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`MIMO Multimodal API failed with status ${response.status}: ${errText}`);
+    }
+
+    const result = await response.json();
+    const content = result.choices?.[0]?.message?.content;
+    if (!content) {
+      throw new Error('MIMO Multimodal API returned empty content.');
+    }
+
+    return content;
+  }
+}
+
+/**
+ * Gemini 多模态分析（仅用于含图片的消息分析，支持 Gemini / MIMO 双通道并行）
+ */
+export async function analyzeWithGeminiMultimodal(apiKey, prompt, imageUrls = [], priority = 10) {
+  const hasMimo = !!process.env.MIMO_API_KEY;
+  const useMimoFirst = hasMimo && (Math.random() < 0.5);
+  
+  const firstEngine = useMimoFirst ? 'mimo' : 'gemini';
+  const secondEngine = useMimoFirst ? 'gemini' : 'mimo';
+
+  try {
+    const callFn = () => executeSingleMultimodalEngine(firstEngine, prompt, imageUrls, apiKey);
+    return await runWithRateLimit(callFn, { priority, provider: firstEngine });
+  } catch (firstErr) {
+    if (hasMimo) {
+      console.warn(`[Smart Route Multimodal] ${firstEngine} 异常，正在秒级自动飘移至备用引擎 ${secondEngine}... 错误: ${firstErr.message}`);
+      try {
+        const fallbackCallFn = () => executeSingleMultimodalEngine(secondEngine, prompt, imageUrls, apiKey);
+        return await runWithRateLimit(fallbackCallFn, { priority, provider: secondEngine });
+      } catch (secondErr) {
+        throw new Error(`Both multimodal engines failed. 1st (${firstEngine}): ${firstErr.message} | 2nd (${secondEngine}): ${secondErr.message}`);
+      }
+    } else {
+      throw firstErr;
+    }
+  }
 }
 
 function localFetch(urlStr, options = {}) {
@@ -602,7 +728,7 @@ function isNetworkConnectionError(err) {
          msg.includes('request timeout');
 }
 
-// Unified LLM call with fallback: primary provider -> Gemini
+// Unified LLM call with fallback: primary provider -> Gemini (No block for low priorities)
 export async function analyzeWithFallback(prompt, options = {}) {
   const primaryProvider = options.provider || process.env.AI_PROVIDER || 'gemini';
   const priority = options.priority !== undefined ? options.priority : 1;
@@ -617,18 +743,31 @@ export async function analyzeWithFallback(prompt, options = {}) {
   // 2. 检查本地模型熔断冷却期
   const isLocalOffline = Date.now() < lmStudioOfflineUntil;
   if (isLocalOffline) {
-    console.log(`[LLM 熔断保护] 本地大模型处于 ${Math.round((lmStudioOfflineUntil - Date.now()) / 1000)}s 冷却熔断中。`);
-    if (priority < 9) {
-      throw new Error(`[LLM熔断拦截] 本地大模型离线且此任务优先级低(P${priority})，拒绝降级以保护 Gemini 额度，安排推迟重试。`);
-    }
-    console.log(`[LLM 熔断降级] 此任务优先级高(P${priority})，允许跳过本地尝试直接使用 Gemini API...`);
+    console.log(`[LLM 熔断保护] 本地大模型处于 ${Math.round((lmStudioOfflineUntil - Date.now()) / 1000)}s 冷却熔断中。自动自愈降级到云端...`);
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error('Primary LLM failed and GEMINI_API_KEY not set.');
     return await analyzeWithGemini(apiKey, prompt, priority);
   }
 
   // 3. 正常尝试本地连接
+  let acquiredLockLocally = false;
   try {
+    // 检查并等待 GPU 锁释放 (如果是被 openmontage 占用了锁)
+    while (global.gpuLock && global.gpuLock.isLocked && global.gpuLock.owner !== 'wechat-bridge') {
+      console.log(`[GPU Scheduler] GPU 当前被 ${global.gpuLock.owner} 占用，微信大模型分析任务排队等待中...`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+
+    // 尝试锁定 GPU，宣示微信网桥正在进行推理
+    if (global.gpuLock && !global.gpuLock.isLocked) {
+      global.gpuLock = {
+        isLocked: true,
+        owner: 'wechat-bridge',
+        acquiredAt: Date.now()
+      };
+      acquiredLockLocally = true;
+    }
+
     if (primaryProvider === 'lm-studio') {
       const baseUrl = options.baseUrl || process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
       const model = options.model || process.env.LM_STUDIO_MODEL || 'qwen';
@@ -641,21 +780,26 @@ export async function analyzeWithFallback(prompt, options = {}) {
       return await analyzeWithOllama(baseUrl, model, prompt);
     }
   } catch (e) {
-    console.warn('[LLM] ' + primaryProvider + ' failed: ' + e.message);
+    console.warn('[LLM] ' + primaryProvider + ' failed: ' + e.message + '。自愈触发，降级到云端。');
     
     // 如果是网络连接异常，激活熔断器
     if (isNetworkConnectionError(e)) {
       lmStudioOfflineUntil = Date.now() + 5 * 60 * 1000; // 冷却 5 分钟
-      console.warn(`[LLM 熔断激活] 捕获到本地大模型网络连接失败错误。已激活 5 分钟的熔断器。熔断截止: ${new Date(lmStudioOfflineUntil).toLocaleTimeString()}`);
+      console.warn(`[LLM 熔断激活] 捕获到本地大模型网络连接失败。已激活 5 分钟 of 熔断器。`);
     }
-
-    // 4. 处理降级策略
-    if (priority < 9) {
-      throw new Error(`[LLM降级拦截] 本地大模型调用失败: ${e.message}。低优先级任务 P${priority} 禁止降级到 Gemini 消耗额度，安排重试。`);
+  } finally {
+    // 释放微信网桥持有的锁
+    if (acquiredLockLocally && global.gpuLock && global.gpuLock.owner === 'wechat-bridge') {
+      global.gpuLock = {
+        isLocked: false,
+        owner: null,
+        acquiredAt: null
+      };
+      console.log('[GPU Scheduler] 微信大模型任务分析完成，释放 GPU 锁');
     }
-    console.log('[LLM] Falling back to Gemini...');
   }
 
+  // 4. 云端自愈路由
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('Primary LLM failed and GEMINI_API_KEY not set.');
   return await analyzeWithGemini(apiKey, prompt, priority);
@@ -1302,17 +1446,8 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       })(realTimeTradeMsgs);
     }
 
-    // 4. Trigger heavy AI report generation asynchronously in the background
-    if (realTimePushMsgs.length > 0 && !skipReport) {
-      const newestMessage = realTimePushMsgs[realTimePushMsgs.length - 1];
-      if (lastProcessedMessageId !== newestMessage.id) {
-        lastProcessedMessageId = newestMessage.id;
-        const provider = process.env.AI_PROVIDER || 'gemini';
-        const primarySpeakerName = realTimePushMsgs[0].sender_name;
-        generateAIReportBackground(realTimePushMsgs, provider, primarySpeakerName, channelIds, channelMappings)
-          .catch(err => console.error('[Background AI Report Error]:', err.message));
-      }
-    }
+    // 4. Trigger heavy AI report generation asynchronously in the background (Disabled in favor of Daily News Summary Integration)
+    console.log('[Background AI] 实时策略简报生成已关闭（按大合并规划已归口合并到每日时段总结中）。');
 
     return {
       success: true,
@@ -1338,16 +1473,12 @@ async function pushRawMessageToWeChat(msg) {
 
   const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
   const channelStr = msg.channel_name ? `[${msg.channel_name}]` : '';
-  const text = `### 💬 大V最新发言通知
-**发言人**: ${msg.sender_name}
-**频道**: ${channelStr}
-**时间**: ${timeStr}
 
-**内容**:
-> ${msg.content.replace(/\n/g, '\n> ')}
+  const text = `💬 ${msg.sender_name}${channelStr}:
+${msg.content}
 
 ---
-*系统已同步获取并开始处理量化跟单。*`;
+${timeStr} · 已同步处理量化跟单`;
 
   try {
     await fetch(webhookUrl, {
