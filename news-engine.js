@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
 import {
   getDb,
-  saveNewsSummary
+  saveNewsSummary,
+  getLatestPersonaPlaybook
 } from './database.js';
 import {
   analyzeWithGemini,
@@ -307,15 +308,23 @@ ${messagesText}
       }
     }
 
-    // 2. 最终云端 Gemini 总结润色
+    // 2. 最终云端 Gemini 总结润色，并载入大V画像白皮书进行对齐度诊断
+    const playbookReport = getLatestPersonaPlaybook();
+    const playbookContent = playbookReport ? playbookReport.summary_content : '未检测到历史画像白皮书，暂按常规逻辑提取分析。';
+
     const prompt = `
-你是一位顶级的美股交易助理。请将以下整理出的「大V发言核心提取」与「普通群友言论提取」进行融合成一篇高质量、结构化、排版现代的社区资讯总结报告。
+你是一位顶级的美股交易助理。请将以下整理出的「大V发言核心提取」与「普通群友言论提取」进行融合成一篇高质量、结构化、排版现代 of 社区资讯总结报告。
+
+同时，为了辅助订阅用户进行跟单决策与风控控制，你必须结合【大V行为特征画像白皮书】，在报告尾部对大V在本时段内进行的所有交易个股与方向，进行深刻的置信度诊断与擅长对齐度匹配评估。
 
 【大V发言核心提取】：
 ${speakerAnalysis}
 
 【普通群友言论提取】：
 ${communityAnalysis}
+
+【大V行为特征画像白皮书】：
+${playbookContent}
 
 请按照以下大纲结构生成 Markdown 格式的最终总结报告：
 1. 报告必须包含以下二级标题：
@@ -324,6 +333,7 @@ ${communityAnalysis}
      - 若属于大V的明确交易决策和点位建议，标为 \`[大V确认]\`（在 Markdown 中可用反单引号标明）。
      - 若属于普通群友的观点、猜测或跟单吐槽，标为 \`[群友意见]\`。
      不要将群友的猜测归为大V的决定，以防止读者产生交易错觉！
+   - ## 大V交易画像对齐诊断：请对照【大V行为特征画像白皮书】，针对大V本时段的所有个股交易动作（如买入/卖出），进行置信度和擅长模式对齐度评估。阐明该标的是否属于他一贯胜率极高的优势方向（如科技巨头股趋势跟踪），哪些是个股试错单或可能与防守周期冲突，并给订阅用户相应的跟单仓位降级、防守防御建议、或 2 倍做多 ETF 代用提示。
    - ## 期权信息：提炼期权讨论要点、异动期权链或历史交易反馈。
    - ## 经济事件与观点分歧：总结提及的经济大事件与群里多空分歧的核心论调。
 2. 确保排版精美、用语专业，采用适合金融交易员的精炼风格。

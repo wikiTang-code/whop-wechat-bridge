@@ -1385,22 +1385,27 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
 
     for (const msg of pendingMessages) {
       const isRealtime = (now - msg.created_at) < REALTIME_THRESHOLD_MS;
-      if (isRealtime) {
-        if (msg.is_pushed === 0) realTimePushMsgs.push(msg);
-        if (msg.is_traded === 0) realTimeTradeMsgs.push(msg);
-      } else {
+      
+      // a. 微信推送分流：只有真正实时且未推送的，才加入推送队列
+      if (isRealtime && msg.is_pushed === 0) {
+        realTimePushMsgs.push(msg);
+      } else if (!isRealtime && msg.is_pushed === 0) {
+        // 历史积压消息直接登记为已推送状态，免除微信骚扰
         oldMsgsToMark.push(msg);
+      }
+      
+      // b. 交易提取分流：只要是未提炼过跟单交易的消息，无视时效限制，100% 递交提取
+      if (msg.is_traded === 0) {
+        realTimeTradeMsgs.push(msg);
       }
     }
 
-    // 1. Instantly mark old historical messages as processed in DB to prevent backfill trigger risks
+    // 1. 将老旧发言仅在数据库中标记为已推送，防刷群屏，但绝不跳过跟单信号提取
     if (oldMsgsToMark.length > 0) {
-      console.log(`[同步防回溯] 发现 ${oldMsgsToMark.length} 条老旧历史发言。自动将其在数据库中标记为已处理，跳过微信推送与跟单信号提取。`);
-      const updateTraded = conn.prepare('UPDATE messages SET is_traded = 1 WHERE id = ?');
+      console.log(`[同步防回溯] 发现 ${oldMsgsToMark.length} 条超时积压发言。将其登记为已推送避噪，但保留其跟单提炼资格。`);
       const updatePushed = conn.prepare('UPDATE messages SET is_pushed = 1 WHERE id = ?');
       conn.transaction((msgs) => {
         for (const m of msgs) {
-          updateTraded.run(m.id);
           updatePushed.run(m.id);
         }
       })(oldMsgsToMark);

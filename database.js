@@ -371,6 +371,7 @@ export function initDb() {
         initial_price REAL,
         exit_price REAL,
         pnl_ratio REAL,
+        strategy_type TEXT,
         created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')*1000),
         updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')*1000)
       )
@@ -382,6 +383,16 @@ export function initDb() {
     console.log("campaigns table and index initialized.");
   } catch (err) {
     console.error("Error creating campaigns table:", err.message);
+  }
+
+  // Migration: Add strategy_type column to campaigns table if it doesn't exist
+  try {
+    db.prepare("ALTER TABLE campaigns ADD COLUMN strategy_type TEXT").run();
+    console.log("Migration: Added strategy_type column to campaigns table.");
+  } catch (err) {
+    if (!err.message.includes('duplicate column name') && !err.message.includes('already exists')) {
+      console.warn("Migration warning for campaigns strategy_type:", err.message);
+    }
   }
 
   // Create campaign_messages table

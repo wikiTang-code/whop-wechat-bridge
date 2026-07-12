@@ -2,8 +2,18 @@ import { getDailyApiCount, incrementDailyApiCount, getDb } from './database.js';
 
 // 限速配置
 const RPM_LIMIT = 15;
-const RPD_LIMIT = 1500;
-const requestTimestamps = []; // 内存中滑动窗口时间戳
+const RPD_LIMIT = parseInt(process.env.GEMINI_DAILY_LIMIT || '1500', 10);
+const requestTimestampsMap = {}; // 按 provider 隔离的时间戳 map
+
+/**
+ * 导出当前 API 调用限额统计，供前台监控面板使用
+ */
+export function getRateLimiterStats() {
+  return {
+    limit: RPD_LIMIT,
+    current: getDailyApiCount()
+  };
+}
 
 // 辅助等待函数
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -11,35 +21,40 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 /**
  * 强制满足滑动窗口 RPM 限制
  */
-async function enforceRpmLimit() {
+async function enforceRpmLimit(provider = 'general') {
   const now = Date.now();
+  if (!requestTimestampsMap[provider]) {
+    requestTimestampsMap[provider] = [];
+  }
+  const timestamps = requestTimestampsMap[provider];
   
   // 清理 60 秒之前的过期记录
-  while (requestTimestamps.length > 0 && now - requestTimestamps[0] > 60000) {
-    requestTimestamps.shift();
+  while (timestamps.length > 0 && now - timestamps[0] > 60000) {
+    timestamps.shift();
   }
 
-  if (requestTimestamps.length >= RPM_LIMIT) {
-    const oldestTimestamp = requestTimestamps[0];
+  if (timestamps.length >= RPM_LIMIT) {
+    const oldestTimestamp = timestamps[0];
     const waitMs = 60000 - (now - oldestTimestamp) + 200; // 额外增加 200ms 安全缓冲区
     if (waitMs > 0) {
-      console.log(`[Rate Limiter] RPM 限速触发。等待 ${waitMs}ms 后继续...`);
+      console.log(`[Rate Limiter] ${provider} RPM 限速触发。等待 ${waitMs}ms 后继续...`);
       await sleep(waitMs);
-      return enforceRpmLimit(); // 递归重新评估
+      return enforceRpmLimit(provider); // 递归重新评估
     }
   }
 
-  requestTimestamps.push(Date.now());
+  timestamps.push(Date.now());
 }
 
 /**
  * 带有滑动窗口 RPM、每日上限 RPD 以及退避重试的 API 调用执行器
  * @param {Function} apiCallFn - 返回 Promise 的 API 执行函数
- * @param {Object} options - { priority: number, maxRetries: number }
+ * @param {Object} options - { priority: number, maxRetries: number, provider: string }
  */
 export async function runWithRateLimit(apiCallFn, options = {}) {
   const priority = options.priority !== undefined ? options.priority : 1;
   const maxRetries = options.maxRetries !== undefined ? options.maxRetries : 5;
+  const provider = options.provider || 'general';
 
   // 1. 优先级避让机制：若有高优先级（P10）任务排队，P0 任务主动避让
   if (priority < 9) {
@@ -61,7 +76,7 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
   }
 
   // 2. 满足 RPM 限速
-  await enforceRpmLimit();
+  await enforceRpmLimit(provider);
 
   // 3. 执行 API 调用，内置指数退避重试 (捕获 429)
   let attempt = 0;
@@ -100,7 +115,7 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
         await sleep(delay);
         
         // 重试前重新执行限速判定
-        await enforceRpmLimit();
+        await enforceRpmLimit(provider);
       } else {
         throw err;
       }

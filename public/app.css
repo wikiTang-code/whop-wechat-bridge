@@ -2646,14 +2646,43 @@ min-width: unset;
   width: 100%;
 }
 
-/* 左右分栏面板 */
 .news-left-panel {
-  flex: 0 0 380px; /* 固定宽度 380 像素 */
+  width: 380px;   /* 默认初始宽度 */
+  flex: 0 0 380px; /* 便于 JS 操纵 */
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   height: 100%;
   overflow: hidden; /* 禁用面板外层滚动以使内部 flex 自动伸缩 */
+}
+
+/* Resize Handle 拖拽指示器 */
+.resize-handle {
+  width: 8px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background 0.2s, box-shadow 0.2s;
+  align-self: stretch;
+  margin: 0 -4px; /* 负外边距扩大悬浮点击区域 */
+  z-index: 10;
+  position: relative;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.2s;
+}
+
+.resize-handle:hover::after,
+.resize-handle:active::after {
+  background: rgba(167, 139, 250, 0.7);
+  box-shadow: 0 0 8px rgba(167, 139, 250, 0.6);
 }
 
 /* 资讯控制台容器 - 允许垂直拉伸来改变控制台与历史列表的分配比例 */
@@ -3049,5 +3078,519 @@ li.community-sentiment-li {
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
+
+/* 历史速报 - 日期卡片与折叠九宫格样式 */
+.news-date-card {
+  background: var(--bg-card, rgba(30, 41, 59, 0.4));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.news-date-card:hover {
+  transform: translateY(-2px);
+  border-color: #6366f1;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+  background: rgba(30, 41, 59, 0.6);
+}
+
+.news-date-card.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.12));
+  border-color: #6366f1;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+}
+
+.news-date-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.news-date-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #f8fafc;
+}
+
+.badge-date-count {
+  background: rgba(99, 102, 241, 0.18);
+  color: #818cf8;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* 九宫格面板 */
+.section-selection-container {
+  padding: 28px;
+  animation: fadeIn 0.4s ease;
+}
+
+.section-selection-hint {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  margin-bottom: 24px;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.section-card {
+  background: rgba(30, 41, 59, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.section-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.section-card[data-type="briefing"]::before { background: linear-gradient(90deg, #f59e0b, #ea580c); }
+.section-card[data-type="intraday"]::before { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+.section-card[data-type="closing"]::before { background: linear-gradient(90deg, #a78bfa, #c084fc); }
+.section-card[data-type="macro"]::before { background: linear-gradient(90deg, #38bdf8, #0284c7); }
+
+.section-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(30, 41, 59, 0.55);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.section-card:active {
+  transform: translateY(-2px);
+}
+
+.section-card.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.section-card.disabled::before {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.section-card.disabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.section-card-icon {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+}
+
+.section-card-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-bottom: 8px;
+}
+
+.section-card-status {
+  font-size: 0.8rem;
+  padding: 3px 9px;
+  border-radius: 20px;
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+}
+
+.section-card-status.active {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  font-weight: 500;
+}
+
+.section-card-meta {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 12px;
+}
+
+/* 返回按钮 */
+.btn-back-sections {
+  margin-bottom: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(30, 41, 59, 0.5);
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-back-sections:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #6366f1;
+  color: #818cf8;
+}
+
+.news-detail-wrapper {
+  animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   Combined Zhao Positions & Strategies Kanban Styles (三合一透视看板)
+   ========================================================================== */
+.strategies-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  overflow-y: auto;
+  height: 100%;
+}
+
+/* 顶部 Hero 仓位雷达横幅 */
+.zhao-hero-banner {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  background: linear-gradient(135deg, rgba(26, 36, 57, 0.6) 0%, rgba(15, 23, 42, 0.4) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.25rem 1.75rem;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
+}
+
+.zhao-verbal-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.verbal-badge {
+  display: inline-flex;
+  width: fit-content;
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.zhao-verbal-box h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.verbal-desc {
+  font-size: 0.825rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 3px solid var(--accent-blue);
+}
+
+.verbal-time {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.zhao-stats-box {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.stat-mini {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  padding: 10px;
+  border-radius: 12px;
+  text-align: center;
+  transition: var(--transition-fast);
+}
+.stat-mini:hover {
+  border-color: rgba(59, 130, 246, 0.25);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.stat-mini .lbl {
+  display: block;
+  font-size: 0.725rem;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.stat-mini .val {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* 下方分栏排版 */
+.zhao-kanban-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.panel-header-compact {
+  margin-bottom: 1rem;
+}
+
+.panel-header-compact h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.subtitle-compact {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* 左分栏：Lots 持仓卡片列表 */
+.zhao-positions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.zhao-pos-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  transition: var(--transition-smooth);
+}
+.zhao-pos-card:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.zhao-pos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.zhao-pos-ticker {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+}
+.zhao-pos-ticker span {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--accent-green);
+  background: rgba(16, 185, 129, 0.12);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.zhao-pos-pnl {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.zhao-pos-pnl.positive {
+  color: var(--accent-green);
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+.zhao-pos-pnl.negative {
+  color: var(--accent-red);
+}
+
+.zhao-pos-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 10px;
+}
+
+.zhao-meta-item {
+  display: flex;
+  flex-direction: column;
+}
+.zhao-meta-item .lbl {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+.zhao-meta-item .val {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+/* Lots 明细的抽屉式列表 */
+.zhao-lots-detail {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.lots-header {
+  font-size: 0.725rem;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.lot-row {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr 2fr;
+  font-size: 0.75rem;
+  padding: 4px 0;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.03);
+  color: #cbd5e1;
+}
+.lot-row:last-child {
+  border-bottom: none;
+}
+.lot-row .lot-qty {
+  font-weight: 600;
+  color: var(--accent-blue);
+}
+.lot-row .lot-price {
+  font-weight: 600;
+}
+.lot-row .lot-desc {
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 战法内嵌的战役折叠看板 */
+.strat-campaigns-section {
+  margin-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 10px;
+}
+
+.btn-toggle-campaigns {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition-fast);
+}
+.btn-toggle-campaigns:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.strat-campaigns-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  animation: slideDownCollapse 0.2s ease-out;
+}
+
+@keyframes slideDownCollapse {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mini-campaign-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.mini-campaign-item:hover {
+  background: rgba(59, 130, 246, 0.05);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+
+.mini-camp-left {
+  display: flex;
+  flex-direction: column;
+}
+.mini-camp-ticker {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+}
+.mini-camp-status {
+  font-size: 0.65rem;
+}
+.mini-camp-status.active { color: var(--accent-green); }
+.mini-camp-status.closed { color: var(--color-text-muted); }
+
+.mini-camp-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.mini-camp-pnl {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.mini-camp-pnl.positive { color: var(--accent-green); }
+.mini-camp-pnl.negative { color: var(--accent-red); }
+.mini-camp-time {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+}
+
 
 

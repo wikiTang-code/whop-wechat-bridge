@@ -90,6 +90,13 @@ export function getPersonaStatus() {
     status = 'done';
     progress = '✅ 大V交易行为画像白皮书生成成功！';
     percent = 100;
+  } else {
+    // 系统自愈：如果既没有失败也没有完成，但是当前队列中没有任何正在运行或准备重试的子任务，
+    // 说明只是因重启而被重置为挂起的僵尸任务，应直接判定为 idle 状态，允许前台直接展示历史最新成果。
+    if (running === 0 && retry === 0) {
+      status = 'idle';
+      progress = '队列挂起中，暂无活动进程。';
+    }
   }
   
   return { status, progress, percent, error };
@@ -1065,4 +1072,11 @@ export function resumePersonaPlaybook() {
     message: `成功恢复了 ${resumedCount} 个失败的子任务，已重新加入计算队列。`,
     details: { resumedCount }
   };
+}
+
+/**
+ * 外部强制更新画像构建状态以供取消或重置任务使用
+ */
+export function forceUpdatePersonaStatus(status, progress, percent) {
+  updateStatus(status, progress, percent);
 }

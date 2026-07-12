@@ -1,6 +1,55 @@
 import { getDb } from './database.js';
 
 /**
+ * 基于开仓原因或发言内容，自动研判该战役所属的 7 大核心交易战法 (支持本地关键字快速过滤 + AI 轻量级降级语义解析)
+ */
+async function classifyCampaignStrategy(openReason) {
+  const cleanReason = openReason.toLowerCase();
+  
+  // 1. 本地快速词汇过滤 (免除 AI API 延迟与网络耗时)
+  if (cleanReason.includes('财报') || cleanReason.includes('earnings') || cleanReason.includes('er')) return '财报战法';
+  if (cleanReason.includes('过节') || cleanReason.includes('放假') || cleanReason.includes('避险') || cleanReason.includes('holiday')) return '节日被动减';
+  if (cleanReason.includes('单调') || cleanReason.includes('减仓') || cleanReason.includes('只出不进')) return '单调减';
+  if (cleanReason.includes('尾盘') || cleanReason.includes('强平') || cleanReason.includes('moc')) return '尾盘强平';
+  if (cleanReason.includes('防御') || cleanReason.includes('防守') || cleanReason.includes('弹性')) return '弹性股防御';
+  if (cleanReason.includes('做t') || cleanReason.includes('t+0') || cleanReason.includes('日内') || cleanReason.includes('低吸')) return '做T';
+
+  // 2. 语义模糊时，使用云端 AI 降级判定
+  const prompt = `请分析以下美股大V的建仓/开仓理由，将其归类到大V的 7 大核心交易战法分类之一。
+大V交易战法分类选项：
+- 财报战法 (利用财报预期/结果进行短线博弈)
+- 节日被动减 (在节假日前进行的防守性减仓或清仓)
+- 单调减 (仓位持续递减，只卖不买)
+- 尾盘强平 (尾盘集中进行的平仓或买入动作)
+- 做T (基于底仓进行的日内/超短线波段操作)
+- 弹性股防御 (在市场调整期选择波动弹性好的个股防守)
+- 规律总结 (其他常规技术分析与规律归纳)
+
+开仓理由：
+"${openReason}"
+
+请直接且仅输出符合这 7 个名字之一的字符串（如：财报战法），不要包含任何其他说明或标点符号。`;
+
+  try {
+    // 动态引入防止与 monitor.js 循环依赖
+    const { analyzeWithGemini } = await import('./monitor.js');
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return '做T';
+    
+    const res = await analyzeWithGemini(apiKey, prompt, 10);
+    const cleanRes = res.trim();
+    const validStrats = ['财报战法', '节日被动减', '单调减', '尾盘强平', '做T', '弹性股防御', '规律总结'];
+    for (const v of validStrats) {
+      if (cleanRes.includes(v)) return v;
+    }
+    return '做T';
+  } catch (err) {
+    console.warn(`[Campaign Strategy Classifier] AI 识别交易战法失败，默认归为 做T 战法:`, err.message);
+    return '做T';
+  }
+}
+
+/**
  * 种子数据：自适应词汇匹配规则
  */
 export function seedDefaultCampaignRules(influencerId) {
@@ -100,40 +149,46 @@ export async function processMessageForCampaigns(msg) {
       } else {
         // 2. 孤儿关闭信号：无活跃战役时，向前追溯 7 天补建已关闭的战役
         const openTime = msg.created_at - 7 * 86400 * 1000;
+        const openReason = '追溯补建 - 收到清仓信号';
+        const strategyType = await classifyCampaignStrategy(openReason);
+        
         const insertStmt = db.prepare(`
-          INSERT INTO campaigns (influencer_id, ticker, status, open_time, close_time, open_reason, close_reason, created_at, updated_at)
-          VALUES (?, ?, 'closed', ?, ?, ?, ?, ?, ?)
+          INSERT INTO campaigns (influencer_id, ticker, status, open_time, close_time, open_reason, close_reason, strategy_type, created_at, updated_at)
+          VALUES (?, ?, 'closed', ?, ?, ?, ?, ?, ?, ?)
         `);
         const info = insertStmt.run(
           influencerId,
           ticker,
           openTime,
           msg.created_at,
-          '追溯补建 - 收到清仓信号',
+          openReason,
           msg.content,
+          strategyType,
           msg.created_at,
           msg.created_at
         );
         campaignId = info.lastInsertRowid;
-        console.log(`[Campaign Engine] 收到孤儿关闭信号，追溯补建已关闭的战役 #${campaignId} (${ticker})`);
+        console.log(`[Campaign Engine] 收到孤儿关闭信号，追溯补建已关闭的战役 #${campaignId} (${ticker})，战法类型: ${strategyType}`);
       }
     } else if (action === 'open') {
       if (!activeCampaign) {
         // 3. 开启新战役
+        const strategyType = await classifyCampaignStrategy(msg.content);
         const insertStmt = db.prepare(`
-          INSERT INTO campaigns (influencer_id, ticker, status, open_time, open_reason, created_at, updated_at)
-          VALUES (?, ?, 'active', ?, ?, ?, ?)
+          INSERT INTO campaigns (influencer_id, ticker, status, open_time, open_reason, strategy_type, created_at, updated_at)
+          VALUES (?, ?, 'active', ?, ?, ?, ?, ?)
         `);
         const info = insertStmt.run(
           influencerId,
           ticker,
           msg.created_at,
           msg.content,
+          strategyType,
           msg.created_at,
           msg.created_at
         );
         campaignId = info.lastInsertRowid;
-        console.log(`[Campaign Engine] 发现开仓信号，成功创建新战役 #${campaignId} (${ticker})`);
+        console.log(`[Campaign Engine] 发现开仓信号，成功创建新战役 #${campaignId} (${ticker})，战法类型: ${strategyType}`);
       } else {
         // 4. 已有活跃战役，开仓信号视为“加仓”调整
         campaignId = activeCampaign.id;
@@ -148,20 +203,24 @@ export async function processMessageForCampaigns(msg) {
         db.prepare('UPDATE campaigns SET updated_at = ? WHERE id = ?').run(msg.created_at, campaignId);
       } else if (action === 'adjust') {
         // 6. 无活跃战役但发出了调整信号，自动转为开启新战役
+        const openReason = `自适应开仓 - 调整信号触发: ${msg.content}`;
+        const strategyType = await classifyCampaignStrategy(openReason);
+        
         const insertStmt = db.prepare(`
-          INSERT INTO campaigns (influencer_id, ticker, status, open_time, open_reason, created_at, updated_at)
-          VALUES (?, ?, 'active', ?, ?, ?, ?)
+          INSERT INTO campaigns (influencer_id, ticker, status, open_time, open_reason, strategy_type, created_at, updated_at)
+          VALUES (?, ?, 'active', ?, ?, ?, ?, ?)
         `);
         const info = insertStmt.run(
           influencerId,
           ticker,
           msg.created_at,
-          `自适应开仓 - 调整信号触发: ${msg.content}`,
+          openReason,
+          strategyType,
           msg.created_at,
           msg.created_at
         );
         campaignId = info.lastInsertRowid;
-        console.log(`[Campaign Engine] 活跃战役未找到，因加减仓信号自适应开启新战役 #${campaignId} (${ticker})`);
+        console.log(`[Campaign Engine] 活跃战役未找到，因加减仓信号自适应开启新战役 #${campaignId} (${ticker})，战法类型: ${strategyType}`);
       }
     }
     

@@ -23,6 +23,9 @@ let state = {
   cachedChannels: []
 };
 
+let personaPollingTimer = null;
+let newsPollingTimer = null;
+
 // Fetch CSRF token for financial operations
 async function ensureCsrfToken() {
   if (state.csrfToken) return state.csrfToken;
@@ -64,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initApp();
   setupEventListeners();
   initLayoutResizer();
+  initNewsLayoutResizer();
 });
 
 async function initApp() {
@@ -144,10 +148,59 @@ function initLayoutResizer() {
     }
   });
 
-  document.addEventListener('touchend', () => {
+}
+
+function initNewsLayoutResizer() {
+  const container = document.getElementById('tab-news-summaries');
+  const leftPanel = container?.querySelector('.news-left-panel');
+  const handle = document.getElementById('news-resize-handle');
+
+  if (!container || !leftPanel || !handle) return;
+
+  let isDragging = false;
+
+  handle.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const newWidth = e.clientX - containerRect.left;
+
+    // 限制在 280px 到 650px 之间
+    if (newWidth > 280 && newWidth < 650) {
+      leftPanel.style.width = `${newWidth}px`;
+      leftPanel.style.flex = `0 0 ${newWidth}px`;
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
     if (isDragging) {
       isDragging = false;
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
     }
+  });
+
+  // Touch support for mobile devices
+  handle.addEventListener('touchstart', (e) => {
+    isDragging = true;
+  });
+  document.addEventListener('touchmove', (e) => {
+    if (!isDragging || e.touches.length === 0) return;
+    const containerRect = container.getBoundingClientRect();
+    const newWidth = e.touches[0].clientX - containerRect.left;
+    if (newWidth > 280 && newWidth < 650) {
+      leftPanel.style.width = `${newWidth}px`;
+      leftPanel.style.flex = `0 0 ${newWidth}px`;
+    }
+  });
+  document.addEventListener('touchend', () => {
+    isDragging = false;
   });
 }
 
@@ -330,7 +383,7 @@ function debounce(func, delay) {
 function switchTab(tabId) {
   state.activeTab = tabId;
   
-  // Update buttons state
+  // Update panels state
   document.querySelectorAll('.tab-btn').forEach(btn => {
     if (btn.getAttribute('data-tab') === tabId) {
       btn.classList.add('active');
@@ -343,8 +396,8 @@ function switchTab(tabId) {
   document.querySelectorAll('.tab-content').forEach(content => {
     if (content.id === tabId) {
       content.classList.add('active');
-      // Persona and Campaigns tab use flex layout, not grid
-      content.style.display = (tabId === 'tab-persona' || tabId === 'tab-campaigns' || tabId === 'tab-news-summaries') ? 'flex' : 'grid';
+      // Persona uses flex layout, not grid
+      content.style.display = (tabId === 'tab-persona' || tabId === 'tab-news-summaries') ? 'flex' : 'grid';
     } else {
       content.classList.remove('active');
       content.style.display = 'none';
@@ -358,8 +411,6 @@ function switchTab(tabId) {
     fetchStrategyData();
   } else if (tabId === 'tab-persona') {
     loadPersonaPlaybook();
-  } else if (tabId === 'tab-campaigns') {
-    fetchCampaigns();
   } else if (tabId === 'tab-news-summaries') {
     loadNewsSummaries();
   }
@@ -448,6 +499,34 @@ async function fetchChannels() {
   }
 }
 
+// 极简拼音首字母映射提取工具，使用内置 Intl.Collator，不依赖第三方库
+function getPinyinInitials(str) {
+  if (!str || typeof str !== 'string') return '';
+  const collator = new Intl.Collator('zh-CN-u-co-pinyin');
+  const letters = 'abcdefghjklmnopqrstwxyz';
+  const boundaryChars = ['啊', '芭', '擦', '搭', '蛾', '发', '噶', '哈', '击', '喀', '垃', '妈', '拿', '哦', '啪', '期', '然', '撒', '塌', '挖', '昔', '压', '匝'];
+  
+  let initials = '';
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    const code = char.charCodeAt(0);
+    if (code >= 19968 && code <= 40869) {
+      let letter = '';
+      for (let j = 0; j < boundaryChars.length; j++) {
+        if (collator.compare(char, boundaryChars[j]) >= 0) {
+          letter = letters[j] || '';
+        } else {
+          break;
+        }
+      }
+      initials += letter || char.toLowerCase();
+    } else {
+      initials += char.toLowerCase();
+    }
+  }
+  return initials;
+}
+
 function setupAutocomplete(inputId, suggestionsId, clearBtnId, dataList, displayProp, valueProp, onSelect, onClear) {
   const input = document.getElementById(inputId);
   const suggestions = document.getElementById(suggestionsId);
@@ -470,18 +549,22 @@ function setupAutocomplete(inputId, suggestionsId, clearBtnId, dataList, display
     let filtered = dataList.filter(item => {
       const val = (item[displayProp] || '').toLowerCase();
       const valId = (item[valueProp] || '').toLowerCase();
-      return val.includes(query) || valId.includes(query);
+      const valPinyin = getPinyinInitials(val);
+      return val.includes(query) || valId.includes(query) || valPinyin.includes(query);
     });
 
     // Sort: Prefix matches first
     filtered.sort((a, b) => {
       const aVal = (a[displayProp] || '').toLowerCase();
       const aValId = (a[valueProp] || '').toLowerCase();
+      const aPinyin = getPinyinInitials(aVal);
+      
       const bVal = (b[displayProp] || '').toLowerCase();
       const bValId = (b[valueProp] || '').toLowerCase();
+      const bPinyin = getPinyinInitials(bVal);
 
-      const aStarts = aVal.startsWith(query) || aValId.startsWith(query);
-      const bStarts = bVal.startsWith(query) || bValId.startsWith(query);
+      const aStarts = aVal.startsWith(query) || aValId.startsWith(query) || aPinyin.startsWith(query);
+      const bStarts = bVal.startsWith(query) || bValId.startsWith(query) || bPinyin.startsWith(query);
 
       if (aStarts && !bStarts) return -1;
       if (!aStarts && bStarts) return 1;
@@ -1911,49 +1994,180 @@ function renderContextMessages(messages, targetId) {
 let currentStrategiesData = [];
 
 // 获取所有策略的状态与发言统计数据
+// 获取所有策略、全部实战战役以及大V实盘持仓明细
 async function fetchStrategyData() {
   const grid = document.getElementById('strategies-card-grid');
+  const posContainer = document.getElementById('zhao-active-positions-container');
   try {
-    const res = await fetch('/api/strategies');
-    const result = await res.json();
-    if (result.success) {
-      currentStrategiesData = result.data;
-      renderStrategies(result.data);
+    // 1. 同时拉取 7大战法、全部战役、以及赵哥实盘持仓数据
+    const [stratRes, campRes, posRes] = await Promise.all([
+      fetch('/api/strategies'),
+      fetch('/api/campaigns'),
+      fetch('/api/zhao-positions')
+    ]);
+    
+    const stratData = await stratRes.json();
+    const campData = await campRes.json();
+    const posData = await posRes.json();
+    
+    if (stratData.success && campData.success && posData.success) {
+      currentStrategiesData = stratData.data;
+      
+      // 2. 渲染顶部 Hero 以及左侧 Lots 持仓
+      renderZhaoPositions(posData.data);
+      
+      // 3. 渲染右侧嵌套战法语战役
+      renderStrategies(stratData.data, campData.campaigns || []);
     } else {
-      grid.innerHTML = `<div class="empty-state"><span class="empty-state-icon">⚠️</span><p>加载战法数据失败: ${result.error}</p></div>`;
+      if (grid) grid.innerHTML = `<div class="empty-state"><p>加载核心数据失败，请重试</p></div>`;
     }
   } catch (error) {
-    console.error('Error fetching strategies:', error);
-    grid.innerHTML = `<div class="empty-state"><span class="empty-state-icon">❌</span><p>网络请求错误，请稍后重试</p></div>`;
+    console.error('Error fetching strategies & positions:', error);
+    if (grid) grid.innerHTML = `<div class="empty-state"><p>网络请求错误，请稍后重试</p></div>`;
   }
 }
 
-// 动态渲染 7 大战法策略卡片
-function renderStrategies(strategies) {
+// 渲染大V（赵哥）口头披露和硬核持仓 Lots (FIFO 算法)
+function renderZhaoPositions(data) {
+  const verbalStatusEl = document.getElementById('zhao-verbal-status');
+  const verbalSourceEl = document.getElementById('zhao-verbal-source');
+  const verbalTimeEl = document.getElementById('zhao-verbal-time');
+  
+  const activeCampEl = document.getElementById('zhao-active-campaigns-count');
+  const closedCampEl = document.getElementById('zhao-closed-campaigns-count');
+  const activePosEl = document.getElementById('zhao-active-positions-count');
+  
+  if (data.verbalExposure) {
+    if (verbalStatusEl) verbalStatusEl.textContent = data.verbalExposure.text;
+    if (verbalSourceEl) verbalSourceEl.textContent = `“${data.verbalExposure.sourceMessage}”`;
+    if (verbalTimeEl) verbalTimeEl.textContent = `披露时间: ${new Date(data.verbalExposure.time).toLocaleString('zh-CN')}`;
+  }
+  
+  if (activeCampEl) activeCampEl.textContent = data.activeCampaignsCount;
+  if (closedCampEl) closedCampEl.textContent = data.closedCampaignsCount;
+  if (activePosEl) activePosEl.textContent = data.currentPositions.length;
+  
+  const container = document.getElementById('zhao-active-positions-container');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  if (!data.currentPositions || data.currentPositions.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-state-icon">💼</span>
+        <p>目前无活跃实盘持仓记录</p>
+      </div>
+    `;
+    return;
+  }
+  
+  data.currentPositions.forEach(pos => {
+    const card = document.createElement('div');
+    card.className = 'zhao-pos-card';
+    
+    const pnlRatioPercent = (pos.pnlRatio * 100).toFixed(2);
+    const pnlClass = pos.pnlRatio >= 0 ? 'positive' : 'negative';
+    const pnlSign = pos.pnlRatio >= 0 ? '+' : '';
+    
+    let lotsHtml = '';
+    pos.lots.forEach(lot => {
+      const lotTimeStr = new Date(lot.time).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      lotsHtml += `
+        <div class="lot-row">
+          <span class="lot-qty">${lot.quantity} 股</span>
+          <span class="lot-price">@ $${lot.price.toFixed(2)}</span>
+          <span class="lot-desc" title="${lot.reason}">${lotTimeStr} ${lot.reason}</span>
+        </div>
+      `;
+    });
+    
+    card.innerHTML = `
+      <div class="zhao-pos-header">
+        <span class="zhao-pos-ticker">
+          ${pos.ticker}
+          <span>做多</span>
+        </span>
+        <span class="zhao-pos-pnl ${pnlClass}">
+          ${pnlSign}${pnlRatioPercent}%
+        </span>
+      </div>
+      <div class="zhao-pos-meta-grid">
+        <div class="zhao-meta-item">
+          <span class="lbl">持仓股数</span>
+          <span class="val">${pos.totalQuantity} 股</span>
+        </div>
+        <div class="zhao-meta-item">
+          <span class="lbl">持仓均价</span>
+          <span class="val">$${pos.averageCost.toFixed(2)}</span>
+        </div>
+        <div class="zhao-meta-item">
+          <span class="lbl">当前现价</span>
+          <span class="val">$${pos.currentPrice.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="zhao-lots-detail">
+        <div class="lots-header">分批建仓批次 (Lots FIFO)</div>
+        ${lotsHtml}
+      </div>
+    `;
+    
+    container.appendChild(card);
+  });
+}
+
+// 重新编写 7 大战法卡片渲染逻辑，支持战役折叠嵌套
+function renderStrategies(strategies, campaigns) {
   const grid = document.getElementById('strategies-card-grid');
   const countBadge = document.getElementById('generated-strategies-count');
   if (!grid) return;
-
+  
   grid.innerHTML = '';
   let generatedCount = 0;
-
+  
   strategies.forEach(strat => {
     const card = document.createElement('div');
     card.className = 'strategy-card';
     
     const hasReport = !!strat.latestReport;
     if (hasReport) generatedCount++;
-
+    
     const dateStr = hasReport 
       ? new Date(strat.latestReport.created_at).toLocaleString('zh-CN', { hour12: false }) 
       : '尚未分析';
-
+      
     const statusBadge = hasReport
       ? `<span class="strat-badge badge-success">✓ 最新研报已生成</span>`
       : `<span class="strat-badge badge-amber">⚠ 尚未生成研报</span>`;
-
+      
     const viewBtnDisabled = hasReport ? '' : 'disabled';
-
+    
+    // 筛选属于该战法的战役
+    const relatedCampaigns = campaigns.filter(c => c.strategy_type === strat.key || c.strategy_type === strat.name);
+    const campCount = relatedCampaigns.length;
+    
+    let campsListHtml = '';
+    relatedCampaigns.forEach(c => {
+      const pnlText = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? '+' : '') + (c.pnl_ratio * 100).toFixed(2) + '%' : 'N/A';
+      const pnlClass = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? 'positive' : 'negative') : '';
+      const statusText = c.status === 'active' ? '进行中' : '已平仓';
+      const statusClass = c.status === 'active' ? 'active' : 'closed';
+      const openDate = new Date(c.open_time).toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+      
+      campsListHtml += `
+        <div class="mini-campaign-item" onclick="openCampaignTimelineModal(${c.id}, '${c.ticker}')">
+          <div class="mini-camp-left">
+            <span class="mini-camp-ticker">${c.ticker}</span>
+            <span class="mini-camp-status ${statusClass}">${statusText}</span>
+          </div>
+          <div class="mini-camp-right">
+            <span class="mini-camp-pnl ${pnlClass}">${pnlText}</span>
+            <span class="mini-camp-time">${openDate} 建仓</span>
+          </div>
+        </div>
+      `;
+    });
+    
     card.innerHTML = `
       <div class="strategy-card-header">
         <div class="strategy-card-title-group">
@@ -1975,16 +2189,20 @@ function renderStrategies(strategies) {
             <span class="metric-value number">${strat.messageCount} 条</span>
           </div>
           <div class="metric-item">
-            <span class="metric-label">上次生成时间</span>
-            <span class="metric-value date">${dateStr}</span>
+            <span class="metric-label">关联实战战役</span>
+            <span class="metric-value number">${campCount} 个</span>
           </div>
         </div>
-        ${hasReport ? `
-        <div class="strategy-report-meta">
-          <span>分析模型: <strong>${strat.latestReport.ai_model}</strong></span>
-          <span>使用消息: <strong>${strat.latestReport.raw_messages_count} 条</strong></span>
+        
+        <!-- 子级折叠战役面板 -->
+        <div class="strat-campaigns-section">
+          <button class="btn-toggle-campaigns" onclick="toggleStratCampaigns(this)">
+            <span>📁 展开关联交易战役 (${campCount})</span>
+          </button>
+          <div class="strat-campaigns-list" style="display: none;">
+            ${campCount > 0 ? campsListHtml : '<p style="font-size: 0.725rem; color: var(--color-text-muted); text-align: center; padding: 10px 0;">该战法下目前无关联实战战役</p>'}
+          </div>
         </div>
-        ` : ''}
       </div>
       <div class="strategy-card-footer">
         <button class="btn btn-secondary btn-small" onclick="viewStrategyReport('${strat.key}')" ${viewBtnDisabled}>
@@ -1998,11 +2216,162 @@ function renderStrategies(strategies) {
     
     grid.appendChild(card);
   });
-
+  
   if (countBadge) {
     countBadge.innerText = `${generatedCount} / ${strategies.length}`;
   }
 }
+
+// 展开/折叠控制
+window.toggleStratCampaigns = function(btn) {
+  const list = btn.nextElementSibling;
+  const isHidden = list.style.display === 'none';
+  if (isHidden) {
+    list.style.display = 'flex';
+    btn.innerHTML = '<span>📂 收起关联交易战役</span>';
+  } else {
+    list.style.display = 'none';
+    btn.innerHTML = `<span>📁 展开关联交易战役</span>`;
+  }
+};
+
+// 弹窗式战役 Timeline 展示
+window.openCampaignTimelineModal = async function(campaignId, ticker) {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'campaign-timeline-modal';
+  modal.onclick = function(e) {
+    if (e.target === modal) closeCampaignTimelineModal();
+  };
+  
+  modal.innerHTML = `
+    <div class="modal-container report-modal-container" style="max-width: 900px; height: 85vh;">
+      <div class="modal-header">
+        <h3>📊 ${ticker} 个股交易战役实战时间线</h3>
+        <button class="modal-close" onclick="closeCampaignTimelineModal()">✕</button>
+      </div>
+      <div class="modal-body" id="campaign-detail-modal-body" style="padding: 1.5rem 2rem;">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>正在拉取战役时间轴与行情数据...</p>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  try {
+    const res = await fetch(`/api/campaigns/${campaignId}/messages`);
+    const data = await res.json();
+    
+    const bodyContainer = document.getElementById('campaign-detail-modal-body');
+    if (!bodyContainer) return;
+    
+    if (!data.success) {
+      bodyContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载详情失败: ${data.error}</p></div>`;
+      return;
+    }
+    
+    const c = data.campaign;
+    const messages = data.messages || [];
+    
+    const pnlText = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? '+' : '') + (c.pnl_ratio * 100).toFixed(2) + '%' : 'N/A';
+    const pnlClass = c.pnl_ratio !== null ? (c.pnl_ratio >= 0 ? 'positive' : 'negative') : '';
+    const openTimeStr = new Date(c.open_time).toLocaleString('zh-CN');
+    const closeTimeStr = c.close_time ? new Date(c.close_time).toLocaleString('zh-CN') : '进行中';
+    
+    const startMs = c.open_time;
+    const endMs = c.close_time || Date.now();
+    const associatedEvents = (state.macroEvents || []).filter(ev => {
+      return ev.event_timestamp >= startMs && ev.event_timestamp <= endMs;
+    });
+    
+    const timelineItems = [];
+    messages.forEach(m => {
+      timelineItems.push({
+        type: 'message',
+        timestamp: m.created_at,
+        data: m
+      });
+    });
+    associatedEvents.forEach(ev => {
+      timelineItems.push({
+        type: 'macro',
+        timestamp: ev.event_timestamp,
+        data: ev
+      });
+    });
+    
+    timelineItems.sort((a, b) => a.timestamp - b.timestamp);
+    
+    let timelineHtml = '';
+    if (timelineItems.length === 0) {
+      timelineHtml = '<div class="empty-state"><p>该战役周期内无关键发言记录</p></div>';
+    } else {
+      timelineItems.forEach(item => {
+        const timeStr = new Date(item.timestamp).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        if (item.type === 'message') {
+          const m = item.data;
+          timelineHtml += `
+            <div class="timeline-event" style="display: flex; gap: 1rem; margin-bottom: 12px; align-items: flex-start;">
+              <div class="event-time" style="font-size: 0.75rem; color: var(--color-text-muted); width: 90px; flex-shrink: 0; text-align: right; padding-top: 8px;">${timeStr}</div>
+              <div class="event-card" style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 8px; padding: 10px 14px; flex: 1;">
+                <span class="sender-name" style="font-size: 0.75rem; font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 4px;">${m.sender_name}</span>
+                <p class="event-text" style="font-size: 0.825rem; color: #fff; margin: 0; white-space: pre-wrap;">${highlightTickers(m.content)}</p>
+              </div>
+            </div>
+          `;
+        } else {
+          const ev = item.data;
+          timelineHtml += `
+            <div class="timeline-event" style="display: flex; gap: 1rem; margin-bottom: 12px; align-items: flex-start;">
+              <div class="event-time" style="font-size: 0.75rem; color: var(--color-text-muted); width: 90px; flex-shrink: 0; text-align: right; padding-top: 8px;">${timeStr}</div>
+              <div class="event-card" style="background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 8px; padding: 10px 14px; flex: 1;">
+                <span class="macro-badge" style="display: inline-block; background: rgba(139, 92, 246, 0.15); color: #a78bfa; font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-bottom: 4px;">📢 宏观事件</span>
+                <h4 style="font-size: 0.85rem; font-weight: 600; color: #fff; margin: 0 0 4px 0;">${ev.event_title}</h4>
+                <p class="event-text" style="font-size: 0.8rem; color: var(--color-text-secondary); margin: 0;">${ev.event_description || ''}</p>
+              </div>
+            </div>
+          `;
+        }
+      });
+    }
+    
+    bodyContainer.innerHTML = `
+      <div class="campaign-detail-header-modal" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; background: rgba(0,0,0,0.25); padding: 12px 18px; border-radius: 12px; border: 1px solid var(--glass-border);">
+        <div class="meta-item">
+          <span style="font-size:0.75rem; color:var(--color-text-muted); display:block; margin-bottom:4px;">当前状态</span>
+          <strong style="color:${c.status === 'active' ? 'var(--accent-green)' : 'var(--color-text-muted)'}; font-size:0.9rem;">${c.status === 'active' ? '进行中 (Active)' : '已结束 (Closed)'}</strong>
+        </div>
+        <div class="meta-item">
+          <span style="font-size:0.75rem; color:var(--color-text-muted); display:block; margin-bottom:4px;">开仓时间</span>
+          <strong style="font-size:0.85rem; color:#f8fafc;">${openTimeStr}</strong>
+        </div>
+        <div class="meta-item">
+          <span style="font-size:0.75rem; color:var(--color-text-muted); display:block; margin-bottom:4px;">平仓时间</span>
+          <strong style="font-size:0.85rem; color:#f8fafc;">${closeTimeStr}</strong>
+        </div>
+        <div class="meta-item">
+          <span style="font-size:0.75rem; color:var(--color-text-muted); display:block; margin-bottom:4px;">投资回报 (PnL)</span>
+          <strong class="${pnlClass}" style="font-size:1.15rem; font-weight:800;">${pnlText}</strong>
+        </div>
+      </div>
+      
+      <div class="timeline-modal-container" style="max-height: 52vh; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 8px;">
+        ${timelineHtml}
+      </div>
+    `;
+    
+  } catch (err) {
+    console.error('[Timeline Modal Error]:', err);
+  }
+};
+
+window.closeCampaignTimelineModal = function() {
+  const modal = document.getElementById('campaign-timeline-modal');
+  if (modal) modal.remove();
+};
 
 // 战法图标映射助手
 function getStrategyEmoji(key) {
@@ -2168,7 +2537,7 @@ document.getElementById('btn-resume-persona')?.addEventListener('click', async (
   }
 });
 
-let personaPollingTimer = null;
+// personaPollingTimer 已在全局头部声明
 
 async function pollPersonaStatus() {
   const statusText = document.getElementById('persona-status-text');
@@ -2218,42 +2587,13 @@ async function loadPersonaPlaybook() {
   const resumeBtn = document.getElementById('btn-resume-persona');
   
   try {
-    // 1. 先查询后台当前的运行状态，看是否已经在构建中
-    const statusRes = await fetch('/api/persona/status');
-    const statusData = await statusRes.json();
-    
-    if (statusData.status === 'running') {
-      // 正在后台运行，显示进度条，并开启轮询
-      progressArea.style.display = 'block';
-      contentArea.style.display = 'none';
-      metaArea.style.display = 'none';
-      btn.disabled = true;
-      btn.querySelector('.btn-text').textContent = '生成中...';
-      
-      statusText.textContent = statusData.progress || '处理中...';
-      progressBar.style.width = (statusData.percent || 0) + '%';
-      if (resumeBtn) resumeBtn.style.display = 'none';
-      
-      if (personaPollingTimer) clearTimeout(personaPollingTimer);
-      personaPollingTimer = setTimeout(pollPersonaStatus, 3000);
-      return;
-    } else if (statusData.status === 'error') {
-      progressArea.style.display = 'block';
-      contentArea.style.display = 'none';
-      metaArea.style.display = 'none';
-      btn.disabled = false;
-      btn.querySelector('.btn-text').textContent = '重新生成';
-      statusText.textContent = '❌ 上次生成失败: ' + (statusData.error || '未知错误');
-      progressBar.style.width = '0%';
-      if (resumeBtn) resumeBtn.style.display = 'block';
-      return;
-    }
-
-    // 2. 没有正在运行的任务，拉取最新生成的白皮书
+    // 1. 先尝试获取历史上最新已成功生成的画像白皮书，如果存在直接首屏渲染
     const res = await fetch('/api/persona/latest');
     const data = await res.json();
+    let hasPlaybook = false;
     
     if (data.success && data.playbook) {
+      hasPlaybook = true;
       const pb = data.playbook;
       const genTime = new Date(pb.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
       const startTime = new Date(pb.start_time).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
@@ -2270,22 +2610,61 @@ async function loadPersonaPlaybook() {
       metaArea.style.display = 'block';
       contentArea.innerHTML = renderSimpleMarkdown(pb.summary_content);
       contentArea.style.display = 'block';
-      progressArea.style.display = 'none';
-      btn.disabled = false;
-      btn.querySelector('.btn-text').textContent = '重新生成';
     } else {
       contentArea.innerHTML = `
         <div class="empty-state">
           <span class="empty-icon">🧠</span>
           <p>尚未生成画像白皮书</p>
-          <p class="empty-hint">点击上方「生成画像」按钮开始分析大V历史行为模式</p>
+          <p class="empty-hint">点击右侧「生成画像」按钮开始分析大V历史行为模式</p>
         </div>
       `;
       contentArea.style.display = 'block';
       metaArea.style.display = 'none';
+    }
+
+    // 2. 紧接着异步查询后台构建状态，并更新进度横幅
+    const statusRes = await fetch('/api/persona/status');
+    const statusData = await statusRes.json();
+    
+    if (statusData.status === 'running') {
+      progressArea.style.display = 'block';
+      btn.disabled = true;
+      btn.querySelector('.btn-text').textContent = '生成中...';
+      
+      statusText.textContent = statusData.progress || '处理中...';
+      progressBar.style.width = (statusData.percent || 0) + '%';
+      if (resumeBtn) resumeBtn.style.display = 'none';
+      
+      // 如果历史上完全没有生成过，才隐藏内容区域展示骨架；否则强制将其显影展示给用户
+      if (!hasPlaybook) {
+        contentArea.style.display = 'none';
+        metaArea.style.display = 'none';
+      } else {
+        contentArea.style.display = 'block';
+        metaArea.style.display = 'block';
+      }
+      
+      if (personaPollingTimer) clearTimeout(personaPollingTimer);
+      personaPollingTimer = setTimeout(pollPersonaStatus, 3000);
+    } else if (statusData.status === 'error') {
+      btn.disabled = false;
+      btn.querySelector('.btn-text').textContent = '重新生成';
+      statusText.textContent = '❌ 上次生成失败: ' + (statusData.error || '未知错误');
+      progressBar.style.width = '0%';
+      if (resumeBtn) resumeBtn.style.display = 'block';
+      
+      if (!hasPlaybook) {
+        progressArea.style.display = 'block';
+        contentArea.style.display = 'none';
+        metaArea.style.display = 'none';
+      } else {
+        progressArea.style.display = 'none';
+      }
+    } else {
+      // 闲置状态，隐藏进度框
       progressArea.style.display = 'none';
       btn.disabled = false;
-      btn.querySelector('.btn-text').textContent = '生成画像';
+      btn.querySelector('.btn-text').textContent = hasPlaybook ? '重新生成' : '生成画像';
     }
   } catch (err) {
     contentArea.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载失败: ${err.message}</p></div>`;
@@ -2592,12 +2971,12 @@ async function fetchCampaignDetails(campaignId) {
         </div>
       `;
     }
-    
+
     detailHtml += `
       <h4 style="margin: 1.5rem 0 0 0; font-size: 0.95rem; color: #fff;">战役生命周期时间线</h4>
       <div class="campaign-timeline-section">
     `;
-    
+
     if (timelineItems.length === 0) {
       detailHtml += `<div class="empty-state"><p>该战役下暂无关联的发言和事件记录</p></div>`;
     } else {
@@ -2606,7 +2985,7 @@ async function fetchCampaignDetails(campaignId) {
           const msg = item.data;
           let nodeClass = '';
           let tagText = '';
-          
+
           if (msg.event_tag === 'open') {
             nodeClass = 'open-node';
             tagText = '🟢 建仓观点';
@@ -2617,7 +2996,7 @@ async function fetchCampaignDetails(campaignId) {
             nodeClass = 'adjust-node';
             tagText = '🟠 调仓观点';
           }
-          
+
           return `
             <div class="timeline-node ${nodeClass}">
               <div class="timeline-node-time">${new Date(msg.created_at).toLocaleString('zh-CN')}</div>
@@ -2634,7 +3013,7 @@ async function fetchCampaignDetails(campaignId) {
           const ev = item.data;
           const spyChangeClass = ev.spy_change >= 0 ? 'positive' : 'negative';
           const spyChangeSign = ev.spy_change > 0 ? '+' : '';
-          
+
           return `
             <div class="timeline-node">
               <div class="timeline-node-time" style="color: #a78bfa; font-weight: 600;">🌍 宏观事件 • ${new Date(ev.event_timestamp).toLocaleString('zh-CN')}</div>
@@ -2655,23 +3034,29 @@ async function fetchCampaignDetails(campaignId) {
         }
       }).join('');
     }
-    
+
     detailHtml += `
       </div>
     `;
-    
+
     detailContainer.innerHTML = detailHtml;
-    
+
   } catch (err) {
     detailContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载异常: ${err.message}</p></div>`;
   }
 }
 
-// ==========================================================================
-// 📰 社区资讯总结 Tab 交互控制逻辑
-// ==========================================================================
-
-let newsPollingTimer = null;
+/**
+ * 提取资讯所属的真实交易日日期键 (基于 start_time，格式: YYYY/MM/DD)
+ */
+function getNewsDateKey(s) {
+  // 强制基于时段分析开始时间(start_time)进行交易日归属划分，彻底消除周末卡片
+  const date = new Date(s.start_time);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`;
+}
 
 /**
  * 加载资讯列表
@@ -2694,17 +3079,42 @@ async function loadNewsSummaries() {
       document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
     }
 
-    const res = await fetch('/api/news-summaries?limit=30');
+    const res = await fetch('/api/news-summaries?limit=200');
     const data = await res.json();
     
     if (data.success && data.summaries && data.summaries.length > 0) {
-      const list = data.summaries;
+      // 进行“日期+时段板块”双重去重，只保留最新的一条有效记录，过滤掉高频写库重复的废报告
+      const uniqueSummaries = [];
+      const seenKeys = new Set();
+      data.summaries.forEach(s => {
+        const dateKey = getNewsDateKey(s);
+        const uniqueKey = `${dateKey}_${s.summary_type}`;
+        if (!seenKeys.has(uniqueKey)) {
+          seenKeys.add(uniqueKey);
+          uniqueSummaries.push(s);
+        }
+      });
+      
+      const list = uniqueSummaries;
       countBadge.textContent = list.length + ' 篇';
       renderNewsList(list);
       
-      // 默认加载并阅读最新的一篇
-      if (!state.selectedNews) {
-        viewNewsDetail(list[0]);
+      // 按日期键分组以供展示
+      const groups = {};
+      list.forEach(s => {
+        const dateKey = getNewsDateKey(s);
+        if (!groups[dateKey]) groups[dateKey] = [];
+        groups[dateKey].push(s);
+      });
+      
+      // 默认加载并展开最新的那个日期
+      const sortedDates = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+      if (sortedDates.length > 0 && !state.selectedNewsDate) {
+        state.selectedNewsDate = sortedDates[0];
+        showSectionSelection(sortedDates[0], groups[sortedDates[0]]);
+      } else if (state.selectedNewsDate && groups[state.selectedNewsDate]) {
+        // 保持之前选中的日期状态
+        showSectionSelection(state.selectedNewsDate, groups[state.selectedNewsDate]);
       }
     } else {
       countBadge.textContent = '0 篇';
@@ -2731,64 +3141,137 @@ async function loadNewsSummaries() {
 /**
  * 渲染左侧资讯列表卡片墙
  */
+
+/**
+ * 重构左侧列表为按日期聚合分组的卡片列表
+ */
 function renderNewsList(summaries) {
   const container = document.getElementById('news-list');
-  container.innerHTML = summaries.map((s) => {
-    let typeClass = '';
-    let typeLabel = '';
-    
-    switch (s.summary_type) {
-      case 'briefing':
-        typeClass = 'badge-briefing';
-        typeLabel = '盘前速报';
-        break;
-      case 'intraday':
-        typeClass = 'badge-intraday';
-        typeLabel = '盘中总结';
-        break;
-      case 'closing':
-        typeClass = 'badge-closing';
-        typeLabel = '收盘回顾';
-        break;
-      case 'macro':
-        typeClass = 'badge-macro';
-        typeLabel = '宏观周报';
-        break;
-      default:
-        typeClass = 'badge-briefing';
-        typeLabel = '社区速报';
-    }
-    
-    const timeStr = new Date(s.created_at).toLocaleString('zh-CN', { 
-      month: '2-digit', 
-      day: '2-digit', 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-    
-    const isActive = state.selectedNews && state.selectedNews.id === s.id ? 'active' : '';
+  
+  // 1. 进行日期分组
+  const groups = {};
+  summaries.forEach((s) => {
+    const dateKey = getNewsDateKey(s);
+    if (!groups[dateKey]) groups[dateKey] = [];
+    groups[dateKey].push(s);
+  });
+  
+  // 2. 按日期降序排序
+  const sortedDates = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+  
+  if (sortedDates.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">📅</span>
+        <p>暂无历史速报</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // 3. 渲染日期卡片墙
+  container.innerHTML = sortedDates.map((date) => {
+    const count = groups[date].length;
+    const isActive = state.selectedNewsDate === date ? 'active' : '';
     
     return `
-      <div class="news-summary-card ${isActive}" data-id="${s.id}">
-        <div class="news-card-header">
-          <span class="news-type-badge ${typeClass}">${typeLabel}</span>
-          <span class="news-card-time">${timeStr}</span>
+      <div class="news-date-card ${isActive}" data-date="${date}">
+        <div class="news-date-header">
+          <span class="news-date-title">📅 ${date}</span>
+          <span class="badge-date-count">${count} 篇</span>
         </div>
-        <div class="news-card-title">${escapeAttr(s.title)}</div>
-        <div class="news-card-meta">📋 消息源: ${s.raw_messages_count || 0} 条</div>
       </div>
     `;
   }).join('');
   
-  // 绑定卡片点击加载事件
-  container.querySelectorAll('.news-summary-card').forEach(card => {
+  // 4. 绑定日期卡片点击事件
+  container.querySelectorAll('.news-date-card').forEach(card => {
     card.addEventListener('click', () => {
-      const id = parseInt(card.getAttribute('data-id'), 10);
-      const selected = summaries.find(s => s.id === id);
+      const date = card.getAttribute('data-date');
+      state.selectedNewsDate = date;
+      
+      // 更新激活样式
+      container.querySelectorAll('.news-date-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      
+      // 在右侧呈现该日期的九宫格板块选择
+      showSectionSelection(date, groups[date]);
+    });
+  });
+}
+
+/**
+ * 渲染右侧九宫格板块选择页面
+ */
+function showSectionSelection(date, daySummaries) {
+  const contentArea = document.getElementById('news-reader-content');
+  const titleArea = document.getElementById('news-reader-title');
+  const copyBtn = document.getElementById('btn-copy-news');
+  
+  // 1. 隐藏复制按钮（此时尚未进入文章详情页）
+  if (copyBtn) copyBtn.style.display = 'none';
+  
+  // 2. 设置右侧顶栏标题
+  titleArea.textContent = `📅 ${date} 资讯速报板块选择`;
+  
+  // 3. 筛选各个时段板块的总结项
+  const briefingItem = daySummaries.find(s => s.summary_type === 'briefing');
+  const intradayItem = daySummaries.find(s => s.summary_type === 'intraday');
+  const closingItem = daySummaries.find(s => s.summary_type === 'closing');
+  const macroItem = daySummaries.find(s => s.summary_type === 'macro');
+  
+  // 4. 渲染精致的九宫格卡片面板
+  contentArea.innerHTML = `
+    <div class="section-selection-container">
+      <div class="section-selection-hint">请选择您想要查阅的历史资讯速报板块：</div>
+      <div class="section-grid">
+        <!-- 盘前速报 -->
+        <div class="section-card ${briefingItem ? 'active' : 'disabled'}" data-type="briefing">
+          <div class="section-card-icon">🌅</div>
+          <div class="section-card-title">盘前速报</div>
+          <div class="section-card-status ${briefingItem ? 'active' : ''}">
+            ${briefingItem ? '✅ 已生成' : '⏳ 暂未生成'}
+          </div>
+          ${briefingItem ? `<div class="section-card-meta">消息源: ${briefingItem.raw_messages_count || 0} 条</div>` : ''}
+        </div>
+        <!-- 盘中总结 -->
+        <div class="section-card ${intradayItem ? 'active' : 'disabled'}" data-type="intraday">
+          <div class="section-card-icon">⚡</div>
+          <div class="section-card-title">盘中总结</div>
+          <div class="section-card-status ${intradayItem ? 'active' : ''}">
+            ${intradayItem ? '✅ 已生成' : '⏳ 暂未生成'}
+          </div>
+          ${intradayItem ? `<div class="section-card-meta">消息源: ${intradayItem.raw_messages_count || 0} 条</div>` : ''}
+        </div>
+        <!-- 收盘回顾 -->
+        <div class="section-card ${closingItem ? 'active' : 'disabled'}" data-type="closing">
+          <div class="section-card-icon">🌆</div>
+          <div class="section-card-title">收盘回顾</div>
+          <div class="section-card-status ${closingItem ? 'active' : ''}">
+            ${closingItem ? '✅ 已生成' : '⏳ 暂未生成'}
+          </div>
+          ${closingItem ? `<div class="section-card-meta">消息源: ${closingItem.raw_messages_count || 0} 条</div>` : ''}
+        </div>
+        <!-- 宏观周报 -->
+        <div class="section-card ${macroItem ? 'active' : 'disabled'}" data-type="macro">
+          <div class="section-card-icon">📊</div>
+          <div class="section-card-title">宏观周报</div>
+          <div class="section-card-status ${macroItem ? 'active' : ''}">
+            ${macroItem ? '✅ 已生成' : '⏳ 暂未生成'}
+          </div>
+          ${macroItem ? `<div class="section-card-meta">消息源: ${macroItem.raw_messages_count || 0} 条</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // 5. 为所有已生成的激活板块绑定点击事件，进入文章详情
+  contentArea.querySelectorAll('.section-card.active').forEach(card => {
+    card.addEventListener('click', () => {
+      const type = card.getAttribute('data-type');
+      const selected = daySummaries.find(s => s.summary_type === type);
       if (selected) {
-        container.querySelectorAll('.news-summary-card').forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-        viewNewsDetail(selected);
+        viewNewsDetail(selected, daySummaries);
       }
     });
   });
@@ -2797,7 +3280,10 @@ function renderNewsList(summaries) {
 /**
  * 渲染右侧内容阅读器并应用大V防伪高亮标签特效
  */
-function viewNewsDetail(summary) {
+/**
+ * 渲染右侧内容阅读器并应用大V防伪高亮标签特效 (带返回按钮)
+ */
+function viewNewsDetail(summary, daySummaries = []) {
   state.selectedNews = summary;
   
   document.getElementById('news-reader-title').textContent = '📖 ' + summary.title;
@@ -2812,14 +3298,31 @@ function viewNewsDetail(summary) {
   html = html.replace(/`?\[大V确认\]`?/g, '<span class="badge-source badge-vip">大V确认</span>');
   html = html.replace(/`?\[群友意见\]`?/g, '<span class="badge-source badge-community">群友意见</span>');
   
-  contentArea.innerHTML = html;
+  contentArea.innerHTML = `
+    <div class="news-detail-wrapper">
+      <button class="btn btn-secondary btn-back-sections" id="btn-back-sections">◀ 返回板块选择</button>
+      <div class="news-detail-content">
+        ${html}
+      </div>
+    </div>
+  `;
   
   // 3. 对高亮项进行容器类标记，以提供专属的高光侧边栏色彩
   contentArea.querySelectorAll('li').forEach(li => {
-    if (li.querySelector('.badge-vip')) {
-      li.classList.add('vip-confirmed-li');
-    } else if (li.querySelector('.badge-community')) {
-      li.classList.add('community-sentiment-li');
+    if (li.innerHTML.includes('badge-vip')) {
+      li.classList.add('highlight-vip-item');
+    } else if (li.innerHTML.includes('badge-community')) {
+      li.classList.add('highlight-community-item');
+    }
+  });
+
+  // 4. 绑定返回板块选择按钮的点击事件
+  document.getElementById('btn-back-sections').addEventListener('click', () => {
+    const date = getNewsDateKey(summary);
+    if (daySummaries.length > 0) {
+      showSectionSelection(date, daySummaries);
+    } else {
+      loadNewsSummaries();
     }
   });
 }

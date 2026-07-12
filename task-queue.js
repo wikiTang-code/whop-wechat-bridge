@@ -88,9 +88,21 @@ export function failTask(taskId, errorMessage, errorDetails = '') {
 
   const nextRetryCount = task.retry_count + 1;
 
-  if (nextRetryCount <= task.max_retries) {
-    // 指数退避计算：如 2s, 4s, 8s, 16s... 最大 5 分钟
-    const backoffMs = Math.min(2000 * Math.pow(2, nextRetryCount), 300000);
+  // 核心优化：若遇到 API 配额限制（429）、或者是本地大模型连接拒绝（ECONNREFUSED）等配额/通道硬伤错误，
+  // 没必要进行无谓的指数退避重试（这会死锁前台进度条并阻塞队列），直接熔断判定为彻底失败 failed！
+  const isFatalQuotaOrConnError = 
+    errorMessage.includes('429') || 
+    errorMessage.includes('RESOURCE_EXHAUSTED') || 
+    errorMessage.includes('ECONNREFUSED') ||
+    errorDetails.includes('429') || 
+    errorDetails.includes('RESOURCE_EXHAUSTED') || 
+    errorDetails.includes('ECONNREFUSED');
+
+  if (nextRetryCount <= task.max_retries && !isFatalQuotaOrConnError) {
+    // 指数退避计算，引入随机抖动 (Jitter) 防止突发性的大量任务同步重试，保护数据库
+    const backoffBase = 5000 * Math.pow(2, nextRetryCount); // 基础退避时间：10s, 20s, 40s...
+    const jitter = Math.random() * 3000; // 0~3 秒随机抖动
+    const backoffMs = Math.min(backoffBase + jitter, 300000); // 最大 5 分钟
     const runAfter = now + backoffMs;
 
     db.prepare(`
@@ -99,7 +111,7 @@ export function failTask(taskId, errorMessage, errorDetails = '') {
       WHERE id = ?
     `).run(nextRetryCount, runAfter, `${errorMessage} | ${errorDetails}`, now, taskId);
     
-    console.log(`[Task Queue] 任务 #${taskId} 执行失败，将在 ${backoffMs / 1000}秒 后重试 (${nextRetryCount}/${task.max_retries})`);
+    console.log(`[Task Queue] 任务 #${taskId} 执行失败，将在 ${Math.round(backoffMs / 1000)}秒 后重试 (${nextRetryCount}/${task.max_retries})`);
   } else {
     // 达到最大重试上限，彻底失败
     db.prepare(`
@@ -118,8 +130,21 @@ export function failTask(taskId, errorMessage, errorDetails = '') {
 export function resetRunningTasks() {
   const db = getDb();
   const now = Date.now();
+  const timeoutMs = 12 * 60 * 60 * 1000; // 12 小时时效阈值
   
   try {
+    // 1. 先将超过 12 小时未完结的挂起冷任务一律标记为 failed 自动废弃，杜绝历史积压任务在重启后重新跑画像导致算力浪费
+    const expiredInfo = db.prepare(`
+      UPDATE task_queue 
+      SET status = 'failed', error_message = '系统重启自愈：该历史任务已超过 12 小时时效阈值，自动取消废弃。', updated_at = ?
+      WHERE status = 'running' AND (? - created_at > ?)
+    `).run(now, now, timeoutMs);
+    
+    if (expiredInfo.changes > 0) {
+      console.log(`[Task Queue System] 启动自愈：自动清理废弃了 ${expiredInfo.changes} 个超时冗余挂起任务。`);
+    }
+
+    // 2. 将 12 小时内的新近热任务重置为 pending，以支持正常闪断情况下的断点续传
     const info = db.prepare(`
       UPDATE task_queue 
       SET status = 'pending', updated_at = ? 
@@ -127,7 +152,7 @@ export function resetRunningTasks() {
     `).run(now);
     
     if (info.changes > 0) {
-      console.log(`[Task Queue System] 启动自愈：成功重置了 ${info.changes} 个因系统异常中断而卡在 running 状态的任务。`);
+      console.log(`[Task Queue System] 启动自愈：成功重置了 ${info.changes} 个近期的运行中任务为 pending (断点续传已恢复)。`);
     }
   } catch (err) {
     console.error('[Task Queue System] 启动自愈失败:', err.message);
@@ -148,6 +173,7 @@ export function startQueueWorker(workerFn, pollIntervalMs = 5000) {
   async function checkQueue() {
     if (isWorking) return;
     isWorking = true;
+    let nextPollMs = pollIntervalMs;
 
     try {
       while (true) {
@@ -167,6 +193,13 @@ export function startQueueWorker(workerFn, pollIntervalMs = 5000) {
         } catch (taskErr) {
           console.error(`[Task Queue] 任务 #${task.id} 处理异常:`, taskErr);
           failTask(task.id, taskErr.message, taskErr.stack || '');
+          
+          // 核心优化：如果捕获到配额/超限致命硬伤报错，跳出循环降速避让，让队列进入 5 分钟冷静休眠
+          if (taskErr.message.includes('限制已超标') || taskErr.message.includes('限额') || taskErr.message.includes('配额') || taskErr.message.includes('429')) {
+            console.warn(`[Task Queue System] 监测到大模型 API 每日配额超标！将队列消费者降速挂起 5 分钟以释放 SQLite 锁争用...`);
+            nextPollMs = 300000; // 5 分钟
+            break;
+          }
         }
       }
     } catch (err) {
@@ -174,7 +207,7 @@ export function startQueueWorker(workerFn, pollIntervalMs = 5000) {
     } finally {
       isWorking = false;
       // 安排下一次轮询
-      setTimeout(checkQueue, pollIntervalMs);
+      setTimeout(checkQueue, nextPollMs);
     }
   }
 
