@@ -1020,12 +1020,17 @@ app.get('/api/system/monitor', async (req, res) => {
       acquiredAt: global.gpuLock.acquiredAt
     } : { isLocked: false, owner: null, acquiredAt: null };
 
-    // d. 从 sqlite 中统计当前队列中的具体排队任务
+    // d. 从 sqlite 中统计当前队列中的具体排队任务 (限制最大 50 条展示，防止数万条任务构建巨型 JSON 卡死浏览器)
+    const activeTasksCount = db.prepare(`
+      SELECT COUNT(*) as count FROM task_queue WHERE status IN ('running', 'pending', 'retry')
+    `).get()?.count || 0;
+
     const activeTasks = db.prepare(`
       SELECT id, task_type, status, priority, error_message, updated_at 
       FROM task_queue 
       WHERE status IN ('running', 'pending', 'retry')
       ORDER BY priority DESC, id ASC
+      LIMIT 50
     `).all();
 
     // e. 对任务类型进行优雅的中文意图转换描述
@@ -1094,6 +1099,7 @@ app.get('/api/system/monitor', async (req, res) => {
         rateLimiterStats,
         gpuLockStatus,
         activeTasks: formattedTasks,
+        activeTasksCount,
         completedTasks: formattedHistory,
         pendingTradeMsgsCount
       }
