@@ -1,7 +1,8 @@
 import { getDailyApiCount, incrementDailyApiCount, getDb } from './database.js';
 
-// 限速配置
-const RPM_LIMIT = 15;
+// 限速配置：Gemini 免费层官方上限 20 RPM，此处硬性锁死为 10 RPM (平均 6 秒放行 1 次，保留 50% 绝对安全倾斜)
+const GEMINI_RPM_LIMIT = 10;
+const GENERAL_RPM_LIMIT = 15;
 const RPD_LIMIT = parseInt(process.env.GEMINI_DAILY_LIMIT || '10000', 10);
 const requestTimestampsMap = {}; // 按 provider 隔离的时间戳 map
 
@@ -19,15 +20,9 @@ export function getRateLimiterStats() {
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
- * 强制满足滑动窗口 RPM 限制 (带最大等待深度保护)
+ * 强制满足滑动窗口 RPM 限制 (严格安全堵截，绝不越界强制放行)
  */
-async function enforceRpmLimit(provider = 'general', depth = 0) {
-  const MAX_RPM_WAIT_DEPTH = 10; // 防止无限递归
-  if (depth >= MAX_RPM_WAIT_DEPTH) {
-    console.warn(`[Rate Limiter] ${provider} RPM 限速等待已达最大深度 ${MAX_RPM_WAIT_DEPTH}，强制放行。`);
-    return;
-  }
-
+async function enforceRpmLimit(provider = 'general') {
   const now = Date.now();
   if (!requestTimestampsMap[provider]) {
     requestTimestampsMap[provider] = [];
@@ -39,13 +34,16 @@ async function enforceRpmLimit(provider = 'general', depth = 0) {
     timestamps.shift();
   }
 
-  if (timestamps.length >= RPM_LIMIT) {
+  const currentLimit = provider.includes('gemini') ? GEMINI_RPM_LIMIT : GENERAL_RPM_LIMIT;
+
+  // 只要窗口内满了，就绝对排队等待最早的一条过期，绝不违规放行！
+  if (timestamps.length >= currentLimit) {
     const oldestTimestamp = timestamps[0];
-    const waitMs = 60000 - (now - oldestTimestamp) + 200; // 额外增加 200ms 安全缓冲区
+    const waitMs = 60000 - (now - oldestTimestamp) + 500; // 额外增加 500ms 强力安全缓冲区
     if (waitMs > 0) {
-      console.log(`[Rate Limiter] ${provider} RPM 限速触发 (depth=${depth})。等待 ${waitMs}ms 后继续...`);
+      console.log(`[Rate Limiter] 🛡️ 触发 ${provider} 滑动窗口限速 (已满 ${timestamps.length}/${currentLimit})。静止挂起排队 ${waitMs}ms...`);
       await sleep(waitMs);
-      return enforceRpmLimit(provider, depth + 1); // 递归重新评估，传递深度
+      return enforceRpmLimit(provider); // 递归重新评估，直到有空闲坑位
     }
   }
 
