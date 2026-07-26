@@ -43,7 +43,6 @@ async function callCloudAI(prompt, preferredProvider = null) {
     return await callLocalAI(localProvider, prompt);
   };
 
-  // 1. 如果首选为本地模型
   if (provider === 'lm-studio' || provider === 'ollama') {
     try {
       console.log(`[AI Router] [News] 优先使用本地模型 (${provider}) 进行推理...`);
@@ -61,7 +60,6 @@ async function callCloudAI(prompt, preferredProvider = null) {
     }
   }
 
-  // 2. 首选为云端 Gemini (默认)
   try {
     const model = process.env.GEMINI_MODEL || 'gemini-flash-latest';
     console.log(`[AI Router] [News] 优先使用云端 Gemini (${model}) 进行推理...`);
@@ -82,19 +80,19 @@ async function callCloudAI(prompt, preferredProvider = null) {
 }
 
 // ============================================================
-// 1. 初始化生成任务 (支持单次与多日跨度按交易日自动拆分)
+// 1. 初始化生成任务 (精准对齐美股 EDT<->HKT 北京时间)
 // ============================================================
 export async function generateNewsSummary(type = 'briefing', options = {}) {
   const { forceRefresh = false, customStartTime = null, customEndTime = null } = options;
 
-  // 核心优化：若自定义时间段跨度大于 24 小时，自动按交易日拆分为每天独立的板块任务提交，确保列表全量覆盖！
+  // 核心优化：若自定义时间段跨度大于 24 小时，自动按交易日拆分为每天独立的板块任务提交
   if (customStartTime && customEndTime) {
     const startMs = new Date(customStartTime).getTime();
     const endMs = new Date(customEndTime).getTime();
     const spanDays = Math.ceil((endMs - startMs) / (24 * 3600 * 1000));
 
     if (spanDays > 1) {
-      console.log(`[News Engine] 检测到多日跨度 (${spanDays} 天: ${customStartTime} 至 ${customEndTime})，正在按交易日自动拆分派发...`);
+      console.log(`[News Engine] 检测到多日跨度 (${spanDays} 天: ${customStartTime} 至 ${customEndTime})，正在按美股交易日自动精准拆分派发...`);
       let generatedBatches = 0;
       let skippedNoData = 0;
 
@@ -104,37 +102,36 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
         const month = currentDate.getMonth();
         const day = currentDate.getDate();
 
-        // 构造当天的 00:00:00 基准点 (北京/HKT 时间)
+        // 构造当天 00:00:00 基准点 (北京/HKT 时间)
         const dayStart = new Date(year, month, day, 0, 0, 0).getTime();
         const dayEnd = new Date(year, month, day, 23, 59, 59).getTime();
 
         let dayTargetStart = dayStart;
         let dayTargetEnd = dayEnd;
         let dayTitleType = '';
-        const dateTag = `${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+        const dateTag = `${month + 1}/${day}`;
 
         switch (type) {
           case 'briefing':
-            // 盘前速报：北京时间 $D$ 日 18:00 至 21:30 (美股盘前交易与开盘前瞻)
-            dayTargetStart = dayStart + (18 * 3600 * 1000);
+            // 盘前速报：北京时间 $D$ 日 08:00 至 21:30 (美东 $D-1$ 日 20:00 至 $D$ 日 09:30 盘前夜盘)
+            dayTargetStart = dayStart + (8 * 3600 * 1000);
             dayTargetEnd = dayStart + (21.5 * 3600 * 1000);
-            dayTitleType = `盘前速报 (${dateTag})`;
+            dayTitleType = `盘前速报 (${dateTag} 08:00 至 21:30)`;
             break;
           case 'intraday':
-            // 盘中总结：北京时间 $D$ 日 21:30 至 次日 01:30 (美股开盘前4小时激战)
+            // 盘中总结：北京时间 $D$ 日 21:30 至 次日 04:00 (美东 $D$ 日 09:30 至 16:00 美股标准盘中 6.5 小时)
             dayTargetStart = dayStart + (21.5 * 3600 * 1000);
-            dayTargetEnd = dayStart + (25.5 * 3600 * 1000);
-            dayTitleType = `盘中总结 (${dateTag})`;
+            dayTargetEnd = dayStart + (28 * 3600 * 1000);
+            dayTitleType = `盘中总结 (${dateTag} 21:30 至 次日 04:00)`;
             break;
           case 'closing':
-            // 收盘回顾：北京时间 $D+1$ 日 01:30 至 08:00 (美股后半程至收盘结账)
-            dayTargetStart = dayStart + (25.5 * 3600 * 1000);
-            dayTargetEnd = dayStart + (32 * 3600 * 1000);
-            dayTitleType = `收盘回顾 (${dateTag})`;
+            // 收盘回顾：北京时间 次日 04:00 至 09:00 (美东 $D$ 日 16:00 至 21:00 盘后与收盘总结)
+            dayTargetStart = dayStart + (28 * 3600 * 1000);
+            dayTargetEnd = dayStart + (33 * 3600 * 1000);
+            dayTitleType = `收盘回顾 (${dateTag} 次日 04:00 至 09:00)`;
             break;
           case 'macro':
-            // 宏观周报：周日触发，涵盖前 7 天
-            if (currentDate.getDay() === 0) {
+            if (currentDate.getDay() === 0) { // 周日生成全周总结
               dayTargetStart = dayStart - (6 * 24 * 3600 * 1000);
               dayTargetEnd = dayEnd;
               dayTitleType = `本周宏观总结 (${dateTag})`;
@@ -164,7 +161,7 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
       return {
         success: true,
         status: 'batch_started',
-        message: `成功为 ${spanDays} 天生成/补充资讯速报！提交批次: ${generatedBatches}，跳过无数据时段: ${skippedNoData}`
+        message: `成功为 ${spanDays} 天精准生成美股资讯速报！提交批次: ${generatedBatches}，跳过无数据时段: ${skippedNoData}`
       };
     }
   }
@@ -176,8 +173,8 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
 
   if (customStartTime) {
     startTime = new Date(customStartTime).getTime();
-    const startStr = new Date(startTime).toLocaleString('zh-CN', { hour12: false }).substring(5, 16);
-    const endStr = new Date(endTime).toLocaleString('zh-CN', { hour12: false }).substring(5, 16);
+    const startStr = new Date(startTime).toLocaleString('zh-CN', { hour12: false, timeZone: 'Asia/Shanghai' }).substring(5, 16);
+    const endStr = new Date(endTime).toLocaleString('zh-CN', { hour12: false, timeZone: 'Asia/Shanghai' }).substring(5, 16);
     switch (type) {
       case 'briefing': titleType = `盘前速报 (${startStr} 至 ${endStr})`; break;
       case 'intraday': titleType = `盘中总结 (${startStr} 至 ${endStr})`; break;
@@ -186,17 +183,18 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
       default: titleType = `自定义资讯总结 (${startStr} 至 ${endStr})`;
     }
   } else {
+    // 默认即时触发（取最近一个完整交易切片）
     switch (type) {
       case 'briefing':
-        startTime = endTime - (16 * 60 * 60 * 1000);
+        startTime = endTime - (13.5 * 60 * 60 * 1000);
         titleType = '盘前速报';
         break;
       case 'intraday':
-        startTime = endTime - (4 * 60 * 60 * 1000);
+        startTime = endTime - (6.5 * 60 * 60 * 1000);
         titleType = '盘中总结';
         break;
       case 'closing':
-        startTime = endTime - (10 * 60 * 60 * 1000);
+        startTime = endTime - (5 * 60 * 60 * 1000);
         titleType = '收盘回顾';
         break;
       case 'macro':
@@ -266,7 +264,7 @@ async function generateSingleNewsSummary(type, startTime, endTime, titleType, fo
 
   const speakerMessages = speakerMessagesRaw.reverse();
 
-  // 3b. 群友消息 — 智能筛选高价值代表性发言以规避 Token 溢出
+  // 3b. 群友消息 — 智能筛选高价值代表性发言
   const communityMessagesRaw = db.prepare(`
     SELECT sender_name, content, created_at FROM messages
     WHERE sender_id NOT IN (${placeholders}) AND created_at BETWEEN ? AND ?
@@ -307,7 +305,7 @@ async function generateSingleNewsSummary(type, startTime, endTime, titleType, fo
 
   const formatMsgList = (msgs) => {
     return msgs.map(m => {
-      const timeStr = new Date(m.created_at).toISOString().replace('T', ' ').substr(0, 19);
+      const timeStr = new Date(m.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false });
       const text = (m.content || '').substring(0, 300);
       return `[${timeStr}] ${m.sender_name}: ${text}`;
     }).join('\n');
