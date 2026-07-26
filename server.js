@@ -2183,7 +2183,12 @@ async function fetchEmbedding(text, priority = 1) {
   try {
     return await fetchLMStudioEmbedding(text);
   } catch (err) {
-    return await fetchGeminiEmbedding(text, priority);
+    try {
+      return await fetchGeminiEmbedding(text, priority);
+    } catch (gErr) {
+      console.warn('[RAG] Gemini Embedding 触发配额保护挂起，跳过当前消息向量化以保护系统吞吐:', gErr.message);
+      return null;
+    }
   }
 }
 

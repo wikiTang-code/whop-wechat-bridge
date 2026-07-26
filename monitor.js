@@ -600,7 +600,7 @@ function localFetch(urlStr, options = {}) {
       path: url.pathname + url.search,
       method: options.method || 'GET',
       headers: options.headers || {},
-      timeout: 120000 // 2 minutes timeout for local LLM generation
+      timeout: options.timeout || 300000 // 5 minutes timeout for local LLM generation
     };
 
     if (postData) {
@@ -626,6 +626,10 @@ function localFetch(urlStr, options = {}) {
           }
         });
       });
+    });
+
+    req.on('timeout', () => {
+      req.destroy(new Error('LM Studio HTTP Local Timeout (>5m)'));
     });
 
     req.on('error', (e) => {
