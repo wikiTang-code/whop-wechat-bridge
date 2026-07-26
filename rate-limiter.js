@@ -19,9 +19,15 @@ export function getRateLimiterStats() {
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
- * 强制满足滑动窗口 RPM 限制
+ * 强制满足滑动窗口 RPM 限制 (带最大等待深度保护)
  */
-async function enforceRpmLimit(provider = 'general') {
+async function enforceRpmLimit(provider = 'general', depth = 0) {
+  const MAX_RPM_WAIT_DEPTH = 10; // 防止无限递归
+  if (depth >= MAX_RPM_WAIT_DEPTH) {
+    console.warn(`[Rate Limiter] ${provider} RPM 限速等待已达最大深度 ${MAX_RPM_WAIT_DEPTH}，强制放行。`);
+    return;
+  }
+
   const now = Date.now();
   if (!requestTimestampsMap[provider]) {
     requestTimestampsMap[provider] = [];
@@ -37,9 +43,9 @@ async function enforceRpmLimit(provider = 'general') {
     const oldestTimestamp = timestamps[0];
     const waitMs = 60000 - (now - oldestTimestamp) + 200; // 额外增加 200ms 安全缓冲区
     if (waitMs > 0) {
-      console.log(`[Rate Limiter] ${provider} RPM 限速触发。等待 ${waitMs}ms 后继续...`);
+      console.log(`[Rate Limiter] ${provider} RPM 限速触发 (depth=${depth})。等待 ${waitMs}ms 后继续...`);
       await sleep(waitMs);
-      return enforceRpmLimit(provider); // 递归重新评估
+      return enforceRpmLimit(provider, depth + 1); // 递归重新评估，传递深度
     }
   }
 
@@ -57,21 +63,31 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
   const provider = options.provider || 'general';
 
   // 1. 优先级避让机制：如果是中低优先级任务 (priority >= 2)，且有高优先级交易跟单任务 (priority = 1) 在排队，主动避让
+  //    修复: 限制最大避让次数为 3 次 (共 15 秒)，防止大量 P1 任务积压导致 P2+ 任务永远无法执行
   if (priority >= 2) {
-    try {
-      const db = getDb();
-      const pendingHighPriority = db.prepare(`
-        SELECT COUNT(*) as count FROM task_queue 
-        WHERE status = 'pending' AND priority = 1
-      `).get();
+    const MAX_YIELD_ROUNDS = 3;
+    for (let yieldRound = 0; yieldRound < MAX_YIELD_ROUNDS; yieldRound++) {
+      try {
+        const db = getDb();
+        // 仅检测真正可立即执行的 P1 任务 (status=pending 且 run_after 已到期)
+        const now = Date.now();
+        const pendingHighPriority = db.prepare(`
+          SELECT COUNT(*) as count FROM task_queue 
+          WHERE status = 'pending' AND priority = 1 AND (run_after IS NULL OR run_after <= ?)
+        `).get(now);
 
-      if (pendingHighPriority && pendingHighPriority.count > 0) {
-        console.log(`[Rate Limiter] 检测到有 ${pendingHighPriority.count} 个高优先级跟单任务正在排队。P${priority} 任务避让并休眠 5s...`);
-        await sleep(5000);
-        return runWithRateLimit(apiCallFn, options); // 重新排队
+        if (pendingHighPriority && pendingHighPriority.count > 0) {
+          if (yieldRound === 0) {
+            console.log(`[Rate Limiter] 检测到有 ${pendingHighPriority.count} 个可执行的 P1 跟单任务。P${priority} 任务避让 5s (第 ${yieldRound + 1}/${MAX_YIELD_ROUNDS} 轮)...`);
+          }
+          await sleep(5000);
+        } else {
+          break; // 没有高优先级任务了，不再避让
+        }
+      } catch (dbErr) {
+        console.warn(`[Rate Limiter] 查询优先级状态失败:`, dbErr.message);
+        break; // 查询失败不阻塞
       }
-    } catch (dbErr) {
-      console.warn(`[Rate Limiter] 查询优先级状态失败:`, dbErr.message);
     }
   }
 
@@ -131,3 +147,4 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
     }
   }
 }
+

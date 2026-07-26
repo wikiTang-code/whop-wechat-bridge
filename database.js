@@ -87,6 +87,9 @@ export function initDb() {
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_tickers ON messages(tickers)`).run();
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_sectors ON messages(sectors)`).run();
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_strategies ON messages(strategies)`).run();
+    // 修复 #10: 为跟单提炼高频查询 (is_traded=0) 添加索引，避免 47000+ 行全表扫描
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_is_traded ON messages(is_traded)`).run();
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_sender_traded ON messages(sender_id, is_traded, is_pushed)`).run();
   } catch (err) {
     console.warn("Indices creation warning:", err.message);
   }

@@ -2,11 +2,15 @@ import express from 'express';
 import https from 'https';
 import { spawn, exec, execSync } from 'child_process';
 
+// 修复 #3: uncaughtException 后必须退出进程，否则 Node.js 处于不可预测状态
 process.on('uncaughtException', (err) => {
   console.error('UNCAUGHT EXCEPTION:', err.stack || err);
+  // 给 PM2 1 秒时间刷新日志后优雅退出，PM2 会自动重启进程
+  setTimeout(() => process.exit(1), 1000);
 });
 process.on('unhandledRejection', (reason, promise) => {
   console.error('UNHANDLED REJECTION:', reason?.stack || reason);
+  // unhandledRejection 不强制退出，仅记录（Node v15+ 默认会退出）
 });
 import cors from 'cors';
 import fs from 'fs';
@@ -1087,6 +1091,7 @@ app.get('/api/system/monitor', async (req, res) => {
     });
 
     // 统计消息表中还有多少条 is_traded = 0 的大V消息等待跟单引擎提炼
+    // 修复 #10: 使用带索引的高效查询（索引在 database.js 中创建）
     const pendingTradeMsgsCount = db.prepare(`
       SELECT COUNT(*) as count FROM messages 
       WHERE is_traded = 0

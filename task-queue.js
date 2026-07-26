@@ -79,50 +79,72 @@ export function completeTask(taskId, result) {
 
 /**
  * 标记任务失败，依据重试策略判定是否重新入列
+ * 修复 #12: 使用事务包裹读写操作防止竞态
  */
 export function failTask(taskId, errorMessage, errorDetails = '') {
   const db = getDb();
   const now = Date.now();
 
-  // 1. 获取任务当前的重试计数
-  const task = db.prepare('SELECT retry_count, max_retries FROM task_queue WHERE id = ?').get(taskId);
-  if (!task) return;
+  try {
+    db.transaction(() => {
+      // 1. 获取任务当前的重试计数
+      const task = db.prepare('SELECT retry_count, max_retries FROM task_queue WHERE id = ?').get(taskId);
+      if (!task) return;
 
-  const nextRetryCount = task.retry_count + 1;
+      const nextRetryCount = task.retry_count + 1;
 
-  // 核心优化：若遇到 API 配额限制（429）、或者是本地大模型连接拒绝（ECONNREFUSED）等配额/通道硬伤错误，
-  // 没必要进行无谓的指数退避重试（这会死锁前台进度条并阻塞队列），直接熔断判定为彻底失败 failed！
-  const isFatalQuotaOrConnError = 
-    errorMessage.includes('429') || 
-    errorMessage.includes('RESOURCE_EXHAUSTED') || 
-    errorMessage.includes('ECONNREFUSED') ||
-    errorDetails.includes('429') || 
-    errorDetails.includes('RESOURCE_EXHAUSTED') || 
-    errorDetails.includes('ECONNREFUSED');
+      // 修复 #5: ECONNREFUSED 从致命错误移除 → 改为可重试（隧道闪断是暂时性问题）
+      // 修复 #6: ECONNRESET/socket hang up 等网络闪断使用更短的退避基底
+      const isFatalQuotaError = 
+        errorMessage.includes('RESOURCE_EXHAUSTED') || 
+        errorDetails.includes('RESOURCE_EXHAUSTED');
 
-  if (nextRetryCount <= task.max_retries && !isFatalQuotaOrConnError) {
-    // 指数退避计算，引入随机抖动 (Jitter) 防止突发性的大量任务同步重试，保护数据库
-    const backoffBase = 5000 * Math.pow(2, nextRetryCount); // 基础退避时间：10s, 20s, 40s...
-    const jitter = Math.random() * 3000; // 0~3 秒随机抖动
-    const backoffMs = Math.min(backoffBase + jitter, 300000); // 最大 5 分钟
-    const runAfter = now + backoffMs;
+      // 网络瞬时错误：ECONNREFUSED / ECONNRESET / socket hang up / ETIMEDOUT
+      const isNetworkTransientError =
+        errorMessage.includes('ECONNREFUSED') || errorDetails.includes('ECONNREFUSED') ||
+        errorMessage.includes('ECONNRESET') || errorDetails.includes('ECONNRESET') ||
+        errorMessage.includes('socket hang up') || errorDetails.includes('socket hang up') ||
+        errorMessage.includes('ETIMEDOUT') || errorDetails.includes('ETIMEDOUT');
 
-    db.prepare(`
-      UPDATE task_queue 
-      SET status = 'retry', retry_count = ?, run_after = ?, error_message = ?, updated_at = ? 
-      WHERE id = ?
-    `).run(nextRetryCount, runAfter, `${errorMessage} | ${errorDetails}`, now, taskId);
-    
-    console.log(`[Task Queue] 任务 #${taskId} 执行失败，将在 ${Math.round(backoffMs / 1000)}秒 后重试 (${nextRetryCount}/${task.max_retries})`);
-  } else {
-    // 达到最大重试上限，彻底失败
-    db.prepare(`
-      UPDATE task_queue 
-      SET status = 'failed', error_message = ?, updated_at = ? 
-      WHERE id = ?
-    `).run(`[Failed after max retries] ${errorMessage} | ${errorDetails}`, now, taskId);
-    
-    console.error(`[Task Queue] 任务 #${taskId} 彻底执行失败 (已达重试上限)`);
+      if (isFatalQuotaError) {
+        // 配额耗尽型硬伤错误，直接熔断
+        db.prepare(`
+          UPDATE task_queue 
+          SET status = 'failed', error_message = ?, updated_at = ? 
+          WHERE id = ?
+        `).run(`[熔断:配额耗尽] ${errorMessage} | ${errorDetails}`, now, taskId);
+        console.error(`[Task Queue] 任务 #${taskId} 配额耗尽熔断，彻底失败。`);
+        return;
+      }
+
+      if (nextRetryCount <= task.max_retries) {
+        // 修复 #6: 网络闪断错误使用更短的退避基底 (3s 起步)，普通错误保持 10s 起步
+        const baseMs = isNetworkTransientError ? 3000 : 5000;
+        const backoffBase = baseMs * Math.pow(2, nextRetryCount - 1);
+        const jitter = Math.random() * 3000;
+        const backoffMs = Math.min(backoffBase + jitter, 300000);
+        const runAfter = now + backoffMs;
+
+        db.prepare(`
+          UPDATE task_queue 
+          SET status = 'retry', retry_count = ?, run_after = ?, error_message = ?, updated_at = ? 
+          WHERE id = ?
+        `).run(nextRetryCount, runAfter, `${errorMessage} | ${errorDetails}`, now, taskId);
+        
+        console.log(`[Task Queue] 任务 #${taskId} 执行失败，将在 ${Math.round(backoffMs / 1000)}秒 后重试 (${nextRetryCount}/${task.max_retries})${isNetworkTransientError ? ' [网络闪断快速重试]' : ''}`);
+      } else {
+        // 达到最大重试上限，彻底失败
+        db.prepare(`
+          UPDATE task_queue 
+          SET status = 'failed', error_message = ?, updated_at = ? 
+          WHERE id = ?
+        `).run(`[Failed after max retries] ${errorMessage} | ${errorDetails}`, now, taskId);
+        
+        console.error(`[Task Queue] 任务 #${taskId} 彻底执行失败 (已达重试上限)`);
+      }
+    })();
+  } catch (dbErr) {
+    console.error(`[Task Queue] failTask 数据库操作失败 (task #${taskId}):`, dbErr.message);
   }
 }
 
@@ -169,9 +191,29 @@ export function resetRunningTasks() {
  */
 export function startQueueWorker(workerFn, concurrency = 4, pollIntervalMs = 800) {
   let activeWorkers = 0;
+  const WORKER_TIMEOUT_MS = 10 * 60 * 1000; // 修复 #4: 单任务最大执行时间 10 分钟
 
   // 启动时自动执行运行中任务重置
   resetRunningTasks();
+
+  // 修复 #4: 每 5 分钟定期检查并回收超时的 running 任务（运行时自愈，而非仅启动时）
+  setInterval(() => {
+    try {
+      const db = getDb();
+      const now = Date.now();
+      const staleThreshold = now - WORKER_TIMEOUT_MS;
+      const staleInfo = db.prepare(`
+        UPDATE task_queue 
+        SET status = 'retry', error_message = '运行时自愈：任务执行超过 10 分钟超时回收', updated_at = ?, run_after = ?
+        WHERE status = 'running' AND updated_at < ?
+      `).run(now, now, staleThreshold);
+      if (staleInfo.changes > 0) {
+        console.warn(`[Task Queue] 运行时自愈：回收了 ${staleInfo.changes} 个超时挂起任务。`);
+      }
+    } catch (err) {
+      // 自愈失败不应影响主循环
+    }
+  }, 5 * 60 * 1000);
 
   function spawnWorkers() {
     while (activeWorkers < concurrency) {
@@ -181,31 +223,48 @@ export function startQueueWorker(workerFn, concurrency = 4, pollIntervalMs = 800
       activeWorkers++;
       (async () => {
         try {
-          console.log(`[Task Queue] [Parallel Worker ${activeWorkers}/${concurrency}] 开始执行任务 #${task.id} (类型: ${task.task_type}, 优先级: ${task.priority})`);
-          const result = await workerFn(task);
-          completeTask(task.id, result);
-          console.log(`[Task Queue] 任务 #${task.id} 执行成功`);
-        } catch (taskErr) {
-          console.error(`[Task Queue] 任务 #${task.id} 处理异常:`, taskErr);
-          failTask(task.id, taskErr.message, taskErr.stack || '');
+          console.log(`[Task Queue] [Worker ${activeWorkers}/${concurrency}] 开始执行任务 #${task.id} (类型: ${task.task_type}, 优先级: ${task.priority})`);
           
-          if (taskErr.message.includes('限制已超标') || taskErr.message.includes('限额') || taskErr.message.includes('配额') || taskErr.message.includes('429')) {
-            console.warn(`[Task Queue System] 大模型接口配额受限或网络临时受阻 (${taskErr.message})，该任务已记录状态...`);
+          // 修复 #4: 为 workerFn 添加超时保护，防止无限挂起耗尽并发池
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error(`任务执行超时 (超过 ${WORKER_TIMEOUT_MS / 60000} 分钟上限)`)), WORKER_TIMEOUT_MS)
+          );
+          const result = await Promise.race([workerFn(task), timeoutPromise]);
+
+          // 修复 #7: completeTask 异常不应触发 failTask 造成重复执行
+          try {
+            completeTask(task.id, result);
+            console.log(`[Task Queue] 任务 #${task.id} 执行成功`);
+          } catch (dbErr) {
+            console.error(`[Task Queue] 任务 #${task.id} 执行成功但写库失败 (不重试):`, dbErr.message);
+          }
+        } catch (taskErr) {
+          console.error(`[Task Queue] 任务 #${task.id} 处理异常:`, taskErr.message);
+          try {
+            failTask(task.id, taskErr.message, taskErr.stack || '');
+          } catch (failDbErr) {
+            console.error(`[Task Queue] failTask 写库也失败了 (task #${task.id}):`, failDbErr.message);
           }
         } finally {
           activeWorkers--;
-          // 当前 worker 结束，立即补充新任务
-          spawnWorkers();
+          // 修复 #9: 使用 setImmediate 异步派发，交还事件循环控制权，防止 Event Loop 饿死
+          setImmediate(spawnWorkers);
         }
       })();
     }
   }
 
+  // 修复 #1: scheduleLoop 加 try-catch 保护，确保 setTimeout 必被执行
   function scheduleLoop() {
-    spawnWorkers();
+    try {
+      spawnWorkers();
+    } catch (err) {
+      console.error('[Task Queue] scheduleLoop 异常，队列保持运行:', err.message);
+    }
     setTimeout(scheduleLoop, pollIntervalMs);
   }
 
   scheduleLoop();
-  console.log(`[Task Queue] 后台任务队列多并发消费者已启动 (并行度: ${concurrency}, 轮询: ${pollIntervalMs}ms)`);
+  console.log(`[Task Queue] 后台任务队列多并发消费者已启动 (并行度: ${concurrency}, 轮询: ${pollIntervalMs}ms, 单任务超时: ${WORKER_TIMEOUT_MS / 60000}分钟)`);
 }
+
