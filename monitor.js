@@ -721,6 +721,7 @@ export async function analyzeWithLMStudio(baseUrl, model, prompt) {
       // Strip DeepSeek/Qwen thinking tags if present
       text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
+      global.isAiGenerating = false;
       return text;
     } catch (err) {
       const isSocketOrConnError = 
@@ -734,13 +735,11 @@ export async function analyzeWithLMStudio(baseUrl, model, prompt) {
         await new Promise(r => setTimeout(r, 1500));
         continue;
       }
+      global.isAiGenerating = false;
       throw err;
-    } finally {
-      if (attempts >= maxAttempts || global.lastSuccessfulLocalAiTime) {
-        global.isAiGenerating = false;
-      }
     }
   }
+  global.isAiGenerating = false;
 }
 
 
@@ -799,7 +798,7 @@ export async function analyzeWithFallback(prompt, options = {}) {
     }
 
     if (primaryProvider === 'lm-studio') {
-      const baseUrl = options.baseUrl || process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
+      const baseUrl = options.baseUrl || process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
       const model = options.model || process.env.LM_STUDIO_MODEL || 'qwen';
       console.log('[LLM] Trying remote LM Studio: ' + baseUrl);
       return await analyzeWithLMStudio(baseUrl, model, prompt);
@@ -1580,7 +1579,7 @@ ${messagesText}`;
   if (provider === 'ollama') {
     modelNameUsed = 'Ollama (' + (process.env.OLLAMA_MODEL || 'deepseek-r1') + ')';
   } else if (provider === 'lm-studio') {
-    modelNameUsed = 'LM Studio (' + (process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b') + ')';
+    modelNameUsed = 'LM Studio (' + (process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct') + ')';
   }
 
   const durationAI = ((Date.now() - startTimeAI) / 1000).toFixed(1);
@@ -1619,7 +1618,7 @@ async function callMonitorAI(provider, prompt) {
     const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
     return await analyzeWithOllama(baseUrl, model, prompt);
   } else if (provider === 'lm-studio') {
-    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
+    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
     const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
     return await analyzeWithLMStudio(baseUrl, model, prompt);
   } else {
@@ -1775,7 +1774,7 @@ ${newMessagesText}
   if (provider === 'ollama') {
     modelNameUsed = `Ollama (${process.env.OLLAMA_MODEL || 'deepseek-r1'})`;
   } else if (provider === 'lm-studio') {
-    modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b'})`;
+    modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct'})`;
   }
 
   // Save to DB
@@ -1874,7 +1873,7 @@ ${klineStats}
   if (provider === 'ollama') {
     modelNameUsed = `Ollama (${process.env.OLLAMA_MODEL || 'deepseek-r1'})`;
   } else if (provider === 'lm-studio') {
-    modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b'})`;
+    modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct'})`;
   }
 
   // Save report to DB (strategy = 'KLINE_COMBINED')

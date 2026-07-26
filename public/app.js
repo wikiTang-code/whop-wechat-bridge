@@ -44,6 +44,22 @@ async function ensureCsrfToken() {
   return null;
 }
 
+// Simple HTML sanitizer to prevent XSS when rendering user content
+function sanitizeHTML(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Strip script tags and event handlers from HTML to prevent XSS
+function sanitizeRenderedHTML(html) {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/\son\w+\s*=\s*["'][^"']*["']/gi, '')
+    .replace(/\son\w+\s*=\s*[^\s>]+/gi, '');
+}
+
 // Safe HTML attribute escape
 function escapeAttr(str) {
   if (!str) return '';
@@ -68,6 +84,18 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
   initLayoutResizer();
   initNewsLayoutResizer();
+
+  // Event delegation for citation clicks in RAG chat
+  const ragChatMessages = document.getElementById('rag-chat-messages');
+  if (ragChatMessages) {
+    ragChatMessages.addEventListener('click', (e) => {
+      const citationEl = e.target.closest('[data-citation-id]');
+      if (citationEl) {
+        const num = parseInt(citationEl.getAttribute('data-citation-id'), 10);
+        if (!isNaN(num)) scrollToCitation(num);
+      }
+    });
+  }
 });
 
 async function initApp() {
@@ -711,7 +739,7 @@ async function fetchMessages(search = '', append = false) {
       }
       renderMessages(state.messages, state.totalMessages);
     } else {
-      container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">⚠️</span><p>加载数据失败: ${result.error}</p></div>`;
+      container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">⚠️</span><p>加载数据失败: ${sanitizeHTML(result.error)}</p></div>`;
     }
   } catch (error) {
     console.error('Error fetching messages:', error);
@@ -732,7 +760,7 @@ async function fetchReports() {
       countBadge.innerText = `${result.total} 篇`;
       renderReports(result.data);
     } else {
-      container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">⚠️</span><p>加载报告失败: ${result.error}</p></div>`;
+      container.innerHTML = `<div class="empty-state"><span class="empty-state-icon">⚠️</span><p>加载报告失败: ${sanitizeHTML(result.error)}</p></div>`;
     }
   } catch (error) {
     console.error('Error fetching reports:', error);
@@ -1428,8 +1456,8 @@ function populateSettingsForm(config) {
   document.getElementById('monitor_interval_minutes').value = config.MONITOR_INTERVAL_MINUTES || '15';
   document.getElementById('ollama_base_url').value = config.OLLAMA_BASE_URL || 'http://localhost:11434';
   document.getElementById('ollama_model').value = config.OLLAMA_MODEL || 'deepseek-r1';
-  document.getElementById('lm_studio_base_url').value = config.LM_STUDIO_BASE_URL || 'http://localhost:1234';
-  document.getElementById('lm_studio_model').value = config.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b';
+  document.getElementById('lm_studio_base_url').value = config.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
+  document.getElementById('lm_studio_model').value = config.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
   
   // Set risk controls
   document.getElementById('mock_trading_mode').value = config.MOCK_TRADING_MODE || 'true';
@@ -1462,7 +1490,7 @@ function openReportDetailModal(report) {
   
   const createdDate = new Date(report.created_at).toLocaleString('zh-CN');
   
-  content.innerHTML = renderMarkdownToHtml(report.summary_content);
+  content.innerHTML = sanitizeRenderedHTML(renderMarkdownToHtml(report.summary_content));
   
   meta.innerHTML = `
     <span>模型: <strong>${report.ai_model}</strong></span> | 
@@ -1753,7 +1781,7 @@ function appendRagMessage(role, htmlContent, isLoading = false) {
     if (role === 'user') {
       bubble.innerText = htmlContent;
     } else {
-      bubble.innerHTML = htmlContent;
+      bubble.innerHTML = sanitizeRenderedHTML(htmlContent);
     }
   }
   
@@ -1770,7 +1798,7 @@ function formatAnswerWithCitations(answer) {
   
   // Match single citation brackets [1] and convert to clickable nodes
   html = html.replace(/\[(\d+)\]/g, (match, num) => {
-    return `<span class="citation-ref-link" data-citation-id="${num}" onclick="scrollToCitation(${num})">${num}</span>`;
+    return `<span class="citation-ref-link" data-citation-id="${num}">${num}</span>`;
   });
   
   return html;
@@ -2269,7 +2297,7 @@ window.openCampaignTimelineModal = async function(campaignId, ticker) {
     if (!bodyContainer) return;
     
     if (!data.success) {
-      bodyContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载详情失败: ${data.error}</p></div>`;
+      bodyContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载详情失败: ${sanitizeHTML(data.error)}</p></div>`;
       return;
     }
     
@@ -2646,7 +2674,7 @@ async function loadPersonaPlaybook() {
         </div>
       `;
       metaArea.style.display = 'block';
-      contentArea.innerHTML = renderSimpleMarkdown(pb.summary_content);
+      contentArea.innerHTML = sanitizeRenderedHTML(renderSimpleMarkdown(pb.summary_content));
       contentArea.style.display = 'block';
     } else {
       contentArea.innerHTML = `
@@ -2705,7 +2733,7 @@ async function loadPersonaPlaybook() {
       btn.querySelector('.btn-text').textContent = hasPlaybook ? '重新生成' : '生成画像';
     }
   } catch (err) {
-    contentArea.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载失败: ${err.message}</p></div>`;
+    contentArea.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载失败: ${sanitizeHTML(err.message)}</p></div>`;
     contentArea.style.display = 'block';
     btn.disabled = false;
   }
@@ -2779,7 +2807,7 @@ async function fetchCampaigns() {
     const data = await res.json();
     
     if (!data.success) {
-      listContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载失败: ${data.error || '未知错误'}</p></div>`;
+      listContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载失败: ${sanitizeHTML(data.error || '未知错误')}</p></div>`;
       return;
     }
     
@@ -2907,7 +2935,7 @@ async function fetchCampaigns() {
     });
     
   } catch (err) {
-    listContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载异常: ${err.message}</p></div>`;
+    listContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载异常: ${sanitizeHTML(err.message)}</p></div>`;
   }
 }
 
@@ -2927,7 +2955,7 @@ async function fetchCampaignDetails(campaignId) {
     const data = await res.json();
     
     if (!data.success) {
-      detailContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>获取详情失败: ${data.error || '未知错误'}</p></div>`;
+      detailContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>获取详情失败: ${sanitizeHTML(data.error || '未知错误')}</p></div>`;
       return;
     }
     
@@ -3080,7 +3108,7 @@ async function fetchCampaignDetails(campaignId) {
     detailContainer.innerHTML = detailHtml;
 
   } catch (err) {
-    detailContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载异常: ${err.message}</p></div>`;
+    detailContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载异常: ${sanitizeHTML(err.message)}</p></div>`;
   }
 }
 
@@ -3172,7 +3200,7 @@ async function loadNewsSummaries() {
       document.getElementById('btn-copy-news').style.display = 'none';
     }
   } catch (err) {
-    listContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载失败: ${err.message}</p></div>`;
+    listContainer.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span><p>加载失败: ${sanitizeHTML(err.message)}</p></div>`;
   }
 }
 
@@ -3336,14 +3364,14 @@ function viewNewsDetail(summary, daySummaries = []) {
   html = html.replace(/`?\[大V确认\]`?/g, '<span class="badge-source badge-vip">大V确认</span>');
   html = html.replace(/`?\[群友意见\]`?/g, '<span class="badge-source badge-community">群友意见</span>');
   
-  contentArea.innerHTML = `
+  contentArea.innerHTML = sanitizeRenderedHTML(`
     <div class="news-detail-wrapper">
       <button class="btn btn-secondary btn-back-sections" id="btn-back-sections">◀ 返回板块选择</button>
       <div class="news-detail-content">
         ${html}
       </div>
     </div>
-  `;
+  `);
   
   // 3. 对高亮项进行容器类标记，以提供专属的高光侧边栏色彩
   contentArea.querySelectorAll('li').forEach(li => {

@@ -18,11 +18,11 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { 
-  initDb, 
-  getMessages, 
-  getReports, 
-  getOrders, 
+import {
+  initDb,
+  getMessages,
+  getReports,
+  getOrders,
   resetPortfolioCash,
   saveReport,
   saveMessageEmbedding,
@@ -43,7 +43,7 @@ import {
 } from './database.js';
 import { generatePersonaPlaybook, getPersonaStatus, processPersonaTask, resumePersonaPlaybook, forceUpdatePersonaStatus } from './persona-engine.js';
 import { processNewsTask, generateNewsSummary, ensureCurrentWeekNews } from './news-engine.js';
-import { 
+import {
   syncAndAnalyze,
   analyzeWithGemini,
   analyzeWithOllama,
@@ -83,6 +83,17 @@ for (const speaker of targetSpeakers) {
 }
 
 const app = express();
+
+// Security headers middleware
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
 const PORT = process.env.PORT || 3000;
 
 // 全局缓存大V口头披露仓位状态，避免 API 阻塞主线程
@@ -100,20 +111,20 @@ async function updateCachedVerbalExposure() {
       .split(',')
       .map(s => s.trim())
       .filter(Boolean);
-      
+
     if (targetSpeakersStr.length === 0) return;
-    
+
     const placeholders = targetSpeakersStr.map(() => '?').join(',');
     const SEVEN_DAYS_AGO = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    
+
     const candidateMsgs = db.prepare(`
-      SELECT content, created_at FROM messages 
-      WHERE sender_id IN (${placeholders}) 
+      SELECT content, created_at FROM messages
+      WHERE sender_id IN (${placeholders})
         AND created_at > ?
         AND (content LIKE '%仓%' OR content LIKE '%成%')
       ORDER BY created_at DESC LIMIT 10
     `).all([...targetSpeakersStr, SEVEN_DAYS_AGO]);
-    
+
     if (!candidateMsgs || candidateMsgs.length === 0) {
       cachedVerbalExposure = {
         text: "暂未提及",
@@ -122,9 +133,9 @@ async function updateCachedVerbalExposure() {
       };
       return;
     }
-    
+
     const msgsText = candidateMsgs.map((m, idx) => `[${idx+1}] HKT ${new Date(m.created_at).toLocaleString('zh-CN')}: "${m.content}"`).join('\n');
-    
+
     const aiPrompt = `请分析以下美股大V最新的发言记录，提炼出他目前最新口头向群友披露的总体仓位比例状态（如：五到六成仓、三成左右、已空仓、满仓等）。
 发言记录：
 ${msgsText}
@@ -139,18 +150,23 @@ ${msgsText}
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return;
-    
+
     const jsonText = await analyzeWithGemini(apiKey, aiPrompt, 10);
-    
+
     const parseJSON = (text) => {
-      let clean = text.trim();
-      if (clean.startsWith('```')) {
-        clean = clean.replace(/^```(?:json)?\s*/i, '');
-        clean = clean.replace(/\s*```$/, '');
+      try {
+        let clean = text.trim();
+        if (clean.startsWith('```')) {
+          clean = clean.replace(/^```(?:json)?\s*/i, '');
+          clean = clean.replace(/\s*```$/, '');
+        }
+        return JSON.parse(clean);
+      } catch (e) {
+        console.warn('[Zhao Positions Cache] AI返回JSON解析失败:', e.message, 'Raw:', text?.substring(0, 100));
+        return null;
       }
-      return JSON.parse(clean);
     };
-    
+
     const result = parseJSON(jsonText);
     if (result && result.hasExposure && result.verbalPosition !== '暂未提及') {
       const matchedMsgObj = candidateMsgs.find(m => m.content.includes(result.matchedMessage.substring(0, 10))) || candidateMsgs[0];
@@ -273,6 +289,12 @@ setInterval(() => {
       csrfTokens.delete(key);
     }
   }
+  // Cleanup old auth rate limit entries to prevent memory leak
+  for (const [ip, record] of authAttempts) {
+    if (now - record.windowStart > AUTH_WINDOW_MS) {
+      authAttempts.delete(ip);
+    }
+  }
 }, 5 * 60 * 1000);
 
 // GET /api/csrf-token - Issue a CSRF token for the session
@@ -286,16 +308,16 @@ app.get('/api/csrf-token', (req, res) => {
 function requireCsrf(req, res, next) {
   const token = req.headers['x-csrf-token'];
   const sessionId = req.headers['x-session-id'] || req.ip;
-  
+
   if (!token) {
     return res.status(403).json({ success: false, error: 'Missing CSRF token.' });
   }
-  
+
   const record = csrfTokens.get(sessionId);
   if (!record || record.token !== token || Date.now() - record.created > CSRF_TOKEN_TTL) {
     return res.status(403).json({ success: false, error: 'Invalid or expired CSRF token.' });
   }
-  
+
   next();
 }
 
@@ -309,7 +331,7 @@ let isSyncing = false; // 并发同步锁，防止高频轮询叠加
 // 活跃窗口: 周一 16:00 HKT → 周六 08:00 HKT（连续覆盖整个交易周）
 function isUSTradingHours() {
   const now = new Date();
-  
+
   // 使用 Intl.DateTimeFormat.formatToParts 安全提取北京时间各分量
   // 避免 toLocaleString 在不同系统区域设置下的后缀解析问题
   const formatter = new Intl.DateTimeFormat('en-US', {
@@ -318,24 +340,24 @@ function isUSTradingHours() {
     weekday: 'short',
     hour: 'numeric'
   });
-  
+
   const parts = {};
   for (const p of formatter.formatToParts(now)) {
     parts[p.type] = p.value;
   }
-  
+
   const weekday = parts.weekday; // Mon, Tue, Wed, Thu, Fri, Sat, Sun
   const hour = parseInt(parts.hour, 10);
-  
+
   // 周日: 完全休市
   if (weekday === 'Sun') return false;
-  
+
   // 周六: 仅 00:00~08:00 活跃 (对应美股周五盘后交易尾声)
   if (weekday === 'Sat') return hour < 8;
-  
+
   // 周一: 16:00 起活跃 (对应美股周一盘前 4AM ET 开始)
   if (weekday === 'Mon') return hour >= 16;
-  
+
   // 周二~周五: 全天候连续活跃（覆盖前一日盘后→当日盘前→常规盘→盘后）
   // 08:00~16:00 HKT 虽是美股盘间休息，但重大新闻/财报可随时发布，保持高频监听
   return true;
@@ -354,7 +376,7 @@ function getBeijingTodayStartTimestamp() {
   const year = parts.find(p => p.type === 'year').value;
   const month = parts.find(p => p.type === 'month').value;
   const day = parts.find(p => p.type === 'day').value;
-  
+
   return new Date(`${year}-${month}-${day}T00:00:00+08:00`).getTime();
 }
 
@@ -362,7 +384,7 @@ function getBeijingTodayStartTimestamp() {
 async function checkAndAutoGenerateDailyNews() {
   try {
     const now = new Date();
-    
+
     // 1. 获取今天在上海时区的星期几 (通过 'short' 格式，返回 'Mon', 'Tue'...)
     const shanghaiFormatter = new Intl.DateTimeFormat('en-US', {
       timeZone: 'Asia/Shanghai',
@@ -371,38 +393,38 @@ async function checkAndAutoGenerateDailyNews() {
       hour: 'numeric',
       minute: 'numeric'
     });
-    
+
     const parts = {};
     for (const p of shanghaiFormatter.formatToParts(now)) {
       parts[p.type] = p.value;
     }
-    
+
     const weekdayStr = parts.weekday; // 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
     const weekdayMap = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
     let currentDayOfWeek = weekdayMap[weekdayStr] || 1;
-    
+
     const currentHour = parseInt(parts.hour, 10);
     const currentMinute = parseInt(parts.minute, 10);
-    
+
     const todayStartMs = getBeijingTodayStartTimestamp();
     const db = getDb();
-    
+
     // 自动扫描并补全最近 2 天（今天与昨天）内缺失的历史日常报告，更远日期由用户手动实时生成
     for (let dayOffset = 0; dayOffset < 2; dayOffset++) {
       const targetDayMs = todayStartMs - (dayOffset * 24 * 60 * 60 * 1000);
       const targetDate = new Date(targetDayMs);
       const targetDayOfWeek = targetDate.getDay(); // 0 是周日, 1-6 是周一到周六
       const d = targetDayOfWeek === 0 ? 7 : targetDayOfWeek;
-      
+
       const configs = [];
-      
+
       // a. 盘前速报 (briefing) - 仅限周一到周五
       if (d >= 1 && d <= 5) {
         const triggerHour = 17;
         const triggerMinute = 30;
         const start = targetDayMs + (1.5 * 60 * 60 * 1000); // 01:30 HKT
         const end = targetDayMs + (17.5 * 60 * 60 * 1000);  // 17:30 HKT
-        
+
         configs.push({
           type: 'briefing',
           triggerHour,
@@ -411,14 +433,14 @@ async function checkAndAutoGenerateDailyNews() {
           endTime: end
         });
       }
-      
+
       // b. 盘中总结 (intraday) - 仅限周二到周六
       if (d >= 2 && d <= 6) {
         const triggerHour = 1;
         const triggerMinute = 30;
         const start = targetDayMs + (21.5 * 60 * 60 * 1000); // 21:30 HKT (前一日)
         const end = targetDayMs + (25.5 * 60 * 60 * 1000);  // 次日 01:30 HKT
-        
+
         configs.push({
           type: 'intraday',
           triggerHour,
@@ -427,14 +449,14 @@ async function checkAndAutoGenerateDailyNews() {
           endTime: end
         });
       }
-      
+
       // c. 收盘回顾 (closing) - 仅限周二到周六
       if (d >= 2 && d <= 6) {
         const triggerHour = 8;
         const triggerMinute = 30;
         const start = targetDayMs + (22.5 * 60 * 60 * 1000); // 22:30 HKT (前一日)
         const end = targetDayMs + (32.5 * 60 * 60 * 1000);  // 次日 08:30 HKT
-        
+
         configs.push({
           type: 'closing',
           triggerHour,
@@ -443,30 +465,30 @@ async function checkAndAutoGenerateDailyNews() {
           endTime: end
         });
       }
-      
+
       for (const config of configs) {
         const { type, triggerHour, triggerMinute, startTime, endTime } = config;
-        
+
         // 判定该时点今天是否已经到了可以触发的阈值 (仅针对当天)
         if (dayOffset === 0) {
           if (currentHour < triggerHour || (currentHour === triggerHour && currentMinute < triggerMinute)) {
             continue; // 今天的时间还没到，跳过
           }
         }
-        
+
         // 幂等性校验：检查是否生成过，或者是否已经在队列中
         const customStartStr = new Date(startTime).toISOString();
         const customEndStr = new Date(endTime).toISOString();
-        
+
         // 1. 查已生成成功的总结
         const summary = db.prepare(`
-          SELECT id FROM news_summaries 
+          SELECT id FROM news_summaries
           WHERE summary_type = ? AND start_time = ? AND end_time = ?
           LIMIT 1
         `).get(type, startTime, endTime);
-        
+
         if (summary) continue;
-        
+
         // 2. 查队列中是否有相同类型且特定范围的 news_reduce 任务在排队或运行
         const activeTask = db.prepare(`
           SELECT id FROM task_queue
@@ -476,11 +498,11 @@ async function checkAndAutoGenerateDailyNews() {
             AND json_extract(payload, '$.customStartTime') = ?
           LIMIT 1
         `).get(type, customStartStr);
-        
+
         if (activeTask) continue;
-        
+
         console.log(`[Auto News Scheduler] Auto-generating missing ${type} summary for dayIndex ${d} (HKT target range: ${new Date(startTime).toLocaleString('zh-CN', {timeZone: 'Asia/Shanghai'})} to ${new Date(endTime).toLocaleString('zh-CN', {timeZone: 'Asia/Shanghai'})})`);
-        
+
         await generateNewsSummary(type, {
           customStartTime: customStartStr,
           customEndTime: customEndStr,
@@ -507,38 +529,38 @@ async function checkAndAutoUpdatePersonaPlaybook() {
     // 换算为北京时间 (CST/HKT)
     const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
     const hktDate = new Date(utc + (3600000 * 8));
-    
+
     const weekday = hktDate.getDay(); // 0 是周日, 1-6 是周一到周六
     const currentHour = hktDate.getHours();
     const currentMinute = hktDate.getMinutes();
-    
+
     // 仅限周日凌晨 03:00 到 03:30 之间尝试触发
     if (weekday === 0 && currentHour === 3 && currentMinute < 30) {
       const db = getDb();
-      
+
       // 判定本周是否已经触发过画像任务，避免在这 30 分钟轮询里高频重复创建
       // 查 reports 表里最新的一篇 strategy = 'PERSONA_PLAYBOOK' 的报告
       const latestPlaybook = db.prepare(`
-        SELECT created_at FROM reports 
+        SELECT created_at FROM reports
         WHERE strategy = 'PERSONA_PLAYBOOK'
         ORDER BY id DESC LIMIT 1
       `).get();
-      
+
       const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
       if (latestPlaybook && (Date.now() - latestPlaybook.created_at < THREE_DAYS_MS)) {
-        return; 
+        return;
       }
-      
+
       // 检查是否有排队中、运行中或重试中的画像任务
       const activeTask = db.prepare(`
-        SELECT id FROM task_queue 
+        SELECT id FROM task_queue
         WHERE task_type IN ('persona_map', 'persona_community', 'persona_reduce')
           AND status IN ('pending', 'running', 'retry')
         LIMIT 1
       `).get();
-      
+
       if (activeTask) return; // 正在运行中，跳过
-      
+
       console.log(`[Auto Persona Scheduler] 开始执行周日凌晨大V画像白皮书增量更新任务...`);
       // 异步调用画像生成
       generatePersonaPlaybook({
@@ -561,15 +583,15 @@ async function runAdaptivePoll() {
     pollTimeout = setTimeout(runAdaptivePoll, currentIntervalMs);
     return;
   }
-  
+
   isSyncing = true;
   let result;
   try {
     result = await syncAndAnalyze();
-    
+
     // 每次同步尝试执行自动定时总结检测，确保默认缓存周一到周五每日总结
     await checkAndAutoGenerateDailyNews();
-    
+
     // 检测是否需要自动更新大V行为画像白皮书 (每周日凌晨)
     await checkAndAutoUpdatePersonaPlaybook();
   } catch (err) {
@@ -578,9 +600,9 @@ async function runAdaptivePoll() {
   } finally {
     isSyncing = false;
   }
-  
+
   const isTrading = isUSTradingHours();
-  
+
   if (isTrading) {
     // 美股交易时段（周一16:00 HKT → 周六08:00 HKT）：强制超高频同步 (25秒一次)
     currentIntervalMs = 25 * 1000;
@@ -596,14 +618,14 @@ async function runAdaptivePoll() {
       setLastSyncTime(Date.now());
     }
   }
-  
+
   pollTimeout = setTimeout(runAdaptivePoll, currentIntervalMs);
 }
 
 function startPoller() {
   if (pollTimeout) clearTimeout(pollTimeout);
   console.log(`Starting intelligent background poller with adaptive intervals.`);
-  
+
   // 5秒后启动初次轮询，随后进入自适应循环
   setTimeout(() => {
     runAdaptivePoll();
@@ -614,8 +636,8 @@ function startPoller() {
 app.get('/api/messages', (req, res) => {
   try {
     const search = req.query.search || '';
-    const limit = parseInt(req.query.limit || '50', 10);
-    const offset = parseInt(req.query.offset || '0', 10);
+    const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 50));
+    const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
     let channelId = req.query.channelId || '';
     const channelName = req.query.channelName || '';
     const ticker = req.query.ticker || '';
@@ -650,10 +672,10 @@ app.get('/api/messages', (req, res) => {
       senderIds = onlySpeakers ? targetSpeakers : [];
     }
 
-    const data = getMessages({ 
-      search, 
-      limit, 
-      offset, 
+    const data = getMessages({
+      search,
+      limit,
+      offset,
       senderIds,
       excludeSenderIds,
       channelId,
@@ -689,34 +711,69 @@ app.get('/api/proxy-image', async (req, res) => {
       }
     };
 
+    // Timeout and size limit for image proxy
+    const PROXY_TIMEOUT_MS = 15000;
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+    let proxyTimeout = setTimeout(() => {
+      imgReq.destroy();
+      if (!res.headersSent) res.status(504).send('Image proxy timeout');
+    }, PROXY_TIMEOUT_MS);
+
+    let totalBytes = 0;
     const imgReq = https.get(imageUrl, options, (imgRes) => {
-      // Forward status code (handle redirects if any)
+      // Validate redirect target to prevent SSRF
       if (imgRes.statusCode >= 300 && imgRes.statusCode < 400 && imgRes.headers.location) {
-        // Follow redirect once
-        https.get(imgRes.headers.location, options, (redirectRes) => {
+        clearTimeout(proxyTimeout);
+        let redirectUrl;
+        try {
+          redirectUrl = new URL(imgRes.headers.location, imageUrl);
+        } catch (e) {
+          return res.status(400).send('Invalid redirect URL');
+        }
+        if (!redirectUrl.href.startsWith('https://img-v2-prod.whop.com') && !redirectUrl.href.startsWith('https://assets-2-prod.whop.com')) {
+          return res.status(403).send('Forbidden: Redirect to disallowed host');
+        }
+        https.get(redirectUrl.href, options, (redirectRes) => {
           res.setHeader('Content-Type', redirectRes.headers['content-type'] || 'image/jpeg');
           res.setHeader('Cache-Control', 'public, max-age=31536000');
           redirectRes.pipe(res);
+          redirectRes.on('end', () => clearTimeout(proxyTimeout));
         }).on('error', (err) => {
+          clearTimeout(proxyTimeout);
           console.error('[Image Proxy Redirect Error]:', err.message);
-          res.status(500).send('Error loading image');
+          if (!res.headersSent) res.status(500).send('Error loading image');
         });
         return;
       }
 
       if (imgRes.statusCode !== 200) {
+        clearTimeout(proxyTimeout);
         console.warn(`[Image Proxy] Failed to fetch image: HTTP ${imgRes.statusCode}`);
-        return res.status(imgRes.statusCode).send('Error loading image');
+        if (!res.headersSent) res.status(imgRes.statusCode).send('Error loading image');
+        return;
       }
 
       res.setHeader('Content-Type', imgRes.headers['content-type'] || 'image/jpeg');
-      res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+
+      // Enforce size limit
+      imgRes.on('data', (chunk) => {
+        totalBytes += chunk.length;
+        if (totalBytes > MAX_IMAGE_SIZE) {
+          imgRes.destroy();
+          clearTimeout(proxyTimeout);
+          if (!res.headersSent) res.status(413).send('Image too large');
+        }
+      });
+
       imgRes.pipe(res);
+      imgRes.on('end', () => clearTimeout(proxyTimeout));
     });
 
     imgReq.on('error', (err) => {
+      clearTimeout(proxyTimeout);
       console.error('[Image Proxy Error]:', err.message);
-      res.status(500).send('Error loading image');
+      if (!res.headersSent) res.status(500).send('Error loading image');
     });
 
   } catch (error) {
@@ -739,23 +796,23 @@ app.get('/api/channels', (req, res) => {
 app.get('/api/speakers', (req, res) => {
   try {
     const db = getDb();
-    
+
     // 获取所有的 targetSpeakers
     const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
       .split(',')
       .map(s => s.trim())
       .filter(Boolean);
-      
+
     const rows = db.prepare(`
-      SELECT DISTINCT sender_id, sender_name 
-      FROM messages 
+      SELECT DISTINCT sender_id, sender_name
+      FROM messages
       WHERE sender_name IS NOT NULL AND sender_name != ''
       ORDER BY sender_name ASC
     `).all();
-    
+
     // 过滤掉大V，剩下的是群友（大V已经有独立的“只看大V”选项了）
     const communitySpeakers = rows.filter(r => !targetSpeakers.includes(r.sender_id));
-    
+
     res.json({ success: true, speakers: communitySpeakers });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -766,7 +823,7 @@ app.get('/api/speakers', (req, res) => {
 app.get('/api/messages/:id/context', (req, res) => {
   try {
     const messageId = req.params.id;
-    const limit = parseInt(req.query.limit || '10', 10);
+    const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 10));
     const data = getMessageContext({ messageId, limit });
     res.json({ success: true, ...data });
   } catch (error) {
@@ -777,8 +834,8 @@ app.get('/api/messages/:id/context', (req, res) => {
 // 2. GET /api/reports - List AI reports
 app.get('/api/reports', (req, res) => {
   try {
-    const limit = parseInt(req.query.limit || '10', 10);
-    const offset = parseInt(req.query.offset || '0', 10);
+    const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 10));
+    const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
 
     const data = getReports({ limit, offset });
     res.json({ success: true, data: data.reports, total: data.total });
@@ -864,7 +921,7 @@ app.post('/api/persona/generate', requireCsrf, async (req, res) => {
     const forceRefresh = req.body.forceRefresh === true;
 
     console.log(`[API Persona] Triggering playbook generation with provider=${provider}, maxMonths=${maxMonths}, forceRefresh=${forceRefresh}`);
-    
+
     // 使用 setImmediate 彻底移出当前事件循环主线程，实现真正的毫秒级解耦返回，免受 SQLite 读写锁争用影响
     setImmediate(() => {
       generatePersonaPlaybook({ provider, maxMonths, forceRefresh }).catch(err => {
@@ -923,8 +980,8 @@ app.post('/api/news-summaries/generate', requireCsrf, async (req, res) => {
     const customEndTime = req.body.customEndTime || null;
 
     console.log(`[API News] Triggering news summary generation for type=${type}, forceRefresh=${forceRefresh}, customStartTime=${customStartTime}, customEndTime=${customEndTime}`);
-    
-    const result = await generateNewsSummary(type, { 
+
+    const result = await generateNewsSummary(type, {
       forceRefresh,
       customStartTime,
       customEndTime
@@ -940,7 +997,7 @@ app.get('/api/news-summaries/status', (req, res) => {
   try {
     const db = getDb();
     const latestTask = db.prepare(`
-      SELECT id, status, error_message, updated_at FROM task_queue 
+      SELECT id, status, error_message, updated_at FROM task_queue
       WHERE task_type = 'news_reduce'
       ORDER BY id DESC LIMIT 1
     `).get();
@@ -968,8 +1025,8 @@ app.get('/api/news-summaries/status', (req, res) => {
 // 3. GET /api/news-summaries - Get news summaries history list
 app.get('/api/news-summaries', (req, res) => {
   try {
-    const limit = parseInt(req.query.limit || '10', 10);
-    const offset = parseInt(req.query.offset || '0', 10);
+    const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 10));
+    const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
     const summaries = getNewsSummaries(limit, offset);
     res.json({ success: true, summaries });
   } catch (error) {
@@ -1039,8 +1096,8 @@ app.get('/api/system/monitor', async (req, res) => {
     `).get()?.count || 0;
 
     const activeTasks = db.prepare(`
-      SELECT id, task_type, status, priority, error_message, updated_at 
-      FROM task_queue 
+      SELECT id, task_type, status, priority, error_message, updated_at
+      FROM task_queue
       WHERE status IN ('running', 'pending', 'retry')
       ORDER BY priority DESC, id ASC
       LIMIT 50
@@ -1070,8 +1127,8 @@ app.get('/api/system/monitor', async (req, res) => {
 
     // 新增：获取最近完成/失败的历史任务 (最近 15 条)
     const completedTasks = db.prepare(`
-      SELECT id, task_type, status, priority, error_message, updated_at 
-      FROM task_queue 
+      SELECT id, task_type, status, priority, error_message, updated_at
+      FROM task_queue
       WHERE status IN ('done', 'failed')
       ORDER BY updated_at DESC, id DESC
       LIMIT 15
@@ -1102,7 +1159,7 @@ app.get('/api/system/monitor', async (req, res) => {
     // 统计消息表中还有多少条 is_traded = 0 的大V消息等待跟单引擎提炼
     // 修复 #10: 使用带索引的高效查询（索引在 database.js 中创建）
     const pendingTradeMsgsCount = db.prepare(`
-      SELECT COUNT(*) as count FROM messages 
+      SELECT COUNT(*) as count FROM messages
       WHERE is_traded = 0
     `).get()?.count || 0;
 
@@ -1129,11 +1186,11 @@ app.post('/api/task-queue/clear', requireCsrf, (req, res) => {
     const db = getDb();
     const type = req.query.type || 'all';
     let changes = 0;
-    
+
     if (type === 'persona') {
       const info = db.prepare(`
-        UPDATE task_queue 
-        SET status = 'failed', error_message = '用户手动取消了任务' 
+        UPDATE task_queue
+        SET status = 'failed', error_message = '用户手动取消了任务'
         WHERE task_type LIKE 'persona_%'
           AND status IN ('pending', 'running', 'retry')
       `).run();
@@ -1141,22 +1198,22 @@ app.post('/api/task-queue/clear', requireCsrf, (req, res) => {
       forceUpdatePersonaStatus('idle', '已取消后台画像生成。', 0);
     } else if (type === 'news') {
       const info = db.prepare(`
-        UPDATE task_queue 
-        SET status = 'failed', error_message = '用户手动取消了任务' 
+        UPDATE task_queue
+        SET status = 'failed', error_message = '用户手动取消了任务'
         WHERE task_type LIKE 'news_%'
           AND status IN ('pending', 'running', 'retry')
       `).run();
       changes = info.changes;
     } else {
       const info = db.prepare(`
-        UPDATE task_queue 
-        SET status = 'failed', error_message = '用户手动取消了全部任务' 
+        UPDATE task_queue
+        SET status = 'failed', error_message = '用户手动取消了全部任务'
         WHERE status IN ('pending', 'running', 'retry')
       `).run();
       changes = info.changes;
       forceUpdatePersonaStatus('idle', '已取消后台画像生成。', 0);
     }
-    
+
     res.json({ success: true, message: `成功强制取消并中断了 ${changes} 个后台排队计算任务。` });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -1193,16 +1250,16 @@ app.post('/api/system/local-model/start', requireCsrf, async (req, res) => {
     const tunnelCmd = process.env.LOCAL_MODEL_TUNNEL_CMD || null;
 
     if (!tunnelCmd) {
-      return res.json({ 
-        success: false, 
-        connected: false, 
+      return res.json({
+        success: false,
+        connected: false,
         message: '未配置 LOCAL_MODEL_TUNNEL_CMD 环境变量。请在 .env 中设置隧道启动命令，或从本地 Windows 运行 SSH 反向隧道命令。',
         hint: `在本地 Windows PowerShell 中运行：\nssh -i C:\\Users\\86597\\.ssh\\stable_key -R 8080:localhost:8080 -N -o ServerAliveInterval=30 -o ExitOnForwardFailure=yes wikitang628@35.212.142.173`
       });
     }
 
     console.log(`[Local Model] 正在执行隧道启动命令: ${tunnelCmd}`);
-    
+
     // 使用 spawn 非阻塞启动隧道子进程
     localModelTunnelProcess = spawn('bash', ['-c', tunnelCmd], {
       detached: true,
@@ -1231,11 +1288,11 @@ app.post('/api/system/local-model/start', requireCsrf, async (req, res) => {
       socket.connect(8080, '127.0.0.1');
     });
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       connected,
-      message: connected 
-        ? '🟢 本地大模型隧道建立成功！8080端口已就绪。' 
+      message: connected
+        ? '🟢 本地大模型隧道建立成功！8080端口已就绪。'
         : '⏳ 隧道命令已执行，但端口尚未响应。请稍后刷新检查。'
     });
   } catch (err) {
@@ -1254,8 +1311,8 @@ app.post('/api/system/local-model/stop', requireCsrf, async (req, res) => {
     }
 
     // 额外保险：强杀 8080 上的所有进程
-    try { 
-      execSync('fuser -k 8080/tcp 2>/dev/null || true', { timeout: 3000 }); 
+    try {
+      execSync('fuser -k 8080/tcp 2>/dev/null || true', { timeout: 3000 });
     } catch(e) {}
 
     // 也杀掉可能残留的 SSH 隧道进程
@@ -1275,24 +1332,24 @@ app.post('/api/system/local-model/stop', requireCsrf, async (req, res) => {
 app.get('/api/zhao-positions', async (req, res) => {
   try {
     const db = getDb();
-    
+
     // 1. 获取所有的成功订单，按时间升序排列，用以 FIFO 算法对冲仓位明细
     const orders = db.prepare(`
-      SELECT * FROM orders 
+      SELECT * FROM orders
       WHERE status = 'filled' OR status = 'completed' OR status = 'success' OR status = 'completed_fully'
       ORDER BY created_at ASC
     `).all();
-    
+
     const positionsMap = {};
     const closedPositions = [];
-    
+
     // 2. FIFO 仓位对冲计算引擎
     for (const ord of orders) {
       const ticker = ord.ticker.toUpperCase();
       const action = ord.action.toUpperCase();
       const price = ord.price;
       const qty = ord.quantity;
-      
+
       if (action === 'BUY') {
         if (!positionsMap[ticker]) {
           positionsMap[ticker] = {
@@ -1311,14 +1368,14 @@ app.get('/api/zhao-positions', async (req, res) => {
           let sellQty = qty;
           let realizedPnLForThisSell = 0;
           let totalCostForThisSell = 0;
-          
+
           while (sellQty > 0 && positionsMap[ticker].lots.length > 0) {
             const currentLot = positionsMap[ticker].lots[0];
             if (currentLot.quantity <= sellQty) {
               sellQty -= currentLot.quantity;
               totalCostForThisSell += currentLot.quantity * currentLot.price;
               realizedPnLForThisSell += currentLot.quantity * (price - currentLot.price);
-              positionsMap[ticker].lots.shift(); 
+              positionsMap[ticker].lots.shift();
             } else {
               currentLot.quantity -= sellQty;
               totalCostForThisSell += sellQty * currentLot.price;
@@ -1326,7 +1383,7 @@ app.get('/api/zhao-positions', async (req, res) => {
               sellQty = 0;
             }
           }
-          
+
           if (positionsMap[ticker].lots.length === 0) {
             const finalPnlRatio = totalCostForThisSell > 0 ? (realizedPnLForThisSell / totalCostForThisSell) : 0;
             closedPositions.push({
@@ -1340,33 +1397,33 @@ app.get('/api/zhao-positions', async (req, res) => {
         }
       }
     }
-    
+
     // 3. 对活跃持仓获取当前最新价格，计算未实现盈亏
     const activePositions = Object.values(positionsMap);
     const tickersList = activePositions.map(p => p.ticker);
-    
+
     let marketPrices = {};
     if (tickersList.length > 0) {
       try {
         const context = await getMarketContextForTickers(tickersList);
         if (context && context.prices) {
-          marketPrices = context.prices; 
+          marketPrices = context.prices;
         }
       } catch (priceErr) {
         console.warn('[Zhao Positions API] 无法获取市场实时现价，将使用成本均价退避:', priceErr.message);
       }
     }
-    
+
     const formattedActivePositions = activePositions.map(pos => {
       const totalQuantity = pos.lots.reduce((sum, l) => sum + l.quantity, 0);
       const totalCost = pos.lots.reduce((sum, l) => sum + (l.quantity * l.price), 0);
       const averageCost = totalQuantity > 0 ? (totalCost / totalQuantity) : 0;
-      
-      const currentPrice = marketPrices[pos.ticker] || averageCost; 
+
+      const currentPrice = marketPrices[pos.ticker] || averageCost;
       const marketValue = totalQuantity * currentPrice;
       const unrealizedPnL = totalQuantity * (currentPrice - averageCost);
       const pnlRatio = averageCost > 0 ? (currentPrice - averageCost) / averageCost : 0;
-      
+
       return {
         ticker: pos.ticker,
         totalQuantity,
@@ -1378,14 +1435,14 @@ app.get('/api/zhao-positions', async (req, res) => {
         lots: pos.lots
       };
     });
-    
+
     // 4. 【大V口头披露仓位状态提取】 — 直接读取后台缓存数据，实现接口毫秒级极速返回
     const verbalExposure = cachedVerbalExposure;
-    
+
     // 5. 聚合战役的统计
     const activeCampaignsCount = db.prepare("SELECT COUNT(*) as count FROM campaigns WHERE status = 'active'").get()?.count || 0;
     const closedCampaignsCount = db.prepare("SELECT COUNT(*) as count FROM campaigns WHERE status = 'closed'").get()?.count || 0;
-    
+
     res.json({
       success: true,
       data: {
@@ -1407,7 +1464,7 @@ app.get('/api/campaigns', (req, res) => {
   try {
     const db = getDb();
     const rows = db.prepare(`
-      SELECT c.*, 
+      SELECT c.*,
         (SELECT COUNT(*) FROM campaign_messages WHERE campaign_id = c.id) as message_count
       FROM campaigns c
       ORDER BY c.open_time DESC
@@ -1423,20 +1480,20 @@ app.get('/api/campaigns/:id/messages', (req, res) => {
   try {
     const campaignId = parseInt(req.params.id, 10);
     const db = getDb();
-    
+
     const campaign = db.prepare('SELECT * FROM campaigns WHERE id = ?').get(campaignId);
     if (!campaign) {
       return res.status(404).json({ success: false, error: '战役未找到' });
     }
-    
+
     const messages = db.prepare(`
-      SELECT m.* 
+      SELECT m.*
       FROM messages m
       JOIN campaign_messages cm ON m.id = cm.message_id
       WHERE cm.campaign_id = ?
       ORDER BY m.created_at ASC
     `).all(campaignId);
-    
+
     res.json({ success: true, campaign, messages });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -1448,7 +1505,7 @@ app.get('/api/macro-events', (req, res) => {
   try {
     const db = getDb();
     const rows = db.prepare(`
-      SELECT * FROM macro_events 
+      SELECT * FROM macro_events
       ORDER BY event_timestamp DESC
     `).all();
     res.json({ success: true, events: rows });
@@ -1484,8 +1541,8 @@ app.get('/api/quant/positions', async (req, res) => {
 // GET /api/quant/orders - 获取跟单订单历史记录
 app.get('/api/quant/orders', (req, res) => {
   try {
-    const limit = parseInt(req.query.limit || '50', 10);
-    const offset = parseInt(req.query.offset || '0', 10);
+    const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 50));
+    const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
     const data = getOrders({ limit, offset });
     res.json({ success: true, data: data.orders, total: data.total });
   } catch (error) {
@@ -1544,7 +1601,7 @@ app.post('/api/quant/trade', requireCsrf, async (req, res) => {
 function updateEnvFile(newConfig) {
   const envPath = path.join(process.cwd(), '.env');
   let currentEnv = {};
-  
+
   if (fs.existsSync(envPath)) {
     const fileContent = fs.readFileSync(envPath, 'utf-8');
     const lines = fileContent.split('\n');
@@ -1560,7 +1617,7 @@ function updateEnvFile(newConfig) {
   const outputContent = Object.entries(mergedConfig)
     .map(([key, val]) => `${key}=${val}`)
     .join('\n') + '\n';
-    
+
   fs.writeFileSync(envPath, outputContent, 'utf-8');
 
   // Update in-memory process.env
@@ -1584,7 +1641,7 @@ async function callAI(provider, prompt) {
     const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
     return await analyzeWithOllama(baseUrl, model, prompt);
   } else if (provider === 'lm-studio') {
-    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
+    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
     const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
     return await analyzeWithLMStudio(baseUrl, model, prompt);
   } else {
@@ -1594,8 +1651,8 @@ async function callAI(provider, prompt) {
 
 // Generate the final reduce prompt based on whether it is from Map-Reduce or raw messages
 function getFinalReducePrompt(inputText, primarySpeakerName, isStrategyMode, extraParam, isFromMapReduce = false) {
-  const dataSourceDesc = isFromMapReduce 
-    ? `美股社区大V [${primarySpeakerName}] 的历史发言核心要点精炼汇总记录` 
+  const dataSourceDesc = isFromMapReduce
+    ? `美股社区大V [${primarySpeakerName}] 的历史发言核心要点精炼汇总记录`
     : `美股社区大V [${primarySpeakerName}] 的历史发言原始归档记录`;
 
   if (isStrategyMode) {
@@ -1666,7 +1723,7 @@ ${inputText}`;
 // Master Map-Reduce analysis scheduler
 async function runMapReduceAnalysis(messages, provider, isStrategyMode, extraParam) {
   const CHUNK_SIZE = 60; // Optimal batch size for 8k VRAM limit
-  
+
   if (messages.length <= CHUNK_SIZE) {
     console.log(`[AI Map-Reduce] 消息总数为 ${messages.length}，少于分批阈值 ${CHUNK_SIZE}，执行单次直连分析。`);
     const messagesText = messages
@@ -1675,7 +1732,7 @@ async function runMapReduceAnalysis(messages, provider, isStrategyMode, extraPar
         return `[${timeStr}] [${msg.channel_name || '讨论区'}] ${msg.sender_name}: ${msg.content}`;
       })
       .join('\n\n');
-      
+
     const primarySpeakerName = messages[0].sender_name;
     const prompt = getFinalReducePrompt(messagesText, primarySpeakerName, isStrategyMode, extraParam);
     return await callAI(provider, prompt);
@@ -1693,7 +1750,7 @@ async function runMapReduceAnalysis(messages, provider, isStrategyMode, extraPar
   for (let i = 0; i < chunks.length; i++) {
     const chunk = chunks[i];
     console.log(`[AI Map-Reduce] 正在进行 Map 阶段分析 (${i + 1}/${chunks.length})，处理 ${chunk.length} 条发言...`);
-    
+
     const chunkText = chunk
       .map((msg) => {
         const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
@@ -1721,7 +1778,7 @@ ${chunkText}`;
 
   console.log(`[AI Map-Reduce] 正在进行 Reduce 阶段整合，融合所有批次的摘要...`);
   const aggregatedSummariesText = chunkSummaries.join('\n\n=======================\n\n');
-  
+
   const finalPrompt = getFinalReducePrompt(aggregatedSummariesText, primarySpeakerName, isStrategyMode, extraParam, true);
   return await callAI(provider, finalPrompt);
 }
@@ -1742,8 +1799,8 @@ app.get('/api/config', (req, res) => {
       GEMINI_API_KEY_MASKED: mask(process.env.GEMINI_API_KEY),
       OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
       OLLAMA_MODEL: process.env.OLLAMA_MODEL || 'deepseek-r1',
-      LM_STUDIO_BASE_URL: process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234',
-      LM_STUDIO_MODEL: process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b',
+      LM_STUDIO_BASE_URL: process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080',
+      LM_STUDIO_MODEL: process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct',
       WHOP_CHAT_CHANNEL_ID: process.env.WHOP_CHAT_CHANNEL_ID || '',
       WHOP_SIGNAL_CHANNEL_IDS: process.env.WHOP_SIGNAL_CHANNEL_IDS || 'chat_feed_1CTrCEx44dP13jW3RVkYiS,chat_feed_1CWLuNUVYVVYttro8gAvJ5',
       TARGET_SPEAKER_USER_IDS: process.env.TARGET_SPEAKER_USER_IDS || '',
@@ -1811,7 +1868,7 @@ app.post('/api/config', requireCsrf, (req, res) => {
     }
 
     updateEnvFile(cleanUpdates);
-    
+
     // Restart poller task to reflect new interval
     startPoller();
 
@@ -1831,11 +1888,11 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     const hmac = crypto.createHmac('sha256', secret);
     hmac.update(rawBody);
     const expectedSignature = hmac.digest('hex');
-    
+
     try {
       const actualBuffer = Buffer.from(signature, 'hex');
       const expectedBuffer = Buffer.from(expectedSignature, 'hex');
-      
+
       if (actualBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(actualBuffer, expectedBuffer)) {
         console.warn('Webhook signature verification failed.');
         return res.status(401).send('Unauthorized signature');
@@ -1853,7 +1910,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
   try {
     const payload = JSON.parse(rawBody.toString('utf-8'));
     console.log('Received valid Whop Webhook:', payload.type);
-    
+
     let msgText = `### 🔔 Whop 业务事件通知\n**事件类型**: \`${payload.type}\`\n`;
     if (payload.data) {
       const data = payload.data;
@@ -1865,7 +1922,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
         msgText += `**数据摘要**: ${JSON.stringify(data).substring(0, 200)}...\n`;
       }
     }
-    
+
     // Push notification to WeChat Bot
     if (process.env.WECHAT_WORK_WEBHOOK_URL) {
       await fetch(process.env.WECHAT_WORK_WEBHOOK_URL, {
@@ -1910,10 +1967,10 @@ app.post('/api/reports/dimensional-summary', requireCsrf, async (req, res) => {
     }
 
     // Retrieve up to 200 messages for historical review analysis
-    const data = getMessages({ 
-      search: search || '', 
-      limit: 200, 
-      offset: 0, 
+    const data = getMessages({
+      search: search || '',
+      limit: 200,
+      offset: 0,
       senderIds,
       excludeSenderIds,
       channelId: queryChannelId,
@@ -1931,7 +1988,7 @@ app.post('/api/reports/dimensional-summary', requireCsrf, async (req, res) => {
 
     // Sort chronologically (oldest first)
     const messages = [...data.messages].sort((a, b) => a.created_at - b.created_at);
-    
+
     const primarySpeakerName = messages[0].sender_name;
     const filterDesc = [];
     if (effectiveSpeakerMode === 'speakers') {
@@ -1951,7 +2008,7 @@ app.post('/api/reports/dimensional-summary', requireCsrf, async (req, res) => {
     const filterStr = filterDesc.length > 0 ? filterDesc.join(', ') : '全维度历史';
 
     const provider = process.env.AI_PROVIDER || 'gemini';
-    
+
     console.log(`[AI 维度复盘] 开始调用 AI (${provider})，采用分批合并机制生成维度总结报告...`);
     const startTimeAI = Date.now();
     const summaryContent = await runMapReduceAnalysis(messages, provider, false, filterStr);
@@ -1961,12 +2018,12 @@ app.post('/api/reports/dimensional-summary', requireCsrf, async (req, res) => {
     // Save report to DB
     const startTime = messages[0].created_at;
     const endTime = messages[messages.length - 1].created_at;
-    
+
     let modelNameUsed = 'Gemini';
     if (provider === 'ollama') {
       modelNameUsed = `Ollama (${process.env.OLLAMA_MODEL || 'deepseek-r1'})`;
     } else if (provider === 'lm-studio') {
-      modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b'})`;
+      modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct'})`;
     }
 
     const reportId = saveReport({
@@ -1977,8 +2034,8 @@ app.post('/api/reports/dimensional-summary', requireCsrf, async (req, res) => {
       rawMessagesCount: messages.length,
     });
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       id: reportId,
       created_at: Date.now(),
       summary_content: summaryContent,
@@ -2011,15 +2068,15 @@ app.get('/api/strategies', (req, res) => {
     const result = strategies.map(strat => {
       // 查询有该战法标记的消息总数
       const countRow = conn.prepare(`
-        SELECT COUNT(*) as count FROM messages 
+        SELECT COUNT(*) as count FROM messages
         WHERE strategies LIKE ?
       `).get(`%,${strat.key},%`);
-      
+
       const messageCount = countRow ? countRow.count : 0;
-      
+
       // 查询此战法关联的最新的 AI 研报
       const latestReport = getLatestReportForStrategy(strat.key);
-      
+
       return {
         key: strat.key,
         name: strat.name,
@@ -2068,9 +2125,9 @@ app.post('/api/strategies/analyze', requireCsrf, async (req, res) => {
 
     // 按时间先后顺序排列 (最早的消息排在最前面)
     const messages = [...data.messages].sort((a, b) => a.created_at - b.created_at);
-    
+
     const provider = process.env.AI_PROVIDER || 'gemini';
-    
+
     console.log(`[AI 战法分析] 开始调用 AI (${provider})，采用分批合并机制生成【${strategy}】专项研报...`);
     const startTimeAI = Date.now();
     const summaryContent = await runMapReduceAnalysis(messages, provider, true, strategy);
@@ -2080,7 +2137,7 @@ app.post('/api/strategies/analyze', requireCsrf, async (req, res) => {
     // 保存报告，带上 strategy 标记
     const startTime = messages[0].created_at;
     const endTime = messages[messages.length - 1].created_at;
-    
+
     let modelNameUsed = 'Gemini';
     if (provider === 'ollama') {
       modelNameUsed = `Ollama (${process.env.OLLAMA_MODEL || 'deepseek-r1'})`;
@@ -2097,8 +2154,8 @@ app.post('/api/strategies/analyze', requireCsrf, async (req, res) => {
       strategy: strategy
     });
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       id: reportId,
       created_at: Date.now(),
       summary_content: summaryContent,
@@ -2120,13 +2177,13 @@ let isVectorSearchEnabled = false;
 let isEmbeddingWorkerRunning = false;
 
 async function fetchLMStudioEmbedding(text) {
-  const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
+  const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
   const model = process.env.LM_STUDIO_EMBEDDING_MODEL || 'text-embedding-nomic-embed-text-v1.5';
   const url = `${baseUrl.replace(/\/$/, '')}/v1/embeddings`;
-  
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
-  
+
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -2137,13 +2194,13 @@ async function fetchLMStudioEmbedding(text) {
       }),
       signal: controller.signal
     });
-    
+
     clearTimeout(timeoutId);
-    
+
     if (!res.ok) {
       throw new Error(`LM Studio HTTP ${res.status}: ${res.statusText}`);
     }
-    
+
     const data = await res.json();
     if (data && data.data && data.data[0] && data.data[0].embedding) {
       return data.data[0].embedding;
@@ -2160,13 +2217,13 @@ async function fetchLMStudioEmbedding(text) {
 async function fetchGeminiEmbedding(text, priority = 1) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY not set');
-  
+
   const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=' + apiKey;
-  
+
   const callFn = async () => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
-    
+
     try {
       const res = await fetch(url, {
         method: 'POST',
@@ -2177,13 +2234,13 @@ async function fetchGeminiEmbedding(text, priority = 1) {
         }),
         signal: controller.signal
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (!res.ok) {
         throw new Error('Gemini embedding HTTP ' + res.status);
       }
-      
+
       const data = await res.json();
       if (data && data.embedding && data.embedding.values) {
         return data.embedding.values;
@@ -2229,9 +2286,9 @@ async function checkEmbeddingApi() {
 async function startBackgroundEmbedder() {
   if (isEmbeddingWorkerRunning) return;
   isEmbeddingWorkerRunning = true;
-  
+
   console.log('[RAG] Background embedding worker started.');
-  
+
   while (isVectorSearchEnabled) {
     try {
       if (global.isAiGenerating) {
@@ -2245,18 +2302,18 @@ async function startBackgroundEmbedder() {
         await new Promise(resolve => setTimeout(resolve, 30000));
         continue;
       }
-      
+
       console.log(`[RAG] Indexing embeddings: ${unembedded.length} messages remaining in batch...`);
-      
+
       for (const msg of unembedded) {
         if (!isVectorSearchEnabled) break;
         if (global.isAiGenerating) break; // Break batch if text completions starts
-        
+
         if (!msg.content || msg.content.trim() === '') {
           saveMessageEmbedding(msg.id, new Array( testLMStudioVectorSize() || 384 ).fill(0));
           continue;
         }
-        
+
         try {
           const embedding = await fetchEmbedding(msg.content, 0);
           saveMessageEmbedding(msg.id, embedding);
@@ -2275,7 +2332,7 @@ async function startBackgroundEmbedder() {
       await new Promise(resolve => setTimeout(resolve, 15000));
     }
   }
-  
+
   isEmbeddingWorkerRunning = false;
   console.log('[RAG] Background embedding worker stopped.');
 }
@@ -2292,17 +2349,17 @@ app.post('/api/rag/query', requireCsrf, async (req, res) => {
     if (!question || question.trim() === '') {
       return res.status(400).json({ success: false, error: '问题不能为空。' });
     }
-    
+
     console.log(`[RAG] Received question: "${question}"`);
-    
+
     const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
       .split(',')
       .map(s => s.trim())
       .filter(Boolean);
-    
+
     let topMessages = [];
     let retrievalMode = 'FTS5 (Keyword Only)';
-    
+
     let queryEmbedding = null;
     if (isVectorSearchEnabled) {
       try {
@@ -2311,39 +2368,39 @@ app.post('/api/rag/query', requireCsrf, async (req, res) => {
         console.warn(`[RAG] Failed to generate embedding for query, falling back to keyword search: ${err.message}`);
       }
     }
-    
+
     if (queryEmbedding) {
       retrievalMode = 'Hybrid (FTS5 + Vector Embeddings)';
       const vectorMatches = searchVectorMessages(queryEmbedding, 30, targetSpeakers);
       const ftsMatches = searchFTSMessages(question, 30, targetSpeakers);
-      
+
       const rrfScores = {};
       const messagesMap = {};
-      
+
       vectorMatches.forEach((msg, index) => {
         const rank = index + 1;
         rrfScores[msg.id] = (rrfScores[msg.id] || 0) + 1 / (60 + rank);
         messagesMap[msg.id] = msg;
       });
-      
+
       ftsMatches.forEach((msg, index) => {
         const rank = index + 1;
         rrfScores[msg.id] = (rrfScores[msg.id] || 0) + 1 / (60 + rank);
         messagesMap[msg.id] = msg;
       });
-      
+
       const sortedIds = Object.keys(rrfScores).sort((a, b) => rrfScores[b] - rrfScores[a]);
       topMessages = sortedIds.slice(0, 7).map(id => messagesMap[id]);
     } else {
       topMessages = searchFTSMessages(question, 7, targetSpeakers);
     }
-    
+
     if (topMessages.length === 0) {
       const data = getMessages({ search: question, limit: 10, senderIds: targetSpeakers });
       topMessages = data.messages || [];
       retrievalMode = 'LIKE (FTS/Vector Empty Fallback)';
     }
-    
+
     if (topMessages.length === 0) {
       return res.json({
         success: true,
@@ -2352,14 +2409,14 @@ app.post('/api/rag/query', requireCsrf, async (req, res) => {
         retrieval_mode: retrievalMode
       });
     }
-    
+
     const chronMessages = [...topMessages].sort((a, b) => a.created_at - b.created_at);
-    
+
     const contextText = chronMessages.map((msg, index) => {
       const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
       return `[消息 ID: ${index + 1}] [时间: ${timeStr}] [频道: ${msg.channel_name || '讨论区'}] ${msg.sender_name}: ${msg.content}`;
     }).join('\n\n');
-    
+
     let playbookText = '';
     try {
       const latestPlaybook = getLatestPersonaPlaybook();
@@ -2389,10 +2446,10 @@ ${question}`;
 
     const provider = process.env.AI_PROVIDER || 'gemini';
     let answer = '';
-    
+
     console.log(`[RAG] Querying LLM (${provider}) for answer...`);
     const startTimeAI = Date.now();
-    
+
     if (provider === 'gemini') {
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) throw new Error('GEMINI_API_KEY is not set.');
@@ -2402,16 +2459,16 @@ ${question}`;
       const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
       answer = await analyzeWithOllama(baseUrl, model, aiPrompt);
     } else if (provider === 'lm-studio') {
-      const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
-      const model = process.env.LM_STUDIO_MODEL || 'qwen3.5-35b-a3b';
+      const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
+      const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
       answer = await analyzeWithLMStudio(baseUrl, model, aiPrompt);
     } else {
       throw new Error(`Unsupported AI provider: ${provider}`);
     }
-    
+
     const durationAI = ((Date.now() - startTimeAI) / 1000).toFixed(1);
     console.log(`[RAG] Answer generated successfully in ${durationAI}s. Retrieval Mode: ${retrievalMode}`);
-    
+
     res.json({
       success: true,
       answer: answer,
@@ -2425,7 +2482,7 @@ ${question}`;
       })),
       retrieval_mode: retrievalMode
     });
-    
+
   } catch (error) {
     console.error('[RAG] Error answering query:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -2436,17 +2493,17 @@ let tunnelProcess = null;
 
 function startCloudflareTunnel(port) {
   console.log('[Cloudflare Tunnel] Starting Cloudflare quick tunnel for port', port);
-  
+
   // Spawn npx cloudflared tunnel --url http://localhost:${port}
   // On Windows, npx is a cmd/ps1 file, so { shell: true } is required
   tunnelProcess = spawn('npx', ['cloudflared', 'tunnel', '--url', `http://localhost:${port}`], { shell: true });
-  
+
   let urlFound = false;
 
   const handleData = async (data) => {
     const output = data.toString();
     console.log(`[Cloudflare Log] ${output.trim()}`);
-    
+
     if (urlFound) return;
 
     // Search for trycloudflare.com URL
@@ -2518,7 +2575,7 @@ const server = app.listen(PORT, () => {
   console.log(`Whop Webhook & Bridge Server running on port ${PORT}`);
   console.log(`Web Dashboard: http://localhost:${PORT}`);
   console.log(`=================================================`);
-  
+
   startPoller();
   // Check local LM Studio embedding server and start background worker if active
   checkEmbeddingApi();
@@ -2534,7 +2591,7 @@ const server = app.listen(PORT, () => {
   }, 2, 800);
   // Start Cloudflare Tunnel and push URL to WeChat
   startCloudflareTunnel(PORT);
-  
+
   // 5 秒后首次后台更新口头仓位披露缓存，此后每 15 分钟定时静默拉取
   setTimeout(() => {
     updateCachedVerbalExposure();

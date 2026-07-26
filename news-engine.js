@@ -13,6 +13,11 @@ import { addTask } from './task-queue.js';
 
 dotenv.config();
 
+// Configurable message limits with sensible defaults
+const SPEAKER_MSG_LIMIT = parseInt(process.env.NEWS_SPEAKER_MSG_LIMIT || '60', 10);
+const COMMUNITY_MSG_LIMIT = parseInt(process.env.NEWS_COMMUNITY_MSG_LIMIT || '200', 10);
+const COMMUNITY_FILTERED_LIMIT = parseInt(process.env.NEWS_COMMUNITY_FILTERED_LIMIT || '50', 10);
+
 // ============================================================
 // AI 调用封装 (与大V画像引擎一致)
 // ============================================================
@@ -266,7 +271,7 @@ async function generateSingleNewsSummary(type, startTime, endTime, titleType, fo
     SELECT sender_name, content, created_at FROM messages
     WHERE sender_id IN (${placeholders}) AND created_at BETWEEN ? AND ?
     ORDER BY created_at DESC
-    LIMIT 60
+    LIMIT ${SPEAKER_MSG_LIMIT}
   `).all(...targetSpeakers, startTime, endTime);
 
   if (speakerMessagesRaw.length < 2) {
@@ -276,7 +281,7 @@ async function generateSingleNewsSummary(type, startTime, endTime, titleType, fo
       SELECT sender_name, content, created_at FROM messages
       WHERE sender_id IN (${placeholders}) AND created_at BETWEEN ? AND ?
       ORDER BY created_at DESC
-      LIMIT 60
+      LIMIT ${SPEAKER_MSG_LIMIT}
     `).all(...targetSpeakers, extendedStartTime, endTime);
   }
 
@@ -287,7 +292,7 @@ async function generateSingleNewsSummary(type, startTime, endTime, titleType, fo
     SELECT sender_name, content, created_at FROM messages
     WHERE sender_id NOT IN (${placeholders}) AND created_at BETWEEN ? AND ?
     ORDER BY created_at DESC
-    LIMIT 200
+    LIMIT ${COMMUNITY_MSG_LIMIT}
   `).all(...targetSpeakers, startTime, endTime);
 
   const filteredCommunity = communityMessagesRaw.map(msg => {
@@ -312,7 +317,7 @@ async function generateSingleNewsSummary(type, startTime, endTime, titleType, fo
   })
   .filter(item => item.score >= 0)
   .sort((a, b) => b.score - a.score)
-  .slice(0, 50)
+  .slice(0, COMMUNITY_FILTERED_LIMIT)
   .map(item => item.msg);
 
   const communityMessages = filteredCommunity.sort((a, b) => a.created_at - b.created_at);

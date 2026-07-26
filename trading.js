@@ -1,14 +1,14 @@
-import { 
-  getPortfolio, 
-  updatePortfolioCash, 
-  getPositions, 
-  savePosition, 
-  saveOrder 
+import {
+  getPortfolio,
+  updatePortfolioCash,
+  getPositions,
+  savePosition,
+  saveOrder
 } from './database.js';
-import { 
-  getAccountBalances, 
-  getActivePositions, 
-  placeOrder as placeLongbridgeOrder 
+import {
+  getAccountBalances,
+  getActivePositions,
+  placeOrder as placeLongbridgeOrder
 } from './brokers/longbridge.js';
 import dotenv from 'dotenv';
 
@@ -37,7 +37,7 @@ export async function getUnifiedPortfolio() {
       const posValue = positions.reduce((sum, p) => sum + p.market_value, 0);
       const totalEquity = cash + posValue;
       const pnl = positions.reduce((sum, p) => sum + p.unrealized_pnl, 0);
-      
+
       return {
         cash,
         initial_deposit: 0, // 实盘不计初始投入
@@ -46,9 +46,14 @@ export async function getUnifiedPortfolio() {
         unrealized_pnl: pnl
       };
     } catch (error) {
+      // 容错：实盘API失败时降级到数据库沙盒快照，而非返回零值导致风控误判
       console.error('[实盘资产获取失败] 调用长桥 API 异常:', error.message);
-      // 容错返回空资产结构
-      return { cash: 0, initial_deposit: 0, positions_value: 0, total_equity: 0, unrealized_pnl: 0, error: error.message };
+      try {
+        const fallbackPortfolio = getPortfolio();
+        return { ...fallbackPortfolio, isError: true, errorMessage: error.message };
+      } catch (fbErr) {
+        return { cash: 0, initial_deposit: 0, positions_value: 0, total_equity: 0, unrealized_pnl: 0, isError: true, errorMessage: error.message };
+      }
     }
   }
 }
@@ -64,7 +69,11 @@ export async function getUnifiedPositions() {
       return await getActivePositions();
     } catch (error) {
       console.error('[实盘持仓获取失败] 调用长桥 API 异常:', error.message);
-      return [];
+      try {
+        return getPositions();
+      } catch (fbErr) {
+        return [];
+      }
     }
   }
 }
@@ -95,6 +104,9 @@ export async function validateRiskLimits({ ticker, action, price, requestedQuant
 
   // 实盘与模拟统一调用当前生效的资产总览
   const portfolio = await getUnifiedPortfolio();
+  if (portfolio.isError) {
+    console.warn(`[风控警告] 实盘资产查询异常 (${portfolio.errorMessage})，风控校验降级为保守模式`);
+  }
   const totalEquity = portfolio.total_equity;
   const availableCash = portfolio.cash;
 
@@ -103,9 +115,9 @@ export async function validateRiskLimits({ ticker, action, price, requestedQuant
     const cashReserveRequired = totalEquity * CASH_BUFFER_PCT;
     const proposedCost = price * requestedQuantity;
     if (availableCash - proposedCost < cashReserveRequired) {
-      return { 
-        allowed: false, 
-        reason: `风控拦截：现金不足。需保留现金垫 $${cashReserveRequired.toFixed(2)}，当前现金 $${availableCash.toFixed(2)}，交易所需 $${proposedCost.toFixed(2)}` 
+      return {
+        allowed: false,
+        reason: `风控拦截：现金不足。需保留现金垫 $${cashReserveRequired.toFixed(2)}，当前现金 $${availableCash.toFixed(2)}，交易所需 $${proposedCost.toFixed(2)}`
       };
     }
   }
@@ -119,9 +131,9 @@ export async function validateRiskLimits({ ticker, action, price, requestedQuant
     const maxAllowedValue = totalEquity * MAX_CONCENTRATION_PCT;
 
     if (existingValue + proposedCost > maxAllowedValue) {
-      return { 
-        allowed: false, 
-        reason: `风控拦截：单股持仓超标。${ticker} 最大持仓额 $${maxAllowedValue.toFixed(2)} (占总资产 ${MAX_CONCENTRATION_PCT*100}%)，买入后将达 $${(existingValue + proposedCost).toFixed(2)}` 
+      return {
+        allowed: false,
+        reason: `风控拦截：单股持仓超标。${ticker} 最大持仓额 $${maxAllowedValue.toFixed(2)} (占总资产 ${MAX_CONCENTRATION_PCT*100}%)，买入后将达 $${(existingValue + proposedCost).toFixed(2)}`
       };
     }
   }
@@ -131,15 +143,15 @@ export async function validateRiskLimits({ ticker, action, price, requestedQuant
     const positions = await getUnifiedPositions();
     const existingPosition = positions.find(pos => pos.ticker === ticker);
     if (!existingPosition) {
-      return { 
-        allowed: false, 
-        reason: `交易拦截：无持仓。企图卖出 ${ticker} ${requestedQuantity} 股，当前未持有该股票` 
+      return {
+        allowed: false,
+        reason: `交易拦截：无持仓。企图卖出 ${ticker} ${requestedQuantity} 股，当前未持有该股票`
       };
     }
     if (existingPosition.quantity < requestedQuantity) {
-      return { 
-        allowed: false, 
-        reason: `交易拦截：可用持仓不足。企图卖出 ${ticker} ${requestedQuantity} 股，当前仅持有 ${existingPosition.quantity} 股` 
+      return {
+        allowed: false,
+        reason: `交易拦截：可用持仓不足。企图卖出 ${ticker} ${requestedQuantity} 股，当前仅持有 ${existingPosition.quantity} 股`
       };
     }
   }
@@ -149,11 +161,11 @@ export async function validateRiskLimits({ ticker, action, price, requestedQuant
     const maxLossAllowed = totalEquity * RISK_PER_TRADE_PCT;
     const lossPerShare = price - stopLoss;
     const calculatedQty = Math.floor(maxLossAllowed / lossPerShare);
-    
+
     if (calculatedQty < requestedQuantity) {
       console.log(`[风控触发] 单笔亏损限制。根据止损位 ${stopLoss}，最大亏损上限为 $${maxLossAllowed.toFixed(2)}，建议买入股数由 ${requestedQuantity} 降为 ${calculatedQty}`);
-      return { 
-        allowed: true, 
+      return {
+        allowed: true,
         quantity: Math.max(calculatedQty, 1) // 至少买 1 股
       };
     }
@@ -172,10 +184,10 @@ export async function executeOrder({ ticker, action, price, quantity, stopLoss, 
 
   // 1. 进行风控与合规校验
   const riskResult = await validateRiskLimits({ ticker, action, price, requestedQuantity: quantity, stopLoss });
-  
+
   if (!riskResult.allowed) {
     console.warn(`[交易失败] 订单被风控拦截: ${riskResult.reason}`);
-    
+
     // 保存被拒订单到数据库
     saveOrder({
       id: orderId,
@@ -284,7 +296,7 @@ export async function executeOrder({ ticker, action, price, quantity, stopLoss, 
     // ==========================================
     try {
       console.log(`[实盘交易] 正在调用长桥证券 API 执行订单...`);
-      
+
       const order = await placeLongbridgeOrder({
         ticker,
         action,
@@ -318,7 +330,7 @@ export async function executeOrder({ ticker, action, price, quantity, stopLoss, 
       return { success: true, orderId: order.orderId, mode: 'LIVE' };
     } catch (apiError) {
       console.error('[实盘交易失败] 券商接口返回错误:', apiError);
-      
+
       saveOrder({
         id: orderId,
         ticker,
@@ -355,7 +367,7 @@ async function pushTradeAlertToWeChat({ orderId, ticker, action, price, quantity
   let statusZh = '交易成功';
   if (status === 'PENDING') statusZh = '实盘排队中';
   if (status === 'REJECTED') statusZh = '风控拦截/失败';
-  
+
   const text = `### ${emoji} 量化跟单交易通知
 **订单编号**: \`${orderId}\`
 **股票代码**: **${ticker}**

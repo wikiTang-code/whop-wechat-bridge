@@ -148,3 +148,18 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
   }
 }
 
+// Periodic cleanup of stale provider timestamp entries to prevent memory leaks
+setInterval(() => {
+  const now = Date.now();
+  for (const [provider, timestamps] of Object.entries(requestTimestampsMap)) {
+    // Remove entries older than 60 seconds
+    while (timestamps.length > 0 && now - timestamps[0] > 60000) {
+      timestamps.shift();
+    }
+    // If no timestamps remain for this provider, delete the entry entirely
+    if (timestamps.length === 0) {
+      delete requestTimestampsMap[provider];
+    }
+  }
+}, 5 * 60 * 1000); // Every 5 minutes
+

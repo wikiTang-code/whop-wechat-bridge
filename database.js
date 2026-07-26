@@ -8,6 +8,15 @@ const __dirname = path.dirname(__filename);
 const dbPath = path.join(__dirname, 'whop_archive.db');
 let db;
 
+// Prepared statement cache for hot-path queries
+const stmtCache = new Map();
+function getCachedStmt(sql) {
+  if (!stmtCache.has(sql)) {
+    stmtCache.set(sql, getDb().prepare(sql));
+  }
+  return stmtCache.get(sql);
+}
+
 const CHANNEL_NAME_FALLBACKS = {
   'chat_feed_1CTr5VAdNHtbZAFaTitvoT': '不用翻墙美股讨论区',
   'chat_feed_1CTr7QocNpDZ9FXZ6fvWe4': '不用翻墙美股发布',
@@ -90,6 +99,9 @@ export function initDb() {
     // 修复 #10: 为跟单提炼高频查询 (is_traded=0) 添加索引，避免 47000+ 行全表扫描
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_is_traded ON messages(is_traded)`).run();
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_sender_traded ON messages(sender_id, is_traded, is_pushed)`).run();
+    // 优化: 为消息列表查询添加复合索引 (sender_id + created_at)，覆盖最常见的"只看大V"排序查询
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_sender_created ON messages(sender_id, created_at DESC)`).run();
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_channel_id ON messages(channel_id)`).run();
   } catch (err) {
     console.warn("Indices creation warning:", err.message);
   }
@@ -383,6 +395,10 @@ export function initDb() {
       CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_active_unique 
       ON campaigns (influencer_id, ticker) WHERE status = 'active'
     `).run();
+    db.prepare(`
+      CREATE INDEX IF NOT EXISTS idx_campaigns_status 
+      ON campaigns(status, open_time DESC)
+    `).run();
     console.log("campaigns table and index initialized.");
   } catch (err) {
     console.error("Error creating campaigns table:", err.message);
@@ -481,6 +497,10 @@ export function initDb() {
       CREATE INDEX IF NOT EXISTS idx_news_summaries_type 
       ON news_summaries(summary_type)
     `).run();
+    db.prepare(`
+      CREATE INDEX IF NOT EXISTS idx_news_summaries_type_time 
+      ON news_summaries(summary_type, start_time, end_time)
+    `).run();
     console.log("news_summaries table and index initialized.");
   } catch (err) {
     console.error("Error creating news_summaries table:", err.message);
@@ -535,18 +555,26 @@ export function saveMessages(messages) {
     }
   });
 
-  insertMany(messages);
+  try {
+    insertMany(messages);
+  } catch (err) {
+    console.error('[Database] saveMessages transaction failed:', err.message);
+    throw err;
+  }
 }
 
 // Check if a message is already in the database
 export function isMessageArchived(id) {
-  const conn = getDb();
-  const row = conn.prepare('SELECT 1 FROM messages WHERE id = ?').get(id);
+  const stmt = getCachedStmt('SELECT 1 FROM messages WHERE id = ?');
+  const row = stmt.get(id);
   return !!row;
 }
 
 // Retrieve messages with optional search and pagination and speaker filtering
 export function getMessages({ search, limit = 50, offset = 0, senderIds = [], excludeSenderIds = [], channelId = '', channelName = '', ticker = '', sector = '', strategy = '', startDate = '', endDate = '', msgType = '' } = {}) {
+  // Input validation: clamp limit and offset to safe ranges
+  limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
+  offset = Math.max(0, parseInt(offset, 10) || 0);
   const conn = getDb();
   let query = 'SELECT * FROM messages';
   let countQuery = 'SELECT COUNT(*) as count FROM messages';
@@ -671,6 +699,8 @@ export function saveReport({ startTime, endTime, summaryContent, aiModel, rawMes
 
 // Retrieve reports with pagination
 export function getReports({ limit = 10, offset = 0 } = {}) {
+  limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 10));
+  offset = Math.max(0, parseInt(offset, 10) || 0);
   const conn = getDb();
   const stmt = conn.prepare(`
     SELECT * FROM reports 
@@ -786,6 +816,8 @@ export function saveOrder(order) {
 
 // 获取订单历史
 export function getOrders({ limit = 50, offset = 0 } = {}) {
+  limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
+  offset = Math.max(0, parseInt(offset, 10) || 0);
   const conn = getDb();
   const stmt = conn.prepare(`
     SELECT * FROM orders 
@@ -945,6 +977,7 @@ export function getEmbeddingsCount() {
 }
 
 export function searchFTSMessages(queryText, limit = 30, senderIds = []) {
+  limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 30));
   const conn = getDb();
   try {
     const asciiWords = queryText.match(/\b[A-Za-z0-9_-]+\b/g) || [];
@@ -1092,14 +1125,14 @@ export function getMessageContext({ messageId, limit = 10 }) {
 
 // Update message is_traded status
 export function markMessageTraded(id, status = 1) {
-  const conn = getDb();
-  conn.prepare('UPDATE messages SET is_traded = ? WHERE id = ?').run(status, id);
+  const stmt = getCachedStmt('UPDATE messages SET is_traded = ? WHERE id = ?');
+  stmt.run(status, id);
 }
 
 // Update message is_pushed status
 export function markMessagePushed(id, status = 1) {
-  const conn = getDb();
-  conn.prepare('UPDATE messages SET is_pushed = ? WHERE id = ?').run(status, id);
+  const stmt = getCachedStmt('UPDATE messages SET is_pushed = ? WHERE id = ?');
+  stmt.run(status, id);
 }
 
 // ==========================================================================
@@ -1399,6 +1432,8 @@ export function saveNewsSummary(summary) {
  * 获取历史资讯总结列表
  */
 export function getNewsSummaries(limit = 10, offset = 0) {
+  limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 10));
+  offset = Math.max(0, parseInt(offset, 10) || 0);
   const conn = getDb();
   return conn.prepare(`
     SELECT * FROM news_summaries 

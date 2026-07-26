@@ -30,6 +30,10 @@
   --transition-fast: all 0.15s ease;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* ==========================================================================
    Global Reset & Base Layout
    ========================================================================== */
@@ -55,21 +59,35 @@ body {
   padding: 1.5rem;
 }
 
+/* Accessibility: Focus indicators for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: #f8fafc;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(148, 163, 184, 0.4);
 }
 
 /* ==========================================================================
@@ -3635,5 +3653,14 @@ li.community-sentiment-li {
   color: var(--color-text-muted);
 }
 
-
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
