@@ -995,11 +995,15 @@ app.get('/api/system/monitor', async (req, res) => {
     // a. 获取 Rate Limiter 限额情况
     const rateLimiterStats = getRateLimiterStats();
 
-    // b. 极速 Socket 检测本地大模型连接状态 (8080 端口)，限制在 150ms 内
+    // b. 极速 Socket 检测本地大模型连接状态 (8080 端口)，1000ms 超时，带 60s 内成功连线记忆防闪烁
     const checkLocalPort = (port, host) => {
+      // 容错防闪烁：如果最近 60 秒内刚成功调用完本地 AI，直接判定在线
+      const recentlySuccessful = global.lastSuccessfulLocalAiTime && (Date.now() - global.lastSuccessfulLocalAiTime < 60000);
+      if (recentlySuccessful) return Promise.resolve(true);
+
       return new Promise((resolve) => {
         const socket = new net.Socket();
-        socket.setTimeout(150);
+        socket.setTimeout(1000);
         socket.on('connect', () => {
           socket.destroy();
           resolve(true);
@@ -2513,7 +2517,7 @@ const server = app.listen(PORT, () => {
   startPoller();
   // Check local LM Studio embedding server and start background worker if active
   checkEmbeddingApi();
-  // Start background task queue worker with concurrency = 4 (并行调动 GPU 显力)
+  // Start background task queue worker with concurrency = 2 (稳定防 hangup 调动 GPU 显力)
   startQueueWorker(async (task) => {
     if (task.task_type.startsWith('persona_')) {
       return await processPersonaTask(task);
@@ -2522,7 +2526,7 @@ const server = app.listen(PORT, () => {
       return await processNewsTask(task);
     }
     throw new Error(`Unsupported task type: ${task.task_type}`);
-  }, 4, 800);
+  }, 2, 800);
   // Start Cloudflare Tunnel and push URL to WeChat
   startCloudflareTunnel(PORT);
   

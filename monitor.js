@@ -677,45 +677,69 @@ export async function analyzeWithOllama(baseUrl, model, prompt) {
   return text;
 }
 
-// Call LM Studio (OpenAI-compatible) API for local LLM
+// Call LM Studio (OpenAI-compatible) API for local LLM (内置 socket hang up 自动避让重试)
 export async function analyzeWithLMStudio(baseUrl, model, prompt) {
   global.isAiGenerating = true;
-  try {
-    const url = `${baseUrl.replace(/\/$/, '')}/v1/chat/completions`;
-    const response = await localFetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: model || 'qwen', // LM Studio usually accepts any name if only one model is loaded
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.2
-      }),
-    });
+  let attempts = 0;
+  const maxAttempts = 3;
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`LM Studio API failed with status ${response.status}: ${errText}`);
+  while (attempts < maxAttempts) {
+    attempts++;
+    try {
+      const url = `${baseUrl.replace(/\/$/, '')}/v1/chat/completions`;
+      const response = await localFetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: model || 'qwen',
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.2
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`LM Studio API failed with status ${response.status}: ${errText}`);
+      }
+
+      const result = await response.json();
+      let text = result.choices?.[0]?.message?.content;
+      if (!text) {
+        throw new Error('LM Studio API returned empty content or invalid structure.');
+      }
+
+      // 成功响应，更新最近成功连线时间戳 (防止看板频繁闪烁未连接)
+      global.lastSuccessfulLocalAiTime = Date.now();
+
+      // Strip DeepSeek/Qwen thinking tags if present
+      text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+
+      return text;
+    } catch (err) {
+      const isSocketOrConnError = 
+        err.message.includes('socket hang up') || 
+        err.message.includes('ECONNRESET') || 
+        err.message.includes('ECONNREFUSED') ||
+        err.message.includes('ETIMEDOUT');
+
+      if (isSocketOrConnError && attempts < maxAttempts) {
+        console.warn(`[LM Studio Local] 遇到连接挂起/网络抖动 (${err.message})。正在自动进行第 ${attempts}/${maxAttempts - 1} 次重试 (避让 1.5s)...`);
+        await new Promise(r => setTimeout(r, 1500));
+        continue;
+      }
+      throw err;
+    } finally {
+      if (attempts >= maxAttempts || global.lastSuccessfulLocalAiTime) {
+        global.isAiGenerating = false;
+      }
     }
-
-    const result = await response.json();
-    let text = result.choices?.[0]?.message?.content;
-    if (!text) {
-      throw new Error('LM Studio API returned empty content or invalid structure.');
-    }
-
-    // Strip DeepSeek/Qwen thinking tags if present
-    text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-
-    return text;
-  } finally {
-    global.isAiGenerating = false;
   }
 }
 
