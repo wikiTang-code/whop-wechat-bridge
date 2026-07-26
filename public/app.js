@@ -3426,6 +3426,9 @@ async function triggerBatchNewsGeneration() {
     customEndTime = new Date(endVal).toISOString();
   }
 
+  const forceRefreshCheckbox = document.getElementById('news-force-refresh');
+  const isForceRefresh = forceRefreshCheckbox ? forceRefreshCheckbox.checked : false;
+
   try {
     const csrfToken = await ensureCsrfToken();
     let successCount = 0;
@@ -3444,7 +3447,7 @@ async function triggerBatchNewsGeneration() {
         },
         body: JSON.stringify({ 
           type, 
-          forceRefresh: true,
+          forceRefresh: isForceRefresh,
           customStartTime,
           customEndTime
         })

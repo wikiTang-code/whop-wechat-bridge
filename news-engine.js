@@ -213,7 +213,25 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
 async function generateSingleNewsSummary(type, startTime, endTime, titleType, forceRefresh = false) {
   const db = getDb();
 
-  // 1. 检查是否有活跃的资讯总结任务在跑 (同一时间范围与类型)
+  // 1a. 增量去重判定：如果未开启强制覆盖 (!forceRefresh)，且数据库中已存在该时段该类型的成功速报，直接跳过！
+  if (!forceRefresh) {
+    const existingSummary = db.prepare(`
+      SELECT id FROM news_summaries 
+      WHERE summary_type = ? AND start_time = ?
+      LIMIT 1
+    `).get(type, startTime);
+
+    if (existingSummary) {
+      console.log(`[News Engine] ${titleType} 数据库中已存在生成记录 (ID: ${existingSummary.id})，智能增量跳过。`);
+      return {
+        success: true,
+        status: 'already_exists',
+        message: '该时段资讯已存在，已自动跳过重复生成。'
+      };
+    }
+  }
+
+  // 1b. 检查是否有活跃的资讯总结任务在跑 (同一时间范围与类型)
   const activeTask = db.prepare(`
     SELECT id FROM task_queue 
     WHERE task_type IN ('news_map', 'news_reduce')
@@ -510,4 +528,55 @@ ${playbookContent}
   }
 
   throw new Error(`Unsupported task type: ${task.task_type}`);
+}
+
+/**
+ * 自动保证本周周一至周五所有美股交易日速报 100% 完整生成
+ */
+export async function ensureCurrentWeekNews() {
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const hktNow = new Date(utc + (3600000 * 8));
+
+  const currentDay = hktNow.getDay(); // 0 是周日, 1-6 是周一到周六
+  const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+
+  const monday = new Date(hktNow);
+  monday.setDate(hktNow.getDate() + diffToMonday);
+  monday.setHours(0, 0, 0, 0);
+
+  console.log(`[Auto News Scheduler] 正在自动巡检本周交易周 (${monday.toLocaleDateString('zh-CN')} 起) 美股速报生成完整度...`);
+
+  for (let i = 0; i < 5; i++) {
+    const tradeDay = new Date(monday);
+    tradeDay.setDate(monday.getDate() + i);
+
+    if (tradeDay.getTime() > hktNow.getTime()) continue;
+
+    const year = tradeDay.getFullYear();
+    const month = tradeDay.getMonth();
+    const day = tradeDay.getDate();
+    const dayStart = new Date(year, month, day, 0, 0, 0).getTime();
+    const dateTag = `${month + 1}/${day}`;
+
+    // 1. 盘前速报
+    await generateSingleNewsSummary('briefing', dayStart + (8 * 3600 * 1000), dayStart + (21.5 * 3600 * 1000), `盘前速报 (${dateTag} 08:00 至 21:30)`, false).catch(() => {});
+
+    // 2. 盘中总结
+    await generateSingleNewsSummary('intraday', dayStart + (21.5 * 3600 * 1000), dayStart + (28 * 3600 * 1000), `盘中总结 (${dateTag} 21:30 至 次日 04:00)`, false).catch(() => {});
+
+    // 3. 收盘回顾
+    await generateSingleNewsSummary('closing', dayStart + (28 * 3600 * 1000), dayStart + (33 * 3600 * 1000), `收盘回顾 (${dateTag} 次日 04:00 至 09:00)`, false).catch(() => {});
+  }
+
+  // 4. 周末宏观周报
+  if (currentDay === 0 || currentDay === 6) {
+    const sundayStart = new Date(hktNow);
+    sundayStart.setDate(hktNow.getDate() - (currentDay === 0 ? 0 : 6));
+    sundayStart.setHours(0, 0, 0, 0);
+    const macroStart = monday.getTime();
+    const macroEnd = sundayStart.getTime() + (23.99 * 3600 * 1000);
+    const dateTag = `${monday.getMonth() + 1}/${monday.getDate()}-${hktNow.getMonth() + 1}/${hktNow.getDate()}`;
+    await generateSingleNewsSummary('macro', macroStart, macroEnd, `本周宏观总结 (${dateTag})`, false).catch(() => {});
+  }
 }
