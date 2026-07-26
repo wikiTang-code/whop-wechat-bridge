@@ -99,12 +99,19 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
     try {
       return await apiCallFn();
     } catch (err) {
+      const isHardQuotaError = err.message.toLowerCase().includes('quota exceeded') || err.message.includes('RESOURCE_EXHAUSTED');
+      
+      // 若为配额用尽类错误，重试无用，直接抛出供上层自动降级至本地大模型
+      if (isHardQuotaError) {
+        console.warn(`[Rate Limiter] 检测到云端 API 配额已被用尽 (${err.message})，立即放弃等待重试，触发秒级自动降级至本地大模型...`);
+        throw err;
+      }
+
       const isRetryableError = 
         err.message.includes('429') || 
         err.message.includes('503') || 
         err.message.toLowerCase().includes('rate limit') || 
         err.message.toLowerCase().includes('too many requests') || 
-        err.message.toLowerCase().includes('quota exceeded') ||
         err.message.toLowerCase().includes('unavailable') ||
         err.message.toLowerCase().includes('experiencing high demand') ||
         err.message.toLowerCase().includes('temporary');

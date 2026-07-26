@@ -667,7 +667,7 @@ const INCREMENTAL_UPDATE_PROMPT = `你是一位资深的美股交易行为分析
 /**
  * 合成画像白皮书（全量或增量）— 强制走 Gemini API
  */
-async function synthesizePlaybook(eventAnalyses, communityInsights, existingPlaybook = null, provider = 'gemini') {
+async function synthesizePlaybook(eventAnalyses, communityInsights, existingPlaybook = null, provider = null) {
   // Break event analyses into batches for intermediate synthesis
   const BATCH_SIZE = 12;
   const intermediateSummaries = [];
@@ -878,7 +878,7 @@ export async function generatePersonaPlaybook(options = {}) {
       priority: 2, // P2：高于 Map(P3)，确保合成任务优先执行
       payload: {
         batchId,
-        provider: 'gemini', // 首选 Gemini，但通过 callCloudAI 支持自动降级本地大模型
+        provider: provider || process.env.AI_PROVIDER || 'lm-studio', // 优先使用系统配置或指定提供商（优先本地模型跑满 GPU）
         isIncremental,
         existingContent: isIncremental ? existingReport.summary_content : null,
         finalStartTime,
