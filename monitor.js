@@ -298,37 +298,70 @@ function formatMessagesWithContextForAI(enrichedMessages) {
 async function executeSingleEngine(engine, prompt, apiKey) {
   if (engine === 'gemini') {
     const model = process.env.GEMINI_MODEL || 'gemini-flash-latest';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    const response = await webFetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt,
-              },
-            ],
-          },
-        ],
-      }),
-    });
+    const keys = (apiKey || '').split(',').map(k => k.trim()).filter(Boolean);
+    let lastErr = null;
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Gemini API failed with status ${response.status}: ${errText}`);
+    for (let kIdx = 0; kIdx < keys.length; kIdx++) {
+      const activeKey = keys[kIdx];
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
+
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const response = await webFetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    {
+                      text: prompt,
+                    },
+                  ],
+                },
+              ],
+            }),
+          });
+
+          if (!response.ok) {
+            const errText = await response.text();
+            
+            // 429 Rate Limit / Quota Exhausted 自动退避打盹处理
+            if (response.status === 429) {
+              const retryMatch = errText.match(/retry in ([0-9.]+)ms/i) || errText.match(/retry in ([0-9.]+)s/i);
+              let waitMs = 3000 * attempt;
+              if (retryMatch) {
+                const num = parseFloat(retryMatch[1]);
+                waitMs = errText.includes('s') && !errText.includes('ms') ? Math.ceil(num * 1000) : Math.ceil(num);
+              }
+              waitMs = Math.max(waitMs, 2000);
+              console.warn(`[Gemini API] 捕获到 Google 官方 429 配额限流 (Key #${kIdx + 1})。正在避退打盹 ${waitMs}ms 后进行第 ${attempt}/3 次重试...`);
+              await new Promise(r => setTimeout(r, waitMs));
+              continue;
+            }
+
+            throw new Error(`Gemini API failed with status ${response.status}: ${errText}`);
+          }
+
+          const result = await response.json();
+          const content = result.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!content) {
+            throw new Error('Gemini API returned empty content or invalid structure.');
+          }
+
+          return content;
+        } catch (err) {
+          lastErr = err;
+          if (err.message.includes('429') && attempt < 3) {
+            continue;
+          }
+          break;
+        }
+      }
     }
-
-    const result = await response.json();
-    const content = result.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!content) {
-      throw new Error('Gemini API returned empty content or invalid structure.');
-    }
-
-    return content;
+    throw lastErr || new Error('All Gemini API keys and retries failed.');
   } else {
     // mimo
     const mimoApiKey = process.env.MIMO_API_KEY;
