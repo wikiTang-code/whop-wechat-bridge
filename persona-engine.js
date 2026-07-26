@@ -132,12 +132,12 @@ async function callLocalAI(provider, prompt) {
       const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
       const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
 
-      // 本地 GPU 智能安全保护：若 Prompt 字符数超过 8,000 字符，智能保留开头核心指令与结尾最新发言，100% 由本地 GPU 极速计算！
+      // 本地 GPU 智能安全保护：若 Prompt 字符数超过 4,500 字符，智能保留开头核心指令与结尾最新发言，100% 由本地 GPU 极速计算！
       let safePrompt = prompt;
-      if (prompt.length > 8000) {
-        console.log(`[GPU Task] 文本较长 (${prompt.length} 字符)，进行智能滑窗截断 (前3500+后3500字符)，100% 提交本地 GPU 处理...`);
-        const head = prompt.substring(0, 3500);
-        const tail = prompt.substring(prompt.length - 3500);
+      if (prompt.length > 4500) {
+        console.log(`[GPU Task] 文本较长 (${prompt.length} 字符)，进行 3600 字符安全滑窗截断 (前1800+后1800字符)，100% 契合 GPU 算力...`);
+        const head = prompt.substring(0, 1800);
+        const tail = prompt.substring(prompt.length - 1800);
         safePrompt = `${head}\n\n... [中间非核心发言已智能省略，保持本地 GPU 上下文极速算力] ...\n\n${tail}`;
       }
 
@@ -455,7 +455,7 @@ async function analyzeEventSegment(event, provider) {
 
   // ⚡ GPU 爆算直通车：100% 提交至本地 GPU (LM Studio) 极速推理，避免因为废旧图片 URL 超时卡顿
   const responseText = await callLocalAI(provider, prompt);
-  return parseEventAnalysisResponse(responseText);
+  return parseJSONResponse(responseText);
 }
 
 // ============================================================
