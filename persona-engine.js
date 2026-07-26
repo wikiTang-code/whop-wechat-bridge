@@ -127,7 +127,7 @@ function setError(error) {
 async function callLocalAI(provider, prompt) {
   const localProvider = provider === 'ollama' ? 'ollama' : 'lm-studio';
   if (localProvider === 'lm-studio') {
-    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://localhost:1234';
+    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
     const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
     return await analyzeWithLMStudio(baseUrl, model, prompt);
   } else {
