@@ -1,10 +1,13 @@
 import { getDailyApiCount, incrementDailyApiCount, getDb } from './database.js';
 
-// 限速配置：Gemini 免费层官方上限 20 RPM，此处硬性锁死为 10 RPM (平均 6 秒放行 1 次，保留 50% 绝对安全倾斜)
-const GEMINI_RPM_LIMIT = 10;
+// 极度保守与珍惜 API 额度配置：Gemini 限制为 4 RPM (平均 15 秒才允许放行 1 次 API 请求，全局极低频调用)
+const GEMINI_RPM_LIMIT = 4;
 const GENERAL_RPM_LIMIT = 15;
 const RPD_LIMIT = parseInt(process.env.GEMINI_DAILY_LIMIT || '10000', 10);
 const requestTimestampsMap = {}; // 按 provider 隔离的时间戳 map
+
+// 全局 Gemini API 串行锁（保障同一时刻只有一个请求发往 Google 服务器，防止并发冲突）
+let geminiGlobalLock = Promise.resolve();
 
 /**
  * 导出当前 API 调用限额统计，供前台监控面板使用
@@ -39,9 +42,9 @@ async function enforceRpmLimit(provider = 'general') {
   // 只要窗口内满了，就绝对排队等待最早的一条过期，绝不违规放行！
   if (timestamps.length >= currentLimit) {
     const oldestTimestamp = timestamps[0];
-    const waitMs = 60000 - (now - oldestTimestamp) + 500; // 额外增加 500ms 强力安全缓冲区
+    const waitMs = 60000 - (now - oldestTimestamp) + 1000; // 额外增加 1000ms 强力安全缓冲区
     if (waitMs > 0) {
-      console.log(`[Rate Limiter] 🛡️ 触发 ${provider} 滑动窗口限速 (已满 ${timestamps.length}/${currentLimit})。静止挂起排队 ${waitMs}ms...`);
+      console.log(`[Rate Limiter] 🛡️ 极低频保护: 触发 ${provider} 滑动窗口限速 (已满 ${timestamps.length}/${currentLimit})。静止挂起排队 ${waitMs}ms...`);
       await sleep(waitMs);
       return enforceRpmLimit(provider); // 递归重新评估，直到有空闲坑位
     }
@@ -94,7 +97,18 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
     await enforceRpmLimit(provider);
   }
 
-  // 3. 执行 API 调用，内置指数退避重试 (捕获 429)
+  // 3. 全局单任务串行锁：如果请求发往 Gemini，排队等待上一个 API 请求完全接收并关闭后才放行下一个！
+  if (provider.includes('gemini')) {
+    let unlocker;
+    const nextLock = new Promise(resolve => { unlocker = resolve; });
+    const currentLock = geminiGlobalLock;
+    geminiGlobalLock = nextLock;
+
+    await currentLock; // 排队等待前一个 Gemini 请求完成
+    
+    // 执行完后释放给下一个
+    setTimeout(unlocker, 2000); // 请求完成后再额外拉开 2 秒的绝对静息缝隙
+  }
   let attempt = 0;
   while (true) {
     // 检查每日调用上限 (RPD) - 先查后增，防止超限时计数器无限膨胀
