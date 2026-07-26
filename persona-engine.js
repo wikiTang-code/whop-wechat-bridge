@@ -126,31 +126,29 @@ function setError(error) {
  */
 async function callLocalAI(provider, prompt) {
   const localProvider = provider === 'ollama' ? 'ollama' : 'lm-studio';
-  const apiKey = process.env.GEMINI_API_KEY;
 
   try {
     if (localProvider === 'lm-studio') {
       const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
       const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
 
-      // 文本长度安全预警：若字符数突破 14,000 字符，直接提前升舱 Gemini，避免触发 LM Studio 的 400 上下文超限错误
-      if (prompt.length > 14000 && apiKey) {
-        console.log(`[AI Router] Prompt 字符数突破 14,000 (${prompt.length} 字符)，自动预先升舱至云端 Gemini...`);
-        return await analyzeWithGemini(apiKey, prompt);
+      // 本地 GPU 智能安全保护：若 Prompt 字符数超过 8,000 字符，智能保留开头核心指令与结尾最新发言，100% 由本地 GPU 极速计算！
+      let safePrompt = prompt;
+      if (prompt.length > 8000) {
+        console.log(`[GPU Task] 文本较长 (${prompt.length} 字符)，进行智能滑窗截断 (前3500+后3500字符)，100% 提交本地 GPU 处理...`);
+        const head = prompt.substring(0, 3500);
+        const tail = prompt.substring(prompt.length - 3500);
+        safePrompt = `${head}\n\n... [中间非核心发言已智能省略，保持本地 GPU 上下文极速算力] ...\n\n${tail}`;
       }
 
-      return await analyzeWithLMStudio(baseUrl, model, prompt);
+      return await analyzeWithLMStudio(baseUrl, model, safePrompt);
     } else {
       const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
       const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
       return await analyzeWithOllama(baseUrl, model, prompt);
     }
   } catch (err) {
-    const isContextExceeded = err.message.includes('Context size has been exceeded') || err.message.includes('400') || err.message.includes('too long');
-    if (isContextExceeded && apiKey) {
-      console.warn(`[AI Router] 本地模型触发上下文超限限制 (${err.message})，正在无缝自愈升舱至云端 Gemini...`);
-      return await analyzeWithGemini(apiKey, prompt);
-    }
+    console.error(`[callLocalAI] 本地 GPU 计算异常: ${err.message}`);
     throw err;
   }
 }

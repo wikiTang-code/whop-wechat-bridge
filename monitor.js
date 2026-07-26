@@ -301,67 +301,60 @@ async function executeSingleEngine(engine, prompt, apiKey) {
     const keys = (apiKey || '').split(',').map(k => k.trim()).filter(Boolean);
     let lastErr = null;
 
-    for (let kIdx = 0; kIdx < keys.length; kIdx++) {
-      const activeKey = keys[kIdx];
+    // 随机打乱 keys 数组顺序，均衡各个 API Key 的压降消耗
+    const shuffledKeys = [...keys].sort(() => Math.random() - 0.5);
+
+    for (let kIdx = 0; kIdx < shuffledKeys.length; kIdx++) {
+      const activeKey = shuffledKeys[kIdx];
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
 
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          const response = await webFetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    {
-                      text: prompt,
-                    },
-                  ],
-                },
-              ],
-            }),
-          });
+      try {
+        const response = await webFetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: prompt,
+                  },
+                ],
+              },
+            ],
+          }),
+        });
 
-          if (!response.ok) {
-            const errText = await response.text();
-            
-            // 429 Rate Limit / Quota Exhausted 自动退避打盹处理
-            if (response.status === 429) {
-              const retryMatch = errText.match(/retry in ([0-9.]+)ms/i) || errText.match(/retry in ([0-9.]+)s/i);
-              let waitMs = 3000 * attempt;
-              if (retryMatch) {
-                const num = parseFloat(retryMatch[1]);
-                waitMs = errText.includes('s') && !errText.includes('ms') ? Math.ceil(num * 1000) : Math.ceil(num);
-              }
-              waitMs = Math.max(waitMs, 2000);
-              console.warn(`[Gemini API] 捕获到 Google 官方 429 配额限流 (Key #${kIdx + 1})。正在避退打盹 ${waitMs}ms 后进行第 ${attempt}/3 次重试...`);
-              await new Promise(r => setTimeout(r, waitMs));
-              continue;
-            }
-
-            throw new Error(`Gemini API failed with status ${response.status}: ${errText}`);
-          }
-
-          const result = await response.json();
-          const content = result.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!content) {
-            throw new Error('Gemini API returned empty content or invalid structure.');
-          }
-
-          return content;
-        } catch (err) {
-          lastErr = err;
-          if (err.message.includes('429') && attempt < 3) {
+        if (!response.ok) {
+          const errText = await response.text();
+          
+          // 如果是 429 限流且还有备用 Key，直接秒级无缝漂移到下一个 Key，绝不硬等！
+          if (response.status === 429 && kIdx < shuffledKeys.length - 1) {
+            console.warn(`[Gemini API] Key #${kIdx + 1} 触发 429，秒级无缝漂移至下一 Key #${kIdx + 2} 尝试...`);
             continue;
           }
-          break;
+
+          throw new Error(`Gemini API failed with status ${response.status}: ${errText}`);
         }
+
+        const result = await response.json();
+        const content = result.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!content) {
+          throw new Error('Gemini API returned empty content or invalid structure.');
+        }
+
+        return content;
+      } catch (err) {
+        lastErr = err;
+        if (err.message.includes('429') && kIdx < shuffledKeys.length - 1) {
+          continue;
+        }
+        break;
       }
     }
-    throw lastErr || new Error('All Gemini API keys and retries failed.');
+    throw lastErr || new Error('All Gemini API keys failed.');
   } else {
     // mimo
     const mimoApiKey = process.env.MIMO_API_KEY;
