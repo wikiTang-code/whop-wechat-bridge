@@ -24,40 +24,42 @@ export function addTask({ taskType, priority = 1, payload, maxRetries = 5 }) {
 export function claimNextPendingTask() {
   const db = getDb();
 
-  const claimTx = db.transaction(() => {
-    const now = Date.now();
-    // 查询优先级最高且已到可跑时间的待处理任务 (支持 status 为 pending 或 retry)
-    // 依赖约束：persona_reduce 任务只有在同批次的 active 状态的 persona_map 和 persona_community 任务全部 done/failed 后才能被领取
-    // 将 sibling.status != 'done' 改为 sibling.status IN ('pending', 'running', 'retry')，防止因某个 Map 任务彻底 failed 导致 Reduce 永远死锁
-    const task = db.prepare(`
-      SELECT * FROM task_queue 
-      WHERE status IN ('pending', 'retry') AND (run_after IS NULL OR run_after <= ?)
-        AND (
-          task_type != 'persona_reduce'
-          OR NOT EXISTS (
-            SELECT 1 FROM task_queue sibling
-            WHERE sibling.task_type IN ('persona_map', 'persona_community')
-              AND sibling.status IN ('pending', 'running', 'retry')
-              AND json_extract(sibling.payload, '$.batchId') = json_extract(task_queue.payload, '$.batchId')
+  try {
+    const claimTx = db.transaction(() => {
+      const now = Date.now();
+      const task = db.prepare(`
+        SELECT * FROM task_queue 
+        WHERE status IN ('pending', 'retry') AND (run_after IS NULL OR run_after <= ?)
+          AND (
+            task_type != 'persona_reduce'
+            OR NOT EXISTS (
+              SELECT 1 FROM task_queue sibling
+              WHERE sibling.task_type IN ('persona_map', 'persona_community')
+                AND sibling.status IN ('pending', 'running', 'retry')
+                AND json_extract(sibling.payload, '$.batchId') = json_extract(task_queue.payload, '$.batchId')
+            )
           )
-        )
-      ORDER BY priority DESC, created_at ASC 
-      LIMIT 1
-    `).get(now);
+        ORDER BY priority DESC, created_at ASC 
+        LIMIT 1
+      `).get(now);
 
-    if (task) {
-      // 立即将状态更新为 running，对其上锁
-      db.prepare(`
-        UPDATE task_queue 
-        SET status = 'running', updated_at = ? 
-        WHERE id = ?
-      `).run(now, task.id);
+      if (task) {
+        db.prepare(`
+          UPDATE task_queue 
+          SET status = 'running', updated_at = ? 
+          WHERE id = ?
+        `).run(now, task.id);
+      }
+      return task;
+    });
+
+    return claimTx.immediate();
+  } catch (err) {
+    if (err.code === 'SQLITE_BUSY' || err.message.includes('locked')) {
+      return null; // 多并发争抢时平滑避让，等待下一个 tick 轮询
     }
-    return task;
-  });
-
-  // 使用 immediate() 隔离级别启动事务，防止多进程下发生 SQLITE_BUSY 竞态锁冲突
-  return claimTx.immediate();
+    throw err;
+  }
 }
 
 /**
