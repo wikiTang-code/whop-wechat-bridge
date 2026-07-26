@@ -197,6 +197,7 @@ async function callCloudAI(prompt, preferredProvider = null) {
 // ============================================================
 
 const FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
+const MAX_MESSAGES_PER_EVENT = 50; // 单个事件段消息上限，超出则强制切割，避免巨大事件丢失数据
 
 /**
  * 判断消息所处的交易时段（美东时间）
@@ -259,8 +260,8 @@ export function segmentMessagesIntoEvents(messages) {
       const newDate = dateStr !== currentEvent.date;
       const newSession = session !== currentEvent.session;
 
-      // Cut: time gap > 4 hours OR new calendar day OR session change
-      if (timeDiff > FOUR_HOURS_MS || newDate) {
+      // Cut: time gap > 4 hours OR new calendar day OR session change OR event too large
+      if (timeDiff > FOUR_HOURS_MS || newDate || currentEvent.messages.length >= MAX_MESSAGES_PER_EVENT) {
         // Finalize current event
         currentEvent.tickers = Array.from(currentEvent.tickers);
         events.push(currentEvent);
@@ -308,8 +309,8 @@ function formatSingleMsg(msg) {
   const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
   const channel = msg.channel_name ? `[${msg.channel_name}]` : '';
   let content = msg.content || '';
-  if (content.length > 300) {
-    content = content.substring(0, 300) + '... (内容过长已截断)';
+  if (content.length > 800) {
+    content = content.substring(0, 800) + '... (内容过长已截断)';
   }
   return `[${timeStr}] ${channel} ${msg.sender_name}: ${content}`;
 }
@@ -378,9 +379,9 @@ function formatEventMessages(event) {
     }
   }
 
-  // 4. 按综合评分从高到低排序，筛选出最核心的 30 条消息
+  // 4. 按综合评分从高到低排序，充分包含大V的核心操盘细节 (扩展保留最多 200 条高质量发言)
   formattedWithScores.sort((a, b) => b.score - a.score);
-  const selected = formattedWithScores.slice(0, 30);
+  const selected = formattedWithScores.slice(0, 200);
 
   // 5. 将筛选出的消息按照时序索引（index）重新进行正序排列，还原真实聊天顺序送入大模型
   selected.sort((a, b) => a.index - b.index);
@@ -527,8 +528,8 @@ async function extractCommunityInsights(communityMessages, provider, isFocusGrou
     const messagesText = chunk.map(msg => {
       const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
       let content = msg.content || '';
-      if (content.length > 300) {
-        content = content.substring(0, 300) + '... (内容过长已截断)';
+      if (content.length > 800) {
+        content = content.substring(0, 800) + '... (内容过长已截断)';
       }
       return `[${timeStr}] ${msg.sender_name}: ${content}`;
     }).join('\n');
@@ -597,58 +598,40 @@ const SYNTHESIS_PROMPT = `根据以下对一位美股交易员的交易行为分
 
 白皮书应包含以下章节，请用 Markdown 格式输出：
 
+请按照以下大纲结构生成 Markdown 格式的顶级大V交易行为画像白皮书：
+
 # 大V交易行为画像白皮书
 
 ## 一、交易风格总览
-- 偏好的交易周期（日内/波段/中长线）
-- 核心持仓偏好（常交易的标的及板块）
-- 仓位管理风格（集中/分散，全仓/分批）
+- **核心擅长标的全景表**：按交易频次与胜率列出大V频繁交易的具体股票代码（如 TSLA, NVDA, AAPL, NVDL 等）及对应做多/做空偏好。
+- **偏好的交易周期**：详细分析日内交易 (T+0)、短线波段 (1-3天) 与中长线死拿仓位的具体比例。
+- **仓位管理风格**：具体说明分批开仓节奏、最大防守仓位与加仓距离。
 
 ## 二、决策模式图谱
-- 入场信号模式：什么条件下他会开仓？
-- 出场信号模式：什么条件下他会平仓/止损？
-- 加减仓节奏：什么时候加仓/什么时候减仓？
-- 大盘研判框架：他如何判断大盘方向？使用哪些指标？
+- **入场信号模式**：什么具体技术位（如突破缺口、回踩20日均线、财报博弈）下会明确开仓？
+- **出场信号模式**：具体的止盈目标位与止损离场标准。
+- **加减仓节奏**：出现回调时的补仓逻辑。
 
-## 三、核心操盘战法与经典套路库 (重点整合)
-针对不同事件类型或大盘当日走势模式，总结大V的经典操盘套路与应对战法（重点提炼大V常说“要有经验/要有记忆/碰到类似的就不要慌”的经典套路）：
-- **战法名称与核心逻辑**（如“CPI公布后恐慌砸盘-探底缺口低吸加仓战法”、“特朗普访华后大盘深度回调应对战法”）
-- **适用走势与环境**（如日内突然宽幅回调、跳空低开补缺口、达到机构最新报价等）
-- **操作规则与参数套路**：详细说明入场建仓点、后续不同回撤位置的加仓点位、仓位配置（底仓与波段）。
-- **长线死拿与退出时机**：说明哪些部分属于“死拿不放的长线仓位”，何时开始分批出场/止盈，以及最终退出条件。
-- **经典实战案例对齐**：必须将数据中提及的具体标的（如 TSLL, MSTR, CONL, QQQ）以及具体的操盘发言日期归并到对应的战法下，作为具体的实战例证。
+## 三、核心操盘战法与经典套路库 (重点实战整合)
+必须结合数据中提到的具体股票（如 TSLA, NVDA, AAPL, QQQ）与发言细节，总结出至少 3 个具有杀伤力的经典操盘战法：
+- **战法名称与核心逻辑**（如“财报公布后低吸反弹战法”、“大盘宽幅震荡缺口低吸战法”）
+- **适用走势与环境**
+- **操作规则与点位套路**
+- **经典实战案例例证**：必须引用发言数据中具体的股票代码和操作逻辑作为证明。
 
-## 四、技术分析习惯
-- 常用技术指标及其使用方式
-- K线形态偏好
-- 关键价位的判断方法
-- 图片分析中最常出现的分析工具和指标
+## 四、技术分析与工具偏好
+- 常用技术指标 (如 EMA, RSI, VWAP) 及使用方式。
+- K线形态偏好与关键支撑阻力判断。
 
-## 五、风险管理体系
-- 止损策略及纪律
-- 仓位控制规则
-- 极端行情应对方案
-- VIX/恐惧指标的使用方式
+## 五、风险管理与心理特征
+- 止损策略纪律、极端行情应对方案与情绪管理特征。
 
-## 六、情绪与心理特征
-- 盈利时的行为模式
-- 亏损时的行为模式
-- 高波动行情下的心理状态
-- 与群友互动风格
+## 六、群友社区洞察与系统优化建议
+- 整理群友关注点与 5 条系统跟单功能优化建议 (P0/P1/P2)。
 
-## 七、群友社区洞察
-- 群友提出的有价值的量化工具和开发建议
-- 群友分享的策略经验
-- 群友对跟单系统的功能期望
-
-## 八、项目功能开发建议
-基于以上画像分析和群友社区洞察，为本跟单系统提出 5-8 条最有价值的功能改进建议，每条包含：
-- 功能名称
-- 来源依据（画像发现/群友建议）
-- 用户价值
-- 实现优先级（P0/P1/P2）
-
-请确保每个章节都有具体、可操作的内容，而非泛泛而谈。引用具体的交易案例和数据来支撑结论。`;
+⚠️ 核心要求：
+1. 直接输出 Markdown 文本，绝不能包含 \`\`\`markdown 或 \`\`\` 这种代码块外套，开头直接以 # 大V交易行为画像白皮书 开始！
+2. 每一个结论都必须结合具体的股票代码或操作点位，绝对禁止泛泛而谈！`;
 
 const INCREMENTAL_UPDATE_PROMPT = `你是一位资深的美股交易行为分析师。以下是一份已有的大V交易行为画像白皮书，以及最近新增的交易行为分析数据和群友社区洞察。
 
@@ -656,13 +639,8 @@ const INCREMENTAL_UPDATE_PROMPT = `你是一位资深的美股交易行为分析
 
 合并规则：
 1. 保留原有白皮书中仍然有效的结论和模式
-2. 如果新数据验证了原有结论，加强该结论的置信度
-3. 如果新数据与原有结论矛盾，需要修正并说明变化原因
-4. 新发现的模式/策略应新增到相应章节
-5. 「项目功能开发建议」章节需要根据最新画像和群友洞察重新评估优先级
-6. 在白皮书末尾添加一个「更新日志」段落，简要说明本次更新的要点
-
-请保持原有的章节结构（八个章节），用 Markdown 格式输出完整更新后的白皮书。`;
+2. 保持精美排版，直接输出 Markdown 正文，绝对不能在最外层包裹 \`\`\`markdown 或 \`\`\` 字符串！
+3. 在白皮书末尾添加一个「更新日志」段落，简要说明本次更新的要点。`;
 
 /**
  * 合成画像白皮书（全量或增量）— 强制走 Gemini API
@@ -707,7 +685,8 @@ async function synthesizePlaybook(eventAnalyses, communityInsights, existingPlay
   }
 
   const playbook = await callCloudAI(finalPrompt, provider);
-  return playbook;
+  let cleanPlaybook = playbook.replace(/^```markdown\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+  return cleanPlaybook;
 }
 
 // ============================================================
@@ -725,8 +704,8 @@ async function synthesizePlaybook(eventAnalyses, communityInsights, existingPlay
 export async function generatePersonaPlaybook(options = {}) {
   const {
     provider = process.env.AI_PROVIDER || 'lm-studio',
-    maxMonths = 6,
-    forceRefresh = false
+    maxMonths = 24,
+    forceRefresh = true
   } = options;
 
   const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
@@ -783,7 +762,7 @@ export async function generatePersonaPlaybook(options = {}) {
     const speakerMessages = getAllSpeakerMessagesChronological(targetSpeakers, {
       startDate: startDateStr,
       endDate: endDateStr,
-      limit: 10000
+      limit: 20000
     });
 
     if (speakerMessages.length === 0) {
