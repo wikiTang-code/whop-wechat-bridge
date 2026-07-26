@@ -560,13 +560,19 @@ export async function ensureCurrentWeekNews() {
     const dateTag = `${month + 1}/${day}`;
 
     // 1. 盘前速报
-    await generateSingleNewsSummary('briefing', dayStart + (8 * 3600 * 1000), dayStart + (21.5 * 3600 * 1000), `盘前速报 (${dateTag} 08:00 至 21:30)`, false).catch(() => {});
+    try {
+      await generateSingleNewsSummary('briefing', dayStart + (8 * 3600 * 1000), dayStart + (21.5 * 3600 * 1000), `盘前速报 (${dateTag} 08:00 至 21:30)`, false);
+    } catch(e) {}
 
     // 2. 盘中总结
-    await generateSingleNewsSummary('intraday', dayStart + (21.5 * 3600 * 1000), dayStart + (28 * 3600 * 1000), `盘中总结 (${dateTag} 21:30 至 次日 04:00)`, false).catch(() => {});
+    try {
+      await generateSingleNewsSummary('intraday', dayStart + (21.5 * 3600 * 1000), dayStart + (28 * 3600 * 1000), `盘中总结 (${dateTag} 21:30 至 次日 04:00)`, false);
+    } catch(e) {}
 
     // 3. 收盘回顾
-    await generateSingleNewsSummary('closing', dayStart + (28 * 3600 * 1000), dayStart + (33 * 3600 * 1000), `收盘回顾 (${dateTag} 次日 04:00 至 09:00)`, false).catch(() => {});
+    try {
+      await generateSingleNewsSummary('closing', dayStart + (28 * 3600 * 1000), dayStart + (33 * 3600 * 1000), `收盘回顾 (${dateTag} 次日 04:00 至 09:00)`, false);
+    } catch(e) {}
   }
 
   // 4. 周末宏观周报
@@ -577,6 +583,8 @@ export async function ensureCurrentWeekNews() {
     const macroStart = monday.getTime();
     const macroEnd = sundayStart.getTime() + (23.99 * 3600 * 1000);
     const dateTag = `${monday.getMonth() + 1}/${monday.getDate()}-${hktNow.getMonth() + 1}/${hktNow.getDate()}`;
-    await generateSingleNewsSummary('macro', macroStart, macroEnd, `本周宏观总结 (${dateTag})`, false).catch(() => {});
+    try {
+      await generateSingleNewsSummary('macro', macroStart, macroEnd, `本周宏观总结 (${dateTag})`, false);
+    } catch(e) {}
   }
 }
