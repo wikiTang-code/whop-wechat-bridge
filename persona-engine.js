@@ -451,32 +451,11 @@ const EVENT_ANALYSIS_WITH_IMAGE_PROMPT = `你是一位专业的美股交易行�
 async function analyzeEventSegment(event, provider) {
   const messagesText = formatEventMessages(event);
   const header = `\n【日期】${event.date}\n【交易时段】${event.session}\n【涉及标的】${event.tickers.join(', ') || '无'}\n\n【发言记录】\n${messagesText}`;
+  const prompt = EVENT_ANALYSIS_PROMPT + header;
 
-  // Check if this event has images from the speaker (大V)
-  const speakerImageUrls = event.imageUrls.filter(Boolean);
-
-  if (speakerImageUrls.length > 0) {
-    // Use Gemini multimodal for image analysis
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      // Fallback to text-only if no API key
-      console.warn('[Persona] No GEMINI_API_KEY, falling back to text-only for image event');
-      const prompt = EVENT_ANALYSIS_PROMPT + header + '\n\n（注意：该事件包含图片但无法加载，请仅基于文字分析）';
-      return await callLocalAI(provider, prompt);
-    }
-    const prompt = EVENT_ANALYSIS_WITH_IMAGE_PROMPT + header;
-    try {
-      return await analyzeWithGeminiMultimodal(apiKey, prompt, speakerImageUrls);
-    } catch (err) {
-      console.warn(`[Persona] Gemini Multimodal failed for event segment, falling back to local text-only: ${err.message}`);
-      const fallbackPrompt = EVENT_ANALYSIS_PROMPT + header + '\n\n（注意：该事件包含图片但Gemini分析不可用，请仅基于文字分析）';
-      return await callLocalAI(provider, fallbackPrompt);
-    }
-  } else {
-    // Text-only → local LLM
-    const prompt = EVENT_ANALYSIS_PROMPT + header;
-    return await callLocalAI(provider, prompt);
-  }
+  // ⚡ GPU 爆算直通车：100% 提交至本地 GPU (LM Studio) 极速推理，避免因为废旧图片 URL 超时卡顿
+  const responseText = await callLocalAI(provider, prompt);
+  return parseEventAnalysisResponse(responseText);
 }
 
 // ============================================================
