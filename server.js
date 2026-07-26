@@ -2502,7 +2502,7 @@ const server = app.listen(PORT, () => {
   startPoller();
   // Check local LM Studio embedding server and start background worker if active
   checkEmbeddingApi();
-  // Start background task queue worker
+  // Start background task queue worker with concurrency = 4 (并行调动 GPU 显力)
   startQueueWorker(async (task) => {
     if (task.task_type.startsWith('persona_')) {
       return await processPersonaTask(task);
@@ -2511,7 +2511,7 @@ const server = app.listen(PORT, () => {
       return await processNewsTask(task);
     }
     throw new Error(`Unsupported task type: ${task.task_type}`);
-  }, 4000);
+  }, 4, 800);
   // Start Cloudflare Tunnel and push URL to WeChat
   startCloudflareTunnel(PORT);
   

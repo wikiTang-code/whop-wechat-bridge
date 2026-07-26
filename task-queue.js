@@ -160,33 +160,26 @@ export function resetRunningTasks() {
 }
 
 /**
- * 启动后台队列消费循环
+ * 启动后台队列消费循环 (支持多线程并发)
  * @param {Function} workerFn - 任务处理器 async function(task)
- * @param {number} pollIntervalMs - 空闲轮询间隔
+ * @param {number} concurrency - 并行消费任务数 (默认 4)
+ * @param {number} pollIntervalMs - 空闲轮询间隔 (默认 800ms)
  */
-export function startQueueWorker(workerFn, pollIntervalMs = 5000) {
-  let isWorking = false;
+export function startQueueWorker(workerFn, concurrency = 4, pollIntervalMs = 800) {
+  let activeWorkers = 0;
 
   // 启动时自动执行运行中任务重置
   resetRunningTasks();
 
-  async function checkQueue() {
-    if (isWorking) return;
-    isWorking = true;
-    let nextPollMs = pollIntervalMs;
+  function spawnWorkers() {
+    while (activeWorkers < concurrency) {
+      const task = claimNextPendingTask();
+      if (!task) break;
 
-    try {
-      while (true) {
-        const task = claimNextPendingTask();
-        if (!task) {
-          // 没有待处理的任务，跳出循环
-          break;
-        }
-
-        console.log(`[Task Queue] 开始执行任务 #${task.id} (类型: ${task.task_type}, 优先级: ${task.priority})`);
-        
+      activeWorkers++;
+      (async () => {
         try {
-          // 执行具体的任务处理函数
+          console.log(`[Task Queue] [Parallel Worker ${activeWorkers}/${concurrency}] 开始执行任务 #${task.id} (类型: ${task.task_type}, 优先级: ${task.priority})`);
           const result = await workerFn(task);
           completeTask(task.id, result);
           console.log(`[Task Queue] 任务 #${task.id} 执行成功`);
@@ -194,22 +187,23 @@ export function startQueueWorker(workerFn, pollIntervalMs = 5000) {
           console.error(`[Task Queue] 任务 #${task.id} 处理异常:`, taskErr);
           failTask(task.id, taskErr.message, taskErr.stack || '');
           
-          // 已上线云地容灾与优先级插队机制，无需再冻结挂起整个队列，保持常规轮询即可
           if (taskErr.message.includes('限制已超标') || taskErr.message.includes('限额') || taskErr.message.includes('配额') || taskErr.message.includes('429')) {
-            console.warn(`[Task Queue System] 大模型接口配额受限或网络临时受阻 (${taskErr.message})，该任务已记录状态，队列保持常规轮询...`);
+            console.warn(`[Task Queue System] 大模型接口配额受限或网络临时受阻 (${taskErr.message})，该任务已记录状态...`);
           }
+        } finally {
+          activeWorkers--;
+          // 当前 worker 结束，立即补充新任务
+          spawnWorkers();
         }
-      }
-    } catch (err) {
-      console.error('[Task Queue] 队列消费循环异常:', err);
-    } finally {
-      isWorking = false;
-      // 安排下一次轮询
-      setTimeout(checkQueue, nextPollMs);
+      })();
     }
   }
 
-  // 立即启动第一次轮询
-  checkQueue();
-  console.log(`[Task Queue] 后台任务队列消费者已启动 (轮询间隔: ${pollIntervalMs}ms)`);
+  function scheduleLoop() {
+    spawnWorkers();
+    setTimeout(scheduleLoop, pollIntervalMs);
+  }
+
+  scheduleLoop();
+  console.log(`[Task Queue] 后台任务队列多并发消费者已启动 (并行度: ${concurrency}, 轮询: ${pollIntervalMs}ms)`);
 }
