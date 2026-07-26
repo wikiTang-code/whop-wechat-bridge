@@ -74,7 +74,7 @@ async function callCloudAI(prompt, preferredProvider = null) {
         return await tryLocal();
       } catch (localErr) {
         console.error('[AI Router] [News] 降级至本地模型也失败了:', localErr.message);
-        throw err; // 如果都宣告失败，抛出原配额错，使队列进入冷静期
+        throw err;
       }
     }
     throw err;
@@ -82,29 +82,94 @@ async function callCloudAI(prompt, preferredProvider = null) {
 }
 
 // ============================================================
-// 1. 初始化生成任务
+// 1. 初始化生成任务 (支持单次与多日跨度按交易日自动拆分)
 // ============================================================
 export async function generateNewsSummary(type = 'briefing', options = {}) {
   const { forceRefresh = false, customStartTime = null, customEndTime = null } = options;
-  const db = getDb();
 
-  // 1. 检查是否有活跃的资讯总结任务在跑
-  const activeTask = db.prepare(`
-    SELECT id FROM task_queue 
-    WHERE task_type IN ('news_map', 'news_reduce')
-      AND status IN ('pending', 'running', 'retry')
-    LIMIT 1
-  `).get();
+  // 核心优化：若自定义时间段跨度大于 24 小时，自动按交易日拆分为每天独立的板块任务提交，确保列表全量覆盖！
+  if (customStartTime && customEndTime) {
+    const startMs = new Date(customStartTime).getTime();
+    const endMs = new Date(customEndTime).getTime();
+    const spanDays = Math.ceil((endMs - startMs) / (24 * 3600 * 1000));
 
-  if (activeTask && !forceRefresh) {
-    return { 
-      success: true, 
-      status: 'running', 
-      message: '资讯生成任务已经在后台队列中运行。' 
-    };
+    if (spanDays > 1) {
+      console.log(`[News Engine] 检测到多日跨度 (${spanDays} 天: ${customStartTime} 至 ${customEndTime})，正在按交易日自动拆分派发...`);
+      let generatedBatches = 0;
+      let skippedNoData = 0;
+
+      const currentDate = new Date(startMs);
+      while (currentDate.getTime() <= endMs) {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const day = currentDate.getDate();
+
+        // 构造当天的 00:00:00 基准点 (北京/HKT 时间)
+        const dayStart = new Date(year, month, day, 0, 0, 0).getTime();
+        const dayEnd = new Date(year, month, day, 23, 59, 59).getTime();
+
+        let dayTargetStart = dayStart;
+        let dayTargetEnd = dayEnd;
+        let dayTitleType = '';
+        const dateTag = `${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+
+        switch (type) {
+          case 'briefing':
+            // 盘前速报：北京时间 $D$ 日 18:00 至 21:30 (美股盘前交易与开盘前瞻)
+            dayTargetStart = dayStart + (18 * 3600 * 1000);
+            dayTargetEnd = dayStart + (21.5 * 3600 * 1000);
+            dayTitleType = `盘前速报 (${dateTag})`;
+            break;
+          case 'intraday':
+            // 盘中总结：北京时间 $D$ 日 21:30 至 次日 01:30 (美股开盘前4小时激战)
+            dayTargetStart = dayStart + (21.5 * 3600 * 1000);
+            dayTargetEnd = dayStart + (25.5 * 3600 * 1000);
+            dayTitleType = `盘中总结 (${dateTag})`;
+            break;
+          case 'closing':
+            // 收盘回顾：北京时间 $D+1$ 日 01:30 至 08:00 (美股后半程至收盘结账)
+            dayTargetStart = dayStart + (25.5 * 3600 * 1000);
+            dayTargetEnd = dayStart + (32 * 3600 * 1000);
+            dayTitleType = `收盘回顾 (${dateTag})`;
+            break;
+          case 'macro':
+            // 宏观周报：周日触发，涵盖前 7 天
+            if (currentDate.getDay() === 0) {
+              dayTargetStart = dayStart - (6 * 24 * 3600 * 1000);
+              dayTargetEnd = dayEnd;
+              dayTitleType = `本周宏观总结 (${dateTag})`;
+            } else {
+              currentDate.setDate(currentDate.getDate() + 1);
+              continue;
+            }
+            break;
+          default:
+            dayTitleType = `资讯总结 (${dateTag})`;
+        }
+
+        try {
+          await generateSingleNewsSummary(type, dayTargetStart, dayTargetEnd, dayTitleType, forceRefresh);
+          generatedBatches++;
+        } catch (err) {
+          if (err.message.includes('没有任何聊天数据')) {
+            skippedNoData++;
+          } else {
+            console.warn(`[News Engine] 生成 ${dateTag} ${type} 提示: ${err.message}`);
+          }
+        }
+
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return {
+        success: true,
+        status: 'batch_started',
+        message: `成功为 ${spanDays} 天生成/补充资讯速报！提交批次: ${generatedBatches}，跳过无数据时段: ${skippedNoData}`
+      };
+    }
   }
 
-  // 2. 设定抓取的时间范围
+  // 单天或默认抓取范围
   const endTime = customEndTime ? new Date(customEndTime).getTime() : Date.now();
   let startTime;
   let titleType = '';
@@ -123,30 +188,54 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
   } else {
     switch (type) {
       case 'briefing':
-        startTime = endTime - (16 * 60 * 60 * 1000); // 过去 16 小时
+        startTime = endTime - (16 * 60 * 60 * 1000);
         titleType = '盘前速报';
         break;
       case 'intraday':
-        startTime = endTime - (4 * 60 * 60 * 1000);   // 过去 4 小时
+        startTime = endTime - (4 * 60 * 60 * 1000);
         titleType = '盘中总结';
         break;
       case 'closing':
-        startTime = endTime - (10 * 60 * 60 * 1000);  // 过去 10 小时
+        startTime = endTime - (10 * 60 * 60 * 1000);
         titleType = '收盘回顾';
         break;
       case 'macro':
-        startTime = endTime - (7 * 24 * 60 * 60 * 1000); // 过去 7 天
+        startTime = endTime - (7 * 24 * 60 * 60 * 1000);
         titleType = '本周宏观总结';
         break;
-      default:
-        startTime = endTime - (24 * 60 * 60 * 1000);  // 过去 24 小时
-        titleType = '社区资讯总结';
     }
   }
 
-  // 3. 获取大V和群友消息
-  const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
-    .split(',')
+  return await generateSingleNewsSummary(type, startTime, endTime, titleType, forceRefresh);
+}
+
+/**
+ * 核心辅助函数：为特定时间段与标题生成 Map-Reduce 任务
+ */
+async function generateSingleNewsSummary(type, startTime, endTime, titleType, forceRefresh = false) {
+  const db = getDb();
+
+  // 1. 检查是否有活跃的资讯总结任务在跑 (同一时间范围与类型)
+  const activeTask = db.prepare(`
+    SELECT id FROM task_queue 
+    WHERE task_type IN ('news_map', 'news_reduce')
+      AND status IN ('pending', 'running', 'retry')
+      AND json_extract(payload, '$.summaryType') = ?
+      AND json_extract(payload, '$.startTime') = ?
+    LIMIT 1
+  `).get(type, startTime);
+
+  if (activeTask && !forceRefresh) {
+    return { 
+      success: true, 
+      status: 'running', 
+      message: '该时段资讯生成任务已经在后台队列中运行。' 
+    };
+  }
+
+  // 2. 获取大V和群友发言
+  const targetSpeakersStr = process.env.TARGET_SPEAKER_USER_IDS || '';
+  const targetSpeakers = targetSpeakersStr.split(',')
     .map(s => s.trim())
     .filter(Boolean);
 
@@ -154,19 +243,30 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
     throw new Error('TARGET_SPEAKER_USER_IDS is not configured.');
   }
 
-  // 构建占位符
   const placeholders = targetSpeakers.map(() => '?').join(',');
 
-  // 3a. 大V消息 - 限制拉取最新的 60 条并反转为正序
-  const speakerMessagesRaw = db.prepare(`
+  // 3a. 大V消息 — 带智能回溯避空机制（若狭隘窗口内大V发言少于 2 条，自动扩展回溯 12 小时补充大V战略动作）
+  let speakerMessagesRaw = db.prepare(`
     SELECT sender_name, content, created_at FROM messages
     WHERE sender_id IN (${placeholders}) AND created_at BETWEEN ? AND ?
     ORDER BY created_at DESC
     LIMIT 60
   `).all(...targetSpeakers, startTime, endTime);
+
+  if (speakerMessagesRaw.length < 2) {
+    const extendedStartTime = startTime - (12 * 3600 * 1000);
+    console.log(`[News Engine] ${titleType} 精确窗口内大V发言较少 (${speakerMessagesRaw.length} 条)，触发智能 12h 回溯补充...`);
+    speakerMessagesRaw = db.prepare(`
+      SELECT sender_name, content, created_at FROM messages
+      WHERE sender_id IN (${placeholders}) AND created_at BETWEEN ? AND ?
+      ORDER BY created_at DESC
+      LIMIT 60
+    `).all(...targetSpeakers, extendedStartTime, endTime);
+  }
+
   const speakerMessages = speakerMessagesRaw.reverse();
 
-  // 3b. 群友消息 - 智能筛选高价值代表性发言以规避 Token 溢出，并保护问答语境
+  // 3b. 群友消息 — 智能筛选高价值代表性发言以规避 Token 溢出
   const communityMessagesRaw = db.prepare(`
     SELECT sender_name, content, created_at FROM messages
     WHERE sender_id NOT IN (${placeholders}) AND created_at BETWEEN ? AND ?
@@ -178,38 +278,33 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
     let score = 0;
     const content = msg.content || '';
 
-    // 观点及交易倾向加分 (直接保底)
     if (/[买卖涨跌多空能不收平仓仓位浮亏止损抄底爆仓跟单实盘模拟]/i.test(content)) {
       score += 30;
     }
-    // 股票标的提及加分
     if (/[A-Z]{2,5}/.test(content)) {
       score += 15;
     }
 
     const len = content.length;
-    // 只有当发言极短（少于 5 字），且完全没有命中任何个股或观点词汇时，才判定为水贴扣分过滤
     if (len < 5 && score === 0) {
-      score -= 20; // 过滤纯无意义水贴，如 "哈哈"、"收到"、"111" 等
+      score -= 20;
     } else {
-      score += Math.min(len / 20, 5); // 正常讨论句按字数微加分
+      score += Math.min(len / 20, 5);
     }
 
     return { msg, score };
   })
-  .filter(item => item.score >= 0) // 排除噪音水贴
-  .sort((a, b) => b.score - a.score) // 降序排序含金量
-  .slice(0, 50) // 取前 50 条最精华的群友发言
+  .filter(item => item.score >= 0)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 50)
   .map(item => item.msg);
 
-  // 重新按时间正序排列
   const communityMessages = filteredCommunity.sort((a, b) => a.created_at - b.created_at);
 
   if (speakerMessages.length === 0 && communityMessages.length === 0) {
     throw new Error('该时段内没有任何聊天数据，无需生成总结。');
   }
 
-  // 4. 格式化为文本流 (截断单条消息内容防止溢出)
   const formatMsgList = (msgs) => {
     return msgs.map(m => {
       const timeStr = new Date(m.created_at).toISOString().replace('T', ' ').substr(0, 19);
@@ -221,14 +316,13 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
   const speakerText = formatMsgList(speakerMessages);
   const communityText = formatMsgList(communityMessages);
 
-  // 5. 提交 Map-Reduce 子任务到队列中
-  const batchId = `news_batch_${Date.now()}`;
-  const localProvider = process.env.AI_PROVIDER === 'ollama' ? 'ollama' : 'lm-studio';
+  const batchId = `news_batch_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+  const localProvider = process.env.AI_PROVIDER || 'lm-studio';
 
-  // 5a. 提交大V发言分析任务
+  // 提交 Map 任务
   addTask({
     taskType: 'news_map',
-    priority: 2, // 资讯总结任务优先级稍高于普通画像任务
+    priority: 2,
     payload: {
       batchId,
       messagesText: speakerText || '该时段内大V未发言。',
@@ -237,7 +331,6 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
     }
   });
 
-  // 5b. 提交群友发言分析任务
   addTask({
     taskType: 'news_map',
     priority: 2,
@@ -249,14 +342,14 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
     }
   });
 
-  // 5c. 提交 Reduce 最终合成任务
+  // 提交 Reduce 任务
   addTask({
     taskType: 'news_reduce',
     priority: 2,
     payload: {
       batchId,
       summaryType: type,
-      title: `${titleType} (${new Date().toLocaleDateString('zh-CN')})`,
+      title: titleType,
       startTime,
       endTime,
       rawMessagesCount: speakerMessages.length + communityMessages.length,
@@ -264,7 +357,7 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
     }
   });
 
-  console.log(`[News Engine] Scheduled news Map-Reduce tasks for batch ${batchId}. Speaker msgs: ${speakerMessages.length}, Community msgs: ${communityMessages.length}`);
+  console.log(`[News Engine] Scheduled news Map-Reduce tasks for batch ${batchId} (${titleType}). Speaker msgs: ${speakerMessages.length}, Community msgs: ${communityMessages.length}`);
 
   return {
     success: true,
@@ -275,6 +368,21 @@ export async function generateNewsSummary(type = 'briefing', options = {}) {
       communityMsgs: communityMessages.length
     }
   };
+}
+
+// 批量全板块生成辅助路由
+export async function generateBatchNewsSummaries(options = {}) {
+  const { types = ['briefing', 'intraday', 'closing', 'macro'], customStartTime, customEndTime, forceRefresh = true } = options;
+  let results = [];
+  for (const t of types) {
+    try {
+      const res = await generateNewsSummary(t, { customStartTime, customEndTime, forceRefresh });
+      results.push({ type: t, success: true, res });
+    } catch (err) {
+      results.push({ type: t, success: false, error: err.message });
+    }
+  }
+  return results;
 }
 
 // ============================================================
@@ -343,12 +451,15 @@ ${messagesText}
     let communityAnalysis = '未获取到群友分析。';
 
     for (const t of siblingTasks) {
-      const res = JSON.parse(t.result);
-      if (res.isSpeaker) {
-        speakerAnalysis = res.analysis;
-      } else {
-        communityAnalysis = res.analysis;
-      }
+      if (!t.result) continue;
+      try {
+        const res = JSON.parse(t.result);
+        if (res.isSpeaker) {
+          speakerAnalysis = res.analysis;
+        } else {
+          communityAnalysis = res.analysis;
+        }
+      } catch(e) {}
     }
 
     // 2. 最终云端 Gemini 总结润色，并载入大V画像白皮书进行对齐度诊断
