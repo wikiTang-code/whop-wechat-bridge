@@ -2217,8 +2217,9 @@ async function fetchLMStudioEmbedding(text) {
 async function fetchGeminiEmbedding(text, priority = 1) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY not set');
+  const activeKey = apiKey.split(',')[0].trim();
 
-  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=' + apiKey;
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=' + activeKey;
 
   const callFn = async () => {
     const controller = new AbortController();
