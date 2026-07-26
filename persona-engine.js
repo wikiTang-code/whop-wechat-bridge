@@ -126,14 +126,32 @@ function setError(error) {
  */
 async function callLocalAI(provider, prompt) {
   const localProvider = provider === 'ollama' ? 'ollama' : 'lm-studio';
-  if (localProvider === 'lm-studio') {
-    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
-    const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
-    return await analyzeWithLMStudio(baseUrl, model, prompt);
-  } else {
-    const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-    const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
-    return await analyzeWithOllama(baseUrl, model, prompt);
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  try {
+    if (localProvider === 'lm-studio') {
+      const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
+      const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
+
+      // 文本长度安全预警：若字符数突破 14,000 字符，直接提前升舱 Gemini，避免触发 LM Studio 的 400 上下文超限错误
+      if (prompt.length > 14000 && apiKey) {
+        console.log(`[AI Router] Prompt 字符数突破 14,000 (${prompt.length} 字符)，自动预先升舱至云端 Gemini...`);
+        return await analyzeWithGemini(apiKey, prompt);
+      }
+
+      return await analyzeWithLMStudio(baseUrl, model, prompt);
+    } else {
+      const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+      const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
+      return await analyzeWithOllama(baseUrl, model, prompt);
+    }
+  } catch (err) {
+    const isContextExceeded = err.message.includes('Context size has been exceeded') || err.message.includes('400') || err.message.includes('too long');
+    if (isContextExceeded && apiKey) {
+      console.warn(`[AI Router] 本地模型触发上下文超限限制 (${err.message})，正在无缝自愈升舱至云端 Gemini...`);
+      return await analyzeWithGemini(apiKey, prompt);
+    }
+    throw err;
   }
 }
 
