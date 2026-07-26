@@ -327,13 +327,13 @@ function setupEventListeners() {
     });
   });
 
-  // News summaries console triggers
-  document.querySelectorAll('.news-gen-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const type = btn.getAttribute('data-type');
-      triggerNewsGeneration(type);
+  // News summaries start generation trigger
+  const newsStartGenBtn = document.getElementById('news-start-gen-btn');
+  if (newsStartGenBtn) {
+    newsStartGenBtn.addEventListener('click', () => {
+      triggerBatchNewsGeneration();
     });
-  });
+  }
 
   // News summaries custom time toggle
   const customTimeEnabledCheckbox = document.getElementById('news-custom-time-enabled');
@@ -2452,8 +2452,21 @@ window.updateStrategyAnalysis = async function(btn, strategyKey) {
 // 大V行为画像 (Persona Playbook) Feature
 // ==========================================================================
 
-// Button: Generate Persona click listener
-document.getElementById('btn-generate-persona')?.addEventListener('click', async () => {
+// Button: Generate Persona - Dropdown toggle
+document.getElementById('btn-generate-persona')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const menu = document.getElementById('persona-dropdown-menu');
+  menu?.classList.toggle('show');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', () => {
+  document.getElementById('persona-dropdown-menu')?.classList.remove('show');
+});
+
+// Shared persona generation trigger
+async function triggerPersonaGeneration(forceRefresh) {
+  document.getElementById('persona-dropdown-menu')?.classList.remove('show');
   const btn = document.getElementById('btn-generate-persona');
   const statusArea = document.getElementById('persona-progress-area');
   const statusText = document.getElementById('persona-status-text');
@@ -2464,23 +2477,30 @@ document.getElementById('btn-generate-persona')?.addEventListener('click', async
   btn.disabled = true;
   btn.querySelector('.btn-text').textContent = '生成中...';
   statusArea.style.display = 'block';
-  statusText.textContent = '正在启动画像生成引擎...';
+  statusText.textContent = forceRefresh ? '正在启动画像【完全重建】引擎...' : '正在启动画像【增量更新】引擎...';
   progressBar.style.width = '0%';
-  contentArea.style.display = 'none';
-  metaArea.style.display = 'none';
+  // 不再隐藏已有内容
   
   try {
     const csrfToken = await ensureCsrfToken();
     const provider = document.getElementById('ai-provider')?.value || document.getElementById('ai_provider')?.value || 'lm-studio';
+    
+    // 设置 8 秒超时控制器
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     const res = await fetch('/api/persona/generate', {
       method: 'POST',
+      signal: controller.signal,
       headers: { 
         'Content-Type': 'application/json', 
         'X-Session-Id': state.sessionId, 
         'X-CSRF-Token': csrfToken || '' 
       },
-      body: JSON.stringify({ provider, maxMonths: 6, forceRefresh: true })
+      body: JSON.stringify({ provider, maxMonths: 6, forceRefresh })
     });
+    
+    clearTimeout(timeoutId);
     const data = await res.json();
     if (data.success) {
       pollPersonaStatus();
@@ -2490,9 +2510,27 @@ document.getElementById('btn-generate-persona')?.addEventListener('click', async
       btn.querySelector('.btn-text').textContent = '生成画像';
     }
   } catch (err) {
-    statusText.textContent = '请求错误: ' + err.message;
+    if (err.name === 'AbortError') {
+      statusText.textContent = '⚠️ 启动超时：大模型请求响应过慢或数据库正被后台高频写入锁定。请稍后刷新重试，或前往右上方「AI 监控」一键清理排队队列。';
+    } else {
+      statusText.textContent = '请求错误: ' + err.message;
+    }
     btn.disabled = false;
     btn.querySelector('.btn-text').textContent = '生成画像';
+  }
+}
+
+// Incremental update
+document.getElementById('btn-persona-incremental')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  triggerPersonaGeneration(false);
+});
+
+// Full rebuild
+document.getElementById('btn-persona-rebuild')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (confirm('⚠️ 完全重建将清空旧画像并从头分析全量历史数据，耗时较长，确定继续？')) {
+    triggerPersonaGeneration(true);
   }
 });
 
@@ -3328,17 +3366,37 @@ function viewNewsDetail(summary, daySummaries = []) {
 }
 
 /**
- * 手动触发新资讯白皮书的调度
+ * 辅助函数：统一设置资讯控制台控件禁用/解禁状态
  */
-async function triggerNewsGeneration(type) {
-  const btn = document.querySelector(`.news-gen-btn[data-type="${type}"]`);
+function setNewsControlsDisabled(disabled) {
+  const startGenBtn = document.getElementById('news-start-gen-btn');
+  if (startGenBtn) startGenBtn.disabled = disabled;
+  document.querySelectorAll('.news-type-checkbox').forEach(cb => cb.disabled = disabled);
+  document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = disabled);
+}
+
+/**
+ * 手动触发勾选的多个资讯板块生成任务
+ */
+async function triggerBatchNewsGeneration() {
+  const startGenBtn = document.getElementById('news-start-gen-btn');
   const statusArea = document.getElementById('news-progress-area');
   const statusText = document.getElementById('news-status-text');
   const progressBar = document.getElementById('news-progress-bar');
-  
-  document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = true);
+
+  // 获取所有勾选的板块类型
+  const checkedBoxes = Array.from(document.querySelectorAll('.news-type-checkbox:checked'));
+  const selectedTypes = checkedBoxes.map(cb => cb.value);
+
+  if (selectedTypes.length === 0) {
+    statusArea.style.display = 'block';
+    statusText.textContent = '⚠️ 请至少勾选一个想要生成的资讯板块！';
+    return;
+  }
+
+  setNewsControlsDisabled(true);
   statusArea.style.display = 'block';
-  statusText.textContent = '正在初始化资讯生成任务...';
+  statusText.textContent = `正在初始化生成任务 (已选择 ${selectedTypes.length} 个板块)...`;
   progressBar.style.width = '0%';
 
   let customStartTime = null;
@@ -3351,7 +3409,7 @@ async function triggerNewsGeneration(type) {
 
     if (!startVal || !endVal) {
       statusText.textContent = '❌ 请先填写完整的自定义开始和结束时间！';
-      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+      setNewsControlsDisabled(false);
       return;
     }
 
@@ -3360,41 +3418,56 @@ async function triggerNewsGeneration(type) {
 
     if (startMs >= endMs) {
       statusText.textContent = '❌ 开始时间必须早于结束时间！';
-      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+      setNewsControlsDisabled(false);
       return;
     }
 
     customStartTime = new Date(startVal).toISOString();
     customEndTime = new Date(endVal).toISOString();
   }
-  
+
   try {
     const csrfToken = await ensureCsrfToken();
-    const res = await fetch('/api/news-summaries/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Session-Id': state.sessionId,
-        'X-CSRF-Token': csrfToken || ''
-      },
-      body: JSON.stringify({ 
-        type, 
-        forceRefresh: true,
-        customStartTime,
-        customEndTime
-      })
-    });
-    
-    const data = await res.json();
-    if (data.success) {
+    let successCount = 0;
+    let failMessages = [];
+
+    for (let i = 0; i < selectedTypes.length; i++) {
+      const type = selectedTypes[i];
+      statusText.textContent = `正在提交任务 (${i + 1}/${selectedTypes.length}): ${type}...`;
+      
+      const res = await fetch('/api/news-summaries/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-Id': state.sessionId,
+          'X-CSRF-Token': csrfToken || ''
+        },
+        body: JSON.stringify({ 
+          type, 
+          forceRefresh: true,
+          customStartTime,
+          customEndTime
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        successCount++;
+      } else {
+        failMessages.push(`${type}: ${data.reason || data.error || '失败'}`);
+      }
+    }
+
+    if (successCount > 0) {
+      statusText.textContent = `✅ 成功启动 ${successCount} 个资讯生成任务！正在调度后台 AI 提炼...`;
       pollNewsStatus();
     } else {
-      statusText.textContent = '启动失败: ' + (data.reason || data.error || '未知错误');
-      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+      statusText.textContent = '❌ 启动失败: ' + failMessages.join('; ');
+      setNewsControlsDisabled(false);
     }
   } catch (err) {
-    statusText.textContent = '请求错误: ' + err.message;
-    document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+    statusText.textContent = '❌ 请求错误: ' + err.message;
+    setNewsControlsDisabled(false);
   }
 }
 
@@ -3422,18 +3495,18 @@ async function pollNewsStatus() {
     } else if (data.status === 'done') {
       statusText.textContent = '✅ 资讯白皮书生成成功！正在刷新列表...';
       progressBar.style.width = '100%';
-      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+      setNewsControlsDisabled(false);
       
       setTimeout(() => {
         document.getElementById('news-progress-area').style.display = 'none';
         loadNewsSummaries();
       }, 1500);
     } else if (data.status === 'failed' || data.status === 'error') {
-      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+      setNewsControlsDisabled(false);
       statusText.textContent = '❌ 生成失败: ' + (data.error || '未知错误');
       progressBar.style.width = '100%';
     } else {
-      document.querySelectorAll('.news-gen-btn').forEach(b => b.disabled = false);
+      setNewsControlsDisabled(false);
       document.getElementById('news-progress-area').style.display = 'none';
     }
   } catch (err) {
@@ -3461,3 +3534,302 @@ function copyNewsToClipboard() {
   document.body.removeChild(tempTextarea);
 }
 
+// ==========================================================================
+// AI 大模型实时监控面板 (System Monitor Panel)
+// ==========================================================================
+
+let monitorPollingTimer = null;
+
+// 打开监控面板
+document.getElementById('btn-monitor')?.addEventListener('click', () => {
+  document.getElementById('monitor-modal').style.display = 'flex';
+  refreshMonitorData();
+  // 每 8 秒自动刷新一次
+  if (monitorPollingTimer) clearInterval(monitorPollingTimer);
+  monitorPollingTimer = setInterval(refreshMonitorData, 8000);
+});
+
+// 关闭监控面板
+document.getElementById('btn-close-monitor')?.addEventListener('click', closeMonitorModal);
+document.getElementById('btn-close-monitor-footer')?.addEventListener('click', closeMonitorModal);
+document.getElementById('monitor-modal')?.addEventListener('click', (e) => {
+  if (e.target.id === 'monitor-modal') closeMonitorModal();
+});
+
+function closeMonitorModal() {
+  document.getElementById('monitor-modal').style.display = 'none';
+  if (monitorPollingTimer) {
+    clearInterval(monitorPollingTimer);
+    monitorPollingTimer = null;
+  }
+}
+
+// 拉取监控数据并刷新 UI
+async function refreshMonitorData() {
+  try {
+    const res = await fetch('/api/system/monitor');
+    const json = await res.json();
+    if (!json.success) return;
+    const d = json.data;
+
+    // 云端配额
+    const stats = d.rateLimiterStats || {};
+    const used = stats.currentCount || 0;
+    const limit = stats.dailyLimit || 1500;
+    const ratio = limit > 0 ? Math.min(100, Math.round(used / limit * 100)) : 0;
+    document.getElementById('monitor-quota-used').textContent = used;
+    document.getElementById('monitor-quota-limit').textContent = limit;
+    document.getElementById('monitor-quota-ratio').textContent = ratio + '%';
+    const bar = document.getElementById('monitor-quota-bar');
+    bar.style.width = ratio + '%';
+    if (ratio > 90) {
+      bar.style.background = 'linear-gradient(90deg, #ef4444, #f97316)';
+    } else if (ratio > 70) {
+      bar.style.background = 'linear-gradient(90deg, #eab308, #f97316)';
+    } else {
+      bar.style.background = 'linear-gradient(90deg, #38bdf8, #818cf8)';
+    }
+
+    // 本地大模型
+    const localBadge = document.getElementById('monitor-local-status');
+    const btnStart = document.getElementById('btn-local-model-start');
+    const btnStop = document.getElementById('btn-local-model-stop');
+    if (d.localModelConnected) {
+      localBadge.classList.remove('offline');
+      localBadge.querySelector('.status-text').textContent = '🟢 已连接 (隧道存活)';
+      if (btnStart) btnStart.style.display = 'none';
+      if (btnStop) btnStop.style.display = 'inline-flex';
+      const hintArea = document.getElementById('monitor-tunnel-hint');
+      if (hintArea) hintArea.style.display = 'none';
+    } else {
+      localBadge.classList.add('offline');
+      localBadge.querySelector('.status-text').textContent = '🔴 未连接 / 离线';
+      if (btnStart) btnStart.style.display = 'inline-flex';
+      if (btnStop) btnStop.style.display = 'none';
+    }
+
+    // GPU 锁
+    const lockDetails = document.getElementById('monitor-lock-details');
+    const gpu = d.gpuLockStatus || {};
+    if (gpu.isLocked) {
+      lockDetails.innerHTML = `
+        <div class="lock-status-main">🔒 已被锁定</div>
+        <div class="lock-status-sub">占用者: ${gpu.owner || '未知进程'}</div>
+      `;
+    } else {
+      lockDetails.innerHTML = `
+        <div class="lock-status-main">🔓 闲置中</div>
+        <div class="lock-status-sub">无活动占用者，GPU 可用</div>
+      `;
+    }
+
+    // 队列任务
+    const tasks = d.activeTasks || [];
+    document.getElementById('monitor-queue-count').textContent = tasks.length;
+    
+    // 动态计算队列处理进度
+    const activeCount = tasks.length;
+    const completedTasks = d.completedTasks || [];
+    const doneCount = completedTasks.filter(t => t.status === 'done').length;
+    const failedCount = completedTasks.filter(t => t.status === 'failed').length;
+    const totalCount = activeCount + doneCount + failedCount;
+    const progressPercent = totalCount > 0 ? Math.round(((doneCount + failedCount) / totalCount) * 100) : 100;
+    
+    const progressText = document.getElementById('monitor-progress-text');
+    const progressFill = document.getElementById('monitor-progress-fill');
+    if (progressText && progressFill) {
+      progressText.textContent = `${progressPercent}%`;
+      progressFill.style.width = `${progressPercent}%`;
+      if (progressPercent === 100) {
+        progressText.style.color = '#10b981'; // 完成时绿色
+      } else {
+        progressText.style.color = '#3b82f6'; // 运行中蓝色
+      }
+    }
+
+    const tbody = document.getElementById('monitor-queue-tbody');
+    if (tasks.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #888;">暂无活跃计算任务，AI 处理器处于空闲状态。</td></tr>';
+    } else {
+      tbody.innerHTML = tasks.map(t => {
+        const timeStr = t.updatedAt ? new Date(t.updatedAt).toLocaleTimeString('zh-CN', { hour12: false }) : '—';
+        return `
+          <tr>
+            <td>#${t.id}</td>
+            <td>${t.description}</td>
+            <td><span class="badge-status ${t.status}">${t.status === 'running' ? '⏳ 执行中' : t.status === 'pending' ? '🕐 排队' : '🔄 重试'}</span></td>
+            <td>${t.priority}</td>
+            <td>${timeStr}</td>
+            <td>—</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 渲染最近已处理历史记录 (done/failed)
+    const historyTbody = document.getElementById('monitor-history-tbody');
+    const historyTasks = d.completedTasks || [];
+    if (historyTbody) {
+      if (historyTasks.length === 0) {
+        historyTbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888;">暂无历史已处理记录。</td></tr>';
+      } else {
+        const escapeHtmlLocal = (str) => {
+          if (!str) return '';
+          return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        };
+        historyTbody.innerHTML = historyTasks.map(t => {
+          let badgeStyle = 'background: rgba(239, 68, 68, 0.15); color: #ef4444;';
+          let badgeText = '❌ 失败';
+          if (t.status === 'done') {
+            badgeStyle = 'background: rgba(16, 185, 129, 0.15); color: #10b981;';
+            badgeText = '✅ 成功';
+          }
+          
+          const timeStr = t.updatedAt ? new Date(t.updatedAt).toLocaleTimeString('zh-CN', { hour12: false }) : '—';
+          const infoDetail = t.status === 'done' 
+            ? `<span style="color: #10b981; font-size: 11px;">🟢 成功</span>` 
+            : `<code style="color: #ef4444; font-size: 11px; display: block; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtmlLocal(t.errorMessage || '')}">⚠️ ${escapeHtmlLocal(t.errorMessage || '未知异常')}</code>`;
+            
+          return `
+            <tr>
+              <td>#${t.id}</td>
+              <td>${t.description}</td>
+              <td><span class="badge-status" style="padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; ${badgeStyle}">${badgeText}</span></td>
+              <td>${timeStr}</td>
+              <td>${infoDetail}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    // 对账进度
+    const pendingTrades = d.pendingTradeMsgsCount || 0;
+    const tradeAlert = document.getElementById('monitor-trade-reconcile-alert');
+    if (pendingTrades > 0) {
+      tradeAlert.style.display = 'block';
+      document.getElementById('monitor-pending-trades').textContent = pendingTrades;
+    } else {
+      tradeAlert.style.display = 'none';
+    }
+  } catch (err) {
+    console.error('[Monitor] 刷新失败:', err);
+  }
+}
+
+// 一键清理队列按钮
+document.getElementById('btn-clear-all-tasks')?.addEventListener('click', async () => {
+  if (!confirm('⚠️ 确定要强制取消并清空所有正在排队/重试中的后台计算任务？此操作不可逆。')) return;
+  try {
+    const csrfToken = await ensureCsrfToken();
+    const res = await fetch('/api/task-queue/clear?type=all', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Session-Id': state.sessionId,
+        'X-CSRF-Token': csrfToken || ''
+      }
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert('✅ ' + data.message);
+      refreshMonitorData();
+    } else {
+      alert('❌ 清理失败: ' + (data.error || '未知错误'));
+    }
+  } catch (err) {
+    alert('请求错误: ' + err.message);
+  }
+});
+
+// ==========================================================================
+// 本地大模型加载 / 卸载按钮 (Local Model Tunnel Control)
+// ==========================================================================
+
+// 加载模型（启动隧道）
+document.getElementById('btn-local-model-start')?.addEventListener('click', async () => {
+  const btn = document.getElementById('btn-local-model-start');
+  const hintArea = document.getElementById('monitor-tunnel-hint');
+  btn.disabled = true;
+  btn.textContent = '⏳ 连接中...';
+
+  try {
+    const csrfToken = await ensureCsrfToken();
+    const res = await fetch('/api/system/local-model/start', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Session-Id': state.sessionId,
+        'X-CSRF-Token': csrfToken || ''
+      }
+    });
+    const data = await res.json();
+
+    if (data.connected) {
+      alert('✅ ' + data.message);
+      if (hintArea) hintArea.style.display = 'none';
+    } else if (data.hint) {
+      // 服务端未配置隧道命令，展示本地运行提示
+      if (hintArea) {
+        hintArea.style.display = 'block';
+        hintArea.innerHTML = `
+          <div style="margin-bottom: 6px; color: #eab308; font-weight: 600;">⚠️ 需要从本地 Windows 启动 SSH 反向隧道：</div>
+          <code id="tunnel-cmd-text" style="display: block; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; font-size: 11px; color: #38bdf8; cursor: pointer; user-select: all;" title="点击复制">${data.hint.replace(/\\n/g, '<br>')}</code>
+          <button class="btn btn-secondary btn-small" id="btn-copy-tunnel-cmd" style="margin-top: 6px;">📋 复制命令</button>
+        `;
+        document.getElementById('btn-copy-tunnel-cmd')?.addEventListener('click', () => {
+          const cmdText = data.hint.replace(/\\n/g, '\n');
+          navigator.clipboard.writeText(cmdText).then(() => {
+            alert('✅ SSH 隧道命令已复制到剪贴板！请在本地 PowerShell 中粘贴运行。');
+          }).catch(() => {
+            // Fallback
+            const ta = document.createElement('textarea');
+            ta.value = cmdText;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            alert('✅ SSH 隧道命令已复制到剪贴板！');
+          });
+        });
+      }
+    } else {
+      alert(data.message || '操作完成，请刷新查看状态。');
+    }
+
+    refreshMonitorData();
+  } catch (err) {
+    alert('请求错误: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🚀 加载模型';
+  }
+});
+
+// 卸载模型（断开隧道）
+document.getElementById('btn-local-model-stop')?.addEventListener('click', async () => {
+  if (!confirm('⚠️ 确定要断开本地大模型连接？断开后所有依赖本地模型的分析任务将会失败。')) return;
+  const btn = document.getElementById('btn-local-model-stop');
+  btn.disabled = true;
+  btn.textContent = '⏳ 断开中...';
+
+  try {
+    const csrfToken = await ensureCsrfToken();
+    const res = await fetch('/api/system/local-model/stop', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Session-Id': state.sessionId,
+        'X-CSRF-Token': csrfToken || ''
+      }
+    });
+    const data = await res.json();
+    alert(data.success ? '✅ ' + data.message : '❌ ' + (data.error || '操作失败'));
+    refreshMonitorData();
+  } catch (err) {
+    alert('请求错误: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⏹️ 卸载模型';
+  }
+});

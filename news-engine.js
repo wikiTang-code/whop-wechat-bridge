@@ -29,13 +29,56 @@ async function callLocalAI(provider, prompt) {
   }
 }
 
-async function callCloudAI(prompt) {
+async function callCloudAI(prompt, preferredProvider = null) {
+  const provider = preferredProvider || process.env.AI_PROVIDER || 'gemini';
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.warn('[News] GEMINI_API_KEY not set, falling back to local model');
-    return await callLocalAI('lm-studio', prompt);
+
+  const tryGemini = async () => {
+    if (!apiKey) throw new Error('GEMINI_API_KEY is not set');
+    return await analyzeWithGemini(apiKey, prompt);
+  };
+
+  const tryLocal = async () => {
+    const localProvider = provider === 'ollama' ? 'ollama' : 'lm-studio';
+    return await callLocalAI(localProvider, prompt);
+  };
+
+  // 1. 如果首选为本地模型
+  if (provider === 'lm-studio' || provider === 'ollama') {
+    try {
+      console.log(`[AI Router] [News] 优先使用本地模型 (${provider}) 进行推理...`);
+      return await tryLocal();
+    } catch (err) {
+      console.warn(`[AI Router] [News] 本地模型推理失败 (${err.message})，自动容灾升级到云端 Gemini...`);
+      if (apiKey) {
+        try {
+          return await tryGemini();
+        } catch (geminiErr) {
+          console.error('[AI Router] [News] 容灾升级至云端 Gemini 也宣告失败:', geminiErr.message);
+        }
+      }
+      throw err;
+    }
   }
-  return await analyzeWithGemini(apiKey, prompt);
+
+  // 2. 首选为云端 Gemini (默认)
+  try {
+    const model = process.env.GEMINI_MODEL || 'gemini-flash-latest';
+    console.log(`[AI Router] [News] 优先使用云端 Gemini (${model}) 进行推理...`);
+    return await tryGemini();
+  } catch (err) {
+    const isQuotaExceeded = err.message.includes('429') || err.message.includes('quota') || err.message.includes('RESOURCE_EXHAUSTED');
+    if (isQuotaExceeded) {
+      console.warn(`[AI Router] [News] 检测到云端 Gemini 配额限流超标 (${err.message})，自动自愈降级至本地大模型...`);
+      try {
+        return await tryLocal();
+      } catch (localErr) {
+        console.error('[AI Router] [News] 降级至本地模型也失败了:', localErr.message);
+        throw err; // 如果都宣告失败，抛出原配额错，使队列进入冷静期
+      }
+    }
+    throw err;
+  }
 }
 
 // ============================================================
@@ -340,7 +383,7 @@ ${playbookContent}
 
 直接输出 Markdown 报告文本，不要包含任何 json 封装或多余的引导说明。`;
 
-    const summaryContent = await callCloudAI(prompt);
+    const summaryContent = await callCloudAI(prompt, provider);
 
     // 3. 将合成报告存入 SQLite 数据库
     saveNewsSummary({

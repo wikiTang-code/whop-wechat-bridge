@@ -1,6 +1,6 @@
 import express from 'express';
 import https from 'https';
-import { spawn } from 'child_process';
+import { spawn, exec, execSync } from 'child_process';
 
 process.on('uncaughtException', (err) => {
   console.error('UNCAUGHT EXCEPTION:', err.stack || err);
@@ -856,9 +856,11 @@ app.post('/api/persona/generate', requireCsrf, async (req, res) => {
 
     console.log(`[API Persona] Triggering playbook generation with provider=${provider}, maxMonths=${maxMonths}, forceRefresh=${forceRefresh}`);
     
-    // Generate playbook asynchronously so it doesn't block the HTTP request (as it takes a few minutes)
-    generatePersonaPlaybook({ provider, maxMonths, forceRefresh }).catch(err => {
-      console.error('[API Persona] Asynchronous generation failed:', err.message);
+    // 使用 setImmediate 彻底移出当前事件循环主线程，实现真正的毫秒级解耦返回，免受 SQLite 读写锁争用影响
+    setImmediate(() => {
+      generatePersonaPlaybook({ provider, maxMonths, forceRefresh }).catch(err => {
+        console.error('[API Persona] Asynchronous generation failed:', err.message);
+      });
     });
 
     res.json({ success: true, message: '大V行为画像生成任务启动成功' });
@@ -1048,6 +1050,37 @@ app.get('/api/system/monitor', async (req, res) => {
       };
     });
 
+    // 新增：获取最近完成/失败的历史任务 (最近 15 条)
+    const completedTasks = db.prepare(`
+      SELECT id, task_type, status, priority, error_message, updated_at 
+      FROM task_queue 
+      WHERE status IN ('done', 'failed')
+      ORDER BY updated_at DESC, id DESC
+      LIMIT 15
+    `).all();
+
+    const formattedHistory = completedTasks.map(t => {
+      let desc = '未知系统任务';
+      if (t.task_type.startsWith('persona_')) {
+        desc = '🧠 大V行为画像分析';
+      } else if (t.task_type.startsWith('news_')) {
+        const subType = t.task_type.split('_')[1] || '';
+        const subMap = { briefing: '盘前速报', intraday: '盘中总结', closing: '收盘回顾', macro: '宏观周报' };
+        desc = `📅 社区资讯速报 (${subMap[subType] || subType})`;
+      } else if (t.task_type.startsWith('trade_')) {
+        desc = '💼 赵哥历史跟单提炼';
+      }
+      return {
+        id: t.id,
+        taskType: t.task_type,
+        status: t.status,
+        priority: t.priority,
+        description: desc,
+        errorMessage: t.error_message,
+        updatedAt: t.updated_at
+      };
+    });
+
     // 统计消息表中还有多少条 is_traded = 0 的大V消息等待跟单引擎提炼
     const pendingTradeMsgsCount = db.prepare(`
       SELECT COUNT(*) as count FROM messages 
@@ -1061,6 +1094,7 @@ app.get('/api/system/monitor', async (req, res) => {
         rateLimiterStats,
         gpuLockStatus,
         activeTasks: formattedTasks,
+        completedTasks: formattedHistory,
         pendingTradeMsgsCount
       }
     });
@@ -1105,6 +1139,114 @@ app.post('/api/task-queue/clear', requireCsrf, (req, res) => {
     
     res.json({ success: true, message: `成功强制取消并中断了 ${changes} 个后台排队计算任务。` });
   } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// === Local Model Tunnel Management ===
+
+let localModelTunnelProcess = null;
+
+// 3. POST /api/system/local-model/start - 启动本地大模型 SSH 反向隧道
+app.post('/api/system/local-model/start', requireCsrf, async (req, res) => {
+  try {
+    // 检查端口是否已被占用（说明隧道可能已在运行）
+    const isUp = await new Promise((resolve) => {
+      const socket = new net.Socket();
+      socket.setTimeout(200);
+      socket.on('connect', () => { socket.destroy(); resolve(true); });
+      socket.on('timeout', () => { socket.destroy(); resolve(false); });
+      socket.on('error', () => { socket.destroy(); resolve(false); });
+      socket.connect(8080, '127.0.0.1');
+    });
+
+    if (isUp) {
+      return res.json({ success: true, connected: true, message: '本地模型 (8080) 已处于连接状态，无需重复启动。' });
+    }
+
+    // 先清理残留的僵尸进程
+    try { execSync('fuser -k 8080/tcp 2>/dev/null || true', { timeout: 3000 }); } catch(e) {}
+
+    // 获取隧道启动命令（可通过 .env 覆盖）
+    // 默认：SSH 反向隧道，VM 反连到本地 Windows 的 LM Studio (8080端口)
+    // 需要在本地 Windows 上先开放 SSH 服务（WSL2 端口可通过 Windows 宿主机 IP 直达）
+    const tunnelCmd = process.env.LOCAL_MODEL_TUNNEL_CMD || null;
+
+    if (!tunnelCmd) {
+      return res.json({ 
+        success: false, 
+        connected: false, 
+        message: '未配置 LOCAL_MODEL_TUNNEL_CMD 环境变量。请在 .env 中设置隧道启动命令，或从本地 Windows 运行 SSH 反向隧道命令。',
+        hint: `在本地 Windows PowerShell 中运行：\nssh -i C:\\Users\\86597\\.ssh\\stable_key -R 8080:localhost:8080 -N -o ServerAliveInterval=30 -o ExitOnForwardFailure=yes wikitang628@35.212.142.173`
+      });
+    }
+
+    console.log(`[Local Model] 正在执行隧道启动命令: ${tunnelCmd}`);
+    
+    // 使用 spawn 非阻塞启动隧道子进程
+    localModelTunnelProcess = spawn('bash', ['-c', tunnelCmd], {
+      detached: true,
+      stdio: 'ignore'
+    });
+    localModelTunnelProcess.unref();
+
+    localModelTunnelProcess.on('error', (err) => {
+      console.error('[Local Model] 隧道进程启动失败:', err.message);
+      localModelTunnelProcess = null;
+    });
+
+    localModelTunnelProcess.on('close', (code) => {
+      console.log(`[Local Model] 隧道进程退出, code=${code}`);
+      localModelTunnelProcess = null;
+    });
+
+    // 等待 3 秒后检测端口是否通了
+    await new Promise(r => setTimeout(r, 3000));
+    const connected = await new Promise((resolve) => {
+      const socket = new net.Socket();
+      socket.setTimeout(300);
+      socket.on('connect', () => { socket.destroy(); resolve(true); });
+      socket.on('timeout', () => { socket.destroy(); resolve(false); });
+      socket.on('error', () => { socket.destroy(); resolve(false); });
+      socket.connect(8080, '127.0.0.1');
+    });
+
+    res.json({ 
+      success: true, 
+      connected,
+      message: connected 
+        ? '🟢 本地大模型隧道建立成功！8080端口已就绪。' 
+        : '⏳ 隧道命令已执行，但端口尚未响应。请稍后刷新检查。'
+    });
+  } catch (err) {
+    console.error('[Local Model] Start error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 4. POST /api/system/local-model/stop - 断开本地大模型隧道
+app.post('/api/system/local-model/stop', requireCsrf, async (req, res) => {
+  try {
+    // 终止管理中的隧道子进程
+    if (localModelTunnelProcess) {
+      try { localModelTunnelProcess.kill('SIGTERM'); } catch(e) {}
+      localModelTunnelProcess = null;
+    }
+
+    // 额外保险：强杀 8080 上的所有进程
+    try { 
+      execSync('fuser -k 8080/tcp 2>/dev/null || true', { timeout: 3000 }); 
+    } catch(e) {}
+
+    // 也杀掉可能残留的 SSH 隧道进程
+    try {
+      execSync("pkill -f 'ssh.*8080' 2>/dev/null || true", { timeout: 3000 });
+    } catch(e) {}
+
+    console.log('[Local Model] 本地大模型隧道连接已断开，8080端口进程已终止。');
+    res.json({ success: true, message: '🔴 本地大模型连接已断开。8080端口进程已终止。' });
+  } catch (err) {
+    console.error('[Local Model] Stop error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });

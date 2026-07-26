@@ -140,13 +140,56 @@ async function callLocalAI(provider, prompt) {
 /**
  * 高质量任务 → Gemini API（Reduce 合成、最终白皮书生成）
  */
-async function callCloudAI(prompt) {
+async function callCloudAI(prompt, preferredProvider = null) {
+  const provider = preferredProvider || process.env.AI_PROVIDER || 'gemini';
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.warn('[Persona] GEMINI_API_KEY not set, falling back to local model for cloud task');
-    return await callLocalAI('lm-studio', prompt);
+
+  const tryGemini = async () => {
+    if (!apiKey) throw new Error('GEMINI_API_KEY is not set');
+    return await analyzeWithGemini(apiKey, prompt);
+  };
+
+  const tryLocal = async () => {
+    const localProvider = provider === 'ollama' ? 'ollama' : 'lm-studio';
+    return await callLocalAI(localProvider, prompt);
+  };
+
+  // 1. 如果首选为本地模型
+  if (provider === 'lm-studio' || provider === 'ollama') {
+    try {
+      console.log(`[AI Router] [Persona] 优先使用本地模型 (${provider}) 进行推理...`);
+      return await tryLocal();
+    } catch (err) {
+      console.warn(`[AI Router] [Persona] 本地模型推理失败 (${err.message})，自动容灾升级到云端 Gemini...`);
+      if (apiKey) {
+        try {
+          return await tryGemini();
+        } catch (geminiErr) {
+          console.error('[AI Router] [Persona] 容灾升级至云端 Gemini 也宣告失败:', geminiErr.message);
+        }
+      }
+      throw err;
+    }
   }
-  return await analyzeWithGemini(apiKey, prompt);
+
+  // 2. 首选为云端 Gemini (默认)
+  try {
+    const model = process.env.GEMINI_MODEL || 'gemini-flash-latest';
+    console.log(`[AI Router] [Persona] 优先使用云端 Gemini (${model}) 进行推理...`);
+    return await tryGemini();
+  } catch (err) {
+    const isQuotaExceeded = err.message.includes('429') || err.message.includes('quota') || err.message.includes('RESOURCE_EXHAUSTED');
+    if (isQuotaExceeded) {
+      console.warn(`[AI Router] [Persona] 检测到云端 Gemini 配额限流超标 (${err.message})，自动自愈降级至本地大模型...`);
+      try {
+        return await tryLocal();
+      } catch (localErr) {
+        console.error('[AI Router] [Persona] 降级至本地模型也失败了:', localErr.message);
+        throw err; // 若都失败则抛出原限流错
+      }
+    }
+    throw err;
+  }
 }
 
 // ============================================================
@@ -624,7 +667,7 @@ const INCREMENTAL_UPDATE_PROMPT = `你是一位资深的美股交易行为分析
 /**
  * 合成画像白皮书（全量或增量）— 强制走 Gemini API
  */
-async function synthesizePlaybook(eventAnalyses, communityInsights, existingPlaybook = null) {
+async function synthesizePlaybook(eventAnalyses, communityInsights, existingPlaybook = null, provider = 'gemini') {
   // Break event analyses into batches for intermediate synthesis
   const BATCH_SIZE = 12;
   const intermediateSummaries = [];
@@ -640,7 +683,7 @@ async function synthesizePlaybook(eventAnalyses, communityInsights, existingPlay
       updateStatus('running', `正在合成中间摘要 (Gemini)... (${batchIdx}/${totalBatches})`, 75 + Math.round(15 * batchIdx / totalBatches));
 
       const intermediatePrompt = `以下是对一位美股交易员多个时间段的行为分析结果。请合并这些分析，提炼出关键的交易模式、策略偏好和行为特征。以清晰的要点形式输出中间合成结果。\n\n` + batch.join('\n\n---\n\n');
-      const summary = await callCloudAI(intermediatePrompt);
+      const summary = await callCloudAI(intermediatePrompt, provider);
       intermediateSummaries.push(summary);
     }
   }
@@ -663,7 +706,7 @@ async function synthesizePlaybook(eventAnalyses, communityInsights, existingPlay
       `\n\n【群友社区洞察】\n${communitySection}`;
   }
 
-  const playbook = await callCloudAI(finalPrompt);
+  const playbook = await callCloudAI(finalPrompt, provider);
   return playbook;
 }
 
@@ -789,7 +832,7 @@ export async function generatePersonaPlaybook(options = {}) {
     for (let i = 0; i < events.length; i++) {
       addTask({
         taskType: 'persona_map',
-        priority: 1,
+        priority: 3,
         payload: {
           batchId,
           event: events[i],
@@ -803,7 +846,7 @@ export async function generatePersonaPlaybook(options = {}) {
     // 4b. Add focus group community tasks → 本地 LM Studio
     addTask({
       taskType: 'persona_community',
-      priority: 1,
+      priority: 3,
       payload: {
         batchId,
         messages: focusMessages,
@@ -815,7 +858,7 @@ export async function generatePersonaPlaybook(options = {}) {
     // 4c. Add general community tasks → 本地 LM Studio
     addTask({
       taskType: 'persona_community',
-      priority: 1,
+      priority: 3,
       payload: {
         batchId,
         messages: generalFilteredMessages,
@@ -824,17 +867,18 @@ export async function generatePersonaPlaybook(options = {}) {
       }
     });
 
-    // 4d. Add Reduce task → 强制走 Gemini API（合成质量要求高）
+    // 4d. Add Reduce task → 优先走 Gemini API，自动 fallback 到本地大模型
+    // Priority = 2，高于 Map(P3)，确保所有 Map 子任务完成后 Reduce 立即被优先处理合成并写入数据库
     const finalStartTime = isIncremental ? existingReport.start_time : (speakerMessages[0]?.created_at || Date.now());
     const reportEndTime = speakerMessages[speakerMessages.length - 1]?.created_at || Date.now();
     const rawMessagesCount = speakerMessages.length + focusMessages.length + generalFilteredMessages.length;
 
     addTask({
       taskType: 'persona_reduce',
-      priority: 1,
+      priority: 2, // P2：高于 Map(P3)，确保合成任务优先执行
       payload: {
         batchId,
-        provider: 'gemini', // Reduce 阶段强制走云端
+        provider: 'gemini', // 首选 Gemini，但通过 callCloudAI 支持自动降级本地大模型
         isIncremental,
         existingContent: isIncremental ? existingReport.summary_content : null,
         finalStartTime,
@@ -900,8 +944,8 @@ export async function processPersonaTask(task) {
   }
   
   if (task.task_type === 'persona_reduce') {
-    const { isIncremental, existingContent, finalStartTime, reportEndTime, rawMessagesCount, totalImages } = payload;
-    console.log(`[Persona Worker] 正在执行 Reduce 最终合成任务 #${task.id} (批次: ${batchId}, 使用: Gemini API)...`);
+    const { isIncremental, existingContent, finalStartTime, reportEndTime, rawMessagesCount, totalImages, provider } = payload;
+    console.log(`[Persona Worker] 正在执行 Reduce 最终合成任务 #${task.id} (批次: ${batchId}, 首选: ${provider})...`);
 
     const db = getDb();
 
@@ -934,11 +978,22 @@ export async function processPersonaTask(task) {
     const generalInsight = communityResults.find(r => !r.isFocusGroup)?.insights || { tool_suggestions: [], strategy_discussions: [], feature_requests: [], market_insights: [] };
     const communityInsights = mergeCommunityInsights([focusInsight, generalInsight]);
 
-    // 2. Reduce 阶段强制走 Gemini API（合成质量要求高）
-    const playbook = await synthesizePlaybook(eventAnalysesText, communityInsights, existingContent);
+    // 2. Reduce 合成阶段：首选 Gemini API，自动 fallback 降级到本地大模型
+    // synthesizePlaybook 内部通过 callCloudAI 实现 Gemini→本地 的完整容灾降级链
+    let usedModel = 'Gemini-Flash';
+    let playbook;
+    try {
+      playbook = await synthesizePlaybook(eventAnalysesText, communityInsights, existingContent, provider);
+    } catch (reduceErr) {
+      // 若 Gemini 已完全耗尽或多次 429，强制降级到本地大模型完成合成
+      console.warn(`[Persona Reduce] Gemini 合成失败 (${reduceErr.message})，强制降级到本地大模型完成最终白皮书合成...`);
+      const localProvider = 'lm-studio';
+      usedModel = 'LM-Studio-Local';
+      playbook = await synthesizePlaybook(eventAnalysesText, communityInsights, existingContent, localProvider);
+    }
 
     // 3. 保存至 reports 表
-    const modelName = `Gemini-Flash` + (totalImages > 0 ? '+Vision' : '');
+    const modelName = usedModel + (totalImages > 0 ? '+Vision' : '');
 
     saveReport({
       startTime: finalStartTime,

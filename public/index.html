@@ -623,10 +623,17 @@
             <h2>🧠 大V行为画像白皮书</h2>
             <p class="subtitle">基于全量历史发言、交易行为与市场情绪，由 AI 自动生成的大V操盘人格画像深度白皮书</p>
           </div>
-          <button id="btn-generate-persona" class="btn btn-primary btn-glow">
-            <span class="btn-icon">⚡</span>
-            <span class="btn-text">生成画像</span>
-          </button>
+          <div class="dropdown" id="persona-generate-dropdown">
+            <button id="btn-generate-persona" class="btn btn-primary btn-glow dropdown-toggle">
+              <span class="btn-icon">⚡</span>
+              <span class="btn-text">生成画像</span>
+              <span class="dropdown-caret">▼</span>
+            </button>
+            <div class="dropdown-menu" id="persona-dropdown-menu">
+              <a class="dropdown-item" id="btn-persona-incremental" href="#">⚡ 增量更新画像 <small style="color:#64748b;">(基于现有画像补充新数据)</small></a>
+              <a class="dropdown-item" id="btn-persona-rebuild" href="#">🔄 完全重建画像 <small style="color:#64748b;">(清空旧画像从头计算)</small></a>
+            </div>
+          </div>
         </div>
 
         <div id="persona-meta" class="persona-meta" style="display: none;">
@@ -662,19 +669,23 @@
             <div class="panel-header">
               <h2>📰 资讯生成控制台</h2>
             </div>
-            <div class="news-console-buttons">
-              <button class="btn btn-secondary news-gen-btn" data-type="briefing" title="分析夜盘与晨会消息，生成今日开盘提醒">
-                🌅 盘前速报
-              </button>
-              <button class="btn btn-secondary news-gen-btn" data-type="intraday" title="分析开盘后大V言论与盘中变动，生成半天总结">
-                ⚡ 盘中总结
-              </button>
-              <button class="btn btn-secondary news-gen-btn" data-type="closing" title="分析收盘后大V全天发言，生成深度收盘简报">
-                🌆 收盘回顾
-              </button>
-              <button class="btn btn-secondary news-gen-btn" data-type="macro" title="分析过去一周宏观大势与观点汇总">
-                📊 宏观周报
-              </button>
+            <div class="news-type-checkbox-group">
+              <label class="news-type-checkbox-card">
+                <input type="checkbox" class="news-type-checkbox" value="briefing" checked>
+                <span class="news-type-label">🌅 盘前速报</span>
+              </label>
+              <label class="news-type-checkbox-card">
+                <input type="checkbox" class="news-type-checkbox" value="intraday" checked>
+                <span class="news-type-label">⚡ 盘中总结</span>
+              </label>
+              <label class="news-type-checkbox-card">
+                <input type="checkbox" class="news-type-checkbox" value="closing" checked>
+                <span class="news-type-label">🌆 收盘回顾</span>
+              </label>
+              <label class="news-type-checkbox-card">
+                <input type="checkbox" class="news-type-checkbox" value="macro" checked>
+                <span class="news-type-label">📊 宏观周报</span>
+              </label>
             </div>
             
             <!-- 自定义时间范围选择 -->
@@ -698,6 +709,11 @@
                 </div>
               </div>
             </div>
+            
+            <!-- 启动生成按钮 -->
+            <button class="btn btn-primary news-start-gen-btn" id="news-start-gen-btn">
+              🚀 启动生成
+            </button>
             
             <!-- Progress state (similar to persona playbook) -->
             <div id="news-progress-area" class="news-progress-area" style="display: none;">
@@ -987,6 +1003,17 @@
               <span class="status-dot"></span>
               <span class="status-text">检测中...</span>
             </div>
+            <div class="monitor-local-actions" style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+              <button class="btn btn-secondary btn-small" id="btn-local-model-start" title="在 GCP VM 上启动 SSH 反向隧道连接本地 LM Studio">
+                🚀 加载模型
+              </button>
+              <button class="btn btn-secondary btn-small" id="btn-local-model-stop" style="display: none;" title="断开 SSH 隧道，释放 8080 端口">
+                ⏹️ 卸载模型
+              </button>
+            </div>
+            <div id="monitor-tunnel-hint" style="display: none; margin-top: 8px; background: rgba(56,189,248,0.08); border-radius: 6px; padding: 8px 10px; font-size: 11px; color: #94a3b8; word-break: break-all;">
+              <!-- SSH command hint rendered by JS -->
+            </div>
           </div>
           
           <!-- GPU推理锁 -->
@@ -1011,6 +1038,17 @@
             </button>
           </div>
           
+          <!-- 实时队列消费进度条 -->
+          <div class="queue-progress-bar-container" style="margin: 4px 0 16px 0; background: rgba(15, 23, 42, 0.4); padding: 10px 14px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.03);">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; color: #94a3b8; font-weight: 500;">
+              <span>🔥 队列消费完成率 (Done / Total)</span>
+              <span id="monitor-progress-text" style="color: #10b981; font-weight: 700;">100%</span>
+            </div>
+            <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; position: relative;">
+              <div id="monitor-progress-fill" style="width: 100%; height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); border-radius: 3px; transition: width 0.4s ease;"></div>
+            </div>
+          </div>
+          
           <!-- 消息对账进度提醒 -->
           <div class="monitor-trade-reconcile-alert" id="monitor-trade-reconcile-alert" style="display: none;">
             <span>💼 <strong>赵哥交易对账</strong>：检测到后台有 <strong id="monitor-pending-trades">0</strong> 条历史喊单发言正在等待大模型提炼订单入库。</span>
@@ -1023,16 +1061,44 @@
                   <th>任务 ID</th>
                   <th>具体执行任务意图</th>
                   <th>当前状态</th>
-                  <th>priority</th>
+                  <th>优先级</th>
+                  <th>最后更新</th>
                   <th>操作</th>
                 </tr>
               </thead>
               <tbody id="monitor-queue-tbody">
                 <tr>
-                  <td colspan="5" style="text-align: center; color: #888;">暂无活跃计算任务，AI 处理器处于空闲状态。</td>
+                  <td colspan="6" style="text-align: center; color: #888;">暂无活跃计算任务，AI 处理器处于空闲状态。</td>
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- 最近处理完成的历史任务记录 -->
+          <div class="monitor-history-section" style="margin-top: 24px; padding-top: 16px; border-top: 1px dashed rgba(255,255,255,0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
+                <span>📋</span> 最近已处理完毕任务历史 (最近15条)
+              </h4>
+            </div>
+            <div class="queue-list-container" style="max-height: 220px; overflow-y: auto;">
+              <table class="monitor-queue-table">
+                <thead>
+                  <tr>
+                    <th>任务 ID</th>
+                    <th>具体执行任务意图</th>
+                    <th>最终处理状态</th>
+                    <th>处理时间</th>
+                    <th>详情 / 报错信息</th>
+                  </tr>
+                </thead>
+                <tbody id="monitor-history-tbody">
+                  <tr>
+                    <td colspan="5" style="text-align: center; color: #888;">暂无历史已处理记录。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -1043,6 +1109,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=20260704_v4"></script>
+  <script src="app.js?v=20260720_v6"></script>
 </body>
 </html>

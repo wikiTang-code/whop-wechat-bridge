@@ -194,11 +194,9 @@ export function startQueueWorker(workerFn, pollIntervalMs = 5000) {
           console.error(`[Task Queue] 任务 #${task.id} 处理异常:`, taskErr);
           failTask(task.id, taskErr.message, taskErr.stack || '');
           
-          // 核心优化：如果捕获到配额/超限致命硬伤报错，跳出循环降速避让，让队列进入 5 分钟冷静休眠
+          // 已上线云地容灾与优先级插队机制，无需再冻结挂起整个队列，保持常规轮询即可
           if (taskErr.message.includes('限制已超标') || taskErr.message.includes('限额') || taskErr.message.includes('配额') || taskErr.message.includes('429')) {
-            console.warn(`[Task Queue System] 监测到大模型 API 每日配额超标！将队列消费者降速挂起 5 分钟以释放 SQLite 锁争用...`);
-            nextPollMs = 300000; // 5 分钟
-            break;
+            console.warn(`[Task Queue System] 大模型接口配额受限或网络临时受阻 (${taskErr.message})，该任务已记录状态，队列保持常规轮询...`);
           }
         }
       }

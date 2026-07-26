@@ -297,7 +297,8 @@ function formatMessagesWithContextForAI(enrichedMessages) {
 // Helper function to execute a single cloud LLM engine
 async function executeSingleEngine(engine, prompt, apiKey) {
   if (engine === 'gemini') {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const model = process.env.GEMINI_MODEL || 'gemini-flash-latest';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
     const response = await webFetch(url, {
       method: 'POST',
       headers: {
@@ -463,7 +464,8 @@ async function executeSingleMultimodalEngine(engine, prompt, imageUrls, apiKey) 
   const urlsToProcess = imageUrls.slice(0, 5);
 
   if (engine === 'gemini') {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const model = process.env.GEMINI_MODEL || 'gemini-flash-latest';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
     const parts = [{ text: prompt }];
     let loadedCount = 0;
     let failedCount = 0;
@@ -598,7 +600,7 @@ function localFetch(urlStr, options = {}) {
       path: url.pathname + url.search,
       method: options.method || 'GET',
       headers: options.headers || {},
-      timeout: 1200000 // 20 minutes timeout for local LLM generation
+      timeout: 120000 // 2 minutes timeout for local LLM generation
     };
 
     if (postData) {
@@ -946,7 +948,7 @@ ${messagesText}`;
   const startTimeTradeAI = Date.now();
   
   try {
-    jsonText = await analyzeWithFallback(signalPrompt, { provider, priority: 10 });
+    jsonText = await analyzeWithFallback(signalPrompt, { provider, priority: 1 });
 
     const durationTradeAI = ((Date.now() - startTimeTradeAI) / 1000).toFixed(1);
     console.log(`[自动跟单] AI 提取信号完成！耗时: ${durationTradeAI}秒。AI 原始响应 JSON:\n${jsonText.trim()}`);
@@ -1363,13 +1365,14 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       console.error('[Campaign Engine] Failed to clean up stale campaigns:', err.message);
     }
 
-    // Query pending messages for target speakers from DB where either is_traded or is_pushed is 0
     const conn = getDb();
     const placeholders = targetSpeakers.map(() => '?').join(',');
+    // 根本解决：为防止数万条历史积压喊单发言一次性打包给 AI 导致超时卡死或内存溢出，单次轮询提取限制为 20 条
     const pendingMessages = conn.prepare(`
       SELECT * FROM messages 
       WHERE sender_id IN (${placeholders}) AND (is_traded = 0 OR is_pushed = 0)
       ORDER BY created_at ASC
+      LIMIT 20
     `).all(...targetSpeakers);
 
     if (pendingMessages.length === 0) {

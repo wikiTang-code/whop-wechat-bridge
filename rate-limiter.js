@@ -2,7 +2,7 @@ import { getDailyApiCount, incrementDailyApiCount, getDb } from './database.js';
 
 // 限速配置
 const RPM_LIMIT = 15;
-const RPD_LIMIT = parseInt(process.env.GEMINI_DAILY_LIMIT || '1500', 10);
+const RPD_LIMIT = parseInt(process.env.GEMINI_DAILY_LIMIT || '10000', 10);
 const requestTimestampsMap = {}; // 按 provider 隔离的时间戳 map
 
 /**
@@ -56,27 +56,29 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
   const maxRetries = options.maxRetries !== undefined ? options.maxRetries : 5;
   const provider = options.provider || 'general';
 
-  // 1. 优先级避让机制：若有高优先级（P10）任务排队，P0 任务主动避让
-  if (priority < 9) {
+  // 1. 优先级避让机制：如果是中低优先级任务 (priority >= 2)，且有高优先级交易跟单任务 (priority = 1) 在排队，主动避让
+  if (priority >= 2) {
     try {
       const db = getDb();
       const pendingHighPriority = db.prepare(`
         SELECT COUNT(*) as count FROM task_queue 
-        WHERE status = 'pending' AND priority >= 9
+        WHERE status = 'pending' AND priority = 1
       `).get();
 
       if (pendingHighPriority && pendingHighPriority.count > 0) {
-        console.log(`[Rate Limiter] 检测到有 ${pendingHighPriority.count} 个高优先级任务正在排队。P${priority} 任务避让并休眠 5s...`);
+        console.log(`[Rate Limiter] 检测到有 ${pendingHighPriority.count} 个高优先级跟单任务正在排队。P${priority} 任务避让并休眠 5s...`);
         await sleep(5000);
-        return runWithRateLimit(apiCallFn, options); // 重新排队，不在此处递增 RPD 计数器
+        return runWithRateLimit(apiCallFn, options); // 重新排队
       }
     } catch (dbErr) {
       console.warn(`[Rate Limiter] 查询优先级状态失败:`, dbErr.message);
     }
   }
 
-  // 2. 满足 RPM 限速
-  await enforceRpmLimit(provider);
+  // 2. 满足 RPM 限速（高优先级跟单任务 priority = 1 豁免 RPM 强制等待，实现即时跟单）
+  if (priority > 1) {
+    await enforceRpmLimit(provider);
+  }
 
   // 3. 执行 API 调用，内置指数退避重试 (捕获 429)
   let attempt = 0;
@@ -87,9 +89,9 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
       throw new Error(`[Rate Limiter] 每日 API 限制已超标 (${RPD_LIMIT} RPD)。当前计数: ${currentCount}`);
     }
 
-    // 警戒线：若 Gemini 每日调用已达 1200 次（剩余 300 次），且不是高优先级交易任务（P < 9），则提前拦截
-    if (currentCount >= (RPD_LIMIT - 300) && priority < 9) {
-      throw new Error(`[Rate Limiter] Gemini 每日配额即将耗尽 (已使用: ${currentCount}/${RPD_LIMIT})。低优先级任务 P${priority} 禁止调用 Gemini API，预留配额给高优先级实盘交易。`);
+    // 警戒线：若 Gemini 每日调用已达警戒线（预留 300 次给高优先级跟单交易），且当前任务不是最高优先级跟单任务 (priority > 1)，则提前拦截
+    if (currentCount >= (RPD_LIMIT - 300) && priority > 1) {
+      throw new Error(`[Rate Limiter] Gemini 每日配额即将耗尽 (已使用: ${currentCount}/${RPD_LIMIT})。非跟单交易任务 P${priority} 禁止调用 Gemini API，预留配额给高优先级实盘跟单。`);
     }
 
     const dailyCount = incrementDailyApiCount();
