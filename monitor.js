@@ -599,7 +599,7 @@ function localFetch(urlStr, options = {}) {
       port: url.port || (url.protocol === 'https:' ? 443 : 80),
       path: url.pathname + url.search,
       method: options.method || 'GET',
-      headers: options.headers || {},
+      headers: Object.assign({ 'Connection': 'close' }, options.headers || {}),
       timeout: options.timeout || 300000 // 5 minutes timeout for local LLM generation
     };
 
@@ -693,7 +693,7 @@ export async function analyzeWithLMStudio(baseUrl, model, prompt) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: model || 'qwen',
+          model: model || process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct',
           messages: [
             {
               role: 'user',
