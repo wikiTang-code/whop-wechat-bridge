@@ -1012,7 +1012,8 @@ export async function processPersonaTask(task) {
       summaryContent: playbook,
       aiModel: modelName,
       rawMessagesCount,
-      strategy: 'PERSONA_PLAYBOOK'
+      strategy: 'PERSONA_PLAYBOOK',
+      createdAt: Date.now()
     });
 
     console.log(`[Persona Worker] 画像白皮书合成成功，报告已存入数据库！批次: ${batchId}`);
