@@ -132,16 +132,31 @@ async function callLocalAI(provider, prompt) {
       const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
       const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
 
-      // 本地 GPU 智能安全保护：若 Prompt 字符数超过 4,500 字符，智能保留开头核心指令与结尾最新发言，100% 由本地 GPU 极速计算！
-      let safePrompt = prompt;
+      // 本地 GPU 智能安全保护 + 大V增量分块漫游条件检测
       if (prompt.length > 4500) {
-        console.log(`[GPU Task] 文本较长 (${prompt.length} 字符)，进行 3600 字符安全滑窗截断 (前1800+后1800字符)，100% 契合 GPU 算力...`);
         const head = prompt.substring(0, 1800);
         const tail = prompt.substring(prompt.length - 1800);
-        safePrompt = `${head}\n\n... [中间非核心发言已智能省略，保持本地 GPU 上下文极速算力] ...\n\n${tail}`;
+        const middle = prompt.substring(1800, prompt.length - 1800);
+
+        // 🔍 条件检测：检查中间段是否包含大V的关键交易指令/喊单金句
+        const hasVipTradeSignals = /(?:买入|卖出|加仓|减仓|止损|建仓|看多|看空|目标价|突破|支撑位|重仓|清仓|期权|做多|做空|期权|t0|做t)/i.test(middle);
+
+        if (hasVipTradeSignals && middle.length > 500) {
+          console.log(`[GPU VIP Chunking] 💡 检测到超长文本中间段包含大V独立交易金句 (中间段 ${middle.length} 字符)，激活 Part 1 + Part 2 增量漫游爆算...`);
+          const promptPart1 = `${head}\n\n... [Part 1 开盘与前半段分析] ...`;
+          const promptPart2 = `【大V中间段交易金句补全】\n${middle.substring(0, 3000)}\n\n${tail}`;
+          
+          const res1 = await analyzeWithLMStudio(baseUrl, model, promptPart1);
+          const res2 = await analyzeWithLMStudio(baseUrl, model, promptPart2);
+          return `${res1}\n\n【增量大V交易补充】:\n${res2}`;
+        } else {
+          console.log(`[GPU Task] 文本较长 (${prompt.length} 字符)，中间段无大V独立交易喊单，执行 3600 字符安全滑窗...`);
+          const safePrompt = `${head}\n\n... [中间水群/新闻非核心发言已智能避让] ...\n\n${tail}`;
+          return await analyzeWithLMStudio(baseUrl, model, safePrompt);
+        }
       }
 
-      return await analyzeWithLMStudio(baseUrl, model, safePrompt);
+      return await analyzeWithLMStudio(baseUrl, model, prompt);
     } else {
       const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
       const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
