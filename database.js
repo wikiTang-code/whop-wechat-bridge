@@ -1385,9 +1385,17 @@ export function getDistinctChannels() {
  */
 export function getDailyApiCount() {
   const db = getDb();
-  const todayStr = new Date().toISOString().split('T')[0];
+  // 使用北京时间本地日期 (sv-SE 格式化输出 YYYY-MM-DD)
+  const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' });
   const row = db.prepare("SELECT value FROM portfolio WHERE key = ?").get(`gemini_requests_${todayStr}`);
-  return row ? parseInt(row.value, 10) : 0;
+  
+  if (row && parseInt(row.value, 10) > 0) {
+    return parseInt(row.value, 10);
+  }
+  
+  // 容灾兜底：查寻近 24 小时内的打点，防止跨天衔接漏洞
+  const fallbackRow = db.prepare("SELECT value FROM portfolio WHERE key LIKE 'gemini_requests_%' ORDER BY key DESC LIMIT 1").get();
+  return fallbackRow ? parseInt(fallbackRow.value, 10) : 0;
 }
 
 /**
@@ -1395,7 +1403,7 @@ export function getDailyApiCount() {
  */
 export function incrementDailyApiCount() {
   const db = getDb();
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' });
 
   db.prepare(`
     INSERT INTO portfolio (key, value) VALUES (?, 1)
