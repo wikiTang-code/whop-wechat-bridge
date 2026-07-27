@@ -1112,8 +1112,10 @@ app.get('/api/system/monitor', async (req, res) => {
         desc = '🧠 大V行为画像白皮书重构分析';
       } else if (t.task_type.startsWith('news_')) {
         const subType = t.task_type.split('_')[1] || '';
-        const subMap = { briefing: '盘前速报', intraday: '盘中总结', closing: '收盘回顾', macro: '宏观周报' };
+        const subMap = { briefing: '盘前速报', intraday: '盘中总结', closing: '收盘回顾', macro: '宏观周报', map: 'Map分片提取', reduce: 'Reduce终极合成' };
         desc = `📅 社区资讯速报生成 (${subMap[subType] || subType})`;
+      } else if (t.task_type === 'gemini_api_cloud') {
+        desc = '☁️ Gemini API 云端精加工与多模态';
       } else if (t.task_type.startsWith('trade_')) {
         desc = '💼 赵哥历史跟单订单提炼与对账';
       }
