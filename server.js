@@ -1184,6 +1184,25 @@ app.get('/api/system/monitor', async (req, res) => {
   }
 });
 
+// 新增：一键重置重启所有失败/死锁/排队中的任务
+app.post('/api/tasks/restart-failed', requireCsrf, (req, res) => {
+  try {
+    const db = getDb();
+    const result = db.prepare(`
+      UPDATE task_queue 
+      SET status = 'pending', retry_count = 0, run_after = NULL, updated_at = ?
+      WHERE status IN ('failed', 'retry', 'running') AND task_type != 'gemini_api_cloud'
+    `).run(Date.now());
+    
+    // 同时强行删除临时广播废卡
+    db.prepare(`DELETE FROM task_queue WHERE task_type = 'gemini_api_cloud'`).run();
+
+    res.json({ success: true, restartedCount: result.changes, message: `已成功将 ${result.changes} 个任务重置重启为 pending 重新排队处理！` });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // 2. POST /api/task-queue/clear - 强制取消当前所有或特定分类的计算/排队中任务
 app.post('/api/task-queue/clear', requireCsrf, (req, res) => {
   try {

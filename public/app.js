@@ -3748,6 +3748,30 @@ async function refreshMonitorData() {
   }
 }
 
+// 🔄 一键重启重试所有失败/挂起任务按钮
+document.getElementById('btn-restart-failed-tasks')?.addEventListener('click', async () => {
+  try {
+    const csrfToken = await ensureCsrfToken();
+    const res = await fetch('/api/tasks/restart-failed', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Session-Id': state.sessionId,
+        'X-CSRF-Token': csrfToken || ''
+      }
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert('🔄 ' + data.message);
+      refreshMonitorData();
+    } else {
+      alert('❌ 重启失败: ' + (data.error || '未知错误'));
+    }
+  } catch (err) {
+    alert('请求错误: ' + err.message);
+  }
+});
+
 // 一键清理队列按钮
 document.getElementById('btn-clear-all-tasks')?.addEventListener('click', async () => {
   if (!confirm('⚠️ 确定要强制取消并清空所有正在排队/重试中的后台计算任务？此操作不可逆。')) return;

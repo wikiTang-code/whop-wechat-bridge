@@ -147,7 +147,7 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
       if (taskId) {
         try {
           const db = getDb();
-          db.prepare(`UPDATE task_queue SET status = 'failed', last_error = ?, updated_at = ? WHERE id = ?`).run(err.message, Date.now(), taskId);
+          db.prepare(`DELETE FROM task_queue WHERE id = ?`).run(taskId);
         } catch (e) {}
       }
       const isHardQuotaError = err.message.toLowerCase().includes('quota exceeded') || err.message.includes('RESOURCE_EXHAUSTED');

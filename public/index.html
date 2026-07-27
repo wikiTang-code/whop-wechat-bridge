@@ -1041,9 +1041,14 @@
         <div class="monitor-queue-section">
           <div class="queue-section-header">
             <h4>⚙️ 活跃后台计算队列 (排队中: <span id="monitor-queue-count">0</span> 个任务)</h4>
-            <button class="btn btn-secondary btn-small" id="btn-clear-all-tasks" title="一键取消并强制清理当前所有正在排队/重试中的计算任务">
-              💥 强制清理队列
-            </button>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-primary btn-small" id="btn-restart-failed-tasks" title="一键将所有失败/卡死/重试中的任务重置为 pending 秒级重新拉起处理">
+                🔄 一键重启重试
+              </button>
+              <button class="btn btn-secondary btn-small" id="btn-clear-all-tasks" title="一键取消并强制清理当前所有正在排队/重试中的计算任务">
+                💥 强制清理队列
+              </button>
+            </div>
           </div>
           
           <!-- 实时队列消费进度条 -->
