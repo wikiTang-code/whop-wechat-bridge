@@ -171,7 +171,7 @@ async function callLocalAI(provider, prompt) {
 /**
  * 高质量任务 → Gemini API（Reduce 合成、最终白皮书生成）
  */
-async function callCloudAI(prompt, preferredProvider = null) {
+export async function callCloudAI(prompt, preferredProvider = null) {
   const provider = preferredProvider || process.env.AI_PROVIDER || 'gemini';
   const apiKey = process.env.GEMINI_API_KEY;
 

@@ -1164,11 +1164,10 @@ app.get('/api/system/monitor', async (req, res) => {
       };
     });
 
-    // 统计消息表中还有多少条 is_traded = 0 的大V消息等待跟单引擎提炼
-    // 修复 #10: 使用带索引的高效查询（索引在 database.js 中创建）
+    // 统计消息表中还有多少条 is_traded = 0 的赵哥喊单消息等待跟单引擎提炼
     const pendingTradeMsgsCount = db.prepare(`
       SELECT COUNT(*) as count FROM messages
-      WHERE is_traded = 0
+      WHERE is_traded = 0 AND (sender_id = 'user_4yeplXgbguTu4' OR sender_name LIKE '%zhao%' OR sender_name LIKE '%赵%')
     `).get()?.count || 0;
 
     res.json({
