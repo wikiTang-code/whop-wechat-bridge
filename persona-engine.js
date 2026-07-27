@@ -581,7 +581,8 @@ async function extractCommunityInsights(communityMessages, provider, isFocusGrou
       const limitedUrls = allImageUrls.slice(0, 5);
       const prompt = COMMUNITY_IMAGE_FILTER_PROMPT + '\n\n' + basePrompt + '\n\n【群友发言记录】\n' + messagesText;
       try {
-        result = await analyzeWithGeminiMultimodal(process.env.GEMINI_API_KEY, prompt, limitedUrls);
+        const singleApiKey = (process.env.GEMINI_API_KEY || '').split(',')[0].trim();
+        result = await analyzeWithGeminiMultimodal(singleApiKey, prompt, limitedUrls);
       } catch (err) {
         console.warn(`[Persona] Multimodal failed for community chunk ${i}, falling back to text-only: ${err.message}`);
         result = await callLocalAI(provider, basePrompt + '\n\n【群友发言记录】\n' + messagesText);
