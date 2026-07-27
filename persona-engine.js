@@ -455,7 +455,7 @@ async function analyzeEventSegment(event, provider) {
 
   // ⚡ GPU 爆算直通车：100% 提交至本地 GPU (LM Studio) 极速推理，避免因为废旧图片 URL 超时卡顿
   const responseText = await callLocalAI(provider, prompt);
-  return parseJSONResponse(responseText);
+  return parseJSONSafe(responseText);
 }
 
 // ============================================================
