@@ -9,12 +9,17 @@ export function addTask({ taskType, priority = 1, payload, maxRetries = 5 }) {
   const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload);
   const now = Date.now();
 
-  // 1. 永久优先级防抢占矫正：大V行为画像白皮书 (persona_*) 强制置顶 P1 最高优先级！
+  // 1. 终极优先级分层体系：
+  // P0 (最高特权): 实时跟单、交易信号检测、喊单解析 (涉及实盘真金白银，毫秒级即时抢占)
+  // P1 (离线高优): 大V行为画像白皮书 (persona_*)
+  // P3 (离线次优): 每日社区资讯速报 (news_*)
   let enforcedPriority = priority;
-  if (taskType.startsWith('persona_')) {
-    enforcedPriority = 1; // 永久最高级
+  if (taskType.startsWith('trade_') || taskType.startsWith('signal_') || taskType.startsWith('campaign_')) {
+    enforcedPriority = 0; // P0 绝对顶格跟单特权
+  } else if (taskType.startsWith('persona_')) {
+    enforcedPriority = 1; // P1 离线分析最高级
   } else if (taskType.startsWith('news_')) {
-    enforcedPriority = 3; // 次优先级，绝不抢占白皮书
+    enforcedPriority = 3; // P3 次低优先
   }
 
   // 2. 原子幂等去重闸门：相同 batchId / startTime 的待处理/运行中任务拒绝重复入库
