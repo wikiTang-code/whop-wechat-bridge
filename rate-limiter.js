@@ -123,9 +123,33 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
 
     const dailyCount = incrementDailyApiCount();
 
+    // ⚡ 实时看板可视化：向 task_queue 写入 Gemini API 调用的实时运行卡片
+    let taskId = null;
     try {
-      return await apiCallFn();
+      const db = getDb();
+      const info = db.prepare(`
+        INSERT INTO task_queue (task_type, priority, payload, status, created_at, updated_at)
+        VALUES ('gemini_api_cloud', 0, ?, 'running', ?, ?)
+      `).run(JSON.stringify({ provider, attempt: attempt + 1, dailyCount }), Date.now(), Date.now());
+      taskId = info.lastInsertRowid;
+    } catch (e) { /* ignore ui broadcast error */ }
+
+    try {
+      const result = await apiCallFn();
+      if (taskId) {
+        try {
+          const db = getDb();
+          db.prepare(`UPDATE task_queue SET status = 'done', updated_at = ? WHERE id = ?`).run(Date.now(), taskId);
+        } catch (e) {}
+      }
+      return result;
     } catch (err) {
+      if (taskId) {
+        try {
+          const db = getDb();
+          db.prepare(`UPDATE task_queue SET status = 'failed', last_error = ?, updated_at = ? WHERE id = ?`).run(err.message, Date.now(), taskId);
+        } catch (e) {}
+      }
       const isHardQuotaError = err.message.toLowerCase().includes('quota exceeded') || err.message.includes('RESOURCE_EXHAUSTED');
       
       // 若为配额用尽类错误，重试无用，直接抛出供上层自动降级至本地大模型
