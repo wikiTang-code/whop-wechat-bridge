@@ -9,12 +9,39 @@ export function addTask({ taskType, priority = 1, payload, maxRetries = 5 }) {
   const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload);
   const now = Date.now();
 
+  // 1. 永久优先级防抢占矫正：大V行为画像白皮书 (persona_*) 强制置顶 P1 最高优先级！
+  let enforcedPriority = priority;
+  if (taskType.startsWith('persona_')) {
+    enforcedPriority = 1; // 永久最高级
+  } else if (taskType.startsWith('news_')) {
+    enforcedPriority = 3; // 次优先级，绝不抢占白皮书
+  }
+
+  // 2. 原子幂等去重闸门：相同 batchId / startTime 的待处理/运行中任务拒绝重复入库
+  if (payload && (payload.batchId || payload.startTime)) {
+    const existing = db.prepare(`
+      SELECT id FROM task_queue 
+      WHERE task_type = ? 
+        AND status IN ('pending', 'running', 'retry')
+        AND (
+          (json_extract(payload, '$.batchId') IS NOT NULL AND json_extract(payload, '$.batchId') = ?)
+          OR (json_extract(payload, '$.startTime') IS NOT NULL AND json_extract(payload, '$.startTime') = ?)
+        )
+      LIMIT 1
+    `).get(taskType, payload.batchId || '', payload.startTime || 0);
+
+    if (existing) {
+      // 已存在相同待处理任务，直接返回现有 ID，绝不重复插入垃圾任务
+      return existing.id;
+    }
+  }
+
   const stmt = db.prepare(`
     INSERT INTO task_queue (task_type, priority, payload, status, retry_count, max_retries, run_after, created_at, updated_at)
     VALUES (?, ?, ?, 'pending', 0, ?, ?, ?, ?)
   `);
 
-  const info = stmt.run(taskType, priority, payloadStr, maxRetries, now, now, now);
+  const info = stmt.run(taskType, enforcedPriority, payloadStr, maxRetries, now, now, now);
   return info.lastInsertRowid;
 }
 
