@@ -63,36 +63,36 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
   const maxRetries = options.maxRetries !== undefined ? options.maxRetries : 5;
   const provider = options.provider || 'general';
 
-  // 1. 优先级避让机制：如果是中低优先级任务 (priority > 1)，且有高优先级 P0/P1 交易跟单任务在排队，主动避让
-  if (priority > 1) {
-    const MAX_YIELD_ROUNDS = 3;
+  // 1. 可剥夺抢占避让机制：如果是离线后台任务 (priority < 100)，且有 P0 实时 AI 任务 (priority >= 100) 在排队，强制让路避让
+  if (priority < 100) {
+    const MAX_YIELD_ROUNDS = 5;
     for (let yieldRound = 0; yieldRound < MAX_YIELD_ROUNDS; yieldRound++) {
       try {
         const db = getDb();
-        // 仅检测真正可立即执行的 P0/P1 交易跟单任务 (status=pending 且 run_after 已到期)
+        // 检测是否有可立即执行的 P0 实时 AI 任务 (priority >= 100)
         const now = Date.now();
-        const pendingTradePriority = db.prepare(`
+        const pendingRealtimeTask = db.prepare(`
           SELECT COUNT(*) as count FROM task_queue 
-          WHERE status = 'pending' AND priority <= 1 AND (run_after IS NULL OR run_after <= ?)
+          WHERE status = 'pending' AND priority >= 100 AND (run_after IS NULL OR run_after <= ?)
         `).get(now);
 
-        if (pendingTradePriority && pendingTradePriority.count > 0) {
+        if (pendingRealtimeTask && pendingRealtimeTask.count > 0) {
           if (yieldRound === 0) {
-            console.log(`[Rate Limiter] ⚡ 检测到有 ${pendingTradePriority.count} 个 P0/P1 实盘跟单任务。P${priority} 离线任务避让 5s (第 ${yieldRound + 1}/${MAX_YIELD_ROUNDS} 轮)...`);
+            console.log(`[Rate Limiter] ⚡ 抢占触发: 检测到有 ${pendingRealtimeTask.count} 个 P0 实时 AI 任务。P${priority} 离线任务让路避让 3s (第 ${yieldRound + 1}/${MAX_YIELD_ROUNDS} 轮)...`);
           }
-          await sleep(5000);
+          await sleep(3000);
         } else {
-          break; // 没有高优先级跟单任务了，不再避让
+          break; // 没有实时 AI 任务排队了，恢复处理
         }
       } catch (dbErr) {
-        console.warn(`[Rate Limiter] 查询跟单优先级状态失败:`, dbErr.message);
-        break; // 查询失败不阻塞
+        console.warn(`[Rate Limiter] 查询实时任务抢占状态失败:`, dbErr.message);
+        break;
       }
     }
   }
 
-  // 2. 满足 RPM 限速（P0/P1 交易跟单任务 priority <= 1 豁免 RPM 强制等待，实现毫秒级跟单）
-  if (priority > 1) {
+  // 2. 满足 RPM 限速（P0 实时 AI 任务 priority >= 100 豁免 RPM 强制等待，毫秒级直通）
+  if (priority < 100) {
     await enforceRpmLimit(provider);
   }
 

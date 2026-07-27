@@ -9,17 +9,17 @@ export function addTask({ taskType, priority = 1, payload, maxRetries = 5 }) {
   const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload);
   const now = Date.now();
 
-  // 1. 终极优先级分层体系：
-  // P0 (最高特权): 实时跟单、交易信号检测、喊单解析 (涉及实盘真金白银，毫秒级即时抢占)
-  // P1 (离线高优): 大V行为画像白皮书 (persona_*)
-  // P3 (离线次优): 每日社区资讯速报 (news_*)
+  // 1. 抢占式调度体系 (Preemptive Priority Hierarchy):
+  // - P0 实时 AI 任务 (跟单、即时喊单、AI 问答、信号检测): priority = 100 (数值最大，100ms 瞬间插队抢占)
+  // - P1 离线高优 (大V行为画像白皮书 persona_*): priority = 50 (GPU 闲时全速跑)
+  // - P3 离线次优 (每日社区资讯速报 news_*): priority = 10 (后端静默归档)
   let enforcedPriority = priority;
-  if (taskType.startsWith('trade_') || taskType.startsWith('signal_') || taskType.startsWith('campaign_')) {
-    enforcedPriority = 0; // P0 绝对顶格跟单特权
+  if (taskType.startsWith('trade_') || taskType.startsWith('signal_') || taskType.startsWith('campaign_') || taskType.startsWith('chat_') || taskType.startsWith('ask_')) {
+    enforcedPriority = 100; // P0 实时 AI 任务，物理绝顶插队
   } else if (taskType.startsWith('persona_')) {
-    enforcedPriority = 1; // P1 离线分析最高级
+    enforcedPriority = 50;  // P1 离线白皮书
   } else if (taskType.startsWith('news_')) {
-    enforcedPriority = 3; // P3 次低优先
+    enforcedPriority = 10;  // P3 离线资讯
   }
 
   // 2. 原子幂等去重闸门：相同 batchId / startTime 的待处理/运行中任务拒绝重复入库
