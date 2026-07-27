@@ -1108,14 +1108,18 @@ app.get('/api/system/monitor', async (req, res) => {
     // e. 对任务类型进行优雅的中文意图转换描述
     const formattedTasks = activeTasks.map(t => {
       let desc = '未知系统任务';
-      if (t.task_type.startsWith('persona_')) {
-        desc = '🧠 大V行为画像白皮书重构分析';
+      if (t.task_type === 'persona_reduce') {
+        desc = '☁️ Gemini API 云端 1.5万字极品白皮书合成中 (Gemini-Flash)';
+      } else if (t.task_type.startsWith('persona_')) {
+        desc = '🧠 大V行为画像分片分析 (Local GPU/Gemini)';
+      } else if (t.task_type === 'news_reduce') {
+        desc = '☁️ Gemini API 云端社区资讯终极总结中';
       } else if (t.task_type.startsWith('news_')) {
         const subType = t.task_type.split('_')[1] || '';
         const subMap = { briefing: '盘前速报', intraday: '盘中总结', closing: '收盘回顾', macro: '宏观周报', map: 'Map分片提取', reduce: 'Reduce终极合成' };
         desc = `📅 社区资讯速报生成 (${subMap[subType] || subType})`;
       } else if (t.task_type === 'gemini_api_cloud') {
-        desc = '☁️ Gemini API 云端精加工与多模态';
+        desc = '☁️ Gemini API 云端多模态与文本精加工';
       } else if (t.task_type.startsWith('trade_')) {
         desc = '💼 赵哥历史跟单订单提炼与对账';
       }
