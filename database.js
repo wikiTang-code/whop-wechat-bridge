@@ -307,7 +307,8 @@ export function initDb() {
     console.error("Error creating FTS5 triggers:", err.message);
   }
 
-  // Backfill FTS index with existing messages
+  // Backfill FTS index with existing messages (已完成回填，注释避免启动长耗时卡顿)
+  /*
   try {
     const existingUnindexed = db.prepare(`
       SELECT id, content FROM messages 
@@ -327,6 +328,7 @@ export function initDb() {
   } catch (err) {
     console.error("Failed to backfill FTS index:", err.message);
   }
+  */
 
   // Create message embeddings table
   try {
