@@ -57,21 +57,19 @@ export function initDb() {
   } catch (err) {}
   */
 
-  // Create indices on search columns
+  // Indices already exist on messages table, skipped at startup
+  /*
   try {
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at DESC)`).run();
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_tickers ON messages(tickers)`).run();
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_sectors ON messages(sectors)`).run();
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_strategies ON messages(strategies)`).run();
-    // 修复 #10: 为跟单提炼高频查询 (is_traded=0) 添加索引，避免 47000+ 行全表扫描
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_is_traded ON messages(is_traded)`).run();
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_sender_traded ON messages(sender_id, is_traded, is_pushed)`).run();
-    // 优化: 为消息列表查询添加复合索引 (sender_id + created_at)，覆盖最常见的"只看大V"排序查询
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_sender_created ON messages(sender_id, created_at DESC)`).run();
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_channel_id ON messages(channel_id)`).run();
-  } catch (err) {
-    console.warn("Indices creation warning:", err.message);
-  }
+  } catch (err) {}
+  */
 
   // Perform one-time migration to re-evaluate tickers, sectors, strategies for existing messages (case-insensitive fix)
   // Commented out as it has already successfully run to prevent database locking on startup.
