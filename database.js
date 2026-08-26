@@ -50,47 +50,12 @@ export function initDb() {
   `).run();
   console.log('[initDb] step 5: table messages ready');
 
-  // Migration: Add channel_name column if it doesn't exist
+  // Migration: Add channel_name column if it doesn't exist (已在库中，避免每次启动锁表)
+  /*
   try {
     db.prepare("ALTER TABLE messages ADD COLUMN channel_name TEXT").run();
-    console.log("Migration: Added channel_name column to messages table.");
-  } catch (err) {
-    if (!err.message.includes('duplicate column name')) {
-      console.warn("Migration warning for messages table:", err.message);
-    }
-  }
-
-  // Migration: Add tickers, sectors, strategies columns if they don't exist
-  const cols = ['tickers', 'sectors', 'strategies'];
-  for (const col of cols) {
-    try {
-      db.prepare(`ALTER TABLE messages ADD COLUMN ${col} TEXT`).run();
-      console.log(`Migration: Added ${col} column to messages table.`);
-    } catch (err) {
-      if (!err.message.includes('duplicate column name')) {
-        console.warn(`Migration warning for column ${col}:`, err.message);
-      }
-    }
-  }
-
-  // Migration: Add is_traded and is_pushed columns if they don't exist
-  try {
-    db.prepare("ALTER TABLE messages ADD COLUMN is_traded INTEGER DEFAULT 0").run();
-    console.log("Migration: Added is_traded column to messages table.");
-  } catch (err) {
-    if (!err.message.includes('duplicate column name')) {
-      console.warn("Migration warning for is_traded:", err.message);
-    }
-  }
-
-  try {
-    db.prepare("ALTER TABLE messages ADD COLUMN is_pushed INTEGER DEFAULT 0").run();
-    console.log("Migration: Added is_pushed column to messages table.");
-  } catch (err) {
-    if (!err.message.includes('duplicate column name')) {
-      console.warn("Migration warning for is_pushed:", err.message);
-    }
-  }
+  } catch (err) {}
+  */
 
   // Create indices on search columns
   try {
