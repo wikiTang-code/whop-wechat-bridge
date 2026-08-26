@@ -18,10 +18,11 @@ function getCachedStmt(sql) {
 }
 
 const CHANNEL_NAME_FALLBACKS = {
+  'forum_feed_1CTr7SqVMzFfuFiiRJLEHN': '历史股票期权记录区',
   'chat_feed_1CTr5VAdNHtbZAFaTitvoT': '不用翻墙美股讨论区',
   'chat_feed_1CTr7QocNpDZ9FXZ6fvWe4': '不用翻墙美股发布',
   'chat_feed_1CTrCEx44dP13jW3RVkYiS': '不用翻墙期权',
-  'chat_feed_1CWLuNUVYVVYttro8gAvJ5': '历史股票期权记录区',
+  'chat_feed_1CWLuNUVYVVYttro8gAvJ5': '历史股票期权记录区(备份)',
   'chat_feed_1CU95KbtifP1JtuqTiVXZb': '讨论区股票记录'
 };
 
