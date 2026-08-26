@@ -1468,6 +1468,8 @@ app.get('/api/zhao-positions', async (req, res) => {
         pnlRatio,
         lots: pos.lots
       };
+    });
+
     let finalActivePositions = formattedActivePositions;
 
     // 🌟 如果 FIFO 订单对冲后无未平仓数据，直接从 campaigns 表中拉取【历史股票期权记录区】纯正持仓 Lots 填充展现！
