@@ -27,12 +27,16 @@ const CHANNEL_NAME_FALLBACKS = {
 };
 
 export function initDb() {
-  console.log('[initDb] step 1: opening database');
   db = new Database(dbPath, { timeout: 10000 });
-  console.log('[initDb] step 2: setting pragma WAL');
   db.pragma('journal_mode = WAL');
-  console.log('[initDb] step 3: setting pragma busy_timeout');
   db.pragma('busy_timeout = 10000');
+
+  // 快速检查：如果 messages 表已存在，说明数据库已完全就绪，直接秒级返回！
+  const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='messages'").get();
+  if (tableCheck) {
+    console.log('[initDb] Database already initialized and ready (0ms).');
+    return;
+  }
   console.log('[initDb] step 4: creating messages table');
   db.prepare(`
     CREATE TABLE IF NOT EXISTS messages (
