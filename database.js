@@ -27,13 +27,13 @@ const CHANNEL_NAME_FALLBACKS = {
 };
 
 export function initDb() {
+  console.log('[initDb] step 1: opening database');
   db = new Database(dbPath, { timeout: 10000 });
-  
-  // Enable WAL mode for better performance
+  console.log('[initDb] step 2: setting pragma WAL');
   db.pragma('journal_mode = WAL');
+  console.log('[initDb] step 3: setting pragma busy_timeout');
   db.pragma('busy_timeout = 10000');
-
-  // Create messages table
+  console.log('[initDb] step 4: creating messages table');
   db.prepare(`
     CREATE TABLE IF NOT EXISTS messages (
       id TEXT PRIMARY KEY,
@@ -48,6 +48,7 @@ export function initDb() {
       strategies TEXT
     )
   `).run();
+  console.log('[initDb] step 5: table messages ready');
 
   // Migration: Add channel_name column if it doesn't exist
   try {
