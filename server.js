@@ -60,11 +60,14 @@ import { rebuildHistoricalCampaigns } from './campaign-engine.js';
 
 dotenv.config();
 
+console.log('🚀 [Server Startup] Starting initialization...');
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Initialize DB
 initDb();
+console.log('🚀 [Server Startup] DB initialized.');
 seed2026MacroEvents().catch(err => console.error('[Startup] Failed to seed macro events:', err.message));
 
 // Rebuild campaigns if empty
