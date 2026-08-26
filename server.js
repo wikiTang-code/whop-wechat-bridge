@@ -68,22 +68,6 @@ const __dirname = path.dirname(__filename);
 // Initialize DB
 initDb();
 console.log('🚀 [Server Startup] DB initialized.');
-seed2026MacroEvents().catch(err => console.error('[Startup] Failed to seed macro events:', err.message));
-
-// Rebuild campaigns if empty
-const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
-  .split(',')
-  .map(s => s.trim())
-  .filter(Boolean);
-
-for (const speaker of targetSpeakers) {
-  const dbInstance = getDb();
-  const count = dbInstance.prepare("SELECT COUNT(*) as count FROM campaigns WHERE influencer_id = ?").get(speaker)?.count || 0;
-  if (count === 0) {
-    console.log(`[Startup] Campaigns table empty for speaker ${speaker}. Rebuilding historical campaigns...`);
-    rebuildHistoricalCampaigns(speaker).catch(err => console.error(`[Startup] Rebuilding campaigns failed:`, err.message));
-  }
-}
 
 const app = express();
 
