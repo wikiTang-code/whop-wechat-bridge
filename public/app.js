@@ -26,9 +26,9 @@ let state = {
 let personaPollingTimer = null;
 let newsPollingTimer = null;
 
-// Fetch CSRF token for financial operations
-async function ensureCsrfToken() {
-  if (state.csrfToken) return state.csrfToken;
+// Fetch CSRF token for operations
+async function ensureCsrfToken(forceRefresh = false) {
+  if (state.csrfToken && !forceRefresh) return state.csrfToken;
   try {
     const response = await fetch('/api/csrf-token', {
       headers: { 'X-Session-Id': state.sessionId }
@@ -42,6 +42,42 @@ async function ensureCsrfToken() {
     console.error('Failed to fetch CSRF token:', e);
   }
   return null;
+}
+
+// Universal fetch wrapper with automatic CSRF token renewal & retry
+async function fetchWithCsrf(url, options = {}) {
+  const opts = { ...options };
+  opts.headers = opts.headers || {};
+  
+  const token = await ensureCsrfToken();
+  if (token) {
+    opts.headers['X-CSRF-Token'] = token;
+  }
+  if (state.sessionId) {
+    opts.headers['X-Session-Id'] = state.sessionId;
+  }
+
+  let res = await fetch(url, opts);
+  
+  // If 403 CSRF error occurs, clear token, force refresh, and retry once
+  if (res.status === 403) {
+    const clone = res.clone();
+    try {
+      const errData = await clone.json();
+      if (errData && errData.error && errData.error.toLowerCase().includes('csrf')) {
+        console.warn('⚠️ CSRF Token expired/invalid, automatically renewing and retrying...');
+        const newToken = await ensureCsrfToken(true);
+        if (newToken) {
+          opts.headers['X-CSRF-Token'] = newToken;
+          res = await fetch(url, opts);
+        }
+      }
+    } catch (e) {
+      // ignore json parse error
+    }
+  }
+  
+  return res;
 }
 
 // Simple HTML sanitizer to prevent XSS when rendering user content
@@ -2439,8 +2475,7 @@ window.updateStrategyAnalysis = async function(btn, strategyKey) {
   showNotification(`AI 正在深度分析【${strategyKey}】相关的历史发言并更新专项文档，这可能需要数十秒，请稍候...`, 'success');
 
   try {
-    const csrfToken = await ensureCsrfToken();
-    const response = await fetch('/api/strategies/analyze', {
+    const response = await fetchWithCsrf('/api/strategies/analyze', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -2510,20 +2545,17 @@ async function triggerPersonaGeneration(forceRefresh) {
   // 不再隐藏已有内容
   
   try {
-    const csrfToken = await ensureCsrfToken();
     const provider = document.getElementById('ai-provider')?.value || document.getElementById('ai_provider')?.value || 'lm-studio';
     
     // 设置 8 秒超时控制器
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-    const res = await fetch('/api/persona/generate', {
+    const res = await fetchWithCsrf('/api/persona/generate', {
       method: 'POST',
       signal: controller.signal,
       headers: { 
-        'Content-Type': 'application/json', 
-        'X-Session-Id': state.sessionId, 
-        'X-CSRF-Token': csrfToken || '' 
+        'Content-Type': 'application/json' 
       },
       body: JSON.stringify({ provider, maxMonths: 6, forceRefresh })
     });
@@ -2574,14 +2606,9 @@ document.getElementById('btn-resume-persona')?.addEventListener('click', async (
   statusText.textContent = '正在恢复大V画像计算，排队重试失败子任务...';
   
   try {
-    const csrfToken = await ensureCsrfToken();
-    const res = await fetch('/api/persona/resume', {
+    const res = await fetchWithCsrf('/api/persona/resume', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Session-Id': state.sessionId,
-        'X-CSRF-Token': csrfToken || ''
-      }
+      headers: { 'Content-Type': 'application/json' }
     });
     const data = await res.json();
     if (data.success) {

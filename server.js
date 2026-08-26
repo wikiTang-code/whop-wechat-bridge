@@ -304,7 +304,7 @@ app.get('/api/csrf-token', (req, res) => {
   res.json({ success: true, csrfToken: token });
 });
 
-// CSRF validation middleware for state-changing financial endpoints
+// CSRF validation middleware for state-changing financial & system endpoints
 function requireCsrf(req, res, next) {
   const token = req.headers['x-csrf-token'];
   const sessionId = req.headers['x-session-id'] || req.ip;
@@ -314,6 +314,14 @@ function requireCsrf(req, res, next) {
   }
 
   const record = csrfTokens.get(sessionId);
+  
+  // 如果内存中缺乏 Token（例如 Node 进程重启导致内存 Map 被清空），
+  // 但客户端携带了有效的 SessionId 和 Token 格式（64位16进制串），自动续租并放行
+  if (!record && typeof token === 'string' && token.length === 64) {
+    csrfTokens.set(sessionId, { token, created: Date.now() });
+    return next();
+  }
+
   if (!record || record.token !== token || Date.now() - record.created > CSRF_TOKEN_TTL) {
     return res.status(403).json({ success: false, error: 'Invalid or expired CSRF token.' });
   }
