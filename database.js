@@ -105,16 +105,6 @@ export function initDb() {
     )
   `).run();
 
-  // Migration: Add strategy column to reports table if it doesn't exist
-  try {
-    db.prepare("ALTER TABLE reports ADD COLUMN strategy TEXT").run();
-    console.log("Migration: Added strategy column to reports table.");
-  } catch (err) {
-    if (!err.message.includes('duplicate column name')) {
-      console.warn("Migration warning for reports table:", err.message);
-    }
-  }
-
   // Create index on reports created_at
   db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_reports_created_at 
