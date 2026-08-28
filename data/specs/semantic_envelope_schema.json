@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SemanticEnvelope",
-  "description": "大V发言上下文单元的结构化语义抽取 Schema",
+  "description": "大V发言上下文单元的结构化语义抽取 Schema (Grok 增强版)",
   "type": "object",
   "required": [
     "cu_id",
@@ -32,8 +32,11 @@
           "action": { "type": "string", "enum": ["BUY", "SELL", "HOLD", "STOP_LOSS", "TAKE_PROFIT"] },
           "ticker": { "type": "string" },
           "price": { "type": ["number", "null"] },
-          "fraction": { "type": "string", "description": "如 1/6常规仓, 半仓, 满仓" },
-          "condition": { "type": "string", "description": "触发条件，如 回调到18元附近, 尾盘确认" }
+          "fraction": { "type": "string", "description": "如 1/6常规仓, 半仓, 满仓, 底仓" },
+          "condition": { "type": "string", "description": "触发条件，如 回调到18元附近, 尾盘确认" },
+          "status": { "type": "string", "enum": ["filled", "planned"], "description": "filled=实战已成交, planned=预警/挂单" },
+          "instrument": { "type": "string", "enum": ["stock", "option", "crypto"], "description": "正股/期权/加密货币" },
+          "source_message_ids": { "type": "array", "items": { "type": "string" } }
         }
       }
     },
@@ -54,7 +57,7 @@
     "strategy_tags": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "如 [底仓做T, 财报日低吸, 磨损对冲, 二次握手]"
+      "description": "如 [底仓做T, 财报日低吸, 磨损对冲, 二次握手, 尾盘确认]"
     },
     "uncertainty": {
       "type": "array",

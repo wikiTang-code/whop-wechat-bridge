@@ -1,13 +1,14 @@
-# ⚙️ 本地 35B 模型微调 (SFT / LoRA) 推荐超参数模版 (供 Grok 调优)
+# ⚙️ 本地 35B 模型微调 (NF4 QLoRA + AMD ROCm/HIP 20GB GPU 最优配置)
 
 training_config:
   base_model: "Qwen/Qwen2.5-32B-Instruct"  # 或本地 35B 基础模型
   output_dir: "./models/kol_semantic_lora"
   task_type: "CAUSAL_LM"
-  
+  quantization: "nf4"                      # 20GB VRAM 必须开启 NF4 量化
+
 lora_hyperparameters:
-  r: 16                     # LoRA Rank (建议 16 或 32)
-  lora_alpha: 32            # LoRA Scaling Alpha
+  r: 16                                    # LoRA Rank
+  lora_alpha: 32                           # LoRA Scaling Alpha
   lora_dropout: 0.05
   target_modules:
     - "q_proj"
@@ -19,15 +20,22 @@ lora_hyperparameters:
     - "down_proj"
 
 training_arguments:
-  learning_rate: 2.0e-4
-  num_train_epochs: 3
-  per_device_train_batch_size: 2
-  gradient_accumulation_steps: 8
-  max_seq_length: 2048
-  warmup_ratio: 0.03
+  learning_rate: 1.0e-4                    # 调优为 1e-4，防止小样本过拟合
+  num_train_epochs: 2                      # 建议 2 个 epoch
+  per_device_train_batch_size: 1           # 20GB 显存单卡 batch_size=1
+  gradient_accumulation_steps: 16          # 累计 16 步，等效 batch=16
+  max_seq_length: 1536                     # 控制在 1536 避免 OOM (若显存吃紧降至 1280)
+  warmup_ratio: 0.05
   lr_scheduler_type: "cosine"
   fp16: false
-  bf16: true                # AMD ROCm / HIP 原生推荐 bf16
+  bf16: true                               # AMD ROCm 原生推荐 bf16
   logging_steps: 10
-  save_strategy: "epoch"
-  evaluation_strategy: "no"
+  save_strategy: "steps"
+  save_steps: 50
+  eval_steps: 25
+  evaluation_strategy: "steps"
+
+training_gate:
+  min_gold_samples: 800                    # 开训门槛：金标样本数 >= 800
+  target_json_valid_rate: 0.98             # 验收门槛：JSON 合法率 >= 98%
+  max_hallucination_rate: 0.02             # 编造字段率 <= 2%
