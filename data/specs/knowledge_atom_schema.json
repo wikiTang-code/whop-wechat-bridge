@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KnowledgeAtom",
+  "description": "L2b 单窗知识原子 Schema - 记录大V在单窗中立下的可引用战法、风控、模式与口诀",
+  "type": "object",
+  "required": [
+    "kid",
+    "type",
+    "statement",
+    "source_cu",
+    "evidence_span",
+    "status",
+    "do_not_use_as_order"
+  ],
+  "properties": {
+    "kid": {
+      "type": "string",
+      "pattern": "^k_[a-z0-9_]+$",
+      "description": "全局唯一稳定 ID，同类战法跨窗复用，如 k_friday_last_hour_v"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "playbook",
+        "sizing_rule",
+        "risk_rule",
+        "regime",
+        "instrument_view",
+        "calendar_rule",
+        "process_error",
+        "formula"
+      ],
+      "description": "知识原子分类：战法/仓位/风控/周期/标的特性/日历规律/复盘教训/公式指标"
+    },
+    "statement": {
+      "type": "string",
+      "maxLength": 240,
+      "description": "脱离原窗即可读懂的完整战法/规则陈述（<=240字）"
+    },
+    "precondition": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "前置触发条件列表，如 ['周五', '尾盘强平']"
+    },
+    "evidence_span": {
+      "type": "string",
+      "description": "原文严格证据子串，必须可在 source_cu 的对话文本中精确搜索到"
+    },
+    "source_cu": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "来源 Context Unit ID 列表，如 ['cu_v2_021']"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["asserted", "conditional", "negated", "uncertain"],
+      "description": "确定性结论/条件假说/否定证伪/不确定"
+    },
+    "do_not_use_as_order": {
+      "type": "boolean",
+      "const": true,
+      "description": "防呆标记：恒为 true，严禁直接转为下单执行指令"
+    }
+  },
+  "additionalProperties": false
+}
