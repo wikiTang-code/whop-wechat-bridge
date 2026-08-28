@@ -1265,13 +1265,29 @@ app.get('/api/zhao-positions', async (req, res) => {
       });
     }
 
-    // 3. 从 trade_review_pool 表获取候选交易并按 ticker 分组
+    // 为每个标的的已确认交易流水按时间顺序编排代号 (如 INTC_B1, INTC_S1)
+    for (const sym in ordersByTicker) {
+      const list = ordersByTicker[sym];
+      list.sort((a, b) => a.time - b.time);
+      let bCount = 0;
+      let sCount = 0;
+      for (const item of list) {
+        if (item.action === 'BUY') {
+          item.tradeCode = `${sym}_B${++bCount}`;
+        } else {
+          item.tradeCode = `${sym}_S${++sCount}`;
+        }
+      }
+      list.reverse(); // 呈现时最新在前
+    }
+
+    // 3. 从 trade_review_pool 表获取候选交易并按 ticker 分组编排代号 (如 INTC_C1, INTC_C2)
     let allCandidates = [];
     try {
       allCandidates = db.prepare(`
         SELECT * FROM trade_review_pool
         WHERE status = 'candidate'
-        ORDER BY created_at DESC
+        ORDER BY created_at ASC
       `).all();
     } catch (e) {}
 
@@ -1280,6 +1296,15 @@ app.get('/api/zhao-positions', async (req, res) => {
       const sym = cand.ticker.toUpperCase();
       if (!candidatesByTicker[sym]) candidatesByTicker[sym] = [];
       candidatesByTicker[sym].push(cand);
+    }
+
+    for (const sym in candidatesByTicker) {
+      const list = candidatesByTicker[sym];
+      let cCount = 0;
+      for (const item of list) {
+        item.candidateCode = `${sym}_C${++cCount}`;
+      }
+      list.reverse(); // 呈现时最新在前
     }
 
     // 4. 构建高精度活跃持仓数据（每个标的内嵌自己的已确认交易与专属候选池）

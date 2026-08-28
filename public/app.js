@@ -2182,15 +2182,19 @@ function renderZhaoPositions(data) {
       // 1. 该标的已确认交易流水（含买卖、点位、持仓前后演变轨迹与移出操作）
       let allTradesHtml = '';
       const tradesList = pos.allTrades || [];
+      // 1. 该标的已确认交易流水（含买卖、点位、持仓前后演变轨迹与移出操作）
+      let allTradesHtml = '';
+      const tradesList = pos.allTrades || [];
       if (tradesList.length > 0) {
         allTradesHtml = tradesList.map((t, tIdx) => {
           const tTimeStr = new Date(t.time).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
           const isBuy = t.action === 'BUY';
           const actionBadge = isBuy ? '<span style="color: #34d399; font-weight: bold; background: rgba(52, 211, 153, 0.12); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.3);">🟢 买入</span>' : '<span style="color: #f87171; font-weight: bold; background: rgba(248, 113, 113, 0.12); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(248, 113, 113, 0.3);">🔴 卖出</span>';
+          const codeBadge = t.tradeCode ? `<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; font-family: monospace; font-weight: 800; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.4); margin-right: 6px;">${t.tradeCode}</span>` : '';
           return `
             <div style="background: rgba(15, 23, 42, 0.75); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.8rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <span>${actionBadge} <strong style="color: #f1f5f9; margin-left: 4px;">${t.quantity} 股 @ $${t.price}</strong></span>
+                <span style="display: flex; align-items: center;">${codeBadge}${actionBadge} <strong style="color: #f1f5f9; margin-left: 4px;">${t.quantity} 股 @ $${t.price}</strong></span>
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span style="color: #64748b; font-size: 0.75rem;">${tTimeStr}</span>
                   <button onclick="moveTradeReviewStatus('${t.id}', 'candidate')" title="将该交易移入本标的候选消息池" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-weight: 500;">
@@ -2212,10 +2216,12 @@ function renderZhaoPositions(data) {
       if (candList.length > 0) {
         candidateTradesHtml = candList.map(c => {
           const timeStr = new Date(c.created_at).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+          const codeBadge = c.candidateCode ? `<span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-family: monospace; font-weight: 800; font-size: 0.72rem; padding: 1px 5px; border-radius: 3px; border: 1px solid rgba(245, 158, 11, 0.4); margin-right: 4px;">${c.candidateCode}</span>` : '';
           return `
             <div style="background: rgba(30, 27, 75, 0.4); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; font-size: 0.78rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <div>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  ${codeBadge}
                   <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-size: 0.7rem; padding: 1px 5px; border-radius: 3px;">置信度 ${c.confidence}%</span>
                   <span style="color: #93c5fd; font-size: 0.75rem; margin-left: 4px;">预估: ${c.action === 'BUY' ? '买入' : '卖出'} @ $${c.price} (${c.fraction_name})</span>
                 </div>
