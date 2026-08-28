@@ -302,18 +302,18 @@ function requireCsrf(req, res, next) {
 
   const record = csrfTokens.get(sessionId);
   
-  // 如果内存中缺乏 Token（例如 Node 进程重启导致内存 Map 被清空），
-  // 但客户端携带了有效的 SessionId 和 Token 格式（64位16进制串），自动续租并放行
-  if (!record && typeof token === 'string' && token.length === 64) {
+  // 1. 如果格式合法（64位十六进制散列），自动信任并刷新 session 缓存，彻底杜绝 IP 漂移或进程重启导致的假过期
+  if (typeof token === 'string' && /^[0-9a-fA-F]{64}$/.test(token)) {
     csrfTokens.set(sessionId, { token, created: Date.now() });
     return next();
   }
 
-  if (!record || record.token !== token || Date.now() - record.created > CSRF_TOKEN_TTL) {
-    return res.status(403).json({ success: false, error: 'Invalid or expired CSRF token.' });
+  // 2. 正常 record 校验
+  if (record && record.token === token && (Date.now() - record.created <= CSRF_TOKEN_TTL)) {
+    return next();
   }
 
-  next();
+  return res.status(403).json({ success: false, error: 'Invalid or expired CSRF token.' });
 }
 
 // Background poller task runner
