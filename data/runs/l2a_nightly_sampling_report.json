@@ -1,0 +1,1170 @@
+{
+  "summary": {
+    "totalRecords": 1195,
+    "parseOkRate": 99.07949790794979,
+    "totalActionsCount": 2176,
+    "emptyActionsRate": 35.56485355648535,
+    "hallucinatedTickerCount": 0,
+    "avgLatencySec": "10.4",
+    "speechActCounts": {
+      "trade_action": 758,
+      "risk_control": 15,
+      "market_view": 386,
+      "unknown": 11,
+      "qa_guidance": 8,
+      "noise": 17
+    }
+  },
+  "layers": {
+    "layer1_random_30": [
+      {
+        "cu_id": "cu_trade_00001",
+        "layer": "random_30",
+        "source_text": "目前TSLL没有动打算等收盘或者发布会看看再决定 tsll 今天收盘不能低于21   收盘价低于21 就出一半  没有低于 明天发布会时候边拉升边出 tsll 21.05减仓三分之一 ",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "HOLD",
+            "ticker": "TSLL",
+            "price": null,
+            "fraction": "未动",
+            "condition": "等收盘或发布会再决定",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": 21,
+            "fraction": "一半",
+            "condition": "收盘价低于21出仓",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00002",
+        "layer": "random_30",
+        "source_text": "21.7也减仓点tsll 剩下原始持仓的一半博弈下发布会  发布会边拉升边出 跌破21.3都出 尾盘附近减仓一半hims  54.7附近 hims剩下一半设置下跌破54.4都出",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": null,
+            "fraction": "一半",
+            "condition": "减仓博弈发布会",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "STOP_LOSS",
+            "ticker": "HIMS",
+            "price": 54.7,
+            "fraction": "一半",
+            "condition": "尾盘附近减仓",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "HIMS",
+            "price": 54.4,
+            "fraction": "剩下一半",
+            "condition": "下跌破54.4都出",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00003",
+        "layer": "random_30",
+        "source_text": "tsll盘前有点抢跑的资金 剩下仓位可以21.5-21.7之间再减持点",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": 21.5,
+            "fraction": "部分仓位",
+            "condition": "盘前减持",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00004",
+        "layer": "random_30",
+        "source_text": "Tsll  剩下仓位要注意发布会目前正在进行 资金偏向于兑现 边开发布会 边撤退",
+        "pred_speech_act": "risk_control",
+        "pred_actions": [],
+        "reconcile_ready": "NO"
+      },
+      {
+        "cu_id": "cu_trade_00005",
+        "layer": "random_30",
+        "source_text": "55.5-56.5之间出剩下一半hims",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "HIMS",
+            "price": 55.5,
+            "fraction": "剩下一半",
+            "condition": "",
+            "status": "filled",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00006",
+        "layer": "random_30",
+        "source_text": "今天机器检测 上午到下午1点 走震荡回调路线 买股和更多检测多头放在尾盘附近再看看 今天临近国庆尾声有资金离场  上半场 轧空 尾盘1小时看看有没有V吸筹的 刚机器检测了回调 334-335区间回吸一部分mstr 回调破了2个支撑 尾盘看情",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "BUY",
+            "ticker": "MSTR",
+            "price": 334,
+            "fraction": "一部分",
+            "condition": "回吸支撑位",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "WEINU",
+            "price": 13.1,
+            "fraction": "部分仓位",
+            "condition": "接强支撑位",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00007",
+        "layer": "random_30",
+        "source_text": "UPST 50.4附近 1成仓 ALAB 207附近  或者 LABX 29.9附近 1成仓 目前第一轮抛压后小反弹  等看下有没有第二轮下压 不破第一轮低点 在第一轮附近的完成二次握手",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "BUY",
+            "ticker": "UPST",
+            "price": 50.4,
+            "fraction": "1成仓",
+            "condition": null,
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "ALAB",
+            "price": 207,
+            "fraction": "1成仓",
+            "condition": null,
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "LABX",
+            "price": 29.9,
+            "fraction": "1成仓",
+            "condition": null,
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00008",
+        "layer": "random_30",
+        "source_text": "指数上QQQ盘后的收盘价要大于604.5 大多数股票今天就盘中完成二次握手的吸筹 This pullback is healthy and necessary. Additionally, Chinese funds will flow b",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "reconcile_ready": "NO"
+      },
+      {
+        "cu_id": "cu_trade_00009",
+        "layer": "random_30",
+        "source_text": "mstr 可以336-337减点仓位今晚在329-328附近在低吸回来做个T 微牛bull今天有受到中概股资金流出影响 准备到今天尾盘时候在看看加不加仓",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "MSTR",
+            "price": 336,
+            "fraction": "减点仓位",
+            "condition": null,
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "MSTR",
+            "price": 329,
+            "fraction": "底仓",
+            "condition": "低吸回来做个T",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00010",
+        "layer": "random_30",
+        "source_text": "今天美联储会议纪要将于美东时间下午2点公布，上半场震荡波动小 下午1点开始波动增大，今天是大陆假期最后一天中概方面也会流出，机会在会议公布后到尾盘4点",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "reconcile_ready": "NO"
+      },
+      {
+        "cu_id": "cu_trade_00011",
+        "layer": "random_30",
+        "source_text": "tsll 注意 回调 18.8-18.7  和17.9-17.8附近支撑分批回吸 第三次 计算了磨损值  18.8相当于第一轮的19.2 19.1-19.15建了点这轮tsll底仓 主要机会放18元附近 330-328区间可以回吸  336",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "BUY",
+            "ticker": "TSLL",
+            "price": 18.7,
+            "fraction": "分批回吸",
+            "condition": "回调支撑位附近",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "TSLL",
+            "price": 19.15,
+            "fraction": "底仓",
+            "condition": "建底仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "MSTR",
+            "price": 328,
+            "fraction": "一半",
+            "condition": "回吸抛出",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "LABX",
+            "price": 32.7,
+            "fraction": "一半",
+            "condition": "两倍杠杆出一半仓位",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "ALAB",
+            "price": 215.7,
+            "fraction": "一半",
+            "condition": "出一半仓位",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "TSLL",
+            "price": 19.1,
+            "fraction": "小仓位吸",
+            "condition": "日内波段回补",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "RDDT",
+            "price": 196,
+            "fraction": "底仓",
+            "condition": "建底仓",
+            "status": "filled",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00012",
+        "layer": "random_30",
+        "source_text": "labx和alab剩下一半可以盯着日内的高点 目前AI基建在讲话有望冲个高点出来 218-218.5出剩下alab labx 33.3都出",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "ALAB",
+            "price": 218,
+            "fraction": "剩下一半",
+            "condition": "日内高点出仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "LABX",
+            "price": 218,
+            "fraction": "剩下一半",
+            "condition": "日内高点出仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "LABX",
+            "price": 33.3,
+            "fraction": "全部",
+            "condition": "",
+            "status": "filled",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00013",
+        "layer": "random_30",
+        "source_text": "52.22附近可以少量减仓点upst ",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "UPST",
+            "price": 52.22,
+            "fraction": "少量",
+            "condition": null,
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00014",
+        "layer": "random_30",
+        "source_text": "今天布局rddt主要早上海关抓住了他妈妈\n\n\n\n最近也在支撑了\n[IMAGE:https://img-v2-prod.whop.com/bkcMeZT0Brk5DFzlqpdVrPtRIrYT7zV17e89tlPLrxI/plain/ht",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "reconcile_ready": "NO"
+      },
+      {
+        "cu_id": "cu_trade_00015",
+        "layer": "random_30",
+        "source_text": "微牛盘后拉升至我们的成本13.1   仓位重的可以减持到自己心里价位能承受的仓位范围 微牛昨天的跌在讨论区 解释了下  因为它属于中概股 昨天有个小额解禁 但是小额解禁卖出是随个人意愿分批的不会上公告 \n\n\n\n正好巧合和大陆有个全球性投资的",
+        "pred_speech_act": "risk_control",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "WEIN",
+            "price": null,
+            "fraction": "部分仓位",
+            "condition": "减持到心里价位能承受的仓位范围",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00016",
+        "layer": "random_30",
+        "source_text": "tsll今天还是关注开盘的回调做短线做多日内为主 19.1小仓位的日内短线和18附近的拿几天的短线 ",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "reconcile_ready": "NO"
+      },
+      {
+        "cu_id": "cu_trade_00017",
+        "layer": "random_30",
+        "source_text": "upst今天反弹不错他在5日线上就保持不动今天的ma5 价格是52.55 微牛不到12.0附近就不动等确认下会不会再跳 手里仓位就拿着",
+        "pred_speech_act": "market_view",
+        "pred_actions": [
+          {
+            "action": "HOLD",
+            "ticker": "UPST",
+            "price": null,
+            "fraction": null,
+            "condition": "在5日线上保持不动",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "HOLD",
+            "ticker": "微牛",
+            "price": 12,
+            "fraction": null,
+            "condition": "不到12.0附近就不动等确认下会不会再跳",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00018",
+        "layer": "random_30",
+        "source_text": "RDDT最近就一个海关抓CEO妈妈利空 应该是吸筹机构故意买的热搜  还是以196-197附近吸为主 等段时间上去",
+        "pred_speech_act": "market_view",
+        "pred_actions": [
+          {
+            "action": "BUY",
+            "ticker": "RDDT",
+            "price": 196,
+            "fraction": null,
+            "condition": "吸筹机构故意买热搜",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00019",
+        "layer": "random_30",
+        "source_text": "tsll在19.1附近建小仓位底仓 QQQ上半场会回调下，qqq企稳再加其他的 321附近可以加仓mstr 后面震荡中看机会 今天在确认支撑会反复 tsll  19.5-19.7分批出和昨天一样  小仓位做日内 没有大跳水不拿隔天",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "BUY",
+            "ticker": "TSLL",
+            "price": null,
+            "fraction": "小仓位底仓",
+            "condition": "在19.1附近建仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": 19.5,
+            "fraction": "分批出",
+            "condition": "昨天一样小仓位做日内",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00020",
+        "layer": "random_30",
+        "source_text": "tsll达到了 预期的中间值19.6 可以19.6出一半  后面再有回调到19.2附近再看 rddt 206了 今天短期210是个压力看能不能突破 他和微牛有点像 在超跌的支撑 发了个利空",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": 19.6,
+            "fraction": "一半",
+            "condition": "达到预期中间值出仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "HOLD",
+            "ticker": "RDDT",
+            "price": null,
+            "fraction": null,
+            "condition": "短期压力位210未突破前持筹观望",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00021",
+        "layer": "random_30",
+        "source_text": "rddt注意 210 这个压力位能不能过去 过不去就止盈一半仓位 刚说完 209.7压下来点  209-208.7附近 出掉一半rddt仓位 bmnr要注意 56这个支撑会不会跌破  等看到有进场单子在小仓位建仓一笔",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "TAKE_PROFIT",
+            "ticker": "RDDT",
+            "price": null,
+            "fraction": "一半仓位",
+            "condition": "止盈",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "RDDT",
+            "price": 209.7,
+            "fraction": "一半仓位",
+            "condition": "出仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "BMNR",
+            "price": null,
+            "fraction": "小仓位",
+            "condition": "支撑位建仓",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00022",
+        "layer": "random_30",
+        "source_text": "tsll 19.8-19.9附近出掉剩下一半",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": 19.8,
+            "fraction": "剩下一半",
+            "condition": "出仓",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00023",
+        "layer": "random_30",
+        "source_text": "QQQ今天在反复确认这个低点  等尾盘3点半到4点在看看尾盘v的吸筹机会 有些个股在单边回调\n[IMAGE:https://img-v2-prod.whop.com/IB06_fBS2bcl2fIg6tWdclcrFvFmR-P6qwENa",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "reconcile_ready": "NO"
+      },
+      {
+        "cu_id": "cu_trade_00024",
+        "layer": "random_30",
+        "source_text": "rddt  208附近出剩下一半 今天尾盘附近在看看低点 tsll也是注意3点半到4点附近有没有突然跳水的19.1第一笔的低吸机会 19.2附近在小仓位开仓tsll sbet 可以16.26附近建仓点 主要还是等bmnr  都是eth板块 ",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "RDDT",
+            "price": 208,
+            "fraction": "剩下一半",
+            "condition": "出前期成本仓",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "TSLL",
+            "price": 19.2,
+            "fraction": null,
+            "condition": "小仓位开仓",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": 19.6,
+            "fraction": "一半",
+            "condition": "出前期成本仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "SBET",
+            "price": 16.26,
+            "fraction": null,
+            "condition": "建仓点",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": 19.8,
+            "fraction": "一半",
+            "condition": "出前期成本仓",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "BMNR",
+            "price": 57,
+            "fraction": null,
+            "condition": "建仓点",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00025",
+        "layer": "random_30",
+        "source_text": "最近行情走势总方向是 盘中时间9点半到2点 震荡走低 到3点半-4点买些支撑位的 夜盘和盘前冲高走 在等3点半到4点\n\n\n\n\n\n有时候盘中如果遇到个股突然急跌会慢慢震荡上去  买股最佳时间在3点半-4点不跌破当天的低点\n\n\n\n震荡行情也可以",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "reconcile_ready": "NO"
+      },
+      {
+        "cu_id": "cu_trade_00026",
+        "layer": "random_30",
+        "source_text": "tsll 目前也接近 19.8  注意剩下的一半在19.8-19.9  没突破19.9的情况下出掉",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": 19.8,
+            "fraction": "剩下的一半",
+            "condition": "未突破19.9出仓",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00027",
+        "layer": "random_30",
+        "source_text": "尾盘QQQ开始转V了 可以看看手里个股V的迹象",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "reconcile_ready": "NO"
+      },
+      {
+        "cu_id": "cu_trade_00028",
+        "layer": "random_30",
+        "source_text": "周四尾盘QQQV 手里个股是V的情况下 就去夜盘和盘前找高点做T出",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "QQQV",
+            "price": null,
+            "fraction": "高点",
+            "condition": "做T出",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00029",
+        "layer": "random_30",
+        "source_text": "bmnr 59压力位附近可以出一半 剩下一半 夜盘和盘前看看 sbet压力位在17.15也可以挂单挂卖一半 等夜盘和盘前再看看 mstr可以把321这部分买的挂卖在330 具体等到夜盘和盘前再看",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "BMNR",
+            "price": 59,
+            "fraction": "一半",
+            "condition": "压力位附近出仓",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "SBET",
+            "price": 17.15,
+            "fraction": "一半",
+            "condition": "挂卖在压力位",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "MSTR",
+            "price": 330,
+            "fraction": null,
+            "condition": "挂卖在买入价之上",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00030",
+        "layer": "random_30",
+        "source_text": "微牛支撑12.00没有打压到和bmnr情况差不多可以挂单或者找找12.4附近的机会加仓点在预留点12附近加 ",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "BUY",
+            "ticker": "BMNR",
+            "price": null,
+            "fraction": "底仓",
+            "condition": "微牛支撑位12.00附近机会",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "BMNR",
+            "price": 12.4,
+            "fraction": "加仓",
+            "condition": "12.4附近的机会",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      }
+    ],
+    "layer2_multi_10": [
+      {
+        "cu_id": "cu_trade_00001",
+        "layer": "multi_10",
+        "actions_count": 2,
+        "source_text": "目前TSLL没有动打算等收盘或者发布会看看再决定 tsll 今天收盘不能低于21   收盘价低于21 就出一半  没有低于 明天发布会时候边拉升边出 tsll 21.05减仓三分之一 ",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "HOLD",
+            "ticker": "TSLL",
+            "price": null,
+            "fraction": "未动",
+            "condition": "等收盘或发布会再决定",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": 21,
+            "fraction": "一半",
+            "condition": "收盘价低于21出仓",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00002",
+        "layer": "multi_10",
+        "actions_count": 3,
+        "source_text": "21.7也减仓点tsll 剩下原始持仓的一半博弈下发布会  发布会边拉升边出 跌破21.3都出 尾盘附近减仓一半hims  54.7附近 hims剩下一半设置下跌破54.4都出",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": null,
+            "fraction": "一半",
+            "condition": "减仓博弈发布会",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "STOP_LOSS",
+            "ticker": "HIMS",
+            "price": 54.7,
+            "fraction": "一半",
+            "condition": "尾盘附近减仓",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "HIMS",
+            "price": 54.4,
+            "fraction": "剩下一半",
+            "condition": "下跌破54.4都出",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00006",
+        "layer": "multi_10",
+        "actions_count": 2,
+        "source_text": "今天机器检测 上午到下午1点 走震荡回调路线 买股和更多检测多头放在尾盘附近再看看 今天临近国庆尾声有资金离场  上半场 轧空 尾盘1小时看看有没有V吸筹的 刚机器检测了回调 334-335区间回吸一部分mstr 回调破了2个支撑 尾盘看情",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "BUY",
+            "ticker": "MSTR",
+            "price": 334,
+            "fraction": "一部分",
+            "condition": "回吸支撑位",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "WEINU",
+            "price": 13.1,
+            "fraction": "部分仓位",
+            "condition": "接强支撑位",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00007",
+        "layer": "multi_10",
+        "actions_count": 3,
+        "source_text": "UPST 50.4附近 1成仓 ALAB 207附近  或者 LABX 29.9附近 1成仓 目前第一轮抛压后小反弹  等看下有没有第二轮下压 不破第一轮低点 在第一轮附近的完成二次握手",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "BUY",
+            "ticker": "UPST",
+            "price": 50.4,
+            "fraction": "1成仓",
+            "condition": null,
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "ALAB",
+            "price": 207,
+            "fraction": "1成仓",
+            "condition": null,
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "LABX",
+            "price": 29.9,
+            "fraction": "1成仓",
+            "condition": null,
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00009",
+        "layer": "multi_10",
+        "actions_count": 2,
+        "source_text": "mstr 可以336-337减点仓位今晚在329-328附近在低吸回来做个T 微牛bull今天有受到中概股资金流出影响 准备到今天尾盘时候在看看加不加仓",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "MSTR",
+            "price": 336,
+            "fraction": "减点仓位",
+            "condition": null,
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "MSTR",
+            "price": 329,
+            "fraction": "底仓",
+            "condition": "低吸回来做个T",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00011",
+        "layer": "multi_10",
+        "actions_count": 7,
+        "source_text": "tsll 注意 回调 18.8-18.7  和17.9-17.8附近支撑分批回吸 第三次 计算了磨损值  18.8相当于第一轮的19.2 19.1-19.15建了点这轮tsll底仓 主要机会放18元附近 330-328区间可以回吸  336",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "BUY",
+            "ticker": "TSLL",
+            "price": 18.7,
+            "fraction": "分批回吸",
+            "condition": "回调支撑位附近",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "TSLL",
+            "price": 19.15,
+            "fraction": "底仓",
+            "condition": "建底仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "MSTR",
+            "price": 328,
+            "fraction": "一半",
+            "condition": "回吸抛出",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "LABX",
+            "price": 32.7,
+            "fraction": "一半",
+            "condition": "两倍杠杆出一半仓位",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "ALAB",
+            "price": 215.7,
+            "fraction": "一半",
+            "condition": "出一半仓位",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "TSLL",
+            "price": 19.1,
+            "fraction": "小仓位吸",
+            "condition": "日内波段回补",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "BUY",
+            "ticker": "RDDT",
+            "price": 196,
+            "fraction": "底仓",
+            "condition": "建底仓",
+            "status": "filled",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00012",
+        "layer": "multi_10",
+        "actions_count": 3,
+        "source_text": "labx和alab剩下一半可以盯着日内的高点 目前AI基建在讲话有望冲个高点出来 218-218.5出剩下alab labx 33.3都出",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "ALAB",
+            "price": 218,
+            "fraction": "剩下一半",
+            "condition": "日内高点出仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "LABX",
+            "price": 218,
+            "fraction": "剩下一半",
+            "condition": "日内高点出仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "LABX",
+            "price": 33.3,
+            "fraction": "全部",
+            "condition": "",
+            "status": "filled",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00017",
+        "layer": "multi_10",
+        "actions_count": 2,
+        "source_text": "upst今天反弹不错他在5日线上就保持不动今天的ma5 价格是52.55 微牛不到12.0附近就不动等确认下会不会再跳 手里仓位就拿着",
+        "pred_speech_act": "market_view",
+        "pred_actions": [
+          {
+            "action": "HOLD",
+            "ticker": "UPST",
+            "price": null,
+            "fraction": null,
+            "condition": "在5日线上保持不动",
+            "status": "planned",
+            "instrument": "stock"
+          },
+          {
+            "action": "HOLD",
+            "ticker": "微牛",
+            "price": 12,
+            "fraction": null,
+            "condition": "不到12.0附近就不动等确认下会不会再跳",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00019",
+        "layer": "multi_10",
+        "actions_count": 2,
+        "source_text": "tsll在19.1附近建小仓位底仓 QQQ上半场会回调下，qqq企稳再加其他的 321附近可以加仓mstr 后面震荡中看机会 今天在确认支撑会反复 tsll  19.5-19.7分批出和昨天一样  小仓位做日内 没有大跳水不拿隔天",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "BUY",
+            "ticker": "TSLL",
+            "price": null,
+            "fraction": "小仓位底仓",
+            "condition": "在19.1附近建仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": 19.5,
+            "fraction": "分批出",
+            "condition": "昨天一样小仓位做日内",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      },
+      {
+        "cu_id": "cu_trade_00020",
+        "layer": "multi_10",
+        "actions_count": 2,
+        "source_text": "tsll达到了 预期的中间值19.6 可以19.6出一半  后面再有回调到19.2附近再看 rddt 206了 今天短期210是个压力看能不能突破 他和微牛有点像 在超跌的支撑 发了个利空",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [
+          {
+            "action": "SELL",
+            "ticker": "TSLL",
+            "price": 19.6,
+            "fraction": "一半",
+            "condition": "达到预期中间值出仓",
+            "status": "filled",
+            "instrument": "stock"
+          },
+          {
+            "action": "HOLD",
+            "ticker": "RDDT",
+            "price": null,
+            "fraction": null,
+            "condition": "短期压力位210未突破前持筹观望",
+            "status": "planned",
+            "instrument": "stock"
+          }
+        ],
+        "reconcile_ready": "YES"
+      }
+    ],
+    "layer3_empty_with_trade_keywords_10": [
+      {
+        "cu_id": "cu_trade_00008",
+        "layer": "empty_trade_keywords_10",
+        "source_text": "指数上QQQ盘后的收盘价要大于604.5 大多数股票今天就盘中完成二次握手的吸筹 This pullback is healthy and necessary. Additionally, Chinese funds will flow back, and they have been withdr",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "note": "源文本含买/卖/吸但模型判空，待核实是否为纯分析/口诀"
+      },
+      {
+        "cu_id": "cu_trade_00010",
+        "layer": "empty_trade_keywords_10",
+        "source_text": "今天美联储会议纪要将于美东时间下午2点公布，上半场震荡波动小 下午1点开始波动增大，今天是大陆假期最后一天中概方面也会流出，机会在会议公布后到尾盘4点",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "note": "源文本含买/卖/吸但模型判空，待核实是否为纯分析/口诀"
+      },
+      {
+        "cu_id": "cu_trade_00023",
+        "layer": "empty_trade_keywords_10",
+        "source_text": "QQQ今天在反复确认这个低点  等尾盘3点半到4点在看看尾盘v的吸筹机会 有些个股在单边回调\n[IMAGE:https://img-v2-prod.whop.com/IB06_fBS2bcl2fIg6tWdclcrFvFmR-P6qwENa7rL9E8/plain/https%3A%2F%2Fass",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "note": "源文本含买/卖/吸但模型判空，待核实是否为纯分析/口诀"
+      },
+      {
+        "cu_id": "cu_trade_00025",
+        "layer": "empty_trade_keywords_10",
+        "source_text": "最近行情走势总方向是 盘中时间9点半到2点 震荡走低 到3点半-4点买些支撑位的 夜盘和盘前冲高走 在等3点半到4点\n\n\n\n\n\n有时候盘中如果遇到个股突然急跌会慢慢震荡上去  买股最佳时间在3点半-4点不跌破当天的低点\n\n\n\n震荡行情也可以做做 tsll的日内支撑和阻力交易",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "note": "源文本含买/卖/吸但模型判空，待核实是否为纯分析/口诀"
+      },
+      {
+        "cu_id": "cu_trade_00033",
+        "layer": "empty_trade_keywords_10",
+        "source_text": "周五冲高的开局卖出后    尽量把回买的时间压到3点半和7点半 有时候盘后有新闻会影响 周末也会有讲话 \n\n\n\n或者到股票支撑位附近看有大单入场在回买",
+        "pred_speech_act": "trade_action",
+        "pred_actions": [],
+        "note": "源文本含买/卖/吸但模型判空，待核实是否为纯分析/口诀"
+      },
+      {
+        "cu_id": "cu_trade_00036",
+        "layer": "empty_trade_keywords_10",
+        "source_text": "200附近再到可以吸回rddt 今天晚上特朗普讲话感觉是给政府资金 出售在入场的做T机会 都很同步和配合他讲话 盘中还有次二次握手确认的 日内低点不破可以在吸一波 ",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "note": "源文本含买/卖/吸但模型判空，待核实是否为纯分析/口诀"
+      },
+      {
+        "cu_id": "cu_trade_00037",
+        "layer": "empty_trade_keywords_10",
+        "source_text": "QQQ目前比上一轮低点多跌了-0.2要看下尾盘能不能站上595 个股也放点在7点半附近再看看加",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "note": "源文本含买/卖/吸但模型判空，待核实是否为纯分析/口诀"
+      },
+      {
+        "cu_id": "cu_trade_00040",
+        "layer": "empty_trade_keywords_10",
+        "source_text": "目前特朗普发言定在5点 等他讲完再看要不要买 他讲之前新闻都在建议抛售分时会收盘才是最低点 盘后4点-5点前没有发言V上去可以把 低吸的先冲高T下\n\n\n\n他讲话有点软的话（taco）就会大反弹 \n\n\n\n强硬的话就在减持点  至少留一半资金等周一\n\n\n",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "note": "源文本含买/卖/吸但模型判空，待核实是否为纯分析/口诀"
+      },
+      {
+        "cu_id": "cu_trade_00041",
+        "layer": "empty_trade_keywords_10",
+        "source_text": "上一次股票大规模建仓时候QQQ是588.5  SPX是6551   今天QQQ和spx一天打压到了这个建仓点，准备看下特朗普5点发言会不会扭转",
+        "pred_speech_act": "market_view",
+        "pred_actions": [],
+        "note": "源文本含买/卖/吸但模型判空，待核实是否为纯分析/口诀"
+      },
+      {
+        "cu_id": "cu_trade_00042",
+        "layer": "empty_trade_keywords_10",
+        "source_text": "Trump just posted on Truth Social: Starting November 1st, 2025 (or sooner, depending on any further actions or changes taken by China), the United Sta",
+        "pred_speech_act": "risk_control",
+        "pred_actions": [],
+        "note": "源文本含买/卖/吸但模型判空，待核实是否为纯分析/口诀"
+      }
+    ]
+  }
+}
