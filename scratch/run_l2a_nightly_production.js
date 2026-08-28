@@ -8,6 +8,10 @@ dotenv.config();
 initDb();
 const db = getDb();
 
+console.log('====================================================');
+console.log('🌙 L2a 广播频道 1195 组真实夜跑生产流水线 (Nightly Pipeline)');
+console.log('====================================================\n');
+
 // 1. 确保候选表存在
 db.exec(`
   CREATE TABLE IF NOT EXISTS l2a_order_candidates (
@@ -29,11 +33,7 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_l2a_cand_date ON l2a_order_candidates(et_date);
 `);
 
-console.log('====================================================');
-console.log('🌙 L2a 广播频道 1195 组真实夜跑生产流水线 (Nightly Pipeline)');
-console.log('====================================================\n');
-
-// 1. 读取 Prompt v3
+// 2. 读取 Prompt v3
 const promptPath = 'data/prompts/semantic_extract_prompt_v3.md';
 if (!fs.existsSync(promptPath)) {
   console.error(`❌ 缺少 Prompt v3 文件: ${promptPath}`);
@@ -42,7 +42,7 @@ if (!fs.existsSync(promptPath)) {
 const systemPrompt = fs.readFileSync(promptPath, 'utf-8');
 const PROMPT_VERSION = 'semantic_extract_prompt_v3.md@v1';
 
-// 2. 读取 1195 组数据集
+// 3. 读取 1195 组数据集
 const cuDatasetPath = 'data/samples/l2a_broadcast_cu_1195.jsonl';
 if (!fs.existsSync(cuDatasetPath)) {
   console.error(`❌ 缺少 CU 数据集: ${cuDatasetPath}`);
@@ -51,7 +51,7 @@ if (!fs.existsSync(cuDatasetPath)) {
 const allCus = fs.readFileSync(cuDatasetPath, 'utf-8').trim().split('\n').map(l => JSON.parse(l));
 console.log(`📦 成功载入广播频道 CU 总量: ${allCus.length} 组`);
 
-// 3. 读取断点已跑记录
+// 4. 读取断点已跑记录
 const outDir = 'data/runs';
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 const outJsonlPath = path.join(outDir, 'l2a_broadcast_candidates_1195.jsonl');
@@ -68,43 +68,12 @@ if (fs.existsSync(outJsonlPath)) {
 }
 console.log(`🔄 断点检测: 已完成并保存记录 ${completedMap.size} 条，剩余 ${allCus.length - completedMap.size} 条待跑\n`);
 
-// 4. 模型配置
+// 5. 模型配置
 const lmStudioUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
 const modelName = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
 
 console.log(`🤖 推理目标服务: ${lmStudioUrl}`);
 console.log(`🧠 生产加载模型: ${modelName}\n`);
-
-// 确保候选表存在
-db.exec(`
-  CREATE TABLE IF NOT EXISTS l2a_order_candidates (
-    cu_id TEXT PRIMARY KEY,
-    model TEXT NOT NULL,
-    prompt_version TEXT NOT NULL,
-    channel_id TEXT,
-    et_session TEXT,
-    et_date TEXT,
-    speech_act TEXT,
-    actions_json TEXT,
-    claims_json TEXT,
-    raw_text TEXT,
-    parse_ok INTEGER NOT NULL,
-    latency_ms INTEGER NOT NULL,
-    created_at INTEGER NOT NULL
-  );
-  CREATE INDEX IF NOT EXISTS idx_l2a_cand_speech_act ON l2a_order_candidates(speech_act);
-  CREATE INDEX IF NOT EXISTS idx_l2a_cand_date ON l2a_order_candidates(et_date);
-`);
-
-// 数据库插入语句
-const insertStmt = db.prepare(`
-  INSERT OR REPLACE INTO l2a_order_candidates (
-    cu_id, model, prompt_version, channel_id, et_session, et_date,
-    speech_act, actions_json, claims_json, raw_text, parse_ok, latency_ms, created_at
-  ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-  )
-`);
 
 async function ensureModelWarm() {
   try {
@@ -175,7 +144,6 @@ async function inferSingleCu(cu, idx) {
       }
 
       const rawParsed = JSON.parse(jsonStr);
-      // 经过确定性后处理清洗
       parsed = cleanAndNormalizeEnvelope(rawParsed, fullText);
       parseOk = true;
       break;
@@ -207,7 +175,14 @@ async function inferSingleCu(cu, idx) {
 
   // 2. 写入数据库候选表
   try {
-    insertStmt.run(
+    db.prepare(`
+      INSERT OR REPLACE INTO l2a_order_candidates (
+        cu_id, model, prompt_version, channel_id, et_session, et_date,
+        speech_act, actions_json, claims_json, raw_text, parse_ok, latency_ms, created_at
+      ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+      )
+    `).run(
       cu.cu_id,
       modelName,
       PROMPT_VERSION,
@@ -230,7 +205,7 @@ async function inferSingleCu(cu, idx) {
   return resultRecord;
 }
 
-// 5. 主流水线循环
+// 6. 主流水线循环
 async function main() {
   const startTime = Date.now();
   let processedInThisRun = 0;
