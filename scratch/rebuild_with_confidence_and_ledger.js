@@ -110,13 +110,13 @@ function evaluateMessageConfidence(content) {
 
   if (!matchedTicker) return null;
 
-  // 强买入动词 (涵盖回吸、低吸、打底等)
-  const hasStrongBuy = /(加了|买了|加回|开了|建仓|补了|接了|进了|买入|开仓|加仓|再加|开了常规|回吸|低吸|抄底|吸了|补仓)/i.test(cleanContent);
-  // 强卖出动词 (涵盖出、出掉、先出、出底仓、出剩下一半等)
-  const hasStrongSell = /(出了|卖了|出掉|清了|止损|止盈|平仓|出剩下|出了一半|卖出一半|出一半|出半|出完|先出|出底仓|\b出\b|附近出)/i.test(cleanContent);
+  // 强买入动词 (涵盖回吸、低吸、打底、加回、抄底等)
+  const hasStrongBuy = /(加了|买了|加回|开了|建仓|补了|接了|进了|买入|开仓|加仓|再加|开了常规|回吸|低吸|抄底|吸了|补仓|低买)/i.test(cleanContent);
+  // 强卖出动词 (涵盖出、出掉、先出、出底仓、出剩下一半、减、减持等)
+  const hasStrongSell = /(出了|卖了|出掉|清了|止损|止盈|平仓|出剩下|出了一半|卖出一半|出一半|出半|出完|先出|出底仓|\b出\b|附近出|减个|减掉|减了)/i.test(cleanContent) || /\d+(\.\d+)?出\s+/i.test(cleanContent);
   
   // 弱动作/设想
-  const hasWeakAction = /(拿一点|进点|有个常规|可以.*加|可以.*出|挂了|新开|找机会)/i.test(cleanContent);
+  const hasWeakAction = /(拿一点|进点|有个常规|可以.*加|可以.*出|挂了|新开|找机会|注意.*吸|反弹.*减)/i.test(cleanContent);
   const hasChatWords = /(散户|搜btc|报价|维持目前的涨幅|带动了|分流了|为什么|怎么看|建议|探讨|如果|迹象|资讯|大会摘要|讲话)/i.test(cleanContent);
 
   if (!hasStrongBuy && !hasStrongSell && !hasWeakAction) return null;
