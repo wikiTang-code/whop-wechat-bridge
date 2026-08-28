@@ -7,22 +7,19 @@ import { postProcessL2b } from './post_processor_l2b.js';
 dotenv.config();
 
 console.log('====================================================');
-console.log('🧠 L2b 知识原子升级版 Benchmark (带自动重试+关键词路由+foldWs)');
+console.log('🧠 L2b 知识原子升级版 Benchmark (带自动预热+关键词路由+foldWs)');
 console.log('====================================================\n');
 
-// 1. 读取 split 和 金标
 const splitPath = 'data/eval/l2b_eval_split.json';
 const splitConfig = JSON.parse(fs.readFileSync(splitPath, 'utf-8'));
 
 const goldPath = 'data/eval/gold_knowledge_atoms_30.jsonl';
 const goldAtoms = fs.readFileSync(goldPath, 'utf-8').trim().split('\n').map(l => JSON.parse(l));
 
-// 2. 读取 50 组样本
 const samplePath = 'data/samples/context_units_eval_50_v2.jsonl';
 const allSamples = fs.readFileSync(samplePath, 'utf-8').trim().split('\n').map(l => JSON.parse(l));
 const sampleMap = new Map(allSamples.map(s => [s.cu_id, s]));
 
-// 3. 确定本轮需要运行和评估的全部 CU 集合 (24个正样本 + 3个必空样本)
 const targetCuIds = new Set([
   ...splitConfig.positive_source_cus,
   ...splitConfig.must_empty.ids
@@ -31,7 +28,6 @@ const targetCuIds = new Set([
 const evalSamples = allSamples.filter(s => targetCuIds.has(s.cu_id));
 console.log(`📋 本轮评测样本集: 共 ${evalSamples.length} 组 CU (正样本: ${splitConfig.positive_source_cus.length}, 必空: ${splitConfig.must_empty.ids.length})`);
 
-// 4. 读取已有的预测结果
 const predsPath = 'data/eval/preds_l2b_14b_30.jsonl';
 const existingMap = new Map();
 if (fs.existsSync(predsPath)) {
@@ -39,7 +35,7 @@ if (fs.existsSync(predsPath)) {
   for (const line of lines) {
     try {
       const obj = JSON.parse(line);
-      if (obj.parse_ok) {
+      if (obj.parse_ok && obj.raw_text && !obj.raw_text.startsWith('ERROR:')) {
         existingMap.set(obj.cu_id, obj);
       }
     } catch (e) {}
@@ -47,11 +43,25 @@ if (fs.existsSync(predsPath)) {
 }
 console.log(`📦 现有已跑有效预测记录: ${existingMap.size} 条`);
 
-// 5. 模型调用配置
 const lmStudioUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
 const modelName = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
 const promptPath = 'data/prompts/knowledge_atom_extract_prompt.md';
 const systemPrompt = fs.readFileSync(promptPath, 'utf-8');
+
+async function ensureModelWarm() {
+  try {
+    await fetch(`${lmStudioUrl.replace(/\/$/, '')}/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: modelName,
+        messages: [{ role: 'user', content: 'ping' }],
+        max_tokens: 1
+      }),
+      signal: AbortSignal.timeout(30000)
+    });
+  } catch (e) {}
+}
 
 async function callL2bModel(cu, idx) {
   const userContent = JSON.stringify({
@@ -67,6 +77,7 @@ async function callL2bModel(cu, idx) {
   let latencyMs = 0;
 
   for (let retry = 0; retry < 3; retry++) {
+    await ensureModelWarm();
     const tStart = Date.now();
     try {
       const url = `${lmStudioUrl.replace(/\/$/, '')}/v1/chat/completions`;
@@ -110,7 +121,7 @@ async function callL2bModel(cu, idx) {
       latencyMs = Date.now() - tStart;
       console.warn(`⚠️ [${cu.cu_id}] 推理尝试 ${retry + 1}/3 失败:`, err.message);
       rawText = `ERROR: ${err.message}`;
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 3000));
     }
   }
 
@@ -134,7 +145,6 @@ async function callL2bModel(cu, idx) {
   return resultObj;
 }
 
-// 6. 升级版打分与评估
 export function evaluateL2bWithRouting(predictionsMap) {
   let emptySuccess = 0;
   const mustEmptyIds = splitConfig.must_empty.ids;
@@ -170,28 +180,23 @@ export function evaluateL2bWithRouting(predictionsMap) {
 
     if (!pred || !pred.parsed) continue;
 
-    // 先经过后处理和路由
     const processed = postProcessL2b(pred.parsed, cu);
     const atoms = processed.atoms || [];
 
     for (const a of atoms) {
       totalExtractedAtoms++;
-      // 路由
       const remapped = remapAtom(a, fullText);
       if (remapped.routed) routedCount++;
 
-      // 1. 订单泄漏
       const rawStr = JSON.stringify(a);
       if (/\b(BUY|SELL|price|建仓|清仓)\b/i.test(rawStr) && !a.do_not_use_as_order) {
         orderLeakedCount++;
       }
 
-      // 2. kid 命中 (路由后的 kid 属于该 CU 的金标 kid 集合，或属于已知 kid 表)
       if (goldKidSet.has(remapped.kid) || KNOWN_KIDS.includes(remapped.kid)) {
         kidMatchedCount++;
       }
 
-      // 3. 子串真实率 (foldWs)
       if (evidenceOk(a.evidence_span, fullText)) {
         evidenceValidCount++;
       }
@@ -223,7 +228,6 @@ export function evaluateL2bWithRouting(predictionsMap) {
   };
 }
 
-// 7. 主流程：补跑缺漏样本并打分
 async function main() {
   const forceRerun = new Set(['cu_v2_008', 'cu_v2_016']);
 
