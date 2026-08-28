@@ -7,7 +7,7 @@ import { postProcessL2b } from './post_processor_l2b.js';
 dotenv.config();
 
 console.log('====================================================');
-console.log('🧠 L2b 知识原子升级版 Benchmark (关键词路由+foldWs+补跑正样本)');
+console.log('🧠 L2b 知识原子升级版 Benchmark (带自动重试+关键词路由+foldWs)');
 console.log('====================================================\n');
 
 // 1. 读取 split 和 金标
@@ -31,7 +31,7 @@ const targetCuIds = new Set([
 const evalSamples = allSamples.filter(s => targetCuIds.has(s.cu_id));
 console.log(`📋 本轮评测样本集: 共 ${evalSamples.length} 组 CU (正样本: ${splitConfig.positive_source_cus.length}, 必空: ${splitConfig.must_empty.ids.length})`);
 
-// 4. 读取已有的预测结果 (如果有)
+// 4. 读取已有的预测结果
 const predsPath = 'data/eval/preds_l2b_14b_30.jsonl';
 const existingMap = new Map();
 if (fs.existsSync(predsPath)) {
@@ -39,11 +39,13 @@ if (fs.existsSync(predsPath)) {
   for (const line of lines) {
     try {
       const obj = JSON.parse(line);
-      existingMap.set(obj.cu_id, obj);
+      if (obj.parse_ok) {
+        existingMap.set(obj.cu_id, obj);
+      }
     } catch (e) {}
   }
 }
-console.log(`📦 现有已跑预测记录: ${existingMap.size} 条`);
+console.log(`📦 现有已跑有效预测记录: ${existingMap.size} 条`);
 
 // 5. 模型调用配置
 const lmStudioUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
@@ -52,7 +54,6 @@ const promptPath = 'data/prompts/knowledge_atom_extract_prompt.md';
 const systemPrompt = fs.readFileSync(promptPath, 'utf-8');
 
 async function callL2bModel(cu, idx) {
-  const tStart = Date.now();
   const userContent = JSON.stringify({
     cu_id: cu.cu_id,
     channel: cu.channel,
@@ -63,52 +64,54 @@ async function callL2bModel(cu, idx) {
   let rawText = '';
   let parsed = null;
   let parseOk = false;
+  let latencyMs = 0;
 
-  try {
-    const url = `${lmStudioUrl.replace(/\/$/, '')}/v1/chat/completions`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: modelName,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userContent }
-        ],
-        temperature: 0.0,
-        max_tokens: 1024
-      }),
-      signal: AbortSignal.timeout(180000)
-    });
+  for (let retry = 0; retry < 3; retry++) {
+    const tStart = Date.now();
+    try {
+      const url = `${lmStudioUrl.replace(/\/$/, '')}/v1/chat/completions`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: modelName,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userContent }
+          ],
+          temperature: 0.0,
+          max_tokens: 1024
+        }),
+        signal: AbortSignal.timeout(180000)
+      });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errText}`);
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errText}`);
+      }
+
+      const resJson = await response.json();
+      rawText = resJson.choices?.[0]?.message?.content || '';
+      rawText = rawText.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+
+      latencyMs = Date.now() - tStart;
+
+      let jsonStr = rawText.trim();
+      if (jsonStr.includes('```json')) {
+        jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
+      } else if (jsonStr.includes('```')) {
+        jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
+      }
+      parsed = JSON.parse(jsonStr);
+      parseOk = true;
+      break;
+
+    } catch (err) {
+      latencyMs = Date.now() - tStart;
+      console.warn(`⚠️ [${cu.cu_id}] 推理尝试 ${retry + 1}/3 失败:`, err.message);
+      rawText = `ERROR: ${err.message}`;
+      await new Promise(r => setTimeout(r, 2000));
     }
-
-    const resJson = await response.json();
-    rawText = resJson.choices?.[0]?.message?.content || '';
-    rawText = rawText.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-
-  } catch (err) {
-    console.error(`❌ [${cu.cu_id}] 推理异常:`, err.message);
-    rawText = `ERROR: ${err.message}`;
-  }
-
-  const latencyMs = Date.now() - tStart;
-
-  try {
-    let jsonStr = rawText.trim();
-    if (jsonStr.includes('```json')) {
-      jsonStr = jsonStr.split('```json')[1].split('```')[0].trim();
-    } else if (jsonStr.includes('```')) {
-      jsonStr = jsonStr.split('```')[1].split('```')[0].trim();
-    }
-    parsed = JSON.parse(jsonStr);
-    parseOk = true;
-  } catch (e) {
-    parsed = null;
-    parseOk = false;
   }
 
   console.log(`[${idx + 1}/${evalSamples.length}] [${cu.cu_id}] 真实耗时: ${latencyMs}ms | Atoms: ${parsed?.atoms?.length || 0} | Parse: ${parseOk ? '✅ OK' : '❌ Failed'}`);
@@ -123,8 +126,10 @@ async function callL2bModel(cu, idx) {
     latency_ms: latencyMs
   };
 
-  existingMap.set(cu.cu_id, resultObj);
-  fs.writeFileSync(predsPath, Array.from(existingMap.values()).map(r => JSON.stringify(r)).join('\n'), 'utf-8');
+  if (parseOk) {
+    existingMap.set(cu.cu_id, resultObj);
+    fs.writeFileSync(predsPath, Array.from(existingMap.values()).map(r => JSON.stringify(r)).join('\n'), 'utf-8');
+  }
 
   return resultObj;
 }
@@ -142,8 +147,6 @@ export function evaluateL2bWithRouting(predictionsMap) {
   }
   const emptyPrecision = (emptySuccess / mustEmptyIds.length) * 100;
 
-  // 正样本评估
-  let positiveCuCount = splitConfig.positive_source_cus.length;
   let totalExtractedAtoms = 0;
   let kidMatchedCount = 0;
   let evidenceValidCount = 0;
@@ -222,7 +225,6 @@ export function evaluateL2bWithRouting(predictionsMap) {
 
 // 7. 主流程：补跑缺漏样本并打分
 async function main() {
-  // 需要重跑或补跑的 ID (如 008, 016 和缺失的正样本)
   const forceRerun = new Set(['cu_v2_008', 'cu_v2_016']);
 
   for (let i = 0; i < evalSamples.length; i++) {
