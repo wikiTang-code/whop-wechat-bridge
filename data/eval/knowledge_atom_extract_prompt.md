@@ -20,8 +20,9 @@
 {
   "cu_id": "",
   "atoms": [],
-  "parse_status": "ok",
-  "confidence": 0.0
+  "status": "asserted",
+  "confidence": 0.0,
+  "do_not_use_as_order": true
 }
 ```
 
@@ -36,7 +37,7 @@
   "evidence_span": "",
   "precondition": [],
   "applies_to": [],
-  "status": "asserted_by_kol",
+  "status": "asserted",
   "confidence": 0.0,
   "do_not_use_as_order": true
 }
@@ -44,7 +45,7 @@
 
 一窗可以 0～3 条。没有纪律就 `atoms: []`，不要硬编。
 
-### type（只能这 8 个）
+### type（只能这 7 个）
 
 | type | 含义 | 例子 |
 |---|---|---|
@@ -54,7 +55,7 @@
 | regime | 市场状态定义 | 今日低点高于昨日才算底部 |
 | instrument_view | 对某一类标的的结构性看法 | 有债龙二涨了会发股还债 |
 | calendar_rule | 星期/时段/节日/投票 | 周五先多后空，尾盘强平才补 |
-| process_error | 明确反对的做法 | 跌的时候不要找新闻 |
+| process_error | 明确反对的做法 | 追高被套死扛不割 |
 | formula | 可复述的计算或位置定义 | （高+低）/2 当一半位置 |
 
 写飞 type 整条作废。
