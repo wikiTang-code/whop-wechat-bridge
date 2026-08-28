@@ -57,24 +57,34 @@ export function evaluatePredictions(predictions) {
       }
     }
 
-    // 3. Action 三元组 (action, ticker, price) 精确匹配
+    // 3. Action 三元组 (action, ticker, price, status) 精确匹配
     const goldActions = gold.actions || [];
     totalGoldActions += goldActions.length;
 
     const predActions = pred.actions || [];
     for (const ga of goldActions) {
-      const pMatch = predActions.find(pa => 
-        pa.action === ga.action && 
-        pa.ticker?.toUpperCase() === ga.ticker?.toUpperCase() &&
-        (ga.price === null || Math.abs((pa.price || 0) - ga.price) < 0.5)
-      );
+      const pMatch = predActions.find(pa => {
+        const isActionMatch = pa.action === ga.action;
+        const isTickerMatch = pa.ticker?.toUpperCase() === ga.ticker?.toUpperCase();
+        const isStatusMatch = !ga.status || !pa.status || pa.status === ga.status;
+        
+        let isPriceMatch = false;
+        if (ga.price === null || ga.price === undefined) {
+          isPriceMatch = (pa.price === null || pa.price === undefined);
+        } else {
+          isPriceMatch = pa.price !== null && pa.price !== undefined && Math.abs(pa.price - ga.price) < 0.5;
+        }
+
+        return isActionMatch && isTickerMatch && isStatusMatch && isPriceMatch;
+      });
+
       if (pMatch) {
         matchedGoldActions++;
       } else {
         errorReport.push({
           cu_id: pred.cu_id,
           type: 'MISSED_OR_MISMATCHED_ACTION',
-          detail: `金标期望 [${ga.action} ${ga.ticker} @ ${ga.price}] 未能在模型输出中精确匹配`
+          detail: `金标期望 [${ga.action} ${ga.ticker} @ ${ga.price} (${ga.status || 'any'})] 未能在模型输出中精确匹配`
         });
       }
     }
@@ -108,15 +118,10 @@ export function evaluatePredictions(predictions) {
   console.log('====================================================');
   console.log(`1. JSON 可解析率:          ${jsonValidRate.toFixed(1)}% (目标 >= 98%) -> ${jsonValidRate >= 98 ? '✅ PASS' : '❌ FAIL'}`);
   console.log(`2. speech_act 一致率:       ${speechActMatchRate.toFixed(1)}% (目标 >= 90%) -> ${speechActMatchRate >= 90 ? '✅ PASS' : '⚠️ 需优化'}`);
-  console.log(`3. Action 三元组精确匹配率: ${actionTripletMatchRate.toFixed(1)}% (目标 >= 75%) -> ${actionTripletMatchRate >= 75 ? '✅ PASS' : '⚠️ 需优化'}`);
+  console.log(`3. Action 精确匹配率:      ${actionTripletMatchRate.toFixed(1)}% (目标 >= 75%) -> ${actionTripletMatchRate >= 75 ? '✅ PASS' : '⚠️ 需优化'}`);
   console.log(`4. Failed 样本假动作编造率:  ${hallucinatedOnFailedRate.toFixed(1)}% (目标 <= 2%) -> ${hallucinatedOnFailedRate <= 2 ? '✅ PASS' : '❌ FAIL'}`);
   console.log(`5. 幻觉标的编造率:          ${hallucinatedTickerRate.toFixed(1)}% (目标 <= 2%) -> ${hallucinatedTickerRate <= 2 ? '✅ PASS' : '⚠️ 需优化'}`);
   console.log('====================================================\n');
-
-  console.log(`🔍 误差样例 (Error Cases): 共 ${errorReport.length} 项差异`);
-  errorReport.slice(0, 10).forEach((err, idx) => {
-    console.log(`[误差 #${idx+1}] [${err.cu_id}] [${err.type}]: ${err.detail}`);
-  });
 
   return {
     metrics: {
@@ -130,8 +135,16 @@ export function evaluatePredictions(predictions) {
   };
 }
 
-// 若独立运行，测试示例打分
+// 若独立运行，默认直接读取 preds_35b_50.jsonl 进行实测评测
 if (process.argv[1] && process.argv[1].endsWith('eval_harness.js')) {
-  console.log('ℹ️ 运行自检：评估 50 条金标自身的自洽性 (Self-Check)');
-  evaluatePredictions(Array.from(goldMap.values()));
+  const predsPath = 'data/eval/preds_35b_50.jsonl';
+  if (fs.existsSync(predsPath)) {
+    console.log(`ℹ️ 读取模型预测文件: ${predsPath}`);
+    const lines = fs.readFileSync(predsPath, 'utf-8').trim().split('\n').filter(l => l.trim().length > 0);
+    const preds = lines.map(l => JSON.parse(l)).filter(p => p.parsed !== null).map(p => p.parsed);
+    evaluatePredictions(preds);
+  } else {
+    console.log('ℹ️ 未找到 preds_35b_50.jsonl，运行金标自检 (Self-Check)');
+    evaluatePredictions(Array.from(goldMap.values()));
+  }
 }
