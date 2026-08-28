@@ -2271,10 +2271,10 @@ function renderZhaoPositions(data) {
           </div>
         </div>
         <div>
-          <button onclick="toggleSingleTickerTrades('ticker-trades-${pIdx}')" style="width: 100%; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 6px 0; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: all 0.2s;">
+          <button onclick="toggleSingleTickerTrades('ticker-trades-${pIdx}', '${pos.ticker}')" style="width: 100%; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 6px 0; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: all 0.2s;">
             📜 展开 / 折叠实战台账 (${tradesList.length} 笔) 与消息池 (${candList.length} 条)
           </button>
-          <div id="ticker-trades-${pIdx}" style="display: none; margin-top: 8px; max-height: 420px; overflow-y: auto; padding-right: 2px;">
+          <div id="ticker-trades-${pIdx}" style="display: ${expandedTickerSet.has(pos.ticker) ? 'block' : 'none'}; margin-top: 8px; max-height: 420px; overflow-y: auto; padding-right: 2px;">
             <!-- 区域 A: 已确认成交台账 -->
             <div style="margin-bottom: 10px;">
               <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; margin-bottom: 4px; display: flex; justify-content: space-between;">
@@ -2339,8 +2339,66 @@ function renderZhaoPositions(data) {
   }
 }
 
+// 记住当前展开的标的
+const expandedTickerSet = new Set();
+
+window.toggleSingleTickerTrades = function(elemId, tickerSymbol) {
+  const el = document.getElementById(elemId);
+  if (!el) return;
+  if (el.style.display === 'none' || el.style.display === '') {
+    el.style.display = 'block';
+    if (tickerSymbol) expandedTickerSet.add(tickerSymbol);
+  } else {
+    el.style.display = 'none';
+    if (tickerSymbol) expandedTickerSet.delete(tickerSymbol);
+  }
+};
+
+// 全局悬浮 Toast 提示组件
+window.showFloatingToast = function(message, isError = false) {
+  let toastEl = document.getElementById('global-floating-toast');
+  if (!toastEl) {
+    toastEl = document.createElement('div');
+    toastEl.id = 'global-floating-toast';
+    toastEl.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: bold;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    `;
+    document.body.appendChild(toastEl);
+  }
+  toastEl.style.background = isError ? 'linear-gradient(135deg, #ef4444, #b91c1c)' : 'linear-gradient(135deg, #10b981, #059669)';
+  toastEl.style.border = isError ? '1px solid #f87171' : '1px solid #34d399';
+  toastEl.innerHTML = `${isError ? '⚠️' : '✅'} ${message}`;
+  toastEl.style.opacity = '1';
+  toastEl.style.transform = 'translateX(-50%) translateY(0)';
+
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => {
+    toastEl.style.opacity = '0';
+    toastEl.style.transform = 'translateX(-50%) translateY(-15px)';
+  }, 2200);
+};
+
 // 人机协同：移动消息状态（confirmed / candidate / rejected）
-window.moveTradeReviewStatus = async function(id, targetStatus) {
+window.moveTradeReviewStatus = async function(id, targetStatus, btnElement) {
+  if (btnElement) {
+    btnElement.disabled = true;
+    btnElement.innerHTML = '⏳ 处理中...';
+  }
   try {
     const res = await fetchWithCsrf('/api/trade-review/move', {
       method: 'POST',
@@ -2351,14 +2409,17 @@ window.moveTradeReviewStatus = async function(id, targetStatus) {
     });
     const json = await res.json();
     if (json.success) {
-      // 提示并重新拉取刷新
-      if (window.showToast) window.showToast(`操作成功：已更新为 ${targetStatus === 'confirmed' ? '已确认持仓' : '待确认候选池'}`);
-      fetchStrategyData();
+      showFloatingToast(targetStatus === 'confirmed' ? '已成功移入持仓 (自动重新计算)' : '已成功移入该标的待确认候选池！');
+      await fetchStrategyData();
     } else {
-      alert(json.error || '移动失败');
+      showFloatingToast(json.error || '移动失败', true);
     }
   } catch (e) {
-    alert('请求错误: ' + e.message);
+    showFloatingToast('请求异常: ' + e.message, true);
+  } finally {
+    if (btnElement) {
+      btnElement.disabled = false;
+    }
   }
 };
 
