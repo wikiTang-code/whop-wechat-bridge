@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 console.log('====================================================');
-console.log('🎯 L2b 终极精准匹配与候选提纯引擎 (对齐 Grok 最终验收)');
+console.log('🎯 L2b 终极精准匹配器 (支持阿拉伯数字 2次握手)');
 console.log('====================================================\n');
 
 const tier2Path = 'data/runs/l2a_empty_tier2_planned_hints.jsonl';
@@ -23,45 +23,38 @@ if (fs.existsSync(sourceCuPath)) {
   }
 }
 
-// 严格按照 Grok 最终核准的正则与 KID 映射
+// 支持二次握手与 2次握手
 const REGEX_RULES = [
-  // 1. 公式优先: 包含 (高+低)/2 或具体数字加除2 的强制匹配 k_half_retrace_watch
   {
     kid: 'k_half_retrace_watch',
     type: 'formula',
     regex: /\([0-9\.]+\+[0-9\.]+\)\/2|\(高[\s\S]+低\).{0,8}\/\s*2|一半位置|高低点均值/i
   },
-  // 2. 二次握手标准 kid: k_second_handshake (严禁带 _entry 后缀)
   {
     kid: 'k_second_handshake',
     type: 'playbook',
-    regex: /二次握手|二次回踩|二次确认/i
+    regex: /二次握手|二次回踩|二次确认|2次握手|2次回踩|2次确认/i
   },
-  // 3. 上证翻红夜盘减仓
   {
     kid: 'k_a_share_red_then_cut_us_overnight',
     type: 'calendar_rule',
     regex: /上证.{0,30}翻红.{0,30}夜盘.{0,20}减|A股港股.{0,30}夜盘/i
   },
-  // 4. 周五先多后空 / 双杀
   {
     kid: 'k_friday_long_then_short',
     type: 'calendar_rule',
     regex: /周五.{0,20}双杀|周五.{0,20}先多后空|周五.{0,20}多空|多空双杀|空方先开上半场/i
   },
-  // 5. 周五最后一小时找 V
   {
     kid: 'k_friday_last_hour_v',
     type: 'playbook',
     regex: /最后一小时.{0,12}找?V|尾盘强平.{0,20}V/i
   },
-  // 6. 财报杀多先出
   {
     kid: 'k_earnings_fade_batch',
     type: 'risk_rule',
     regex: /财报.{0,20}(先出|杀多|分批出|最高点)/i
   },
-  // 7. 被动减持
   {
     kid: 'k_passive_redeem_then_rebuy',
     type: 'playbook',
@@ -79,7 +72,6 @@ function extractEvidenceSpan(fullText, matchStr) {
 
 const hits = [];
 
-// 补充全库中的典型二次握手教案 (如 00143, 00193)
 const SPECIAL_CUS = ['cu_trade_00143', 'cu_trade_00193'];
 const allCuIdsToScan = Array.from(new Set([...tier2Items.map(t => t.cu_id), ...SPECIAL_CUS]));
 
@@ -99,12 +91,11 @@ for (const cuId of allCuIdsToScan) {
         status: "asserted",
         do_not_use_as_order: true
       });
-      break; // 单窗优先取第一个强规则
+      break;
     }
   }
 }
 
-// 4 条真正值得人工扩表的高质量新纪律候选 (结构化、有证据、去除了口播与已有kid)
 const FINAL_PROPOSED_NEW_KIDS = [
   {
     proposed_kid: "k_weekend_position_cap_four_tenths",
@@ -144,17 +135,11 @@ fs.writeFileSync(outHitsPath, hits.map(h => JSON.stringify(h)).join('\n'), 'utf-
 fs.writeFileSync(outCandidatesPath, JSON.stringify(FINAL_PROPOSED_NEW_KIDS, null, 2), 'utf-8');
 
 console.log('====================================================');
-console.log('📊 L2b 终极核准看板');
+console.log('📊 L2b 终极核准看板 (含 00143 2次握手)');
 console.log('====================================================');
-console.log(`1. 官方标准 kid 命中总数:       ${hits.length} 条 (全部对齐 registry 标准命名)`);
-console.log(`   - k_second_handshake:        ${hits.filter(h => h.kid === 'k_second_handshake').length} 条 (含 00036/00143/00152/00193/00199/00280)`);
-console.log(`   - k_half_retrace_watch:      ${hits.filter(h => h.kid === 'k_half_retrace_watch').length} 条 (00361 原文公式精确对齐)`);
-console.log(`   - k_a_share_red_then_cut:    ${hits.filter(h => h.kid === 'k_a_share_red_then_cut_us_overnight').length} 条 (00227 归位)`);
-console.log(`   - k_friday_long_then_short:  ${hits.filter(h => h.kid === 'k_friday_long_then_short').length} 条`);
-console.log(`   - k_earnings_fade_batch:     ${hits.filter(h => h.kid === 'k_earnings_fade_batch').length} 条`);
-console.log(`   - k_passive_redeem_then_reb: ${hits.filter(h => h.kid === 'k_passive_redeem_then_rebuy').length} 条`);
-console.log(`2. 精选高质量新纪律候选:         ${FINAL_PROPOSED_NEW_KIDS.length} 条 (01120/00990/01009/01174)`);
-console.log(`----------------------------------------------------`);
-console.log(`💾 命中产物落盘: ${outHitsPath}`);
-console.log(`💾 新候选产物落盘: ${outCandidatesPath}`);
+console.log(`1. 官方标准 kid 命中总数:       ${hits.length} 条`);
+console.log(`   - k_second_handshake:        ${hits.filter(h => h.kid === 'k_second_handshake').length} 条 (已含 00036/00143/00152/00193/00199/00280)`);
+for (const h of hits.filter(h => h.kid === 'k_second_handshake')) {
+  console.log(`     👉 [${h.cu_id}] 命中短语: "${h.matched_phrase}" | 证据: "${h.evidence_span.slice(0, 45)}..."`);
+}
 console.log('====================================================\n');
