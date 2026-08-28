@@ -8,6 +8,27 @@ dotenv.config();
 initDb();
 const db = getDb();
 
+// 1. 确保候选表存在
+db.exec(`
+  CREATE TABLE IF NOT EXISTS l2a_order_candidates (
+    cu_id TEXT PRIMARY KEY,
+    model TEXT NOT NULL,
+    prompt_version TEXT NOT NULL,
+    channel_id TEXT,
+    et_session TEXT,
+    et_date TEXT,
+    speech_act TEXT,
+    actions_json TEXT,
+    claims_json TEXT,
+    raw_text TEXT,
+    parse_ok INTEGER NOT NULL,
+    latency_ms INTEGER NOT NULL,
+    created_at INTEGER NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_l2a_cand_speech_act ON l2a_order_candidates(speech_act);
+  CREATE INDEX IF NOT EXISTS idx_l2a_cand_date ON l2a_order_candidates(et_date);
+`);
+
 console.log('====================================================');
 console.log('🌙 L2a 广播频道 1195 组真实夜跑生产流水线 (Nightly Pipeline)');
 console.log('====================================================\n');
