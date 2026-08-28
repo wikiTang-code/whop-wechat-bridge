@@ -2182,12 +2182,9 @@ function renderZhaoPositions(data) {
       // 1. 该标的已确认交易流水（含买卖、点位、持仓前后演变轨迹与移出操作）
       let allTradesHtml = '';
       const tradesList = pos.allTrades || [];
-      // 1. 该标的已确认交易流水（含买卖、点位、持仓前后演变轨迹与移出操作）
-      let allTradesHtml = '';
-      const tradesList = pos.allTrades || [];
       if (tradesList.length > 0) {
         allTradesHtml = tradesList.map((t, tIdx) => {
-          const tTimeStr = new Date(t.time).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+          const tTimeStr = new Date(t.time).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
           const isBuy = t.action === 'BUY';
           const actionBadge = isBuy ? '<span style="color: #34d399; font-weight: bold; background: rgba(52, 211, 153, 0.12); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.3);">🟢 买入</span>' : '<span style="color: #f87171; font-weight: bold; background: rgba(248, 113, 113, 0.12); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(248, 113, 113, 0.3);">🔴 卖出</span>';
           const codeBadge = t.tradeCode ? `<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; font-family: monospace; font-weight: 800; font-size: 0.72rem; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.4); margin-right: 6px;">${t.tradeCode}</span>` : '';
@@ -2215,7 +2212,7 @@ function renderZhaoPositions(data) {
       let candidateTradesHtml = '';
       if (candList.length > 0) {
         candidateTradesHtml = candList.map(c => {
-          const timeStr = new Date(c.created_at).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+          const timeStr = new Date(c.created_at).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
           const codeBadge = c.candidateCode ? `<span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-family: monospace; font-weight: 800; font-size: 0.72rem; padding: 1px 5px; border-radius: 3px; border: 1px solid rgba(245, 158, 11, 0.4); margin-right: 4px;">${c.candidateCode}</span>` : '';
           return `
             <div style="background: rgba(30, 27, 75, 0.4); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; font-size: 0.78rem;">
