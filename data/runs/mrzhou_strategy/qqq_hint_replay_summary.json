@@ -1,0 +1,25 @@
+{
+  "benchmark_name": "QQQ_HINT_REPLAY_ISOLATED",
+  "data_range": "2026-04-21 to 2026-06-26",
+  "underlying": "QQQ",
+  "execution_rules": {
+    "capital_per_lot_usd": 10000,
+    "max_overlapping_lots": 3,
+    "entry_mode": "hit_price_neutral",
+    "accounting_basis": "closed_lots"
+  },
+  "results": {
+    "total_closed_lots": 88,
+    "winning_lots": 75,
+    "losing_lots": 13,
+    "win_rate_pct": 85.2,
+    "total_pnl_usd": 3937.0,
+    "qqq_buy_and_hold_return_pct": 9.7
+  },
+  "context_caveats": [
+    "周表 1-3 月买入持有收益为 -5.86%，与约 -6% 基线一致",
+    "教材信号自 4 月 21 日起才有记录，无法复现 1-3 月 A_v2_24h 四列对照",
+    "4/21-6/26 测试区间 QQQ 处于单边上涨阶段（买持 +9.7%），非熊市防守压力测试",
+    "本结果仅作为隔离研究对照，绝不代表策略验证通过，严禁接入 L2a 候选单"
+  ]
+}
