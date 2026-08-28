@@ -62,9 +62,10 @@ router.get('/l2a/dates', (req, res) => {
   }
 
   const sortedDates = Array.from(dateSet).sort();
+  const latestDate = sortedDates.length > 0 ? sortedDates[sortedDates.length - 1] : '2025-10-06';
   res.json({
     dates: sortedDates,
-    default_date: sortedDates[0] || '2025-10-06',
+    default_date: latestDate,
     unknown_date_cu_count: unknownDateCount
   });
 });
