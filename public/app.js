@@ -1383,7 +1383,7 @@ function renderPositions(positions) {
   if (positions.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="table-empty">暂无持仓记录 (AI 尚未触发买入或模拟账户已清空)</td>
+        <td colspan="7" class="table-empty">暂无持仓记录 (AI 尚未触发买入或模拟账户已清空)</td>
       </tr>
     `;
     return;
@@ -1396,9 +1396,19 @@ function renderPositions(positions) {
     const pnlClass = pos.unrealized_pnl > 0 ? 'positive' : (pos.unrealized_pnl < 0 ? 'negative' : '');
     const pnlSign = pos.unrealized_pnl > 0 ? '+' : '';
 
+    // 常规仓折算 (以 $9,000 标的常规仓为基准)
+    const stdLotRatio = pos.market_value / 9000.0;
+    let lotBadge = '1/6 常规仓';
+    if (stdLotRatio >= 0.8) lotBadge = '1个满常规仓';
+    else if (stdLotRatio >= 0.45) lotBadge = '1/2 常规仓 (半仓)';
+    else if (stdLotRatio >= 0.28) lotBadge = '1/3 常规仓';
+    else if (stdLotRatio >= 0.12) lotBadge = '1/6 常规仓';
+    else lotBadge = `${(stdLotRatio * 6).toFixed(1)}/6 常规仓`;
+
     tr.innerHTML = `
       <td><strong>${pos.ticker}</strong></td>
-      <td>${pos.quantity}</td>
+      <td><strong>${pos.quantity} 股</strong></td>
+      <td><span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); padding: 2px 8px; border-radius: 4px; font-size: 0.85rem;">${lotBadge}</span></td>
       <td>$${pos.average_entry_price.toFixed(2)}</td>
       <td>$${pos.current_price.toFixed(2)}</td>
       <td>$${pos.market_value.toFixed(2)}</td>
