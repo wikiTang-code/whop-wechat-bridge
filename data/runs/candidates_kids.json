@@ -1,24 +1,12 @@
 [
   {
-    "proposed_kid": "k_a_share_red_then_cut_us_overnight",
-    "type": "calendar_rule",
-    "statement": "韩国与A股港股高开低走时，美股夜盘常跟随走低，可在反弹时于美股夜盘减仓防守。",
+    "proposed_kid": "k_weekend_position_cap_four_tenths",
+    "type": "sizing_rule",
+    "statement": "周末若面临重大政治或宏观不确定性，整体总持仓强制控制在 3-4 成以内防跳空。",
     "source_cu": [
-      "cu_trade_00955",
-      "cu_trade_00227"
+      "cu_trade_01120"
     ],
-    "evidence_span": "韩国 A股港股高开低走夜盘就会跟随低走 规律上也是周四周五容易跌",
-    "status": "proposed"
-  },
-  {
-    "proposed_kid": "k_btc_lead_indicator_hedging",
-    "type": "regime",
-    "statement": "BTC作为美股科技股的先行流动性指标，大跌时可作为预警信号收缩仓位。",
-    "source_cu": [
-      "cu_trade_00955",
-      "cu_trade_00445"
-    ],
-    "evidence_span": "昨天btc一直强调的先行回调指标不断套利做短线",
+    "evidence_span": "周末持仓控制在3-4成 防止特朗普周末在喊话周一再跳空低开 连锁反应回调",
     "status": "proposed"
   },
   {
@@ -32,43 +20,13 @@
     "status": "proposed"
   },
   {
-    "proposed_kid": "k_close_price_three_day_math",
-    "type": "formula",
-    "statement": "根据当日收盘跌幅计算预期回撤空间，依实际时间与量价做当下客观判断，避免踏空与恐慌。",
-    "source_cu": [
-      "cu_trade_01050"
-    ],
-    "evidence_span": "正确态度 收盘看点位 预估第三天的 按实盘 实际时间 实际的量 实际的价格做当下的判断",
-    "status": "proposed"
-  },
-  {
-    "proposed_kid": "k_weekend_position_cap_four_tenths",
-    "type": "sizing_rule",
-    "statement": "周末若面临重大政治或宏观不确定性，整体总持仓强制控制在 3-4 成以内防跳空。",
-    "source_cu": [
-      "cu_trade_01120"
-    ],
-    "evidence_span": "周末持仓控制在3-4成 防止特朗普周末在喊话周一再跳空低开",
-    "status": "proposed"
-  },
-  {
-    "proposed_kid": "k_half_retrace_watch",
-    "type": "formula",
-    "statement": "以高点与低点中值作为第一观察位，未触及前不做激进加仓。",
-    "source_cu": [
-      "cu_trade_00361"
-    ],
-    "evidence_span": "高低点中值观察，回撤过半再做二次判断",
-    "status": "proposed"
-  },
-  {
-    "proposed_kid": "k_cpi_premarket_data_gate",
+    "proposed_kid": "k_pre_earnings_risk_hedging",
     "type": "risk_rule",
-    "statement": "重磅宏观数据（如CPI/非农）发布前保持观望，待盘前数据落地确认后再进场。",
+    "statement": "同板块核心个股财报前夕，对强相关标的提前进行主动减持规避潜在黑天鹅。",
     "source_cu": [
-      "cu_trade_00557"
+      "cu_trade_01009"
     ],
-    "evidence_span": "明天盘前出了cpi数据在看看",
+    "evidence_span": "今天盘后有coin财报 币也是和上次hood财报前一样 提前进行了规避",
     "status": "proposed"
   },
   {
@@ -78,27 +36,7 @@
     "source_cu": [
       "cu_trade_01174"
     ],
-    "evidence_span": "7340有支撑住就可以一直不断做短线反弹吃机制",
-    "status": "proposed"
-  },
-  {
-    "proposed_kid": "k_holiday_liquidity_drain_fade",
-    "type": "calendar_rule",
-    "statement": "圣诞与元旦节前被动资金清理杠杆常导致连续走低，节后靴子落地方现普涨。",
-    "source_cu": [
-      "cu_trade_00498"
-    ],
-    "evidence_span": "圣诞 节前被动减 元旦被动减 主要看今天有没有反弹大点 就基本和去年走势一致了",
-    "status": "proposed"
-  },
-  {
-    "proposed_kid": "k_pre_earnings_risk_hedging",
-    "type": "risk_rule",
-    "statement": "同板块核心个股财报前夕，对强相关标的提前进行主动减持规避潜在黑天鹅。",
-    "source_cu": [
-      "cu_trade_01009"
-    ],
-    "evidence_span": "今天盘后有coin财报 币也是和上次hood财报前一样 提前进行了规避",
+    "evidence_span": "spx的主要支撑点在7340（前一周的均线） 7340有支撑住就可以一直不断做短线反弹吃机制",
     "status": "proposed"
   }
 ]
