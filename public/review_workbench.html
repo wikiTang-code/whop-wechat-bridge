@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L2 人机协同跟单审核工作台 (最小可用版)</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #238636;
+      --yellow: #d29922;
+      --red: #f85149;
+      --badge-bg: #21262d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 16px; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    h1 { font-size: 18px; color: #fff; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .status-banner { font-size: 12px; background: rgba(210, 153, 34, 0.15); color: var(--yellow); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--yellow); }
+    
+    .grid-container { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 16px; height: calc(100vh - 80px); }
+    .column { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; display: flex; flex-direction: column; overflow: hidden; }
+    .column-header { padding: 12px; background: #1c2128; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; }
+    .column-body { padding: 12px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    
+    /* 卡片通用样式 */
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 13px; }
+    .card-title { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 6px; }
+    .card-meta { color: var(--text-muted); font-size: 11px; margin-bottom: 6px; }
+    
+    /* 状态徽章 */
+    .tag { padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 600; }
+    .tag-speech-filled { background: rgba(56, 139, 253, 0.15); color: #58a6ff; border: 1px solid #388bfd; }
+    .tag-planned { background: rgba(210, 153, 34, 0.15); color: #d29922; border: 1px solid #d29922; }
+    .tag-failed { background: rgba(248, 81, 73, 0.15); color: #f85149; border: 1px solid #f85149; }
+    .tag-kid { background: rgba(163, 113, 247, 0.15); color: #bc8cff; border: 1px solid #a371f7; }
+    
+    /* 待审卡片与操作按钮 */
+    .btn-group { display: flex; gap: 8px; margin-top: 8px; }
+    .btn { flex: 1; padding: 6px; border-radius: 4px; border: none; font-size: 12px; cursor: pointer; font-weight: bold; }
+    .btn-ack { background: var(--green); color: #fff; }
+    .btn-dismiss { background: #30363d; color: var(--text); }
+    .btn:hover { opacity: 0.9; }
+    
+    /* 折叠面板 */
+    details { background: #12161c; border: 1px solid var(--border); border-radius: 4px; padding: 8px; margin-top: 8px; font-size: 12px; }
+    summary { cursor: pointer; color: var(--text-muted); font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🛡️ L2 人机协同跟单审核工作台 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">(离线库存只读回放 / 人工待审确认)</span></h1>
+    <div class="status-banner">🛑 券商对账: exit code 2 (阻断中·零实盘挂单·严禁伪造流水)</div>
+  </header>
+
+  <div class="grid-container">
+    
+    <!-- 第一列: L2a 口播动作流 -->
+    <div class="column">
+      <div class="column-header">
+        <span>1. L2a 口播动作流 (今日抽样)</span>
+        <span id="stream-count" style="color: var(--accent);">加载中...</span>
+      </div>
+      <div class="column-body" id="l2a-stream-list">
+        <!-- 动态注入 -->
+      </div>
+    </div>
+
+    <!-- 第二列: 人工待审确认池 -->
+    <div class="column">
+      <div class="column-header">
+        <span>2. 人工待审确认池 (Review Queue)</span>
+        <span style="color: var(--yellow);">仅 ack / dismiss (不打券商)</span>
+      </div>
+      <div class="column-body" id="review-queue-list">
+        <!-- 动态注入 -->
+      </div>
+    </div>
+
+    <!-- 第三列: L2b 战法与风控闸门 -->
+    <div class="column">
+      <div class="column-header">
+        <span>3. L2b 战法与风控闸门 (Gates)</span>
+        <span style="color: #bc8cff;">只读徽章</span>
+      </div>
+      <div class="column-body" id="l2b-gates-list">
+        <!-- 动态注入 -->
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    async function loadWorkbenchData() {
+      // 1. 加载 L2a 流
+      try {
+        const streamRes = await fetch('/api/l2a/today?date=2025-10-06');
+        const streamData = await streamRes.json();
+        document.getElementById('stream-count').innerText = `${streamData.total_actions} 动作`;
+        const streamContainer = document.getElementById('l2a-stream-list');
+        streamContainer.innerHTML = '';
+        
+        streamData.stream.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'card';
+          if (!item.parse_ok) {
+            div.innerHTML = `
+              <div class="card-title">
+                <span class="tag tag-failed">🚨 解析失败 (parse_ok=false)</span>
+                <span style="color: var(--red);">${item.cu_id}</span>
+              </div>
+              <div style="color: var(--red); font-size: 11px;">错误: ${item.raw_error} (严禁用散文掩盖)</div>
+            `;
+          } else {
+            const isFilled = item.status === 'filled_speech';
+            div.innerHTML = `
+              <div class="card-title">
+                <span>${item.action} <strong>${item.ticker}</strong> ${item.price ? '@ $' + item.price : ''}</span>
+                <span class="tag ${isFilled ? 'tag-speech-filled' : 'tag-planned'}">${isFilled ? '口述已成交' : '计划挂单'}</span>
+              </div>
+              <div class="card-meta">CU: ${item.cu_id} | ${item.instrument} | 分数: ${item.fraction || '未明'}</div>
+              <div style="font-size: 11px; color: var(--text-muted);">条件: ${item.condition || '无特定条件'}</div>
+              <div style="font-size: 10px; color: #484f58; margin-top: 4px;">⏳ 券商 Fills: [等待真实流水对账]</div>
+            `;
+          }
+          streamContainer.appendChild(div);
+        });
+      } catch (e) {
+        console.error("加载 L2a 流失败:", e);
+      }
+
+      // 2. 加载待审池
+      try {
+        const queueRes = await fetch('/api/review/queue');
+        const queueData = await queueRes.json();
+        const queueContainer = document.getElementById('review-queue-list');
+        queueContainer.innerHTML = '';
+
+        queueData.queue.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'card';
+          div.id = `card-${item.review_id}`;
+          div.innerHTML = `
+            <div class="card-title">
+              <span><strong>${item.ticker}</strong> · ${item.action}</span>
+              <span class="tag tag-planned">${item.status}</span>
+            </div>
+            <div class="card-meta">来源: ${item.cu_id} | ${item.et_date || '2025-10-06'} (${item.et_session})</div>
+            <div style="font-size: 12px; margin: 4px 0;">价格: ${item.price ? '$' + item.price : '市价/未明'} | 仓位: ${item.fraction || '常规'}</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">口播条件: ${item.condition || '无'}</div>
+            <div class="btn-group">
+              <button class="btn btn-ack" onclick="handleReviewAction('${item.review_id}', '${item.cu_id}', 'ack')">✓ 核准确认 (human_verified)</button>
+              <button class="btn btn-dismiss" onclick="handleReviewAction('${item.review_id}', '${item.cu_id}', 'dismiss')">✕ 忽略 (dismiss)</button>
+            </div>
+          `;
+          queueContainer.appendChild(div);
+        });
+      } catch (e) {
+        console.error("加载待审池失败:", e);
+      }
+
+      // 3. 加载 L2b 闸门与风控徽章
+      try {
+        const gatesRes = await fetch('/api/l2b/gates');
+        const gatesData = await gatesRes.json();
+        const gatesContainer = document.getElementById('l2b-gates-list');
+        gatesContainer.innerHTML = '';
+
+        // 渲染赵哥命中徽章
+        const zhaoSection = document.createElement('div');
+        zhaoSection.innerHTML = `<div style="font-weight: bold; margin-bottom: 8px; color: #fff;">🏆 赵哥标准战法命中 (${gatesData.zhao_kid_badges.length} 条)</div>`;
+        gatesData.zhao_kid_badges.forEach(b => {
+          const bDiv = document.createElement('div');
+          bDiv.className = 'card';
+          bDiv.style.marginBottom = '8px';
+          bDiv.innerHTML = `
+            <div class="card-title">
+              <span class="tag tag-kid">${b.kid}</span>
+              <span style="font-size: 11px; color: var(--text-muted);">${b.type}</span>
+            </div>
+            <div style="font-size: 11px; margin-top: 4px;">命中短语: <strong>${b.matched_phrase}</strong></div>
+            <details>
+              <summary>查看连续证据 Span</summary>
+              <p style="margin-top: 4px; color: var(--text);">${b.evidence_span}</p>
+            </details>
+          `;
+          zhaoSection.appendChild(bDiv);
+        });
+        gatesContainer.appendChild(zhaoSection);
+
+        // 渲染周哥只读体制区 (默认折叠)
+        const mrzhouSection = document.createElement('details');
+        mrzhouSection.open = false; // 严格默认折叠
+        mrzhouSection.innerHTML = `
+          <summary style="color: var(--yellow); font-size: 13px;">🛡️ 周哥体制只读参考 (默认折叠·4体制+叠仓闸门)</summary>
+          <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
+            ${gatesData.mrzhou_readonly_gates.gates.map(g => `
+              <div style="padding: 6px; background: #1c2128; border: 1px solid var(--border); border-radius: 4px;">
+                <div style="font-weight: bold; font-size: 11px; color: #58a6ff;">${g.kid}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">${g.description}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        gatesContainer.appendChild(mrzhouSection);
+
+      } catch (e) {
+        console.error("加载 L2b 闸门失败:", e);
+      }
+    }
+
+    async function handleReviewAction(reviewId, cuId, decision) {
+      try {
+        const res = await fetch('/api/review/action', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ review_id: reviewId, cu_id: cuId, decision })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const card = document.getElementById(`card-${reviewId}`);
+          if (card) {
+            card.style.opacity = '0.5';
+            card.innerHTML = `<div style="color: ${decision === 'ack' ? 'var(--green)' : 'var(--text-muted)'}; font-weight: bold; text-align: center;">✓ 已处理: ${data.result.status} (绝不打券商)</div>`;
+          }
+        }
+      } catch (e) {
+        alert("操作失败: " + e.message);
+      }
+    }
+
+    window.onload = loadWorkbenchData;
+  </script>
+</body>
+</html>

@@ -18,6 +18,15 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import { 
+    initQuantSchema, 
+    syncOrdersToQuantDb, 
+    syncPositionsToQuantDb, 
+    syncPortfolioHistory,
+    getQuantPerformance,
+    getOpenRiskExposure
+} from './quant_db.js';
+import l2WorkbenchRouter from './routes/l2_workbench_routes.js';
 import {
   initDb,
   getMessages,
@@ -249,6 +258,8 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 // Regular JSON body parser for APIs
 app.use(express.json());
+
+app.use('/api', l2WorkbenchRouter);
 
 // CSRF token management for financial operations
 const csrfTokens = new Map();
