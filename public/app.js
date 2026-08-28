@@ -2145,33 +2145,22 @@ function renderZhaoPositions(data) {
     const pnlSign = pos.unrealizedPnL > 0 ? '+' : '';
     const pnlAmountStr = pos.unrealizedPnL !== 0 ? `${pnlSign}$${Math.abs(pos.unrealizedPnL).toFixed(2)} (${pnlSign}${pnlRatioPercent}%)` : '$0.00 (0.00%)';
     
-    let lotsHtml = '';
-    pos.lots.forEach(lot => {
-      const lotTimeStr = new Date(lot.time).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-      lotsHtml += `
-        <div class="lot-row" style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,0.06);">
-          <span class="lot-qty" style="color: #38bdf8; font-weight: bold;">${lot.quantity} 股</span>
-          <span class="lot-price" style="color: #cbd5e1; font-weight: 500;">@ $${lot.price.toFixed(2)}</span>
-          <span class="lot-desc" style="color: #94a3b8; font-size: 0.8rem; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${lot.reason}">${lotTimeStr} ${lot.reason}</span>
-        </div>
-      `;
-    });
-
-    // 历史所有交易流水（含买卖、点位、原始发言）
+    // 历史所有交易流水（含买卖、点位、原始发言信息源）
     let allTradesHtml = '';
-    if (pos.allTrades && pos.allTrades.length > 0) {
-      allTradesHtml = pos.allTrades.map((t, tIdx) => {
-        const tTimeStr = new Date(t.time).toLocaleString('zh-CN');
+    const tradesList = pos.allTrades || [];
+    if (tradesList.length > 0) {
+      allTradesHtml = tradesList.map((t, tIdx) => {
+        const tTimeStr = new Date(t.time).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
         const isBuy = t.action === 'BUY';
-        const actionBadge = isBuy ? '<span style="color: #34d399; font-weight: bold;">🟢 买入建仓</span>' : '<span style="color: #f87171; font-weight: bold;">🔴 卖出平仓</span>';
+        const actionBadge = isBuy ? '<span style="color: #34d399; font-weight: bold; background: rgba(52, 211, 153, 0.12); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.3);">🟢 买入</span>' : '<span style="color: #f87171; font-weight: bold; background: rgba(248, 113, 113, 0.12); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(248, 113, 113, 0.3);">🔴 卖出</span>';
         return `
-          <div style="background: rgba(15, 23, 42, 0.6); border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span>${actionBadge} <strong>${t.quantity} 股 @ $${t.price}</strong></span>
-              <span style="color: #64748b; font-size: 0.78rem;">${tTimeStr}</span>
+          <div style="background: rgba(15, 23, 42, 0.7); border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.8rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span>${actionBadge} <strong style="color: #f1f5f9; margin-left: 4px;">${t.quantity} 股 @ $${t.price}</strong></span>
+              <span style="color: #64748b; font-size: 0.75rem;">${tTimeStr}</span>
             </div>
-            <div style="color: #cbd5e1; font-size: 0.8rem; line-height: 1.4; word-break: break-all;">
-              <span style="color: #94a3b8;">原始交割消息：</span>${t.reason}
+            <div style="color: #94a3b8; font-size: 0.78rem; line-height: 1.45; word-break: break-word; background: rgba(0,0,0,0.25); padding: 4px 6px; border-radius: 4px;">
+              <span style="color: #38bdf8; font-weight: 500;">原始信息源：</span>${t.reason}
             </div>
           </div>
         `;
@@ -2179,39 +2168,39 @@ function renderZhaoPositions(data) {
     }
     
     card.innerHTML = `
-      <div class="zhao-pos-header">
-        <span class="zhao-pos-ticker">
-          ${pos.ticker}
-          <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); margin-left: 6px; font-size: 0.75rem; padding: 1px 6px; border-radius: 4px;">${pos.lotBadge}</span>
-        </span>
-        <span class="zhao-pos-pnl ${pnlClass}" style="font-size: 0.9rem; font-weight: bold;">
+      <div class="zhao-pos-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span class="zhao-pos-ticker" style="font-size: 1.15rem; font-weight: 800; color: #fff;">${pos.ticker}</span>
+          <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); font-size: 0.75rem; padding: 2px 6px; border-radius: 4px;">${pos.lotBadge}</span>
+        </div>
+        <div class="zhao-pos-pnl ${pnlClass}" style="font-size: 0.95rem; font-weight: 800;">
           ${pnlAmountStr}
-        </span>
-      </div>
-      <div class="zhao-pos-meta-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 10px 0; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
-        <div class="zhao-meta-item">
-          <span class="lbl" style="display: block; font-size: 0.75rem; color: #94a3b8;">当前持仓</span>
-          <span class="val" style="font-weight: bold; color: #f8fafc;">${pos.totalQuantity} 股</span>
-        </div>
-        <div class="zhao-meta-item">
-          <span class="lbl" style="display: block; font-size: 0.75rem; color: #94a3b8;">持仓均价</span>
-          <span class="val" style="font-weight: bold; color: #f8fafc;">$${pos.averageCost.toFixed(2)}</span>
-        </div>
-        <div class="zhao-meta-item">
-          <span class="lbl" style="display: block; font-size: 0.75rem; color: #94a3b8;">当前市值</span>
-          <span class="val" style="font-weight: bold; color: #f8fafc;">$${pos.marketValue.toFixed(0)}</span>
         </div>
       </div>
-      <div class="zhao-lots-detail" style="margin-top: 8px;">
-        <div class="lots-header" style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px;">分批建仓批次 (Lots FIFO)</div>
-        ${lotsHtml}
+      <div class="zhao-pos-meta-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 8px; margin-bottom: 8px; text-align: center;">
+        <div class="zhao-meta-item">
+          <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">持仓股数</span>
+          <span class="val" style="font-weight: 700; font-size: 0.95rem; color: #38bdf8;">${pos.totalQuantity} 股</span>
+        </div>
+        <div class="zhao-meta-item">
+          <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">持仓均价</span>
+          <span class="val" style="font-weight: 600; font-size: 0.85rem; color: #e2e8f0;">$${pos.averageCost.toFixed(2)}</span>
+        </div>
+        <div class="zhao-meta-item">
+          <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">当前现价</span>
+          <span class="val" style="font-weight: 600; font-size: 0.85rem; color: #e2e8f0;">$${pos.currentPrice.toFixed(2)}</span>
+        </div>
+        <div class="zhao-meta-item">
+          <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">持仓市值</span>
+          <span class="val" style="font-weight: 700; font-size: 0.85rem; color: #f8fafc;">$${pos.marketValue.toFixed(0)}</span>
+        </div>
       </div>
-      <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);">
-        <button onclick="toggleSingleTickerTrades('ticker-trades-${pIdx}')" style="width: 100%; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 5px 0; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s;">
-          📜 展开 / 折叠历史全量买卖记录与原始发言 (${pos.allTrades ? pos.allTrades.length : 0} 笔)
+      <div>
+        <button onclick="toggleSingleTickerTrades('ticker-trades-${pIdx}')" style="width: 100%; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 6px 0; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: all 0.2s;">
+          📜 展开 / 折叠历史交易与信息源 (${tradesList.length} 笔)
         </button>
-        <div id="ticker-trades-${pIdx}" style="display: none; margin-top: 8px; max-height: 260px; overflow-y: auto; padding-right: 4px;">
-          ${allTradesHtml || '<div style="color: #64748b; font-size: 0.8rem; text-align: center;">暂无更多历史记录</div>'}
+        <div id="ticker-trades-${pIdx}" style="display: none; margin-top: 8px; max-height: 320px; overflow-y: auto; padding-right: 2px;">
+          ${allTradesHtml || '<div style="color: #64748b; font-size: 0.8rem; text-align: center; padding: 8px;">暂无历史交易流水</div>'}
         </div>
       </div>
     `;
