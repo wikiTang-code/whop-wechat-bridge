@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "StrategyObject",
+  "description": "L3 跨窗聚合。输入是同一 kid 的多条 L2b 原子 + 可选 Outcome，不是再跑一遍 14B 长文总结。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sid", "kid", "schema_version", "statement_canonical", "n_evidence", "first_seen", "last_seen"],
+  "properties": {
+    "sid": { "type": "string", "pattern": "^s_[a-z0-9_]+$" },
+    "kid": { "type": "string" },
+    "schema_version": { "const": "0.1" },
+    "statement_canonical": { "type": "string", "maxLength": 240 },
+    "type": {
+      "enum": ["playbook", "sizing_rule", "risk_rule", "regime", "instrument_view", "calendar_rule", "process_error", "formula"]
+    },
+    "n_evidence": { "type": "integer", "minimum": 1 },
+    "source_cu": { "type": "array", "items": { "type": "string" } },
+    "first_seen": { "type": "string" },
+    "last_seen": { "type": "string" },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["cu_id", "note"],
+        "properties": {
+          "cu_id": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      },
+      "default": []
+    },
+    "outcome_hits": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "该 kid 所在窗对上真实成交的次数。来自 Outcome 表，不是 14B 生成。"
+    },
+    "outcome_misses": { "type": "integer", "minimum": 0 },
+    "status": {
+      "enum": ["candidate", "stable", "revised", "retired"],
+      "description": "candidate=出现<3次；stable=多次同向；revised=后窗改口；retired=明确废弃"
+    }
+  }
+}

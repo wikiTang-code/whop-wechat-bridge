@@ -1,0 +1,28 @@
+{
+  "note": "30 条金标只覆盖 24 个源 CU。空窗精度必须另加负样本，否则这项永远虚高。",
+  "positive_source_cus": [
+    "cu_v2_004", "cu_v2_005", "cu_v2_006", "cu_v2_007", "cu_v2_008",
+    "cu_v2_010", "cu_v2_011", "cu_v2_012", "cu_v2_013", "cu_v2_015",
+    "cu_v2_016", "cu_v2_018", "cu_v2_019", "cu_v2_021", "cu_v2_022",
+    "cu_v2_028", "cu_v2_030", "cu_v2_031", "cu_v2_035", "cu_v2_036",
+    "cu_v2_045", "cu_v2_046", "cu_v2_047", "cu_v2_049"
+  ],
+  "must_empty": {
+    "ids": ["cu_v2_002", "cu_v2_024", "cu_v2_039"],
+    "reason": "纯一行报价，删掉价格后没有纪律"
+  },
+  "should_empty": {
+    "ids": ["cu_v2_009", "cu_v2_014", "cu_v2_020", "cu_v2_025", "cu_v2_026", "cu_v2_029"],
+    "reason": "多标的订单窗，纪律很弱；atoms 空才算对，写出订单算泄漏"
+  },
+  "optional_unlabeled": {
+    "ids": ["cu_v2_003", "cu_v2_034", "cu_v2_037", "cu_v2_041", "cu_v2_048"],
+    "reason": "有宏观/节奏，但尚未进 30 条金标；本轮不打 kid 对错，只查泄漏和子串"
+  },
+  "recommended_round1": {
+    "run": "positive_source_cus + must_empty = 27 个 CU",
+    "score_kid_against_gold": "仅 positive_source_cus",
+    "score_empty": "仅 must_empty",
+    "if_time": "再加 should_empty 六个，专门打订单泄漏"
+  }
+}
