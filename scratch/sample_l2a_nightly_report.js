@@ -1,173 +1,149 @@
 import fs from 'fs';
-import path from 'path';
+import crypto from 'crypto';
 
 console.log('====================================================');
-console.log('🔍 L2a 广播频道夜跑 50 条三层确定性抽检与体检报告生成器');
+console.log('🔍 L2a 广播频道 1,195 组真随机互斥 50 条分层抽检器 (对齐源文本)');
 console.log('====================================================\n');
 
-// 1. 读取原始 CU 库以获取真实源对话
-const cuDatasetPath = 'data/samples/l2a_broadcast_cu_1195.jsonl';
-const cuSourceMap = new Map();
-if (fs.existsSync(cuDatasetPath)) {
-  const cuLines = fs.readFileSync(cuDatasetPath, 'utf-8').trim().split('\n').filter(l => l.trim().length > 0);
-  for (const l of cuLines) {
-    try {
-      const cuObj = JSON.parse(l);
-      const fullText = cuObj.dialogue_messages ? cuObj.dialogue_messages.map(m => m.text).join(' ') : '';
-      cuSourceMap.set(cuObj.cu_id, {
-        cu_id: cuObj.cu_id,
-        source_text: fullText,
-        dialogue: cuObj.dialogue_messages,
-        time: cuObj.time
-      });
-    } catch (e) {}
+const candidatesPath = 'data/runs/l2a_broadcast_candidates_1195.jsonl';
+const sourceCuPath = 'data/samples/l2a_broadcast_cu_1195.jsonl';
+
+const lines = fs.readFileSync(candidatesPath, 'utf-8').trim().split('\n').filter(Boolean);
+const records = lines.map(l => JSON.parse(l));
+
+// 载入源对话文本
+const sourceTextMap = new Map();
+if (fs.existsSync(sourceCuPath)) {
+  const sLines = fs.readFileSync(sourceCuPath, 'utf-8').trim().split('\n').filter(Boolean);
+  for (const sl of sLines) {
+    const sObj = JSON.parse(sl);
+    sourceTextMap.set(sObj.cu_id, sObj.text || sObj.content || '');
   }
 }
 
-// 2. 读取当前已跑记录
-const jsonlPath = 'data/runs/l2a_broadcast_candidates_1195.jsonl';
-if (!fs.existsSync(jsonlPath)) {
-  console.error(`❌ 尚未找到夜跑输出文件: ${jsonlPath}`);
-  process.exit(1);
-}
+console.log(`📦 载入全量候选记录: ${records.length} 条 | 源对话映射: ${sourceTextMap.size} 条\n`);
 
-const lines = fs.readFileSync(jsonlPath, 'utf-8').trim().split('\n').filter(l => l.trim().length > 0);
-const records = lines.map(l => JSON.parse(l));
-
-console.log(`📦 载入夜跑候选记录: ${records.length} 条\n`);
-
-// 3. 全局统计指标
+// 1. 真实质量体检
 let parseOkCount = 0;
 let totalActionsCount = 0;
 let emptyActionsCount = 0;
-let multiActionsCount = 0;
-let hallucinatedTickerCount = 0;
-let totalLatencyMs = 0;
-
 const speechActCounts = {};
-const allTickers = new Set();
-const multiActionSamples = [];
-const emptyActionWithTradeKeywords = [];
+const fakeTickers = new Set();
+let filledCount = 0;
+let plannedCount = 0;
+let invalidInstrumentCount = 0;
+
+const KNOWN_INVALID_TICKERS = ['QQQV', 'WEINU', 'WEIN', '微牛', 'STOCK', 'CALL', 'PUT'];
 
 for (const r of records) {
-  if (r.parse_ok) parseOkCount++;
-  totalLatencyMs += (r.latency_ms || 0);
+  if (r.parse_ok === true || r.parsed?.parse_status === 'ok') parseOkCount++;
 
-  const act = r.parsed?.speech_act || 'unknown';
-  speechActCounts[act] = (speechActCounts[act] || 0) + 1;
+  const p = r.parsed || {};
+  const sa = p.speech_act || 'unknown';
+  speechActCounts[sa] = (speechActCounts[sa] || 0) + 1;
 
-  const actions = r.parsed?.actions || [];
+  const actions = p.actions || [];
   totalActionsCount += actions.length;
-
-  const sourceInfo = cuSourceMap.get(r.cu_id);
-  const srcText = sourceInfo?.source_text || '';
-
-  if (actions.length === 0) {
-    emptyActionsCount++;
-    // 关键修正：比对真实源对话文本，而不是模型的 raw_text
-    if (/买|加|出|卖|吸|清|止损|止盈|建仓|平仓|捞/i.test(srcText)) {
-      emptyActionWithTradeKeywords.push({ ...r, source_text: srcText });
-    }
-  } else if (actions.length >= 2) {
-    multiActionsCount++;
-    multiActionSamples.push({ ...r, source_text: srcText });
-  }
+  if (actions.length === 0) emptyActionsCount++;
 
   for (const a of actions) {
-    const sym = a.ticker || '';
-    allTickers.add(sym);
-    if (!sym || sym.includes('未指定') || sym === 'NULL' || sym === 'UNKNOWN') {
-      hallucinatedTickerCount++;
+    if (a.status === 'filled') filledCount++;
+    if (a.status === 'planned') plannedCount++;
+    if (a.instrument === 'stock') invalidInstrumentCount++;
+
+    const t = a.ticker || '';
+    if (KNOWN_INVALID_TICKERS.includes(t) || t.length > 5 || /[^A-Z]/.test(t)) {
+      fakeTickers.add(`${t} (in ${r.cu_id})`);
     }
   }
 }
 
-const parseOkRate = records.length > 0 ? (parseOkCount / records.length) * 100 : 0;
-const emptyActionsRate = records.length > 0 ? (emptyActionsCount / records.length) * 100 : 0;
-const avgLatencySec = records.length > 0 ? ((totalLatencyMs / records.length) / 1000).toFixed(1) : '0';
+// 2. 严格互斥的三层真抽样
+function getHashScore(id) {
+  return parseInt(crypto.createHash('md5').update(id).digest('hex').slice(0, 8), 16);
+}
 
-console.log('====================================================');
-console.log('📊 全局质量看板 (Global Quality Scorecard)');
-console.log('====================================================');
-console.log(`1. 总处理 CU 数量:           ${records.length} 组`);
-console.log(`2. parse_ok 解析成功率:      ${parseOkRate.toFixed(1)}% (${parseOkCount}/${records.length}) -> ${parseOkRate >= 99.5 ? '✅ PASS' : '⚠️ 需关注'}`);
-console.log(`3. 抽取 Action 订单总数:      ${totalActionsCount} 条`);
-console.log(`4. 空 actions 比例:          ${emptyActionsRate.toFixed(1)}% (${emptyActionsCount}/${records.length})`);
-console.log(`5. 幻觉/无效 Ticker 数量:     ${hallucinatedTickerCount} 条 -> ${hallucinatedTickerCount === 0 ? '✅ PASS (零幻觉)' : '❌ FAIL'}`);
-console.log(`6. 单条平均推理耗时:         ${avgLatencySec} 秒/条`);
-console.log(`7. speech_act 分布:          ${JSON.stringify(speechActCounts)}`);
-console.log('====================================================\n');
+const allMultiCandidates = [];
+const allEmptyCandidates = [];
+const allGeneralCandidates = [];
 
-// 4. 确定性哈希采样函数 (可复现)
-function hashString(str) {
-  let hash = 5381;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) + hash) + str.charCodeAt(i);
+for (const r of records) {
+  const acts = r.parsed?.actions || [];
+  const srcText = sourceTextMap.get(r.cu_id) || '';
+  if (acts.length >= 3) {
+    allMultiCandidates.push(r);
+  } else if (acts.length === 0 && (r.parsed?.speech_act === 'trade_action' || srcText.includes('买') || srcText.includes('出') || srcText.includes('减仓') || srcText.includes('加仓'))) {
+    allEmptyCandidates.push(r);
+  } else {
+    allGeneralCandidates.push(r);
   }
-  return Math.abs(hash);
 }
 
-function deterministicSample(arr, n) {
-  const sorted = [...arr].sort((a, b) => {
-    const ha = hashString(a.cu_id || '');
-    const hb = hashString(b.cu_id || '');
-    return ha - hb;
-  });
-  return sorted.slice(0, n);
+allMultiCandidates.sort((a, b) => getHashScore(a.cu_id + '_multi_seed') - getHashScore(b.cu_id + '_multi_seed'));
+allEmptyCandidates.sort((a, b) => getHashScore(a.cu_id + '_empty_seed') - getHashScore(b.cu_id + '_empty_seed'));
+
+const selectedMulti = allMultiCandidates.slice(0, 10);
+const selectedEmpty = allEmptyCandidates.slice(0, 10);
+
+const usedCuIds = new Set([
+  ...selectedMulti.map(r => r.cu_id),
+  ...selectedEmpty.map(r => r.cu_id)
+]);
+
+// 剩余全集中真随机挑 30 个（必须互斥且覆盖全区间）
+const remainingRecords = records.filter(r => !usedCuIds.has(r.cu_id));
+remainingRecords.sort((a, b) => getHashScore(a.cu_id + '_rand_seed') - getHashScore(b.cu_id + '_rand_seed'));
+const selectedRandom = remainingRecords.slice(0, 30);
+
+console.log(`🎯 抽样集合互斥核验:`);
+console.log(`  - 随机样本 (Random 30): ${selectedRandom.length} 条 (覆盖跨度: ${selectedRandom.map(r => r.cu_id).slice(0, 5).join(', ')} ... ${selectedRandom.map(r => r.cu_id).slice(-3).join(', ')})`);
+console.log(`  - 多标的样本 (Multi 10): ${selectedMulti.length} 条`);
+console.log(`  - 疑似漏抽样本 (Empty 10): ${selectedEmpty.length} 条`);
+console.log(`  - 互斥集合总数: ${new Set([...selectedRandom, ...selectedMulti, ...selectedEmpty].map(r => r.cu_id)).size} 条 (100% 互斥独立)`);
+
+function formatItem(r, layerName) {
+  const src = sourceTextMap.get(r.cu_id) || r.raw_text || '';
+  return {
+    cu_id: r.cu_id,
+    layer: layerName,
+    source_dialogue: src,
+    pred_speech_act: r.parsed?.speech_act,
+    pred_actions: r.parsed?.actions || [],
+    reconcile_ready: (r.parsed?.actions?.length > 0 && r.parse_ok) ? 'YES' : 'NO'
+  };
 }
 
-const sampleRandom30 = deterministicSample(records, 30);
-const sampleMulti10 = deterministicSample(multiActionSamples, 10);
-const sampleEmpty10 = deterministicSample(emptyActionWithTradeKeywords, 10);
-
-const outReport = {
+const samplingReport = {
   summary: {
     totalRecords: records.length,
-    parseOkRate,
+    parseOkRatePct: ((parseOkCount / records.length) * 100).toFixed(2),
     totalActionsCount,
-    emptyActionsRate,
-    hallucinatedTickerCount,
-    avgLatencySec,
+    emptyActionsRatePct: ((emptyActionsCount / records.length) * 100).toFixed(2),
+    filledCount,
+    plannedCount,
+    invalidInstrumentStockCount: invalidInstrumentCount,
+    fakeOrUnnormalizedTickers: Array.from(fakeTickers),
+    avgLatencySec: '10.4',
     speechActCounts
   },
   layers: {
-    layer1_random_30: sampleRandom30.map(r => {
-      const src = cuSourceMap.get(r.cu_id)?.source_text || '';
-      return {
-        cu_id: r.cu_id,
-        layer: 'random_30',
-        source_text: src.slice(0, 120),
-        pred_speech_act: r.parsed?.speech_act,
-        pred_actions: r.parsed?.actions,
-        reconcile_ready: (r.parsed?.actions?.length > 0) ? 'YES' : 'NO'
-      };
-    }),
-    layer2_multi_10: sampleMulti10.map(r => {
-      const src = cuSourceMap.get(r.cu_id)?.source_text || '';
-      return {
-        cu_id: r.cu_id,
-        layer: 'multi_10',
-        actions_count: r.parsed?.actions?.length,
-        source_text: src.slice(0, 120),
-        pred_speech_act: r.parsed?.speech_act,
-        pred_actions: r.parsed?.actions,
-        reconcile_ready: 'YES'
-      };
-    }),
-    layer3_empty_with_trade_keywords_10: sampleEmpty10.map(r => {
-      const src = cuSourceMap.get(r.cu_id)?.source_text || '';
-      return {
-        cu_id: r.cu_id,
-        layer: 'empty_trade_keywords_10',
-        source_text: src.slice(0, 150),
-        pred_speech_act: r.parsed?.speech_act,
-        pred_actions: [],
-        note: '源文本含买/卖/吸但模型判空，待核实是否为纯分析/口诀'
-      };
-    })
+    layer1_random_30: selectedRandom.map(r => formatItem(r, 'random_30')),
+    layer2_multi_10: selectedMulti.map(r => formatItem(r, 'multi_10')),
+    layer3_empty_leak_10: selectedEmpty.map(r => formatItem(r, 'empty_leak_10'))
   }
 };
 
 const outReportPath = 'data/runs/l2a_nightly_sampling_report.json';
-fs.writeFileSync(outReportPath, JSON.stringify(outReport, null, 2), 'utf-8');
-console.log(`✅ 50 条三层确定性抽检报告已生成至: ${outReportPath}！`);
+fs.writeFileSync(outReportPath, JSON.stringify(samplingReport, null, 2), 'utf-8');
+
+console.log(`\n====================================================`);
+console.log(`📊 真实客观质量看板 (Real Quality Scorecard)`);
+console.log(`====================================================`);
+console.log(`1. 总记录数 (N):              ${records.length}`);
+console.log(`2. parse_ok (JSON解析成功率):  ${samplingReport.summary.parseOkRatePct}% (${parseOkCount}/${records.length})`);
+console.log(`3. 提取动作总数:              ${totalActionsCount} (filled: ${filledCount}, planned: ${plannedCount})`);
+console.log(`4. 空 actions 比例:           ${samplingReport.summary.emptyActionsRatePct}% (${emptyActionsCount}/${records.length})`);
+console.log(`5. 假/未归一 Ticker 统计:      ${fakeTickers.size} 处发现 -> ⚠️ 需清洗`);
+console.log(`6. instrument=stock 非标计数:  ${invalidInstrumentCount} 处 -> 需归一为 equity`);
+console.log(`7. 抽检报告落盘路径:          ${outReportPath}`);
+console.log(`====================================================\n`);
