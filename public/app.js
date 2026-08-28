@@ -2179,7 +2179,7 @@ function renderZhaoPositions(data) {
       const pnlSign = pos.unrealizedPnL > 0 ? '+' : '';
       const pnlAmountStr = pos.unrealizedPnL !== 0 ? `${pnlSign}$${Math.abs(pos.unrealizedPnL).toFixed(2)} (${pnlSign}${pnlRatioPercent}%)` : '$0.00 (0.00%)';
       
-      // 历史所有交易流水（含买卖、点位、持仓前后演变轨迹与移出操作）
+      // 1. 该标的已确认交易流水（含买卖、点位、持仓前后演变轨迹与移出操作）
       let allTradesHtml = '';
       const tradesList = pos.allTrades || [];
       if (tradesList.length > 0) {
@@ -2193,8 +2193,8 @@ function renderZhaoPositions(data) {
                 <span>${actionBadge} <strong style="color: #f1f5f9; margin-left: 4px;">${t.quantity} 股 @ $${t.price}</strong></span>
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span style="color: #64748b; font-size: 0.75rem;">${tTimeStr}</span>
-                  <button onclick="moveTradeReviewStatus('${t.id}', 'candidate')" title="将该交易移入待确认候选池" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; cursor: pointer;">
-                    ❌ 移出
+                  <button onclick="moveTradeReviewStatus('${t.id}', 'candidate')" title="将该交易移入本标的候选消息池" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                    ❌ 移入候选池
                   </button>
                 </div>
               </div>
@@ -2205,12 +2205,45 @@ function renderZhaoPositions(data) {
           `;
         }).join('');
       }
+
+      // 2. 该标的专属待确认消息池 (Candidate Pool for this Ticker)
+      const candList = pos.candidateTrades || [];
+      let candidateTradesHtml = '';
+      if (candList.length > 0) {
+        candidateTradesHtml = candList.map(c => {
+          const timeStr = new Date(c.created_at).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+          return `
+            <div style="background: rgba(30, 27, 75, 0.4); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; font-size: 0.78rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <div>
+                  <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-size: 0.7rem; padding: 1px 5px; border-radius: 3px;">置信度 ${c.confidence}%</span>
+                  <span style="color: #93c5fd; font-size: 0.75rem; margin-left: 4px;">预估: ${c.action === 'BUY' ? '买入' : '卖出'} @ $${c.price} (${c.fraction_name})</span>
+                </div>
+                <div style="display: flex; gap: 4px;">
+                  <button onclick="moveTradeReviewStatus('${c.id}', 'confirmed')" style="background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(16, 185, 129, 0.5); color: #6ee7b7; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 0.72rem; font-weight: bold;">
+                    ✅ 移入持仓
+                  </button>
+                  <button onclick="moveTradeReviewStatus('${c.id}', 'rejected')" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 2px 5px; border-radius: 3px; cursor: pointer; font-size: 0.72rem;">
+                    🗑️ 忽略
+                  </button>
+                </div>
+              </div>
+              <div style="color: #cbd5e1; font-size: 0.76rem; line-height: 1.4; background: rgba(0,0,0,0.3); padding: 4px 6px; border-radius: 4px;">
+                <span style="color: #64748b; font-size: 0.72rem;">[${timeStr}] </span>${c.raw_content}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        candidateTradesHtml = `<div style="color: #64748b; font-size: 0.75rem; text-align: center; padding: 6px;">本标的暂无待确认候选消息</div>`;
+      }
       
       card.innerHTML = `
         <div class="zhao-pos-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; margin-bottom: 8px;">
           <div style="display: flex; align-items: center; gap: 6px;">
             <span class="zhao-pos-ticker" style="font-size: 1.15rem; font-weight: 800; color: #fff;">${pos.ticker}</span>
             <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); font-size: 0.75rem; padding: 2px 6px; border-radius: 4px;">${pos.lotBadge}</span>
+            ${candList.length > 0 ? `<span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.7rem; padding: 1px 5px; border-radius: 3px;">${candList.length}条待复核</span>` : ''}
           </div>
           <div class="zhao-pos-pnl ${pnlClass}" style="font-size: 0.95rem; font-weight: 800;">
             ${pnlAmountStr}
@@ -2236,10 +2269,24 @@ function renderZhaoPositions(data) {
         </div>
         <div>
           <button onclick="toggleSingleTickerTrades('ticker-trades-${pIdx}')" style="width: 100%; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 6px 0; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: all 0.2s;">
-            📜 展开 / 折叠历史演变台账与信息源 (${tradesList.length} 笔)
+            📜 展开 / 折叠实战台账 (${tradesList.length} 笔) 与消息池 (${candList.length} 条)
           </button>
-          <div id="ticker-trades-${pIdx}" style="display: none; margin-top: 8px; max-height: 360px; overflow-y: auto; padding-right: 2px;">
-            ${allTradesHtml || '<div style="color: #64748b; font-size: 0.8rem; text-align: center; padding: 8px;">暂无历史交易流水</div>'}
+          <div id="ticker-trades-${pIdx}" style="display: none; margin-top: 8px; max-height: 420px; overflow-y: auto; padding-right: 2px;">
+            <!-- 区域 A: 已确认成交台账 -->
+            <div style="margin-bottom: 10px;">
+              <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; margin-bottom: 4px; display: flex; justify-content: space-between;">
+                <span>🟢 已计入持仓的实战流水 (${tradesList.length} 笔)</span>
+              </div>
+              ${allTradesHtml || '<div style="color: #64748b; font-size: 0.75rem; text-align: center; padding: 6px;">暂无已确认流水</div>'}
+            </div>
+
+            <!-- 区域 B: 本标的专属待确认消息池 -->
+            <div style="border-top: 1px dashed rgba(245, 158, 11, 0.3); padding-top: 8px;">
+              <div style="font-size: 0.75rem; color: #fbbf24; font-weight: 700; margin-bottom: 4px; display: flex; justify-content: space-between;">
+                <span>📥 ${pos.ticker} 专属待确认消息池 (${candList.length} 条)</span>
+              </div>
+              ${candidateTradesHtml}
+            </div>
           </div>
         </div>
       `;

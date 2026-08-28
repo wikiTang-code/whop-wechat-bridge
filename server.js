@@ -1265,10 +1265,28 @@ app.get('/api/zhao-positions', async (req, res) => {
       });
     }
 
-    // 3. 构建高精度活跃持仓数据
+    // 3. 从 trade_review_pool 表获取候选交易并按 ticker 分组
+    let allCandidates = [];
+    try {
+      allCandidates = db.prepare(`
+        SELECT * FROM trade_review_pool
+        WHERE status = 'candidate'
+        ORDER BY created_at DESC
+      `).all();
+    } catch (e) {}
+
+    const candidatesByTicker = {};
+    for (const cand of allCandidates) {
+      const sym = cand.ticker.toUpperCase();
+      if (!candidatesByTicker[sym]) candidatesByTicker[sym] = [];
+      candidatesByTicker[sym].push(cand);
+    }
+
+    // 4. 构建高精度活跃持仓数据（每个标的内嵌自己的已确认交易与专属候选池）
     const finalActivePositions = positionsRows.map(pos => {
       const sym = pos.ticker.toUpperCase();
       const tickerOrders = ordersByTicker[sym] || [];
+      const tickerCandidates = candidatesByTicker[sym] || [];
       
       const buyLots = tickerOrders
         .filter(o => o.action === 'BUY')
@@ -1300,20 +1318,10 @@ app.get('/api/zhao-positions', async (req, res) => {
         unrealizedPnL: pos.unrealized_pnl,
         pnlRatio,
         lots: buyLots.length > 0 ? buyLots : [{ price: pos.average_entry_price, quantity: pos.quantity, time: Date.now() - 86400000, reason: '【历史股票期权记录区】建仓' }],
-        allTrades: tickerOrders
+        allTrades: tickerOrders,
+        candidateTrades: tickerCandidates
       };
     });
-
-    // 4. 从 trade_review_pool 获取候选待确认交易列表
-    let candidateList = [];
-    try {
-      candidateList = db.prepare(`
-        SELECT * FROM trade_review_pool
-        WHERE status = 'candidate'
-        ORDER BY created_at DESC
-        LIMIT 50
-      `).all();
-    } catch (e) {}
 
     // 5. 提取口头披露仓位状态
     const verbalExposure = cachedVerbalExposure;
@@ -1328,7 +1336,7 @@ app.get('/api/zhao-positions', async (req, res) => {
       data: {
         verbalExposure,
         currentPositions: finalActivePositions,
-        candidateList,
+        candidateList: allCandidates.slice(0, 50),
         activeCampaignsCount,
         closedCampaignsCount,
         totalCampaignsCount: totalCampaigns
@@ -1353,14 +1361,14 @@ app.post('/api/trade-review/move', requireCsrf, async (req, res) => {
 
     const info = db.prepare(`
       UPDATE trade_review_pool
-      SET status = ?, updated_at = ?
+      SET status = ?, is_manual = 1, updated_at = ?
       WHERE id = ? OR message_id = ? OR id = ? OR id LIKE ?
     `).run(targetStatus, Date.now(), id, id, cleanId, `%${cleanId}%`);
 
-    // 状态移动后，立即执行持仓状态机秒级重算
+    // 状态移动后，立即执行持久化推演引擎（绝不覆盖人工标注）
     try {
       const { execSync } = await import('child_process');
-      execSync('node scratch/rebuild_with_confidence_and_ledger.js', { timeout: 10000 });
+      execSync('node scratch/recalculate_ledger.js', { timeout: 10000 });
     } catch (e) {
       console.warn('[Auto Recalculate Warning]:', e.message);
     }
@@ -1375,7 +1383,7 @@ app.post('/api/trade-review/move', requireCsrf, async (req, res) => {
 app.post('/api/trade-review/sync', requireCsrf, async (req, res) => {
   try {
     const { exec } = await import('child_process');
-    exec('node scratch/rebuild_with_confidence_and_ledger.js', (error, stdout, stderr) => {
+    exec('node scratch/recalculate_ledger.js', (error, stdout, stderr) => {
       if (error) {
         console.error('[Sync Error]:', error);
         return res.status(500).json({ success: false, error: error.message });

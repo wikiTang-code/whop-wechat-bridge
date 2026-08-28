@@ -440,28 +440,12 @@
         <div id="zhao-subview-positions" class="zhao-subview-content">
           <div class="panel-header-compact" style="margin-bottom: 10px;">
             <h3>💼 赵哥硬核实盘在持标的与操作台账</h3>
-            <p class="subtitle-compact">基于第一人称明确买卖动作与置信度评分计算，点击卡片可展开持仓演变前后推演轨迹</p>
+            <p class="subtitle-compact">基于第一人称明确买卖动作与置信度评分计算，每个标的均内嵌专属实战交割流水与待复核候选消息池</p>
           </div>
           <div class="zhao-positions-list" id="zhao-active-positions-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px;">
             <div class="loading-state">
               <div class="spinner"></div>
               <p>正在计算实盘持仓 Lot 批次与演变台账...</p>
-            </div>
-          </div>
-
-          <!-- 待确认标的消息池 (Candidate Pool) -->
-          <div class="candidate-pool-wrapper" style="margin-top: 25px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-              <h3 style="color: #fbbf24; font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 6px;">
-                📥 标的待确认候选消息池 (置信度较低 / 需人工复核)
-              </h3>
-              <span id="candidate-count-badge" class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">0 条待复核</span>
-            </div>
-            <p style="color: #94a3b8; font-size: 0.8rem; margin: 0 0 10px 0;">
-              此处包含识别出标的与价格但动词较弱或包含设想/评论的消息。如确实为实盘交易，可点击【移入持仓】自动计入；如为纯评论，可点击【移出】。
-            </p>
-            <div id="candidate-messages-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto;">
-              <div style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 10px;">暂无待确认候选消息</div>
             </div>
           </div>
         </div>
