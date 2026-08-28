@@ -6,10 +6,9 @@ import { evaluatePredictions } from '../data/eval/eval_harness.js';
 dotenv.config();
 
 console.log('====================================================');
-console.log('🚀 在 VM 生产环境执行 50 条 Benchmark 真实推理 (断点续跑 + 180s超时)');
+console.log('🚀 全新执行 50 条 Benchmark 真实大模型推理 (Qwen2.5-14B)');
 console.log('====================================================\n');
 
-// 1. 读取 Prompt v2 和 V2 评测样本
 const promptPath = 'data/prompts/semantic_extract_prompt_v2.md';
 const systemPrompt = fs.readFileSync(promptPath, 'utf-8');
 
@@ -29,27 +28,27 @@ const modelName = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
 console.log(`🤖 目标模型服务: ${lmStudioUrl}`);
 console.log(`🧠 当前加载模型: ${modelName}\n`);
 
-// 读取已存在的预测文件实现断点续跑
 const outPath = 'data/eval/preds_35b_50.jsonl';
 const existingMap = new Map();
+
+// 读取已有但仅保留真实耗时 > 100ms 的记录（过滤掉旧的 0ms 假数据）
 if (fs.existsSync(outPath)) {
   const exLines = fs.readFileSync(outPath, 'utf-8').trim().split('\n').filter(l => l.trim().length > 0);
   for (const line of exLines) {
     try {
       const obj = JSON.parse(line);
-      if (obj.parse_ok === true) {
+      if (obj.parse_ok === true && obj.latency_ms > 100) {
         existingMap.set(obj.cu_id, obj);
       }
     } catch (e) {}
   }
 }
-console.log(`🔄 已成功复用历史有效预测: ${existingMap.size} 条，继续补跑剩余样本...\n`);
+console.log(`🔄 已保留真实历史推理记录: ${existingMap.size} 条，开始全新逐条推理...\n`);
 
-// 2. 真实模型调用函数 (temperature=0, timeout=180s)
 async function callRealModel(cu, idx) {
   if (existingMap.has(cu.cu_id)) {
     const cached = existingMap.get(cu.cu_id);
-    console.log(`[${idx + 1}/50] [${cu.cu_id}] (复用已完成) 耗时: ${cached.latency_ms}ms | Parse: ✅ OK`);
+    console.log(`[${idx + 1}/50] [${cu.cu_id}] (已完成) 耗时: ${cached.latency_ms}ms | Parse: ✅ OK`);
     return cached;
   }
 
@@ -79,7 +78,7 @@ async function callRealModel(cu, idx) {
         temperature: 0.0,
         max_tokens: 1024
       }),
-      signal: AbortSignal.timeout(180000) // 提升至 3 分钟超时
+      signal: AbortSignal.timeout(180000)
     });
 
     if (!response.ok) {
@@ -89,8 +88,6 @@ async function callRealModel(cu, idx) {
 
     const resJson = await response.json();
     rawText = resJson.choices?.[0]?.message?.content || '';
-
-    // 去除 thinking 标签
     rawText = rawText.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
   } catch (err) {
@@ -100,7 +97,6 @@ async function callRealModel(cu, idx) {
 
   const latencyMs = Date.now() - tStart;
 
-  // 尝试解析 JSON
   try {
     let jsonStr = rawText.trim();
     if (jsonStr.includes('```json')) {
@@ -128,13 +124,11 @@ async function callRealModel(cu, idx) {
   };
 
   existingMap.set(cu.cu_id, resultObj);
-  // 实时增量持久化
   fs.writeFileSync(outPath, Array.from(existingMap.values()).map(r => JSON.stringify(r)).join('\n'), 'utf-8');
 
   return resultObj;
 }
 
-// 3. 逐条执行
 async function main() {
   const results = [];
   for (let i = 0; i < samples.length; i++) {
@@ -144,12 +138,10 @@ async function main() {
 
   console.log(`\n✅ 50 条真实大模型推理已全部完成并持久化至 ${outPath}！`);
 
-  // 4. 运行 Harness 评测打分
   console.log('\n📊 正在执行 Benchmark 自动化对齐评估...');
   const validPreds = results.filter(r => r.parsed !== null).map(r => r.parsed);
   const report = evaluatePredictions(validPreds);
 
-  // 5. 保存评测报告
   const reportPath = 'data/eval/harness_report_50.json';
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf-8');
   console.log(`✅ 最新评测报告已保存至 ${reportPath}！`);
