@@ -12,10 +12,8 @@
       "WEIN (in cu_trade_00015)",
       "微牛 (in cu_trade_00017)",
       "QQQV (in cu_trade_00028)",
-      "BRK.B (in cu_trade_00075)",
       "RKLBOPT (in cu_trade_00081)",
       "RKLBOPT (in cu_trade_00089)",
-      "XIAOMI.HK (in cu_trade_00134)",
       "TSLA_CALL (in cu_trade_00141)",
       "INTC_CALL (in cu_trade_00141)",
       "RKLBOPT (in cu_trade_00252)",
@@ -42,1365 +40,1931 @@
   "layers": {
     "layer1_random_30": [
       {
-        "cu_id": "cu_trade_00404",
+        "cu_id": "cu_trade_00445",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00404\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"NBIS\", \"price\": 91.7, \"fraction\": \"减点\", \"condition\": \"做倒T\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"CRWV\", \"price\": 84.15, \"fraction\": null, \"condition\": \"夜盘出货\", \"status\": \"filled\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"减仓\", \"止盈\"],\n  \"uncertainty\": [\n    { \"text\": \"今天容易上下扫震荡 都高低点附近转弯了才操作\" },\n    { \"text\": \"盘中都是高点先出为主  盘后博通财报也会影响很大 大盘子的财报对板块影响占比重高 等在回踩盘中低点在买回一半 一半等博通财报出来再吸一半\" }\n  ],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "NBIS",
-            "price": 91.7,
-            "fraction": "减点",
-            "condition": "做倒T",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "CRWV",
-            "price": 84.15,
-            "fraction": null,
-            "condition": "夜盘出货",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "注意富途币预警这会也在跳涨\n注意富途币预警这会也在跳涨\n币合约一些交易软件中币日元单位换btc的利息很多都更新了利息昨天清旧杠杆的旧利息部分已经开始转换成加息后新利息的产品了\n币合约一些交易软件中币日元单位换btc的利息很多都更新了利息昨天清旧杠杆的旧利息部分已经开始转换成加息后新利息的产品了",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "市场预警",
+            "合约利息变化"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00900",
+        "cu_id": "cu_trade_01086",
         "layer": "random_30",
-        "source_dialogue": "{\n  \"cu_id\": \"cu_trade_00900\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \n      \"action\": \"BUY\", \n      \"ticker\": \"CONL\", \n      \"price\": 6.35, \n      \"fraction\": \"一半\", \n      \"condition\": \"常规仓\", \n      \"status\": \"filled\", \n      \"instrument\": \"stock\" \n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"常规仓位\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "BUY",
-            "ticker": "CONL",
-            "price": 6.35,
-            "fraction": "一半",
-            "condition": "常规仓",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "106.7出103.75的一半nvdl\n114.2出 剩下一半100的crwv",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "NVDL",
+              "price": 106.7,
+              "fraction": "一半",
+              "condition": "出前期成本价103.75仓位",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "CRWV",
+              "price": 114.2,
+              "fraction": "剩下一半",
+              "condition": "出前期成本价100的仓位",
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "止盈"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 2,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00523",
+        "cu_id": "cu_trade_00227",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00523\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"EOSE\", \"price\": 0.65, \"fraction\": \"一半\", \"condition\": \"期权出仓\", \"status\": \"planned\", \"instrument\": \"option\" },\n    { \"action\": \"SELL\", \"ticker\": \"TSLL\", \"price\": 18.4, \"fraction\": \"一半\", \"condition\": \"回吸卖出\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"RXRX\", \"price\": 4.5, \"fraction\": \"一半\", \"condition\": \"出仓操作\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"TEM\", \"price\": 69, \"fraction\": \"三分之一\", \"condition\": \"跌下来位置出仓\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"期权止盈\", \"回吸卖出\", \"分批减仓\"],\n  \"uncertainty\": [\n    { \"text\": \"这两天有些涨幅大的开盘获利盘会出点，有回调也是收盘附近在找些回落多的\" }\n  ],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "EOSE",
-            "price": 0.65,
-            "fraction": "一半",
-            "condition": "期权出仓",
-            "status": "planned",
-            "instrument": "option"
-          },
-          {
-            "action": "SELL",
-            "ticker": "TSLL",
-            "price": 18.4,
-            "fraction": "一半",
-            "condition": "回吸卖出",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "RXRX",
-            "price": 4.5,
-            "fraction": "一半",
-            "condition": "出仓操作",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "TEM",
-            "price": 69,
-            "fraction": "三分之一",
-            "condition": "跌下来位置出仓",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "今天A股低开-16左右低开幅度不大 11点翻红 量化才开始有跟随小v的动作 可以在参考上证指数的翻红程序对美股夜盘反弹做对应减仓",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "市场观点",
+            "跟随指数操作"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00357",
+        "cu_id": "cu_trade_00988",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00357\",\n  \"speech_act\": \"market_view\",\n  \"actions\": [],\n  \"claims\": [\n    {\n      \"ticker\": \"BTC\",\n      \"view\": \"-1% 转弯往下预警，明天盘前看成交额是否有反转\"\n    },\n    {\n      \"ticker\": \"ETH\",\n      \"view\": \"-1% 转弯往下预警，明天盘前看成交额是否有反转\"\n    }\n  ],\n  \"strategy_tags\": [\"市场预警\", \"趋势判断\"],\n  \"uncertainty\": [\n    \"明天盘前看币价格是否转弯向上\"\n  ],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "market_view",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "微软今天最低正好打到缺口398\n[IMAGE:https://img-v2-prod.whop.com/UWqQTUxpg72tDCYTPGj4FWNh4_fqhNMD7xEceNFpHHk/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-04-30%2Fd7fb0770-fe29-4234-9de7-95aa04ceb4f1.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D02a4000657a9169f5f5a04e8ba18dee8048ad1bed990348b984d2fd4594a7573]",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "技术分析",
+            "缺口"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00613",
+        "cu_id": "cu_trade_00383",
         "layer": "random_30",
-        "source_dialogue": "{\n  \"cu_id\": \"cu_trade_00613\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"MSFT\", \"price\": 25.45, \"fraction\": \"三分之一\", \"condition\": \"减仓双倍\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"CFIR\", \"price\": 16.5, \"fraction\": \"一半\", \"condition\": \"常规仓位\", \"status\": \"filled\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"减仓操作\", \"常规仓位\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.97,\n  \"parse_status\": \"ok\"\n}",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "MSFT",
-            "price": 25.45,
-            "fraction": "三分之一",
-            "condition": "减仓双倍",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "CIFR",
-            "price": 16.5,
-            "fraction": "一半",
-            "condition": "常规仓位",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "nvdl出了h200利好 可以注意之前低买的89.5附近转弯往下时候都出 在低买",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "NVDL",
+              "price": 89.5,
+              "fraction": null,
+              "condition": "出前期低买仓位",
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "止损",
+            "低吸关注"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 1,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00976",
+        "cu_id": "cu_trade_00672",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00976\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"CONL\", \"price\": 8.41, \"fraction\": \"一半\", \"condition\": \"昨天成本价8.52出仓\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"IREN\", \"price\": 44.8, \"fraction\": \"一半\", \"condition\": \"常规仓加仓\", \"status\": \"filled\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"成本价止盈\", \"常规仓位调整\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.98,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "CONL",
-            "price": 8.41,
-            "fraction": "一半",
-            "condition": "昨天成本价8.52出仓",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "IREN",
-            "price": 44.8,
-            "fraction": "一半",
-            "condition": "常规仓加仓",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "tsll 目前还随指数上去 今天下半场看看能不能到15.04之上然后出昨天15.04买的那部分 ",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "TSLL",
+              "price": null,
+              "fraction": "昨天买入的部分",
+              "condition": "15.04之上出货",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "跟随指数",
+            "止盈计划"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 1,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00336",
+        "cu_id": "cu_trade_00270",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00336\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"TSLL\", \"price\": 18, \"fraction\": \"一半\", \"condition\": \"出日内压力位仓位\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"日内交易\", \"反弹段操作\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "TSLL",
-            "price": 18,
-            "fraction": "一半",
-            "condition": "出日内压力位仓位",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "18.05附近加仓了点tsll  剩下等尾盘附近再看看\nmeta 和fbl 今天盘中冲高时候减昨天补仓的  然后尾盘加其他个股的\n今天也是抛售大于买入 很多到尾盘确认才去吸\nmeta 615.5附近减昨天609加的\nfbl29.4附近减 昨天28.8加的",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "TSLL",
+              "price": 18.05,
+              "fraction": "部分仓位",
+              "condition": "加仓",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "META",
+              "price": 615.5,
+              "fraction": "减仓",
+              "condition": "昨天609成本价止损",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "FBL",
+              "price": 29.4,
+              "fraction": "减仓",
+              "condition": "昨天28.8成本价止损",
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "加仓",
+            "冲高减仓",
+            "尾盘吸筹"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 3,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00322",
+        "cu_id": "cu_trade_00774",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00322\",\n  \"speech_act\": \"market_view\",\n  \"actions\": [],\n  \"claims\": [\n    {\n      \"text\": \"主要盯着币市场 币先反弹先回调\"\n    },\n    {\n      \"text\": \"币市场是增量进入很明显的\"\n    },\n    {\n      \"text\": \"btc现在8万9 看能不能反弹9万8 还是在回踩那个8万附近\"\n    },\n    {\n      \"text\": \"夜盘盘前btc eth市场还在交易就盯着价格没有太大调整就持股或者找回踩的吸做正T为主 盘中就盯着特斯拉这个风向标\"\n    }\n  ],\n  \"strategy_tags\": [\"币市增量\", \"BTC反弹与回踩判断\", \"持币或回调吸筹\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "market_view",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "昨天普涨后  周四周五 消息空窗期 会横盘整理下 这几天也是和前几天类似 盯着开盘的回踩转弯时候有振幅大的低吸做日内2天 然后看哪些重新接近双底在 吸点做死拿",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "横盘整理",
+            "低吸操作"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00060",
+        "cu_id": "cu_trade_00879",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00060\",\n  \"speech_act\": \"market_view\",\n  \"actions\": [],\n  \"claims\": [\n    {\n      \"ticker\": \"BULL\",\n      \"price\": 11.9,\n      \"description\": \"尾盘补涨，上周五以来第一次出现尾盘异动\"\n    }\n  ],\n  \"strategy_tags\": [\"市场观察\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "market_view",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "11.4出剩下一半 10.98的tsll\n199.4出全部的194的amd\n第六个节日 再次尾盘抄底 第一天的大胜利 \n\n\n\n\n\n注意第二轮等下的转弯逐步出剩下的 \n[IMAGE:https://img-v2-prod.whop.com/EIxjNtyRdayg_0kK1pRpo2B4mVCAG6W4L2ZtVBv8reQ/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-03-31%2F978d9b23-d5fe-482b-857f-bea82f062fc2.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dff38a9ef6fd27ff7dcf9b578a4c0c6e076976a660b63f118032c18eb31bbc836]\n66.5出 nvdl 64.75剩下一半\n14.72出微软双倍msfl14.2剩下一半\n夜盘比较顺利  开盘冲高转弯出了大部分  剩下 15点 19点再看看出剩下 然后盘中一开盘冲的时候看看上周能不能出点资金  \n\n\n\n\n\n今天盘中还是看被动减还是3点半左右在吸尾盘\n\n\n\n\n\n\n\n\n[IMAGE:https://img-v2-prod.whop.com/6WRb2M4qNxCQjMZ83FKrct5K3lVV4X0SH7WwvH_1_wM/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-03-31%2Ffe8dfecc-2773-4b42-a57d-08e382d41549.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D0e08b3c0ed9270bf3d268fa6fd4eb877ce1c187d870f88bd4aa9a2806e07aace]",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "TSLL",
+              "price": 11.4,
+              "fraction": "剩下一半",
+              "condition": "出前期成本价10.98仓位",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "AMD",
+              "price": 199.4,
+              "fraction": "全部",
+              "condition": "出前期成本价194仓位",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "NVDL",
+              "price": 66.5,
+              "fraction": "剩下一半",
+              "condition": "出前期成本价64.75仓位",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "MSFL",
+              "price": 14.72,
+              "fraction": "双倍",
+              "condition": "出前期成本价14.2仓位",
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "止损",
+            "分批止盈"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 4,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00521",
+        "cu_id": "cu_trade_00641",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00521\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"NVDL\", \"price\": 90.9, \"fraction\": null, \"condition\": \"盘前出点仓位\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"STOP_LOSS\", \"ticker\": \"NVDL\", \"price\": 90, \"fraction\": null, \"condition\": \"跌破止损\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"横盘震荡\", \"止损\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "NVDL",
-            "price": 90.9,
-            "fraction": null,
-            "condition": "盘前出点仓位",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "STOP_LOSS",
-            "ticker": "NVDL",
-            "price": 90,
-            "fraction": null,
-            "condition": "跌破止损",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "今天股票上的话要尾盘看 现在在空的轮次里面 尾盘附近还有强平的小回落",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "市场观察",
+            "尾盘操作建议"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00828",
+        "cu_id": "cu_trade_00352",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00828\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"BUY\", \"ticker\": \"NVDL\", \"price\": 78.3, \"fraction\": \"常规仓一半\", \"condition\": \"\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"TSLL\", \"price\": 13.83, \"fraction\": \"常规仓的一半\", \"condition\": \"\", \"status\": \"filled\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"财报前涨幅兑现\", \"盘后操作\"],\n  \"uncertainty\": [\n    { \"text\": \"日本央行是否本月不动 下个月再有加息的预期时候价格再低时候在增加\" },\n    { \"text\": \"btc距离7万关口和69400上次反弹点也临近了 后面几天看到低点附近有没有反弹预警 今天正好鲍威尔讲话因为数据打压下去\" }\n  ],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "BUY",
-            "ticker": "NVDL",
-            "price": 78.3,
-            "fraction": "常规仓一半",
-            "condition": "",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "TSLL",
-            "price": 13.83,
-            "fraction": "常规仓的一半",
-            "condition": "",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "asts今天补涨的比较快可以54-54.5先入一笔 再有回踩53附近在加\n今天是普涨预期有些日内要做T的可以尾盘附近高点在正T出\napld快要摸前高了 有这种出现说明大部分都要开始冲跌回的一半或者前高",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "ASTS",
+              "price": 54,
+              "fraction": "一笔",
+              "condition": "补涨快先入",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "ASTS",
+              "price": null,
+              "fraction": "回踩后加仓",
+              "condition": "53附近再加",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "补涨先入",
+            "回踩加仓"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 2,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_01085",
+        "cu_id": "cu_trade_00018",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_01085\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \n      \"action\": \"TAKE_PROFIT\", \n      \"ticker\": \"MSFT\", \n      \"price\": 23.3, \n      \"fraction\": \"一半\", \n      \"condition\": \"止盈剩下长线仓位\", \n      \"status\": \"planned\", \n      \"instrument\": \"stock\" \n    },\n    { \n      \"action\": \"SELL\", \n      \"ticker\": \"QCOM\", \n      \"price\": 40.7, \n      \"fraction\": \"一半\", \n      \"condition\": \"继续卖出做T降本积累仓位\", \n      \"status\": \"planned\", \n      \"instrument\": \"stock\" \n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"止盈操作\", \"减仓做T\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "TAKE_PROFIT",
-            "ticker": "MSFT",
-            "price": 23.3,
-            "fraction": "一半",
-            "condition": "止盈剩下长线仓位",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "QCOM",
-            "price": 40.7,
-            "fraction": "一半",
-            "condition": "继续卖出做T降本积累仓位",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "RDDT最近就一个海关抓CEO妈妈利空 应该是吸筹机构故意买的热搜  还是以196-197附近吸为主 等段时间上去",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "RDDT",
+              "price": 196,
+              "fraction": null,
+              "condition": "吸筹机构故意买热搜",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "市场分析",
+            "计划买入"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 1,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00460",
+        "cu_id": "cu_trade_00271",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00460\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"NBIS\", \"price\": 95.5, \"fraction\": \"高买87部分\", \"condition\": \"出掉\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"SOUN\", \"price\": 11.5, \"fraction\": \"三分之一\", \"condition\": \"冲高预期减仓\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"CONL\", \"price\": 18.5, \"fraction\": \"部分仓位\", \"condition\": \"转弯点附近减仓\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"NBIS\", \"price\": null, \"fraction\": \"底仓\", \"condition\": \"支撑位买回提示\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"CFIR\", \"price\": 17, \"fraction\": \"三分之一\", \"condition\": \"高买部分出掉\", \"status\": \"filled\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"减仓操作\", \"支撑位买入\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "NBIS",
-            "price": 95.5,
-            "fraction": "高买87部分",
-            "condition": "出掉",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "SOUN",
-            "price": 11.5,
-            "fraction": "三分之一",
-            "condition": "冲高预期减仓",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "CONL",
-            "price": 18.5,
-            "fraction": "部分仓位",
-            "condition": "转弯点附近减仓",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "NBIS",
-            "price": null,
-            "fraction": "底仓",
-            "condition": "支撑位买回提示",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "CIFR",
-            "price": 17,
-            "fraction": "三分之一",
-            "condition": "高买部分出掉",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "特朗普在开始讲话了 等他讲话当中看看方向有没有转折\n尾盘可以以讲话时候的V的低点做确认 再讲最近关门的影响\ntsll在讲话时候15.98 尾盘在15.98附近可以确认\nnvdl 讲话时候的V点在87.75 尾盘高于也可以确认低点\nbmnr 36.2  conl 24.2 这两个讲话时候的V点\n主要注意那几个活性大的 V点的延续性 今天讲了很短的话就签署后 也没有记者会\n7姐妹的V型反弹先关注  然后关注明星股 今天单边下跌 讲话时候V起来的",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [
+            {
+              "action": "HOLD",
+              "ticker": "TSLL",
+              "price": 15.98,
+              "fraction": null,
+              "condition": "讲话时候的V点确认低点",
+              "status": "confirmed",
+              "instrument": "stock"
+            },
+            {
+              "action": "HOLD",
+              "ticker": "NVDL",
+              "price": 87.75,
+              "fraction": null,
+              "condition": "讲话时候的V点确认低点",
+              "status": "confirmed",
+              "instrument": "stock"
+            },
+            {
+              "action": "HOLD",
+              "ticker": "BMNR",
+              "price": 36.2,
+              "fraction": null,
+              "condition": "讲话时候的V点确认低点",
+              "status": "confirmed",
+              "instrument": "stock"
+            },
+            {
+              "action": "HOLD",
+              "ticker": "CONL",
+              "price": 24.2,
+              "fraction": null,
+              "condition": "讲话时候的V点确认低点",
+              "status": "confirmed",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "市场观点",
+            "技术分析"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 4,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00887",
+        "cu_id": "cu_trade_00925",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00887\",\n  \"speech_act\": \"market_view\",\n  \"actions\": [],\n  \"claims\": [\n    {\n      \"text\": \"昨天普涨，今天主要注意一般情况下普涨隔天中午会稍微回落点\"\n    },\n    {\n      \"text\": \"主要注意是不是回踩6460附近昨天第一个缺口下沿点的位置\"\n    }\n  ],\n  \"strategy_tags\": [\"市场走势预测\", \"关键支撑位\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "market_view",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "12.32出11.98的tsll",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "TSSL",
+              "price": 12.32,
+              "fraction": null,
+              "condition": "出前期成本价11.98仓位",
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "止盈"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 1,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00125",
+        "cu_id": "cu_trade_00266",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00125\",\n  \"speech_act\": \"market_view\",\n  \"actions\": [],\n  \"claims\": [\n    {\n      \"ticker\": \"CONL\",\n      \"price\": 33,\n      \"condition\": \"反弹\",\n      \"status\": \"observed\",\n      \"instrument\": \"stock\"\n    }\n  ],\n  \"strategy_tags\": [\"市场观察\", \"财报影响\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.92,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "market_view",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "orcl在225这里有企稳可以227-226先建仓点 尾盘附近确认后再加仓\norcx 甲骨文的双倍可以25附近建仓  尾盘在确认后再看加不加仓\n有些不是第一个低点分时出来后有个小V的低点 分时图片上走出来 然后尾盘价格不低于那个就可以确定",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "ORCL",
+              "price": 227,
+              "fraction": "先建仓点",
+              "condition": "企稳确认后加仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "ORCX",
+              "price": 25,
+              "fraction": "先建仓点",
+              "condition": "尾盘确认后再看加不加仓",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "分时低点建仓",
+            "企稳后加仓"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 2,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00385",
+        "cu_id": "cu_trade_00432",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00385\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"BUY\", \"ticker\": \"TSLL\", \"price\": 19.1, \"fraction\": \"一笔\", \"condition\": \"盘中吸筹\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"TSLL\", \"price\": 19.6, \"fraction\": \"一笔\", \"condition\": \"盘中吸筹\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": null, \"price\": 19, \"fraction\": \"附近\", \"condition\": \"明星股盘中吸筹\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"盘中吸筹\", \"二次确认\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "BUY",
-            "ticker": "TSLL",
-            "price": 19.1,
-            "fraction": "一笔",
-            "condition": "盘中吸筹",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "TSLL",
-            "price": 19.6,
-            "fraction": "一笔",
-            "condition": "盘中吸筹",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "nvdl可以77 和加息周五尾盘吸2次有探底前低73.83的趋势\n币今天预警了2次反弹要注意今天币 是继续反弹还是会到时候有回调 升上去时候把在成本上的减掉",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "NVDL",
+              "price": 77,
+              "fraction": null,
+              "condition": null,
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "TAKE_PROFIT",
+              "ticker": "NVDL",
+              "price": 73.83,
+              "fraction": null,
+              "condition": "成本价减仓",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "反弹吸筹",
+            "成本价减仓"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 2,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00075",
+        "cu_id": "cu_trade_00574",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00075\",\n  \"speech_act\": \"market_view\",\n  \"actions\": [\n    { \"action\": \"HOLD\", \"ticker\": \"ORCL\", \"price\": null, \"fraction\": null, \"condition\": \"295支撑位\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"HOLD\", \"ticker\": \"CLSK\", \"price\": 20, \"fraction\": null, \"condition\": \"支撑位\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"HOLD\", \"ticker\": \"MARA\", \"price\": 21, \"fraction\": null, \"condition\": \"支撑位\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"UPST\", \"price\": 48, \"fraction\": null, \"condition\": \"讲话时跳买\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"HOLD\", \"ticker\": \"RGTI\", \"price\": 51.5, \"fraction\": null, \"condition\": \"支撑位\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"HOLD\", \"ticker\": \"AAPL\", \"price\": 245, \"fraction\": null, \"condition\": \"支撑位\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"HOLD\", \"ticker\": \"BRK.B\", \"price\": 490, \"fraction\": null, \"condition\": \"支撑位\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"支撑位判断\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "market_view",
-        "pred_actions": [
-          {
-            "action": "HOLD",
-            "ticker": "ORCL",
-            "price": null,
-            "fraction": null,
-            "condition": "295支撑位",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "HOLD",
-            "ticker": "CLSK",
-            "price": 20,
-            "fraction": null,
-            "condition": "支撑位",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "HOLD",
-            "ticker": "MARA",
-            "price": 21,
-            "fraction": null,
-            "condition": "支撑位",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "UPST",
-            "price": 48,
-            "fraction": null,
-            "condition": "讲话时跳买",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "HOLD",
-            "ticker": "RGTI",
-            "price": 51.5,
-            "fraction": null,
-            "condition": "支撑位",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "HOLD",
-            "ticker": "AAPL",
-            "price": 245,
-            "fraction": null,
-            "condition": "支撑位",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "HOLD",
-            "ticker": "BRK.B",
-            "price": 490,
-            "fraction": null,
-            "condition": "支撑位",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "尾盘16附近 加了常规仓一半的conl\n尾盘17.97常规仓一半的tsll接回\n110.3开了常规仓一半的hood\n91.9接回了常规仓一半的oklo\n博通342少量回吸了点  明天有335机会再加点",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "CONL",
+              "price": 16,
+              "fraction": "一半",
+              "condition": "常规仓加仓",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "TSLA",
+              "price": 17.97,
+              "fraction": "一半",
+              "condition": "常规仓接回",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "HOOD",
+              "price": 110.3,
+              "fraction": "一半",
+              "condition": "常规仓开仓",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "OKLO",
+              "price": 91.9,
+              "fraction": "一半",
+              "condition": "常规仓接回",
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "常规仓操作",
+            "接回与开仓"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 4,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00362",
+        "cu_id": "cu_trade_00837",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00362\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"APLD\", \"price\": null, \"fraction\": \"一半以上\", \"condition\": \"反弹出货\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"ASTS\", \"price\": null, \"fraction\": \"移入\", \"condition\": \"高低切换抢筹机会\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"反弹出货\", \"高低切换\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "APLD",
-            "price": null,
-            "fraction": "一半以上",
-            "condition": "反弹出货",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "ASTS",
-            "price": null,
-            "fraction": "移入",
-            "condition": "高低切换抢筹机会",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "75.45附近 加了常规仓一半的nvdl\n26.55加回了amzu亚马逊双倍做T仓位\n12.5附近加了tsll一个常规仓\n72.5加回昨天卖出的那部分hood常规仓的一半\n今天盘前新闻预告冲突很早 比前面三次周五说周末冲突时间都要早上1小时，盘中开盘也是连续发冲突的细节 要想进一步先打压到spy648附近 等摸关门低点附近在加点\n74.35加了常规仓另外一半nvdl\n25.1买了 常规仓的fbl  meta的双倍",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "NVDL",
+              "price": 75.45,
+              "fraction": "常规仓一半",
+              "condition": "",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "AMZU",
+              "price": 26.55,
+              "fraction": "双倍做T仓位",
+              "condition": "加回了",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "TSLL",
+              "price": 12.5,
+              "fraction": "一个常规仓",
+              "condition": "",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "HOOD",
+              "price": 72.5,
+              "fraction": "常规仓一半",
+              "condition": "加回昨天卖出的那部分",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "NVDL",
+              "price": 74.35,
+              "fraction": "另外一半",
+              "condition": "",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "FBL",
+              "price": 25.1,
+              "fraction": "常规仓的双倍",
+              "condition": "meta的",
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "加仓",
+            "做T"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 6,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00423",
+        "cu_id": "cu_trade_00151",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00423\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"TSLL\", \"price\": null, \"fraction\": \"分批减剩下的\", \"condition\": \"冲破前高点价格先出\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"STOP_LOSS\", \"ticker\": \"AI\", \"price\": null, \"fraction\": \"剩下的一半\", \"condition\": \"反弹周五位置先出\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"NVDL\", \"price\": 80.8, \"fraction\": \"一半\", \"condition\": \"转弯时候出\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"分批减仓\", \"止损操作\", \"收盘附近操作\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.92,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "TSLL",
-            "price": null,
-            "fraction": "分批减剩下的",
-            "condition": "冲破前高点价格先出",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "STOP_LOSS",
-            "ticker": "AI",
-            "price": null,
-            "fraction": "剩下的一半",
-            "condition": "反弹周五位置先出",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "NVDL",
-            "price": 80.8,
-            "fraction": "一半",
-            "condition": "转弯时候出",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "今天盘前出的几个财报都不错  今天大盘还是以震荡走高为主 ，主要看一些股性活跃个股回踩支撑的低吸",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "市场观点",
+            "个股低吸建议"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_01090",
+        "cu_id": "cu_trade_00366",
         "layer": "random_30",
-        "source_dialogue": "{\n  \"cu_id\": \"cu_trade_01090\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    {\n      \"action\": \"SELL\",\n      \"ticker\": \"LITE\",\n      \"price\": 869,\n      \"fraction\": \"一半\",\n      \"condition\": \"出前期成本价829仓位\",\n      \"status\": \"filled\",\n      \"instrument\": \"stock\"\n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"止盈\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "LITE",
-            "price": 869,
-            "fraction": "一半",
-            "condition": "出前期成本价829仓位",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "meta期权也吃磨损了 开盘0.6都出剩下\nnvdl今天注意转弯出83和83.5的\n86出一半nvdl\nsoun  12附近 出11.4的 11那部分拿着不动\nrklb asts今天也是注意转弯往下时候 rklb出43 44这些高买的部分  asts减三分之一\n\n\n\nasts到66一半位置再减三分之一\n64.5出 三分之一 asts\n45.5附近减点rklb 把43  44高价格加的部分都出\nasts  反弹到一半位置 66附近了   然后有溢价时候在66上方出三分之一\n\n\n[IMAGE:https://img-v2-prod.whop.com/Zy7IiWfJK5tW8hFukuVCqgOgBQFgu5AeW5XrjEh832M/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2025-12-04%2Fuser_17909136_b2a7c241-b277-47e4-b63b-fd10f6ce71a0.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D2d7d03cf1007fbd4700ee6ecbfa8fd7dd3a7d3632be88f3236aa3a51e1c2fad7]",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "META",
+              "price": null,
+              "fraction": "全部",
+              "condition": "出前期磨损仓位",
+              "status": "planned",
+              "instrument": "option"
+            },
+            {
+              "action": "SELL",
+              "ticker": "NVDL",
+              "price": 83,
+              "fraction": "三分之一",
+              "condition": "高买部分减仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "NVDL",
+              "price": 86,
+              "fraction": "一半",
+              "condition": "高买部分减仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "SOUN",
+              "price": 11.4,
+              "fraction": "三分之一",
+              "condition": "出前期仓位",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "HOLD",
+              "ticker": "SOUN",
+              "price": null,
+              "fraction": "三分之二",
+              "condition": "持有不动",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "RKLB",
+              "price": 43,
+              "fraction": "全部",
+              "condition": "出前期高买仓位",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "RKLB",
+              "price": 44,
+              "fraction": "全部",
+              "condition": "出前期高买仓位",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "ASTS",
+              "price": 43,
+              "fraction": "三分之一",
+              "condition": "减仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "HOLD",
+              "ticker": "ASTS",
+              "price": null,
+              "fraction": "三分之二",
+              "condition": "持有不动",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "ASTS",
+              "price": 64.5,
+              "fraction": "三分之一",
+              "condition": "减仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "HOLD",
+              "ticker": "ASTS",
+              "price": null,
+              "fraction": "三分之二",
+              "condition": "持有不动",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "RKLB",
+              "price": 45.5,
+              "fraction": "全部",
+              "condition": "出前期高买仓位",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "止损",
+            "分批减仓"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 12,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00149",
+        "cu_id": "cu_trade_01074",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00149\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \n      \"action\": \"SELL\", \n      \"ticker\": \"TSLL\", \n      \"price\": 21.3, \n      \"fraction\": \"剩余仓位\", \n      \"condition\": \"区间出仓\", \n      \"status\": \"planned\", \n      \"instrument\": \"stock\" \n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"区间止盈\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "TSLL",
-            "price": 21.3,
-            "fraction": "剩余仓位",
-            "condition": "区间出仓",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "\n[IMAGE:https://img-v2-prod.whop.com/w81Ug1HCmVSFD8fa6gClQRZ5iL1PHinzjON7GXQ6lEs/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-05-27%2Fa2692b26-32f6-4056-b6fe-81741b2235ac.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D1b7da4be8187355ecc3eb12f9706c6bf537ade77ea84a2d7cc618b60468da4e7]\n最有爆发的三要素要时刻盯紧 抓机会\n[IMAGE:https://img-v2-prod.whop.com/LbeJ7X-t4thoxvTqZWdYYMdcPUZ1t1Znwo1jIFe7QiQ/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-05-27%2F6b30aa48-842e-45f8-a4dc-6a275b2e6325.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dbeb84318569dd8c9efa840ac27a856df438f907fbaa02336c1f440e29b382675]",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "市场观点",
+            "技术分析"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00425",
+        "cu_id": "cu_trade_00515",
         "layer": "random_30",
-        "source_dialogue": "ERROR: Unexpected non-whitespace character after JSON at position 328",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "joby也到了前面高点附近了 15.55可以出一半这个也当时买的低",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "JOBY",
+              "price": 15.55,
+              "fraction": "一半",
+              "condition": "出前期成本价仓位",
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "止盈"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 1,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00486",
+        "cu_id": "cu_trade_00628",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00486\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"BUY\", \"ticker\": \"TSLL\", \"price\": 19.5, \"fraction\": \"一段\", \"condition\": \"盘中转弯接仓\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"BMNR\", \"price\": 29, \"fraction\": \"一半\", \"condition\": \"昨天收盘附近买入的仓位\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"TAKE_PROFIT\", \"ticker\": \"TSLL\", \"price\": 20, \"fraction\": \"全部\", \"condition\": \"19.5成本价做T\", \"status\": \"filled\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"盘中接仓\", \"止损出货\", \"日内交易\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.92,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "BUY",
-            "ticker": "TSLL",
-            "price": 19.5,
-            "fraction": "一段",
-            "condition": "盘中转弯接仓",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "BMNR",
-            "price": 29,
-            "fraction": "一半",
-            "condition": "昨天收盘附近买入的仓位",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "TAKE_PROFIT",
-            "ticker": "TSLL",
-            "price": 20,
-            "fraction": "全部",
-            "condition": "19.5成本价做T",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "盘后公布财报 \n16:05：维萨（V）\n16:05：西部数据（WDC）\n16:05：德克斯品牌（DECK）\n16:05：科磊（KLAC）\n16:05：思爱普（SAP）\n16:05：史赛克（SYK）\n16:05：瑞思迈（RMD）\n16:05：哈特福德金融（HIG）\n16:05：豪洛捷（HOLX）\n16:05：罗伯特·哈尔夫（RHI）\n16:05：威立雅（WY）\n16:15：阿瑟J. 伽拉格尔（AJG）\n16:05：闪迪（SNDK）\n16:30：苹果（AAPL）\n\n\n\n今天盘后主要是存储类公司财报居多 到时候也会看下有没有机会",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "财报公布",
+            "存储类公司"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00308",
+        "cu_id": "cu_trade_00251",
         "layer": "random_30",
-        "source_dialogue": "{\n  \"cu_id\": \"cu_trade_00308\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"RKLB\", \"price\": 41, \"fraction\": null, \"condition\": \"昨天盘中高买部分出仓\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"NBIS\", \"price\": 88, \"fraction\": null, \"condition\": \"昨天88-89成本冲高出仓\", \"status\": \"filled\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"止盈\", \"等待低吸\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "RKLB",
-            "price": 41,
-            "fraction": null,
-            "condition": "昨天盘中高买部分出仓",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "NBIS",
-            "price": 88,
-            "fraction": null,
-            "condition": "昨天88-89成本冲高出仓",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "指数没有回踩缺口一说 他有大盘股撑着的 回踩周五高点就很多要降低 大盘股不止7姐妹哪些 还有水利啊 建筑啊 宽带光缆等等的\n主要看个股的回踩机会",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "大盘观点",
+            "个股操作"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00152",
+        "cu_id": "cu_trade_00661",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00152\",\n  \"speech_act\": \"market_view\",\n  \"actions\": [],\n  \"claims\": [\n    { \"ticker\": \"RKLB\", \"support_price\": 63, \"resistance_price\": 67 },\n    { \"ticker\": \"BMNR\", \"support_price\": 51, \"resistance_price\": 52 },\n    { \"ticker\": \"UNH\", \"analysis\": \"利好兑现的杀call，类似INTC\" },\n    { \"ticker\": \"NFXL\", \"support_price\": 45, \"resistance_price\": 47.5 }\n  ],\n  \"strategy_tags\": [\"支撑位\", \"阻力位\", \"技术分析\"],\n  \"uncertainty\": [\n    { \"ticker\": \"NFXL\", \"analysis\": \"等待二次回踩确认再加仓\" },\n    { \"ticker\": \"NFXL\", \"action\": \"47.3附近做T降本\" }\n  ],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "market_view",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "今天也是走收盘最低的路线 就是指数有冷门股今天强势撑着  以往强势的股今天都回调多\n\n\n\n到尾盘附近再看加哪些",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "市场观点",
+            "个股表现"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00048",
+        "cu_id": "cu_trade_00647",
         "layer": "random_30",
-        "source_dialogue": "{\n  \"cu_id\": \"cu_trade_00048\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"BUY\", \"ticker\": \"TSLL\", \"price\": null, \"fraction\": \"陆续回买\", \"condition\": \"17.8附近价格预估\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"SBET\", \"price\": 16.15, \"fraction\": \"减仓一半\", \"condition\": null, \"status\": \"filled\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"回买机会\", \"减仓操作\"],\n  \"uncertainty\": [\"心理预估价格\"],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "BUY",
-            "ticker": "TSLL",
-            "price": null,
-            "fraction": "陆续回买",
-            "condition": "17.8附近价格预估",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "SBET",
-            "price": 16.15,
-            "fraction": "减仓一半",
-            "condition": null,
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "夜盘因为币市场和贵金属市场周末资金出逃 指数spy也是带到685 这个是前一周的均线，指数下跌引发了普跌，提名也导致全球市场要重新洗牌，港股 A股 日经，韩国指数，也是普跌的\n\n\n\n盘前人工干预 修复了非币股板块的一些跌幅 ，今天盘中也是优先低吸被币股错杀的非币股板块 以夜盘最低价和收盘为主\n\n\n\n币股今天有商讨利息 结果要推迟在 明天后天出结果 也是等出结果后加仓等量的",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "大盘分析",
+            "市场情绪"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00921",
+        "cu_id": "cu_trade_01000",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00921\",\n  \"speech_act\": \"market_view\",\n  \"actions\": [],\n  \"claims\": [\n    {\n      \"text\": \"今天ppi数据发布后spy没怎么回调 最近出的利空时间都很短 也是都一次回踩就被买上去了\"\n    },\n    {\n      \"text\": \"这几天主要会监测点期权做做日内\"\n    },\n    {\n      \"text\": \"周五和下周一时候看看回调有哪些可以死拿一段时间\"\n    },\n    {\n      \"text\": \"这次和谈结束基本战争这个事件就过去了\"\n    },\n    {\n      \"text\": \"缺口这次应该不会回补了 最多摸下缺口上沿 6720附近 下次摸缺口上沿时候 可以仓位在多介入点\"\n    }\n  ],\n  \"strategy_tags\": [\"日内交易\", \"回调关注\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "market_view",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "nvdl也翻红了 92.84出88.85的日内的",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "NVDL",
+              "price": 92.84,
+              "fraction": "日内仓位",
+              "condition": "出前期成本价88.85的仓位",
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "止盈"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 1,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00839",
+        "cu_id": "cu_trade_00841",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00839\",\n  \"speech_act\": \"market_view\",\n  \"actions\": [],\n  \"claims\": [\n    {\n      \"text\": \"周末冲突主要集中在周日 周六这周是冲突前的准备工作\"\n    },\n    {\n      \"text\": \"今天夜盘主要可以 开盘和夜盘的收盘分两次 增加\"\n    },\n    {\n      \"text\": \"主要看亚洲 四个盘面是不是低开低走\"\n    }\n  ],\n  \"strategy_tags\": [\"市场展望\", \"交易策略\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "market_view",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "上证A股也是走韩国指数前面一个小时的走势 -55开到-86  看能不能跟随韩国那样在反弹到-55以上",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "大盘走势",
+            "技术分析"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_01114",
+        "cu_id": "cu_trade_00804",
         "layer": "random_30",
-        "source_dialogue": "{\n  \"cu_id\": \"cu_trade_01114\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \n      \"action\": \"SELL\", \n      \"ticker\": \"TSLL\", \n      \"price\": 14.53, \n      \"fraction\": \"一半\", \n      \"condition\": \"出前期成本价14.15仓位\", \n      \"status\": \"filled\", \n      \"instrument\": \"stock\" \n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"止盈\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.98,\n  \"parse_status\": \"ok\"\n}",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "TSLL",
-            "price": 14.53,
-            "fraction": "一半",
-            "condition": "出前期成本价14.15仓位",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "alab也因为 gtc大会前夕代工英伟达芯片直线了之前128还剩下一半 今天127.5附近时候也先出 后面回调115左右在吸",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "ALAB",
+              "price": 127.5,
+              "fraction": "剩下一半",
+              "condition": "出前期成本价128仓位",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "ALAB",
+              "price": null,
+              "fraction": "底仓",
+              "condition": "回调115左右时吸筹",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "成本价止盈",
+            "回调低吸"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 2,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_01125",
+        "cu_id": "cu_trade_00082",
         "layer": "random_30",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_01125\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    {\n      \"action\": \"BUY\",\n      \"ticker\": \"LITE\",\n      \"price\": null,\n      \"fraction\": \"三分之一常规仓\",\n      \"condition\": \"加回仓位\",\n      \"status\": \"filled\",\n      \"instrument\": \"stock\"\n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"回调支撑\", \"重要压力位\"],\n  \"uncertainty\": [\n    {\n      \"text\": \"指数上周五的spx均价7450成为重要的压力位如果这周方向是反弹的到7450没突破就整体仓位在都出\"\n    },\n    {\n      \"text\": \"下方7200的缺口是回调支撑\"\n    }\n  ],\n  \"confidence\": 0.8,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "BUY",
-            "ticker": "LITE",
-            "price": null,
-            "fraction": "三分之一常规仓",
-            "condition": "加回仓位",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "期权就挂单挂着 反弹时候都会出 尽量找低费率的 长桥的买卖要4刀一张  跌的价格也是挂着跳水容易进\n目前在讲话了 比较中性的发言 他说的重要 看直播的人数倒是比周五多了\n\n\n\n他结束前没有讲什么重点的话   个股方面可以按讲话前最低价格分批回吸 ",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [],
+          "strategy_tags": [
+            "挂单等待反弹出货",
+            "按最低价分批回吸"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       }
     ],
     "layer2_multi_10": [
       {
-        "cu_id": "cu_trade_00032",
+        "cu_id": "cu_trade_00398",
         "layer": "multi_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00032\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"HOLD\", \"ticker\": \"TSLL\", \"price\": null, \"fraction\": \"昨天剩下的\", \"condition\": \"做T\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"BMNR\", \"price\": null, \"fraction\": \"底仓\", \"condition\": \"关注震荡走高\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"SBET\", \"price\": 17.25, \"fraction\": \"一半\", \"condition\": \"套利\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"HOLD\", \"ticker\": \"UPST\", \"price\": null, \"fraction\": \"少量减持\", \"condition\": \"本周阻力位54附近\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"BMNR\", \"price\": 60, \"fraction\": \"一半\", \"condition\": \"在减持点\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"STOP_LOSS\", \"ticker\": \"SBET\", \"price\": 17.02, \"fraction\": \"全部\", \"condition\": \"出仓\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"SBET\", \"price\": 16.25, \"fraction\": \"一半\", \"condition\": \"套利\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"UPST\", \"price\": 53.4, \"fraction\": \"一半\", \"condition\": \"减仓点\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"做T\", \"套利\", \"减持\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "HOLD",
-            "ticker": "TSLL",
-            "price": null,
-            "fraction": "昨天剩下的",
-            "condition": "做T",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "BMNR",
-            "price": null,
-            "fraction": "底仓",
-            "condition": "关注震荡走高",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "SBET",
-            "price": 17.25,
-            "fraction": "一半",
-            "condition": "套利",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "HOLD",
-            "ticker": "UPST",
-            "price": null,
-            "fraction": "少量减持",
-            "condition": "本周阻力位54附近",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "BMNR",
-            "price": 60,
-            "fraction": "一半",
-            "condition": "在减持点",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "STOP_LOSS",
-            "ticker": "SBET",
-            "price": 17.02,
-            "fraction": "全部",
-            "condition": "出仓",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "SBET",
-            "price": 16.25,
-            "fraction": "一半",
-            "condition": "套利",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "UPST",
-            "price": 53.4,
-            "fraction": "一半",
-            "condition": "减仓点",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "甲骨文先杀多\n甲骨文偏低于预期可以205-206附近入正股\nnvdl注意受到甲骨文回踩转弯可以回吸\n84.8附近吸点nvdl明后天再有回踩再加\n213附近可以出一半刚才205的甲骨文\n甲骨文电话会议再到216-217可以出剩下的 再到205-206可以在回吸一半做T\n盘后和夜盘主要盯着 受甲骨文拖累的ai板块  \n\n\n\nnvdl 84.8一笔  然后83-83.5回踩再加\n\n\n\n msfl26.6盘中有过一笔了  25.8附近前支撑在看加\n\n\n\n tsll（特斯拉有ai属性）18.8-18.6看能不能回踩 \n\n\n\n iren  44-44.5有过一笔了 41-42附近再看加\n\n\n\n cifr18-18.3可以买一笔 剩下等17附近\n\n\n\n crwv84-85回踩到可以买一笔  剩下放81\n\n\n\n nbis92-93刚回踩到吸过一笔  剩下放86-87",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "ORCL",
+              "price": 213,
+              "fraction": "一半",
+              "condition": "出前期买入仓位",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "NVDL",
+              "price": 84.8,
+              "fraction": "一笔",
+              "condition": "回吸",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "NVDL",
+              "price": 83,
+              "fraction": "一笔",
+              "condition": "前支撑位加仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "MSFL",
+              "price": 26.6,
+              "fraction": "一笔",
+              "condition": "盘中买入",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "MSFL",
+              "price": 25.8,
+              "fraction": "一笔",
+              "condition": "前支撑位加仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "TSLL",
+              "price": 18.8,
+              "fraction": "一笔",
+              "condition": "回踩买入",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "IREN",
+              "price": 44,
+              "fraction": "一笔",
+              "condition": "盘中买入",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "IREN",
+              "price": 41,
+              "fraction": "一笔",
+              "condition": "前支撑位加仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "CIFR",
+              "price": 18,
+              "fraction": "一笔",
+              "condition": "回踩买入",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "CRWV",
+              "price": 84,
+              "fraction": "一笔",
+              "condition": "回踩买入",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "NBIS",
+              "price": 92,
+              "fraction": "一笔",
+              "condition": "刚回踩到吸过一笔",
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "分批止盈",
+            "低吸关注"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 11,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00403",
+        "cu_id": "cu_trade_00764",
         "layer": "multi_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00403\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"HOLD\", \"ticker\": \"NVDA\", \"price\": null, \"fraction\": null, \"condition\": \"等待12点再决定是否吸筹\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"TSLL\", \"price\": 18.8, \"fraction\": \"一笔\", \"condition\": \"回吸\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"NVDL\", \"price\": 81.2, \"fraction\": null, \"condition\": \"出前期成本价81.4仓位\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"MSFT\", \"price\": 27.14, \"fraction\": \"双倍\", \"condition\": null, \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"STOP_LOSS\", \"ticker\": \"ORCL\", \"price\": null, \"fraction\": null, \"condition\": \"开盘抢反弹注意高点转弯走掉\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"STOP_LOSS\", \"ticker\": \"ORCL\", \"price\": 193.5, \"fraction\": null, \"condition\": \"可能在196之间会转弯往下\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"TSLL\", \"price\": 18.8, \"fraction\": null, \"condition\": \"注意转弯时候减仓\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"OKLO\", \"price\": 99.5, \"fraction\": null, \"condition\": \"做倒T\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"跟随市场趋势\", \"止损操作\", \"分批减仓\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "HOLD",
-            "ticker": "NVDA",
-            "price": null,
-            "fraction": null,
-            "condition": "等待12点再决定是否吸筹",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "TSLL",
-            "price": 18.8,
-            "fraction": "一笔",
-            "condition": "回吸",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "NVDL",
-            "price": 81.2,
-            "fraction": null,
-            "condition": "出前期成本价81.4仓位",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "MSFT",
-            "price": 27.14,
-            "fraction": "双倍",
-            "condition": null,
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "STOP_LOSS",
-            "ticker": "ORCL",
-            "price": null,
-            "fraction": null,
-            "condition": "开盘抢反弹注意高点转弯走掉",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "STOP_LOSS",
-            "ticker": "ORCL",
-            "price": 193.5,
-            "fraction": null,
-            "condition": "可能在196之间会转弯往下",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "TSLL",
-            "price": 18.8,
-            "fraction": null,
-            "condition": "注意转弯时候减仓",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "OKLO",
-            "price": 99.5,
-            "fraction": null,
-            "condition": "做倒T",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "今天 指数要首次破位去找前面的低点spy668附近 等盘中spy转弯在增加个股\n13。54 tsll加了个常规仓\n72.6加了hood 常规仓的一半\n70.5加了 crwv 常规仓的一半\n37.8 买了iren常规仓的一半\n币市场要注意6.6的反弹预警 到了6.7",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "SPY",
+              "price": null,
+              "fraction": "常规仓的一半",
+              "condition": "指数破位低点预警",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "TSLA",
+              "price": 13.54,
+              "fraction": "常规仓的一半",
+              "condition": null,
+              "status": "filled",
+              "instrument": "option"
+            },
+            {
+              "action": "BUY",
+              "ticker": "HOOD",
+              "price": 72.6,
+              "fraction": "常规仓的一半",
+              "condition": null,
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "CRWV",
+              "price": 70.5,
+              "fraction": "常规仓的一半",
+              "condition": null,
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "IREN",
+              "price": 37.8,
+              "fraction": "常规仓的一半",
+              "condition": null,
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "指数破位预警",
+            "个股加仓"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 5,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00228",
+        "cu_id": "cu_trade_00166",
         "layer": "multi_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00228\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"CONL\", \"price\": 27.8, \"fraction\": \"部分仓位\", \"condition\": \"减仓\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"CONL\", \"price\": 27, \"fraction\": \"部分仓位\", \"condition\": \"加仓\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"BMNR\", \"price\": 38.7, \"fraction\": \"部分仓位\", \"condition\": \"减仓\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"BMNR\", \"price\": 38, \"fraction\": \"部分仓位\", \"condition\": \"加仓\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"NBIS\", \"price\": 111.3, \"fraction\": \"部分仓位\", \"condition\": \"减仓\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"减仓应对周五双杀\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "CONL",
-            "price": 27.8,
-            "fraction": "部分仓位",
-            "condition": "减仓",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "CONL",
-            "price": 27,
-            "fraction": "部分仓位",
-            "condition": "加仓",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "BMNR",
-            "price": 38.7,
-            "fraction": "部分仓位",
-            "condition": "减仓",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "BMNR",
-            "price": 38,
-            "fraction": "部分仓位",
-            "condition": "加仓",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "NBIS",
-            "price": 111.3,
-            "fraction": "部分仓位",
-            "condition": "减仓",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "7.5-7.6可以吸回之前走掉的open\n6.7附近建仓个新的 bbai\n鲍威尔讲话快结束了 主要他鹰派发言创造了机会  主要盘后三巨头财报和中美会晤也会拉下 这轮下跌中主要老股票回踩二次握手的做了配置\ntsll V上去可以22.15-22.25附近减",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "OPEN",
+              "price": 7.5,
+              "fraction": null,
+              "condition": "吸回之前走掉的仓位",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "BBAI",
+              "price": 6.7,
+              "fraction": null,
+              "condition": "建仓新的仓位",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "TSLL",
+              "price": 22.15,
+              "fraction": null,
+              "condition": "减仓",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "吸回仓位",
+            "建仓新仓位",
+            "减仓"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 3,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00095",
+        "cu_id": "cu_trade_00415",
         "layer": "multi_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00095\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"BMNR\", \"price\": 52, \"fraction\": \"一半仓位\", \"condition\": \"周五49附近低吸的\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"STOP_LOSS\", \"ticker\": \"TSLL\", \"price\": 19.5, \"fraction\": \"减仓\", \"condition\": \"20.55附近减掉点，有回落到19.5附近在吸回来\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"MSTR\", \"price\": 295, \"fraction\": \"部分仓位\", \"condition\": \"周五补仓过的\", \"status\": \"filled\", \"instrument\": \"option\" },\n    { \"action\": \"SELL\", \"ticker\": \"RKLB\", \"price\": 68, \"fraction\": \"一半仓位\", \"condition\": \"周五64附近吸的\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"STOP_LOSS\", \"ticker\": \"RKLB\", \"price\": 67, \"fraction\": \"减仓\", \"condition\": \"跌破67都出\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"CONL\", \"price\": 37.3, \"fraction\": \"全部仓位\", \"condition\": \"在成本上了波动很大\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"NVDL\", \"price\": 90, \"fraction\": \"一半仓位\", \"condition\": \"几次没冲过91阻力位\", \"status\": \"filled\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"减仓操作\", \"止损纪律\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "BMNR",
-            "price": 52,
-            "fraction": "一半仓位",
-            "condition": "周五49附近低吸的",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "STOP_LOSS",
-            "ticker": "TSLL",
-            "price": 19.5,
-            "fraction": "减仓",
-            "condition": "20.55附近减掉点，有回落到19.5附近在吸回来",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "MSTR",
-            "price": 295,
-            "fraction": "部分仓位",
-            "condition": "周五补仓过的",
-            "status": "filled",
-            "instrument": "option"
-          },
-          {
-            "action": "SELL",
-            "ticker": "RKLB",
-            "price": 68,
-            "fraction": "一半仓位",
-            "condition": "周五64附近吸的",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "STOP_LOSS",
-            "ticker": "RKLB",
-            "price": 67,
-            "fraction": "减仓",
-            "condition": "跌破67都出",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "CONL",
-            "price": 37.3,
-            "fraction": "全部仓位",
-            "condition": "在成本上了波动很大",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "NVDL",
-            "price": 90,
-            "fraction": "一半仓位",
-            "condition": "几次没冲过91阻力位",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "hood今天121-121.3也可以也是被带下去的\nbmnr可以注意36.6-36.8附近可以低吸一笔剩下等博通转弯再加一笔\n.亚马逊双倍amzu可以34.05附近加一笔\ntsll keyi 19.3附近接回开盘高抛的部分的一半\n21附近可以接回一半高抛的 conl\n42.2附近可以接回昨天高抛的iren\ncrwv也是83-84可以回吸一笔\n大盘子财报的技巧也是必须掌握的他比较容易 就是先多的会后空  先空的会后多\n\n\n\n我们手里股票就可以利用机制高抛低吸\n[IMAGE:https://img-v2-prod.whop.com/_JHnPVShtLIJ8pbOcw2BRBNNITOW93b0y8GxLRkFZ_M/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2025-12-12%2Fuser_17909136_d4322aa3-e240-4066-89f9-44e5bf2134af.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D1fe7e8a7ac7171519e248dde792d2324ef90ede11682988a15672df51eaf193b]",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "HOOD",
+              "price": 121,
+              "fraction": "一笔",
+              "condition": "低吸提示",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "BMNR",
+              "price": 36.6,
+              "fraction": "一半",
+              "condition": "低吸提示",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "AMZU",
+              "price": 34.05,
+              "fraction": "一笔",
+              "condition": "双倍加仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "TSLL",
+              "price": 19.3,
+              "fraction": "一半",
+              "condition": "接回高抛仓位",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "CONL",
+              "price": 21,
+              "fraction": "一半",
+              "condition": "接回高抛仓位",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "IREN",
+              "price": 42.2,
+              "fraction": "一笔",
+              "condition": "接回高抛仓位",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "CRWV",
+              "price": 83,
+              "fraction": "一笔",
+              "condition": "低吸提示",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "高抛低吸",
+            "财报加仓"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 7,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00331",
+        "cu_id": "cu_trade_00459",
         "layer": "multi_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00331\",\n  \"speech_act\": \"market_view\",\n  \"actions\": [\n    { \"action\": \"HOLD\", \"ticker\": \"TSLA\", \"price\": null, \"fraction\": null, \"condition\": \"注意盘前跌，回踩16.64附近吸\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"NVDA\", \"price\": null, \"fraction\": null, \"condition\": \"明天盘中找第一个回踩企稳时候吸\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"HOLD\", \"ticker\": \"BMNR\", \"price\": 28.7, \"fraction\": null, \"condition\": \"注意明天盘前eth价格，看支撑位是否破下\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"COIN\", \"price\": null, \"fraction\": null, \"condition\": \"明天盘中回踩时候低吸做正T\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"缩量观察\", \"支撑位操作\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "market_view",
-        "pred_actions": [
-          {
-            "action": "HOLD",
-            "ticker": "TSLA",
-            "price": null,
-            "fraction": null,
-            "condition": "注意盘前跌，回踩16.64附近吸",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "NVDA",
-            "price": null,
-            "fraction": null,
-            "condition": "明天盘中找第一个回踩企稳时候吸",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "HOLD",
-            "ticker": "BMNR",
-            "price": 28.7,
-            "fraction": null,
-            "condition": "注意明天盘前eth价格，看支撑位是否破下",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "COIN",
-            "price": null,
-            "fraction": null,
-            "condition": "明天盘中回踩时候低吸做正T",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "conl  18.2附近可以出个三分之一仓位做T用\n85。1附近出掉点 83.5的nvdl 保留 79-80的nvdl\napld 28.5出剩下一半\njoby 14.95附近出一半\n博通 335-337的回踩 还可以新开 和周五335附近差不多\n32.6也是注意转弯出个三分之一bmnr 到回踩在做T\niRen  43-43.5附近也是减剩下持仓里面 成本高的 留个一半仓位 \ntem注意到68转弯出个三分之一",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "CONL",
+              "price": 18.2,
+              "fraction": "三分之一仓位",
+              "condition": "做T用",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "NVDL",
+              "price": 85.1,
+              "fraction": "部分仓位",
+              "condition": "出前期成本价83.5的仓位",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "APLD",
+              "price": 28.5,
+              "fraction": "一半",
+              "condition": "减仓",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "JOBY",
+              "price": 14.95,
+              "fraction": "一半",
+              "condition": "减仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "AVGO",
+              "price": null,
+              "fraction": "新仓位",
+              "condition": "335-337的回踩",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "BMNR",
+              "price": 32.6,
+              "fraction": "三分之一",
+              "condition": "减仓",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "IREN",
+              "price": 43,
+              "fraction": "部分仓位",
+              "condition": "成本高的减掉，保留一半仓位",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "TEM",
+              "price": 68,
+              "fraction": "三分之一",
+              "condition": "减仓",
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "做T",
+            "分批止盈"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 8,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00770",
+        "cu_id": "cu_trade_00417",
         "layer": "multi_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00770\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"HOOD\", \"price\": 82.5, \"fraction\": \"一半\", \"condition\": \"出财报成本仓\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"HOLD\", \"ticker\": \"HOOD\", \"price\": 71.7, \"fraction\": null, \"condition\": \"死拿低位仓位\", \"status\": \"held\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"AMZN\", \"price\": null, \"fraction\": \"一半\", \"condition\": \"减仓操作提示\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"止盈\", \"仓位管理\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "HOOD",
-            "price": 82.5,
-            "fraction": "一半",
-            "condition": "出财报成本仓",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "HOLD",
-            "ticker": "HOOD",
-            "price": 71.7,
-            "fraction": null,
-            "condition": "死拿低位仓位",
-            "status": "held",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "AMZN",
-            "price": null,
-            "fraction": "一半",
-            "condition": "减仓操作提示",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "tsll上去时候可以把19.3 的在19.35附近减点针对重仓刚才买的  收盘有低点再吸 18.7那个盘中低点附近\nhood也是上去121附近 刚才如果买重仓的成本附近减点118 附近收盘附近到在回吸\n\n\n\n收盘附近会再看下的不用慌\nbmnr也是到36.6附近时候成本附近减点 收盘35.5附近再加\nconl也是接近21附近减掉点 下去再加回",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "TSLL",
+              "price": 19.35,
+              "fraction": "部分仓位",
+              "condition": "减仓针对重仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "TSLL",
+              "price": 18.7,
+              "fraction": "底仓",
+              "condition": "低点吸筹",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "HOOD",
+              "price": 121,
+              "fraction": "部分仓位",
+              "condition": "减仓针对重仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "HOOD",
+              "price": 118,
+              "fraction": "底仓",
+              "condition": "低点吸筹",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "BMNR",
+              "price": 36.6,
+              "fraction": "部分仓位",
+              "condition": "减仓针对重仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "BMNR",
+              "price": 35.5,
+              "fraction": "底仓",
+              "condition": "低点吸筹",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "CONL",
+              "price": 21,
+              "fraction": "部分仓位",
+              "condition": "减仓针对重仓",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "分批止盈",
+            "低点吸筹"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 7,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00664",
+        "cu_id": "cu_trade_00399",
         "layer": "multi_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00664\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"RXRX\", \"price\": 3.98, \"fraction\": null, \"condition\": \"盘中3.78吸的\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"OKLO\", \"price\": 68.5, \"fraction\": null, \"condition\": \"做T资金有赚就留出来\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"OKLO\", \"price\": 64.8, \"fraction\": null, \"condition\": \"放利空消息但是680 685这种地方转弯了吸\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"CFIR\", \"price\": 14.24, \"fraction\": null, \"condition\": \"今天开盘也买高了 明天再找低的机会\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"CRWV\", \"price\": 82.5, \"fraction\": \"常规一半\", \"condition\": null, \"status\": \"filled\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"做T\", \"盘中操作\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "RXRX",
-            "price": 3.98,
-            "fraction": null,
-            "condition": "盘中3.78吸的",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "OKLO",
-            "price": 68.5,
-            "fraction": null,
-            "condition": "做T资金有赚就留出来",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "OKLO",
-            "price": 64.8,
-            "fraction": null,
-            "condition": "放利空消息但是680 685这种地方转弯了吸",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "CIFR",
-            "price": 14.24,
-            "fraction": null,
-            "condition": "今天开盘也买高了 明天再找低的机会",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "CRWV",
-            "price": 82.5,
-            "fraction": "常规一半",
-            "condition": null,
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "夜盘触发了量化的预警 甲骨文的财报后  大陆对是否购买英伟达芯片进行所谓的窗口指导7也导致ai板块进一步下跌引发指数下跌 从而也波及其他板块\n\n\n\n有些夜盘和盘前买入价格要下调点\nnvdl要注意夜盘分时转弯时候在进行加仓 下调到81-82之间看能不能企稳转弯 也是ai板块第二个回踩的导火索 第一个是甲骨文财报利空\ntsll在18.8附近回踩支撑附近也是先入一笔  后面一笔放在18.2附近 也是受到指数和ai影响\ncrwv下调到83一笔 剩下一笔下调到78附近\nmsfl还是剩下一笔看25.8这个前支撑\niren也是直接回踩到第二笔的支撑41-42之间\n英伟达这个跟上次 大陆说英伟达违反反垄断差不多  都不计入大陆地区收益了 夜盘都机器人 判断为利空抛售 正好可以找机会找些转弯往上的吸\nbmnr可以37附近随指数跌时候 回吸一笔39一半位置卖出的部分 在预留点等晚上看下币市场的价格",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "NVDL",
+              "price": 81,
+              "fraction": "一笔",
+              "condition": "夜盘分时转弯加仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "TSLL",
+              "price": 18.8,
+              "fraction": "先入一笔",
+              "condition": "回踩支撑附近买入",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "CRWV",
+              "price": 83,
+              "fraction": "一笔",
+              "condition": "下调到此价格买入",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "MSFL",
+              "price": 25.8,
+              "fraction": "一笔",
+              "condition": "前支撑位买入",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "IREN",
+              "price": 41,
+              "fraction": "一笔",
+              "condition": "回踩第二笔支撑位买入",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "BMNR",
+              "price": 37,
+              "fraction": "一笔",
+              "condition": "随指数下跌时买入",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "夜盘加仓",
+            "支撑位回踩"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 6,
+          "reconcile_ready": "YES"
+        }
+      },
+      {
+        "cu_id": "cu_trade_01052",
+        "layer": "multi_10",
+        "kol_original_text": "14.01开了 三分之一常规仓的tsll 昨天最低在13.03附近 到那附近再加\n73.95开了三分之一常规仓的hood\n7.67开了三分之一常规仓的conl\n14.41可以卖一半14.01的tsll买2卖1份这样 降本\n7.99 也是出一半 7.67的conl买2份卖一份\n7.67在买回 7.99卖出的部分conl 就是不断套利降本",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "TSLL",
+              "price": 14.01,
+              "fraction": "三分之一常规仓",
+              "condition": null,
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "HOOD",
+              "price": 73.95,
+              "fraction": "三分之一常规仓",
+              "condition": null,
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "CONL",
+              "price": 7.67,
+              "fraction": "三分之一常规仓",
+              "condition": null,
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "TSLL",
+              "price": 14.41,
+              "fraction": "一半",
+              "condition": "降本",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "TSLL",
+              "price": 14.01,
+              "fraction": "一份",
+              "condition": null,
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "CONL",
+              "price": 7.99,
+              "fraction": "一半",
+              "condition": "降本",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "CONL",
+              "price": 7.67,
+              "fraction": "一份",
+              "condition": null,
+              "status": "filled",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "降本套利"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 7,
+          "reconcile_ready": "YES"
+        }
       },
       {
         "cu_id": "cu_trade_00341",
         "layer": "multi_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00341\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"BUY\", \"ticker\": \"NVDL\", \"price\": 80.3, \"fraction\": null, \"condition\": \"加仓点\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"IREN\", \"price\": 47.8, \"fraction\": \"少量\", \"condition\": \"加仓点\", \"status\": \"planned\", \"instrument\": \"crypto\" },\n    { \"action\": \"BUY\", \"ticker\": \"BMNR\", \"price\": 32.2, \"fraction\": null, \"condition\": \"下周有低的回踩再加仓\", \"status\": \"planned\", \"instrument\": \"crypto\" },\n    { \"action\": \"BUY\", \"ticker\": \"CONL\", \"price\": 21.5, \"fraction\": null, \"condition\": \"下周有低的回踩再加仓\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"MSFL\", \"price\": 28.3, \"fraction\": \"少量\", \"condition\": \"新开少量或者加点仓\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"盘后挂单\", \"加密货币影响\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "BUY",
-            "ticker": "NVDL",
-            "price": 80.3,
-            "fraction": null,
-            "condition": "加仓点",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "IREN",
-            "price": 47.8,
-            "fraction": "少量",
-            "condition": "加仓点",
-            "status": "planned",
-            "instrument": "crypto"
-          },
-          {
-            "action": "BUY",
-            "ticker": "BMNR",
-            "price": 32.2,
-            "fraction": null,
-            "condition": "下周有低的回踩再加仓",
-            "status": "planned",
-            "instrument": "crypto"
-          },
-          {
-            "action": "BUY",
-            "ticker": "CONL",
-            "price": 21.5,
-            "fraction": null,
-            "condition": "下周有低的回踩再加仓",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "MSFL",
-            "price": 28.3,
-            "fraction": "少量",
-            "condition": "新开少量或者加点仓",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "盘后nvdl可以80.3-80.4加仓点\n加密货币今天有杠杆结算 盘后iren 47.8附近少量加仓点\nbmnr也是加密影响可以挂个32.2附近 下周有在低的回踩在加\nconl盘后可以挂21.5附近  也是下周有再低的回踩再加仓\nmsfl微软双倍也可以28.3附近 少量加点仓或者新开少量",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "BUY",
+              "ticker": "NVDL",
+              "price": 80.3,
+              "fraction": null,
+              "condition": "加仓点",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "IREN",
+              "price": 47.8,
+              "fraction": "少量",
+              "condition": "加仓点",
+              "status": "planned",
+              "instrument": "crypto"
+            },
+            {
+              "action": "BUY",
+              "ticker": "BMNR",
+              "price": 32.2,
+              "fraction": null,
+              "condition": "下周有低的回踩再加仓",
+              "status": "planned",
+              "instrument": "crypto"
+            },
+            {
+              "action": "BUY",
+              "ticker": "CONL",
+              "price": 21.5,
+              "fraction": null,
+              "condition": "下周有低的回踩再加仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "BUY",
+              "ticker": "MSFL",
+              "price": 28.3,
+              "fraction": "少量",
+              "condition": "新开少量或者加点仓",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "盘后挂单",
+            "加密货币影响"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 5,
+          "reconcile_ready": "YES"
+        }
       },
       {
-        "cu_id": "cu_trade_00406",
+        "cu_id": "cu_trade_00410",
         "layer": "multi_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00406\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": \"CRWV\", \"price\": 85.1, \"fraction\": \"一半数量的仓位\", \"condition\": \"昨天收盘附近85的成本价出仓\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"AMZU\", \"price\": 34.9, \"fraction\": \"双倍仓位\", \"condition\": \"接回昨天卖出的亚马逊股票\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"TSLL\", \"price\": 18.7, \"fraction\": \"一半数量的仓位\", \"condition\": \"留个一半数量的18.7的成本价出仓\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"RKLB\", \"price\": null, \"fraction\": \"底仓\", \"condition\": \"低位关注，日本加息之前走\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"成本价出仓\", \"分批止盈\", \"低吸关注\"],\n  \"uncertainty\": [\n    { \"text\": \"tsll今天振幅小来回次数增多也是观望行情会真有不断震荡再到18.7附近或者跌破18.7 转弯时候可以在来一轮\" },\n    { \"text\": \"目前就剩下rklb的低位的剩下一半 会18号日本加息之前走\\nasts之前73时候都走了等之后再找机会\" }\n  ],\n  \"confidence\": 0.92,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "SELL",
-            "ticker": "CRWV",
-            "price": 85.1,
-            "fraction": "一半数量的仓位",
-            "condition": "昨天收盘附近85的成本价出仓",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "AMZU",
-            "price": 34.9,
-            "fraction": "双倍仓位",
-            "condition": "接回昨天卖出的亚马逊股票",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "TSLL",
-            "price": 18.7,
-            "fraction": "一半数量的仓位",
-            "condition": "留个一半数量的18.7的成本价出仓",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "RKLB",
-            "price": null,
-            "fraction": "底仓",
-            "condition": "低位关注，日本加息之前走",
-            "status": "planned",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
-      },
-      {
-        "cu_id": "cu_trade_00129",
-        "layer": "multi_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00129\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"HOLD\", \"ticker\": \"UPST\", \"price\": null, \"fraction\": \"大部分\", \"condition\": \"止盈减持\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"UPSX\", \"price\": 15.9, \"fraction\": \"全部\", \"condition\": \"止盈\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": \"TSLL\", \"price\": 18, \"fraction\": \"分批进仓\", \"condition\": \"支撑位回吸\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"HOLD\", \"ticker\": \"ORCL\", \"price\": null, \"fraction\": \"接近支撑\", \"condition\": \"止盈减持\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"CRWV\", \"price\": 123, \"fraction\": \"一半\", \"condition\": \"成本价附近减仓\", \"status\": \"filled\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": \"NVDL\", \"price\": 87, \"fraction\": \"一半\", \"condition\": \"支撑位减仓\", \"status\": \"filled\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"止盈减持\", \"分批进仓\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [
-          {
-            "action": "HOLD",
-            "ticker": "UPST",
-            "price": null,
-            "fraction": "大部分",
-            "condition": "止盈减持",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "UPSX",
-            "price": 15.9,
-            "fraction": "全部",
-            "condition": "止盈",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "BUY",
-            "ticker": "TSLL",
-            "price": 18,
-            "fraction": "分批进仓",
-            "condition": "支撑位回吸",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "HOLD",
-            "ticker": "ORCL",
-            "price": null,
-            "fraction": "接近支撑",
-            "condition": "止盈减持",
-            "status": "planned",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "CRWV",
-            "price": 123,
-            "fraction": "一半",
-            "condition": "成本价附近减仓",
-            "status": "filled",
-            "instrument": "stock"
-          },
-          {
-            "action": "SELL",
-            "ticker": "NVDL",
-            "price": 87,
-            "fraction": "一半",
-            "condition": "支撑位减仓",
-            "status": "filled",
-            "instrument": "stock"
-          }
-        ],
-        "reconcile_ready": "YES"
+        "kol_original_text": "conl到21.5成本附近可以减点 昨天买入后冲高22.6时候也有减过 等币在回调时候在低买在正T\ncifr 可以18.9附近出夜盘加的 ai+bi概念\niren 高买的44.3部分还没到 有夜盘低买的可以43.8附近出掉点\nhood 有技术官清仓减持 可以博通财报后看有没有回踩可以配点底仓 btc+交易券商概念\n币股每次只要触发了预警  conl bmnr iren cifr容错率都是可以的",
+        "model_parsed": {
+          "speech_act": "trade_action",
+          "actions": [
+            {
+              "action": "SELL",
+              "ticker": "CONL",
+              "price": 21.5,
+              "fraction": "部分仓位",
+              "condition": "成本附近减仓",
+              "status": "planned",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "CIFR",
+              "price": 18.9,
+              "fraction": "全部仓位",
+              "condition": "夜盘加仓出掉",
+              "status": "filled",
+              "instrument": "stock"
+            },
+            {
+              "action": "SELL",
+              "ticker": "IREN",
+              "price": 43.8,
+              "fraction": "部分仓位",
+              "condition": "低买减仓",
+              "status": "planned",
+              "instrument": "stock"
+            }
+          ],
+          "strategy_tags": [
+            "成本价减仓",
+            "夜盘加仓出掉",
+            "低买高卖"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "YES",
+          "action_count": 3,
+          "reconcile_ready": "YES"
+        }
       }
     ],
     "layer3_empty_leak_10": [
       {
-        "cu_id": "cu_trade_00877",
+        "cu_id": "cu_trade_00955",
         "layer": "empty_leak_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00877\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": null, \"price\": null, \"fraction\": \"一半\", \"condition\": \"夜盘低开走高时卖出\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"SELL\", \"ticker\": null, \"price\": null, \"fraction\": \"剩下一半\", \"condition\": \"A股收盘卖一半\", \"status\": \"planned\", \"instrument\": \"stock\" },\n    { \"action\": \"BUY\", \"ticker\": null, \"price\": null, \"fraction\": \"底仓\", \"condition\": \"3点强平后买入\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"被动减仓\", \"低开走高策略\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "韩国 A股港股高开低走夜盘就会跟随低走\n\n规律上也是周四周五容易跌\n\n等A股收盘这几天再看看捡漏机会\n\n昨天btc一直强调的先行回调指标不断套利做短线\n12.32加了12.87卖出的tsll那部分\n85.65开了hood常规仓的一半",
+        "model_parsed": {
+          "actions": [],
+          "strategy_tags": []
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00485",
+        "cu_id": "cu_trade_00983",
         "layer": "empty_leak_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00485\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \n      \"action\": \"SELL\", \n      \"ticker\": null, \n      \"price\": null, \n      \"fraction\": \"昨天加的部分\", \n      \"condition\": \"盘前和开盘第一个小时出仓\", \n      \"status\": \"planned\", \n      \"instrument\": \"stock\" \n    },\n    { \n      \"action\": \"BUY\", \n      \"ticker\": null, \n      \"price\": null, \n      \"fraction\": null, \n      \"condition\": \"收盘附近买回\", \n      \"status\": \"planned\", \n      \"instrument\": \"stock\" \n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"盘前出仓\", \"收盘买回\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "rcl  盘前财报超预期了 主要在 1-2月没打仗时候囤油了 支出不大 利润多\n\n准备转弯时候先走之前的底仓  \n\n275附近出278的 \n\n之后有回调跳空缺口在继续买\n以往rcl最强势是夏天的财报 财报之前都担心油价涨会影响规避资金出的多了影响了股价\n今天是大陆和香港基金被动减的最后天 也是这周PCE和GDP数据昨天鲍威尔说的2大数据需要观察的 主要看昨天的最低点有没有更低",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "财报预期",
+            "市场情绪"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00082",
+        "cu_id": "cu_trade_01087",
         "layer": "empty_leak_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00082\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"HOLD\", \"ticker\": null, \"price\": null, \"fraction\": null, \"condition\": \"期权挂单等待反弹出货\", \"status\": \"planned\", \"instrument\": \"option\" },\n    { \"action\": \"BUY\", \"ticker\": null, \"price\": null, \"fraction\": null, \"condition\": \"按讲话前最低价格分批回吸个股\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"挂单等待反弹出货\", \"按最低价分批回吸\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "btc 下次投票模糊日期没有给出btc继续调整\n\n美伊谈判因为黎巴嫩开火导致暂停\n\n\n\n这些盘前早新闻的放出就要看下盘中 急跌的程序这个规律 6月是否还继续",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "市场观点",
+            "技术分析"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00175",
+        "cu_id": "cu_trade_01032",
         "layer": "empty_leak_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00175\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \n      \"action\": \"SELL\", \n      \"ticker\": null, \n      \"price\": null, \n      \"fraction\": \"价格附近的仓位\", \n      \"condition\": \"电话会议结束后减仓\", \n      \"status\": \"planned\", \n      \"instrument\": null\n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"等待事件\", \"计划减仓\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "港股A股 提前规避大跌2天\n\n加密这次可能最终也是奔着走失败去的\n\n加速赶顶和去年政府关门前的赶顶一致\n\n访华返程很匆忙也很像访华是一个最高点的信号点\n\n\n\n几天 日本韩国港股a股流出的都是 美国本土基金 这段时间都急速赚满开始套现\n\n散户这几天仍然在不断追高  当大资金急速套现 散户小额不断涌入就是顶部特征\n\n\n[IMAGE:https://img-v2-prod.whop.com/_xT9SfyYaV0Ww8bud2UexrJiaQK3HTL6yEcpdYyI2GM/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-05-15%2F56915168-1151-438c-b991-6d978d1f9163.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dbd53ebfb9d59eeee420c0ae56e2f83d5c202886a10973eee3606a9cffe29c564]",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "市场观点",
+            "技术分析"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00509",
+        "cu_id": "cu_trade_00234",
         "layer": "empty_leak_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00509\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": null, \"price\": null, \"fraction\": \"部分\", \"condition\": \"币预警回调出仓位\", \"status\": \"planned\", \"instrument\": \"crypto\" },\n    { \"action\": \"SELL\", \"ticker\": null, \"price\": null, \"fraction\": \"一点\", \"condition\": \"收盘高点附近减仓\", \"status\": \"planned\", \"instrument\": \"crypto\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"回调出货\", \"分批减仓\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "因为现在和三月一样了  开门就等于当时的暂停关税 所以有7成要低位配置拿开门后反弹一段时间   3成尾盘买夜盘出做做T降本用的",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "低位配置",
+            "反弹操作",
+            "日内交易"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00033",
+        "cu_id": "cu_trade_00064",
         "layer": "empty_leak_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00033\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \"action\": \"SELL\", \"ticker\": null, \"price\": null, \"fraction\": null, \"condition\": \"周五冲高后卖出\", \"status\": \"planned\", \"instrument\": \"stock\" }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"盘中操作\", \"支撑位回买\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "mp支撑在90附近 最近稀土利好有点降温了\nrklb支撑还是64 阻力位73  73突破看75\n微牛支撑在11.4附近阻力12\noscr 19支撑  22阻力\ntsll早上回踩有低吸的可以19.95附近减\n今天走势和昨天一样的 开盘都是活性股 回踩下跳空缺口开始震荡往上  2点钟-3点钟可以减持点  尾盘特朗普如果发帖的回调也不用慌在支撑吸回就是了\n\n今天高点就注意2点钟-3点钟附近要很昨天一样日内高点横盘磨 减点 然后看3点多有没有发言\n这周反制频繁 期权他iv会上调 涨幅波动不大就磨损了",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "支撑位判断",
+            "阻力位判断",
+            "日内操作建议"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00259",
+        "cu_id": "cu_trade_00061",
         "layer": "empty_leak_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00259\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \n      \"action\": \"BUY\", \n      \"ticker\": null, \n      \"price\": null, \n      \"fraction\": null,\n      \"condition\": \"开盘吸过一批，计划尾盘附近价格再操作\",\n      \"status\": \"planned\",\n      \"instrument\": null\n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"开盘买入\", \"尾盘关注\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.85,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "今天没有反制言论的话可以手里低位筹码 持股着 开盘看有回踩支撑的在加仓后到2点钟到3点钟附近在减持\n最近几天反制后低点也是一天比一天高，对发言会越来越免疫，机构也习惯了反制盘中小回踩去吸筹",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "持股",
+            "加仓",
+            "减仓"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00237",
+        "cu_id": "cu_trade_01050",
         "layer": "empty_leak_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00237\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    { \n      \"action\": \"SELL\", \n      \"ticker\": null, \n      \"price\": 38.8, \n      \"fraction\": \"2000股\", \n      \"condition\": \"反弹出仓\", \n      \"status\": \"filled\", \n      \"instrument\": \"stock\" \n    },\n    { \n      \"action\": \"BUY\", \n      \"ticker\": null, \n      \"price\": 18.5, \n      \"fraction\": \"部分仓位\", \n      \"condition\": \"回落低吸\", \n      \"status\": \"planned\", \n      \"instrument\": \"stock\" \n    },\n    { \n      \"action\": \"SELL\", \n      \"ticker\": null, \n      \"price\": 19.4, \n      \"fraction\": \"部分仓位\", \n      \"condition\": \"低吸后出仓\", \n      \"status\": \"planned\", \n      \"instrument\": \"stock\" \n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"反弹减仓\", \"回落低吸\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "几种回调中错误情绪\n\n\n\n低位-0.88%    \n\n过于恐慌\n\n今天是不是要直接跌7200啊  个股表现661附近买了美光 659跌破660了要不要割肉啊  会不会跌600啊\n\n\n\n冲高0%附近\n\n后视镜看盘\n\n美股只要死拿就可以 市场火热 好做\n\n自己先假设，踏空情绪\n\n今天翻红了明天1.32%直接跌怎么办\n\n\n\n正确态度 \n\n\n\n收盘看点位 预估第三天的 按实盘 实际时间 实际的量 实际的价格做当下的判断\n\n今天-0.67收盘\n\n\n\n1.32-0.67=0.65  明天的幅度就是和今天的0.88相等 要自己回顾今天的操作 查缺补漏备战明天\n\n\n[IMAGE:https://img-v2-prod.whop.com/TmXU5WuGshyZiFOEAomf6bLY8CIURnLKaq9MKFe6wbY/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-05-19%2Fbef9dd1d-b3fe-4d54-9c9b-601cb53c54fa.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D32e46b2b3813e2f8737338f4a2e244f9592c67c330bd2cc637dfb04109bed1c5]\n[IMAGE:https://img-v2-prod.whop.com/aiii9YFhzMDEpVt2GJt6xvoXOhbuo39yGqb2WekFPz4/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-05-19%2F61beb11a-caaa-408e-946d-7e2d2b099289.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D3734d322bf733cf871cf5e4e378f7f5ddd952715b19ecf566a6cf224044dd329]",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "市场情绪分析",
+            "个股判断"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00277",
+        "cu_id": "cu_trade_00056",
         "layer": "empty_leak_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00277\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    {\n      \"action\": \"SELL\",\n      \"ticker\": null,\n      \"price\": null,\n      \"fraction\": \"减点\",\n      \"condition\": \"期权普涨时减仓\",\n      \"status\": \"planned\",\n      \"instrument\": \"option\"\n    },\n    {\n      \"action\": \"BUY\",\n      \"ticker\": null,\n      \"price\": null,\n      \"fraction\": \"开展期距离现在3个月的\",\n      \"condition\": \"再开期权\",\n      \"status\": \"planned\",\n      \"instrument\": \"option\"\n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"减仓\", \"再开\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.9,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "今天中方反制把价格都压下来了  盘中要把买的时间放到鲍威尔讲话之后  ",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "市场观点",
+            "操作时机建议"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       },
       {
-        "cu_id": "cu_trade_00822",
+        "cu_id": "cu_trade_00658",
         "layer": "empty_leak_10",
-        "source_dialogue": "```json\n{\n  \"cu_id\": \"cu_trade_00822\",\n  \"speech_act\": \"trade_action\",\n  \"actions\": [\n    {\n      \"action\": \"SELL\",\n      \"ticker\": null,\n      \"price\": 14.34,\n      \"fraction\": \"昨天做t仓位\",\n      \"condition\": \"出前期成本价14.11的仓位\",\n      \"status\": \"filled\",\n      \"instrument\": \"stock\"\n    }\n  ],\n  \"claims\": [],\n  \"strategy_tags\": [\"日内交易\", \"止盈\"],\n  \"uncertainty\": [],\n  \"confidence\": 0.95,\n  \"parse_status\": \"ok\"\n}\n```",
-        "pred_speech_act": "trade_action",
-        "pred_actions": [],
-        "reconcile_ready": "NO"
+        "kol_original_text": "今天也是以昨天个股的最低最高做参考 有在摸昨天最低附近的低吸 冲昨天最高附近出  上下也是spy  5点空间   ",
+        "model_parsed": {
+          "speech_act": "market_view",
+          "actions": [],
+          "strategy_tags": [
+            "高低点操作",
+            "跟随大盘"
+          ]
+        },
+        "human_audit_check": {
+          "has_actions": "NO",
+          "action_count": 0,
+          "reconcile_ready": "NO"
+        }
       }
     ]
   }
