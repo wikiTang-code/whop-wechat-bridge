@@ -1,0 +1,738 @@
+[
+  {
+    "sample_id": "sample_1",
+    "category": "典型切片 #1",
+    "channel": "不用翻墙期权",
+    "timestamp": "2025/10/8 21:44:34",
+    "dialogue_window": [
+      {
+        "id": "post_1CTufQ4dvi3aU22Lmbe3fD",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "19:36:19",
+        "text": "mstr 可以336-337减点仓位今晚在329-328附近在低吸回来做个T"
+      },
+      {
+        "id": "post_1CTufb2LNhncyFDNhVvy8u",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "19:38:48",
+        "text": "微牛bull今天有受到中概股资金流出影响 准备到今天尾盘时候在看看加不加仓"
+      },
+      {
+        "id": "post_1CTuomWABdcZ5QgdxTV3hf",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:26:05",
+        "text": "今天美联储会议纪要将于美东时间下午2点公布，上半场震荡波动小 下午1点开始波动增大，今天是大陆假期最后一天中概方面也会流出，机会在会议公布后到尾盘4点"
+      },
+      {
+        "id": "post_1CTupVFfGCrjXuncDvLWRv",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:35:31",
+        "text": "tsll 注意 回调 18.8-18.7 和17.9-17.8附近支撑分批回吸 第三次 计算了磨损值 18.8相当于第一轮的19.2"
+      },
+      {
+        "id": "post_1CTupjaYzAbxnhcZR46Pks",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:38:46",
+        "text": "19.1-19.15建了点这轮tsll底仓 主要机会放18元附近"
+      },
+      {
+        "id": "post_1CTuppu6EGaeLr2RNprpVk",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:39:58",
+        "text": "330-328区间可以回吸  336抛的mstr"
+      },
+      {
+        "id": "post_1CTuq12iuYdCJp5bJHjUA1",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:42:15",
+        "text": "32.7可以出一半 labx 两倍杠杆"
+      },
+      {
+        "id": "post_1CTuq3iDyMtuC6MBCUdACY",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:42:51",
+        "text": "215.7出一半alab"
+      },
+      {
+        "id": "post_1CTuqBJbW4w8zQ6S4FhR2w",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:44:34",
+        "text": "19.7到19.8出 tsll做个日内小波段 在到19.1附近在小仓位吸"
+      },
+      {
+        "id": "post_1CTuqRBHLBgtuVMzpguKsZ",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:47:43",
+        "text": "196-197附近建仓了点 rddt"
+      },
+      {
+        "id": "post_1CTurzZL5yyaYYajgifoqC",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:08:22",
+        "text": "labx和alab剩下一半可以盯着日内的高点 目前AI基建在讲话有望冲个高点出来"
+      },
+      {
+        "id": "post_1CTusagw77offKAJhScMsr",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:16:06",
+        "text": "218-218.5出剩下alab labx 33.3都出"
+      }
+    ]
+  },
+  {
+    "sample_id": "sample_2",
+    "category": "典型切片 #2",
+    "channel": "不用翻墙期权",
+    "timestamp": "2025/10/11 05:06:54",
+    "dialogue_window": [
+      {
+        "id": "post_1CTynPwKT2yVMcKH1m1LwM",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "23:50:27",
+        "text": "今天晚上特朗普讲话感觉是给政府资金 出售在入场的做T机会 都很同步和配合他讲话"
+      },
+      {
+        "id": "post_1CTyoUPng2JHjGbFuNcudh",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "00:04:34",
+        "text": "盘中还有次二次握手确认的 日内低点不破可以在吸一波"
+      },
+      {
+        "id": "post_1CTyt9s7KXAp1BEDcp7xr5",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "01:05:57",
+        "text": "QQQ目前比上一轮低点多跌了-0.2要看下尾盘能不能站上595 个股也放点在7点半附近再看看加"
+      },
+      {
+        "id": "post_1CTyv1PEYLae26naCwzuHT",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "01:30:15",
+        "text": "QQQ有点反弹上来 可以北京时间7点前 新闻没再说之前看看个股反弹相对高点做日内减持"
+      },
+      {
+        "id": "post_1CTyzs6nzcCQjz74mFKr7z",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "02:33:57",
+        "text": "55.2附近可以出一半hims"
+      },
+      {
+        "id": "post_1CTz5uGofyKAWauAHMWwza",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "03:40:01",
+        "text": "目前特朗普发言定在5点 等他讲完再看要不要买 他讲之前新闻都在建议抛售分时会收盘才是最低点"
+      },
+      {
+        "id": "post_1CTz6WGkkfJeEm2xkqbuQg",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "03:47:56",
+        "text": "盘后4点-5点前没有发言V上去可以把 低吸的先冲高T下\n\n\n\n他讲话有点软的话（taco）就会大反弹\n\n\n\n强硬的话就在减持点 至少留一半资金等周一"
+      },
+      {
+        "id": "post_1CTz7fUvkugHv9j8T7qxfN",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "04:03:07",
+        "text": "上一次股票大规模建仓时候QQQ是588.5 SPX是6551 今天QQQ和spx一天打压到了这个建仓点，准备看下特朗普5点发言会不会扭转"
+      },
+      {
+        "id": "post_1CTzCXX48sNxCrBkLp2Sis",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:06:54",
+        "text": "Trump just posted on Truth Social: Starting November 1st, 2025 (or sooner, depending on any further actions or changes taken by China), the United States of America will impose a Tariff of 100% on China, over and above any Tariff that they are currently paying. Also on November 1st, we will impose Export Controls on any and all critical software.\n\n特朗普刚刚在Truth Social上发帖称：自2025年11月1日（或更早，取决于中国是否采取进一步行动或政策变化）起，美国将对中国征收100%的关税，该关税是在中国当前已支付的任何关税基础上额外征收的。此外，我们将于11月1日对所有关键软件实施出口管制。\n\n\n\n社交app上发言态度强势"
+      },
+      {
+        "id": "post_1CTzDk6XZfEifQkvZMFtjz",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:22:51",
+        "text": "特朗普这次态度很强硬 周末中国这方也强硬的话 周一会复制4月那会跳空低开\n\n\n\n手里仓位要降舱给周一留余地"
+      },
+      {
+        "id": "post_1CTzEnsntd8238LzbN1iUP",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:36:35",
+        "text": "这次态度强硬 周末会中方美方互撕关税和软件出口管制 要留出仓位给周一万一跳空留余地 和4月关税互撕一样\n\n\n\n讲话当中有反弹 分批减点\n\n\n\n今天抄底只能快收盘时候抄点 收盘附近应该是最低价\n\n\n\n周一跳空在补仓做T \n\n\n\n\n\n周一跳空后买比较重要点"
+      },
+      {
+        "id": "post_1CTzFKMFEbdKbFPQCivS6V",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:43:29",
+        "text": "周一早上北京时间8点\n\n\n\n夜盘时候如果跳空要留出时间看看跳空多就可以加仓做T"
+      }
+    ]
+  },
+  {
+    "sample_id": "sample_3",
+    "category": "典型切片 #3",
+    "channel": "讨论区股票记录",
+    "timestamp": "2025/10/17 22:09:52",
+    "dialogue_window": [
+      {
+        "id": "post_1CUCL6vWedVMeUzoDWcUAG",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "14:53:23",
+        "text": "今天主要港股A股 持续流出 今天比之前还流出多 夜盘量化就怕发生什么跟指数都在抛售"
+      },
+      {
+        "id": "post_1CUCMRC3iagF4D2gzYjuF5",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "15:10:38",
+        "text": "目前是量化 无差别根据 港A指数在抛售 没有支撑 要等早上才有人判断要不要吸回"
+      },
+      {
+        "id": "post_1CUCkEoBChd6iNu5BfhLYD",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "20:09:54",
+        "text": "因为这会正好人工分批拉起来 你们盯着分时拐弯时候分批出"
+      },
+      {
+        "id": "post_1CUCn5HyjAeizfhaCR7cgA",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "20:33:58",
+        "text": "有些没有提到的股票 可以注意手里20点时间附近价格有拐弯往下迹象就自己减点"
+      },
+      {
+        "id": "post_1CUCnTN1wzEsrLtaY4tbzA",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "20:38:58",
+        "text": "rklb支撑按盘中价格算在64-65 但是夜盘恐慌了下 可以自己下调到62附近 可以64一次 62一次"
+      },
+      {
+        "id": "post_1CUCoWaFkTgM49GCTXPQxg",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "20:52:48",
+        "text": "礼来双倍   昨天特朗普讲话要降低胰岛素和减肥药价格有点影响压制可以14附近加仓等段时间"
+      },
+      {
+        "id": "post_1CUCpJC3X9Ke1uwY4YH1op",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:03:07",
+        "text": "回吸点初步就是夜盘最低价格附近 盘中会再看看 时间上 尾盘附近为主"
+      },
+      {
+        "id": "post_1CUCuFb3cP3cfnfGTDxUhA",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:08:06",
+        "text": "医药股有昨天讲话降价利空等有分时反弹时候在买  昨天讲话里面 减肥药和胰岛素降价"
+      },
+      {
+        "id": "post_1CUCuPQ1YD3kBiME2E4bb2",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:09:52",
+        "text": "upst 和 sofi有区域银行 借贷暴雷影响 可以夜盘最低价在吸没到就时间靠尾盘点"
+      },
+      {
+        "id": "post_1CUCum4Wwf1NRZb42xRvTQ",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:14:46",
+        "text": "hims 52.5支撑 就是有讲话利空 要预留点在跳水加"
+      },
+      {
+        "id": "post_1CUCwsAhTcXZFtqQzHBosU",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:42:22",
+        "text": "减肥药几个昨天特朗普要降价销售都跳水今天 hims  nvo lly"
+      },
+      {
+        "id": "post_1CUCx2BWmLo5Qdk213MftW",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:44:25",
+        "text": "crwv  130和128支撑 可以先吸一部分在到支撑附近加 两个支撑比较近"
+      }
+    ]
+  },
+  {
+    "sample_id": "sample_4",
+    "category": "典型切片 #4",
+    "channel": "不用翻墙期权",
+    "timestamp": "2025/10/31 03:58:36",
+    "dialogue_window": [
+      {
+        "id": "post_1CUc1Nu5ZZ9xskjPk5RHcF",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "03:02:06",
+        "text": "鲍威尔讲话快结束了 主要他鹰派发言创造了机会  主要盘后三巨头财报和中美会晤也会拉下 这轮下跌中主要老股票回踩二次握手的做了配置"
+      },
+      {
+        "id": "post_1CUc1ouJuVWm6vXk4ztQWE",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "03:07:45",
+        "text": "tsll V上去可以22.15-22.25附近减"
+      },
+      {
+        "id": "post_1CUc6W5AfjKaGztT6qa5VE",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "04:09:17",
+        "text": "财报 谷歌超预期  微软中性在等电话会议  meta 不及预期"
+      },
+      {
+        "id": "post_1CUdQEv1KSaUHJNgAaQsCp",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "20:42:30",
+        "text": "中美会晤没有实质性新的利好产出 今天港美股已经提前回调了  美股今天上半场也会承压回踩下回吸点放在尾盘 盘中个股反弹时候时候减点仓位"
+      },
+      {
+        "id": "post_1CUdSDhhdGEfeDqaP6xyg7",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:08:27",
+        "text": "eose还有一半不要补仓 有做空机构做空加普跌 盘前影响大 等利空消化和有资金介入在做他"
+      },
+      {
+        "id": "post_1CUdU9H8bdmNKfCX5VHpRv",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:33:41",
+        "text": "eose 仓位重的可以13.85附近减点等利空消化下在加"
+      },
+      {
+        "id": "post_1CUdV8XXSKBaxMrzAVGFhh",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:46:38",
+        "text": "盘中到了补的价格附近的可以减 没到的就等等反弹   留现金为主 到尾盘看看有没有更企稳的价格 他抛售主要盘前这段多 盘中都走震荡横盘走势 尾盘附近注意有V的股优先吸"
+      },
+      {
+        "id": "post_1CUdYg7ELfFDc1iQRzBr9m",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:33:07",
+        "text": "eose可以在14.45-14.75之间分批减剩下的 之前的14.75成压力位"
+      },
+      {
+        "id": "post_1CUdyVisRZBz2yhCBwEhN4",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "03:58:36",
+        "text": "尾盘附近没有资金入场的迹象 等盘后财报在看看 明天周五和月末 可能会延续调整到明天"
+      },
+      {
+        "id": "post_1CUdzT1YE5YNCvjLXckrQX",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "04:11:06",
+        "text": "奈飞双倍盘后出了利好可以48附近出"
+      },
+      {
+        "id": "post_1CUdzhtdyPtmrrX9TYE8wQ",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "04:14:28",
+        "text": "奈飞双倍先回笼下资金 披露了个美剧的收入 属于小利好 等之后下去在吸"
+      },
+      {
+        "id": "post_1CUe11nuaEXXFp23XJfLqo",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "04:18:31",
+        "text": "奈飞还有1拆10的计划利好 属于短期利好后面再下去45-46可以在吸双倍"
+      }
+    ]
+  },
+  {
+    "sample_id": "sample_5",
+    "category": "典型切片 #5",
+    "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+    "timestamp": "2025/11/11 05:19:17",
+    "dialogue_window": [
+      {
+        "id": "post_1CUzSPTjuccMecykWEkX2S",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "23:23:07",
+        "text": "bmnr在41.9-42附近接回夜盘卖出一半  夜盘出的数量为当时40.5和44附近部分的部分有两笔只接回一笔"
+      },
+      {
+        "id": "post_1CUzTBFWosDrcRXHcxung7",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "23:33:28",
+        "text": "nvdl剩下的拿财报附近 财报前英伟达一般都涨"
+      },
+      {
+        "id": "post_1CUzTbpc2ydcuzXuGsf5fL",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "23:39:02",
+        "text": "20.32出19.8那部分tsll"
+      },
+      {
+        "id": "post_1CUzUHGPAavbD5oE7VAhby",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "23:47:57",
+        "text": "109.5附近也可以回吸夜盘高抛的oklo"
+      },
+      {
+        "id": "post_1CUzVQh6NnYArr9um2ze6F",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "00:02:44",
+        "text": "夜盘有政策导致的高开盘中一定会回踩补下缺口\n\n\n\n目前是2个月来第三次 一定要把规律性常识高开回踩这个攻破 \n\n\n\n给自己三次实战来攻破这个难题"
+      },
+      {
+        "id": "post_1CUzW1yQBsHVtZc1L8K6Qy",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "00:10:43",
+        "text": "nbis回踩110.5附近也可以把夜盘高抛的回吸"
+      },
+      {
+        "id": "post_1CUzX5P9m1uU2J9kB2d9KU",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "00:24:36",
+        "text": "今天的夜盘 减 回踩买也是要大家记住的 这个二个月才发生三次 今天第三次 周末有绝对的政策利好导致的夜盘高开 夜盘前一个小时会产生最高价 然后盘中回踩周五的最高价（含盘后最高价）附近进行回吸"
+      },
+      {
+        "id": "post_1CUzuWCPQufrd7hRYPmA6z",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:18:43",
+        "text": "rklb财报收入可以 先杀空头 冲高时候看高点时候出剩下的"
+      },
+      {
+        "id": "post_1CUzuYj7nQXPGyQvU558MZ",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:19:17",
+        "text": "56附近出剩下的rklb"
+      },
+      {
+        "id": "post_1CUzujQroDUbSKPEXUiHLk",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:21:42",
+        "text": "明天开盘 rklb期权可以减掉点 上周补过rklb期权也可以冲高都走"
+      },
+      {
+        "id": "post_1CUzv9Hvw7E8R3GdfPsTBZ",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:27:06",
+        "text": "之前手里的bbai财报略高于预期 财报+17%也可以减仓点 做T 盘中回落再加"
+      },
+      {
+        "id": "post_1CUzvC9YbwpogLhxoTxeQi",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:27:45",
+        "text": "6.7附近出大部分bbai  明天盘中回落再加+17%"
+      }
+    ]
+  },
+  {
+    "sample_id": "sample_6",
+    "category": "典型切片 #6",
+    "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+    "timestamp": "2025/11/26 22:45:05",
+    "dialogue_window": [
+      {
+        "id": "post_1CVVHQ4g7agEK2cYmmUZS4",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:02:29",
+        "text": "英伟达今天成交额是增量的明天回踩力度会小点也是盘中找第一个回踩企稳时候吸"
+      },
+      {
+        "id": "post_1CVVHW6GF4tsBtEs8vpG9t",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:03:51",
+        "text": "bmnr今天是缩量的 也是明天盘中注意回踩时候看28.7这个支撑会不会破下 也要看明天盘前时候eth价格"
+      },
+      {
+        "id": "post_1CVVHZn91LjAGzYBkSTdWu",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:04:41",
+        "text": "coin今天也是小缩量 conl反弹弹性不错明天也是盘中回踩时候在低吸做正T"
+      },
+      {
+        "id": "post_1CVWZUXeNTn1tVW8bosHg3",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:13:54",
+        "text": "今天盘前和昨天一样刚开盘前时候有下压一个低点 开盘也是回踩低点时候低吸为主"
+      },
+      {
+        "id": "post_1CVWao96VwzuiBSnqXq7b9",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "21:31:14",
+        "text": "现在成交额大部分股票都是每天维持在前几天上面 慢慢就修复上周四大阴线了  \n\n\n\n增量资金下周进场概率大  \n\n\n\n感恩节前后两天还是找低的价格的明星股 币股 七姐妹的双倍做配置"
+      },
+      {
+        "id": "post_1CVWfwGVUrGTDvA5pRgShS",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:38:38",
+        "text": "盘中等tsll回踩转弯这个风向标 转弯低吸和低吸其他的"
+      },
+      {
+        "id": "post_1CVWg3WmzPszFDbWkFq1SR",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:40:03",
+        "text": "tsll可以17.55附近低吸一笔"
+      },
+      {
+        "id": "post_1CVWg74gUsDNzwyLUoMeHk",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:40:51",
+        "text": "tsll第一个回踩转弯出来后 先一笔看会不会盘中有二次回踩 \n\n\n\n我在看看其他的个股机会"
+      },
+      {
+        "id": "post_1CVWgRpXXe63NrrudHpC8c",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:45:05",
+        "text": "84附近少量接nvdl 也是等有二次回踩和收盘附近再看 他反弹过越低性价比越高点"
+      },
+      {
+        "id": "post_1CVWgUyDhADEDRHrn59ZtA",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "22:45:48",
+        "text": "tsll是每天必看的风向标 他提前于qqq 1分钟左右"
+      },
+      {
+        "id": "post_1CVWweCaQFvQ5DUcYgAQSn",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "02:04:36",
+        "text": "tsll到日内压力位附近18.-18.1附近可以出日内17.55的一半"
+      },
+      {
+        "id": "post_1CVWxxYe7WajSYCG4Czapz",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "02:21:51",
+        "text": "回调段是尾盘吸 夜盘盘前减\n\n\n\n反弹段方法就相反了\n\n\n\n然后反弹段一般 反弹就是开盘或者盘前17点半那会吸  然后成交额大于前几天就可以每天继续  成交额少于前几天减仓或者休息几天成交额大了再开始"
+      }
+    ]
+  },
+  {
+    "sample_id": "sample_7",
+    "category": "典型切片 #7",
+    "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+    "timestamp": "2025/12/12 05:26:34",
+    "dialogue_window": [
+      {
+        "id": "post_1CW1ZX3uiUff3yZeNxxgre",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "04:51:43",
+        "text": "conl到21.5成本附近可以减点 昨天买入后冲高22.6时候也有减过 等币在回调时候在低买在正T"
+      },
+      {
+        "id": "post_1CW1ZdTF3b47cf2J6vLRMc",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "04:53:09",
+        "text": "cifr 可以18.9附近出夜盘加的 ai+bi概念"
+      },
+      {
+        "id": "post_1CW1Zfe81LGyW2EUZE5DM7",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "04:53:39",
+        "text": "iren 高买的44.3部分还没到 有夜盘低买的可以43.8附近出掉点"
+      },
+      {
+        "id": "post_1CW1Zq7uKhDQXZwTb47wTx",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "04:55:48",
+        "text": "hood 有技术官清仓减持 可以博通财报后看有没有回踩可以配点底仓 btc+交易券商概念"
+      },
+      {
+        "id": "post_1CW1a1pRmYmhkwzpt65nno",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "04:58:13",
+        "text": "币股每次只要触发了预警  conl bmnr iren cifr容错率都是可以的"
+      },
+      {
+        "id": "post_1CW1bRqBXg8g2skMExABNr",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:16:45",
+        "text": "博通财报 板块AI带起来一下"
+      },
+      {
+        "id": "post_1CW1bU25eH8eZauH9N9Gaf",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:17:15",
+        "text": "nvdl可以84.7昨天高买那部分减点"
+      },
+      {
+        "id": "post_1CW1bXTh8wGznEB7coTnNv",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:18:02",
+        "text": "iren 44.4那部分也是博通财报带起来时候减点在低买"
+      },
+      {
+        "id": "post_1CW1cBE3m39bfA4EBg3yZb",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:26:34",
+        "text": "hood可以夜盘时候注意122.7-123附近买个底仓被博通都带起来点 夜盘会降下去点"
+      },
+      {
+        "id": "post_1CW1ccVjzjAuzoU3V6V6qH",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:32:17",
+        "text": "币市场也在博通财报后 连续跳2个1%反弹"
+      },
+      {
+        "id": "post_1CW1gz9madPyuzuHMRi7iM",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "06:29:38",
+        "text": "博通杀完空开始杀多 我们正好利用他其他股 再次做T等低吸"
+      },
+      {
+        "id": "post_1CW1h8Bho7Et6xHNVkjyF3",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "06:31:27",
+        "text": "82.3附近可以吸回点nvdl底仓"
+      }
+    ]
+  },
+  {
+    "sample_id": "sample_8",
+    "category": "典型切片 #8",
+    "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+    "timestamp": "2026/1/2 09:26:14",
+    "dialogue_window": [
+      {
+        "id": "post_1CWfRUgJMC9WUsfWSwhiTN",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "04:48:51",
+        "text": "今天尾盘也是基金被动减持留现金的节前最后天 可以收盘有些双底 或者双底跌破的建仓和少量补仓（昨天收盘加过的今天价格差不多的就少量补）\n\n\n\n周五夜盘和盘前有比今天收盘低的时候在加点 看周五是多空双杀还是开盘后走多空都结算然后普涨"
+      },
+      {
+        "id": "post_1CWfSPZkqD8xuaJss41zxh",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:00:48",
+        "text": "有些像crwv 那种 加息那天10几cm  今天节前被压最低附近然后最后5分钟V很多可以哪些低点记住 到周五附近有在压低点可以吸\n\n\n\ncrwv就是压到70。43最后几分钟V起来"
+      },
+      {
+        "id": "post_1CWfSUdwRuXVwHekqScjWK",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:01:57",
+        "text": "收盘tsll可以19.1附近   昨天19.5买过的少量加  没买的可以建仓点"
+      },
+      {
+        "id": "post_1CWfSiyf5wvD259KA5evda",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:05:11",
+        "text": "bmnr昨天27.6收盘买过 今天收盘差不多 昨天买过的今天不加了  没买的可以27.1附近开  然后收盘附近是26.8V起来的 也可以周五有小跌26.8附近在加和开也可以"
+      },
+      {
+        "id": "post_1CWfTCvi9KFMGb5nL3LAEz",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:11:30",
+        "text": "hood 昨天115.5收盘附近也有吸 今天收盘后可以112.5-113昨天吸过的少量增加  没吸的可以112.5-113附近建仓"
+      },
+      {
+        "id": "post_1CWfTNvzFohiD4EorqpJhj",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "05:13:46",
+        "text": "rxrx之前是4.11 有吸过今天收盘在4.09附近也可以作为吸的标的之一"
+      },
+      {
+        "id": "post_1CWhf3bBvRNHd8Wb1AfNxY",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "09:07:56",
+        "text": "今天夜盘是节日现金流过去 有些小回流高开的 可以注意把周三收盘买的有些小高开的分2次在夜盘和盘前在高点出"
+      },
+      {
+        "id": "post_1CWhgNykahfc5EEKW72hDk",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "09:25:26",
+        "text": "27.65附近可以把周三收盘的27.1的bmnr出掉一半 一半盘前时候看看有没有继续在出"
+      },
+      {
+        "id": "post_1CWhgSWxBrnpa1JBrh8hpF",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "09:26:14",
+        "text": "tsll可以19.39-19.5出一半19.1的部分也是盘前再看看"
+      },
+      {
+        "id": "post_1CWhi5H4ZQ22Lz8n9uCwPk",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "09:47:39",
+        "text": "tsll 19.1剩下一半可以找19.8-20附近  19.5那部分也是20-20.1附近出"
+      },
+      {
+        "id": "post_1CWhij4H3Ut3joFquxBZWM",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "09:56:12",
+        "text": "今天币预警也是要设置下 和加息那天夜盘起量差不多 就是币今天8万9这边有没有在回调8万3 在回调就盘中会走多空双杀 币8万9到8万8震荡就可能走开盘结算回踩下普涨"
+      },
+      {
+        "id": "post_1CWhitDKbsPW4FPyJgtC9d",
+        "role": "kol_zhao",
+        "name": "赵哥",
+        "time": "09:58:16",
+        "text": "节前都是被动减有个10% 休息一天的现金赎回流要求也是卡了这个机制在三天收盘才买入 今天是节日过去实际多余的就会在吸筹 也关注成交额是不是比节前多1.5倍\n[图片]"
+      }
+    ]
+  }
+]
