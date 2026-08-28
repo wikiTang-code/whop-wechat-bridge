@@ -18,14 +18,6 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { 
-    initQuantSchema, 
-    syncOrdersToQuantDb, 
-    syncPositionsToQuantDb, 
-    syncPortfolioHistory,
-    getQuantPerformance,
-    getOpenRiskExposure
-} from './quant_db.js';
 import l2WorkbenchRouter from './routes/l2_workbench_routes.js';
 import {
   initDb,
