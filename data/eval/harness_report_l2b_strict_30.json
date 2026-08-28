@@ -1,0 +1,415 @@
+{
+  "summary": {
+    "orderLeakRate": 0,
+    "emptyPrecision": 100,
+    "evidenceRate": 100,
+    "precision": 75,
+    "recall": 58.06451612903226,
+    "f1": 65.45454545454545,
+    "counts": {
+      "totalGoldAtomsCount": 31,
+      "totalPredAtomsCount": 24,
+      "totalTruePositives": 18,
+      "totalFalsePositives": 6,
+      "totalFalseNegatives": 13
+    }
+  },
+  "emptyBreakdown": [
+    {
+      "cu_id": "cu_v2_002",
+      "status": "PASS",
+      "atomsCount": 0
+    },
+    {
+      "cu_id": "cu_v2_024",
+      "status": "PASS",
+      "atomsCount": 0
+    },
+    {
+      "cu_id": "cu_v2_039",
+      "status": "PASS",
+      "atomsCount": 0
+    }
+  ],
+  "cuBreakdown": [
+    {
+      "cu_id": "cu_v2_004",
+      "gold_kids": [
+        "k_debt_name_caps_upside"
+      ],
+      "pred_kids": [
+        "k_debt_name_caps_upside"
+      ],
+      "hits_tp": [
+        "k_debt_name_caps_upside"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 32160
+    },
+    {
+      "cu_id": "cu_v2_005",
+      "gold_kids": [
+        "k_high_lot_wait_low_lot_t"
+      ],
+      "pred_kids": [],
+      "hits_tp": [],
+      "misses_fn": [
+        "k_high_lot_wait_low_lot_t"
+      ],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 24832
+    },
+    {
+      "cu_id": "cu_v2_006",
+      "gold_kids": [
+        "k_close_auction_and_overnight"
+      ],
+      "pred_kids": [
+        "k_close_auction_and_overnight"
+      ],
+      "hits_tp": [
+        "k_close_auction_and_overnight"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 11212
+    },
+    {
+      "cu_id": "cu_v2_007",
+      "gold_kids": [
+        "k_t_only_add_on_fast",
+        "k_second_handshake"
+      ],
+      "pred_kids": [
+        "k_second_handshake"
+      ],
+      "hits_tp": [
+        "k_second_handshake"
+      ],
+      "misses_fn": [
+        "k_t_only_add_on_fast"
+      ],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 13649
+    },
+    {
+      "cu_id": "cu_v2_008",
+      "gold_kids": [
+        "k_a_share_red_then_cut_us_overnight",
+        "k_raise_cash_before_friday_double"
+      ],
+      "pred_kids": [],
+      "hits_tp": [],
+      "misses_fn": [
+        "k_a_share_red_then_cut_us_overnight",
+        "k_raise_cash_before_friday_double"
+      ],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 9328
+    },
+    {
+      "cu_id": "cu_v2_010",
+      "gold_kids": [
+        "k_earnings_fade_batch"
+      ],
+      "pred_kids": [
+        "k_earnings_fade_batch"
+      ],
+      "hits_tp": [
+        "k_earnings_fade_batch"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 11342
+    },
+    {
+      "cu_id": "cu_v2_011",
+      "gold_kids": [
+        "k_close_buy_when_puts_surge"
+      ],
+      "pred_kids": [],
+      "hits_tp": [],
+      "misses_fn": [
+        "k_close_buy_when_puts_surge"
+      ],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 5680
+    },
+    {
+      "cu_id": "cu_v2_012",
+      "gold_kids": [
+        "k_gap_fill_then_second_confirm",
+        "k_passive_redeem_then_rebuy"
+      ],
+      "pred_kids": [
+        "k_gap_fill_then_second_confirm",
+        "k_passive_redeem_then_rebuy",
+        "k_close_auction_and_overnight"
+      ],
+      "hits_tp": [
+        "k_gap_fill_then_second_confirm",
+        "k_passive_redeem_then_rebuy"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [
+        "k_close_auction_and_overnight"
+      ],
+      "latency_ms": 29816
+    },
+    {
+      "cu_id": "cu_v2_013",
+      "gold_kids": [
+        "k_half_retrace_watch"
+      ],
+      "pred_kids": [],
+      "hits_tp": [],
+      "misses_fn": [
+        "k_half_retrace_watch"
+      ],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 11791
+    },
+    {
+      "cu_id": "cu_v2_015",
+      "gold_kids": [
+        "k_settlement_day_copy_prior"
+      ],
+      "pred_kids": [
+        "k_settlement_day_copy_prior",
+        "k_close_auction_and_overnight",
+        "k_first_half_hour_passive_plus_friday"
+      ],
+      "hits_tp": [
+        "k_settlement_day_copy_prior"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [
+        "k_close_auction_and_overnight",
+        "k_first_half_hour_passive_plus_friday"
+      ],
+      "latency_ms": 29460
+    },
+    {
+      "cu_id": "cu_v2_016",
+      "gold_kids": [
+        "k_unfilled_limit_exit_next_week",
+        "k_half_now_half_daily_low"
+      ],
+      "pred_kids": [],
+      "hits_tp": [],
+      "misses_fn": [
+        "k_unfilled_limit_exit_next_week",
+        "k_half_now_half_daily_low"
+      ],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 4270
+    },
+    {
+      "cu_id": "cu_v2_018",
+      "gold_kids": [
+        "k_friday_long_then_short"
+      ],
+      "pred_kids": [],
+      "hits_tp": [],
+      "misses_fn": [
+        "k_friday_long_then_short"
+      ],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 13228
+    },
+    {
+      "cu_id": "cu_v2_019",
+      "gold_kids": [
+        "k_msci_delete_cascade"
+      ],
+      "pred_kids": [
+        "k_close_auction_and_overnight",
+        "k_msci_delete_cascade"
+      ],
+      "hits_tp": [
+        "k_msci_delete_cascade"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [
+        "k_close_auction_and_overnight"
+      ],
+      "latency_ms": 24273
+    },
+    {
+      "cu_id": "cu_v2_021",
+      "gold_kids": [
+        "k_friday_last_hour_v"
+      ],
+      "pred_kids": [],
+      "hits_tp": [],
+      "misses_fn": [
+        "k_friday_last_hour_v"
+      ],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 13175
+    },
+    {
+      "cu_id": "cu_v2_022",
+      "gold_kids": [
+        "k_index_weak_only_mega",
+        "k_higher_low_is_bottom"
+      ],
+      "pred_kids": [
+        "k_higher_low_is_bottom",
+        "k_index_weak_only_mega"
+      ],
+      "hits_tp": [
+        "k_index_weak_only_mega",
+        "k_higher_low_is_bottom"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 19928
+    },
+    {
+      "cu_id": "cu_v2_028",
+      "gold_kids": [
+        "k_first_half_hour_passive_plus_friday"
+      ],
+      "pred_kids": [
+        "k_friday_long_then_short"
+      ],
+      "hits_tp": [],
+      "misses_fn": [
+        "k_first_half_hour_passive_plus_friday"
+      ],
+      "wrong_or_extra_fp": [
+        "k_friday_long_then_short"
+      ],
+      "latency_ms": 13535
+    },
+    {
+      "cu_id": "cu_v2_030",
+      "gold_kids": [
+        "k_look_turns_not_news"
+      ],
+      "pred_kids": [
+        "k_look_turns_not_news"
+      ],
+      "hits_tp": [
+        "k_look_turns_not_news"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 10430
+    },
+    {
+      "cu_id": "cu_v2_031",
+      "gold_kids": [
+        "k_sales_print_tests_high",
+        "k_pre_earnings_avoid_then_range"
+      ],
+      "pred_kids": [
+        "k_pre_earnings_avoid_then_range"
+      ],
+      "hits_tp": [
+        "k_pre_earnings_avoid_then_range"
+      ],
+      "misses_fn": [
+        "k_sales_print_tests_high"
+      ],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 12901
+    },
+    {
+      "cu_id": "cu_v2_035",
+      "gold_kids": [
+        "k_sharp_drop_intraday_only"
+      ],
+      "pred_kids": [
+        "k_sharp_drop_intraday_only"
+      ],
+      "hits_tp": [
+        "k_sharp_drop_intraday_only"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 12976
+    },
+    {
+      "cu_id": "cu_v2_036",
+      "gold_kids": [
+        "k_vote_fail_then_conl_band"
+      ],
+      "pred_kids": [
+        "k_vote_fail_then_conl_band"
+      ],
+      "hits_tp": [
+        "k_vote_fail_then_conl_band"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 11887
+    },
+    {
+      "cu_id": "cu_v2_045",
+      "gold_kids": [
+        "k_look_turns_not_news",
+        "k_rubber_ball_after_gap_fill"
+      ],
+      "pred_kids": [
+        "k_rubber_ball_after_gap_fill",
+        "k_look_turns_not_news"
+      ],
+      "hits_tp": [
+        "k_look_turns_not_news",
+        "k_rubber_ball_after_gap_fill"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 20492
+    },
+    {
+      "cu_id": "cu_v2_046",
+      "gold_kids": [
+        "k_stagger_adds_use_close"
+      ],
+      "pred_kids": [
+        "k_stagger_adds_use_close",
+        "k_close_auction_and_overnight"
+      ],
+      "hits_tp": [
+        "k_stagger_adds_use_close"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [
+        "k_close_auction_and_overnight"
+      ],
+      "latency_ms": 17814
+    },
+    {
+      "cu_id": "cu_v2_047",
+      "gold_kids": [
+        "k_no_option_in_theta_month"
+      ],
+      "pred_kids": [],
+      "hits_tp": [],
+      "misses_fn": [
+        "k_no_option_in_theta_month"
+      ],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 11453
+    },
+    {
+      "cu_id": "cu_v2_049",
+      "gold_kids": [
+        "k_spx_levels_mechanism"
+      ],
+      "pred_kids": [
+        "k_spx_levels_mechanism"
+      ],
+      "hits_tp": [
+        "k_spx_levels_mechanism"
+      ],
+      "misses_fn": [],
+      "wrong_or_extra_fp": [],
+      "latency_ms": 15895
+    }
+  ]
+}
