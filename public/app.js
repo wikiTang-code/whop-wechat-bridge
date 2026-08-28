@@ -2101,7 +2101,43 @@ async function fetchStrategyData() {
   }
 }
 
-// 渲染大V（赵哥）口头披露和硬核持仓 Lots (FIFO 算法)
+// 二级子 Tab 切换：实盘持仓 vs 7大战法
+window.switchZhaoSubTab = function(subTabName) {
+  const posView = document.getElementById('zhao-subview-positions');
+  const stratView = document.getElementById('zhao-subview-strategies');
+  const btnPos = document.getElementById('subtab-btn-positions');
+  const btnStrat = document.getElementById('subtab-btn-strategies');
+
+  if (subTabName === 'positions') {
+    if (posView) posView.style.display = 'block';
+    if (stratView) stratView.style.display = 'none';
+    if (btnPos) {
+      btnPos.style.background = 'rgba(59, 130, 246, 0.15)';
+      btnPos.style.borderColor = '#3b82f6';
+      btnPos.style.color = '#93c5fd';
+    }
+    if (btnStrat) {
+      btnStrat.style.background = 'rgba(255, 255, 255, 0.05)';
+      btnStrat.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+      btnStrat.style.color = '#94a3b8';
+    }
+  } else {
+    if (posView) posView.style.display = 'none';
+    if (stratView) stratView.style.display = 'block';
+    if (btnStrat) {
+      btnStrat.style.background = 'rgba(59, 130, 246, 0.15)';
+      btnStrat.style.borderColor = '#3b82f6';
+      btnStrat.style.color = '#93c5fd';
+    }
+    if (btnPos) {
+      btnPos.style.background = 'rgba(255, 255, 255, 0.05)';
+      btnPos.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+      btnPos.style.color = '#94a3b8';
+    }
+  }
+};
+
+// 渲染大V（赵哥）口头披露、硬核持仓 Lots 及待确认候选消息池
 function renderZhaoPositions(data) {
   const verbalStatusEl = document.getElementById('zhao-verbal-status');
   const verbalSourceEl = document.getElementById('zhao-verbal-source');
@@ -2128,86 +2164,186 @@ function renderZhaoPositions(data) {
   
   if (!data.currentPositions || data.currentPositions.length === 0) {
     container.innerHTML = `
-      <div class="empty-state">
+      <div class="empty-state" style="grid-column: 1 / -1;">
         <span class="empty-state-icon">💼</span>
         <p>目前无活跃实盘持仓记录</p>
       </div>
     `;
-    return;
-  }
-  
-  data.currentPositions.forEach((pos, pIdx) => {
-    const card = document.createElement('div');
-    card.className = 'zhao-pos-card';
-    
-    const pnlRatioPercent = (pos.pnlRatio * 100).toFixed(2);
-    const pnlClass = pos.unrealizedPnL > 0 ? 'positive' : (pos.unrealizedPnL < 0 ? 'negative' : '');
-    const pnlSign = pos.unrealizedPnL > 0 ? '+' : '';
-    const pnlAmountStr = pos.unrealizedPnL !== 0 ? `${pnlSign}$${Math.abs(pos.unrealizedPnL).toFixed(2)} (${pnlSign}${pnlRatioPercent}%)` : '$0.00 (0.00%)';
-    
-    // 历史所有交易流水（含买卖、点位、原始发言信息源）
-    let allTradesHtml = '';
-    const tradesList = pos.allTrades || [];
-    if (tradesList.length > 0) {
-      allTradesHtml = tradesList.map((t, tIdx) => {
-        const tTimeStr = new Date(t.time).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-        const isBuy = t.action === 'BUY';
-        const actionBadge = isBuy ? '<span style="color: #34d399; font-weight: bold; background: rgba(52, 211, 153, 0.12); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.3);">🟢 买入</span>' : '<span style="color: #f87171; font-weight: bold; background: rgba(248, 113, 113, 0.12); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(248, 113, 113, 0.3);">🔴 卖出</span>';
-        return `
-          <div style="background: rgba(15, 23, 42, 0.7); border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.8rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <span>${actionBadge} <strong style="color: #f1f5f9; margin-left: 4px;">${t.quantity} 股 @ $${t.price}</strong></span>
-              <span style="color: #64748b; font-size: 0.75rem;">${tTimeStr}</span>
+  } else {
+    data.currentPositions.forEach((pos, pIdx) => {
+      const card = document.createElement('div');
+      card.className = 'zhao-pos-card';
+      
+      const pnlRatioPercent = (pos.pnlRatio * 100).toFixed(2);
+      const pnlClass = pos.unrealizedPnL > 0 ? 'positive' : (pos.unrealizedPnL < 0 ? 'negative' : '');
+      const pnlSign = pos.unrealizedPnL > 0 ? '+' : '';
+      const pnlAmountStr = pos.unrealizedPnL !== 0 ? `${pnlSign}$${Math.abs(pos.unrealizedPnL).toFixed(2)} (${pnlSign}${pnlRatioPercent}%)` : '$0.00 (0.00%)';
+      
+      // 历史所有交易流水（含买卖、点位、持仓前后演变轨迹与移出操作）
+      let allTradesHtml = '';
+      const tradesList = pos.allTrades || [];
+      if (tradesList.length > 0) {
+        allTradesHtml = tradesList.map((t, tIdx) => {
+          const tTimeStr = new Date(t.time).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+          const isBuy = t.action === 'BUY';
+          const actionBadge = isBuy ? '<span style="color: #34d399; font-weight: bold; background: rgba(52, 211, 153, 0.12); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.3);">🟢 买入</span>' : '<span style="color: #f87171; font-weight: bold; background: rgba(248, 113, 113, 0.12); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(248, 113, 113, 0.3);">🔴 卖出</span>';
+          return `
+            <div style="background: rgba(15, 23, 42, 0.75); border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.8rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span>${actionBadge} <strong style="color: #f1f5f9; margin-left: 4px;">${t.quantity} 股 @ $${t.price}</strong></span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="color: #64748b; font-size: 0.75rem;">${tTimeStr}</span>
+                  <button onclick="moveTradeReviewStatus('${t.id}', 'candidate')" title="将该交易移入待确认候选池" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; cursor: pointer;">
+                    ❌ 移出
+                  </button>
+                </div>
+              </div>
+              <div style="color: #94a3b8; font-size: 0.78rem; line-height: 1.45; word-break: break-word; background: rgba(0,0,0,0.3); padding: 6px 8px; border-radius: 4px; border-left: 3px solid #3b82f6;">
+                ${t.reason}
+              </div>
             </div>
-            <div style="color: #94a3b8; font-size: 0.78rem; line-height: 1.45; word-break: break-word; background: rgba(0,0,0,0.25); padding: 4px 6px; border-radius: 4px;">
-              <span style="color: #38bdf8; font-weight: 500;">原始信息源：</span>${t.reason}
+          `;
+        }).join('');
+      }
+      
+      card.innerHTML = `
+        <div class="zhao-pos-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="zhao-pos-ticker" style="font-size: 1.15rem; font-weight: 800; color: #fff;">${pos.ticker}</span>
+            <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); font-size: 0.75rem; padding: 2px 6px; border-radius: 4px;">${pos.lotBadge}</span>
+          </div>
+          <div class="zhao-pos-pnl ${pnlClass}" style="font-size: 0.95rem; font-weight: 800;">
+            ${pnlAmountStr}
+          </div>
+        </div>
+        <div class="zhao-pos-meta-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 8px; margin-bottom: 8px; text-align: center;">
+          <div class="zhao-meta-item">
+            <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">持仓股数</span>
+            <span class="val" style="font-weight: 700; font-size: 0.95rem; color: #38bdf8;">${pos.totalQuantity} 股</span>
+          </div>
+          <div class="zhao-meta-item">
+            <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">持仓均价</span>
+            <span class="val" style="font-weight: 600; font-size: 0.85rem; color: #e2e8f0;">$${pos.averageCost.toFixed(2)}</span>
+          </div>
+          <div class="zhao-meta-item">
+            <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">当前现价</span>
+            <span class="val" style="font-weight: 600; font-size: 0.85rem; color: #e2e8f0;">$${pos.currentPrice.toFixed(2)}</span>
+          </div>
+          <div class="zhao-meta-item">
+            <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">持仓市值</span>
+            <span class="val" style="font-weight: 700; font-size: 0.85rem; color: #f8fafc;">$${pos.marketValue.toFixed(0)}</span>
+          </div>
+        </div>
+        <div>
+          <button onclick="toggleSingleTickerTrades('ticker-trades-${pIdx}')" style="width: 100%; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 6px 0; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: all 0.2s;">
+            📜 展开 / 折叠历史演变台账与信息源 (${tradesList.length} 笔)
+          </button>
+          <div id="ticker-trades-${pIdx}" style="display: none; margin-top: 8px; max-height: 360px; overflow-y: auto; padding-right: 2px;">
+            ${allTradesHtml || '<div style="color: #64748b; font-size: 0.8rem; text-align: center; padding: 8px;">暂无历史交易流水</div>'}
+          </div>
+        </div>
+      `;
+      
+      container.appendChild(card);
+    });
+  }
+
+  // 渲染待确认候选消息池 (Candidate Pool)
+  const candidateContainer = document.getElementById('candidate-messages-list');
+  const countBadge = document.getElementById('candidate-count-badge');
+  const candidates = data.candidateList || [];
+  
+  if (countBadge) countBadge.textContent = `${candidates.length} 条待复核`;
+  
+  if (candidateContainer) {
+    if (candidates.length === 0) {
+      candidateContainer.innerHTML = '<div style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 10px;">暂无待确认候选消息，所有高置信度指令均已入账</div>';
+    } else {
+      candidateContainer.innerHTML = candidates.map(c => {
+        const timeStr = new Date(c.created_at).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        const confColor = c.confidence >= 70 ? '#fbbf24' : '#94a3b8';
+        return `
+          <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 10px; font-size: 0.82rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div>
+                <strong style="color: #60a5fa; font-size: 0.9rem;">${c.ticker}</strong>
+                <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; margin-left: 6px; font-size: 0.72rem; padding: 1px 6px;">置信度 ${c.confidence}%</span>
+                <span style="color: #94a3b8; font-size: 0.75rem; margin-left: 6px;">预估动作: ${c.action === 'BUY' ? '买入' : '卖出'} @ $${c.price} (${c.fraction_name})</span>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <button onclick="moveTradeReviewStatus('${c.id}', 'confirmed')" style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #6ee7b7; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">
+                  ✅ 移入持仓 (确认成交)
+                </button>
+                <button onclick="moveTradeReviewStatus('${c.id}', 'rejected')" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">
+                  🗑️ 忽略
+                </button>
+              </div>
+            </div>
+            <div style="color: #cbd5e1; font-size: 0.8rem; line-height: 1.4; background: rgba(0,0,0,0.25); padding: 6px 8px; border-radius: 4px;">
+              <span style="color: #64748b; font-size: 0.75rem;">[${timeStr}] </span>${c.raw_content}
             </div>
           </div>
         `;
       }).join('');
     }
-    
-    card.innerHTML = `
-      <div class="zhao-pos-header" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; margin-bottom: 8px;">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span class="zhao-pos-ticker" style="font-size: 1.15rem; font-weight: 800; color: #fff;">${pos.ticker}</span>
-          <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); font-size: 0.75rem; padding: 2px 6px; border-radius: 4px;">${pos.lotBadge}</span>
-        </div>
-        <div class="zhao-pos-pnl ${pnlClass}" style="font-size: 0.95rem; font-weight: 800;">
-          ${pnlAmountStr}
-        </div>
-      </div>
-      <div class="zhao-pos-meta-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 8px; margin-bottom: 8px; text-align: center;">
-        <div class="zhao-meta-item">
-          <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">持仓股数</span>
-          <span class="val" style="font-weight: 700; font-size: 0.95rem; color: #38bdf8;">${pos.totalQuantity} 股</span>
-        </div>
-        <div class="zhao-meta-item">
-          <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">持仓均价</span>
-          <span class="val" style="font-weight: 600; font-size: 0.85rem; color: #e2e8f0;">$${pos.averageCost.toFixed(2)}</span>
-        </div>
-        <div class="zhao-meta-item">
-          <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">当前现价</span>
-          <span class="val" style="font-weight: 600; font-size: 0.85rem; color: #e2e8f0;">$${pos.currentPrice.toFixed(2)}</span>
-        </div>
-        <div class="zhao-meta-item">
-          <span class="lbl" style="font-size: 0.7rem; color: #94a3b8;">持仓市值</span>
-          <span class="val" style="font-weight: 700; font-size: 0.85rem; color: #f8fafc;">$${pos.marketValue.toFixed(0)}</span>
-        </div>
-      </div>
-      <div>
-        <button onclick="toggleSingleTickerTrades('ticker-trades-${pIdx}')" style="width: 100%; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 6px 0; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: all 0.2s;">
-          📜 展开 / 折叠历史交易与信息源 (${tradesList.length} 笔)
-        </button>
-        <div id="ticker-trades-${pIdx}" style="display: none; margin-top: 8px; max-height: 320px; overflow-y: auto; padding-right: 2px;">
-          ${allTradesHtml || '<div style="color: #64748b; font-size: 0.8rem; text-align: center; padding: 8px;">暂无历史交易流水</div>'}
-        </div>
-      </div>
-    `;
-    
-    container.appendChild(card);
-  });
+  }
 }
+
+// 人机协同：移动消息状态（confirmed / candidate / rejected）
+window.moveTradeReviewStatus = async function(id, targetStatus) {
+  try {
+    const res = await fetch('/api/trade-review/move', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': window.csrfToken || ''
+      },
+      body: JSON.stringify({ id, targetStatus })
+    });
+    const json = await res.json();
+    if (json.success) {
+      // 提示并重新拉取刷新
+      if (window.showToast) window.showToast(`操作成功：已更新为 ${targetStatus === 'confirmed' ? '已确认持仓' : '待确认候选池'}`);
+      fetchStrategyData();
+    } else {
+      alert(json.error || '移动失败');
+    }
+  } catch (e) {
+    alert('请求错误: ' + e.message);
+  }
+};
+
+// 人机协同：全量同步与重新计算
+window.syncTradeReviewPool = async function() {
+  const btn = document.getElementById('btn-sync-trades');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '⏳ 正在重新计算持仓与同步模型...';
+  }
+  try {
+    const res = await fetch('/api/trade-review/sync', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': window.csrfToken || ''
+      }
+    });
+    const json = await res.json();
+    if (json.success) {
+      alert(json.message);
+      fetchStrategyData();
+    } else {
+      alert(json.error || '同步失败');
+    }
+  } catch (e) {
+    alert('同步请求异常: ' + e.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '🔄 同步并保存记录';
+    }
+  }
+};
 
 window.toggleSingleTickerTrades = function(elemId) {
   const el = document.getElementById(elemId);

@@ -149,6 +149,28 @@ export function initDb() {
     )
   `).run();
 
+  // 量化模块表 4: 交易消息审核与置信度候选池表 (trade_review_pool)
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS trade_review_pool (
+      id TEXT PRIMARY KEY,
+      message_id TEXT,
+      ticker TEXT NOT NULL,
+      action TEXT NOT NULL,
+      price REAL NOT NULL,
+      fraction_name TEXT,
+      fraction_ratio REAL,
+      confidence REAL NOT NULL,
+      status TEXT NOT NULL DEFAULT 'candidate',
+      raw_content TEXT NOT NULL,
+      before_qty INTEGER DEFAULT 0,
+      before_avg_cost REAL DEFAULT 0,
+      after_qty INTEGER DEFAULT 0,
+      after_avg_cost REAL DEFAULT 0,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `).run();
+
   // 初始化虚拟资金 (如账户不存在，默认存入 100,000 美元沙盒资金)
   const cashCheck = db.prepare('SELECT value FROM portfolio WHERE key = ?').get('cash');
   if (!cashCheck) {

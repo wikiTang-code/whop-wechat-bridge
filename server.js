@@ -1304,10 +1304,21 @@ app.get('/api/zhao-positions', async (req, res) => {
       };
     });
 
-    // 4. 提取口头披露仓位状态
+    // 4. 从 trade_review_pool 获取候选待确认交易列表
+    let candidateList = [];
+    try {
+      candidateList = db.prepare(`
+        SELECT * FROM trade_review_pool
+        WHERE status = 'candidate'
+        ORDER BY created_at DESC
+        LIMIT 50
+      `).all();
+    } catch (e) {}
+
+    // 5. 提取口头披露仓位状态
     const verbalExposure = cachedVerbalExposure;
 
-    // 5. 聚合战役统计
+    // 6. 聚合战役统计
     const totalCampaigns = db.prepare("SELECT COUNT(*) as count FROM campaigns").get()?.count || 0;
     const activeCampaignsCount = finalActivePositions.length;
     const closedCampaignsCount = Math.max(0, totalCampaigns - activeCampaignsCount);
@@ -1317,6 +1328,7 @@ app.get('/api/zhao-positions', async (req, res) => {
       data: {
         verbalExposure,
         currentPositions: finalActivePositions,
+        candidateList,
         activeCampaignsCount,
         closedCampaignsCount,
         totalCampaignsCount: totalCampaigns
@@ -1324,6 +1336,43 @@ app.get('/api/zhao-positions', async (req, res) => {
     });
   } catch (err) {
     console.error('[Zhao Positions API] 获取失败:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/trade-review/move - 人机协同：在持仓与候选消息池之间一键移动
+app.post('/api/trade-review/move', requireCsrf, async (req, res) => {
+  try {
+    const { id, targetStatus } = req.body;
+    if (!id || !targetStatus) {
+      return res.status(400).json({ success: false, error: '缺少 id 或 targetStatus 参数' });
+    }
+
+    const db = getDb();
+    db.prepare(`
+      UPDATE trade_review_pool
+      SET status = ?, updated_at = ?
+      WHERE id = ? OR message_id = ?
+    `).run(targetStatus, Date.now(), id, id);
+
+    res.json({ success: true, message: `成功更新状态为 ${targetStatus}` });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/trade-review/sync - 人机协同：重新执行全量持仓与台账同步
+app.post('/api/trade-review/sync', requireCsrf, async (req, res) => {
+  try {
+    const { exec } = await import('child_process');
+    exec('node scratch/rebuild_with_confidence_and_ledger.js', (error, stdout, stderr) => {
+      if (error) {
+        console.error('[Sync Error]:', error);
+        return res.status(500).json({ success: false, error: error.message });
+      }
+      res.json({ success: true, message: '🎉 全量持仓台账与语义模型已重新计算同步完成！', stdout });
+    });
+  } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });

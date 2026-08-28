@@ -419,33 +419,63 @@
           </div>
         </div>
 
-        <!-- 2. 下方左右分栏透视看板 -->
-        <div class="zhao-kanban-layout">
-          <!-- 左分栏：赵哥硬核实盘持仓明细 (Lots Cards) -->
-          <div class="zhao-positions-panel">
-            <div class="panel-header-compact">
-              <h3>💼 赵哥硬核实盘持仓明细 (Lots)</h3>
-              <p class="subtitle-compact">基于量化API成交数据流，实时分批先进先出(FIFO)跟踪</p>
-            </div>
-            <div class="zhao-positions-list" id="zhao-active-positions-container">
-              <div class="loading-state">
-                <div class="spinner"></div>
-                <p>正在计算实盘持仓 Lot 批次...</p>
-              </div>
+        <!-- 2. 二级子 Tab 导航条与同步按钮 -->
+        <div class="zhao-subtab-bar" style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+          <div style="display: flex; gap: 8px;">
+            <button class="zhao-subtab-btn active" id="subtab-btn-positions" onclick="switchZhaoSubTab('positions')" style="background: rgba(59, 130, 246, 0.15); border: 1px solid #3b82f6; color: #93c5fd; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem;">
+              💼 实盘持仓与动态交易台账
+            </button>
+            <button class="zhao-subtab-btn" id="subtab-btn-strategies" onclick="switchZhaoSubTab('strategies')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem;">
+              ⚔️ 7大经典战法与历史战役
+            </button>
+          </div>
+          <div>
+            <button onclick="syncTradeReviewPool()" id="btn-sync-trades" style="background: linear-gradient(135deg, #10b981, #059669); border: none; color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);">
+              🔄 同步并保存记录
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. 子 Tab 1: 赵哥硬核实盘持仓与待确认候选池 -->
+        <div id="zhao-subview-positions" class="zhao-subview-content">
+          <div class="panel-header-compact" style="margin-bottom: 10px;">
+            <h3>💼 赵哥硬核实盘在持标的与操作台账</h3>
+            <p class="subtitle-compact">基于第一人称明确买卖动作与置信度评分计算，点击卡片可展开持仓演变前后推演轨迹</p>
+          </div>
+          <div class="zhao-positions-list" id="zhao-active-positions-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px;">
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <p>正在计算实盘持仓 Lot 批次与演变台账...</p>
             </div>
           </div>
 
-          <!-- 右分栏：经典战法与战役嵌套看板 -->
-          <div class="zhao-strategies-panel">
-            <div class="panel-header-compact">
-              <h3>🎨 经典战法策略与实战战役 (Strategy & Campaigns)</h3>
-              <p class="subtitle-compact">大V 7大经典战法与关联个股实战战役嵌套视窗</p>
+          <!-- 待确认标的消息池 (Candidate Pool) -->
+          <div class="candidate-pool-wrapper" style="margin-top: 25px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h3 style="color: #fbbf24; font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 6px;">
+                📥 标的待确认候选消息池 (置信度较低 / 需人工复核)
+              </h3>
+              <span id="candidate-count-badge" class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">0 条待复核</span>
             </div>
-            <div class="strategies-grid" id="strategies-card-grid">
-              <div class="loading-state">
-                <div class="spinner"></div>
-                <p>正在获取战法及战役关联...</p>
-              </div>
+            <p style="color: #94a3b8; font-size: 0.8rem; margin: 0 0 10px 0;">
+              此处包含识别出标的与价格但动词较弱或包含设想/评论的消息。如确实为实盘交易，可点击【移入持仓】自动计入；如为纯评论，可点击【移出】。
+            </p>
+            <div id="candidate-messages-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto;">
+              <div style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 10px;">暂无待确认候选消息</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. 子 Tab 2: 7大经典战法策略与实战战役 (全宽视窗) -->
+        <div id="zhao-subview-strategies" class="zhao-subview-content" style="display: none;">
+          <div class="panel-header-compact" style="margin-bottom: 10px;">
+            <h3>🎨 7大经典战法策略与实战战役嵌套视窗</h3>
+            <p class="subtitle-compact">大V 7大经典战法、AI 生成深度研报与关联个股实战战役复盘</p>
+          </div>
+          <div class="strategies-grid" id="strategies-card-grid">
+            <div class="loading-state">
+              <div class="spinner"></div>
+              <p>正在获取战法及战役关联...</p>
             </div>
           </div>
         </div>
