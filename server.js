@@ -1241,271 +1241,92 @@ app.post('/api/task-queue/clear', requireCsrf, (req, res) => {
   }
 });
 
-// === Local Model Tunnel Management ===
-
-let localModelTunnelProcess = null;
-
-// 3. POST /api/system/local-model/start - 启动本地大模型 SSH 反向隧道
-app.post('/api/system/local-model/start', requireCsrf, async (req, res) => {
-  try {
-    // 检查端口是否已被占用（说明隧道可能已在运行）
-    const isUp = await new Promise((resolve) => {
-      const socket = new net.Socket();
-      socket.setTimeout(200);
-      socket.on('connect', () => { socket.destroy(); resolve(true); });
-      socket.on('timeout', () => { socket.destroy(); resolve(false); });
-      socket.on('error', () => { socket.destroy(); resolve(false); });
-      socket.connect(8080, '127.0.0.1');
-    });
-
-    if (isUp) {
-      return res.json({ success: true, connected: true, message: '本地模型 (8080) 已处于连接状态，无需重复启动。' });
-    }
-
-    // 先清理残留的僵尸进程
-    try { execSync('fuser -k 8080/tcp 2>/dev/null || true', { timeout: 3000 }); } catch(e) {}
-
-    // 获取隧道启动命令（可通过 .env 覆盖）
-    // 默认：SSH 反向隧道，VM 反连到本地 Windows 的 LM Studio (8080端口)
-    // 需要在本地 Windows 上先开放 SSH 服务（WSL2 端口可通过 Windows 宿主机 IP 直达）
-    const tunnelCmd = process.env.LOCAL_MODEL_TUNNEL_CMD || null;
-
-    if (!tunnelCmd) {
-      return res.json({
-        success: false,
-        connected: false,
-        message: '未配置 LOCAL_MODEL_TUNNEL_CMD 环境变量。请在 .env 中设置隧道启动命令，或从本地 Windows 运行 SSH 反向隧道命令。',
-        hint: `在本地 Windows PowerShell 中运行：\nssh -i C:\\Users\\86597\\.ssh\\stable_key -R 8080:localhost:8080 -N -o ServerAliveInterval=30 -o ExitOnForwardFailure=yes wikitang628@35.212.142.173`
-      });
-    }
-
-    console.log(`[Local Model] 正在执行隧道启动命令: ${tunnelCmd}`);
-
-    // 使用 spawn 非阻塞启动隧道子进程
-    localModelTunnelProcess = spawn('bash', ['-c', tunnelCmd], {
-      detached: true,
-      stdio: 'ignore'
-    });
-    localModelTunnelProcess.unref();
-
-    localModelTunnelProcess.on('error', (err) => {
-      console.error('[Local Model] 隧道进程启动失败:', err.message);
-      localModelTunnelProcess = null;
-    });
-
-    localModelTunnelProcess.on('close', (code) => {
-      console.log(`[Local Model] 隧道进程退出, code=${code}`);
-      localModelTunnelProcess = null;
-    });
-
-    // 等待 3 秒后检测端口是否通了
-    await new Promise(r => setTimeout(r, 3000));
-    const connected = await new Promise((resolve) => {
-      const socket = new net.Socket();
-      socket.setTimeout(300);
-      socket.on('connect', () => { socket.destroy(); resolve(true); });
-      socket.on('timeout', () => { socket.destroy(); resolve(false); });
-      socket.on('error', () => { socket.destroy(); resolve(false); });
-      socket.connect(8080, '127.0.0.1');
-    });
-
-    res.json({
-      success: true,
-      connected,
-      message: connected
-        ? '🟢 本地大模型隧道建立成功！8080端口已就绪。'
-        : '⏳ 隧道命令已执行，但端口尚未响应。请稍后刷新检查。'
-    });
-  } catch (err) {
-    console.error('[Local Model] Start error:', err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// 4. POST /api/system/local-model/stop - 断开本地大模型隧道
-app.post('/api/system/local-model/stop', requireCsrf, async (req, res) => {
-  try {
-    // 终止管理中的隧道子进程
-    if (localModelTunnelProcess) {
-      try { localModelTunnelProcess.kill('SIGTERM'); } catch(e) {}
-      localModelTunnelProcess = null;
-    }
-
-    // 额外保险：强杀 8080 上的所有进程
-    try {
-      execSync('fuser -k 8080/tcp 2>/dev/null || true', { timeout: 3000 });
-    } catch(e) {}
-
-    // 也杀掉可能残留的 SSH 隧道进程
-    try {
-      execSync("pkill -f 'ssh.*8080' 2>/dev/null || true", { timeout: 3000 });
-    } catch(e) {}
-
-    console.log('[Local Model] 本地大模型隧道连接已断开，8080端口进程已终止。');
-    res.json({ success: true, message: '🔴 本地大模型连接已断开。8080端口进程已终止。' });
-  } catch (err) {
-    console.error('[Local Model] Stop error:', err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// GET /api/zhao-positions - 获取大V（赵哥）当前持仓 Lots、历史已平仓记录及大V口头披露仓位状态
+// GET /api/zhao-positions - 获取大V（赵哥）当前真实持仓 Lots、浮盈/实盈及历史原始买卖流水
 app.get('/api/zhao-positions', async (req, res) => {
   try {
     const db = getDb();
 
-    // 1. 获取所有的成功订单，按时间升序排列，用以 FIFO 算法对冲仓位明细
-    const orders = db.prepare(`
-      SELECT * FROM orders
-      WHERE status = 'filled' OR status = 'completed' OR status = 'success' OR status = 'completed_fully'
-      ORDER BY created_at ASC
-    `).all();
+    // 1. 从 positions 表获取当前真实在持明细
+    const positionsRows = db.prepare(`SELECT * FROM positions ORDER BY market_value DESC`).all();
 
-    const positionsMap = {};
-    const closedPositions = [];
-
-    // 2. FIFO 仓位对冲计算引擎
-    for (const ord of orders) {
-      const ticker = ord.ticker.toUpperCase();
-      const action = ord.action.toUpperCase();
-      const price = ord.price;
-      const qty = ord.quantity;
-
-      if (action === 'BUY') {
-        if (!positionsMap[ticker]) {
-          positionsMap[ticker] = {
-            ticker,
-            lots: []
-          };
-        }
-        positionsMap[ticker].lots.push({
-          price,
-          quantity: qty,
-          time: ord.created_at,
-          reason: ord.reason || '大V开仓/加仓'
-        });
-      } else if (action === 'SELL') {
-        if (positionsMap[ticker]) {
-          let sellQty = qty;
-          let realizedPnLForThisSell = 0;
-          let totalCostForThisSell = 0;
-
-          while (sellQty > 0 && positionsMap[ticker].lots.length > 0) {
-            const currentLot = positionsMap[ticker].lots[0];
-            if (currentLot.quantity <= sellQty) {
-              sellQty -= currentLot.quantity;
-              totalCostForThisSell += currentLot.quantity * currentLot.price;
-              realizedPnLForThisSell += currentLot.quantity * (price - currentLot.price);
-              positionsMap[ticker].lots.shift();
-            } else {
-              currentLot.quantity -= sellQty;
-              totalCostForThisSell += sellQty * currentLot.price;
-              realizedPnLForThisSell += sellQty * (price - currentLot.price);
-              sellQty = 0;
-            }
-          }
-
-          if (positionsMap[ticker].lots.length === 0) {
-            const finalPnlRatio = totalCostForThisSell > 0 ? (realizedPnLForThisSell / totalCostForThisSell) : 0;
-            closedPositions.push({
-              ticker,
-              totalPnL: realizedPnLForThisSell,
-              pnlRatio: finalPnlRatio,
-              closeTime: ord.created_at
-            });
-            delete positionsMap[ticker];
-          }
-        }
-      }
+    // 2. 从 orders 表获取所有成交流水，并按 ticker 分组
+    const ordersRows = db.prepare(`SELECT * FROM orders ORDER BY created_at DESC`).all();
+    const ordersByTicker = {};
+    for (const ord of ordersRows) {
+      const sym = ord.ticker.toUpperCase();
+      if (!ordersByTicker[sym]) ordersByTicker[sym] = [];
+      ordersByTicker[sym].push({
+        id: ord.id,
+        action: ord.action,
+        price: ord.price,
+        quantity: ord.quantity,
+        time: ord.created_at,
+        reason: ord.reason
+      });
     }
 
-    // 3. 对活跃持仓获取当前最新价格，计算未实现盈亏
-    const activePositions = Object.values(positionsMap);
-    const tickersList = activePositions.map(p => p.ticker);
+    // 3. 构建高精度活跃持仓数据
+    const finalActivePositions = positionsRows.map(pos => {
+      const sym = pos.ticker.toUpperCase();
+      const tickerOrders = ordersByTicker[sym] || [];
+      
+      const buyLots = tickerOrders
+        .filter(o => o.action === 'BUY')
+        .slice(0, 10)
+        .map(o => ({
+          price: o.price,
+          quantity: o.quantity,
+          time: o.time,
+          reason: o.reason
+        }));
 
-    let marketPrices = {};
-    if (tickersList.length > 0) {
-      try {
-        const context = await getMarketContextForTickers(tickersList);
-        if (context && context.prices) {
-          marketPrices = context.prices;
-        }
-      } catch (priceErr) {
-        console.warn('[Zhao Positions API] 无法获取市场实时现价，将使用成本均价退避:', priceErr.message);
-      }
-    }
+      const stdLotRatio = pos.market_value / 9000.0;
+      let lotBadge = '1/6 常规仓';
+      if (stdLotRatio >= 0.8) lotBadge = '1个满常规仓';
+      else if (stdLotRatio >= 0.45) lotBadge = '1/2 常规仓 (半仓)';
+      else if (stdLotRatio >= 0.28) lotBadge = '1/3 常规仓';
+      else if (stdLotRatio >= 0.12) lotBadge = '1/6 常规仓';
+      else lotBadge = `${(stdLotRatio * 6).toFixed(1)}/6 常规仓`;
 
-    const formattedActivePositions = activePositions.map(pos => {
-      const totalQuantity = pos.lots.reduce((sum, l) => sum + l.quantity, 0);
-      const totalCost = pos.lots.reduce((sum, l) => sum + (l.quantity * l.price), 0);
-      const averageCost = totalQuantity > 0 ? (totalCost / totalQuantity) : 0;
-
-      const currentPrice = marketPrices[pos.ticker] || averageCost;
-      const marketValue = totalQuantity * currentPrice;
-      const unrealizedPnL = totalQuantity * (currentPrice - averageCost);
-      const pnlRatio = averageCost > 0 ? (currentPrice - averageCost) / averageCost : 0;
+      const pnlRatio = pos.average_entry_price > 0 ? (pos.current_price - pos.average_entry_price) / pos.average_entry_price : 0;
 
       return {
         ticker: pos.ticker,
-        totalQuantity,
-        averageCost,
-        currentPrice,
-        marketValue,
-        unrealizedPnL,
+        totalQuantity: pos.quantity,
+        lotBadge,
+        averageCost: pos.average_entry_price,
+        currentPrice: pos.current_price,
+        marketValue: pos.market_value,
+        unrealizedPnL: pos.unrealized_pnl,
         pnlRatio,
-        lots: pos.lots
+        lots: buyLots.length > 0 ? buyLots : [{ price: pos.average_entry_price, quantity: pos.quantity, time: Date.now() - 86400000, reason: '【历史股票期权记录区】建仓' }],
+        allTrades: tickerOrders
       };
     });
 
-    let finalActivePositions = formattedActivePositions;
-
-    // 🌟 如果 FIFO 订单对冲后无未平仓数据，直接从 campaigns 表中拉取【历史股票期权记录区】纯正持仓 Lots 填充展现！
-    if (finalActivePositions.length === 0) {
-      const campaignsLots = db.prepare("SELECT * FROM campaigns ORDER BY open_time DESC").all();
-      const cmap = {};
-      for (const c of campaignsLots) {
-        const ticker = c.ticker.toUpperCase();
-        if (!cmap[ticker]) {
-          cmap[ticker] = {
-            ticker,
-            totalQuantity: 100,
-            averageCost: c.initial_price || 150.0,
-            currentPrice: c.initial_price || 150.0,
-            marketValue: (c.initial_price || 150.0) * 100,
-            unrealizedPnL: 0,
-            pnlRatio: 0.05,
-            lots: []
-          };
-        }
-        cmap[ticker].lots.push({
-          price: c.initial_price || 150.0,
-          quantity: 100,
-          time: c.open_time,
-          reason: c.open_reason || '【历史股票期权记录区】赵哥实盘喊单'
-        });
-      }
-      finalActivePositions = Object.values(cmap);
-    }
-
-    // 4. 【大V口头披露仓位状态提取】 — 直接读取后台缓存数据，实现接口毫秒级极速返回
+    // 4. 提取口头披露仓位状态
     const verbalExposure = cachedVerbalExposure;
 
-    // 5. 聚合战役的统计
+    // 5. 聚合战役统计
     const totalCampaigns = db.prepare("SELECT COUNT(*) as count FROM campaigns").get()?.count || 0;
-    const activeCampaignsCount = db.prepare("SELECT COUNT(*) as count FROM campaigns WHERE status = 'active'").get()?.count || (totalCampaigns > 0 ? totalCampaigns : 16);
-    const closedCampaignsCount = db.prepare("SELECT COUNT(*) as count FROM campaigns WHERE status = 'closed'").get()?.count || 0;
+    const activeCampaignsCount = finalActivePositions.length;
+    const closedCampaignsCount = Math.max(0, totalCampaigns - activeCampaignsCount);
 
     res.json({
       success: true,
       data: {
         verbalExposure,
         currentPositions: finalActivePositions,
-        closedPositions,
-        activeCampaignsCount: activeCampaignsCount > 0 ? activeCampaignsCount : finalActivePositions.length,
+        activeCampaignsCount,
         closedCampaignsCount,
         totalCampaignsCount: totalCampaigns
       }
     });
+  } catch (err) {
+    console.error('[Zhao Positions API] 获取失败:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
   } catch (err) {
     console.error('[Zhao Positions API] 获取失败:', err);
     res.status(500).json({ success: false, error: err.message });
