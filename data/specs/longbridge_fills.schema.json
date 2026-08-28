@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LongbridgeFill",
+  "description": "长桥券商成交流水标准规范",
+  "type": "object",
+  "required": [
+    "fill_id",
+    "ticker",
+    "side",
+    "price",
+    "quantity",
+    "timestamp",
+    "currency"
+  ],
+  "properties": {
+    "fill_id": {
+      "type": "string",
+      "description": "券商全局唯一成交编号"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "关联委托单号"
+    },
+    "ticker": {
+      "type": "string",
+      "description": "标准化交易代码（美股大写，如 CIFR, NFXL, NVDA）"
+    },
+    "side": {
+      "type": "string",
+      "enum": ["BUY", "SELL"],
+      "description": "买卖方向"
+    },
+    "price": {
+      "type": "number",
+      "minimum": 0.0001,
+      "description": "实际成交均价"
+    },
+    "quantity": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "实际成交数量（股数或张数）"
+    },
+    "instrument_type": {
+      "type": "string",
+      "enum": ["stock", "option", "etf"],
+      "default": "stock",
+      "description": "资产类别"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "成交发生的时间戳 (毫秒 UTC)"
+    },
+    "currency": {
+      "type": "string",
+      "enum": ["USD", "HKD", "CNY"],
+      "default": "USD"
+    },
+    "commission": {
+      "type": "number",
+      "description": "交易佣金与规费"
+    }
+  },
+  "additionalProperties": false
+}
