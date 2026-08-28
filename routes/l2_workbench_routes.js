@@ -4,12 +4,12 @@ import path from 'path';
 
 const router = express.Router();
 
-const CLEANED_L2A_PATH = 'data/runs/l2a_broadcast_candidates_1195_cleaned.jsonl';
+const BASE_CLEANED_L2A_PATH = 'data/runs/l2a_broadcast_candidates_1195_cleaned.jsonl';
+const INCR_POINTER_PATH = 'data/runs/l2a_incr_latest.json';
 const L2B_ZHAO_HITS_PATH = 'data/runs/l2b_zhao_kid_hits.jsonl';
 const L2B_MRZHOU_PATH = 'data/l2b/mrzhou/atoms.json';
 const HUMAN_VERIFIED_LOG_PATH = 'data/runs/l2a_human_verified_actions.jsonl';
 
-// Tier 1 硬动词 CU 集合（允许进待审池）
 const TIER1_HARD_FILL_CUS = new Set(['cu_trade_00955', 'cu_trade_01174']);
 
 let cachedL2aRecords = null;
@@ -18,9 +18,28 @@ let cachedL2bMrzhou = null;
 
 function loadL2aData() {
   if (cachedL2aRecords) return cachedL2aRecords;
-  if (!fs.existsSync(CLEANED_L2A_PATH)) return [];
-  const lines = fs.readFileSync(CLEANED_L2A_PATH, 'utf-8').trim().split('\n').filter(Boolean);
-  cachedL2aRecords = lines.map(l => JSON.parse(l));
+
+  const records = [];
+  // 1. 载入基础库 (1195)
+  if (fs.existsSync(BASE_CLEANED_L2A_PATH)) {
+    const lines = fs.readFileSync(BASE_CLEANED_L2A_PATH, 'utf-8').trim().split('\n').filter(Boolean);
+    for (const l of lines) records.push(JSON.parse(l));
+  }
+
+  // 2. 检查是否有增量批次文件
+  if (fs.existsSync(INCR_POINTER_PATH)) {
+    try {
+      const pointer = JSON.parse(fs.readFileSync(INCR_POINTER_PATH, 'utf-8'));
+      if (pointer.has_incremental && pointer.incremental_path && fs.existsSync(pointer.incremental_path)) {
+        const incrLines = fs.readFileSync(pointer.incremental_path, 'utf-8').trim().split('\n').filter(Boolean);
+        for (const l of incrLines) records.push(JSON.parse(l));
+      }
+    } catch (e) {
+      console.error("[L2Workbench] 读取增量指针异常:", e);
+    }
+  }
+
+  cachedL2aRecords = records;
   return cachedL2aRecords;
 }
 
@@ -46,6 +65,64 @@ function loadL2bData() {
 }
 
 /**
+ * 获取离线增量批次状态: GET /api/l2a/incremental-status
+ */
+router.get('/l2a/incremental-status', (req, res) => {
+  let pointer = {
+    as_of: "2026-06-26",
+    base_cu_count: 1195,
+    has_incremental: false,
+    incremental_cu_count: 0,
+    latest_date: "2026-06-26"
+  };
+
+  if (fs.existsSync(INCR_POINTER_PATH)) {
+    try {
+      pointer = JSON.parse(fs.readFileSync(INCR_POINTER_PATH, 'utf-8'));
+    } catch (e) {}
+  }
+
+  res.json({
+    base_as_of: "2026-06-26",
+    base_cu_count: 1195,
+    latest_as_of: pointer.latest_date || pointer.as_of,
+    has_incremental: pointer.has_incremental,
+    incremental_cu_count: pointer.incremental_cu_count || 0,
+    pointer
+  });
+});
+
+/**
+ * 一键刷新已落盘的离线增量批次: POST /api/l2a/reload-offline
+ * 纯内存缓存清理与磁盘指针读取，绝不触发模型推理
+ */
+router.post('/l2a/reload-offline', (req, res) => {
+  // 1. 清空内存缓存
+  cachedL2aRecords = null;
+  cachedL2bZhaoMap = null;
+  cachedL2bMrzhou = null;
+
+  // 2. 重新加载
+  const allRecords = loadL2aData();
+  
+  let pointer = { has_incremental: false, latest_date: "2026-06-26", incremental_cu_count: 0 };
+  if (fs.existsSync(INCR_POINTER_PATH)) {
+    try {
+      pointer = JSON.parse(fs.readFileSync(INCR_POINTER_PATH, 'utf-8'));
+    } catch (e) {}
+  }
+
+  res.json({
+    success: true,
+    message: pointer.has_incremental ? `成功同步至最新离线批次 (${pointer.latest_date})` : "当前已是最新基础离线批次 (2026-06-26)",
+    total_cus: allRecords.length,
+    latest_date: pointer.latest_date || "2026-06-26",
+    has_incremental: pointer.has_incremental,
+    incremental_cu_count: pointer.incremental_cu_count || 0
+  });
+});
+
+/**
  * 0. 获取可用日期列表: GET /api/l2a/dates
  */
 router.get('/l2a/dates', (req, res) => {
@@ -62,7 +139,7 @@ router.get('/l2a/dates', (req, res) => {
   }
 
   const sortedDates = Array.from(dateSet).sort();
-  const latestDate = sortedDates.length > 0 ? sortedDates[sortedDates.length - 1] : '2025-10-06';
+  const latestDate = sortedDates.length > 0 ? sortedDates[sortedDates.length - 1] : '2026-06-26';
   res.json({
     dates: sortedDates,
     default_date: latestDate,
@@ -71,13 +148,12 @@ router.get('/l2a/dates', (req, res) => {
 });
 
 /**
- * 1. 动作流: GET /api/l2a/today?date=2025-10-06
+ * 1. 动作流: GET /api/l2a/today?date=
  */
 router.get('/l2a/today', (req, res) => {
-  const reqDate = req.query.date || '2025-10-06';
+  const reqDate = req.query.date || '2026-06-26';
   const allRecords = loadL2aData();
   
-  // 严格按日期过滤，无日期单独处理，不混入
   const dateRecords = reqDate === 'unknown'
     ? allRecords.filter(r => !r.et_date)
     : allRecords.filter(r => r.et_date === reqDate);
@@ -124,12 +200,10 @@ router.get('/l2a/today', (req, res) => {
 });
 
 /**
- * 2. 待审池: GET /api/review/queue?date=2025-10-06
- * 严格收敛：仅收录指定日期的 planned 意图单 + Tier1 硬成交单
- * 口述 filled_speech 默认不进池，避免污染
+ * 2. 待审池: GET /api/review/queue?date=
  */
 router.get('/review/queue', (req, res) => {
-  const reqDate = req.query.date || '2025-10-06';
+  const reqDate = req.query.date || '2026-06-26';
   const allRecords = loadL2aData();
   const queue = [];
 
@@ -146,10 +220,9 @@ router.get('/review/queue', (req, res) => {
       const isPlanned = a.status === 'planned';
       const isTier1HardFill = TIER1_HARD_FILL_CUS.has(r.cu_id);
 
-      // 仅 planned 和 Tier1 硬动词进入待审池
       if (isPlanned || isTier1HardFill) {
         queue.push({
-          review_id: `${r.cu_id}_${a.ticker}_${a.action}_${a.price || 'null'}_${idx}`, // 唯一防撞 ID
+          review_id: `${r.cu_id}_${a.ticker}_${a.action}_${a.price || 'null'}_${idx}`,
           cu_id: r.cu_id,
           et_date: r.et_date || 'unknown',
           et_session: r.et_session || 'regular',
@@ -190,7 +263,7 @@ router.post('/review/action', (req, res) => {
     decision,
     status: decision === 'ack' ? 'human_verified' : 'human_dismissed',
     timestamp_utc: new Date().toISOString(),
-    is_live_order: false // 绝不打券商
+    is_live_order: false
   };
   
   fs.appendFileSync(HUMAN_VERIFIED_LOG_PATH, JSON.stringify(logEntry) + '\n', 'utf-8');

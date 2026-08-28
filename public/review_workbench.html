@@ -21,11 +21,14 @@
     
     header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     h1 { font-size: 18px; color: #fff; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-    .header-controls { display: flex; align-items: center; gap: 12px; }
+    .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .date-select { background: #21262d; border: 1px solid var(--border); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 13px; outline: none; }
-    .status-banner { font-size: 12px; background: rgba(210, 153, 34, 0.15); color: var(--yellow); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--yellow); }
+    .btn-reload { background: #21262d; border: 1px solid var(--border); color: var(--accent); padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-reload:hover { background: #30363d; }
+    .batch-badge { font-size: 11px; background: rgba(88, 166, 255, 0.1); color: var(--accent); padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(88, 166, 255, 0.2); }
+    .status-banner { font-size: 11px; background: rgba(210, 153, 34, 0.15); color: var(--yellow); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--yellow); }
     
-    .grid-container { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 16px; height: calc(100vh - 85px); }
+    .grid-container { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 16px; height: calc(100vh - 90px); }
     .column { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; display: flex; flex-direction: column; overflow: hidden; }
     .column-header { padding: 12px; background: #1c2128; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; }
     .column-body { padding: 12px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
@@ -60,10 +63,10 @@
   <header>
     <h1>🛡️ L2 人机协同跟单审核工作台</h1>
     <div class="header-controls">
-      <label style="font-size: 12px; color: var(--text-muted);">选择美东日期:</label>
-      <select id="date-picker" class="date-select" onchange="onDateChanged(this.value)">
-        <!-- 动态加载真实日期 -->
-      </select>
+      <span class="batch-badge" id="batch-status-text">基础库存: 2026-06-26 | 增量批次: 无</span>
+      <button class="btn-reload" onclick="reloadOfflineBatch()" title="重新读取已落盘的最新离线批次指针 (秒级完成，不调大模型)">🔄 同步到最新离线批次</button>
+      <label style="font-size: 12px; color: var(--text-muted); margin-left: 6px;">选择美东日期:</label>
+      <select id="date-picker" class="date-select" onchange="onDateChanged(this.value)"></select>
       <div class="status-banner">🛑 券商对账: exit code 2 (阻断中·零实盘挂单)</div>
     </div>
   </header>
@@ -79,7 +82,7 @@
       <div class="column-body" id="l2a-stream-list"></div>
     </div>
 
-    <!-- 第二列: 人工待审确认池 (按日收 planned + Tier1) -->
+    <!-- 第二列: 人工待审确认池 -->
     <div class="column">
       <div class="column-header">
         <span>2. 人工待审池 (当日 Planned + 硬动词)</span>
@@ -100,8 +103,46 @@
   </div>
 
   <script>
-    let currentDate = '2025-10-06';
+    let currentDate = '2026-06-26';
     let selectedCuId = null;
+
+    async function initWorkbench() {
+      await updateIncrementalStatus();
+      await initDates();
+    }
+
+    async function updateIncrementalStatus() {
+      try {
+        const res = await fetch('/api/l2a/incremental-status');
+        const data = await res.json();
+        const badge = document.getElementById('batch-status-text');
+        if (data.has_incremental) {
+          badge.innerText = `基础: 2026-06-26 | 最新增量: ${data.latest_as_of} (+${data.incremental_cu_count} CU)`;
+          badge.style.color = '#3fb950';
+        } else {
+          badge.innerText = `基础库存截止: 2026-06-26 · 增量批次: 暂无`;
+          badge.style.color = 'var(--accent)';
+        }
+      } catch (e) {
+        console.error("获取增量状态失败:", e);
+      }
+    }
+
+    async function reloadOfflineBatch() {
+      try {
+        const btn = document.querySelector('.btn-reload');
+        btn.innerText = '⏳ 正在读取指针...';
+        const res = await fetch('/api/l2a/reload-offline', { method: 'POST' });
+        const data = await res.json();
+        btn.innerText = '🔄 同步到最新离线批次';
+        
+        alert(data.message + `\n总 CU 数量: ${data.total_cus}`);
+        await updateIncrementalStatus();
+        await initDates();
+      } catch (e) {
+        alert("读取批次失败: " + e.message);
+      }
+    }
 
     async function initDates() {
       try {
@@ -125,7 +166,7 @@
           picker.appendChild(unkOpt);
         }
 
-        currentDate = data.default_date || '2025-10-06';
+        currentDate = data.default_date || '2026-06-26';
         loadDayData(currentDate);
       } catch (e) {
         console.error("加载日期列表失败:", e);
@@ -262,7 +303,6 @@
         });
         container.appendChild(zhaoSection);
 
-        // 周哥体制只读区 (严格默认折叠)
         const mrzhouSection = document.createElement('details');
         mrzhouSection.open = false;
         mrzhouSection.innerHTML = `
@@ -314,7 +354,7 @@
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    window.onload = initDates;
+    window.onload = initWorkbench;
   </script>
 </body>
 </html>
