@@ -1327,11 +1327,6 @@ app.get('/api/zhao-positions', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
-  } catch (err) {
-    console.error('[Zhao Positions API] 获取失败:', err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
 
 // GET /api/campaigns - Get all campaigns
 app.get('/api/campaigns', (req, res) => {
