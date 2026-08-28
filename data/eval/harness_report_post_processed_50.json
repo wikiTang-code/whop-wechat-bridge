@@ -1,0 +1,191 @@
+{
+  "metrics": {
+    "jsonValidRate": 100,
+    "speechActMatchRate": 60,
+    "actionTripletMatchRate": 55.55555555555556,
+    "hallucinatedOnFailedRate": 0,
+    "hallucinatedTickerRate": 0
+  },
+  "errorReport": [
+    {
+      "cu_id": "cu_v2_005",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL RKLB @ 63.5 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_005",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [HOLD RKLB @ null (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_009",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY BMNR @ 40 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_009",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY TSLL @ 19.5 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_009",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL NFXL @ 48.5 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_009",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL OPEN @ 8.2 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_010",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL NBIS @ 100 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_015",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY CONL @ null (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_015",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY BMNR @ null (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_015",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY IREN @ null (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_015",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY CIFR @ null (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_015",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY HOOD @ null (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_016",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL CONL @ 16.45 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_020",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL CRWV @ 95.45 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_022",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [STOP_LOSS IREN @ 42.15 (filled)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_022",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY TSLL @ 14 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_024",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL PLTR @ 135 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_025",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [STOP_LOSS SPY @ 1.76 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_029",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL NOW @ 1.3 (filled)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_029",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL NOW @ 1.4 (filled)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_029",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY RIVN @ 1.4 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_029",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [STOP_LOSS RIVN @ 1.13 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_029",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY PL @ 1.3 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_031",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL TSLL @ 14.43 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_031",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY BTC @ 80000 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_042",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL GOOGL @ null (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_045",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [TAKE_PROFIT SOXL @ 182.5 (filled)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_045",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL NVDA @ 240 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_049",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL CRWV @ 111.2 (filled)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_011",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL TSLL @ 17.07 (filled)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_011",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [BUY TSLL @ 16.64 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_011",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL META @ 605 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_011",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL FBL @ 605 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_011",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL META @ 0.68 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_011",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL META @ 624 (planned)] 未能在模型输出中精确匹配"
+    },
+    {
+      "cu_id": "cu_v2_011",
+      "type": "MISSED_OR_MISMATCHED_ACTION",
+      "detail": "金标期望 [SELL FBL @ 30.1 (planned)] 未能在模型输出中精确匹配"
+    }
+  ]
+}
