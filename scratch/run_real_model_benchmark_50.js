@@ -6,7 +6,7 @@ import { evaluatePredictions } from '../data/eval/eval_harness.js';
 dotenv.config();
 
 console.log('====================================================');
-console.log('🚀 在 VM 生产环境执行 50 条 Benchmark 真实大模型推理');
+console.log('🚀 在 VM 生产环境执行 50 条 Benchmark 真实大模型推理 (Prompt v2)');
 console.log('====================================================\n');
 
 // 1. 读取 Prompt v2 和 V2 评测样本
@@ -68,7 +68,7 @@ async function callRealModel(cu, idx) {
     const resJson = await response.json();
     rawText = resJson.choices?.[0]?.message?.content || '';
 
-    // Strip thinking tags if any
+    // 去除 thinking 标签
     rawText = rawText.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
   } catch (err) {
@@ -93,7 +93,7 @@ async function callRealModel(cu, idx) {
     parseOk = false;
   }
 
-  console.log(`[${idx + 1}/50] [${cu.cu_id}] 耗时: ${latencyMs}ms | Parse: ${parseOk ? '✅ OK' : '❌ Failed'}`);
+  console.log(`[${idx + 1}/50] [${cu.cu_id}] 真实耗时: ${latencyMs}ms | Parse: ${parseOk ? '✅ OK' : '❌ Failed'}`);
 
   return {
     cu_id: cu.cu_id,
