@@ -312,6 +312,27 @@ for (const m of msgs) {
 console.log(`✅ 解析完成！共提取 ${allParsedRecords.length} 条记录，其中 Confirmed: ${allParsedRecords.filter(r => r.status === 'confirmed').length} 条，Candidate 待确认: ${allParsedRecords.filter(r => r.status === 'candidate').length} 条！\n`);
 
 // 4. 落库全表
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS trade_review_pool (
+    id TEXT PRIMARY KEY,
+    message_id TEXT,
+    ticker TEXT NOT NULL,
+    action TEXT NOT NULL,
+    price REAL NOT NULL,
+    fraction_name TEXT,
+    fraction_ratio REAL,
+    confidence REAL NOT NULL,
+    status TEXT NOT NULL DEFAULT 'candidate',
+    raw_content TEXT NOT NULL,
+    before_qty INTEGER DEFAULT 0,
+    before_avg_cost REAL DEFAULT 0,
+    after_qty INTEGER DEFAULT 0,
+    after_avg_cost REAL DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  )
+`).run();
+
 db.prepare('DELETE FROM trade_review_pool').run();
 db.prepare('DELETE FROM campaigns').run();
 db.prepare('DELETE FROM positions').run();

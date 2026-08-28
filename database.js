@@ -31,9 +31,29 @@ export function initDb() {
   db.pragma('journal_mode = WAL');
   db.pragma('busy_timeout = 10000');
 
-  // 快速检查：如果 messages 表已存在，说明数据库已完全就绪，直接秒级返回！
+  // 快速检查：如果 messages 表已存在，确保新表存在后秒级返回！
   const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='messages'").get();
   if (tableCheck) {
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS trade_review_pool (
+        id TEXT PRIMARY KEY,
+        message_id TEXT,
+        ticker TEXT NOT NULL,
+        action TEXT NOT NULL,
+        price REAL NOT NULL,
+        fraction_name TEXT,
+        fraction_ratio REAL,
+        confidence REAL NOT NULL,
+        status TEXT NOT NULL DEFAULT 'candidate',
+        raw_content TEXT NOT NULL,
+        before_qty INTEGER DEFAULT 0,
+        before_avg_cost REAL DEFAULT 0,
+        after_qty INTEGER DEFAULT 0,
+        after_avg_cost REAL DEFAULT 0,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      )
+    `).run();
     console.log('[initDb] Database already initialized and ready (0ms).');
     return;
   }
