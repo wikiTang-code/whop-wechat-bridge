@@ -1,0 +1,23 @@
+{
+  "notice": "此文件为候选战法词池，暂不进入正式评测与抽取表，待 L2a 抽检完成且开启 L2b v2 时统一评估入库。",
+  "candidates": [
+    {
+      "kid_candidate": "k_cpi_low_suck_pulse",
+      "type": "calendar_rule",
+      "statement_draft": "CPI 等重大宏观数据发布瞬间引发的恐慌性低开脉冲，常出现流动性错杀，可预设低吸买点。",
+      "status": "candidate"
+    },
+    {
+      "kid_candidate": "k_double_etf_decay_risk",
+      "type": "risk_rule",
+      "statement_draft": "双倍/三倍杠杆 ETF 在长期震荡市存在显著的波动率拖累与净值磨损，严禁长期死扛。",
+      "status": "candidate"
+    },
+    {
+      "kid_candidate": "k_three_touch_trendline_bounce",
+      "type": "playbook",
+      "statement_draft": "上升或下降趋势线第三次回踩确认有效时，反弹胜率最高。",
+      "status": "candidate"
+    }
+  ]
+}

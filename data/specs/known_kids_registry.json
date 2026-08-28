@@ -1,0 +1,212 @@
+[
+  {
+    "kid": "k_friday_last_hour_v",
+    "type": "playbook",
+    "statement": "周五尾盘最后一小时若出现急跌洗盘，常伴随暴力 V 反，可分批低吸博弈周末反弹。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_look_turns_not_news",
+    "type": "risk_rule",
+    "statement": "行情拐点由资金结构与转折点位决定，切忌根据盘中新闻和突发小道消息做交易决策。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_msci_delete_cascade",
+    "type": "regime",
+    "statement": "MSCI 剔除生效日尾盘常伴随被动资金踩踏式出逃与异常放量跳水，不可在盘中提前抄底。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_stagger_adds_use_close",
+    "type": "sizing_rule",
+    "statement": "分批加仓必须拉开梯队与价格间隔，尾盘收盘前根据最终确认形态做最后一笔决策。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_index_weak_only_mega",
+    "type": "regime",
+    "statement": "大盘指数整体走弱或缩量阴跌时，资金极度抱团，只允许参与巨头核心标的，禁止碰投机小盘股。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_no_option_in_theta_month",
+    "type": "risk_rule",
+    "statement": "临近交割月或时间价值衰减加速期，严禁持有高 Theta 虚值期权过夜，防止波动率被动杀跌。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_second_handshake",
+    "type": "playbook",
+    "statement": "突破或回踩关键点位时必须等待第二次回抽确认（二次握手），确认支撑不破方可建仓。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_sharp_drop_intraday_only",
+    "type": "playbook",
+    "statement": "日内急跌若无基本面恶化，仅作为日内超跌反弹短线交易（T+0），日内必须出场不过夜。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_close_auction_and_overnight",
+    "type": "playbook",
+    "statement": "收盘集合竞价尾盘异动与隔夜持仓策略，需严格遵循收盘价确认与仓位上限。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_earnings_fade_batch",
+    "type": "playbook",
+    "statement": "财报公布后若出现非理性情绪脉冲，可采用分批渐进式反向操作博弈均值回归。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_rubber_ball_after_gap_fill",
+    "type": "playbook",
+    "statement": "跳空缺口完全回补后标的如皮球触地反弹，可借助第一根放量 K 线顺势跟进。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_spx_levels_mechanism",
+    "type": "regime",
+    "statement": "SPX 关键整数关口与期权伽马分布点位具备强烈的磁吸与支撑阻力机械效应。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_debt_name_caps_upside",
+    "type": "instrument_view",
+    "statement": "含高额可转债或债务重组预期的标的，其正股上方空间被转股套利盘严格压制。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_higher_low_is_bottom",
+    "type": "playbook",
+    "statement": "分时或日线出现不创新低的次低点（Higher Low）是阶段底部确认的最可靠信号。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_vote_fail_then_conl_band",
+    "type": "playbook",
+    "statement": "重大法案或投票事件落地不及预期引发急跌时，在预设震荡箱体下沿分批低吸。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_settlement_day_copy_prior",
+    "type": "calendar_rule",
+    "statement": "交割日行情往往深度复刻上一交割周期的资金对冲与洗盘路径。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_gap_fill_then_second_confirm",
+    "type": "playbook",
+    "statement": "回补缺口后必须观察次级别 K 线的二次企稳信号，切忌在补缺瞬间单笔全仓抄底。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_passive_redeem_then_rebuy",
+    "type": "playbook",
+    "statement": "被动赎回引发的无序抛售结束后，往往出现流动性真空反弹，可择机接回底仓。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_first_half_hour_passive_plus_friday",
+    "type": "calendar_rule",
+    "statement": "周五开盘前 30 分钟受隔夜情绪与期权调仓主导，以被动观察为主，禁止追高建仓。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_friday_long_then_short",
+    "type": "calendar_rule",
+    "statement": "周五行情常呈现早盘诱多冲高、午后获利盘兑现转为走弱的先多后空日内节奏。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_pre_earnings_avoid_then_range",
+    "type": "calendar_rule",
+    "statement": "财报前 1~2 个交易日资金规避不确定性，标的波动率收窄，宜离场观望或轻仓震荡网格。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_sales_print_tests_high",
+    "type": "playbook",
+    "statement": "突发大宗成交或利好销售数据发布后冲高测试前高阻力位时，是短线分批止盈点。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_high_lot_wait_low_lot_t",
+    "type": "sizing_rule",
+    "statement": "高位套牢仓位不可盲目割肉，应耐心等待低位企稳后利用小波段做 T 摊薄成本。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_t_only_add_on_fast",
+    "type": "sizing_rule",
+    "statement": "日内做 T 加仓只允许在急跌急拉的脉冲时刻介入，并在同日平掉加仓部分。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_a_share_red_then_cut_us_overnight",
+    "type": "regime",
+    "statement": "亚太/A股外围市场走强常引发美股隔夜中概跟风，若开盘不达预期应果断减仓。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_raise_cash_before_friday_double",
+    "type": "risk_rule",
+    "statement": "周五收盘前应主动提升现金比例，应对杠杆双倍标的在周末的不确定性损耗。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_close_buy_when_puts_surge",
+    "type": "risk_rule",
+    "statement": "当 Put/Call 比例异动暴增或大单买 Put 激增时，停止一切尾盘多头买入操作。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_half_retrace_watch",
+    "type": "playbook",
+    "statement": "强势波段回调至 50%（半位）是重要观察窗口，企稳可做防守型低吸。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_unfilled_limit_exit_next_week",
+    "type": "process_error",
+    "statement": "周五未成交的限价挂单若失效，下周一开盘必须重新核定价格再做决策。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  },
+  {
+    "kid": "k_half_now_half_daily_low",
+    "type": "sizing_rule",
+    "statement": "试仓买入时先下一半底仓，若日内探出更低点再补齐剩余一半仓位。",
+    "status": "asserted",
+    "version": "eval-l2b-14b-v1"
+  }
+]
