@@ -2292,11 +2292,12 @@ function renderZhaoPositions(data) {
 // 人机协同：移动消息状态（confirmed / candidate / rejected）
 window.moveTradeReviewStatus = async function(id, targetStatus) {
   try {
+    const csrfToken = await ensureCsrfToken();
     const res = await fetch('/api/trade-review/move', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRF-Token': window.csrfToken || ''
+        'X-CSRF-Token': csrfToken || ''
       },
       body: JSON.stringify({ id, targetStatus })
     });
@@ -2321,11 +2322,12 @@ window.syncTradeReviewPool = async function() {
     btn.innerHTML = '⏳ 正在重新计算持仓与同步模型...';
   }
   try {
+    const csrfToken = await ensureCsrfToken();
     const res = await fetch('/api/trade-review/sync', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRF-Token': window.csrfToken || ''
+        'X-CSRF-Token': csrfToken || ''
       }
     });
     const json = await res.json();

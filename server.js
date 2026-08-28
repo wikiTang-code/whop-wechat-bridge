@@ -1340,7 +1340,7 @@ app.get('/api/zhao-positions', async (req, res) => {
   }
 });
 
-// POST /api/trade-review/move - 人机协同：在持仓与候选消息池之间一键移动
+// POST /api/trade-review/move - 人机协同：在持仓与候选消息池之间一键移动并即时重算
 app.post('/api/trade-review/move', requireCsrf, async (req, res) => {
   try {
     const { id, targetStatus } = req.body;
@@ -1349,13 +1349,23 @@ app.post('/api/trade-review/move', requireCsrf, async (req, res) => {
     }
 
     const db = getDb();
-    db.prepare(`
+    const cleanId = id.replace(/^ord_\d+_/, '');
+
+    const info = db.prepare(`
       UPDATE trade_review_pool
       SET status = ?, updated_at = ?
-      WHERE id = ? OR message_id = ?
-    `).run(targetStatus, Date.now(), id, id);
+      WHERE id = ? OR message_id = ? OR id = ? OR id LIKE ?
+    `).run(targetStatus, Date.now(), id, id, cleanId, `%${cleanId}%`);
 
-    res.json({ success: true, message: `成功更新状态为 ${targetStatus}` });
+    // 状态移动后，立即执行持仓状态机秒级重算
+    try {
+      const { execSync } = await import('child_process');
+      execSync('node scratch/rebuild_with_confidence_and_ledger.js', { timeout: 10000 });
+    } catch (e) {
+      console.warn('[Auto Recalculate Warning]:', e.message);
+    }
+
+    res.json({ success: true, message: `成功更新并重新计算持仓 (影响记录数: ${info.changes})` });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
