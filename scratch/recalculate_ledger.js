@@ -73,6 +73,10 @@ db.prepare(`
   )
 `).run();
 
+try {
+  db.prepare("ALTER TABLE trade_review_pool ADD COLUMN is_manual INTEGER DEFAULT 0").run();
+} catch (e) {}
+
 // 2. 从 trade_review_pool 表读取当前所有记录（如果表为空才从 messages 初始化）
 let existingRecords = db.prepare(`SELECT * FROM trade_review_pool ORDER BY created_at ASC`).all();
 

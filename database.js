@@ -45,6 +45,7 @@ export function initDb() {
         fraction_ratio REAL,
         confidence REAL NOT NULL,
         status TEXT NOT NULL DEFAULT 'candidate',
+        is_manual INTEGER DEFAULT 0,
         raw_content TEXT NOT NULL,
         before_qty INTEGER DEFAULT 0,
         before_avg_cost REAL DEFAULT 0,
@@ -54,6 +55,9 @@ export function initDb() {
         updated_at INTEGER NOT NULL
       )
     `).run();
+    try {
+      db.prepare("ALTER TABLE trade_review_pool ADD COLUMN is_manual INTEGER DEFAULT 0").run();
+    } catch (e) {}
     console.log('[initDb] Database already initialized and ready (0ms).');
     return;
   }
