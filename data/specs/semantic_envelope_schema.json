@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SemanticEnvelope",
+  "description": "大V发言上下文单元的结构化语义抽取 Schema",
+  "type": "object",
+  "required": [
+    "cu_id",
+    "speech_act",
+    "actions",
+    "claims",
+    "strategy_tags",
+    "confidence",
+    "parse_status"
+  ],
+  "properties": {
+    "cu_id": {
+      "type": "string",
+      "description": "对应的 Context Unit ID，如 cu_sample_001"
+    },
+    "speech_act": {
+      "type": "string",
+      "enum": ["trade_action", "market_view", "risk_control", "qa_guidance", "noise"],
+      "description": "主要话语行为分类"
+    },
+    "actions": {
+      "type": "array",
+      "description": "明确的交易动作列表，若无则返回空数组",
+      "items": {
+        "type": "object",
+        "required": ["action", "ticker", "price", "fraction"],
+        "properties": {
+          "action": { "type": "string", "enum": ["BUY", "SELL", "HOLD", "STOP_LOSS", "TAKE_PROFIT"] },
+          "ticker": { "type": "string" },
+          "price": { "type": ["number", "null"] },
+          "fraction": { "type": "string", "description": "如 1/6常规仓, 半仓, 满仓" },
+          "condition": { "type": "string", "description": "触发条件，如 回调到18元附近, 尾盘确认" }
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "description": "对后市点位、宏观事件或个股的主张与判断",
+      "items": {
+        "type": "object",
+        "required": ["ticker", "statement", "polarity"],
+        "properties": {
+          "ticker": { "type": "string" },
+          "statement": { "type": "string" },
+          "polarity": { "type": "string", "enum": ["bullish", "bearish", "neutral", "conditional"] },
+          "target_price": { "type": ["number", "null"] }
+        }
+      }
+    },
+    "strategy_tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "如 [底仓做T, 财报日低吸, 磨损对冲, 二次握手]"
+    },
+    "uncertainty": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "未交代清晰的盲区，如 [未给明确止损价, 等待美联储公布后确认]"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1.0,
+      "description": "抽取置信度 0.0 ~ 1.0"
+    },
+    "parse_status": {
+      "type": "string",
+      "enum": ["ok", "failed", "human_verified"],
+      "description": "解析状态，严禁在 failed 时生成虚假空话"
+    }
+  }
+}

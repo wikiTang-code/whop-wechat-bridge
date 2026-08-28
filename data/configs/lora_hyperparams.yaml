@@ -1,0 +1,33 @@
+# ⚙️ 本地 35B 模型微调 (SFT / LoRA) 推荐超参数模版 (供 Grok 调优)
+
+training_config:
+  base_model: "Qwen/Qwen2.5-32B-Instruct"  # 或本地 35B 基础模型
+  output_dir: "./models/kol_semantic_lora"
+  task_type: "CAUSAL_LM"
+  
+lora_hyperparameters:
+  r: 16                     # LoRA Rank (建议 16 或 32)
+  lora_alpha: 32            # LoRA Scaling Alpha
+  lora_dropout: 0.05
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+training_arguments:
+  learning_rate: 2.0e-4
+  num_train_epochs: 3
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  max_seq_length: 2048
+  warmup_ratio: 0.03
+  lr_scheduler_type: "cosine"
+  fp16: false
+  bf16: true                # AMD ROCm / HIP 原生推荐 bf16
+  logging_steps: 10
+  save_strategy: "epoch"
+  evaluation_strategy: "no"
