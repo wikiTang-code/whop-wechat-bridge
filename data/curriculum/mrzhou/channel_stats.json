@@ -1,0 +1,34 @@
+{
+  "chat_feed_1CaEnj8BrNBr95YSbgabYZ": {
+    "channel_name": "日内波段信号检测",
+    "total_messages": 999,
+    "messages_with_image": 8,
+    "total_images": 27,
+    "min_date_et": "2026-04-21",
+    "max_date_et": "2026-06-26"
+  },
+  "chat_feed_1CaPyASfSWTuruMgL2u3sT": {
+    "channel_name": "股票分析",
+    "total_messages": 329,
+    "messages_with_image": 24,
+    "total_images": 78,
+    "min_date_et": "2026-04-25",
+    "max_date_et": "2026-06-26"
+  },
+  "chat_feed_1CaChz8Ru2cjRfAFKi7KbF": {
+    "channel_name": "每日选股",
+    "total_messages": 74,
+    "messages_with_image": 0,
+    "total_images": 0,
+    "min_date_et": "2026-04-19",
+    "max_date_et": "2026-06-26"
+  },
+  "chat_feed_1CabPvHkbHhMwHft19jd83": {
+    "channel_name": "财报日提醒",
+    "total_messages": 45,
+    "messages_with_image": 0,
+    "total_images": 0,
+    "min_date_et": "2026-05-01",
+    "max_date_et": "2026-06-24"
+  }
+}
