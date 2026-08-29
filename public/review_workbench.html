@@ -67,6 +67,7 @@
       <button class="btn-reload" onclick="reloadOfflineBatch()" title="重新读取已落盘的最新离线批次指针 (秒级完成，不调大模型)">🔄 同步到最新离线批次</button>
       <label style="font-size: 12px; color: var(--text-muted); margin-left: 6px;">选择美东日期:</label>
       <select id="date-picker" class="date-select" onchange="onDateChanged(this.value)"></select>
+      <span id="date-summary-badge" class="batch-badge" style="background: rgba(56, 139, 253, 0.15); color: #58a6ff; font-weight: normal;">📅 当日 CU: 0 (动作: 0, 空窗: 0)</span>
       <div class="status-banner">🛑 券商对账: exit code 2 (阻断中·零实盘挂单)</div>
     </div>
   </header>
@@ -95,7 +96,7 @@
     <div class="column">
       <div class="column-header">
         <span>3. L2b 战法与风控闸门</span>
-        <span id="gates-scope-badge" style="color: #bc8cff;">全部战法 (25条)</span>
+        <span id="gates-scope-badge" style="color: #bc8cff;">当日战法 (0条)</span>
       </div>
       <div class="column-body" id="l2b-gates-list"></div>
     </div>
@@ -105,6 +106,7 @@
   <script>
     let currentDate = '2026-06-26';
     let selectedCuId = null;
+    let allDateStats = {};
 
     async function initWorkbench() {
       await updateIncrementalStatus();
@@ -150,6 +152,7 @@
         const data = await res.json();
         const picker = document.getElementById('date-picker');
         picker.innerHTML = '';
+        allDateStats = data.date_stats || {};
         
         data.dates.forEach(d => {
           const opt = document.createElement('option');
@@ -167,22 +170,34 @@
         }
 
         currentDate = data.default_date || '2026-06-26';
+        updateDateSummaryBadge(currentDate);
         loadDayData(currentDate);
       } catch (e) {
         console.error("加载日期列表失败:", e);
       }
     }
 
+    function updateDateSummaryBadge(date) {
+      const badge = document.getElementById('date-summary-badge');
+      const stat = allDateStats[date];
+      if (stat) {
+        badge.innerText = `📅 当日 CU: ${stat.cu_count} (动作窗: ${stat.action_cu_count}, 观点空窗: ${stat.empty_cu_count})`;
+      } else {
+        badge.innerText = `📅 当日 CU 统计: -`;
+      }
+    }
+
     function onDateChanged(newDate) {
       currentDate = newDate;
       selectedCuId = null;
+      updateDateSummaryBadge(currentDate);
       loadDayData(currentDate);
     }
 
     async function loadDayData(date) {
       loadStream(date);
       loadReviewQueue(date);
-      loadGates(null);
+      loadGates(null, date);
     }
 
     async function loadStream(date) {
@@ -194,7 +209,7 @@
         container.innerHTML = '';
 
         if (data.stream.length === 0) {
-          container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">该日期暂无口播动作</div>';
+          container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">该日期暂无口播动作 (纯大盘观点/空窗)</div>';
           return;
         }
 
@@ -210,6 +225,12 @@
                 <span style="color: var(--red); font-size: 11px;">${escapeHtml(item.cu_id)}</span>
               </div>
               <div style="color: var(--red); font-size: 11px;">${escapeHtml(item.raw_error)}</div>
+              ${item.raw_text ? `
+                <details style="margin-top: 6px;">
+                  <summary style="font-size: 11px; color: var(--accent);">💬 展开原始对话</summary>
+                  <pre style="white-space: pre-wrap; font-size: 11px; color: var(--text); margin-top: 4px;">${escapeHtml(item.raw_text)}</pre>
+                </details>
+              ` : ''}
             `;
           } else {
             const isFilled = item.status === 'filled_speech';
@@ -221,6 +242,12 @@
               <div class="card-meta">CU: ${escapeHtml(item.cu_id)} | ${escapeHtml(item.instrument)} | 分数: ${escapeHtml(item.fraction || '未明')}</div>
               <div style="font-size: 11px; color: var(--text-muted);">口播条件: ${escapeHtml(item.condition || '无')}</div>
               <div style="font-size: 10px; color: #484f58; margin-top: 4px;">⏳ 券商 Fills: [等待真实流水对账]</div>
+              ${item.raw_text ? `
+                <details style="margin-top: 6px;">
+                  <summary style="font-size: 11px; color: var(--accent);">💬 展开原文 (前200字)</summary>
+                  <pre style="white-space: pre-wrap; font-size: 11px; color: var(--text); margin-top: 4px; max-height: 150px; overflow-y: auto;">${escapeHtml(item.raw_text)}</pre>
+                </details>
+              ` : ''}
             `;
           }
           container.appendChild(div);
@@ -239,7 +266,7 @@
         container.innerHTML = '';
 
         if (data.queue.length === 0) {
-          container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">当日无待审计划单</div>';
+          container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">当日无待审计划单 (已被成交覆盖或无计划)</div>';
           return;
         }
 
@@ -255,6 +282,12 @@
             <div class="card-meta">来源: ${escapeHtml(item.cu_id)} | ${escapeHtml(item.et_date)} (${escapeHtml(item.et_session)})</div>
             <div style="font-size: 12px; margin: 4px 0;">意图价: ${item.price ? '$' + item.price : '未指定'} | 仓位: ${escapeHtml(item.fraction || '常规')}</div>
             <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">口播条件: ${escapeHtml(item.condition || '无')}</div>
+            ${item.raw_text ? `
+              <details style="margin-top: 4px; margin-bottom: 6px;">
+                <summary style="font-size: 11px; color: var(--accent);">💬 来源完整原文</summary>
+                <pre style="white-space: pre-wrap; font-size: 11px; color: var(--text); margin-top: 4px; max-height: 120px; overflow-y: auto;">${escapeHtml(item.raw_text)}</pre>
+              </details>
+            ` : ''}
             <div class="btn-group">
               <button class="btn btn-ack" onclick="handleReviewAction('${item.review_id}', '${item.cu_id}', 'ack')">✓ 核准确认 (human_verified)</button>
               <button class="btn btn-dismiss" onclick="handleReviewAction('${item.review_id}', '${item.cu_id}', 'dismiss')">✕ 忽略 (dismiss)</button>
@@ -267,21 +300,36 @@
       }
     }
 
-    async function loadGates(cuId) {
+    async function loadGates(cuId, date) {
       try {
-        const url = cuId ? `/api/l2b/gates?cu_id=${cuId}` : `/api/l2b/gates`;
+        let url = '/api/l2b/gates';
+        if (cuId) {
+          url += `?cu_id=${encodeURIComponent(cuId)}`;
+        } else if (date) {
+          url += `?date=${encodeURIComponent(date)}`;
+        }
+
         const res = await fetch(url);
         const data = await res.json();
         
-        document.getElementById('gates-scope-badge').innerText = cuId ? `当前 CU 命中 (${data.zhao_kid_badges.length})` : `全部战法 (${data.zhao_kid_badges.length}条)`;
+        const isSingleCu = cuId && cuId !== 'ALL';
+        document.getElementById('gates-scope-badge').innerText = isSingleCu 
+          ? `当前 CU 命中 (${data.zhao_kid_badges.length})` 
+          : `当日战法 (${data.zhao_kid_badges.length}条)`;
+        
         const container = document.getElementById('l2b-gates-list');
         container.innerHTML = '';
 
         const zhaoSection = document.createElement('div');
-        zhaoSection.innerHTML = `<div style="font-weight: bold; margin-bottom: 8px; color: #fff; font-size: 12px;">🏆 赵哥战法徽章 (${data.zhao_kid_badges.length})</div>`;
+        zhaoSection.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: bold; color: #fff; font-size: 12px;">🏆 赵哥战法命中 (${data.zhao_kid_badges.length})</span>
+            ${isSingleCu ? `<button onclick="loadGates(null, currentDate)" style="background: none; border: none; color: var(--accent); font-size: 11px; cursor: pointer;">显示全天</button>` : ''}
+          </div>
+        `;
         
         if (data.zhao_kid_badges.length === 0) {
-          zhaoSection.innerHTML += `<div style="color: var(--text-muted); font-size: 11px;">此 CU 未命中特定战法</div>`;
+          zhaoSection.innerHTML += `<div style="color: var(--text-muted); font-size: 11px; padding: 10px 0;">${isSingleCu ? '此 CU 未命中特定战法' : '当日无特定战法命中'}</div>`;
         }
 
         data.zhao_kid_badges.forEach(b => {
@@ -294,9 +342,9 @@
               <span style="font-size: 10px; color: var(--text-muted);">${escapeHtml(b.cu_id)}</span>
             </div>
             <div style="font-size: 11px; margin-top: 4px;">短语: <strong>${escapeHtml(b.matched_phrase)}</strong></div>
-            <details>
-              <summary>连续证据 Span</summary>
-              <p style="margin-top: 4px; color: var(--text);">${escapeHtml(b.evidence_span)}</p>
+            <details open>
+              <summary style="font-size: 11px; color: var(--accent);">连续证据 Span</summary>
+              <p style="margin-top: 4px; color: var(--text); font-size: 11px;">${escapeHtml(b.evidence_span)}</p>
             </details>
           `;
           zhaoSection.appendChild(bDiv);
@@ -326,7 +374,8 @@
     function selectCu(cuId) {
       selectedCuId = cuId;
       document.querySelectorAll('#l2a-stream-list .card').forEach(c => c.classList.remove('active'));
-      loadGates(cuId);
+      event?.currentTarget?.classList.add('active');
+      loadGates(cuId, currentDate);
     }
 
     async function handleReviewAction(reviewId, cuId, decision) {

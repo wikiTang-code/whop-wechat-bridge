@@ -64,6 +64,20 @@ function loadL2bData() {
   return { zhaoMap: cachedL2bZhaoMap, mrzhou: cachedL2bMrzhou };
 }
 
+function getHandledReviewIds() {
+  const handledSet = new Set();
+  if (fs.existsSync(HUMAN_VERIFIED_LOG_PATH)) {
+    const lines = fs.readFileSync(HUMAN_VERIFIED_LOG_PATH, 'utf-8').trim().split('\n').filter(Boolean);
+    for (const l of lines) {
+      try {
+        const item = JSON.parse(l);
+        if (item.review_id) handledSet.add(item.review_id);
+      } catch (e) {}
+    }
+  }
+  return handledSet;
+}
+
 /**
  * 获取离线增量批次状态: GET /api/l2a/incremental-status
  */
@@ -123,26 +137,41 @@ router.post('/l2a/reload-offline', (req, res) => {
 });
 
 /**
- * 0. 获取可用日期列表: GET /api/l2a/dates
+ * 0. 获取可用日期列表与每日统计: GET /api/l2a/dates
  */
 router.get('/l2a/dates', (req, res) => {
   const allRecords = loadL2aData();
-  const dateSet = new Set();
+  const dateMap = new Map();
   let unknownDateCount = 0;
 
   for (const r of allRecords) {
-    if (r.et_date) {
-      dateSet.add(r.et_date);
+    const d = r.et_date;
+    if (d) {
+      if (!dateMap.has(d)) {
+        dateMap.set(d, { date: d, cu_count: 0, action_cu_count: 0, empty_cu_count: 0 });
+      }
+      const stat = dateMap.get(d);
+      stat.cu_count++;
+      const acts = r.parsed?.actions || [];
+      if (acts.length > 0) stat.action_cu_count++;
+      else stat.empty_cu_count++;
     } else {
       unknownDateCount++;
     }
   }
 
-  const sortedDates = Array.from(dateSet).sort();
+  const sortedDates = Array.from(dateMap.keys()).sort();
   const latestDate = sortedDates.length > 0 ? sortedDates[sortedDates.length - 1] : '2026-06-26';
+  
+  const statsObj = {};
+  for (const [d, s] of dateMap.entries()) {
+    statsObj[d] = s;
+  }
+
   res.json({
     dates: sortedDates,
     default_date: latestDate,
+    date_stats: statsObj,
     unknown_date_cu_count: unknownDateCount
   });
 });
@@ -159,6 +188,9 @@ router.get('/l2a/today', (req, res) => {
     : allRecords.filter(r => r.et_date === reqDate);
   
   const stream = [];
+  let actionCuCount = 0;
+  let emptyCuCount = 0;
+
   for (const r of dateRecords) {
     const isParseOk = r.parse_ok === true;
     const actions = r.parsed?.actions || [];
@@ -168,10 +200,17 @@ router.get('/l2a/today', (req, res) => {
         cu_id: r.cu_id,
         et_session: r.et_session || 'regular',
         parse_ok: false,
+        raw_text: r.raw_text || '',
         raw_error: "模型解析失败或格式异常 (严禁用散文掩盖)",
         actions: []
       });
       continue;
+    }
+
+    if (actions.length === 0) {
+      emptyCuCount++;
+    } else {
+      actionCuCount++;
     }
     
     for (let idx = 0; idx < actions.length; idx++) {
@@ -187,6 +226,7 @@ router.get('/l2a/today', (req, res) => {
         status: a.status === 'filled' ? 'filled_speech' : 'planned',
         instrument: a.instrument,
         condition: a.condition,
+        raw_text: r.raw_text || '',
         parse_ok: true
       });
     }
@@ -194,6 +234,9 @@ router.get('/l2a/today', (req, res) => {
   
   res.json({
     date: reqDate,
+    cu_count: dateRecords.length,
+    action_cu_count: actionCuCount,
+    empty_cu_count: emptyCuCount,
     total_actions: stream.length,
     stream
   });
@@ -201,16 +244,33 @@ router.get('/l2a/today', (req, res) => {
 
 /**
  * 2. 待审池: GET /api/review/queue?date=
+ * 规则实现:
+ *  - W1: 扣除 l2a_human_verified_actions.jsonl 中已有的 review_id
+ *  - W2: 同日同标的若已有 filled 口述成交，planned 解释句不进池 (或被同日成交覆盖)
+ *  - 附带完整 raw_text 方便人工溯源
  */
 router.get('/review/queue', (req, res) => {
   const reqDate = req.query.date || '2026-06-26';
   const allRecords = loadL2aData();
+  const handledReviewIds = getHandledReviewIds();
   const queue = [];
 
   const dateRecords = reqDate === 'unknown'
     ? allRecords.filter(r => !r.et_date)
     : allRecords.filter(r => r.et_date === reqDate);
   
+  // 扫描当日已有 filled 口述成交的标的集合
+  const filledTickersToday = new Set();
+  for (const r of dateRecords) {
+    if (!r.parse_ok) continue;
+    const actions = r.parsed?.actions || [];
+    for (const a of actions) {
+      if (a.status === 'filled' && a.ticker) {
+        filledTickersToday.add(a.ticker.toUpperCase());
+      }
+    }
+  }
+
   for (const r of dateRecords) {
     if (!r.parse_ok) continue;
     const actions = r.parsed?.actions || [];
@@ -221,8 +281,20 @@ router.get('/review/queue', (req, res) => {
       const isTier1HardFill = TIER1_HARD_FILL_CUS.has(r.cu_id);
 
       if (isPlanned || isTier1HardFill) {
+        const reviewId = `${r.cu_id}_${a.ticker}_${a.action}_${a.price || 'null'}_${idx}`;
+        
+        // W1: 已审核过则排除
+        if (handledReviewIds.has(reviewId)) {
+          continue;
+        }
+
+        // W2: 同日同标的已有 filled 成交，planned 单视为复盘解释句，不进待审池
+        if (isPlanned && a.ticker && filledTickersToday.has(a.ticker.toUpperCase())) {
+          continue;
+        }
+
         queue.push({
-          review_id: `${r.cu_id}_${a.ticker}_${a.action}_${a.price || 'null'}_${idx}`,
+          review_id: reviewId,
           cu_id: r.cu_id,
           et_date: r.et_date || 'unknown',
           et_session: r.et_session || 'regular',
@@ -233,6 +305,7 @@ router.get('/review/queue', (req, res) => {
           status: a.status === 'filled' ? 'filled_speech' : 'planned',
           instrument: a.instrument,
           condition: a.condition,
+          raw_text: r.raw_text || '',
           is_tier1_supplement: isTier1HardFill,
           review_status: 'pending_human_ack'
         });
@@ -275,20 +348,35 @@ router.post('/review/action', (req, res) => {
 });
 
 /**
- * 3. 闸门与风控徽章: GET /api/l2b/gates?cu_id=
+ * 3. 闸门与风控徽章: GET /api/l2b/gates?cu_id=&date=
+ * 规则实现 (W4):
+ *  - 若指定 cu_id，只返回该 cu_id 命中的战法
+ *  - 若未指定 cu_id 但指定 date，返回该日命中的所有战法
+ *  - 仅当明确 ALL 且无 date 时才返回全局列表
  */
 router.get('/l2b/gates', (req, res) => {
-  const { cu_id } = req.query;
+  const { cu_id, date } = req.query;
   const { zhaoMap, mrzhou } = loadL2bData();
   
-  const zhaoHits = (cu_id && cu_id !== 'ALL')
-    ? (zhaoMap.get(cu_id) || [])
-    : Array.from(zhaoMap.values()).flat();
+  let zhaoHits = [];
+  if (cu_id && cu_id !== 'ALL') {
+    zhaoHits = zhaoMap.get(cu_id) || [];
+  } else if (date) {
+    const allRecords = loadL2aData();
+    const dateCuIds = new Set(allRecords.filter(r => r.et_date === date).map(r => r.cu_id));
+    for (const [cId, hits] of zhaoMap.entries()) {
+      if (dateCuIds.has(cId)) {
+        zhaoHits.push(...hits);
+      }
+    }
+  } else {
+    zhaoHits = Array.from(zhaoMap.values()).flat();
+  }
   
   const mrzhouRegimes = mrzhou.filter(a => a.type === 'regime' || a.kid === 'rule_max_overlapping_3');
   
   res.json({
-    cu_id: cu_id || 'ALL',
+    cu_id: cu_id || (date ? `DATE:${date}` : 'ALL'),
     zhao_kid_badges: zhaoHits.map(h => ({
       cu_id: h.cu_id,
       kid: h.kid,
