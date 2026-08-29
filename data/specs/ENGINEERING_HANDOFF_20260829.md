@@ -1,97 +1,75 @@
-# 工程同步稿（2026-08-29）
+# 工程同步稿（2026-08-29）补丁：知识层范围纠正
 
-> 对象：工程 agent + Grok 下一步分工  
-> 范围：广播增量闭环、工作台 W1–W5 实机验收、空窗可见与知识层未开工项  
-> 原则：不重抽 1195；不改广播 pipeline 口径；Web 点击路径不调模型；fills 保持 exit 2
+> 本文是对同文件第五节的**覆盖性纠正**。工程 agent 以本节为准，不要再执行「去掉已进 L2a 的广播窗」。
 
 ---
 
-## 一、已落地（禁止改路径、禁止覆盖）
+## 纠正 1：广播频道要抽 L2b，不是排除
 
-| 资产 | 路径 | 状态 |
-|---|---|---|
-| 基线 L2a | `data/runs/l2a_broadcast_candidates_1195_cleaned.jsonl` | **只读封档** |
-| 增量切窗 | `data/samples/l2a_cu_20260828_incr01.jsonl` | 246 CU，广播 only |
-| 增量 raw / cleaned | `data/runs/l2a_raw_20260828_incr01.jsonl` / `l2a_cleaned_20260828_incr01.jsonl` | A–E 已跑完 |
-| 增量 L2b 撞表 | `data/runs/l2b_hits_20260828_incr01.jsonl` | 5 条，附属；**工作台尚未合并** |
-| 指针 | `data/runs/l2a_incr_latest.json` | `has_incremental: true`，`latest_date: 2026-08-28` |
-| 水印 | `data/runs/l2a_watermark.json` | `2026-08-28T16:47:24.129Z` |
-| 总控 | `scratch/run_l2a_pipeline.js` | `--dry-cut` / `--full-run` / `--limit` |
-| 工作台 | `/review_workbench.html` | W1–W5 已部署，见第四节验收 |
+「不要把讨论区再跑一遍 L2a 动作模型」≠「广播原文不再做知识抽取」。
 
-广播口径、清洗规则、下次增量命令：同前，不重复。246 的 `parse_ok` 只表示 JSON 合法。
+同一段广播可以同时产出两种资产：
 
----
+| 句子 | 资产 |
+|---|---|
+| 「86.3加回了三分之一常规仓的 crwv」 | L2a `BUY CRWV @ 86.3 filled_speech`（已有） |
+| 「急跌急涨就异动多出、急跌买回，整数 86 就会买回来」 | **L2b 纪律**（现在缺的） |
 
-## 二、分层（名称不要混）
+因此：
 
-L2a = 候选动作；L2b = 战法原子；exec = 闸门（无产线）；view 必须回到原文+原图。  
-**窗 (CU) ≠ 动作笔数 ≠ 战法命中数。** 见 §4.2。
+- **原料 = 赵哥全频道**，含 `forum_feed_1CTr7SqVMzFfuFiiRJLEHN`。
+- 已进 L2a 的是「动作层结果」，**不删除这些消息，也不禁止再切知识窗**。
+- 禁止的是：对讨论区套 L2a 动作 schema、或把 L2b statement 再送进待审池当 planned。
+
+去重键是 `(kid, statement)`，不是 `message_id` 黑名单。
 
 ---
 
-## 三、原文映射 + 看图互证 + 金样 A/B
+## 纠正 2：知识开窗 ≠ L2a 开窗
 
-（§3.1–§3.4 仍有效：`raw_text` / `source_message_ids` / 原图像素 / 金样 A 波动顶底、金样 B 尾盘 V+期权。禁止 OCR 冒充看盘，禁止看图出 L2a 单。）
+L2a 广播规则（同日同 session、gap≤20min、≤8 条）是为了拆买卖单，会把「规则句」和「成交句」拆开（CRWV 失真就是这样）。知识窗必须把 **判断 + 配图 + 紧挨着的成交口播** 留在同一窗里当上下文。
 
----
+建议两套切法，都写 `cu_know_{run_id}_{seq}`：
 
-## 四、工作台 W1–W5
+**K-广播（知识用，不是替换 1195/246）**
 
-### 4.1 代码侧（工程已推，bf01a60 / 56075b1）
+- 锚点：赵哥消息，含图、或含判断/答疑口吻（急跌买回、被动减、波动值、V 多、握手…），不要求有买卖动词。
+- 上下文：同频道、同 ET 日、同 session，锚点前 3 + 后 2（可含他自己的成交句）。
+- 目的：金样 A/B、「急跌买回」+「86.3加了」同窗。
 
-W1 queue 扣已核 `review_id`；W2 同日同 ticker 有 filled 则 planned 不进池；W3 接口带 `raw_text`、左列 `<details>`；W4 `gates?cu_id=` / `?date=`；W5 `date_stats`。
+**K-讨论区**
 
-注意：W1 自动化测试用了虚构 `review_id`，含金量低，以实机为准。W2 是「同日同标的任意 filled 即覆盖全部 planned」，不是价差阈值。
+- 锚点同样是 `user_4yeplXgbguTu4`。
+- 前 3 + 后 2（可含群友问句），同日同 session。
 
-### 4.2 用户实机验收（2026-08-29 晚，手机 `/review_workbench.html`）
-
-| 日期 | 实机现象 | 结论 |
-|---|---|---|
-| 7-01 | 待审 0（文案「已被成交覆盖或无计划」）；左列有 BUY CRWV 口述成交；有「展开原文」；顶栏 `CU:6 (动作窗5, 观点空窗1)` | **W2 / W3 / W5 通过** |
-| 7-02 | 待审 0；左列 CONL/LITE 等口述成交；`CU:6 (6/0)`；无黄卡可 ack | W2/W5 通过；**W1 当天无法复测**（没有剩余 planned） |
-| 8-28 | `CU:4 (4/0)`；COHR/IREN 口述成交；待审 0 | 增量日工作台可读 |
-| 4-28（基线 `cu_trade_*`） | `CU:5 (动作窗3, 观点空窗2)`；左列 **5 笔动作**；全天右列 1 条 `k_passive_redeem`；点 `cu_trade_00978`（BUY CONL）右列变为「当前 CU 命中 0」 | **W4 过滤逻辑通过**（不灌 25 条；按 CU 会清掉非本窗徽章） |
-
-口径说明（用户已问，写进产品语义，禁止再改徽章公式）：
-
-- **当日 CU** = 当天切窗数。
-- **动作窗** = 其中 `actions.length > 0` 的窗数。一窗可多笔，故左列张数可以大于动作窗（4-28：3 窗 → 5 笔）。
-- **观点空窗** = `actions.length === 0` 的窗。只进顶栏数字，**当前左列不渲染，用户看不到、点不开**。
-- **当日战法** = 短语表命中数。空窗 ≠ 战法；4-28 两空窗里只有 1 条撞上「被动减」。被动减不在 CONL 成交那张卡上，点成交卡右列变 0 是正确的。
-
-W1 仍待：找「当天有 planned 且该 ticker 无 filled」的日子 ack + 强刷。不挡下一刀。
-
-### 4.3 验收通过后仍要做的需求（W7–W8）
-
-| ID | 需求 | 验收 |
-|---|---|---|
-| **W7 空窗可见** | 左列增加灰卡「仅观点 / 空窗」，一张卡对应一个空 CU；可展开 `raw_text`；点击后右列按该 `cu_id` 过滤。4-28 应能点到那条被动减的源窗，而不是只能「显示全天」 | 4-28 左列 = 3 张动作卡 + 2 张灰卡，共 5 张与 CU 数一致；点灰卡能看到被动减原文 |
-| **W8 合并增量 L2b** | `/api/l2b/gates` 同时读 `l2b_zhao_kid_hits.jsonl` **和** `l2b_hits_20260828_incr01.jsonl`（以及指针里未来的 `l2b_hits_{run_id}`） | 7–8 月某 incr 窗若 hits 文件有 kid，点该 `cu_incr_*` 右列非 0 |
-| W7 附 | 右列徽章可反跳：点 kid → 定位源 `cu_id` 并展开原文 | 4-28 点「被动减」跳到源窗 |
-
-不要为 W7/W8 重跑 14B。
+不要复用 `cu_incr_*` / `cu_trade_*` 当知识主键；可在知识 CU 上写 `related_l2a_cu_ids[]` 方便对照。
 
 ---
 
-## 五、知识层（W7 空窗可见后再开更顺，不强制挡）
+## 纠正 3：图必须全量落地（本批硬交付）
 
-全频道判断/答疑 + 看图互证；禁止讨论区套 L2a 动作 schema。金样 A/B 必进 20 窗抽检。周对照低优先级。新脚本勿改广播 pipeline。
+凡进入任一知识 CU 的消息，正文里的 `[IMAGE:url]` / Whop 图：**全部下载**，缺一记 `media_missing`。
+
+- 路径：`data/media/zhao/{et_date}/{message_id}_{i}.jpg`
+- CU.media[]：`message_id, url_original, local_path, sha256, status=ok|missing`
+- 过期链走现有 cookie / `/api/proxy-image` 同源刷新后再下；失败不得用 OCR 字符串冒充已看图。
+- `--dry-cut` 看板必出：应下张数 / 成功 / missing。missing 高则先修下载，不准开多模态抽取。
+- 广播 1195+246 里已有的图也要补下（工作台展开原文要能看图），不限于讨论区。
 
 ---
 
-## 六、明确不做
+## dry-cut 命令（替换此前错误指令）
 
-同前：点击路径不调模型；不覆盖 1195；不把空窗当成抽取失败；不把「2 个空窗」理解成「应有 2 条战法」；金样 A/B 禁止抽成 SPX 单。
+```bash
+node scratch/run_l2b_knowledge_pipeline.js --dry-cut --run-id 20260829_know01
+```
 
----
+产出：
 
-## 七、分工顺序（更新）
+- `data/samples/l2b_cu_20260829_know01.jsonl`（禁止出现 BUY/SELL 动作字段）
+- `data/media/zhao/**`
+- 控制台：消息数、K-广播 CU、K-讨论 CU、图应下/成功/missing、日期跨度
 
-**工程下一步：** W7 空窗灰卡 + W8 合并 incr hits + 徽章反跳。W6 正股/2x 映射收紧仍有效。
+不写 L2a cleaned、不推 `l2a_watermark`、不调 8080。
 
-**用户：** 工作台 W2/W3/W4/W5 实机已收。W7 来了再验 4-28 能否点开被动减源窗。
-
-**Grok：** 审 W7/W8 diff。知识层 dry-cut 等空窗可点之后再开亦可。
-
-**暂缓：** exec、券商、全频道 14B 文本盲抽。
+20 窗图齐（尽量含金样 A/B 与 CRWV「急跌买回」类）后再开多模态 L2b。
