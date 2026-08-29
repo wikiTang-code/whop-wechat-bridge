@@ -8,6 +8,12 @@ const db = getDb();
 
 const WATERMARK_PATH = 'data/runs/l2a_watermark.json';
 const INCR_POINTER_PATH = 'data/runs/l2a_incr_latest.json';
+const PROMPT_V3_PATH = 'data/prompts/semantic_extract_prompt_v3.md';
+
+// 广播频道 ID 集合 (严格限定与 1195 基线完全同款口径)
+const BROADCAST_CHANNELS = new Set([
+  'forum_feed_1CTr7SqVMzFfuFiiRJLEHN' // 赵哥大V广播主频道
+]);
 
 // 解析命令行参数
 const args = process.argv.slice(2);
@@ -20,8 +26,14 @@ if (runIdIdx !== -1 && args[runIdIdx + 1]) {
   runId = args[runIdIdx + 1];
 }
 
+let limitCount = Infinity;
+const limitIdx = args.indexOf('--limit');
+if (limitIdx !== -1 && args[limitIdx + 1]) {
+  limitCount = parseInt(args[limitIdx + 1], 10);
+}
+
 console.log('====================================================');
-console.log(`🏭 L2a/L2b 固定批次离线流水线引擎 (Run ID: ${runId})`);
+console.log(`🏭 L2a/L2b 固定批次离线流水线 (Run ID: ${runId})`);
 console.log('====================================================\n');
 
 // 1. 读取水印
@@ -38,30 +50,43 @@ if (fs.existsSync(WATERMARK_PATH)) {
 
 console.log(`📍 当前基准水印时间戳: ${watermark.last_watermark_iso} (${watermark.last_watermark_ts})`);
 
-// 2. 阶段 A: 从 SQLite 查询增量消息并按 v3 规范切窗
-// 查询广播频道赵哥在水印时间之后的全部消息
+// 2. 阶段 A: 从 SQLite 查询增量消息 (限定广播频道与赵哥)
 const messages = db.prepare(`
   SELECT id, sender_name, content, created_at, channel_id 
   FROM messages 
-  WHERE created_at > ? AND (sender_name LIKE '%赵哥%' OR sender_name LIKE '%xiaozhao%' OR sender_id LIKE '%xiaozhao%')
+  WHERE created_at > ? 
+    AND channel_id IN ('forum_feed_1CTr7SqVMzFfuFiiRJLEHN')
+    AND (sender_name LIKE '%赵哥%' OR sender_name LIKE '%xiaozhao%' OR sender_id LIKE '%xiaozhao%')
   ORDER BY created_at ASC
 `).all(watermark.last_watermark_ts);
 
-console.log(`📦 水印之后扫描到增量大V原始消息: ${messages.length} 条\n`);
+console.log(`📦 水印之后扫描到广播频道大V原始消息: ${messages.length} 条\n`);
 
 if (messages.length === 0) {
-  console.log('ℹ️ 当前暂无新消息，水印已是最新，无需生成增量批次。');
+  console.log('ℹ️ 当前暂无新广播消息，水印已是最新，无需生成增量批次。');
   process.exit(0);
 }
 
-// 辅助函数: 计算美东日期与 Session
+// 辅助函数: 使用标准 America/New_York 时区计算 ET 日期与 Session
 function getEtInfo(ts) {
   const d = new Date(ts);
-  // 美东夏令时 UTC-4 (简化时区转换)
-  const etDateObj = new Date(d.getTime() - 4 * 3600 * 1000);
-  const etDateStr = etDateObj.toISOString().split('T')[0];
-  const hour = etDateObj.getUTCHours();
-  const minute = etDateObj.getUTCMinutes();
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+  const parts = formatter.formatToParts(d);
+  const map = {};
+  for (const p of parts) map[p.type] = p.value;
+  
+  const etDateStr = `${map.year}-${map.month}-${map.day}`;
+  const hour = parseInt(map.hour, 10);
+  const minute = parseInt(map.minute, 10);
   const timeNum = hour + minute / 60;
 
   let session = 'regular';
@@ -73,7 +98,7 @@ function getEtInfo(ts) {
   return { et_date: etDateStr, session };
 }
 
-// v3 规则切窗: 同ET日、同Session、gap <= 20分钟 (1200000ms)、最多 8 条
+// v3 规则切窗: 同ET日、同Session、相邻 gap <= 20分钟 (1200000ms)、最多 8 条
 const contextUnits = [];
 let currentCu = null;
 
@@ -121,7 +146,7 @@ for (const m of messages) {
 }
 if (currentCu) contextUnits.push(currentCu);
 
-// 格式化为输出对象
+// 格式化为标准 CU 对象
 const formattedCus = contextUnits.map((cu, idx) => {
   const seqStr = String(idx + 1).padStart(5, '0');
   return {
@@ -149,55 +174,180 @@ const latestMsgIso = new Date(latestMsgTs).toISOString();
 const latestEtDate = formattedCus[formattedCus.length - 1].time.et_date;
 
 console.log('====================================================');
-console.log('📊 阶段 A 切窗完成看板 (Dry-Cut / Cut Scorecard)');
+console.log('📊 阶段 A 切窗完成看板 (限定广播频道 + NY时区)');
 console.log('====================================================');
-console.log(`1. 增量原始消息总数:            ${messages.length} 条`);
+console.log(`1. 广播频道增量消息数:          ${messages.length} 条 (纯广播，无水聊)`);
 console.log(`2. 切出增量 Context Unit (CU):  ${formattedCus.length} 组`);
 console.log(`3. 覆盖美东日期跨度:            ${formattedCus[0].time.et_date} ~ ${latestEtDate}`);
 console.log(`4. 最新消息时间戳 (新水印):      ${latestMsgIso} (${latestMsgTs})`);
 console.log(`5. 增量 CU 产物输出路径:         ${outCuSamplePath}`);
 console.log('====================================================\n');
 
-// 打印前 2 条样本展示
-console.log('🔍 增量切窗前 2 条样本预览:');
-for (let i = 0; i < Math.min(2, formattedCus.length); i++) {
-  const c = formattedCus[i];
-  console.log(`\n📌 [${c.cu_id}] 日期: ${c.time.et_date} (${c.time.session}) | 消息数: ${c.message_count}`);
-  console.log(`   内容: "${c.dialogue_messages.map(m => m.text).join(' ').slice(0, 80)}..."`);
-}
-
 // 写入切窗文件
 fs.writeFileSync(outCuSamplePath, formattedCus.map(c => JSON.stringify(c)).join('\n'), 'utf-8');
 
 if (isDryCut) {
-  console.log('\n✅ --dry-cut 模式执行完毕：仅切窗并统计 CU，未调用大模型！');
+  console.log('✅ --dry-cut 模式执行完毕：仅切窗并统计 CU，未调用大模型！');
   process.exit(0);
 }
 
-// 如果不是 full-run 则提醒
 if (!isFullRun) {
-  console.log('\n💡 提示: 若要继续执行阶段 B~E 全量跑批，请附带参数 --full-run！');
+  console.log('💡 提示: 若要执行真实 14B 抽取与清洗，请带参数 --full-run (可选 --limit 20)！');
   process.exit(0);
 }
 
 // ----------------------------------------------------
-// 阶段 B~E: 完整离线执行 (B抽取 -> C清洗 -> D撞表 -> E指针)
+// 阶段 B: 真实调用本地 LM Studio 14B (带断点续跑跳过)
 // ----------------------------------------------------
-console.log('\n🚀 开始执行阶段 B~E 完整离线自动化流水线...');
+console.log(`\n🤖 开始执行阶段 B: 真实 14B 抽取 (目标: ${Math.min(limitCount, formattedCus.length)} 组)...`);
 
-// 阶段 B: 抽取产物
+const promptTemplate = fs.readFileSync(PROMPT_V3_PATH, 'utf-8');
 const outRawPath = `data/runs/l2a_raw_${runId}.jsonl`;
 const outCleanedPath = `data/runs/l2a_cleaned_${runId}.jsonl`;
 const outHitsPath = `data/runs/l2b_hits_${runId}.jsonl`;
 
-// 规则字典
+// 读取已有 raw 产物实现断点续跑
+const existingRawMap = new Map();
+if (fs.existsSync(outRawPath)) {
+  const lines = fs.readFileSync(outRawPath, 'utf-8').trim().split('\n').filter(Boolean);
+  for (const l of lines) {
+    const item = JSON.parse(l);
+    if (item.parse_ok) existingRawMap.set(item.cu_id, item);
+  }
+  console.log(`🔄 发现已有断点进度，已完成: ${existingRawMap.size} 组，将自动跳过...`);
+}
+
+async function callLmStudio(cuText) {
+  const prompt = promptTemplate.replace('{{CONTEXT_UNIT_JSON}}', cuText);
+  const res = await fetch('http://127.0.0.1:1234/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.0,
+      max_tokens: 1024
+    })
+  });
+  if (!res.ok) throw new Error(`LM Studio HTTP ${res.status}`);
+  const json = await res.json();
+  const rawContent = json.choices[0].message.content;
+  
+  // 提取 JSON
+  const match = rawContent.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('模型输出未包含合法 JSON');
+  return JSON.parse(match[0]);
+}
+
+const targetCus = formattedCus.slice(0, limitCount);
+const rawResults = [];
+
+for (let i = 0; i < targetCus.length; i++) {
+  const cu = targetCus[i];
+  if (existingRawMap.has(cu.cu_id)) {
+    rawResults.push(existingRawMap.get(cu.cu_id));
+    continue;
+  }
+
+  const cuText = JSON.stringify(cu, null, 2);
+  const startT = Date.now();
+  let parsed = null;
+  let parseOk = false;
+
+  try {
+    parsed = await callLmStudio(cuText);
+    parseOk = true;
+    process.stdout.write(`  [${i + 1}/${targetCus.length}] ${cu.cu_id} 抽取成功 (${Date.now() - startT}ms)\r`);
+  } catch (err) {
+    console.error(`\n  [${i + 1}/${targetCus.length}] ${cu.cu_id} 抽取失败: ${err.message}`);
+    parsed = { speech_act: 'market_view', actions: [], strategy_tags: [], parse_status: 'failed', error: err.message };
+  }
+
+  const record = {
+    cu_id: cu.cu_id,
+    channel: cu.channel,
+    et_date: cu.time.et_date,
+    et_session: cu.time.session,
+    raw_text: cu.dialogue_messages.map(m => m.text).join('\n'),
+    parsed,
+    parse_ok: parseOk,
+    latency_ms: Date.now() - startT
+  };
+
+  rawResults.push(record);
+  fs.appendFileSync(outRawPath, JSON.stringify(record) + '\n', 'utf-8');
+}
+
+console.log(`\n✅ 阶段 B 抽取完成，共落盘: ${rawResults.length} 组至 ${outRawPath}`);
+
+// ----------------------------------------------------
+// 阶段 C: 5 步确定性后处理清洗 (参数化无污染)
+// ----------------------------------------------------
+console.log('\n🧹 开始执行阶段 C: 5 步确定性清洗...');
+
 const TICKER_MAP = { 'TSSL': 'TSLL', 'CFIR': 'CIFR', 'WEINU': 'BULL', 'WEIN': 'BULL', '微牛': 'BULL', 'BRK-B': 'BRK.B', 'BRKB': 'BRK.B' };
 const DROP_TICKERS = new Set(['QQQV', 'RKLBOPT', 'TSLA_CALL', 'INTC_CALL', 'OTHER_STOCKS', '82HOOD', 'SPACEX', '未提供', '币', '币预警', 'A股港股', 'GREEN1', 'STOCK', 'CALL', 'PUT']);
 const ETF_2X_SET = new Set(['TSLL', 'NVDL', 'SOXL', 'FBL', 'MSFL', 'AMZU', 'CONL', 'MSTX', 'NFXL', 'TQQQ', 'SQQQ', 'LABU', 'LABD', 'DPST', 'YINN', 'YANG']);
 
-// 生产执行: 对 formattedCus 生成结构化 cleaned 与 hits
-const cleanedIncrRecords = [];
-const hitsIncrRecords = [];
+const cleanedResults = [];
+for (const r of rawResults) {
+  if (!r.parse_ok || !r.parsed) {
+    cleanedResults.push(r);
+    continue;
+  }
+
+  const rawActions = r.parsed.actions || [];
+  const validActions = [];
+
+  for (const a of rawActions) {
+    let t = (a.ticker || '').toUpperCase().trim();
+    if (TICKER_MAP[t]) t = TICKER_MAP[t];
+    if (DROP_TICKERS.has(t) || !t) continue;
+
+    let inst = a.instrument;
+    if (ETF_2X_SET.has(t)) inst = 'etf_2x';
+    else if (!inst || inst === 'stock') inst = 'equity';
+
+    let stat = a.status;
+    const cond = a.condition || '';
+    if (/可以|注意|打算|如果|挂|转弯|回踩|震荡/i.test(cond) || /可以|注意|打算|如果|挂|转弯|回踩|震荡/i.test(r.raw_text)) {
+      stat = 'planned';
+    }
+
+    validActions.push({
+      action: a.action,
+      ticker: t,
+      price: a.price,
+      fraction: a.fraction,
+      status: stat,
+      instrument: inst,
+      condition: a.condition
+    });
+  }
+
+  cleanedResults.push({
+    cu_id: r.cu_id,
+    channel: r.channel,
+    et_date: r.et_date,
+    et_session: r.et_session,
+    raw_text: r.raw_text,
+    parsed: {
+      speech_act: validActions.length > 0 ? 'trade_action' : 'market_view',
+      actions: validActions,
+      strategy_tags: r.parsed.strategy_tags || [],
+      parse_status: r.parsed.parse_status || 'ok'
+    },
+    parse_ok: r.parse_ok,
+    latency_ms: r.latency_ms
+  });
+}
+
+fs.writeFileSync(outCleanedPath, cleanedResults.map(r => JSON.stringify(r)).join('\n'), 'utf-8');
+console.log(`✅ 阶段 C 清洗完成，共清洗输出 ${cleanedResults.length} 组至 ${outCleanedPath}`);
+
+// ----------------------------------------------------
+// 阶段 D: 战法长短语撞表 (已封 25 战法，不扩表)
+// ----------------------------------------------------
+console.log('\n🎯 开始执行阶段 D: L2b 战法长短语撞表...');
 
 const L2B_REGEX = [
   { kid: 'k_half_retrace_watch', type: 'formula', regex: /\([0-9\.]+\+[0-9\.]+\)\/2|\(高[\s\S]+低\).{0,8}\/\s*2|一半位置|高低点均值/i },
@@ -209,45 +359,17 @@ const L2B_REGEX = [
   { kid: 'k_passive_redeem_then_rebuy', type: 'playbook', regex: /被动减/i }
 ];
 
-for (const c of formattedCus) {
-  const fullText = c.dialogue_messages.map(m => m.text).join('\n');
-  
-  // 简要语义动作解析 (生产环境与 14B 对齐)
-  const actions = [];
-  const lower = fullText.toLowerCase();
-
-  // 正则快速提取典型动作 (与清洗规则 100% 对齐)
-  if (lower.includes('tsll') && (fullText.includes('出') || fullText.includes('减') || fullText.includes('卖'))) {
-    actions.push({ action: 'SELL', ticker: 'TSLL', price: null, fraction: '部分', condition: '口播减仓', status: 'planned', instrument: 'etf_2x' });
-  }
-
-  const record = {
-    cu_id: c.cu_id,
-    channel: c.channel,
-    et_date: c.time.et_date,
-    et_session: c.time.session,
-    raw_text: fullText,
-    parsed: {
-      speech_act: actions.length > 0 ? 'trade_action' : 'market_view',
-      actions,
-      strategy_tags: ["离线增量批处理"],
-      parse_status: 'ok'
-    },
-    parse_ok: true,
-    latency_ms: 100
-  };
-  cleanedIncrRecords.push(record);
-
-  // 阶段 D: 战法短语撞表
+const hitsResults = [];
+for (const c of cleanedResults) {
   for (const rule of L2B_REGEX) {
-    const m = fullText.match(rule.regex);
+    const m = c.raw_text.match(rule.regex);
     if (m) {
-      hitsIncrRecords.push({
+      hitsResults.push({
         cu_id: c.cu_id,
         kid: rule.kid,
         type: rule.type,
         matched_phrase: m[0],
-        evidence_span: fullText.slice(Math.max(0, m.index - 20), Math.min(fullText.length, m.index + m[0].length + 40)).replace(/\n/g, ' '),
+        evidence_span: c.raw_text.slice(Math.max(0, m.index - 20), Math.min(c.raw_text.length, m.index + m[0].length + 40)).replace(/\n/g, ' '),
         status: 'asserted',
         do_not_use_as_order: true
       });
@@ -255,12 +377,14 @@ for (const c of formattedCus) {
     }
   }
 }
+fs.writeFileSync(outHitsPath, hitsResults.map(r => JSON.stringify(r)).join('\n'), 'utf-8');
+console.log(`✅ 阶段 D 战法撞表完成，共命中 ${hitsResults.length} 条战法至 ${outHitsPath}`);
 
-// 写入产物
-fs.writeFileSync(outCleanedPath, cleanedIncrRecords.map(r => JSON.stringify(r)).join('\n'), 'utf-8');
-fs.writeFileSync(outHitsPath, hitsIncrRecords.map(r => JSON.stringify(r)).join('\n'), 'utf-8');
+// ----------------------------------------------------
+// 阶段 E: 指针与水印推进
+// ----------------------------------------------------
+console.log('\n💾 开始执行阶段 E: 更新指针与推进水印...');
 
-// 阶段 E: 更新指针与水印
 const pointer = {
   base_dataset_path: "data/runs/l2a_broadcast_candidates_1195_cleaned.jsonl",
   base_cu_count: 1195,
@@ -268,23 +392,23 @@ const pointer = {
   latest_run_id: runId,
   runs: [outCleanedPath],
   incremental_path: outCleanedPath,
-  incremental_cu_count: cleanedIncrRecords.length,
-  latest_date: latestEtDate,
+  incremental_cu_count: cleanedResults.length,
+  latest_date: cleanedResults[cleanedResults.length - 1].et_date,
   updated_at: new Date().toISOString()
 };
 fs.writeFileSync(INCR_POINTER_PATH, JSON.stringify(pointer, null, 2), 'utf-8');
 
+const lastDoneCu = targetCus[targetCus.length - 1];
 const newWatermark = {
   base_dataset: "l2a_broadcast_candidates_1195_cleaned.jsonl",
-  base_last_cu_id: formattedCus[formattedCus.length - 1].cu_id,
-  last_watermark_iso: latestMsgIso,
-  last_watermark_ts: latestMsgTs,
+  base_last_cu_id: lastDoneCu.cu_id,
+  last_watermark_iso: lastDoneCu.time.end_utc,
+  last_watermark_ts: new Date(lastDoneCu.time.end_utc).getTime(),
   last_run_id: runId,
   updated_at: new Date().toISOString()
 };
 fs.writeFileSync(WATERMARK_PATH, JSON.stringify(newWatermark, null, 2), 'utf-8');
 
 console.log(`\n🎉 全流程五段式离线流水线执行完毕！`);
-console.log(`  - 增量候选落盘: ${outCleanedPath} (${cleanedIncrRecords.length} 组)`);
-console.log(`  - 增量战法落盘: ${outHitsPath} (${hitsIncrRecords.length} 条命中)`);
-console.log(`  - 全局指针已指向最新日期: ${latestEtDate}`);
+console.log(`  - 全局指针指向: ${pointer.latest_date} (增量: ${cleanedResults.length} CU)`);
+console.log(`  - 全局水印推进至: ${newWatermark.last_watermark_iso}`);
