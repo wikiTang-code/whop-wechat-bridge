@@ -51,109 +51,114 @@ L0 messages
     → L2b atom：战法/纪律（无下单价）
          赵 kid + 周 18 原子（周 hint_only）
  → exec：跟/不跟/仓位（规格有，产线无）
- → view：工作台必须能回到原文
+ → view：工作台必须能回到原文+原图
 ```
 
 - 广播 L2a = 跟单原料。246 就是这个。
 - L2b ≠ 全频道 L2a。全频道切窗抽动作仍叫 L2a；抽可复用纪律才叫 L2b。
 - exec = 闸门，不是 K 线回测引擎。
-- 主站旧 Tab（画像、万字日报、7 大战法、模拟仓、「实时跟单同步」）不读 cleaned jsonl。「实时跟单同步」文案不得写触发下单。
+- 主站旧 Tab 不读 cleaned jsonl。「实时跟单同步」文案不得写触发下单。
 
 ---
 
 ## 三、硬性：L2a / L2b 都必须挂原文 + 后台映射
 
-后续无论抽 L2a 还是 L2b，**每条结构化记录必须能跳回完整原文**（含图）。只留 `condition` 短句不算交付。
+后续无论抽 L2a 还是 L2b，**每条结构化记录必须能跳回完整原文与原图**。只留 `condition` 短句或只 OCR 出的字不算交付。
 
-### 3.1 后台映射（必须落库或落盘索引）
-
-每条 L2a action / L2b hit 至少含：
+### 3.1 后台映射
 
 | 字段 | 含义 |
 |---|---|
 | `cu_id` | 窗 |
 | `source_message_ids[]` | 该动作/原子用到的 `messages.id` |
-| `raw_text` | 该 CU 全文（可与 CU 文件重复，接口必须返回） |
-| `evidence_span` | 触发抽取的连续片段 |
-| `media[]` | `{ message_id, local_path, sha256 }`，缺图标 `media_missing` |
+| `raw_text` | 该 CU 全文，接口必须返回 |
+| `evidence_span` | 触发抽取的连续文本 |
+| `media[]` | `{ message_id, local_path, sha256, chart_notes? }` |
 
-建议表：`asset_source_map(asset_kind, asset_id, cu_id, message_id, span_start, span_end)`  
-便于纠错：改一条映射或标 `human_corrected`，不必重跑整批 14B。
+建议表：`asset_source_map(asset_kind, asset_id, cu_id, message_id, span_start, span_end)`。纠错标 `human_corrected`，不必重跑整批 14B。
 
 ### 3.2 工作台展示
 
-- L2a 左列 / 待审卡：折叠「原文」，默认可见前 200 字，展开全文。
-- L2b 徽章：点开即 `evidence_span` + 所属 CU 原文，禁止只显示 kid 名。
-- 点左列卡片：展开原文 + `GET /api/l2b/gates?cu_id=`；默认禁止灌全局 25 条。
-- 消息流坏图（`?` 占位）按知识层下载规范修，不在点击路径调模型。
+- L2a 左列 / 待审卡：折叠「原文」，默认前 200 字，展开全文 + 缩略图。
+- L2b 徽章：`evidence_span` + CU 原文 + 该窗图片。
+- 点左列：展开原文/图 + `GET /api/l2b/gates?cu_id=`；默认禁止灌全局 25 条。
+
+### 3.3 配图必须「看盘」而不是只读字（知识层硬约束）
+
+赵哥常用截图+箭头说明判断。OCR 只能扫到部分数字/标题，**读不到**：
+
+- K 线形态（上影、吞没、缺口、均线缠绕）
+- 手绘箭头 / 圈 / 切线 / 支撑压力
+- 多图对比（日K vs 30m vs 盘口）
+- 图上标的价与口播价是否同一件事
+
+抽取规则：
+
+1. 图先落盘再抽：`data/media/zhao/{et_date}/{message_id}_{i}.jpg`。缺图标 `media_missing`，该条证据降权。
+2. 知识抽取输入 = **口播全文 + 原图像素**（多模态），禁止「只把 OCR 字符串塞进 14B 文本模型」。
+3. 模型输出结构化 `chart_notes`（可选字段，不上订单）：
+   - `timeframe`（日/30m/分时，不确定则 `unknown`）
+   - `markers`（箭头方向、圈住的高低点、画出的切线）
+   - `levels_on_chart`（图上能读的价，与口播价分列）
+   - `aligns_with_text`（`match` / `partial` / `conflict` / `unreadable`）
+4. 口播与图冲突时：`statement` 降为 `proposed`，等人工看图，禁止用图脑补一笔 L2a BUY/SELL。
+5. 工作台点开 CU 必须能看原图，不能只渲染 `[IMAGE:]` 或坏链 `?`。
+
+14B 文本夜跑（当前广播 L2a）维持纯文本；**知识层 / 讨论区 L2b 必须换多模态或「人工看图+模型填表」**，不得宣称 OCR 等于看懂盘。
 
 ---
 
-## 四、工作台实机验收（2026-08-29）遗留 — 工程下一步优先
+## 四、工作台实机验收遗留 — 工程下一步优先
 
 用户已确认：reload 成功，日期到 8-28，增量 +246，左列可见 `cu_incr_*`，券商条仍为 exit 2。
 
 | ID | 问题 | 验收标准 |
 |---|---|---|
-| W1 | `GET /api/review/queue` 不读 ack 日志。7-02 点「核准确认」变灰（文案 human_verified / 零实盘打单），**刷新后卡片回来** | queue 排除 `l2a_human_verified_actions.jsonl` 里已有的 `review_id`；刷新 7-02 不再出现已 ack 卡 |
-| W2 | 待审卡只有 `condition` 短句。7-01 CRWV `planned`「急跌买回86」把「86.3加了三分之一」的解释句收成待跟单 | 卡上带完整 `raw_text`；同日同标的已有 filled 且价格接近（86 vs 86.3）→ planned **不进池** 或标「已被口播成交覆盖」 |
-| W3 | 左列不可点、不展开原文、不联动右列。所谓「点急涨急跌看是否串出 LITE」当前 UI 做不到 | 点击 `cu_id` → 原文 + gates 过滤 |
-| W4 | 右列恒为「赵哥战法徽章 (25)」全局列表，不随日期/CU 变 | 无选中 CU 时可显示当日 hits；选中后只显示该 `cu_id` |
-| W5 | 8-10 左列 0 可以是真无广播窗，但页面无「当日 CU 数 / 空窗数」 | 日期旁显示：该日 incr+base 的 CU 数、有动作数、空窗数，避免当成抽失败 |
-| W6 | 正股/2x 映射 | `NVDA→NVDL` 等仅当原文出现杠杆名时再生效，抽检写入 changelog |
+| W1 | 7-02 ack 变灰，刷新卡片回来 | queue 排除已写日志的 `review_id` |
+| W2 | 7-01 CRWV planned「急跌买回86」把「86.3加了」收成待跟单 | 卡上全文；同日同标的接近价 filled 覆盖 planned |
+| W3 | 左列不可点、无原文 | 点击展开原文+图，gates 按 `cu_id` |
+| W4 | 右列恒 25 条全局徽章 | 选中 CU 后只显示该窗 |
+| W5 | 8-10 左列 0 无解释 | 日期旁显示当日 CU / 有动作 / 空窗数 |
+| W6 | 正股/2x 映射过宽 | 仅原文出现杠杆名才映射 |
 
-不要为 W1–W5 重跑 246 的 14B。只改路由、queue 规则、前端。
-
-纠错工作流（有了 3.1 映射之后）：
-
-1. 用户在卡上标「失真 / 覆盖」；
-2. 写 `data/runs/l2a_human_corrections.jsonl`（`review_id`, `cu_id`, `reason`, `decision`）；
-3. 清洗或 queue 规则下次跑批读取该文件（幂等）。
+不要为 W1–W5 重跑 246 的 14B。
 
 ---
 
-## 五、知识层（工作台 W1–W3 补完后再开）
+## 五、知识层（W1–W3 补完后再开）
 
-目标：全频道赵哥的**判断 / 答疑 / 日历纪律** + 配图，形成可回测框架。  
-**禁止**对讨论区再跑 L2a 动作 schema。
+目标：全频道判断/答疑/日历纪律 + **看图互证**。禁止讨论区套 L2a 动作 schema。
 
-周哥自称来自赵：只做对照附录，低优先级。对得上给赵 kid 打 `also_seen_in: mrzhou`；对不上 `zhao_unattested`。禁止把周的 PCR/VIX/±15% 写进赵 statement。
+周对照附录低优先级：`also_seen_in: mrzhou` / `zhao_unattested`。禁止把周阈值写入赵 statement。
 
-1. 新脚本 `scratch/run_l2b_knowledge_pipeline.js`，勿改广播 `run_l2a_pipeline.js`。
-2. 切窗：全频道减去已进 L2a 的广播窗；锚点 `user_4yeplXgbguTu4`；前 3 + 后 2；同日同 session；`cu_id=cu_know_{run_id}_{seq}`。先 `--dry-cut` 报窗数。
-3. 图：`data/media/zhao/{et_date}/{message_id}_{i}.jpg`，CU 写 `media[]`。dry-cut 抽 20 窗，文件数 ≈ `[IMAGE:]` 数。缺图标 `media_missing`，禁止脑补图上的价。OCR 仅检索辅文。
-4. 抽取：`knowledge_atom_extract_prompt`；输出 kid / statement / evidence_span / source_message_ids / `do_not_use_as_order: true`。先撞已封 25 条；未命中进 `candidates_kids.json`，人工点头才进 registry。先 20 窗。
-5. 只有能写成价/时间/持仓条件的 statement 才进 `strategies/` 用 K 线回测；否则只读 L2b。回测与周隔离目录分开。跟单一致性 ≠ 账户曲线。
+1. 新脚本 `scratch/run_l2b_knowledge_pipeline.js`，勿改广播 pipeline。
+2. 切窗：全频道减已进 L2a 的广播；锚点 `user_4yeplXgbguTu4`；前 3 + 后 2；同日同 session；`cu_know_{run_id}_{seq}`。先 `--dry-cut`。
+3. 下图 + 3.3 看盘字段。20 窗验收：图文件数 ≈ `[IMAGE:]` 数，且至少 5 窗人工确认箭头/K 线与口播对齐。
+4. 多模态抽取：kid / statement / evidence_span / source_message_ids / chart_notes / `do_not_use_as_order`。先撞 25 条；未命中进 `candidates_kids.json`。
+5. 能写成价/时间/持仓条件的才进 `strategies/` 回测。跟单一致性 ≠ 账户曲线。
 
-「整数位急跌买回」= L2b 纪律；「86.3加了三分之一」= L2a filled。禁止再把前者单独送进待审池。
+「整数位急跌买回」= L2b；「86.3加了三分之一」= L2a filled。
 
 ---
 
 ## 六、明确不做
 
 - Web 点击路径调 8080 / 1234
-- 覆盖 1195 文件
-- 讨论区 L2a 动作夜跑
-- 未人工放行 `place_order`；fills exit 2
-- 90s TTL 挂历史库存
+- 覆盖 1195；讨论区 L2a 动作夜跑
+- 未放行 `place_order`；fills exit 2；90s TTL 挂历史库存
+- 只用 OCR 冒充看懂 K 线/箭头
+- 看图直接生成 L2a 订单
 - 用周参数补全赵没说过的公式
-- 并行战法看板 2.0 / 把日报当策略层
-- 每窗一个 `fix_xxxxx.js`
+- 每窗 `fix_xxxxx.js`
 
 ---
 
 ## 七、分工顺序
 
-**工程先做（本文件第四节 W1–W5 + 第三节原文映射）：**
+**工程先做：** W1–W5 + 3.1/3.2 原文映射（图先能打开，多模态抽取等知识层脚本）。
 
-1. queue 扣除已核 `review_id`；
-2. L2a/L2b API 返回 `raw_text` + `source_message_ids`；待审卡 / 徽章可展开原文；
-3. 同日同标的 filled 覆盖 planned；
-4. 左列点击联动 `cu_id`；右列默认不灌 25 条；
-5. 正股/2x 映射收紧并提交。
+**用户再验：** 7-01 CRWV 降级并可见 86.3 原文；7-02 已 ack 不回潮。
 
-**用户再验：** 刷新 7-01（CRWV 待审应降级并可见 86.3 原文）、7-02（已 ack 不再出现）。
+**Grok：** 审工作台 diff；知识层 dry-cut 与带图 20 窗。
 
-**Grok：** 工作台补丁审 diff；知识层脚本出现后再审 dry-cut 与 20 窗 L2b。
-
-**双方暂缓：** exec 产线、券商、全频道 14B、周映证全表。
+**暂缓：** exec、券商、全频道 14B 文本盲抽、周映证全表。
