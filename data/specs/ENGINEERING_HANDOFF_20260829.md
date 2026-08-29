@@ -96,15 +96,33 @@ L0 messages
 
 1. 图先落盘再抽：`data/media/zhao/{et_date}/{message_id}_{i}.jpg`。缺图标 `media_missing`，该条证据降权。
 2. 知识抽取输入 = **口播全文 + 原图像素**（多模态），禁止「只把 OCR 字符串塞进 14B 文本模型」。
-3. 模型输出结构化 `chart_notes`（可选字段，不上订单）：
-   - `timeframe`（日/30m/分时，不确定则 `unknown`）
-   - `markers`（箭头方向、圈住的高低点、画出的切线）
-   - `levels_on_chart`（图上能读的价，与口播价分列）
-   - `aligns_with_text`（`match` / `partial` / `conflict` / `unreadable`）
-4. 口播与图冲突时：`statement` 降为 `proposed`，等人工看图，禁止用图脑补一笔 L2a BUY/SELL。
+3. 模型输出结构化 `chart_notes`（不上订单）：`timeframe` / `markers` / `levels_on_chart` / `aligns_with_text`（match|partial|conflict|unreadable）。
+4. 口播与图冲突：`statement` 降为 `proposed`，禁止用图脑补 L2a BUY/SELL。
 5. 工作台点开 CU 必须能看原图，不能只渲染 `[IMAGE:]` 或坏链 `?`。
 
-14B 文本夜跑（当前广播 L2a）维持纯文本；**知识层 / 讨论区 L2b 必须换多模态或「人工看图+模型填表」**，不得宣称 OCR 等于看懂盘。
+14B 文本夜跑（当前广播 L2a）维持纯文本；**知识层必须多模态或「人工看图+模型填表」**，不得宣称 OCR 等于看懂盘。
+
+### 3.4 金样（用户 2026-08-29 提供，知识层 20 窗抽检必测）
+
+两例都是「图上箭头 + 口播判断」，抽成 L2b 纪律，**禁止**抽成 SPX 买卖单。
+
+**金样 A — 波动区间：卖在箭头指的最高，底区再接**
+
+- 图：`.SPX` 分时，现价约 7474.48（+0.23%），黄均线约 7495.5；红箭头指在冲高失败的尖（约 7512），随后砸到 7474。
+- 口播：「知道了波动值 卖在最高就根本不用慌」「底部区域心理有数了 急跌就有从容不迫又能接回」。
+- 应产出 L2b：先用波动值标定当日顶/底；箭头标出的高点才是「最高」；顶附近出、底区急跌才接。
+- `chart_notes` 最低要求：`timeframe=intraday`，`markers=arrow_at_failed_high`，`levels_on_chart≈7512/7495/7474`，`aligns_with_text=match`。
+- **禁止** L2a：`SELL SPX @ 7512` / `BUY SPX @ 7474`（没有「出了/加了」）。
+
+**金样 B — 尾盘 V 要和期权作废/强平一起看**
+
+- 图：`.SPX` 大跌日（截图可见 7529.82 -0.56% 量级），红箭头指在分时 V 的最低折；旁为期权/成分面板。
+- 口播：「是不是今天强平的V多」「大多数期权都失败了才会3点50V多」「要看期权盈亏比例」。
+- 应产出 L2b：尾盘 V 不是无条件抄底；需同时看期权盈亏比例/是否大量作废；时间锚约 15:50。
+- `chart_notes` 最低要求：`markers=arrow_at_v_low`，`aligns_with_text=match`。
+- **禁止** L2a：`BUY SPX` 或「15:50 无条件做多」。
+
+工作台点开对应 CU：左文右图（或上文下图），原图保留箭头；statement 挂在旁边。这两张作为 `candidates` 金样写入抽检集，不必先有正式 kid 名。
 
 ---
 
@@ -133,7 +151,7 @@ L0 messages
 
 1. 新脚本 `scratch/run_l2b_knowledge_pipeline.js`，勿改广播 pipeline。
 2. 切窗：全频道减已进 L2a 的广播；锚点 `user_4yeplXgbguTu4`；前 3 + 后 2；同日同 session；`cu_know_{run_id}_{seq}`。先 `--dry-cut`。
-3. 下图 + 3.3 看盘字段。20 窗验收：图文件数 ≈ `[IMAGE:]` 数，且至少 5 窗人工确认箭头/K 线与口播对齐。
+3. 下图 + §3.3/§3.4。20 窗验收：图文件数 ≈ `[IMAGE:]` 数；金样 A/B 必须在抽检集里，箭头与口播对齐。
 4. 多模态抽取：kid / statement / evidence_span / source_message_ids / chart_notes / `do_not_use_as_order`。先撞 25 条；未命中进 `candidates_kids.json`。
 5. 能写成价/时间/持仓条件的才进 `strategies/` 回测。跟单一致性 ≠ 账户曲线。
 
@@ -146,8 +164,8 @@ L0 messages
 - Web 点击路径调 8080 / 1234
 - 覆盖 1195；讨论区 L2a 动作夜跑
 - 未放行 `place_order`；fills exit 2；90s TTL 挂历史库存
-- 只用 OCR 冒充看懂 K 线/箭头
-- 看图直接生成 L2a 订单
+- 只用 OCR 冒充看懂 K 线/箭头；看图直接生成 L2a 订单
+- 金样 A/B 抽成 SPX 市价单
 - 用周参数补全赵没说过的公式
 - 每窗 `fix_xxxxx.js`
 
@@ -155,10 +173,10 @@ L0 messages
 
 ## 七、分工顺序
 
-**工程先做：** W1–W5 + 3.1/3.2 原文映射（图先能打开，多模态抽取等知识层脚本）。
+**工程先做：** W1–W5 + 3.1/3.2 原文映射（图先能打开）。金样 A/B 收入知识层抽检清单，不在本轮工作台补丁里抽模型。
 
 **用户再验：** 7-01 CRWV 降级并可见 86.3 原文；7-02 已 ack 不回潮。
 
-**Grok：** 审工作台 diff；知识层 dry-cut 与带图 20 窗。
+**Grok：** 审工作台 diff；知识层 dry-cut 与带图 20 窗（含金样 A/B）。
 
 **暂缓：** exec、券商、全频道 14B 文本盲抽、周映证全表。
