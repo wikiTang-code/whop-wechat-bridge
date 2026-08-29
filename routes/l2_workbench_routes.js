@@ -46,12 +46,31 @@ function loadL2aData() {
 function loadL2bData() {
   if (!cachedL2bZhaoMap) {
     cachedL2bZhaoMap = new Map();
+    // 1. 基线 1195 战法命中
     if (fs.existsSync(L2B_ZHAO_HITS_PATH)) {
       const lines = fs.readFileSync(L2B_ZHAO_HITS_PATH, 'utf-8').trim().split('\n').filter(Boolean);
       for (const l of lines) {
         const item = JSON.parse(l);
         if (!cachedL2bZhaoMap.has(item.cu_id)) cachedL2bZhaoMap.set(item.cu_id, []);
         cachedL2bZhaoMap.get(item.cu_id).push(item);
+      }
+    }
+    // 2. W8: 增量批次战法命中合并 (例如 l2b_hits_20260828_incr01.jsonl 或指针指定文件)
+    if (fs.existsSync(INCR_POINTER_PATH)) {
+      try {
+        const pointer = JSON.parse(fs.readFileSync(INCR_POINTER_PATH, 'utf-8'));
+        const runId = pointer.latest_run_id || '20260828_incr01';
+        const incrHitsPath = `data/runs/l2b_hits_${runId}.jsonl`;
+        if (fs.existsSync(incrHitsPath)) {
+          const incrLines = fs.readFileSync(incrHitsPath, 'utf-8').trim().split('\n').filter(Boolean);
+          for (const l of incrLines) {
+            const item = JSON.parse(l);
+            if (!cachedL2bZhaoMap.has(item.cu_id)) cachedL2bZhaoMap.set(item.cu_id, []);
+            cachedL2bZhaoMap.get(item.cu_id).push(item);
+          }
+        }
+      } catch (e) {
+        console.error("[L2Workbench] 读取增量 L2b hits 异常:", e);
       }
     }
   }
@@ -178,6 +197,9 @@ router.get('/l2a/dates', (req, res) => {
 
 /**
  * 1. 动作流: GET /api/l2a/today?date=
+ * 规则实现 (W7):
+ *  - 动作窗: 拆分为单笔动作卡片
+ *  - 空窗 (纯观点): 独立为灰卡输出，确保用户在左列可见、可点、可展开原文与联动右列
  */
 router.get('/l2a/today', (req, res) => {
   const reqDate = req.query.date || '2026-06-26';
@@ -200,6 +222,7 @@ router.get('/l2a/today', (req, res) => {
         cu_id: r.cu_id,
         et_session: r.et_session || 'regular',
         parse_ok: false,
+        is_empty_view: false,
         raw_text: r.raw_text || '',
         raw_error: "模型解析失败或格式异常 (严禁用散文掩盖)",
         actions: []
@@ -209,26 +232,38 @@ router.get('/l2a/today', (req, res) => {
 
     if (actions.length === 0) {
       emptyCuCount++;
-    } else {
-      actionCuCount++;
-    }
-    
-    for (let idx = 0; idx < actions.length; idx++) {
-      const a = actions[idx];
+      // W7: 纯观点空窗独立为灰卡
       stream.push({
-        action_id: `${r.cu_id}_act_${idx}`,
+        action_id: `${r.cu_id}_view_empty`,
         cu_id: r.cu_id,
         et_session: r.et_session || 'regular',
-        ticker: a.ticker,
-        action: a.action,
-        price: a.price,
-        fraction: a.fraction,
-        status: a.status === 'filled' ? 'filled_speech' : 'planned',
-        instrument: a.instrument,
-        condition: a.condition,
+        is_empty_view: true,
+        speech_act: r.parsed?.speech_act || 'market_view',
+        claims: r.parsed?.claims || [],
+        strategy_tags: r.parsed?.strategy_tags || [],
         raw_text: r.raw_text || '',
         parse_ok: true
       });
+    } else {
+      actionCuCount++;
+      for (let idx = 0; idx < actions.length; idx++) {
+        const a = actions[idx];
+        stream.push({
+          action_id: `${r.cu_id}_act_${idx}`,
+          cu_id: r.cu_id,
+          et_session: r.et_session || 'regular',
+          is_empty_view: false,
+          ticker: a.ticker,
+          action: a.action,
+          price: a.price,
+          fraction: a.fraction,
+          status: a.status === 'filled' ? 'filled_speech' : 'planned',
+          instrument: a.instrument,
+          condition: a.condition,
+          raw_text: r.raw_text || '',
+          parse_ok: true
+        });
+      }
     }
   }
   

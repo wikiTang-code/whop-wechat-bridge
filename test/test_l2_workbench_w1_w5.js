@@ -104,7 +104,7 @@ async function runTests() {
     // ----------------------------------------------------
     // 测试 5 (W4): GET /api/l2b/gates 局部与当日过滤
     // ----------------------------------------------------
-    console.log('\n▶️ [测试 5/5] 验证 W4 L2b 闸门局部/当日联动 (禁止死灌 25 条)...');
+    console.log('\n▶️ [测试 5/7] 验证 W4 L2b 闸门局部/当日联动 (禁止死灌 25 条)...');
     const gatesCuRes = await fetch(`${baseUrl}/api/l2b/gates?cu_id=cu_trade_00036`);
     assert.strictEqual(gatesCuRes.status, 200);
     const gatesCuData = await gatesCuRes.json();
@@ -113,8 +113,39 @@ async function runTests() {
     assert(gatesCuData.zhao_kid_badges.some(b => b.kid === 'k_second_handshake'), 'cu_trade_00036 应命中二次握手');
     console.log(`   ✅ 成功核验 cu_trade_00036 仅返回命中战法 (${gatesCuData.zhao_kid_badges.length} 条)，未灌入全局列表`);
 
+    // ----------------------------------------------------
+    // 测试 6 (W7): 4-28 验证空窗灰卡可见性与被动减联动
+    // ----------------------------------------------------
+    console.log('\n▶️ [测试 6/7] 验证 W7 空窗灰卡可见性 (4-28 场景: 3动作窗 + 2空窗)...');
+    const t0428Res = await fetch(`${baseUrl}/api/l2a/today?date=2026-04-28`);
+    assert.strictEqual(t0428Res.status, 200);
+    const t0428Data = await t0428Res.json();
+    
+    const emptyCards = t0428Data.stream.filter(s => s.is_empty_view);
+    const actionCards = t0428Data.stream.filter(s => !s.is_empty_view);
+    assert.strictEqual(emptyCards.length, 2, '4-28 必须包含 2 张空窗灰卡');
+    assert.strictEqual(actionCards.length, 5, '4-28 3 个动作窗应展开为 5 笔动作卡');
+    
+    // 验证空窗灰卡可联动右列
+    const redeemCu = emptyCards.find(e => e.raw_text.includes('被动减'));
+    assert(redeemCu, '4-28 空窗中必须包含含有被动减原文的灰卡');
+    const gatesRedeemRes = await fetch(`${baseUrl}/api/l2b/gates?cu_id=${redeemCu.cu_id}`);
+    const gatesRedeemData = await gatesRedeemRes.json();
+    assert(gatesRedeemData.zhao_kid_badges.some(b => b.kid === 'k_passive_redeem_then_rebuy'), '被动减灰卡点击必须能联动查到 k_passive_redeem 战法');
+    console.log(`   ✅ 成功核验 4-28 空窗灰卡 (${emptyCards.length} 张) 可见且能反向联动命中 k_passive_redeem 战法`);
+
+    // ----------------------------------------------------
+    // 测试 7 (W8): 增量 L2b 命中合并 (cu_incr_* 战法)
+    // ----------------------------------------------------
+    console.log('\n▶️ [测试 7/7] 验证 W8 增量批次 L2b 战法合并 (7-8月 cu_incr_* 战法可查)...');
+    const allGatesRes = await fetch(`${baseUrl}/api/l2b/gates`);
+    const allGatesData = await allGatesRes.json();
+    const incrHits = allGatesData.zhao_kid_badges.filter(b => b.cu_id.startsWith('cu_incr_'));
+    assert(incrHits.length > 0, '增量批次命中的战法必须合并进 L2b 战法列表');
+    console.log(`   ✅ 成功核验增量批次战法已合并，发现 ${incrHits.length} 条增量战法命中记录`);
+
     console.log('\n====================================================');
-    console.log('🎉 W1–W5 全部 5 项自动化验收测试 100% 通过！');
+    console.log('🎉 W1–W8 全部 7 项自动化综合验收测试 100% 通过！');
     console.log('====================================================\n');
   } finally {
     await stopServer();
