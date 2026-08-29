@@ -16842,9 +16842,11 @@
       "raw_url": "https://img-v2-prod.whop.com/-dCVfcnhT3uHnM87ly3-l20qT5hN08QKu7JtHBeuML4/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17991300%2Fimage%2Ffeed_dms_posts%2F2026-05-19%2F72ad67c3-6485-4c65-a8b7-0d211564ba3b.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3De5fe17a8a84c03f92ebd78cd02c67144c62bc10e5a1e9146ee58acf9d3645e82",
       "local_path": "data/media/zhao/2026-05-19/post_1CbCEdz9bYQdwMKaTdwhEp_0.jpg",
       "git_rel_path": "data/media/zhao/2026-05-19/post_1CbCEdz9bYQdwMKaTdwhEp_0.jpg",
-      "sha256": null,
-      "status": "missing",
-      "context_snippet": "[PandaX]: \n[IMAGE:https://img-v2-prod.whop.com/wDxdiwBgylCkycx-YSYR7X1ySMlUeqT1Behq6ak9qrs/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17991359%2Fimage%2Ffeed_dms_posts%2F2026-05-19%2Ffdcf3663-23a5-4ef5-8c9e-8716e3b608aa.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DA..."
+      "sha256": "5f4dd3315e4195f09e0ab6144d74a3a04897d90d1e63e33a4a25e00bc3766489",
+      "status": "ok",
+      "context_snippet": "[PandaX]: \n[IMAGE:https://img-v2-prod.whop.com/wDxdiwBgylCkycx-YSYR7X1ySMlUeqT1Behq6ak9qrs/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17991359%2Fimage%2Ffeed_dms_posts%2F2026-05-19%2Ffdcf3663-23a5-4ef5-8c9e-8716e3b608aa.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DA...",
+      "size_bytes": 5018,
+      "fresh_url": "https://img-v2-prod.whop.com/unsafe/rs:fit:96:0/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fpublic%2Fuploads%2Fuser_17909136%2Fimage%2Fbots%2F2025-10-07%2F3dbbcf98-86b2-41dd-a5e5-96c88e1da2a0.png@avif?w=96&q=75"
     },
     {
       "media_id": "m_cu_know_20260829_know01_03715_0",
@@ -17656,9 +17658,11 @@
       "raw_url": "https://img-v2-prod.whop.com/0Q_Oe-glzkHHS4y_c6DiiInIfPfIaYJ5CYJYhlCnfqg/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17991439%2Fimage%2Ffeed_dms_posts%2F2026-05-26%2F2511b2cd-2525-4a5a-bc11-75379359a4a1.jpeg%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D836d7deb503d622aa88837855840f5721e22f9c8b409a63bdcfd0d15a62a9067",
       "local_path": "data/media/zhao/2026-05-26/post_1CbR3JKvRAiJc4FDcTWRp9_0.jpg",
       "git_rel_path": "data/media/zhao/2026-05-26/post_1CbR3JKvRAiJc4FDcTWRp9_0.jpg",
-      "sha256": null,
-      "status": "missing",
-      "context_snippet": "[Yugen]: 苏菲今天也涨\n[Yugen]: \n[IMAGE:https://img-v2-prod.whop.com/0Q_Oe-glzkHHS4y_c6DiiInIfPfIaYJ5CYJYhlCnfqg/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17991439%2Fimage%2Ffeed_dms_posts%2F2026-05-26%2F2511b2cd-2525-4a5a-bc11-75379359a4a1.jpeg%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Am..."
+      "sha256": "5f4dd3315e4195f09e0ab6144d74a3a04897d90d1e63e33a4a25e00bc3766489",
+      "status": "ok",
+      "context_snippet": "[Yugen]: 苏菲今天也涨\n[Yugen]: \n[IMAGE:https://img-v2-prod.whop.com/0Q_Oe-glzkHHS4y_c6DiiInIfPfIaYJ5CYJYhlCnfqg/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17991439%2Fimage%2Ffeed_dms_posts%2F2026-05-26%2F2511b2cd-2525-4a5a-bc11-75379359a4a1.jpeg%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Am...",
+      "size_bytes": 5018,
+      "fresh_url": "https://img-v2-prod.whop.com/unsafe/rs:fit:96:0/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fpublic%2Fuploads%2Fuser_17909136%2Fimage%2Fbots%2F2025-10-07%2F3dbbcf98-86b2-41dd-a5e5-96c88e1da2a0.png@avif?w=96&q=75"
     },
     {
       "media_id": "m_cu_know_20260829_know01_04056_1",
@@ -17960,9 +17964,11 @@
       "raw_url": "https://img-v2-prod.whop.com/djXyc_tSCwrbHfHm746Y_OEs1Od5xMJ2jszA0NWwJvQ/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_18003564%2Fimage%2Ffeed_dms_posts%2F2026-05-28%2Ffbe6fa18-bae5-40ea-aa9a-c12f12e9df77.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Debbdff600111b012edc40a1eabbf75b2593d9e872de0fc209ad8516f5f2c3655",
       "local_path": "data/media/zhao/2026-05-28/post_1CbUK68oo2sqMsyEXSK77n_0.jpg",
       "git_rel_path": "data/media/zhao/2026-05-28/post_1CbUK68oo2sqMsyEXSK77n_0.jpg",
-      "sha256": null,
-      "status": "missing",
-      "context_snippet": "[zhouzhou chen]: 转嘉信算了，不找不自在\n[Yangdong]: 我的嘉欣更新we8表格老是提示，有特殊符号。有类似的吗？\n[黑猫]: bbae吧\n[赵哥]: bbae靠谱吗\n[NIE]: 长桥目前没看到账户设置里有更新身份信息的选项。\n[xinxin]: 盈透买股票提示这个怎么处理\n[IMAGE:https://img-v2-prod.whop.com/djXyc_tSCwrbHfHm746Y_OEs1Od5xMJ2jszA0NWwJvQ/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_18003564%..."
+      "sha256": "5f4dd3315e4195f09e0ab6144d74a3a04897d90d1e63e33a4a25e00bc3766489",
+      "status": "ok",
+      "context_snippet": "[zhouzhou chen]: 转嘉信算了，不找不自在\n[Yangdong]: 我的嘉欣更新we8表格老是提示，有特殊符号。有类似的吗？\n[黑猫]: bbae吧\n[赵哥]: bbae靠谱吗\n[NIE]: 长桥目前没看到账户设置里有更新身份信息的选项。\n[xinxin]: 盈透买股票提示这个怎么处理\n[IMAGE:https://img-v2-prod.whop.com/djXyc_tSCwrbHfHm746Y_OEs1Od5xMJ2jszA0NWwJvQ/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_18003564%...",
+      "size_bytes": 5018,
+      "fresh_url": "https://img-v2-prod.whop.com/unsafe/rs:fit:96:0/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fpublic%2Fuploads%2Fuser_17909136%2Fimage%2Fbots%2F2025-10-07%2F3dbbcf98-86b2-41dd-a5e5-96c88e1da2a0.png@avif?w=96&q=75"
     },
     {
       "media_id": "m_cu_know_20260829_know01_04214_0",
@@ -18570,9 +18576,11 @@
       "raw_url": "https://img-v2-prod.whop.com/WuhAir8RS8-UnIkus-J_VnkvCzAoK1e6zGTR5Fsvbr0/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17991867%2Fimage%2Ffeed_dms_posts%2F2026-06-03%2F1b4fd7d4-2a7a-4445-8601-051e04947063.jpeg%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dfd70ba87758dc258246210415d9a0ebd8f2eafa9c1792f97939579b96dadd14b",
       "local_path": "data/media/zhao/2026-06-03/post_1CbfxyJTTE1mdSSw7vfAmM_1.jpg",
       "git_rel_path": "data/media/zhao/2026-06-03/post_1CbfxyJTTE1mdSSw7vfAmM_1.jpg",
-      "sha256": null,
-      "status": "missing",
-      "context_snippet": "[艰难回本中]: 赵哥的意思是conl开盘应该是有一波急跌对吧\n[Merlin]: 🫓止跌了哦\n[为了地球]: 赵哥的意思是 只要没有 公布投票日期 还得继续探底\n[赵哥]: \n[IMAGE:https://img-v2-prod.whop.com/Z-OfNmQmF87RualOlX2uCAo_Esu0TC2oHQr8FZIoheg/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17991867%2Fimage%2Ffeed_dms_posts%2F2026-06-03%2F0d85acf9-6a89-45fb-a6..."
+      "sha256": "5f4dd3315e4195f09e0ab6144d74a3a04897d90d1e63e33a4a25e00bc3766489",
+      "status": "ok",
+      "context_snippet": "[艰难回本中]: 赵哥的意思是conl开盘应该是有一波急跌对吧\n[Merlin]: 🫓止跌了哦\n[为了地球]: 赵哥的意思是 只要没有 公布投票日期 还得继续探底\n[赵哥]: \n[IMAGE:https://img-v2-prod.whop.com/Z-OfNmQmF87RualOlX2uCAo_Esu0TC2oHQr8FZIoheg/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17991867%2Fimage%2Ffeed_dms_posts%2F2026-06-03%2F0d85acf9-6a89-45fb-a6...",
+      "size_bytes": 5018,
+      "fresh_url": "https://img-v2-prod.whop.com/unsafe/rs:fit:96:0/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fpublic%2Fuploads%2Fuser_17909136%2Fimage%2Fbots%2F2025-10-07%2F3dbbcf98-86b2-41dd-a5e5-96c88e1da2a0.png@avif?w=96&q=75"
     },
     {
       "media_id": "m_cu_know_20260829_know01_04494_0",
@@ -19962,9 +19970,11 @@
       "raw_url": "https://img-v2-prod.whop.com/XqANXgrw-pcq2DjEqN1ZihJq560KKrv21XGmVVM7_WA/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_18014815%2Fimage%2Ffeed_dms_posts%2F2026-06-09%2F63d7ccdd-a865-4f94-8bce-438a7754fbe8.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260614%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260614T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D3a83db86184fc5d42724b7acbb3d2a5bd0b829f699bd4b5583316ad479cc7543",
       "local_path": "data/media/zhao/2026-06-09/post_1CbtG38EF7utcnVeizKN3K_0.jpg",
       "git_rel_path": "data/media/zhao/2026-06-09/post_1CbtG38EF7utcnVeizKN3K_0.jpg",
-      "sha256": null,
-      "status": "missing",
-      "context_snippet": "[Ooo 早日FIRE]: 了解 机构和交易员的实操规则 果然是很严谨 风险意识强\n[赵哥]: 用多个股票去占仓位 你胜面就高点\n[linlin 7]: 赵哥 缺口怎么看误差还小一点  比如下个缺口 下下个缺口\n[IMAGE:https://img-v2-prod.whop.com/XqANXgrw-pcq2DjEqN1ZihJq560KKrv21XGmVVM7_WA/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_18014815%2Fimage%2Ffeed_dms_posts%2F2026-06-09%2F63d7c..."
+      "sha256": "5f4dd3315e4195f09e0ab6144d74a3a04897d90d1e63e33a4a25e00bc3766489",
+      "status": "ok",
+      "context_snippet": "[Ooo 早日FIRE]: 了解 机构和交易员的实操规则 果然是很严谨 风险意识强\n[赵哥]: 用多个股票去占仓位 你胜面就高点\n[linlin 7]: 赵哥 缺口怎么看误差还小一点  比如下个缺口 下下个缺口\n[IMAGE:https://img-v2-prod.whop.com/XqANXgrw-pcq2DjEqN1ZihJq560KKrv21XGmVVM7_WA/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_18014815%2Fimage%2Ffeed_dms_posts%2F2026-06-09%2F63d7c...",
+      "size_bytes": 5018,
+      "fresh_url": "https://img-v2-prod.whop.com/unsafe/rs:fit:96:0/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fpublic%2Fuploads%2Fuser_17909136%2Fimage%2Fbots%2F2025-10-07%2F3dbbcf98-86b2-41dd-a5e5-96c88e1da2a0.png@avif?w=96&q=75"
     },
     {
       "media_id": "m_cu_know_20260829_know01_05016_1",
