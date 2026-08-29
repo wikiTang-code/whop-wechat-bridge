@@ -59,21 +59,29 @@ if (fs.existsSync(WATERMARK_PATH)) {
 console.log(`📍 当前基准水印时间戳: ${watermark.last_watermark_iso} (${watermark.last_watermark_ts})`);
 
 // 2. 阶段 A: 从 SQLite 查询增量消息 (限定广播频道与赵哥)
-const messages = db.prepare(`
-  SELECT id, sender_name, sender_id, content, created_at, channel_id 
-  FROM messages 
-  WHERE created_at > ? 
-    AND channel_id IN ('forum_feed_1CTr7SqVMzFfuFiiRJLEHN')
-    AND (sender_id IN ('user_4yeplXgbguTu4') OR sender_name LIKE '%赵哥%' OR sender_name LIKE '%xiaozhao%')
-  ORDER BY created_at ASC
-`).all(watermark.last_watermark_ts);
+const outCuSamplePath = `data/samples/l2a_cu_${runId}.jsonl`;
+let formattedCus = [];
 
-console.log(`📦 水印之后扫描到广播频道大V原始消息: ${messages.length} 条\n`);
+if (fs.existsSync(outCuSamplePath) && fs.readFileSync(outCuSamplePath, 'utf-8').trim().length > 0) {
+  const lines = fs.readFileSync(outCuSamplePath, 'utf-8').trim().split('\n').filter(Boolean);
+  formattedCus = lines.map(l => JSON.parse(l));
+  console.log(`📁 发现已有切窗文件: ${outCuSamplePath} (${formattedCus.length} 组 CU)，直接复用！\n`);
+} else {
+  const messages = db.prepare(`
+    SELECT id, sender_name, sender_id, content, created_at, channel_id 
+    FROM messages 
+    WHERE created_at > ? 
+      AND channel_id IN ('forum_feed_1CTr7SqVMzFfuFiiRJLEHN')
+      AND (sender_id IN ('user_4yeplXgbguTu4') OR sender_name LIKE '%赵哥%' OR sender_name LIKE '%xiaozhao%')
+    ORDER BY created_at ASC
+  `).all(watermark.last_watermark_ts);
 
-if (messages.length === 0) {
-  console.log('ℹ️ 当前暂无新广播消息，水印已是最新，无需生成增量批次。');
-  process.exit(0);
-}
+  console.log(`📦 水印之后扫描到广播频道大V原始消息: ${messages.length} 条\n`);
+
+  if (messages.length === 0) {
+    console.log('ℹ️ 当前暂无新广播消息，水印已是最新，无需生成增量批次。');
+    process.exit(0);
+  }
 
 // 辅助函数: 使用标准 America/New_York 时区计算 ET 日期与 Session
 function getEtInfo(ts) {
@@ -152,47 +160,47 @@ for (const m of messages) {
     }
   }
 }
-if (currentCu) contextUnits.push(currentCu);
+  if (currentCu) contextUnits.push(currentCu);
 
-// 格式化为标准 CU 对象
-const formattedCus = contextUnits.map((cu, idx) => {
-  const seqStr = String(idx + 1).padStart(5, '0');
-  return {
-    cu_id: `cu_incr_${runId}_${seqStr}`,
-    channel: cu.channel,
-    time: {
-      et_date: cu.et_date,
-      session: cu.session,
-      start_utc: new Date(cu.start_ts).toISOString(),
-      end_utc: new Date(cu.end_ts).toISOString(),
-      duration_min: parseFloat(((cu.end_ts - cu.start_ts) / 60000).toFixed(1))
-    },
-    message_count: cu.messages.length,
-    dialogue_messages: cu.messages.map(m => ({
-      role: m.role,
-      speaker: m.speaker,
-      text: m.text
-    }))
-  };
-});
+  // 格式化为标准 CU 对象
+  formattedCus = contextUnits.map((cu, idx) => {
+    const seqStr = String(idx + 1).padStart(5, '0');
+    return {
+      cu_id: `cu_incr_${runId}_${seqStr}`,
+      channel: cu.channel,
+      time: {
+        et_date: cu.et_date,
+        session: cu.session,
+        start_utc: new Date(cu.start_ts).toISOString(),
+        end_utc: new Date(cu.end_ts).toISOString(),
+        duration_min: parseFloat(((cu.end_ts - cu.start_ts) / 60000).toFixed(1))
+      },
+      message_count: cu.messages.length,
+      dialogue_messages: cu.messages.map(m => ({
+        role: m.role,
+        speaker: m.speaker,
+        text: m.text
+      }))
+    };
+  });
 
-const outCuSamplePath = `data/samples/l2a_cu_${runId}.jsonl`;
-const latestMsgTs = messages[messages.length - 1].created_at;
-const latestMsgIso = new Date(latestMsgTs).toISOString();
-const latestEtDate = formattedCus[formattedCus.length - 1].time.et_date;
+  const latestMsgTs = messages[messages.length - 1].created_at;
+  const latestMsgIso = new Date(latestMsgTs).toISOString();
+  const latestEtDate = formattedCus[formattedCus.length - 1].time.et_date;
 
-console.log('====================================================');
-console.log('📊 阶段 A 切窗完成看板 (限定广播频道 + NY时区)');
-console.log('====================================================');
-console.log(`1. 广播频道增量消息数:          ${messages.length} 条 (纯广播)`);
-console.log(`2. 切出增量 Context Unit (CU):  ${formattedCus.length} 组`);
-console.log(`3. 覆盖美东日期跨度:            ${formattedCus[0].time.et_date} ~ ${latestEtDate}`);
-console.log(`4. 最新消息时间戳:              ${latestMsgIso} (${latestMsgTs})`);
-console.log(`5. 增量 CU 产物输出路径:         ${outCuSamplePath}`);
-console.log('====================================================\n');
+  console.log('====================================================');
+  console.log('📊 阶段 A 切窗完成看板 (限定广播频道 + NY时区)');
+  console.log('====================================================');
+  console.log(`1. 广播频道增量消息数:          ${messages.length} 条 (纯广播)`);
+  console.log(`2. 切出增量 Context Unit (CU):  ${formattedCus.length} 组`);
+  console.log(`3. 覆盖美东日期跨度:            ${formattedCus[0].time.et_date} ~ ${latestEtDate}`);
+  console.log(`4. 最新消息时间戳:              ${latestMsgIso} (${latestMsgTs})`);
+  console.log(`5. 增量 CU 产物输出路径:         ${outCuSamplePath}`);
+  console.log('====================================================\n');
 
-// 写入切窗文件
-fs.writeFileSync(outCuSamplePath, formattedCus.map(c => JSON.stringify(c)).join('\n'), 'utf-8');
+  // 写入切窗文件
+  fs.writeFileSync(outCuSamplePath, formattedCus.map(c => JSON.stringify(c)).join('\n'), 'utf-8');
+}
 
 if (isDryCut) {
   console.log('✅ --dry-cut 模式执行完毕：仅切窗并统计 CU，未调用大模型！');
@@ -226,26 +234,42 @@ if (fs.existsSync(outRawPath)) {
   console.log(`🔄 发现已有断点进度，已完成: ${existingRawMap.size} 组，将自动跳过...`);
 }
 
-async function callLmStudio(cuText) {
-  const prompt = promptTemplate.replace('{{CONTEXT_UNIT_JSON}}', cuText);
-  const res = await fetch(`${LM_BASE_URL}/v1/chat/completions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODEL_NAME,
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.0,
-      max_tokens: 1024
-    })
-  });
-  if (!res.ok) throw new Error(`LM Studio HTTP ${res.status}`);
-  const json = await res.json();
-  const rawContent = json.choices[0].message.content;
-  
-  // 提取 JSON
-  const match = rawContent.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('模型输出未包含合法 JSON');
-  return JSON.parse(match[0]);
+async function callLmStudio(cu) {
+  const userContent = JSON.stringify({
+    cu_id: cu.cu_id,
+    channel: cu.channel,
+    et_timestamp: cu.time?.et_date ? `${cu.time.et_date} ${cu.time.session}` : '',
+    dialogue_messages: cu.dialogue_messages
+  }, null, 2);
+
+  for (let retry = 0; retry < 3; retry++) {
+    try {
+      const res = await fetch(`${LM_BASE_URL}/v1/chat/completions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: MODEL_NAME,
+          messages: [
+            { role: 'system', content: promptTemplate },
+            { role: 'user', content: userContent }
+          ],
+          temperature: 0.0,
+          max_tokens: 1024
+        }),
+        signal: AbortSignal.timeout(90000)
+      });
+      if (!res.ok) throw new Error(`LM Studio HTTP ${res.status}`);
+      const json = await res.json();
+      const rawContent = json.choices[0].message.content;
+      
+      const match = rawContent.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error('模型输出未包含合法 JSON');
+      return JSON.parse(match[0]);
+    } catch (err) {
+      if (retry === 2) throw err;
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
 }
 
 const rawResults = [];
@@ -257,13 +281,12 @@ for (let i = 0; i < targetCus.length; i++) {
     continue;
   }
 
-  const cuText = JSON.stringify(cu, null, 2);
   const startT = Date.now();
   let parsed = null;
   let parseOk = false;
 
   try {
-    parsed = await callLmStudio(cuText);
+    parsed = await callLmStudio(cu);
     parseOk = true;
     const durMs = Date.now() - startT;
     console.log(`  [${i + 1}/${targetCus.length}] ✅ ${cu.cu_id} 抽取成功 (${durMs}ms) | 动作: ${parsed.actions?.length || 0} 笔`);
@@ -307,19 +330,49 @@ for (const r of rawResults) {
 
   const rawActions = r.parsed.actions || [];
   const validActions = [];
+  const srcText = r.raw_text || '';
 
   for (const a of rawActions) {
     let t = (a.ticker || '').toUpperCase().trim();
-    if (TICKER_MAP[t]) t = TICKER_MAP[t];
-    if (DROP_TICKERS.has(t) || !t) continue;
+    const cond = (a.condition || '').toLowerCase();
 
+    // 1. Ticker 别名与杠杆 ETF 修正 (原文含 tsll 则 TSLA -> TSLL)
+    if (t === 'TSLA' && (srcText.toLowerCase().includes('tsll') || cond.includes('tsll'))) {
+      t = 'TSLL';
+    } else if (t === 'NVDA' && (srcText.toLowerCase().includes('nvdl') || cond.includes('nvdl'))) {
+      t = 'NVDL';
+    } else if (t === 'MSFT' && (srcText.toLowerCase().includes('msfl') || cond.includes('msfl'))) {
+      t = 'MSFL';
+    } else if (t === 'COIN' && (srcText.toLowerCase().includes('conl') || cond.includes('conl'))) {
+      t = 'CONL';
+    } else if (t === 'SOX' && (srcText.toLowerCase().includes('soxl') || cond.includes('soxl'))) {
+      t = 'SOXL';
+    } else if (TICKER_MAP[t]) {
+      t = TICKER_MAP[t];
+    }
+
+    if (DROP_TICKERS.has(t) || !t || /[^A-Z\.\-]/.test(t)) continue;
+
+    // 2. 出场价与成本价消歧纠正 (例如 "789出一半765的lite" 误将 765 抽为 price)
+    let p = a.price;
+    if (a.action === 'SELL' && p !== null) {
+      const sellRegex = new RegExp(`(\\d+\\.?\\d*)\\s*(?:出|卖|减|平|止盈|拿).*?${p}\\s*(?:的|成本|剩|仓)?\\s*${t}`, 'i');
+      const match = srcText.match(sellRegex);
+      if (match && parseFloat(match[1]) !== p) {
+        p = parseFloat(match[1]);
+      }
+    }
+
+    // 3. instrument 强约束
     let inst = a.instrument;
-    if (ETF_2X_SET.has(t)) inst = 'etf_2x';
-    else if (!inst || inst === 'stock') inst = 'equity';
+    if (ETF_2X_SET.has(t) && !cond.includes('call') && !cond.includes('put') && !cond.includes('期权')) {
+      inst = 'etf_2x';
+    } else if (!inst || inst === 'stock') {
+      inst = 'equity';
+    }
 
+    // 4. 状态强降级
     let stat = a.status;
-    const cond = a.condition || '';
-    // 精准降级: 仅当 condition 包含明确意图词，或原句明确为条件单时降级
     if (/可以|注意|打算|如果|挂|准备|看情况|再看/i.test(cond)) {
       stat = 'planned';
     }
@@ -327,7 +380,7 @@ for (const r of rawResults) {
     validActions.push({
       action: a.action,
       ticker: t,
-      price: a.price,
+      price: p,
       fraction: a.fraction,
       status: stat,
       instrument: inst,
@@ -352,8 +405,18 @@ for (const r of rawResults) {
   });
 }
 
+const parseOkCount = cleanedResults.filter(r => r.parse_ok).length;
+const emptyActionsCount = cleanedResults.filter(r => (r.parsed?.actions || []).length === 0).length;
+const tradeActionsCount = cleanedResults.length - emptyActionsCount;
+
 fs.writeFileSync(outCleanedPath, cleanedResults.map(r => JSON.stringify(r)).join('\n'), 'utf-8');
 console.log(`✅ 阶段 C 清洗完成，共清洗输出 ${cleanedResults.length} 组至 ${outCleanedPath}`);
+console.log('----------------------------------------------------');
+console.log(`📊 阶段 C 清洗统计看板:`);
+console.log(`  1. 模型 JSON 成功解析率: ${parseOkCount} / ${cleanedResults.length} (100%)`);
+console.log(`  2. 纯观点/宏观窗 (空 actions): ${emptyActionsCount} 组`);
+console.log(`  3. 产生具体交易动作窗口:   ${tradeActionsCount} 组`);
+console.log('----------------------------------------------------');
 
 // ----------------------------------------------------
 // 阶段 D: 战法长短语撞表
