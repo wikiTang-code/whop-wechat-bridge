@@ -306,5 +306,16 @@
     "statement": "指数级别大缺口经历数月周期回补、个股估值低位时，是大仓位回吸的重要窗口。",
     "status": "proposed",
     "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_017_price_level_turn_over_news",
+    "name": "盘口转弯优先于新闻小作文纪律",
+    "chapter": "第三章：两段式入场与扫描流程",
+    "message_id": "post_1CaH88K...",
+    "et_date": "2026-04-22",
+    "evidence_span": "跌看点位看转弯 不要到处找新闻",
+    "statement": "下跌行情执行纪律：以支撑点位和指数转弯为唯一执行标准，严禁到处找新闻小作文。",
+    "status": "proposed",
+    "do_not_use_as_order": true
   }
 ]
