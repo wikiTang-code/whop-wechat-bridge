@@ -114,20 +114,24 @@
 
 ---
 
-## 5. 真实原文与精确 SQLite 溯源 L2b 5 条种子看板 (status: proposed, 严禁 BUY/SELL)
+## 5. L2b 种子库严格 SQL 溯源与确权状态看板 (G1 ~ G7)
 
-所有条目均已完成 SQLite `messages` 真实 ID 穿透核对，`evidence_span` 100% 为库内精确连续子串：
+经用户核准与严格整句 SQL 溯源，确立最终金标状态：
 
-| 种子 ID | kid | 状态 | 真实来源消息 ID | 日期 / 频道 ID | 精确连续子串 (`evidence_span`) | 规范陈述 (`statement`) | 图表标注 (`chart_notes`) | not 禁词 |
+| 种子 ID | kid | 状态判定 | 真实来源消息 ID | 日期 / 频道 ID | 精确连续子串 (`evidence_span`) | 规范陈述 (`statement`) | 图表标注 (`chart_notes`) | not 禁词 |
 |:---|:---|:---|:---|:---|:---|:---|:---|:---|
-| `g_zhao_001` | `k_wave_value_extremes` | `proposed` | `post_1CcS8uKGzNQrYEiHGzR6ms` | 2026-06-26<br>`chat_feed_1CU95KbtifP1JtuqTiVXZb` | `差不多是7300-7200这段` | 先用波动值标出当日高/低区域；卖在已标定的最高附近，底区急跌才接。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["SELL SPX", "BUY SPX"]` |
-| `g_zhao_002` | `k_late_session_v_reversal` | `proposed` | `post_1CcS6FTJVrQeUK2o8uqNDe` | 2026-06-26<br>`chat_feed_1CTr5VAdNHtbZAFaTitvoT` | `大多数期权都失败了才会3点50V多 要看期权盈亏比例` | 尾盘V型反弹不是无条件抄底；要看期权是否大量作废与期权盈亏比例；时间锚点约在15:50。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["BUY SPX", "15:50无条件做多"]` |
-| `g_zhao_003` | `k_dip_buy_round_number` | `proposed` | `post_1CbAPabncHPXk44npRESnx` | 2026-05-18<br>`chat_feed_1CTrCEx44dP13jW3RVkYiS` | `crwv之后几天也可以注意 98 和90的位置 今天急跌把98.9那个缺口补了` | 急涨急跌先看异动出；整数位与缺口位急跌才买回。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["BUY CRWV @ 86", "86.3加回三分之一常规仓crwv"]` |
-| `g_zhao_004` | `k_second_handshake` | `proposed` | `post_1CUmhoSnXtyZkf2BSVUNgv` | 2025-11-03<br>`chat_feed_1CTrCEx44dP13jW3RVkYiS` | `在二次握手吸 盘后才预期 多的时候出` | 财报用二次握手做博弈；没有利润垫就不要留着过事件；在二次握手吸，盘后预期多的时候出。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["SELL HIMS", "无价格清仓单"]` |
-| `g_zhao_005` | `k_passive_redeem_then_rebuy` | `proposed` | `post_1CbAPabncHPXk44npRESnx` | 2026-05-18<br>`chat_feed_1CTrCEx44dP13jW3RVkYiS` | `被动减每天股仓位一般分三份 每跌一个缺口买一份` | 被动减持窗口，仓位分三份，每跌一个缺口买一份，等待回踩低点再观察。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["SELL ALL", "市价卖单"]` |
+| `g_zhao_001` | `k_wave_value_extremes` | `proposed_unlocated` | `未在当前表定位` | `用户SPX截图原文` | `知道了波动值 卖在最高就根本不用慌 底部区域心理有数了 急跌就有从容不迫又能接回` | 先用波动值标出当日高/低区域；卖在已标定的最高附近，底区急跌才接。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["SELL SPX", "BUY SPX"]` |
+| `g_zhao_002` | `k_late_session_v_reversal` | `proposed_unlocated` | `未在当前表定位` | `用户SPX截图原文` | `大多数期权都失败了才会3点50V多 要看期权盈亏比例` | 尾盘V型反弹不是无条件抄底；要看期权是否大量作废与期权盈亏比例；时间锚点约在15:50。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["BUY SPX", "15:50无条件做多"]` |
+| `g_zhao_003` | `k_dip_buy_round_number` | `proposed_unlocated` | `未在当前表定位` | 2026-07-01<br>`外部广播原句` | `急跌急涨就 异动多出 急跌买回 像今天crwv急跌又是整数86就会买回来` | 急涨急跌先看异动出；整数位急跌才买回。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["BUY CRWV @ 86", "86.3加回三分之一常规仓crwv"]` |
+| `g_zhao_004` | `k_second_handshake` | **`gold_text`** | `post_1CUmieqA3rqzHWzhDCDkrD` | 2025-11-03<br>`forum_feed_1CTr7SqVMzFfuFiiRJLEHN` | `主要hims就是今天财报二次握手博弈 没利润垫的就不要留了` | 财报用二次握手做博弈；没有利润垫就不要留着过事件。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["SELL HIMS", "无价格清仓单"]` |
+| `g_zhao_005` | `k_passive_redeem_then_rebuy` | **`gold_text`** | `post_1CaWLMfYvJsZHjS9ugtaPj` | 2026-04-28<br>`chat_feed_1CTrCEx44dP13jW3RVkYiS` | `明天盘后有些像微软这样大盘股的财报 大陆这三天夜盘和盘前会被动减持 每天会回踩进些不同板块个股的低点 分开三天` | 大盘股财报窗口，预期被动减持，回踩不同板块个股低点分开观察，不要写成市价卖单。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["SELL ALL", "市价卖单"]` |
+| `g_zhao_006` | `k_passive_redeem_three_parts` | **`proposed`** | `post_1CbAPabncHPXk44npRESnx` | 2026-05-18<br>`chat_feed_1CTrCEx44dP13jW3RVkYiS` | `被动减每天股仓位一般分三份 每跌一个缺口买一份` | 被动减持期间仓位分三份，每跌一个缺口买一份。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["BUY CRWV ALL", "一次性满仓"]` |
+| `g_zhao_007` | `k_gap_fill_observation` | **`proposed`** | `post_1CbAPabncHPXk44npRESnx` | 2026-05-18<br>`chat_feed_1CTrCEx44dP13jW3RVkYiS` | `crwv之后几天也可以注意 98 和90的位置 今天急跌把98.9那个缺口补了` | 标的急跌回补缺口后，注意观察关键点位与缺口位置的表现。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["BUY CRWV @ 98", "BUY CRWV @ 90"]` |
 
-> [!NOTE]
-> 1. 新 kid 保持 `proposed`，未写入 `known_kids_registry.json`；
-> 2. `do_not_use_as_order: true` 全部强制生效；
-> 3. 无真图条目统一标为 `aligns_with_text: "no_image"`, `local_path: null`，绝不虚假 match。
+> [!IMPORTANT]
+> 1. G4/G5 获批标为 **`gold_text`**（纯文本金标）；新 kid 暂不写入 `known_kids_registry.json`；
+> 2. G6/G7 保持 **`proposed`**；
+> 3. G1/G2/G3 诚实保留为 **`proposed_unlocated`**，手机截图作为图侧金样，文案不入库虚假 ID；
+> 4. `do_not_use_as_order: true` 全部强制生效。
+
 

@@ -68,7 +68,7 @@
   {
     "gold_id": "g_zhao_004",
     "kid": "k_second_handshake",
-    "status": "proposed",
+    "status": "gold_text",
     "do_not_use_as_order": true,
     "source_message_ids": [
       "post_1CUmieqA3rqzHWzhDCDkrD"
@@ -92,7 +92,7 @@
   {
     "gold_id": "g_zhao_005",
     "kid": "k_passive_redeem_then_rebuy",
-    "status": "proposed",
+    "status": "gold_text",
     "do_not_use_as_order": true,
     "source_message_ids": [
       "post_1CaWLMfYvJsZHjS9ugtaPj"
