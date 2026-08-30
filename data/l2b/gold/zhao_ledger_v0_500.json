@@ -1,0 +1,157 @@
+{
+  "metadata": {
+    "dataset_range": "前 500 条赵哥时序发言",
+    "start_date": "2025-10-06",
+    "end_date": "2025-10-17",
+    "total_scanned": 500,
+    "bookmarked_stops": 47,
+    "skipped_messages": 453,
+    "ledger_entries_created": 5,
+    "instances_linked": 42
+  },
+  "ledger": [
+    {
+      "ledger_id": "mech_减持_1",
+      "mechanism_name": "机制/规则 [减持]",
+      "first_date": "2025-10-07",
+      "first_message_id": "post_1CTsY1kiUcs1YTZHcGaszC",
+      "first_evidence": "金 剩下仓位可以21.5-21.7之间再减持点",
+      "total_appearances": 31,
+      "later_instances_count": 30,
+      "instances_samples": [
+        {
+          "index": 16,
+          "message_id": "post_1CTsY2ydP8GmdFSeDx6TsG",
+          "et_date": "2025-10-07",
+          "channel": "不用翻墙期权",
+          "evidence_span": "金 剩下仓位可以21.5-21.7之间再减持点",
+          "raw_text": "tsll盘前有点抢跑的资金 剩下仓位可以21.5-21.7之间再减持点"
+        },
+        {
+          "index": 68,
+          "message_id": "post_1CTvcT3VzcLGtJEmdB21vm",
+          "et_date": "2025-10-08",
+          "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+          "evidence_span": "升至我们的成本13.1   仓位重的可以减持到自己心里价位能承受的仓位范围",
+          "raw_text": "微牛盘后拉升至我们的成本13.1   仓位重的可以减持到自己心里价位能承受的仓位范围"
+        },
+        {
+          "index": 69,
+          "message_id": "post_1CTvcTgAKGULML77dJtZUK",
+          "et_date": "2025-10-08",
+          "channel": "不用翻墙期权",
+          "evidence_span": "后拉升至我们的成本13.1 仓位重的可以减持到自己心里价位能承受的仓位范围",
+          "raw_text": "微牛盘后拉升至我们的成本13.1 仓位重的可以减持到自己心里价位能承受的仓位范围"
+        }
+      ]
+    },
+    {
+      "ledger_id": "mech_二次握手_2",
+      "mechanism_name": "机制/规则 [二次握手]",
+      "first_date": "2025-10-07",
+      "first_message_id": "post_1CTt7rqCrE8p2CFjCM4ZRL",
+      "first_evidence": "下压 不破第一轮低点 在第一轮附近的完成二次握手",
+      "total_appearances": 6,
+      "later_instances_count": 5,
+      "instances_samples": [
+        {
+          "index": 34,
+          "message_id": "post_1CTt7sjP6o5KoaVnZf5jiX",
+          "et_date": "2025-10-07",
+          "channel": "不用翻墙期权",
+          "evidence_span": "下压 不破第一轮低点 在第一轮附近的完成二次握手",
+          "raw_text": "目前第一轮抛压后小反弹  等看下有没有第二轮下压 不破第一轮低点 在第一轮附近的完成二次握手"
+        },
+        {
+          "index": 35,
+          "message_id": "post_1CTtAYLiNZcRnKfVuyFiHs",
+          "et_date": "2025-10-07",
+          "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+          "evidence_span": "大于604.5 大多数股票今天就盘中完成二次握手的吸筹",
+          "raw_text": "指数上QQQ盘后的收盘价要大于604.5 大多数股票今天就盘中完成二次握手的吸筹"
+        },
+        {
+          "index": 36,
+          "message_id": "post_1CTtAYqX2UU6o8j92Zt7F1",
+          "et_date": "2025-10-07",
+          "channel": "不用翻墙期权",
+          "evidence_span": "大于604.5 大多数股票今天就盘中完成二次握手的吸筹",
+          "raw_text": "指数上QQQ盘后的收盘价要大于604.5 大多数股票今天就盘中完成二次握手的吸筹"
+        }
+      ]
+    },
+    {
+      "ledger_id": "mech_相当于_3",
+      "mechanism_name": "机制/规则 [相当于]",
+      "first_date": "2025-10-08",
+      "first_message_id": "post_1CTupUZ5X6Q9X8RUSBd5c9",
+      "first_evidence": "批回吸 第三次 计算了磨损值  18.8相当于第一轮的19.2",
+      "total_appearances": 2,
+      "later_instances_count": 1,
+      "instances_samples": [
+        {
+          "index": 46,
+          "message_id": "post_1CTupVFfGCrjXuncDvLWRv",
+          "et_date": "2025-10-08",
+          "channel": "不用翻墙期权",
+          "evidence_span": "分批回吸 第三次 计算了磨损值 18.8相当于第一轮的19.2",
+          "raw_text": "tsll 注意 回调 18.8-18.7 和17.9-17.8附近支撑分批回吸 第三次 计算了磨损值 18.8相当于第一轮的19.2"
+        }
+      ]
+    },
+    {
+      "ledger_id": "mech_大单入场_4",
+      "mechanism_name": "机制/规则 [大单入场]",
+      "first_date": "2025-10-10",
+      "first_message_id": "post_1CTyfbFudk261cM1sFhTuz",
+      "first_evidence": "有讲话  或者到股票支撑位附近看有大单入场在回买",
+      "total_appearances": 2,
+      "later_instances_count": 1,
+      "instances_samples": [
+        {
+          "index": 154,
+          "message_id": "post_1CTyfbaLcCbg4oR34JMpLE",
+          "et_date": "2025-10-10",
+          "channel": "不用翻墙期权",
+          "evidence_span": "有讲话  或者到股票支撑位附近看有大单入场在回买",
+          "raw_text": "周五冲高的开局卖出后    尽量把回买的时间压到3点半和7点半 有时候盘后有新闻会影响 周末也会有讲话  或者到股票支撑位附近看有大单入场在回买"
+        }
+      ]
+    },
+    {
+      "ledger_id": "mech_缺口_5",
+      "mechanism_name": "机制/规则 [缺口]",
+      "first_date": "2025-10-13",
+      "first_message_id": "post_1CU5G6AyfAbjQTvRh8oCMD",
+      "first_evidence": "没有官方的反制新闻，今天盘中可以盯着跳空缺口时候回吸点仓位",
+      "total_appearances": 6,
+      "later_instances_count": 5,
+      "instances_samples": [
+        {
+          "index": 255,
+          "message_id": "post_1CU5G6kmCRAG6Y8FqdrWCC",
+          "et_date": "2025-10-13",
+          "channel": "不用翻墙期权",
+          "evidence_span": "没有官方的反制新闻，今天盘中可以盯着跳空缺口时候回吸点仓位",
+          "raw_text": "盘前没有官方的反制新闻，今天盘中可以盯着跳空缺口时候回吸点仓位"
+        },
+        {
+          "index": 256,
+          "message_id": "post_1CU5J9pm9nXuB1YbXUHjmB",
+          "et_date": "2025-10-13",
+          "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+          "evidence_span": "今天回吸时候尽量分批点缺口支撑一次 时间上尾盘有低点再一次",
+          "raw_text": "今天回吸时候尽量分批点缺口支撑一次 时间上尾盘有低点再一次"
+        },
+        {
+          "index": 257,
+          "message_id": "post_1CU5JAQqW1N4upc11jViYf",
+          "et_date": "2025-10-13",
+          "channel": "不用翻墙期权",
+          "evidence_span": "今天回吸时候尽量分批点缺口支撑一次 时间上尾盘有低点再一次",
+          "raw_text": "今天回吸时候尽量分批点缺口支撑一次 时间上尾盘有低点再一次"
+        }
+      ]
+    }
+  ]
+}
