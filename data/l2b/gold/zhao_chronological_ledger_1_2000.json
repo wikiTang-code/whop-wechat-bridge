@@ -3,13 +3,14 @@
     "dataset": "赵哥前 2000 条消息 (树键精准对齐与分流版)",
     "date_range": "2025-10-06 ~ 2025-11-26",
     "total_scanned": 2000,
-    "bookmarked_stops": 222,
+    "bookmarked_stops": 228,
     "tree_nodes_populated_count": 9,
-    "skipped_stops_total": 157,
+    "skipped_stops_total": 163,
     "skipped_breakdown": {
       "pure_fill_order": 6,
-      "duplicate_post": 92,
-      "weak_commentary_or_single_event": 59
+      "duplicate_post": 95,
+      "weak_commentary_or_single_event": 60,
+      "daily_duplicate_rule_footer": 2
     }
   },
   "tree_instances_summary": {
@@ -28,8 +29,8 @@
       "status": "gold",
       "instances_count": 2,
       "sample_spans": [
-        "昨天盘后的股单有些高的也可以减点 维持7成死拿开门 3成做T",
-        "手里到价格的减点 维持7成 有1-3成资金机动 激进的可以9成死拿 1成机动"
+        "因为现在和三月一样了  开门就等于当时的暂停关税 所以有7成要低位配置拿开门后反弹一段时间   3成尾盘买夜盘出做做T降本用的",
+        "每次大跌是人为或者政治因素造成的 在底部附近时候就要开始拿货 一旦反转就是跳空反弹这样开启反弹\n\n\n\n所以上周一直让大家7成持仓  3成资金灵活机动"
       ]
     },
     "gold_008b_block_print_reentry": {
@@ -393,24 +394,24 @@
     "gold_003_gap_intraday_once": [],
     "gold_004_position_control_70_pct": [
       {
-        "index": 1360,
+        "index": 1356,
         "tree_id": "gold_004_position_control_70_pct",
         "tree_name": "7成底仓与3成做T机动",
-        "message_id": "post_1CUu6beqWNX5r2H8p3oyCm",
+        "message_id": "post_1CUtztEbZQsmwc6nqyKT4e",
         "et_date": "2025-11-07",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "evidence_span": "昨天盘后的股单有些高的也可以减点 维持7成死拿开门 3成做T",
-        "raw_text": "昨天盘后的股单有些高的也可以减点 维持7成死拿开门 3成做T"
+        "evidence_span": "因为现在和三月一样了  开门就等于当时的暂停关税 所以有7成要低位配置拿开门后反弹一段时间   3成尾盘买夜盘出做做T降本用的",
+        "raw_text": "因为现在和三月一样了  开门就等于当时的暂停关税 所以有7成要低位配置拿开门后反弹一段时间   3成尾盘买夜盘出做做T降本用的"
       },
       {
-        "index": 1374,
+        "index": 1435,
         "tree_id": "gold_004_position_control_70_pct",
         "tree_name": "7成底仓与3成做T机动",
-        "message_id": "post_1CUu8JETLiAfzfkq9jszWh",
-        "et_date": "2025-11-07",
+        "message_id": "post_1CUySivEG5UBghvKeZaznK",
+        "et_date": "2025-11-09",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "evidence_span": "手里到价格的减点 维持7成 有1-3成资金机动 激进的可以9成死拿 1成机动",
-        "raw_text": "手里到价格的减点 维持7成 有1-3成资金机动 激进的可以9成死拿 1成机动"
+        "evidence_span": "每次大跌是人为或者政治因素造成的 在底部附近时候就要开始拿货 一旦反转就是跳空反弹这样开启反弹\n\n\n\n所以上周一直让大家7成持仓  3成资金灵活机动",
+        "raw_text": "每次大跌是人为或者政治因素造成的 在底部附近时候就要开始拿货 一旦反转就是跳空反弹这样开启反弹\n\n\n\n所以上周一直让大家7成持仓  3成资金灵活机动"
       }
     ],
     "gold_005_half_retrace_watch": [],
@@ -648,7 +649,14 @@
         "evidence_span": "orcl也要注意昨天270-271的支撑 和crwv一样减持9天左右了到接近支撑可以回吸",
         "raw_text": "orcl也要注意昨天270-271的支撑 和crwv一样减持9天左右了到接近支撑可以回吸"
       }
-    ]
+    ],
+    "prop_011_earnings_call_reversal": [],
+    "prop_012_position_leverage_ratio": [],
+    "prop_013_three_dip_types_selection": [],
+    "prop_014_msci_exclusion_sector_sympathy_dip": [],
+    "prop_015_intraday_session_rhythm_0dte": [],
+    "prop_016_index_macro_gap_heavy_dip": [],
+    "prop_017_price_level_turn_over_news": []
   },
   "gap_subdivision": {
     "rule_replays": [
@@ -791,12 +799,11 @@
     "boundary_negative_cases": [
       {
         "index": 1502,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "negative_boundary_case",
+        "type": "negative_boundary_case",
         "message_id": "post_1CUzdaDswETL8zKbmrfzMG",
         "et_date": "2025-11-10",
         "channel": "讨论区股票记录",
-        "evidence_span": "指数没有回踩缺口一说 他有大盘股撑着的 回踩周五高点就很多要降低 大盘股不止7姐妹哪些 还有水利啊 建筑啊 宽带光缆等等的",
+        "memo_span": "指数没有回踩缺口一说 他有大盘股撑着的 回踩周五高点就很多要降低 大盘股不止7姐妹哪些 还有水利啊 建筑啊 宽带光缆等等的",
         "raw_text": "指数没有回踩缺口一说 他有大盘股撑着的 回踩周五高点就很多要降低 大盘股不止7姐妹哪些 还有水利啊 建筑啊 宽带光缆等等的"
       }
     ],
@@ -2003,21 +2010,51 @@
       "raw_text": "tsll  20.55附近减掉点 19.5缺口附近买的部分"
     },
     {
+      "index": 1357,
+      "message_id": "post_1CUtztWaVaouRDX4UXJYPC",
+      "et_date": "2025-11-07",
+      "channel": "不用翻墙期权",
+      "trigger": "7成",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "因为现在和三月一样了  开门就等于当时的暂停关税 所以有7成要低位配置拿开门后反弹一段时间   3成尾盘买夜盘出做做T降本用的"
+    },
+    {
+      "index": 1360,
+      "message_id": "post_1CUu6beqWNX5r2H8p3oyCm",
+      "et_date": "2025-11-07",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "7成",
+      "category": "daily_duplicate_rule_footer",
+      "reason": "同日 (2025-11-07) 7成总仓位规则已计账 1 次，不虚增规则计数",
+      "raw_text": "昨天盘后的股单有些高的也可以减点 维持7成死拿开门 3成做T"
+    },
+    {
       "index": 1361,
       "message_id": "post_1CUu6c93LZoTCJFp5eXUSK",
       "et_date": "2025-11-07",
       "channel": "不用翻墙期权",
-      "trigger": "7成死拿",
+      "trigger": "7成",
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "昨天盘后的股单有些高的也可以减点 维持7成死拿开门 3成做T"
+    },
+    {
+      "index": 1374,
+      "message_id": "post_1CUu8JETLiAfzfkq9jszWh",
+      "et_date": "2025-11-07",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "7成",
+      "category": "daily_duplicate_rule_footer",
+      "reason": "同日 (2025-11-07) 7成总仓位规则已计账 1 次，不虚增规则计数",
+      "raw_text": "手里到价格的减点 维持7成 有1-3成资金机动 激进的可以9成死拿 1成机动"
     },
     {
       "index": 1375,
       "message_id": "post_1CUu8JUZ1WnXxGHkRWad8F",
       "et_date": "2025-11-07",
       "channel": "不用翻墙期权",
-      "trigger": "死拿",
+      "trigger": "7成",
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "手里到价格的减点 维持7成 有1-3成资金机动 激进的可以9成死拿 1成机动"
@@ -2041,6 +2078,16 @@
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "tsll最后几分钟有强平结算的 然后盘后回落18.5-18.8可以低吸回 19.4出的"
+    },
+    {
+      "index": 1436,
+      "message_id": "post_1CUySjs6dYAsKwrX1Hf8BF",
+      "et_date": "2025-11-09",
+      "channel": "不用翻墙期权",
+      "trigger": "7成",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "每次大跌是人为或者政治因素造成的 在底部附近时候就要开始拿货 一旦反转就是跳空反弹这样开启反弹\n\n\n\n所以上周一直让大家7成持仓  3成资金灵活机动"
     },
     {
       "index": 1437,
@@ -2241,6 +2288,26 @@
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "今天开盘有put结算的手里的有些 明星股就拿着有明显抛售在成本上出\n\n\n\n有些 大盘股买的成本上的减点出来备用  大仓位就9成左右 10%资金备用就行\n\n\n\n有条件的可以在入金点备用 手里不动"
+    },
+    {
+      "index": 1645,
+      "message_id": "post_1CV82hpeG9UBEWiY46gnQH",
+      "et_date": "2025-11-14",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "3成",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "最近就是等政府机能进一步恢复 然后这两天买的大部分9成就持股等持续反弹 资金的1成或者融资部分的1-3成 就机动用来盘前那种情况补仓用\n\n\n\n机动资金做正T用"
+    },
+    {
+      "index": 1646,
+      "message_id": "post_1CV82kasTt3MsWanND4N9H",
+      "et_date": "2025-11-14",
+      "channel": "不用翻墙期权",
+      "trigger": "3成",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "最近就是等政府机能进一步恢复 然后这两天买的大部分9成就持股等持续反弹 资金的1成或者融资部分的1-3成 就机动用来盘前那种情况补仓用\n\n\n\n机动资金做正T用"
     },
     {
       "index": 1795,

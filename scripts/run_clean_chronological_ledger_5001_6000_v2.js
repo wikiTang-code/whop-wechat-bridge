@@ -6,10 +6,9 @@ const dbPath = path.resolve('whop_archive.db');
 const db = new Database(dbPath);
 
 console.log('========================================================================================');
-console.log('📖 执行第 7 档 (5001~6000 条) 严格精修：解决 Grok 对账 4 大差异');
+console.log('📖 执行第 7 档 (5001~6000 条) 严格精修（确保无 Skip 污染）');
 console.log('========================================================================================\n');
 
-// 1. 读取第 5001 ~ 6000 条消息
 const zhaoMessages = db.prepare(`
   SELECT id, channel_name, channel_id, sender_name, content, created_at
   FROM messages
@@ -75,7 +74,7 @@ for (let i = 0; i < zhaoMessages.length; i++) {
     continue;
   }
 
-  // 1. prop_017: 盘口转弯优先于新闻小作文 (post_1CaM8rTWT7FyzvdGbUMxzS)
+  // 1. prop_017: 盘口转弯优先于新闻小作文 (优先匹配主频道)
   if (text.includes('到处找新闻') || text.includes('看到点位看转弯')) {
     treeInstancesMap.get('prop_017_price_level_turn_over_news').push({
       index: globalIdx,
@@ -87,7 +86,7 @@ for (let i = 0; i < zhaoMessages.length; i++) {
       evidence_span: text.slice(0, 150),
       raw_text: text.slice(0, 250)
     });
-    continue;
+    continue; // 必须直接 continue 绝不进 skip
   }
 
   // 2. prop_015: 跨时段操作 (3~3:30 V买、盘后 4~4:15 卖)
@@ -102,7 +101,7 @@ for (let i = 0; i < zhaoMessages.length; i++) {
       evidence_span: text.slice(0, 150),
       raw_text: text.slice(0, 250)
     });
-    continue;
+    continue; // 必须直接 continue
   }
 
   // 3. gold_008: 入场扫描：指数转弯再看个股 (post_1CaFCe6NUnN9AtgCH4nh93)
@@ -117,12 +116,12 @@ for (let i = 0; i < zhaoMessages.length; i++) {
       evidence_span: text.slice(0, 150),
       raw_text: text.slice(0, 250)
     });
-    continue;
+    continue; // 必须直接 continue
   }
 
-  // 4. gold_006: 节前被动减 (收下操作时钟 + 5天规避/3天被动减/先加密后科技 4 条核心规则)
-  if (text.includes('被动减') || text.includes('节前前5天') || (text.includes('劳动节') && text.includes('科技')) || (text.includes('大陆') && text.includes('被动减'))) {
-    const isCoreRule = text.includes('夜盘出一半') || text.includes('韩指') || text.includes('3点强平') || text.includes('前5天') || text.includes('先加密') || text.includes('分三天回踩');
+  // 4. gold_006: 节前被动减 (包含操作时钟 + 5天规避/3天被动减/先加密后科技 核心规则)
+  if (text.includes('被动减') || text.includes('节前前5天') || (text.includes('劳动节') && text.includes('科技')) || (text.includes('大陆') && text.includes('被动减')) || text.includes('韩国指数') || text.includes('韩指') || text.includes('3点强平')) {
+    const isCoreRule = text.includes('夜盘出一半') || text.includes('韩指') || text.includes('3点强平') || text.includes('前5天') || text.includes('先加密') || text.includes('分三天回踩') || text.includes('韩国指数');
     if (isCoreRule) {
       treeInstancesMap.get('gold_006_passive_redeem_holiday').push({
         index: globalIdx,
@@ -135,6 +134,7 @@ for (let i = 0; i < zhaoMessages.length; i++) {
         evidence_span: text.slice(0, 150),
         raw_text: text.slice(0, 250)
       });
+      continue; // 核心规则挂入后直接 continue，绝不进 skip
     } else {
       skippedAuditLog.push({
         index: globalIdx,
@@ -146,8 +146,8 @@ for (let i = 0; i < zhaoMessages.length; i++) {
         reason: '个股劳动节点位备忘，不作为通用机制规则',
         raw_text: text.slice(0, 150)
       });
+      continue;
     }
-    continue;
   }
 
   // 5. gold_004: 7/3 仓位风控
@@ -179,7 +179,7 @@ for (let i = 0; i < zhaoMessages.length; i++) {
     continue;
   }
 
-  // 6. prop_008: 缺口回踩低吸 (严格收敛为 4 条核心规则：普涨隔天踩下沿、每天小幅回补3~3:30看、分三次回买、下沿低吸)
+  // 6. 缺口精细分流
   if (text.includes('缺口')) {
     if (text.includes('不会回补') || text.includes('最多摸上沿')) {
       gapSubdivision.boundary_negative_cases.push({
@@ -273,7 +273,7 @@ skippedAuditLog.forEach(s => skipStats[s.category] = (skipStats[s.category] || 0
 
 const resultData = {
   metadata: {
-    segment: '第 7 档 (5001~6000 条消息) Grok 严密对账精修版',
+    segment: '第 7 档 (5001~6000 条消息) 严密对账精修版',
     date_range: `${new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(zhaoMessages[0].created_at))} ~ ${new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(zhaoMessages[zhaoMessages.length - 1].created_at))}`,
     total_scanned: zhaoMessages.length,
     bookmarked_stops: bookmarkedCount,
@@ -294,13 +294,4 @@ const resultData = {
 
 const outPath = 'data/l2b/gold/zhao_chronological_ledger_5001_6000.json';
 fs.writeFileSync(outPath, JSON.stringify(resultData, null, 2), 'utf-8');
-
-console.log(`========================================================================================`);
-console.log(`✅ 成功输出第 7 档 (5001~6000 条) 严密对账精修版: ${outPath}`);
-console.log(`   - 扫描消息总数: ${zhaoMessages.length} 条`);
-console.log(`   - 命中的树节点数: ${Object.keys(instanceSummary).length} 个`);
-console.log(`   - 全量真实 Skip 审计: ${skippedAuditLog.length} 条\n`);
-
-Object.entries(instanceSummary).forEach(([tId, info]) => {
-  console.log(`🌳 [${tId}] (${info.status}) ${info.name}: 挂接 ${info.instances_count} 条实战实例`);
-});
+console.log(`✅ 成功输出第 7 档无残留精修总账: ${outPath}\n`);
