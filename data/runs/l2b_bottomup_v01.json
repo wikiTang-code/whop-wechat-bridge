@@ -1,0 +1,403 @@
+{
+  "metadata": {
+    "total_messages": 12124,
+    "skipped_short_count": 2912,
+    "skipped_l2a_count": 113,
+    "clean_candidates_count": 9099,
+    "total_attached": 478,
+    "outliers_pool_count": 8621,
+    "outlier_templates_count": 8
+  },
+  "attached_summary": {
+    "k_second_handshake": {
+      "name": "二次握手",
+      "count": 67,
+      "samples_5": [
+        {
+          "message_id": "post_1CTt7rqCrE8p2CFjCM4ZRL",
+          "et_date": "2025-10-07",
+          "span": "目前第一轮抛压后小反弹  等看下有没有第二轮下压 不破第一轮低点 在第一轮附近的完成二次握手",
+          "raw_text": "目前第一轮抛压后小反弹  等看下有没有第二轮下压 不破第一轮低点 在第一轮附近的完成二次握手"
+        },
+        {
+          "message_id": "post_1CTt7sjP6o5KoaVnZf5jiX",
+          "et_date": "2025-10-07",
+          "span": "目前第一轮抛压后小反弹  等看下有没有第二轮下压 不破第一轮低点 在第一轮附近的完成二次握手",
+          "raw_text": "目前第一轮抛压后小反弹  等看下有没有第二轮下压 不破第一轮低点 在第一轮附近的完成二次握手"
+        },
+        {
+          "message_id": "post_1CTtAYLiNZcRnKfVuyFiHs",
+          "et_date": "2025-10-07",
+          "span": "指数上QQQ盘后的收盘价要大于604.5 大多数股票今天就盘中完成二次握手的吸筹",
+          "raw_text": "指数上QQQ盘后的收盘价要大于604.5 大多数股票今天就盘中完成二次握手的吸筹"
+        },
+        {
+          "message_id": "post_1CTtAYqX2UU6o8j92Zt7F1",
+          "et_date": "2025-10-07",
+          "span": "指数上QQQ盘后的收盘价要大于604.5 大多数股票今天就盘中完成二次握手的吸筹",
+          "raw_text": "指数上QQQ盘后的收盘价要大于604.5 大多数股票今天就盘中完成二次握手的吸筹"
+        },
+        {
+          "message_id": "post_1CTyoU93GVnALQzRxMAGnS",
+          "et_date": "2025-10-10",
+          "span": "盘中还有次二次握手确认的 日内低点不破可以在吸一波",
+          "raw_text": "盘中还有次二次握手确认的 日内低点不破可以在吸一波"
+        }
+      ]
+    },
+    "k_gap_intraday_once": {
+      "name": "缺口一次与整数底",
+      "count": 5,
+      "samples_5": [
+        {
+          "message_id": "post_1CbASmAPtdCknnaHcfBcAo",
+          "et_date": "2026-05-18",
+          "span": "每次到缺口只做一次日内  跌破肯定往下继续补下面缺口",
+          "raw_text": "每次到缺口只做一次日内  跌破肯定往下继续补下面缺口"
+        },
+        {
+          "message_id": "post_1CbATmveGiUrfsuE9s64Wx",
+          "et_date": "2026-05-18",
+          "span": "两个缺口临近 一个只做一次日内 给隔天更低胜率更大 给机会",
+          "raw_text": "两个缺口临近 一个只做一次日内 给隔天更低胜率更大 给机会"
+        },
+        {
+          "message_id": "post_1CbE4JTR7XvBrPPFqZzJZ5",
+          "et_date": "2026-05-20",
+          "span": "底部几大要素  缺口连续补掉上轮起涨所有的 急跌最低价是整数的没小数点 昨天 46.0 第二天最低价高于前一天46.0的",
+          "raw_text": "底部几大要素  缺口连续补掉上轮起涨所有的 急跌最低价是整数的没小数点 昨天 46.0 第二天最低价高于前一天46.0的"
+        },
+        {
+          "message_id": "post_1CbE4KGhsuwj7GqN4okRAU",
+          "et_date": "2026-05-20",
+          "span": "底部几大要素 缺口连续补掉上轮起涨所有的 急跌最低价是整数的没小数点 昨天 46.0 第二天最低价高于前一天46.0的",
+          "raw_text": "底部几大要素 缺口连续补掉上轮起涨所有的 急跌最低价是整数的没小数点 昨天 46.0 第二天最低价高于前一天46.0的"
+        },
+        {
+          "message_id": "post_1CbtFKiRiNrzLgksNM9DmF",
+          "et_date": "2026-06-09",
+          "span": "还有什么投机的那种 最低点高于前面最低点  又是整数没小数点的之类的",
+          "raw_text": "还有什么投机的那种 最低点高于前面最低点  又是整数没小数点的之类的"
+        }
+      ]
+    },
+    "k_passive_redeem": {
+      "name": "被动减持与赎回",
+      "count": 173,
+      "samples_5": [
+        {
+          "message_id": "post_1CVkM5wnjrfMxNCiRzUhFq",
+          "et_date": "2025-12-03",
+          "span": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切   asts资讯有被动清仓慌啥就是抢筹机会",
+          "raw_text": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切   asts资讯有被动清仓慌啥就是抢筹机会"
+        },
+        {
+          "message_id": "post_1CVkM6AT8gQCHGsYg9cbD1",
+          "et_date": "2025-12-03",
+          "span": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切   asts资讯有被动清仓慌啥就是抢筹机会",
+          "raw_text": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切   asts资讯有被动清仓慌啥就是抢筹机会"
+        },
+        {
+          "message_id": "post_1CVmoRNbqSC7GhMMu5d95P",
+          "et_date": "2025-12-04",
+          "span": "meta和fbl是都全出了 找类似asts那种基金被动清仓的切换低位 高低切 meta和fbl是都全出了 找类似asts那种基金被动清仓的切换低位 高低切 meta和fbl是都全出了 找类似asts那",
+          "raw_text": "meta和fbl是都全出了 找类似asts那种基金被动清仓的切换低位 高低切 meta和fbl是都全出了 找类似asts那种基金被动清仓的切换低位 高低切 meta和fbl是都全出了 找类似asts那种基金被动清仓的切换低位 高低切"
+        },
+        {
+          "message_id": "post_1CVmoRkE2e113MxYw66F1N",
+          "et_date": "2025-12-04",
+          "span": "meta和fbl是都全出了 找类似asts那种基金被动清仓的切换低位 高低切",
+          "raw_text": "meta和fbl是都全出了 找类似asts那种基金被动清仓的切换低位 高低切"
+        },
+        {
+          "message_id": "post_1CWQHtaGumtwwNkxLW7NqY",
+          "et_date": "2025-12-23",
+          "span": "btc和eth今天是有节前被动减持 而被动减持的买点只能在最低附近 16.45买入可能几秒甚至几分钟半小时还在16.45附近 但是结束流出就会V下 上周五的16.8买入到18-18.5昨天卖出也是这样",
+          "raw_text": "btc和eth今天是有节前被动减持 而被动减持的买点只能在最低附近 16.45买入可能几秒甚至几分钟半小时还在16.45附近 但是结束流出就会V下 上周五的16.8买入到18-18.5昨天卖出也是这样 16.45买 16.42问是不是要止损有点太慌了"
+        }
+      ]
+    },
+    "k_dip_action": {
+      "name": "急跌量化吸筹",
+      "count": 149,
+      "samples_5": [
+        {
+          "message_id": "post_1CTx5riA4w3g8kQ6AruSne",
+          "et_date": "2025-10-09",
+          "span": "最近行情走势总方向是 盘中时间9点半到2点 震荡走低 到3点半-4点买些支撑位的 夜盘和盘前冲高走 在等3点半到4点 有时候盘中如果遇到个股突然急跌会慢慢震荡上去  买股最佳时间在3点半-4点不跌破当",
+          "raw_text": "最近行情走势总方向是 盘中时间9点半到2点 震荡走低 到3点半-4点买些支撑位的 夜盘和盘前冲高走 在等3点半到4点 有时候盘中如果遇到个股突然急跌会慢慢震荡上去  买股最佳时间在3点半-4点不跌破当天的低点 震荡行情也可以做做 tsll的日内支撑和阻力交易"
+        },
+        {
+          "message_id": "post_1CTx5sJboAmQvGEAHeDjXM",
+          "et_date": "2025-10-09",
+          "span": "最近行情走势总方向是 盘中时间9点半到2点 震荡走低 到3点半-4点买些支撑位的 夜盘和盘前冲高走 在等3点半到4点 有时候盘中如果遇到个股突然急跌会慢慢震荡上去  买股最佳时间在3点半-4点不跌破当",
+          "raw_text": "最近行情走势总方向是 盘中时间9点半到2点 震荡走低 到3点半-4点买些支撑位的 夜盘和盘前冲高走 在等3点半到4点 有时候盘中如果遇到个股突然急跌会慢慢震荡上去  买股最佳时间在3点半-4点不跌破当天的低点 震荡行情也可以做做 tsll的日内支撑和阻力交易"
+        },
+        {
+          "message_id": "post_1CUpqf3VGMF7caH8jWoovP",
+          "et_date": "2025-11-05",
+          "span": "最近这轮抛售也是人为调控  2天急跌筹码便宜了 今天夜盘就有量化v 起来吸筹的迹象",
+          "raw_text": "最近这轮抛售也是人为调控  2天急跌筹码便宜了 今天夜盘就有量化v 起来吸筹的迹象"
+        },
+        {
+          "message_id": "post_1CUpqfZHcmC8znEuXziSMh",
+          "et_date": "2025-11-05",
+          "span": "最近这轮抛售也是人为调控 2天急跌筹码便宜了 今天夜盘就有量化v 起来吸筹的迹象",
+          "raw_text": "最近这轮抛售也是人为调控 2天急跌筹码便宜了 今天夜盘就有量化v 起来吸筹的迹象"
+        },
+        {
+          "message_id": "post_1CZcAn63oNUu1fvUnSsPPb",
+          "et_date": "2026-03-31",
+          "span": "6440 和6500两个重要缺口收复 现在上面就6540一个周四均价线的缺口 就是那天跌破均价开始算短暂的急跌回调 然后 看今晚讲话内容  没有其他因素干扰情况 AI是给出 回踩 6400和6454两",
+          "raw_text": "6440 和6500两个重要缺口收复 现在上面就6540一个周四均价线的缺口 就是那天跌破均价开始算短暂的急跌回调 然后 看今晚讲话内容  没有其他因素干扰情况 AI是给出 回踩 6400和6454两个回踩确认的方向   最重要就是周一的和平协议是否签订 是未来几个月 类似去年 4月6日 关税的大行情的关键"
+        }
+      ]
+    },
+    "k_half_retrace_watch": {
+      "name": "反弹一半公式测算",
+      "count": 33,
+      "samples_5": [
+        {
+          "message_id": "post_1CVgdiJouH7QSzKp6qRYGn",
+          "et_date": "2025-12-01",
+          "span": "apld  （36.7+19）/2=27.85 apld 达到了高点跌低点后反弹了一半 最近可以注意转弯回调时候出一半 剩下一半博弈下能不能摸前高36。7",
+          "raw_text": "apld  （36.7+19）/2=27.85 apld 达到了高点跌低点后反弹了一半 最近可以注意转弯回调时候出一半 剩下一半博弈下能不能摸前高36。7"
+        },
+        {
+          "message_id": "post_1CVgdiVxP6gqHvxCQN4w2N",
+          "et_date": "2025-12-01",
+          "span": "apld  （36.7+19）/2=27.85 apld 达到了高点跌低点后反弹了一半 最近可以注意转弯回调时候出一半 剩下一半博弈下能不能摸前高36。7",
+          "raw_text": "apld  （36.7+19）/2=27.85 apld 达到了高点跌低点后反弹了一半 最近可以注意转弯回调时候出一半 剩下一半博弈下能不能摸前高36。7"
+        },
+        {
+          "message_id": "post_1CVkHzp5Xbq5tF1umCTZnR",
+          "et_date": "2025-12-03",
+          "span": "tsll   （23.18+14.81）/2=18.995 今天tsll也低位反弹了跌下来的一半 和apld一样今天出现了溢价到20",
+          "raw_text": "tsll   （23.18+14.81）/2=18.995 今天tsll也低位反弹了跌下来的一半 和apld一样今天出现了溢价到20"
+        },
+        {
+          "message_id": "post_1CVkJ14WNTz7FeGvSd2VfU",
+          "et_date": "2025-12-03",
+          "span": "tsll   （23.18+14.81）/2=18.995 今天tsll也低位反弹了跌下来的一半 和apld一样今天出现了溢价到20",
+          "raw_text": "tsll   （23.18+14.81）/2=18.995 今天tsll也低位反弹了跌下来的一半 和apld一样今天出现了溢价到20"
+        },
+        {
+          "message_id": "post_1CVkJTMPBDiPHpvx618Da4",
+          "et_date": "2025-12-03",
+          "span": "太空板块是昨天刚反弹 asts和rklb也是往反弹一半的方向走  rklb  （66.35+37.57）/2=51.96 asts (49.31+83.31)/2=66.31",
+          "raw_text": "太空板块是昨天刚反弹 asts和rklb也是往反弹一半的方向走  rklb  （66.35+37.57）/2=51.96 asts (49.31+83.31)/2=66.31"
+        }
+      ]
+    },
+    "k_cut_in_half_100": {
+      "name": "腰斩50%摸前高100%",
+      "count": 8,
+      "samples_5": [
+        {
+          "message_id": "post_1CW1JCnbhgnKqFATpTS35x",
+          "et_date": "2025-12-11",
+          "span": "当初腰斩的太空股最近都在摸前高附近  目前就剩下rklb的低位的剩下一半 会18号日本加息之前走 asts之前73时候都走了等之后再找机会",
+          "raw_text": "当初腰斩的太空股最近都在摸前高附近  目前就剩下rklb的低位的剩下一半 会18号日本加息之前走 asts之前73时候都走了等之后再找机会"
+        },
+        {
+          "message_id": "post_1CW1JDW4ZjTJVLnHhSv6rY",
+          "et_date": "2025-12-11",
+          "span": "当初腰斩的太空股最近都在摸前高附近 目前就剩下rklb的低位的剩下一半 会18号日本加息之前走 asts之前73时候都走了等之后再找机会",
+          "raw_text": "当初腰斩的太空股最近都在摸前高附近 目前就剩下rklb的低位的剩下一半 会18号日本加息之前走 asts之前73时候都走了等之后再找机会"
+        },
+        {
+          "message_id": "post_1CW3HsW4H6pc9hrhxxJVen",
+          "et_date": "2025-12-12",
+          "span": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的",
+          "raw_text": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的"
+        },
+        {
+          "message_id": "post_1CW3HtKcBv1ommXJtxrtAg",
+          "et_date": "2025-12-12",
+          "span": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的",
+          "raw_text": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的"
+        },
+        {
+          "message_id": "post_1CXjfLHhnk5vYxvNhdifyv",
+          "et_date": "2026-02-02",
+          "span": "算力卡炒币（日内高抛）>>>囤币（中线的都在亏损）>>>挖矿的（电费都大于挖到的币了） 交易所 等利息商讨中也是跌腰斩附近了 币三个梯队的 算力卡炒币  iren cifr hut（最近新尝试算力卡业",
+          "raw_text": "算力卡炒币（日内高抛）>>>囤币（中线的都在亏损）>>>挖矿的（电费都大于挖到的币了） 交易所 等利息商讨中也是跌腰斩附近了 币三个梯队的 算力卡炒币  iren cifr hut（最近新尝试算力卡业务的） 囤币  bmnr mstr（中线 两家都在亏损） 交易所 利息等商讨 coin hood 挖矿最末梯队"
+        }
+      ]
+    },
+    "k_cost_exit_last_batch": {
+      "name": "成本出与最后补的一笔",
+      "count": 7,
+      "samples_5": [
+        {
+          "message_id": "post_1CUovuqHikTdzgQiiS7ENA",
+          "et_date": "2025-11-04",
+          "span": "分批只减自己最后补的那笔 距离举例   比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买",
+          "raw_text": "分批只减自己最后补的那笔 距离举例   比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买"
+        },
+        {
+          "message_id": "post_1CUovv7kUxTA2T6RCQvg8i",
+          "et_date": "2025-11-04",
+          "span": "分批只减自己最后补的那笔 距离举例   比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买",
+          "raw_text": "分批只减自己最后补的那笔 距离举例   比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买"
+        },
+        {
+          "message_id": "post_1CVUwum51oSMjxBZWkJ6Hx",
+          "et_date": "2025-11-25",
+          "span": "成本出 那个低点出来就挂低点 在上下扫扫到就可以了",
+          "raw_text": "成本出 那个低点出来就挂低点 在上下扫扫到就可以了"
+        },
+        {
+          "message_id": "post_1CbTDBjm4QpXbD5bijfKwY",
+          "et_date": "2026-05-27",
+          "span": "成本出 15.5附近再买",
+          "raw_text": "成本出 15.5附近再买"
+        },
+        {
+          "message_id": "post_1CbcpbqTRavJsDHzuJrHKM",
+          "et_date": "2026-06-01",
+          "span": "只是日内比较弱 指数急拉没怎么拉升就成本出",
+          "raw_text": "只是日内比较弱 指数急拉没怎么拉升就成本出"
+        }
+      ]
+    },
+    "k_shoe_drops_settlement_rebound": {
+      "name": "靴子落地机制",
+      "count": 12,
+      "samples_5": [
+        {
+          "message_id": "post_1CVwX9jzHYpNtKB17UhLG9",
+          "et_date": "2025-12-09",
+          "span": "美联储利率讲话 前一天 如果先涨的 会议讲话不超预期会回踩2天 美联储利率讲话 前一天 如果先跌的 会议讲话会靴子落地当天反弹下 今天币市场和部分股冲了下指数带高了 就要等明天3点讲话看鲍威尔会不会鹰",
+          "raw_text": "美联储利率讲话 前一天 如果先涨的 会议讲话不超预期会回踩2天 美联储利率讲话 前一天 如果先跌的 会议讲话会靴子落地当天反弹下 今天币市场和部分股冲了下指数带高了 就要等明天3点讲话看鲍威尔会不会鹰派下 给回踩机会"
+        },
+        {
+          "message_id": "post_1CVwXA8Es45bCFHjhVYSui",
+          "et_date": "2025-12-09",
+          "span": "美联储利率讲话 前一天 如果先涨的 会议讲话不超预期会回踩2天 美联储利率讲话 前一天 如果先跌的 会议讲话会靴子落地当天反弹下 今天币市场和部分股冲了下指数带高了 就要等明天3点讲话看鲍威尔会不会鹰",
+          "raw_text": "美联储利率讲话 前一天 如果先涨的 会议讲话不超预期会回踩2天 美联储利率讲话 前一天 如果先跌的 会议讲话会靴子落地当天反弹下 今天币市场和部分股冲了下指数带高了 就要等明天3点讲话看鲍威尔会不会鹰派下 给回踩机会"
+        },
+        {
+          "message_id": "post_1CWFVx8WvujuKfwh3ePqrk",
+          "et_date": "2025-12-19",
+          "span": "日本加息 北京时间中午宣布了25基点 靴子落地了 btc和eth也是12点开始有反应反弹",
+          "raw_text": "日本加息 北京时间中午宣布了25基点 靴子落地了 btc和eth也是12点开始有反应反弹"
+        },
+        {
+          "message_id": "post_1CWFVxywb1EzFLXuwYrpbM",
+          "et_date": "2025-12-19",
+          "span": "日本加息 北京时间中午宣布了25基点 靴子落地了 btc和eth也是12点开始有反应反弹",
+          "raw_text": "日本加息 北京时间中午宣布了25基点 靴子落地了 btc和eth也是12点开始有反应反弹"
+        },
+        {
+          "message_id": "post_1CWFeomDNEWJpn54SzexW6",
+          "et_date": "2025-12-19",
+          "span": "今天 主要是夜盘和昨天收盘价格做参考  加息公布完后就是靴子落地 新的利息计算的产品也开始上线了  夜盘就是拿一部分 低价格的   然后开盘看是不是会走第一种 先结算在普涨那种 和开门时候那时候put",
+          "raw_text": "今天 主要是夜盘和昨天收盘价格做参考  加息公布完后就是靴子落地 新的利息计算的产品也开始上线了  夜盘就是拿一部分 低价格的   然后开盘看是不是会走第一种 先结算在普涨那种 和开门时候那时候put都结算那次周五一样 那时候也是盘前最低点 人工干预上去了  先回踩下就直接普涨了尾盘在小回落"
+        }
+      ]
+    },
+    "k_position_control_70_pct": {
+      "name": "7成底仓与3成做T机动",
+      "count": 24,
+      "samples_5": [
+        {
+          "message_id": "post_1CUtztEbZQsmwc6nqyKT4e",
+          "et_date": "2025-11-07",
+          "span": "因为现在和三月一样了  开门就等于当时的暂停关税 所以有7成要低位配置拿开门后反弹一段时间   3成尾盘买夜盘出做做T降本用的",
+          "raw_text": "因为现在和三月一样了  开门就等于当时的暂停关税 所以有7成要低位配置拿开门后反弹一段时间   3成尾盘买夜盘出做做T降本用的"
+        },
+        {
+          "message_id": "post_1CUtztWaVaouRDX4UXJYPC",
+          "et_date": "2025-11-07",
+          "span": "因为现在和三月一样了  开门就等于当时的暂停关税 所以有7成要低位配置拿开门后反弹一段时间   3成尾盘买夜盘出做做T降本用的",
+          "raw_text": "因为现在和三月一样了  开门就等于当时的暂停关税 所以有7成要低位配置拿开门后反弹一段时间   3成尾盘买夜盘出做做T降本用的"
+        },
+        {
+          "message_id": "post_1CUu6beqWNX5r2H8p3oyCm",
+          "et_date": "2025-11-07",
+          "span": "昨天盘后的股单有些高的也可以减点 维持7成死拿开门 3成做T",
+          "raw_text": "昨天盘后的股单有些高的也可以减点 维持7成死拿开门 3成做T"
+        },
+        {
+          "message_id": "post_1CUu6c93LZoTCJFp5eXUSK",
+          "et_date": "2025-11-07",
+          "span": "昨天盘后的股单有些高的也可以减点 维持7成死拿开门 3成做T",
+          "raw_text": "昨天盘后的股单有些高的也可以减点 维持7成死拿开门 3成做T"
+        },
+        {
+          "message_id": "post_1CW3UCsAesy8CkMKzSDzA7",
+          "et_date": "2025-12-12",
+          "span": "盘后34.8-34.9可以回吸bmnr   盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+          "raw_text": "盘后34.8-34.9可以回吸bmnr   盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+        }
+      ]
+    }
+  },
+  "outliers_top8": [
+    {
+      "cluster_tmp_id": "cluster_outlier_v01_1",
+      "template_copies": 7,
+      "representative_msg_id": "post_1CXzcp1ooRu3vPsRQ6U9C1",
+      "et_date": "2026-02-10",
+      "hit_span": "UAL - $118 CALLS EXPIRATION THIS WEEK $2.1 彩票",
+      "raw_text": "UAL - $118 CALLS EXPIRATION THIS WEEK $2.1 彩票"
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_v01_2",
+      "template_copies": 6,
+      "representative_msg_id": "post_1CWFXAH6B2yUDYGuAabsm2",
+      "et_date": "2025-12-19",
+      "hit_span": "iren可以夜盘和盘前找找36附近的价格回吸点 盘中有平期权波动回踩再加一笔",
+      "raw_text": "iren可以夜盘和盘前找找36附近的价格回吸点 盘中有平期权波动回踩再加一笔"
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_v01_3",
+      "template_copies": 4,
+      "representative_msg_id": "post_1CUBM7s2ATSvivmgD9uYsX",
+      "et_date": "2025-10-16",
+      "hit_span": "rklb 期权如果0.6附近吸的可以0.7-0.8减减 防止 特朗普讲话  讲话在挂低点捡漏",
+      "raw_text": "rklb 期权如果0.6附近吸的可以0.7-0.8减减 防止 特朗普讲话  讲话在挂低点捡漏"
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_v01_4",
+      "template_copies": 4,
+      "representative_msg_id": "post_1CUWmmG4gUeaCdvGNTSKWz",
+      "et_date": "2025-10-26",
+      "hit_span": "tsll 跳空高开 20-20.1出一半 设置下跌破19.9出剩下的",
+      "raw_text": "tsll 跳空高开 20-20.1出一半 设置下跌破19.9出剩下的"
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_v01_5",
+      "template_copies": 4,
+      "representative_msg_id": "post_1CWFWGy1wASDLkf6DuLf1x",
+      "et_date": "2025-12-19",
+      "hit_span": "bmnr可以夜盘和盘前找找28.8-29附近的价格回吸点 盘中有平期权波动回踩再加一笔",
+      "raw_text": "bmnr可以夜盘和盘前找找28.8-29附近的价格回吸点 盘中有平期权波动回踩再加一笔"
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_v01_6",
+      "template_copies": 4,
+      "representative_msg_id": "post_1CXoCYrqYae3htFVBPmTi1",
+      "et_date": "2026-02-04",
+      "hit_span": "HON - $237.5 CALLS EXPIRATION NEXT WEEK $2.05",
+      "raw_text": "HON - $237.5 CALLS EXPIRATION NEXT WEEK $2.05"
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_v01_7",
+      "template_copies": 3,
+      "representative_msg_id": "post_1CUB7nVKiXqLYvp9dvbuRu",
+      "et_date": "2025-10-16",
+      "hit_span": "量化在预防性降舱 qqq企稳在抄底 分批 几次 等QQQ  V在动手",
+      "raw_text": "量化在预防性降舱 qqq企稳在抄底 分批 几次 等QQQ  V在动手"
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_v01_8",
+      "template_copies": 3,
+      "representative_msg_id": "post_1CUB8TfQmWMfb3TjrJGRpo",
+      "et_date": "2025-10-16",
+      "hit_span": "特朗普：我将于美国东部时间下午 3 点发布“重大”声明！ 今天有预告时间了",
+      "raw_text": "特朗普：我将于美国东部时间下午 3 点发布“重大”声明！ 今天有预告时间了"
+    }
+  ]
+}
