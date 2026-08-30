@@ -10,7 +10,7 @@
     "status": "proposed",
     "do_not_use_as_order": true,
     "evidence_span": "一般到缺口 那个缺口价格记住 可以做2次",
-    "statement": "价格到达缺口位置时记住该缺口价格，该位置通常可做2次。",
+    "statement": "价格到达缺口位置时记住该缺口价格，该位置可以做2次。",
     "raw_context": "一般到缺口 那个缺口价格记住 可以做2次"
   },
   {
