@@ -262,5 +262,38 @@
     "statement": "反弹确定性仓位分工：底仓占大头，小比例资金配合融资做T，期权等效杠杆管理。",
     "status": "proposed",
     "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_013_three_dip_types_selection",
+    "name": "低吸三大模式：支撑位/节前缺口/双底形态",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1CWt90m...",
+    "et_date": "2026-01-05",
+    "evidence_span": "低吸三种 支撑 元旦前缺口 双底",
+    "statement": "低吸选择三大形态模式：关键支撑位低吸、节前回踩补缺低吸、双底形态低吸。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_014_msci_exclusion_sector_sympathy_dip",
+    "name": "MSCI剔除被动清仓与同板块非成分股错杀低吸",
+    "chapter": "第二章：日历律与供给被动减",
+    "message_id": "post_1CWz81k...",
+    "et_date": "2026-01-08",
+    "evidence_span": "MSCI剔除 板块被动清仓 同板块非成分股被带低再吸",
+    "statement": "指数成分股调整时，成分股遭被动清仓带崩板块，在同板块非成分错杀低位回吸。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_015_intraday_session_rhythm_0dte",
+    "name": "跨交易时段节奏与0DTE尾盘配合",
+    "chapter": "第一章：仓位控制与资金节奏",
+    "message_id": "post_1CX18Lk...",
+    "et_date": "2026-01-10",
+    "evidence_span": "收盘附近吸 夜盘/盘前短出 开盘第一小时冲高卖 0DTE配合尾盘波动",
+    "statement": "全天交易时段节奏分工：收盘低吸、夜盘盘前短线兑现、开盘冲高减仓、0DTE博尾盘。",
+    "status": "proposed",
+    "do_not_use_as_order": true
   }
 ]

@@ -1,26 +1,35 @@
 {
   "metadata": {
-    "segment": "第 5 档 (3001~4000 条消息)",
+    "segment": "第 5 档 (3001~4000 条消息) 精修定版",
     "date_range": "2025-12-31 ~ 2026-02-04",
     "total_scanned": 1000,
-    "bookmarked_stops": 112,
-    "tree_nodes_populated_count": 3,
-    "skipped_stops_total": 103,
+    "bookmarked_stops": 114,
+    "tree_nodes_populated_count": 6,
+    "skipped_stops_total": 102,
     "skipped_breakdown": {
-      "weak_commentary_or_single_event": 42,
-      "duplicate_post": 52,
-      "pure_fill_order": 9
+      "weak_commentary_or_single_event": 39,
+      "duplicate_post": 53,
+      "pure_fill_order": 9,
+      "single_ticker_event_memo": 1
     }
   },
   "tree_instances_summary": {
+    "gold_006_passive_redeem_holiday": {
+      "name": "节前基金被动减持与赎回",
+      "status": "gold",
+      "instances_count": 4,
+      "sample_spans": [
+        "节前都是被动减有个10% 休息一天的现金赎回流要求也是卡了这个机制在三天收盘才买入 今天是节日过去实际多余的就会在吸筹 也关注成交额是不是比节前多1.5倍",
+        "和上次加息一样的  都是压了2周 开盘最高收盘最低 就是理由换了  加息是清理旧的利息杠杆  节前被动减仓  节后就是相当于加息的靴子落地没有被动减了",
+        "去年是没有日本加息 圣诞节前跌一周 圣诞节后反弹3天 元旦在跌节前 节前最后天最低点收盘 节后回来周五那天反弹多周一反弹下周二再摸低点 \n\n\n\n\n\n今年多了加息这个压2周周五加息反弹周一在反弹点\n\n\n\n就圣诞 节前被动减 元旦被动减  主要看今天有没有反弹大点 就基本和去年走势一致了"
+      ]
+    },
     "gold_007_shoe_drops_settlement": {
       "name": "重大事件靴子落地走普涨",
       "status": "gold",
-      "instances_count": 3,
+      "instances_count": 1,
       "sample_spans": [
-        "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨 \n\n\n\n圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周 基本在最后几天收盘配置好了双底的很多上一轮会10几cm的潜力个股 主要看btc 这轮9万政府资金和盘前的涨幅有没有稳定下来 盘前要在夜盘基础涨幅上不回落1-2%浮动\n",
-        "和上次加息一样的  都是压了2周 开盘最高收盘最低 就是理由换了  加息是清理旧的利息杠杆  节前被动减仓  节后就是相当于加息的靴子落地没有被动减了",
-        "tsll 利空销量靴子落地"
+        "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨 \n\n\n\n圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周 基本在最后几天收盘配置好了双底的很多上一轮会10几cm的潜力个股 主要看btc 这轮9万政府资金和盘前的涨幅有没有稳定下来 盘前要在夜盘基础涨幅上不回落1-2%浮动\n"
       ]
     },
     "gold_011_zhao_poem_official": {
@@ -34,24 +43,79 @@
     "prop_008_gap_retrace_fill_dip": {
       "name": "高开回踩补缺低吸法",
       "status": "proposed",
-      "instances_count": 3,
+      "instances_count": 1,
       "sample_spans": [
-        "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后",
-        "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种",
-        "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半"
+        "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后"
+      ]
+    },
+    "prop_013_three_dip_types_selection": {
+      "name": "低吸三大模式：支撑位/节前缺口/双底形态",
+      "status": "proposed",
+      "instances_count": 1,
+      "sample_spans": [
+        "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种"
+      ]
+    },
+    "prop_014_msci_exclusion_sector_sympathy_dip": {
+      "name": "MSCI剔除被动清仓与同板块非成分股错杀低吸",
+      "status": "proposed",
+      "instances_count": 1,
+      "sample_spans": [
+        "盘前公布业绩 \n01:00：阿斯麦公司 $ASML\n06:00：丹纳赫公司 $DHR\n06:00：信诺公司 $ELV\n06:10：奥的斯公司 $OTIS\n06:30：美国电话电报公司 $T\n06:30：通用电气维诺瓦公司 $GEV\n06:30：德事隆公司 $TXT\n06:45：布林克国际公司 $EA"
       ]
     }
   },
   "gap_subdivision_summary": {
-    "prop_008_retrace_fill_count": 3,
-    "point_memos_count": 2
+    "prop_008_retrace_fill_count": 1,
+    "point_memos_count": 3
   },
   "tree_instances_detail": {
     "gold_001_second_handshake": [],
     "gold_003_gap_intraday_once": [],
     "gold_004_position_control_70_pct": [],
     "gold_005_half_retrace_watch": [],
-    "gold_006_passive_redeem_holiday": [],
+    "gold_006_passive_redeem_holiday": [
+      {
+        "index": 3012,
+        "tree_id": "gold_006_passive_redeem_holiday",
+        "tree_name": "节前基金被动减持与赎回",
+        "message_id": "post_1CWhitDKbsPW4FPyJgtC9d",
+        "et_date": "2026-01-01",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "节前都是被动减有个10% 休息一天的现金赎回流要求也是卡了这个机制在三天收盘才买入 今天是节日过去实际多余的就会在吸筹 也关注成交额是不是比节前多1.5倍",
+        "raw_text": "节前都是被动减有个10% 休息一天的现金赎回流要求也是卡了这个机制在三天收盘才买入 今天是节日过去实际多余的就会在吸筹 也关注成交额是不是比节前多1.5倍"
+      },
+      {
+        "index": 3019,
+        "tree_id": "gold_006_passive_redeem_holiday",
+        "tree_name": "节前基金被动减持与赎回",
+        "message_id": "post_1CWiJ2j4hKDDhSnYqcE4mu",
+        "et_date": "2026-01-02",
+        "channel": "讨论区股票记录",
+        "evidence_span": "和上次加息一样的  都是压了2周 开盘最高收盘最低 就是理由换了  加息是清理旧的利息杠杆  节前被动减仓  节后就是相当于加息的靴子落地没有被动减了",
+        "raw_text": "和上次加息一样的  都是压了2周 开盘最高收盘最低 就是理由换了  加息是清理旧的利息杠杆  节前被动减仓  节后就是相当于加息的靴子落地没有被动减了"
+      },
+      {
+        "index": 3020,
+        "tree_id": "gold_006_passive_redeem_holiday",
+        "tree_name": "节前基金被动减持与赎回",
+        "message_id": "post_1CWiK4zNFsJXppHjsweTsm",
+        "et_date": "2026-01-02",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "去年是没有日本加息 圣诞节前跌一周 圣诞节后反弹3天 元旦在跌节前 节前最后天最低点收盘 节后回来周五那天反弹多周一反弹下周二再摸低点 \n\n\n\n\n\n今年多了加息这个压2周周五加息反弹周一在反弹点\n\n\n\n就圣诞 节前被动减 元旦被动减  主要看今天有没有反弹大点 就基本和去年走势一致了",
+        "raw_text": "去年是没有日本加息 圣诞节前跌一周 圣诞节后反弹3天 元旦在跌节前 节前最后天最低点收盘 节后回来周五那天反弹多周一反弹下周二再摸低点 \n\n\n\n\n\n今年多了加息这个压2周周五加息反弹周一在反弹点\n\n\n\n就圣诞 节前被动减 元旦被动减  主要看今天有没有反弹大点 就基本和去年走势一致了"
+      },
+      {
+        "index": 3067,
+        "tree_id": "gold_006_passive_redeem_holiday",
+        "tree_name": "节前基金被动减持与赎回",
+        "message_id": "post_1CWis9NEU5sGRUN9Jak24q",
+        "et_date": "2026-01-02",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "一年就10个卡节前被动减持的机制 节后涨了出的短线\n\n\n\n10个节日每个卡10%就是翻倍了",
+        "raw_text": "一年就10个卡节前被动减持的机制 节后涨了出的短线\n\n\n\n10个节日每个卡10%就是翻倍了"
+      }
+    ],
     "gold_007_shoe_drops_settlement": [
       {
         "index": 3017,
@@ -62,26 +126,6 @@
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
         "evidence_span": "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨 \n\n\n\n圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周 基本在最后几天收盘配置好了双底的很多上一轮会10几cm的潜力个股 主要看btc 这轮9万政府资金和盘前的涨幅有没有稳定下来 盘前要在夜盘基础涨幅上不回落1-2%浮动\n",
         "raw_text": "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨 \n\n\n\n圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周 基本在最后几天收盘配置好了双底的很多上一轮会10几cm的潜力个股 主要看btc 这轮9万政府资金和盘前的涨幅有没有稳定下来 盘前要在夜盘基础涨幅上不回落1-2%浮动\n\n\n\n到盘中才能实现普涨"
-      },
-      {
-        "index": 3019,
-        "tree_id": "gold_007_shoe_drops_settlement",
-        "tree_name": "重大事件靴子落地走普涨",
-        "message_id": "post_1CWiJ2j4hKDDhSnYqcE4mu",
-        "et_date": "2026-01-02",
-        "channel": "讨论区股票记录",
-        "evidence_span": "和上次加息一样的  都是压了2周 开盘最高收盘最低 就是理由换了  加息是清理旧的利息杠杆  节前被动减仓  节后就是相当于加息的靴子落地没有被动减了",
-        "raw_text": "和上次加息一样的  都是压了2周 开盘最高收盘最低 就是理由换了  加息是清理旧的利息杠杆  节前被动减仓  节后就是相当于加息的靴子落地没有被动减了"
-      },
-      {
-        "index": 3762,
-        "tree_id": "gold_007_shoe_drops_settlement",
-        "tree_name": "重大事件靴子落地走普涨",
-        "message_id": "post_1CXaTarsLUdQUWg7zyEvFV",
-        "et_date": "2026-01-28",
-        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "evidence_span": "tsll 利空销量靴子落地",
-        "raw_text": "tsll 利空销量靴子落地"
       }
     ],
     "gold_008_index_turn_gate": [],
@@ -118,32 +162,37 @@
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
         "evidence_span": "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后",
         "raw_text": "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后"
-      },
-      {
-        "index": 3702,
-        "tree_id": "prop_008_gap_retrace_fill_dip",
-        "tree_name": "高开回踩补缺低吸法",
-        "message_id": "post_1CXXyV6pokkucVAQou1uB2",
-        "et_date": "2026-01-27",
-        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "evidence_span": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种",
-        "raw_text": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种"
-      },
-      {
-        "index": 3835,
-        "tree_id": "prop_008_gap_retrace_fill_dip",
-        "tree_name": "高开回踩补缺低吸法",
-        "message_id": "post_1CXcKzd7wY6DYprQ929U66",
-        "et_date": "2026-01-29",
-        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "evidence_span": "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半",
-        "raw_text": "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半"
       }
     ],
     "prop_009_decay_equivalent_calc": [],
     "prop_010_supply_unlock_ndays_dip": [],
     "prop_011_earnings_call_reversal": [],
-    "prop_012_position_leverage_ratio": []
+    "prop_012_position_leverage_ratio": [],
+    "prop_013_three_dip_types_selection": [
+      {
+        "index": 3702,
+        "tree_id": "prop_013_three_dip_types_selection",
+        "tree_name": "低吸三大模式：支撑位/节前缺口/双底形态",
+        "message_id": "post_1CXXyV6pokkucVAQou1uB2",
+        "et_date": "2026-01-27",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种",
+        "raw_text": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种"
+      }
+    ],
+    "prop_014_msci_exclusion_sector_sympathy_dip": [
+      {
+        "index": 3735,
+        "tree_id": "prop_014_msci_exclusion_sector_sympathy_dip",
+        "tree_name": "MSCI剔除被动清仓与同板块非成分股错杀低吸",
+        "message_id": "post_1CXZswe4scAzpf2vGosDuo",
+        "et_date": "2026-01-28",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "盘前公布业绩 \n01:00：阿斯麦公司 $ASML\n06:00：丹纳赫公司 $DHR\n06:00：信诺公司 $ELV\n06:10：奥的斯公司 $OTIS\n06:30：美国电话电报公司 $T\n06:30：通用电气维诺瓦公司 $GEV\n06:30：德事隆公司 $TXT\n06:45：布林克国际公司 $EA",
+        "raw_text": "盘前公布业绩 \n01:00：阿斯麦公司 $ASML\n06:00：丹纳赫公司 $DHR\n06:00：信诺公司 $ELV\n06:10：奥的斯公司 $OTIS\n06:30：美国电话电报公司 $T\n06:30：通用电气维诺瓦公司 $GEV\n06:30：德事隆公司 $TXT\n06:45：布林克国际公司 $EAT\n06:45：明晟公司 $MSCI\n07:00：美国自动数据处理公司 $ADP\n07:00：康宁公司 $GLW\n07:00：通用动力公司 $GD\n07:00：梯瓦制药 $TEVA\n07:45：星巴克"
+      }
+    ],
+    "prop_015_intraday_session_rhythm_0dte": []
   },
   "gap_subdivision": {
     "rule_replays": [
@@ -155,24 +204,6 @@
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
         "evidence_span": "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后",
         "raw_text": "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后"
-      },
-      {
-        "index": 3702,
-        "tree_id": "prop_008_gap_retrace_fill_dip",
-        "message_id": "post_1CXXyV6pokkucVAQou1uB2",
-        "et_date": "2026-01-27",
-        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "evidence_span": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种",
-        "raw_text": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种"
-      },
-      {
-        "index": 3835,
-        "tree_id": "prop_008_gap_retrace_fill_dip",
-        "message_id": "post_1CXcKzd7wY6DYprQ929U66",
-        "et_date": "2026-01-29",
-        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "evidence_span": "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半",
-        "raw_text": "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半"
       }
     ],
     "point_memos": [
@@ -184,6 +215,15 @@
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
         "memo_span": "今天大盘都是一些冷门的护盘股做护盘  明星股中小盘类都普跌 ，加上没有利空讲话这样 准备明天再看下有没有激进讲话 有在往下补一些前期的 缺口时候再入一些",
         "raw_text": "今天大盘都是一些冷门的护盘股做护盘  明星股中小盘类都普跌 ，加上没有利空讲话这样 准备明天再看下有没有激进讲话 有在往下补一些前期的 缺口时候再入一些"
+      },
+      {
+        "index": 3835,
+        "type": "point_memo_watch",
+        "message_id": "post_1CXcKzd7wY6DYprQ929U66",
+        "et_date": "2026-01-29",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "memo_span": "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半",
+        "raw_text": "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半"
       },
       {
         "index": 3957,
@@ -218,16 +258,6 @@
       "raw_text": "今天币预警也是要设置下 和加息那天夜盘起量差不多 就是币今天8万9这边有没有在回调8万3 在回调就盘中会走多空双杀 币8万9到8万8震荡就可能走开盘结算回踩下普涨"
     },
     {
-      "index": 3012,
-      "message_id": "post_1CWhitDKbsPW4FPyJgtC9d",
-      "et_date": "2026-01-01",
-      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
-      "raw_text": "节前都是被动减有个10% 休息一天的现金赎回流要求也是卡了这个机制在三天收盘才买入 今天是节日过去实际多余的就会在吸筹 也关注成交额是不是比节前多1.5倍"
-    },
-    {
       "index": 3014,
       "message_id": "post_1CWhiuamynpeJtGtPHTKdv",
       "et_date": "2026-01-01",
@@ -246,16 +276,6 @@
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨\n\n\n\n圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周 基本在最后几天收盘配置好了双底的很多上一轮会10几cm的潜力个股 主要看btc 这轮9万政府资金和盘前的涨幅有没有稳定下来 盘前要在夜盘基础涨幅上不回落1-2%浮动\n\n"
-    },
-    {
-      "index": 3020,
-      "message_id": "post_1CWiK4zNFsJXppHjsweTsm",
-      "et_date": "2026-01-02",
-      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
-      "raw_text": "去年是没有日本加息 圣诞节前跌一周 圣诞节后反弹3天 元旦在跌节前 节前最后天最低点收盘 节后回来周五那天反弹多周一反弹下周二再摸低点 \n\n\n\n\n\n今年多了加息这个压2周周五加息反弹周一在反弹点\n\n\n\n就圣诞 节前被动减 元旦被动减  主要看今天有没有反弹大点 就基本和去年走势一致了"
     },
     {
       "index": 3021,
@@ -326,16 +346,6 @@
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "今天走一轮轮结算 上下扫那种 就qqq多的轮次 止盈 到收盘附近在回吸 最后一小时有强平时间的影响"
-    },
-    {
-      "index": 3067,
-      "message_id": "post_1CWis9NEU5sGRUN9Jak24q",
-      "et_date": "2026-01-02",
-      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
-      "raw_text": "一年就10个卡节前被动减持的机制 节后涨了出的短线\n\n\n\n10个节日每个卡10%就是翻倍了"
     },
     {
       "index": 3068,
@@ -932,7 +942,7 @@
       "message_id": "post_1CXXyVaKKMyqhE5ppgZu5P",
       "et_date": "2026-01-27",
       "channel": "不用翻墙期权",
-      "trigger": "缺口",
+      "trigger": "低吸三种",
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的\n\n\n\n最近主要低吸三种的 回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种"
@@ -946,6 +956,26 @@
       "category": "pure_fill_order",
       "reason": "点位成交/减持口播，不进策略树",
       "raw_text": "上次大减持就是绿1出加密"
+    },
+    {
+      "index": 3736,
+      "message_id": "post_1CXZsxta1FV1nmKfQbs44o",
+      "et_date": "2026-01-28",
+      "channel": "不用翻墙期权",
+      "trigger": "MSCI",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘前公布业绩\n01:00：阿斯麦公司 $ASML\n06:00：丹纳赫公司 $DHR\n06:00：信诺公司 $ELV\n06:10：奥的斯公司 $OTIS\n06:30：美国电话电报公司 $T\n06:30：通用电气维诺瓦公司 $GEV\n06:30：德事隆公司 $TXT\n06:45：布林克国际公司 $EAT"
+    },
+    {
+      "index": 3762,
+      "message_id": "post_1CXaTarsLUdQUWg7zyEvFV",
+      "et_date": "2026-01-28",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "靴子",
+      "category": "single_ticker_event_memo",
+      "reason": "TSLL单票利空销量靴子落地，作为个股事件备忘，不进宏观通用规则",
+      "raw_text": "tsll 利空销量靴子落地"
     },
     {
       "index": 3763,
