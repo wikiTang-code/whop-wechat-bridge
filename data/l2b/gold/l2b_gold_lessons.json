@@ -1,0 +1,123 @@
+[
+  {
+    "gold_id": "gold_001_second_handshake",
+    "name": "二次握手不破低点低吸",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1CUmieqA238QoWpWp4oB7j",
+    "et_date": "2025-11-20",
+    "evidence_span": "二次握手  19.5不跌破 19.5-19.6就可以吸点（前天第一轮探底19.5没破的）",
+    "statement": "第一轮探底低点不破，第二轮在低点附近完成二次握手确认低吸。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_002_dip_buy_integer",
+    "name": "急跌整数无小数点底部要素",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1CbE4JTR7XvBrPPFqZzJZ5",
+    "et_date": "2026-05-20",
+    "evidence_span": "底部几大要素  缺口连续补掉上轮起涨所有的 急跌最低价是整数的没小数点 昨天 46.0 第二天最低价高于前一天46.0的",
+    "statement": "底部形态确认：缺口连续回补，急跌最低价是整数无小数点，次日最低价抬高。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_003_gap_intraday_once",
+    "name": "缺口每次只做一次日内",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1CbASmAPtdCknnaHcfBcAo",
+    "et_date": "2026-05-18",
+    "evidence_span": "每次到缺口只做一次日内  跌破肯定往下继续补下面缺口",
+    "statement": "到达缺口只做一次日内差价，跌破则等待下级缺口，严禁反复操作。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_004_position_control_70_pct",
+    "name": "7成底仓与3成做T机动",
+    "chapter": "第一章：仓位控制与资金节奏",
+    "message_id": "post_1CW3UCsAesy8CkMKzSDzA7",
+    "et_date": "2025-12-12",
+    "evidence_span": "盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+    "statement": "盘后总持仓顶格 7 成，必须保留 3 成现金应对回踩与做 T。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_005_half_retrace_watch",
+    "name": "反弹一半公式测算与高低切",
+    "chapter": "第一章：仓位控制与资金节奏",
+    "message_id": "post_1CVkJTMPBDiPHpvx618Da4",
+    "et_date": "2025-12-03",
+    "evidence_span": "太空板块是昨天刚反弹 asts和rklb也是往反弹一半的方向走  rklb  （66.35+37.57）/2=51.96 asts (49.31+83.31)/2=66.31",
+    "statement": "标的反弹空间按(最高+最低)/2测算，反弹一半以上出一半移入低位标的高低切。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_006_passive_redeem_holiday",
+    "name": "节前基金被动减持与赎回",
+    "chapter": "第二章：日历律与供给被动减",
+    "message_id": "post_1CWfRUgJMC9WUsfWSwhiTN",
+    "et_date": "2025-12-31",
+    "evidence_span": "今天尾盘也是基金被动减持留现金的节前最后天 可以收盘有些双底 或者双底跌破的建仓和少量补仓",
+    "statement": "节前最后 2~3 天基金被动减持留现金流，尾盘双底收盘建仓，节后看反弹。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_007_shoe_drops_settlement",
+    "name": "重大事件靴子落地走普涨",
+    "chapter": "第二章：日历律与供给被动减",
+    "message_id": "post_1CWiHteibFiRJNazVo1TL8",
+    "et_date": "2026-01-02",
+    "evidence_span": "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨",
+    "statement": "事件压盘第二周周五靴子落地，多空结算走普涨。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_008_scan_index_turn_block_print",
+    "name": "两段式扫描：指数转弯到自选大单",
+    "chapter": "第三章：两段式入场与扫描流程",
+    "message_id": "post_1CaFCe6NUnN9AtgCH4nh93",
+    "et_date": "2026-04-20",
+    "evidence_span": "QQQ等转弯往上再看科技股分批回吸",
+    "statement": "入场扫描流程：先确认 QQQ/SPY 指数转弯，进而轮询自选名单异动大单介入。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_009_cost_exit_last_batch",
+    "name": "分批只减最后补的一笔成本出",
+    "chapter": "第一章：仓位控制与资金节奏",
+    "message_id": "post_1CUovuqHikTdzgQiiS7ENA",
+    "et_date": "2025-11-04",
+    "evidence_span": "分批只减自己最后补的那笔 比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买",
+    "statement": "分批只减最后补的一笔，反弹至成本先成本出，等回踩确认再低买。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_010_cut_in_half_100_percent",
+    "name": "事件腰斩50%迎翻倍100%机会",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1CW3HtKcBv1ommXJtxrtAg",
+    "et_date": "2025-12-12",
+    "evidence_span": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的",
+    "statement": "重大事件冲击后会有一批标的腰斩50%并迎来翻倍摸前高100%的机会。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_011_zhao_poem_official",
+    "name": "赵哥主观交易总诀 (打油诗全文本尊)",
+    "chapter": "全书总纲",
+    "message_id": "post_1CWoRBJvkuBQgdN2Cq7Mci",
+    "et_date": "2026-01-04",
+    "evidence_span": "口诀\n普跌同沉不用慌，收盘寻底看稳当；\n普涨我跌要提防，减持利空细查详。\n事件来临莫急闯，尾二收盘低吸仓，\n靴子落地迎反弹，持股静待红盘扬。\n节日前夕别乱抢，节前两日布局忙，\n节后资金回流至，顺势吃肉把利装。\n币市波动要盯紧，首阴一跌需警醒，\n首阳一涨别贪猛，信号初现辨分明。\n\n白话文\n大家都跌就不慌 收盘附近最低卡机制 反弹出\n大家都涨我独跌就要慌 看看是否有减持和政策利空\n事件出现等最后两天收盘抄底 事件靴子落地看反弹\n节日出现等节前最后两天抄底  节日过后看反弹\n币预警第一个 -1%和第一个+1要注意",
+    "statement": "主观交易总诀（系统普跌不慌、普涨独跌查减持、事件等最后两天、靴子落地拿反弹、节日节前两天建仓）。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  }
+]

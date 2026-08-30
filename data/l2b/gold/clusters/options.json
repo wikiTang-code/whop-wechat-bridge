@@ -1,0 +1,196 @@
+{
+  "topic": "options",
+  "total_candidates": 29,
+  "unique_clusters_count": 21,
+  "clusters": [
+    {
+      "atom_id": "atom_1CUJhgAq7KQe5SgJ88v925_01",
+      "message_id": "post_1CUJhgAq7KQe5SgJ88v925",
+      "et_date": "2025-10-20",
+      "evidence_span": "特斯拉财报一般多空双杀的都有机会 财报出来跌 电话会议就会涨 财报出来涨 开盘就会跌",
+      "context_excerpt": "[xiaozhaolucky]: orcl 279有个缺口 然后最近有高管那天冲高时候减持  | [xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/By-A30ZyJpaC08k3wx8eJhLYgA3WdgnCYescPiATKcU/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2025-10-20%2F4781c957-9b3f-4713-a23e-94af53db8c24.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D96de5b9d4e42802a5e6a3be30e88a26b33f3f4619b346ecd86e7dc01aee6a814] | [xiaozhaolucky]:  特斯拉财报一般多空双杀的都有机会 财报出来跌 电话会议就会涨 财报出来涨 开盘就会跌 | [xiaozhaolucky]: orcl可以设置低点分批 279缺口补完 274的支撑 可以分批 ",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CUQMC9raHiepJ7absRhQd_01",
+      "message_id": "post_1CUQMC9raHiepJ7absRhQd",
+      "et_date": "2025-10-23",
+      "evidence_span": "特斯拉财报 就是不用慌 多做几次就也可以 财报期权双杀 tsll不会 运用好收益反而双倍",
+      "context_excerpt": "[xiaozhaolucky]: tsll  19.2附近可以按自己仓位管理减点 极限位置在19.8 附近 | [xiaozhaolucky]: rklb这会冲高63.5-64之间可以出昨天补仓的剩下一半  原来高买的65-67买的可以在等等 有回落支撑58附近还会再看看要不要在吸回 | [xiaozhaolucky]: 特斯拉财报 就是不用慌 多做几次就也可以 财报期权双杀 tsll不会 运用好收益反而双倍 | [xiaozhaolucky]: mara 昨天低吸的可以19.6出一半",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CUmKryXBW97dv7qZyVrXm_01",
+      "message_id": "post_1CUmKryXBW97dv7qZyVrXm",
+      "et_date": "2025-11-03",
+      "evidence_span": "meta期权可以反复做T的 把每天的高点点记住 今天比如659到过 后面再到时候出 低点646到过就后面646附近再买回 长线call 每天有价格到过时候操作 不上不下位置就不动",
+      "context_excerpt": "[xiaozhaolucky]: ionq这个上周出了 等上次低点附近再买 57-58 在观察中 | [xiaozhaolucky]: bmnr 是eth 价格和后面三个btc 不同 coin有稳定币加btc要看2个币价格这个双倍波动大 hood是券商有加密交易这个稳定点 mstr btc囤币 电话会议前那个255注意是不是最低点 | [xiaozhaolucky]: meta期权可以反复做T的 把每天的高点点记住 今天比如659到过 后面再到时候出 低点646到过就后面646附近再买回 长线call 每天有价格到过时候操作 不上不下位置就不动 | [xiaozhaolucky]: 解禁前机构避险导致跌 解禁后有些股东质押了新的反弹 反弹上去抄底的机构在抛售又跌回解禁前价格",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CVWjDXcV751R9nv9tzobN_01",
+      "message_id": "post_1CVWjDXcV751R9nv9tzobN",
+      "et_date": "2025-11-26",
+      "evidence_span": "节前一天 qqq期权比如平常做2-3次的减少为1次  平常振幅5%的可能会缩减到3%",
+      "context_excerpt": "[xiaozhaolucky]: 之前是盘前压价格  现在转变为  盘前开盘压 开开盘冲高在回落一点点 盘中回踩确认 | [xiaozhaolucky]: 美股就是回调一直回调 一个样  反弹了就底部抬高一直抬高 | [xiaozhaolucky]: 节前一天 qqq期权比如平常做2-3次的减少为1次  平常振幅5%的可能会缩减到3% | [xiaozhaolucky]: 就是周五还有  月度 周度  养老金的再平衡 所以这1天半都有回踩机会",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CVWzLZiD4QvYwNMcAnPd9_01",
+      "message_id": "post_1CVWzLZiD4QvYwNMcAnPd9",
+      "et_date": "2025-11-26",
+      "evidence_span": "反弹段一般就是 先是稳反弹的占9成仓 1成资金和3成融资不是备用吗 1+3融资正T  12月iv看降了 资金增量了就1成做期权 期权相当于10倍杠杆的  3融资继续日内正T",
+      "context_excerpt": "[xiaozhaolucky]: tsll到日内压力位附近18.-18.1附近可以出日内17.55的一半 | [xiaozhaolucky]: 回调段是尾盘吸 夜盘盘前减 反弹段方法就相反了 然后反弹段一般 反弹就是开盘或者盘前17点半那会吸  然后成交额大于前几天就可以每天继续  成交额少于前几天减仓或者休息几天成交额大了再开始 | [xiaozhaolucky]: 反弹段一般就是 先是稳反弹的占9成仓 1成资金和3成融资不是备用吗 1+3融资正T  12月iv看降了 资金增量了就1成做期权 期权相当于10倍杠杆的  3融资继续日内正T 低位时候有些资金就拿股票和双倍的货 反弹高点下来的一半左右出一半剩下在博新高  | [xiaozhaolucky]: 回调段和反弹段规律 [IMAGE:https://img-v2-prod.whop.com/-FJmDQUmwMF64BZigIOOFPnZsBGwXrRa6ycwUP0U18o/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2025-11-26%2Fuser_17909136_d13533d5-aa22-4daa-a8d0-80eb89d5e7c9.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D013ed12fcaed7226373614c3dbef5299ea7f08ff3ba631b21cfc8f95f88b4577]",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CVor98XuoGL8pdDhYk9Uc_01",
+      "message_id": "post_1CVor98XuoGL8pdDhYk9Uc",
+      "et_date": "2025-12-05",
+      "evidence_span": "周五就是你知道要双杀  指数高点就出 然后 指数低点看个股回吸  可以盘中一半 一半在收盘或者都在收盘 2种",
+      "context_excerpt": "[xiaozhaolucky]: 币反弹在买入 | [xiaozhaolucky]: 币价格影响币股 然后带指数下去 其他板块是量化随指数 发现不是自己板块事情就继续反弹 | [xiaozhaolucky]: 周五就是你知道要双杀  指数高点就出 然后 指数低点看个股回吸  可以盘中一半 一半在收盘或者都在收盘 2种 | [xiaozhaolucky]: 分时高位往下弯时候要减   直线往下不买入  下面往上弯才开始介入  在对照盘前低点和分时低点是哪个价位再买",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CWGjB3tBPPe29QTfZBi4V_01",
+      "message_id": "post_1CWGjB3tBPPe29QTfZBi4V",
+      "et_date": "2025-12-19",
+      "evidence_span": "amzu盘后四巫期权杀下来34还是可以  就是34买过仓位就不加大 适合空仓和仓位小的",
+      "context_excerpt": "[xiaozhaolucky]: asts 下半夜也是反弹了14%这个之前一波三天也是反弹很厉害的 | [xiaozhaolucky]: 博通可以下周看下335附近可以开 它属于错杀过度 财报还可以的 | [xiaozhaolucky]: amzu盘后四巫期权杀下来34还是可以  就是34买过仓位就不加大 适合空仓和仓位小的 | [xiaozhaolucky]: msfl 微软双倍也是可以27.1附近占仓位用 他低点这轮回踩26.5附近 下限不大也适合占仓  ",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CWhij4H3Ut3joFquxBZWM_01",
+      "message_id": "post_1CWhij4H3Ut3joFquxBZWM",
+      "et_date": "2026-01-01",
+      "evidence_span": "今天币预警也是要设置下 和加息那天夜盘起量差不多 就是币今天8万9这边有没有在回调8万3 在回调就盘中会走多空双杀 币8万9到8万8震荡就可能走开盘结算回踩下普涨",
+      "context_excerpt": "[xiaozhaolucky]: tsll可以19.39-19.5出一半19.1的部分也是盘前再看看  | [xiaozhaolucky]: tsll 19.1剩下一半可以找19.8-20附近  19.5那部分也是20-20.1附近出 | [xiaozhaolucky]: 今天币预警也是要设置下 和加息那天夜盘起量差不多 就是币今天8万9这边有没有在回调8万3 在回调就盘中会走多空双杀 币8万9到8万8震荡就可能走开盘结算回踩下普涨 | [xiaozhaolucky]: 节前都是被动减有个10% 休息一天的现金赎回流要求也是卡了这个机制在三天收盘才买入 今天是节日过去实际多余的就会在吸筹 也关注成交额是不是比节前多1.5倍 [IMAGE:https://img-v2-prod.whop.com/1pUdq3Cag-fg6Weaw3p6t4btJtyE1iKrGWc_troitkg/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2026-01-02%2Fuser_17909136_7af63c2c-b4b8-4f7c-861f-c2338460669a.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D1f378a2f1b3edff70e70272e4efd31d822ab3e0c110dbbd98f56472288151145]",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CXaV7GofmYgxwMPEjtcRt_01",
+      "message_id": "post_1CXaV7GofmYgxwMPEjtcRt",
+      "et_date": "2026-01-28",
+      "evidence_span": "tsll再到17.5-17.2还可以做短线  上面压力在18.5 双杀财报就是双倍无限套利",
+      "context_excerpt": "[xiaozhaolucky]: 24.5附近出一半微软双倍 | [xiaozhaolucky]: 18.5附近出一半tsll | [xiaozhaolucky]: tsll再到17.5-17.2还可以做短线  上面压力在18.5 双杀财报就是双倍无限套利 | [xiaozhaolucky]: 微软双倍 应该是故意杀低点把其他人的止损带出去也是之前财报惯用杀止损的手法 也是注意22.8-23的位置 ",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CXmZvVngEFTCABHf9xhhx_01",
+      "message_id": "post_1CXmZvVngEFTCABHf9xhhx",
+      "et_date": "2026-02-03",
+      "evidence_span": "最近和之前关门时候机制差不多  然后昨天开始有些个股有每天的0dt期权了会造成尾盘附近强平波动",
+      "context_excerpt": "[xiaozhaolucky]: nvdl之前的双底在77.3有过分红78.3扣个1元然后78也有个小缺口  下一次加仓会在这里附近加  最近openai那个利空 也是人为写的文章压下去了股价 | [xiaozhaolucky]: spy盘中跌破了690 要开始注意 spy685是不是支撑住 看收盘能不能收回690以上 | [xiaozhaolucky]: 最近和之前关门时候机制差不多  然后昨天开始有些个股有每天的0dt期权了会造成尾盘附近强平波动  这轮推出也是为了配合尾盘吸  夜盘 盘前涨出的机制的 存量市场会存续一段时间了 目前开门前就大多数情况是 收盘附近吸 或者盘后吸（盘后有财报影响时候） 夜盘 盘前  开盘的第一个小时冲高就卖  回到之前的节奏 有些不断到双底的就一半死拿一半做T每天套利机制 不要盘中 每次跌点不断补 到盘后又没资金补了 有些事件压制的事件反转一次补 | [xiaozhaolucky]: tsll可以16.1附近开常规一半的做T仓位 ",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CYWwUd46TR3Tay1GDyde2_01",
+      "message_id": "post_1CYWwUd46TR3Tay1GDyde2",
+      "et_date": "2026-02-26",
+      "evidence_span": "英伟达杀call就是捡漏他的低点和其他的股的低点",
+      "context_excerpt": "[xiaozhaolucky]: tsll可以15.32附近增加一个做T仓位常规仓的一半 死拿的有14.2和15.1的部分加一起 | [xiaozhaolucky]: 英伟达今天杀call 和英伟达相关的ai股也是要单边到尾盘附近 一般4-4点半附近有当天期权结算在加仓 | [xiaozhaolucky]: 英伟达杀call就是捡漏他的低点和其他的股的低点  | [xiaozhaolucky]: 203附近可以把昨天卖出amd也回吸",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CZEwKTmrj2CVNfWorxkjL_01",
+      "message_id": "post_1CZEwKTmrj2CVNfWorxkjL",
+      "et_date": "2026-03-20",
+      "evidence_span": "因为最近期权延伸出来3点钟-3点半 那个V买（强平后卡v 的新机制）  盘后4点-4点15卖的 新机制  要看下自己期权券商 spy  之类支不支持盘后5-15分钟可以卖的",
+      "context_excerpt": "[xiaozhaolucky]: 2.5盘后有些也能卖 spycall  2.36也出 | [xiaozhaolucky]: 看看长桥是不是也有盘后15分钟可以卖的功能 | [xiaozhaolucky]: 因为最近期权延伸出来3点钟-3点半 那个V买（强平后卡v 的新机制）  盘后4点-4点15卖的 新机制  要看下自己期权券商 spy  之类支不支持盘后5-15分钟可以卖的 | [xiaozhaolucky]: 只是部分指数期权 个股期权还没开这个功能",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1Ca5tbqhiV8wRcB1oT1SqU_01",
+      "message_id": "post_1Ca5tbqhiV8wRcB1oT1SqU",
+      "et_date": "2026-04-15",
+      "evidence_span": "短线期权一般看资金走的情况出 都在平仓了 就跟着要出",
+      "context_excerpt": "[xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/spbp62o16nsZBtR_TGXUJCKRtFDK4AP_WfqSohTCx5k/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-04-08%2Fdacf142f-0c2d-48b2-a2a8-df5a5e3aa60e.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dab5df75419ceeb85d7093359c6cc2d90652b2aad03fcfabd632babb80afd9174] | [xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/ZBv0tJLsMn50x4NlEJIvrJ_EcRbTwKcMOyPR-DjPxl0/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-04-15%2F44a0ab2b-2d83-4027-b240-0e772b184577.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D3951b51cca85b65a7957815d145d63084c18e3ae567a894e27e7a665eb7f3de5] | [xiaozhaolucky]: 短线期权一般看资金走的情况出 都在平仓了 就跟着要出 | [xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/1p26lPAMu7GZdzMwKKpPAqkoXm6bWcBY36YHGI--DL8/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-04-16%2F1e240d32-d64f-451d-ad27-885aa677b970.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dabcfa5f0fa7c7e5bb6420ef0600691e6c2b7beb027b23e1f2f4cd33266fbbc9c]",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbAFWuJFs9WZy5FN4ZAXk_01",
+      "message_id": "post_1CbAFWuJFs9WZy5FN4ZAXk",
+      "et_date": "2026-05-18",
+      "evidence_span": "今天正股速度就是和之前期权的速度是相当了 第一天的急跌急反弹都是这样",
+      "context_excerpt": "[cm]: 这也太快了吧 | [Merlin]: 今天好扯 | [xiaozhaolucky]: 今天正股速度就是和之前期权的速度是相当了 第一天的急跌急反弹都是这样 | [甜瓜lucky ]: 赵哥带大家赚夜宵呢😘",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbCMY7fhzYxfeV9dfdzk7_01",
+      "message_id": "post_1CbCMY7fhzYxfeV9dfdzk7",
+      "et_date": "2026-05-19",
+      "evidence_span": "这段时间期权要开 就只能 只盯着那一个 同时盯着几个就会不现实 速度都快情况 一种就是取大市值的不同板块的缺口到了 昨天最低点到了多开几个",
+      "context_excerpt": "[xiaozhaolucky]: 要波动变慢在考虑 | [Hugo Lam]: 🫡 | [xiaozhaolucky]: 这段时间期权要开 就只能 只盯着那一个 同时盯着几个就会不现实 速度都快情况 一种就是取大市值的不同板块的缺口到了 昨天最低点到了多开几个 | [xiaozhaolucky]: 或者 单盯指数 既要又要 盯防上面不现实",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbE4nNo2uNamwyGBqUERT_01",
+      "message_id": "post_1CbE4nNo2uNamwyGBqUERT",
+      "et_date": "2026-05-20",
+      "evidence_span": "tsll一般  高开会兑现杀call",
+      "context_excerpt": "[黑猫]: 还真是 | [xiaozhaolucky]: nvda不会波动很大 | [xiaozhaolucky]: tsll一般  高开会兑现杀call | [Caleb Wayne]: 赵哥 那是不是可以利用这个规律去买put？",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbHicx9P5BngmMz8eVpYC_01",
+      "message_id": "post_1CbHicx9P5BngmMz8eVpYC",
+      "et_date": "2026-05-22",
+      "evidence_span": "一般会杀call 周五过掉就好了",
+      "context_excerpt": "[Mrzhoulucky]: 牛牛跌的离谱 最多跌了40% | [Yang]: 牛牛比国内券商好用多了 | [xiaozhaolucky]: 一般会杀call 周五过掉就好了 | [向阳而生]: 等拉子",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbVA1b1Pzx12J6X3RxojD_01",
+      "message_id": "post_1CbVA1b1Pzx12J6X3RxojD",
+      "et_date": "2026-05-28",
+      "evidence_span": "主要看指数 指数高 波动要求高 因为市场活跃 对你iv要求会增加",
+      "context_excerpt": "[Mrzhoulucky]: 有些票限制交易 | [xiaozhaolucky]: 指数要下来200左右或者 日k跌个4天稍微降低点 | [xiaozhaolucky]: 主要看指数 指数高 波动要求高 因为市场活跃 对你iv要求会增加 | [咕咕嘎嘎]: 赵哥 奈飞还会买吗",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1Cbh486NVadUmQnR2ARGTa_01",
+      "message_id": "post_1Cbh486NVadUmQnR2ARGTa",
+      "et_date": "2026-06-03",
+      "evidence_span": "A股 如果低开低走 走夜盘最低就会引发连锁 然后才看期权put有没有大资金增加 这样 iv对put就适用 空相当于是低点",
+      "context_excerpt": "[WangWang]: 哦哦，这样子 | [wangxing]: soxs真猛卖了一半多点了 | [xiaozhaolucky]: A股 如果低开低走 走夜盘最低就会引发连锁 然后才看期权put有没有大资金增加 这样 iv对put就适用 空相当于是低点 | [大鹅]: 赵哥，博通415补了缺口是不是能接点",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1Cc972srwmvcA8bNnKbud2_01",
+      "message_id": "post_1Cc972srwmvcA8bNnKbud2",
+      "et_date": "2026-06-17",
+      "evidence_span": "期权一开始就是iv要宽幅的 小幅只能硬吃磨损",
+      "context_excerpt": "[xiaozhaolucky]: 讲话前要做成交额啊 | [xiaozhaolucky]: 小幅震荡 讲话后才会宽幅震荡 | [xiaozhaolucky]: 期权一开始就是iv要宽幅的 小幅只能硬吃磨损 | [Joperdawad Guterdas]: nvdl要做吗，赵哥",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CcBKwo7gc5tLTjSYFoKLz_01",
+      "message_id": "post_1CcBKwo7gc5tLTjSYFoKLz",
+      "et_date": "2026-06-18",
+      "evidence_span": "期权原理就是1万 当10万用 做市商帮你去进场",
+      "context_excerpt": "[xiaozhaolucky]: 强平就是借的钱回流市场 | [Yugen]: 加到六成仓了 | [xiaozhaolucky]: 期权原理就是1万 当10万用 做市商帮你去进场 | [xiaozhaolucky]: 归零了 9万回流给市场",
+      "proposed_family": "p_options_candidate",
+      "recommended_action": "review_proposed"
+    }
+  ]
+}

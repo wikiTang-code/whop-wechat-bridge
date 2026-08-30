@@ -1,0 +1,250 @@
+{
+  "topic": "gap",
+  "total_candidates": 29,
+  "unique_clusters_count": 27,
+  "clusters": [
+    {
+      "atom_id": "atom_1CXxZmVP766dQTStNQcVRK_01",
+      "message_id": "post_1CXxZmVP766dQTStNQcVRK",
+      "et_date": "2026-02-09",
+      "evidence_span": "夜盘因为周末讲话比较亢奋 高开的多 盘前和盘中就会回落补下高开的缺口，盘中和收盘附近会找下周五的收盘左右做点日内",
+      "context_excerpt": "[xiaozhaolucky]: 139.9附近出pltr | [xiaozhaolucky]: 目前和上一轮完全一样的进度 甚至今天夜盘高开比上次多1-2%点 | [xiaozhaolucky]: 夜盘因为周末讲话比较亢奋 高开的多 盘前和盘中就会回落补下高开的缺口，盘中和收盘附近会找下周五的收盘左右做点日内 | [xiaozhaolucky]: 203。3附近 在回吸点夜盘卖出的亚马逊 amzn",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CYiQqQ4JwTcZmPRoDqtFy_01",
+      "message_id": "post_1CYiQqQ4JwTcZmPRoDqtFy",
+      "et_date": "2026-03-04",
+      "evidence_span": "然后那种  昨天 12月17日 669缺口回补  就是隔开好几个月指数缺口回补了 个股价格很低 也是大仓位吸的日子",
+      "context_excerpt": "[xiaozhaolucky]: 去年胡塞武装有过三个阶段  今年这轮打仗也可以参考 [IMAGE:https://img-v2-prod.whop.com/VoHM3FQqo7K-oOHRg1yWFLQe12ZMiOKFxmWLSQ5b9jk/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-03-04%2F42ddef1c-cf9b-4a88-8754-398a5b0527ad.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3De2b23a2f292646af91bc8a4f54716efd575fd498ac1b41ed97ad29e3d87d4fec] | [xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/vnhM9SEDofrjHms5w2R1VTP_Y3j-TJqyMM1WCtllo28/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-03-04%2Fada200e4-d99a-40fb-a97e-46df689c4d27.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Defca1f6b3d56ee832b7f1e075b6486553dab9b2c81ba996c4067983058e0b637] | [xiaozhaolucky]: 然后那种  昨天 12月17日 669缺口回补  就是隔开好几个月指数缺口回补了 个股价格很低 也是大仓位吸的日子 | [xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/TWSc3ORsokeRflSLHEEAqpyglyVk1OV8q1zLnQCySbI/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-03-06%2F6e9b9e23-b2a6-4df9-afd0-ec7f04070488.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Daf328b26a5b124b38c5489f2480d8b4dd64c6ec86822a70634cbf36444997a94]",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CZcAn63oNUu1fvUnSsPPb_01",
+      "message_id": "post_1CZcAn63oNUu1fvUnSsPPb",
+      "et_date": "2026-03-31",
+      "evidence_span": "6440 和6500两个重要缺口收复 现在上面就6540一个周四均价线的缺口 就是那天跌破均价开始算短暂的急跌回调",
+      "context_excerpt": "[xiaozhaolucky]: 夜盘 34.9附近出 33.8.iren | [xiaozhaolucky]: tsll夜盘也是注意12.5时候出之前 12.5附近加的tsll  价格会波动到 | [xiaozhaolucky]: 6440 和6500两个重要缺口收复 现在上面就6540一个周四均价线的缺口 就是那天跌破均价开始算短暂的急跌回调 然后 看今晚讲话内容  没有其他因素干扰情况 AI是给出 回踩 6400和6454两个回踩确认的方向   最重要就是周一的和平协议是否签订 是未来几个月 类似去年 4月6日 关税的大行情的关键 [IMAGE:https://img-v2-prod.whop.com/soS0Qe6p7_35842XEK-EhAwPeuRbzXWn5bhRKDWLP3k/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-04-01%2F5252c43d-ab0a-4b2e-9dc9-bc4e9d5eb3cf.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D526f37b5d3cd2bf473693174ebbc25c5b384bf627317315a9043775041365689] | [xiaozhaolucky]: 根据军事频道和美国本土的中立新闻为线索  AI预测的特朗普目前的境况，如果继续输送兵力去伊朗，游行会继续，军费开支增加，中选前宣传都没人响应，油价上涨，物价涨，医药进口的涨，养老金跌，老百姓更多加入游行队伍。如果不打下去，taco太多，美国信誉也受损。还是五五开的机会和平协议签署。 如果停战，特朗普会让伊朗在海峡建立收费站收费。让每一个国家自己去商量收费价钱，把责任转移。这些钱用来管理战后伊朗国家经济。如果是这样结果，这场战争毫无意义。伊朗以后会越来越霸气。这么多年，美国打越南，伊拉克，阿富汗，伊朗都是属于失败，不了了之。 今年中选也比较大机会落败。唯一的办法就是股市反弹，触发养老金回升点   不然里外不是人 然后在记录个前几天军事频道出来的 伊朗两个派别的翻译解析 伊朗政府内部分裂很大。总统和总司令分歧很大。总统想和美国妥协，总司令不愿意。但是有一点可以看出，伊朗政府官员有一半人也不想死。所以Trump 这样逼宫有一半机会可以成功。有可能伊朗里面内斗，互相残杀，最后选出亲美政府，然后所有事情慢慢解决。如果开战，陆军进来，伊朗高层全部都会死。改朝换代。 ",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CaoRedFJCjvVrpTGaCgJV_01",
+      "message_id": "post_1CaoRedFJCjvVrpTGaCgJV",
+      "et_date": "2026-05-07",
+      "evidence_span": "微软就是卡财报 信息好  杀多跌的时候补缺口 到前高有 盈利性价比",
+      "context_excerpt": "[Yugen]: 蜡烛图有一点不好就是看不到夜盘的 | [Yugen]: 要点进去 | [xiaozhaolucky]: 微软就是卡财报 信息好  杀多跌的时候补缺口 到前高有 盈利性价比 | [Yugen]: 感觉每次访问的主要问题还是台湾",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbAMb3JL1KWVnToYtQrVR_01",
+      "message_id": "post_1CbAMb3JL1KWVnToYtQrVR",
+      "et_date": "2026-05-18",
+      "evidence_span": "一般就是指数补缺口 再看上仓位",
+      "context_excerpt": "[xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/S7rxw7qMJYB96f7IO1sqhrQfiFktYBgwNJ8iIS5ZC2E/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-05-18%2Fb3ae9425-c20b-4135-99bf-30deb792bcc4.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D19dd30f978975e3e47a3c79eed9e757533c4a91efeaf01803bbf1428fa22c995] | [风扬Lucky]: 这才回调第一天就这么刺激 | [xiaozhaolucky]: 一般就是指数补缺口 再看上仓位 | [xiaozhaolucky]: 节日这次就是2周左右的回调",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbAQhFXVeXqZ7uFyNJ9KJ_01",
+      "message_id": "post_1CbAQhFXVeXqZ7uFyNJ9KJ",
+      "et_date": "2026-05-18",
+      "evidence_span": "分批加的话就是每到一个缺口加一次 下周二的夜盘时候机会多点 最好放节日后",
+      "context_excerpt": "[yunhaohan]: 美光现在是不是可以分批加了呢 | [赵哥小迷弟]: 赵哥说了每天1次 | [xiaozhaolucky]: 分批加的话就是每到一个缺口加一次 下周二的夜盘时候机会多点 最好放节日后 | [yunhaohan]: 哦哦 最近是做日内哈",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbASji6CLbYz15neAjrE2_01",
+      "message_id": "post_1CbASji6CLbYz15neAjrE2",
+      "et_date": "2026-05-18",
+      "evidence_span": "特斯拉也是缺口要打开 今天第一个缺口日内 是平本出 然后就是398那个很细的缺口",
+      "context_excerpt": "[camo]: 特斯拉真诱人啊，但是理智告诉我现在进去是接飞刀 | [xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/xZfY_aEGgkCZemewXLchPC4nmRdeJUK5gXUesVcVK3k/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-05-18%2Fe7407c4e-3cd4-4d37-9cc0-0aef5bc2a11c.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dcd5b6d443ed5fe21a8d2b6e654d8e1059195564b1b1eb29ec0bf188569a8888e] | [xiaozhaolucky]: 特斯拉也是缺口要打开 今天第一个缺口日内 是平本出 然后就是398那个很细的缺口 | [xiaozhaolucky]: 每次到缺口只做一次日内  跌破肯定往下继续补下面缺口",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbATJjQ1zRN5citsJ9hz8_01",
+      "message_id": "post_1CbATJjQ1zRN5citsJ9hz8",
+      "et_date": "2026-05-18",
+      "evidence_span": "第一个缺口急跌 反弹 又往下 就价格不能再第一个缺口在吸了得放下面第二个附近   这次回调周期是9天  第一天不可能仓位都配上  一般都是中间日子慢慢满",
+      "context_excerpt": "[xiaozhaolucky]: 之前说过 微软就是超跌慢股 就单独一个  其他都是配置弹性 | [xiaozhaolucky]: 弹性跌2个缺口就可以 慢慢配置不是速度快了  今天 跌的做日内都是第一个缺口跌到了做日内 | [xiaozhaolucky]: 第一个缺口急跌 反弹 又往下 就价格不能再第一个缺口在吸了得放下面第二个附近   这次回调周期是9天  第一天不可能仓位都配上  一般都是中间日子慢慢满 | [chenxiansheng83]: 收到",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbAUTDLxtfdyC56hULXSK_01",
+      "message_id": "post_1CbAUTDLxtfdyC56hULXSK",
+      "et_date": "2026-05-18",
+      "evidence_span": "spx缺口在7230 一般都会摸下整数位7200",
+      "context_excerpt": "[xiaozhaolucky]: 每天看每天补那个缺口  越低 回流吃越多  没缺口也更安全 | [xiaozhaolucky]: 也不会A股那种一直跌 当中有反弹  一直跌是错误思路  A股做过在做美股 容易有受害者心理往往会做不好 | [xiaozhaolucky]: spx缺口在7230 一般都会摸下整数位7200 7500*0.96=7200 4%/9=0.44% spx平均跌幅都会控制在-0.44%上下 盘中就是心电图缓跌为主  速度也是越来越慢速 第一天肯定会波动多点速度多点正常 | [chenxiansheng83]: 好的，7200满仓",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbAWN3ViPcMZZ8mchgPzZ_01",
+      "message_id": "post_1CbAWN3ViPcMZZ8mchgPzZ",
+      "et_date": "2026-05-18",
+      "evidence_span": "美光下面就是  605缺口  557缺口 夜盘有个635缺口",
+      "context_excerpt": "[xiaozhaolucky]: 有最后天是节日一个周的加上月末的养老金调控 | [forever nice]: 赵哥，目前有一笔投资，投入350万左右建房子，自己现金投入200万，租赁方预付150万租金，每年租金36—40万，这笔投资划得来吗 | [xiaozhaolucky]: 美光下面就是  605缺口  557缺口 夜盘有个635缺口 | [xiaozhaolucky]: 自己建可以ai问个建地基和规模要多少钱 有当月报价的",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbC9T2egkUUN5q7f3y3qE_01",
+      "message_id": "post_1CbC9T2egkUUN5q7f3y3qE",
+      "et_date": "2026-05-19",
+      "evidence_span": "昨天就是680缺口 690 -707做过一波",
+      "context_excerpt": "[xiaozhaolucky]: 美光今天650那个缺口还是差了2元 | [xiaozhaolucky]: 后面还是会有机会到的 | [xiaozhaolucky]: 昨天就是680缺口 690 -707做过一波 | [brainloading]: 赵哥，请问下美股节前被动减持会传导到韩国股市吗？我还有海力士不知道要不要减仓",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbCC4db4FVJYmyDDFeBFW_01",
+      "message_id": "post_1CbCC4db4FVJYmyDDFeBFW",
+      "et_date": "2026-05-19",
+      "evidence_span": "因为昨天美光最低点出来了 今天就是昨天的663附近是买点 会跌破663也正常因为要探底650缺口  然后缺口必须反弹在往下探",
+      "context_excerpt": "[咕咕嘎嘎]: 🐮 | [Hu ]: 赵哥画的图，明天跌幅更猛 | [xiaozhaolucky]: 因为昨天美光最低点出来了 今天就是昨天的663附近是买点 会跌破663也正常因为要探底650缺口  然后缺口必须反弹在往下探 | [xiaozhaolucky]: lite也是一个思路",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbCCxN1oLJk3ZfART19b3_01",
+      "message_id": "post_1CbCCxN1oLJk3ZfART19b3",
+      "et_date": "2026-05-19",
+      "evidence_span": "一般补2-3个缺口强势的就补2个",
+      "context_excerpt": "[xiaozhaolucky]: 补完了就是看790那个 | [PandaX]: 赵哥，现在可以买点什么。明天反弹出吗。博盘后盘前那种 | [xiaozhaolucky]: 一般补2-3个缺口强势的就补2个 | [xiaozhaolucky]: 不买了",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbDtC8LuZpVBXQAas1NpF_01",
+      "message_id": "post_1CbDtC8LuZpVBXQAas1NpF",
+      "et_date": "2026-05-20",
+      "evidence_span": "个股上的 比如tsll  昨天13.03  最近不低于13.03就是最低点出来 加上缺口补好了",
+      "context_excerpt": "[浪迹天涯]: spx指数不是要调到7200吗？现在中线布局吗？有点不懂了 | [Yangdong]: 我一开空，就准备企稳了吗？😂 | [xiaozhaolucky]: 个股上的 比如tsll  昨天13.03  最近不低于13.03就是最低点出来 加上缺口补好了 | [xiaozhaolucky]: 重个股轻指数的阶段 有的先调整也会先企稳",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbTSU6aUTALYZrkYKxLAM_01",
+      "message_id": "post_1CbTSU6aUTALYZrkYKxLAM",
+      "et_date": "2026-05-27",
+      "evidence_span": "因为下面还有790那边启动点还有个缺口",
+      "context_excerpt": "[Skye]: 比如lite这种接近缺口的，可以拿吧 | [xiaozhaolucky]: 也是都走了 | [xiaozhaolucky]: 因为下面还有790那边启动点还有个缺口 | [xiaozhaolucky]: 850只是中间一个缺口",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbTUXnS2MMmQxTaUy45Bh_01",
+      "message_id": "post_1CbTUXnS2MMmQxTaUy45Bh",
+      "et_date": "2026-05-27",
+      "evidence_span": "就是盯着最低点是整数的 靠近缺口 那个最低又很急切的形成的",
+      "context_excerpt": "[Yugen]: 身边不炒股的都知道 | [xiaozhaolucky]: 其实今天lite  最低点 858也是整数来着 | [xiaozhaolucky]: 就是盯着最低点是整数的 靠近缺口 那个最低又很急切的形成的 | [wangxing]: 还真是没有小数点就整数",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbWxdhxnbYCzzAuMLMjZs_01",
+      "message_id": "post_1CbWxdhxnbYCzzAuMLMjZs",
+      "et_date": "2026-05-29",
+      "evidence_span": "lite 不要双倍 850跌破就是去790缺口会去确认的",
+      "context_excerpt": "[向阳而生]: 破位了 | [Yangdong]: 还能跌4快 | [xiaozhaolucky]: lite 不要双倍 850跌破就是去790缺口会去确认的 | [甜瓜lucky ]: 终于成功的又挂树上了",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1Cbh2pj63maiv9dwk75gQP_01",
+      "message_id": "post_1Cbh2pj63maiv9dwk75gQP",
+      "et_date": "2026-06-03",
+      "evidence_span": "下面394那个缺口上次还差点  就是往下分三次",
+      "context_excerpt": "[xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/_dk8mIdXn0cXynjXhRpK6wztOvs6RenU5-5RztqAgvA/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-06-03%2F6119f98f-e845-4f15-b959-3320a4486fa9.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D209ae885b8324ac846f34f491c0035576d59467dd2f172695e51a1dd68de7ed7] | [xiaozhaolucky]: 今天是425缺口补了 | [xiaozhaolucky]: 下面394那个缺口上次还差点  就是往下分三次 | [大鹅]: 确实，没有缺口了",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1Cbh3SurEJXYByE1292jYp_01",
+      "message_id": "post_1Cbh3SurEJXYByE1292jYp",
+      "et_date": "2026-06-03",
+      "evidence_span": "比如养老金卖了 打压下来补缺口了  他又会买回去就是做了个大差价",
+      "context_excerpt": "[Pluminsh]: 醍醐灌顶 | [cm]: 进群一个月不到 打开了新的知识面。。。 | [xiaozhaolucky]: 比如养老金卖了 打压下来补缺口了  他又会买回去就是做了个大差价 | [Shiming Ma]: 博通这差不多了吧，再低 跌怕是真的要股灾了",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1Cbh54vG6t54MzW5e6AFTC_01",
+      "message_id": "post_1Cbh54vG6t54MzW5e6AFTC",
+      "et_date": "2026-06-03",
+      "evidence_span": "一般补缺口会在跌点",
+      "context_excerpt": "[xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/jgf0x1k-VDuPDO4dynrO_2lqYQRc-ElYtl8x6UwrENo/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-06-03%2F935a1021-f6eb-479c-a2a6-e35dcb1fcf53.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D59da4ad56fc3bff8b93b44e038991c1c91614192972a524e3c0fa5770ad42cb3] | [xiaozhaolucky]: 补缺口最好买前面横盘的价格 在406附近 | [xiaozhaolucky]: 一般补缺口会在跌点 | [大鹅]: 那这个规矩还适用吗",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbszmF6eUGZSh82X7MYHf_01",
+      "message_id": "post_1CbszmF6eUGZSh82X7MYHf",
+      "et_date": "2026-06-09",
+      "evidence_span": "比如lite 790缺口也是只买1份  剩下2份就是按跌幅",
+      "context_excerpt": "[Yingying]: 一样 | [xiaozhaolucky]: 就是分三次 | [xiaozhaolucky]: 比如lite 790缺口也是只买1份  剩下2份就是按跌幅 | [xiaozhaolucky]: 每跌多少点或者下面缺口再加一份",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1Cbt63RXnrLHLJVvSzPu6X_01",
+      "message_id": "post_1Cbt63RXnrLHLJVvSzPu6X",
+      "et_date": "2026-06-09",
+      "evidence_span": "因为前面先暴跌补缺口上沿7270-7250这段了",
+      "context_excerpt": "[Skye]: 理论上今天也会反弹均线吗 | [xiaozhaolucky]: 对 | [xiaozhaolucky]: 因为前面先暴跌补缺口上沿7270-7250这段了 | [招财谢]: 刚才没有加博通",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbtFobbozkWUCDBfBCkzL_01",
+      "message_id": "post_1CbtFobbozkWUCDBfBCkzL",
+      "et_date": "2026-06-09",
+      "evidence_span": "对到缺口了先等等 比如790lite缺口 会小跌一下补掉  不会正正好好  790缺口 775之类在多跌点补",
+      "context_excerpt": "[xiaozhaolucky]: 缺口要看吧 | [linlin 7]: 有时候我管不住自己的手 一个股票跌了十几个点 我就盲目加 应该等到缺口附近的位置是吧 赵哥？ | [xiaozhaolucky]: 对到缺口了先等等 比如790lite缺口 会小跌一下补掉  不会正正好好  790缺口 775之类在多跌点补 | [xiaozhaolucky]: 对",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CbtGCpnKg9nWJfDLxAV4M_01",
+      "message_id": "post_1CbtGCpnKg9nWJfDLxAV4M",
+      "et_date": "2026-06-09",
+      "evidence_span": "比如这个你光标移动到缺口右边会出价格701-702就是缺口了",
+      "context_excerpt": "[xiaozhaolucky]: 光标对准那个缺口的日K的最低价算补完 | [xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/LYK0HkyFTUM-p_fu-mg5PGx4pmNITEq7ultX9alGf4w/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-06-09%2F6ed14ec4-87e6-40eb-a913-859fdf44302a.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260614%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260614T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D341caadc8c807496f185aeece18d01628cdd7b1450646dec777580e9b2c8358e] | [xiaozhaolucky]: 比如这个你光标移动到缺口右边会出价格701-702就是缺口了 | [Skye]: 赵哥 拿中长线的仓位 建议做期权组合策略吗",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1Cc8x6dmCAjSzqPe4fQbLj_01",
+      "message_id": "post_1Cc8x6dmCAjSzqPe4fQbLj",
+      "et_date": "2026-06-17",
+      "evidence_span": "就近原则和下面那个7438缺口近  上面7550压力又压制",
+      "context_excerpt": "[为了地球]: 赖不住进去挨打 多几次就赖得住了 | [Shiming Ma]: 感觉你在说我 | [xiaozhaolucky]: 就近原则和下面那个7438缺口近  上面7550压力又压制 [IMAGE:https://img-v2-prod.whop.com/QitqBuTWl37s5rTQTXMHtPXpfw7PdX99sqaLwdLDZeg/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-06-17%2F0902b607-edc6-4f3f-a8f1-bb9495768c4d.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260621%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260621T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dd061138479b1bbc390914ddfff206b16e55b44248c3c57c0e0d21f03a3296ca0] | [Yugen]: 感觉讲话之前不会有大太动作",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CcJifpwTQgfENzRYLfXHE_01",
+      "message_id": "post_1CcJifpwTQgfENzRYLfXHE",
+      "et_date": "2026-06-22",
+      "evidence_span": "买过点位要记住 基本哪些原来缺口点",
+      "context_excerpt": "[xiaozhaolucky]: 还是上次的点54附近 | [Shiming Ma]: 谢谢赵哥 | [xiaozhaolucky]: 买过点位要记住 基本哪些原来缺口点 | [xiaozhaolucky]: 每个点都要二次确认",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    },
+    {
+      "atom_id": "atom_1CcSFVJYUoMPpWRCM3yJR2_01",
+      "message_id": "post_1CcSFVJYUoMPpWRCM3yJR2",
+      "et_date": "2026-06-26",
+      "evidence_span": "一般到缺口 那个缺口价格记住 可以做2次",
+      "context_excerpt": "[wangxing]: lite真的每次到缺口就反弹 | [xiaozhaolucky]: lite就是之前说的780会二次探底的 今天就探了 | [xiaozhaolucky]: 一般到缺口 那个缺口价格记住 可以做2次 | [Hugo wang]: 赵哥 高通下面还有缺口要补吗",
+      "proposed_family": "k_gap_intraday_once",
+      "recommended_action": "merge_known_anchor"
+    }
+  ]
+}

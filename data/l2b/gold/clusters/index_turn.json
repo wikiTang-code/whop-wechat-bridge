@@ -1,0 +1,277 @@
+{
+  "topic": "index_turn",
+  "total_candidates": 44,
+  "unique_clusters_count": 30,
+  "clusters": [
+    {
+      "atom_id": "atom_1CU9FvkkhHMwVsni7BnJ3E_01",
+      "message_id": "post_1CU9FvkkhHMwVsni7BnJ3E",
+      "et_date": "2025-10-15",
+      "evidence_span": "QQQ从特朗普军费发言后直线往下 转弯往上时候就是回吸做T",
+      "context_excerpt": "[xiaozhaolucky]: nvdl到了86附近可以把90触发条件出的低吸回来 | [xiaozhaolucky]: tsll 可以把19.95高抛部分 19.4-19.5附近吸回 | [xiaozhaolucky]: QQQ从特朗普军费发言后直线往下 转弯往上时候就是回吸做T [IMAGE:https://img-v2-prod.whop.com/QZ-BpytDa48lWAHFvpqABShuIb9coTdd_DVWOc9Wc-w/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2025-10-15%2Fuser_17909136_b683cf21-b16e-4e3e-acf3-6e8e07bc1a37.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dfb526fd819f392db5c746925f157317006421ef14cf8b531c76cee3bdacaa16b] | [xiaozhaolucky]: QQQ目前跌破了前面2个低点 今天后面要把今天的支撑位在下移 等尾盘附近在看看加",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CVaTbWiG2nVwGu36yvEEP_01",
+      "message_id": "post_1CVaTbWiG2nVwGu36yvEEP",
+      "et_date": "2025-11-28",
+      "evidence_span": "就是加密要小组件里面 跌和涨设置提醒  跌200价格附近看转弯吸",
+      "context_excerpt": "[xiaozhaolucky]: 回调段是尾盘吸 然后反弹段一般 反弹就是开盘或者盘前17点半那会吸  然后成交额大于前几天就可以每天继续  成交额少于前几天减仓或者休息几天成交额大了再开始 | [xiaozhaolucky]: 币价不过节 不过周末 最近就跳涨 | [xiaozhaolucky]: 就是加密要小组件里面 跌和涨设置提醒  跌200价格附近看转弯吸 | [xiaozhaolucky]: mstr有剔除指数的风险在 前期btc反弹他反弹最少甚至有时候横盘的",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CW1JwZ2reuzUnoqdDnCeY_01",
+      "message_id": "post_1CW1JwZ2reuzUnoqdDnCeY",
+      "et_date": "2025-12-11",
+      "evidence_span": "甲骨文有两批put结算196是阻力两轮都上不去 低吸点就放在187附近在往上转弯 日内的就是开盘那波短线出",
+      "context_excerpt": "[xiaozhaolucky]: 当初腰斩的太空股最近都在摸前高附近  目前就剩下rklb的低位的剩下一半 会18号日本加息之前走 asts之前73时候都走了等之后再找机会 [IMAGE:https://img-v2-prod.whop.com/fYZExGjVHME3OyqfcqZYgZRjZchHMQnbkpTuJJ1JQ30/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2025-12-11%2Fuser_17909136_3d1fdc8c-0562-4926-9514-981629d22cdc.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D44bb78c3233f5789472f7df10a7318350836d2558efc7676abfc39872a2b0c44] | [xiaozhaolucky]: tsll这轮也是注意19.2这里有没有转弯往下转弯往下出  留个一半数量的18.7的 后面几天再看看有没有在振幅升上去 | [xiaozhaolucky]: 甲骨文有两批put结算196是阻力两轮都上不去 低吸点就放在187附近在往上转弯 日内的就是开盘那波短线出 | [xiaozhaolucky]: 今天主要是借着甲骨文利空 英伟达大陆限制利空对18-19号日本加息的事件提前演绎了下  这轮上去到日本加息那两天还会出现夜盘跌的情况（夜盘是日本的白天白天宣布加息 参考上次加息1月24日）",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CW1TaWpCPcaKYgzjXyXMD_02",
+      "message_id": "post_1CW1TaWpCPcaKYgzjXyXMD",
+      "et_date": "2025-12-11",
+      "evidence_span": "就是黑天鹅影响到板块的 今天甲骨文 英伟达利空财报和消息 带崩ai板块 指数触发了量化抛压  夜盘全跌就不用慌 反而夜盘转弯时候补仓等盘前人工干预",
+      "context_excerpt": "[xiaozhaolucky]: 目前第二轮的反弹里面 英伟达和甲骨文是共振的 两个都同时有反应反弹 | [xiaozhaolucky]:  美股跌一般是反弹的跌  100 涨120 在跌100 有容错率 即使博通财报不好今天反弹点过了 再跌也变成二次探底 A股就是跌是阴跌 100跌90 在跌80  所以如果被A股残害很深 美股会心理抵触 要美股的量能理论 运用到A股 不能A股的结论扣美股 | [xiaozhaolucky]: 这个技巧也要注意 就是黑天鹅影响到板块的 今天甲骨文 英伟达利空财报和消息 带崩ai板块 指数触发了量化抛压  夜盘全跌就不用慌 反而夜盘转弯时候补仓等盘前人工干预 盘前人工干预没有还跌 才要慌 要把夜盘和原来买的找点位出 盘前人工干预有高点的 冬令时在9点左右 就把夜盘补的先出掉 在等盘中回踩夜盘低点在买回冲高到盘前高点做T 盘中价格突破盘前人工干预高点了就会延续反弹 今天这种还是连续2天的财报就可以这两天弄清规律之后也会在碰到的 [IMAGE:https://img-v2-prod.whop.com/FLETB_zkCz9NabPL4lppVz2-vKE_oddmUUUj-wxO5tQ/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2025-12-11%2Fuser_17909136_980a133b-9551-409f-913e-d6d53933c7d3.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D29a6a499721470a014a35f7d56b0a51ef711cb32e81ae5136bedd609ab29bb83] | [xiaozhaolucky]: conl到21.5成本附近可以减点 昨天买入后冲高22.6时候也有减过 等币在回调时候在低买在正T",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CWGDow9nSKxnPrEsLZR3K_01",
+      "message_id": "post_1CWGDow9nSKxnPrEsLZR3K",
+      "et_date": "2025-12-19",
+      "evidence_span": "crwv  nbis oklo nvdl msfl 等ai的 都是在盘前压一下后 开盘直接结算起来这有盘中结算震荡低点就是正T吸为主  币股是开盘有压了下转弯就给机会吸了",
+      "context_excerpt": "[xiaozhaolucky]: 盘中可以注意币股的几个转弯往上时候低吸 conl  bmnr iren cifr  hood | [xiaozhaolucky]: ai板块也是开盘附近集体反弹注意到过新低的优先 | [xiaozhaolucky]: crwv  nbis oklo nvdl msfl 等ai的 都是在盘前压一下后 开盘直接结算起来这有盘中结算震荡低点就是正T吸为主  币股是开盘有压了下转弯就给机会吸了 | [xiaozhaolucky]: conl  16.8位置到了 置顶的区间也是吸一笔",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CWPpm2jbJ3NBzzQjvsUaz_01",
+      "message_id": "post_1CWPpm2jbJ3NBzzQjvsUaz",
+      "et_date": "2025-12-23",
+      "evidence_span": "圣诞节的 基金机制就是被动流出要流出20%现金流给赎回 等qqq转弯和收盘在吸为主",
+      "context_excerpt": "[xiaozhaolucky]: 过节有些开盘冲高的就减了等收盘附近在吸  有过节的被动流出效应 | [xiaozhaolucky]: 币今天过节的流出效应最明显也是收盘时候看哪些回踩周五支撑的在吸 | [xiaozhaolucky]: 圣诞节的 基金机制就是被动流出要流出20%现金流给赎回 等qqq转弯和收盘在吸为主 | [xiaozhaolucky]: conl盘中有低点出来16.45左右盘中可以吸一笔  一笔放尾盘再看看",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CWVZid2GyvMFya8kNoNLH_01",
+      "message_id": "post_1CWVZid2GyvMFya8kNoNLH",
+      "et_date": "2025-12-26",
+      "evidence_span": "今天主要是周期权 和月期权 12月下周是一月份了 提前到这周平导致的 空多强平的行情 就是抓期权平掉时候低点低吸为主 转弯就是有部分资金开始吸了 收盘强平附近再看看机会 有两次低点都差不多的优先",
+      "context_excerpt": "[xiaozhaolucky]: tsll可以注意21.3这里是转弯了 可以21.4附近吸一半 剩下一半到20.5  周一有冲高 买的一半也出掉 | [xiaozhaolucky]: cifr也可以15.3附近转弯时候吸回一半 | [xiaozhaolucky]: 今天主要是周期权 和月期权 12月下周是一月份了 提前到这周平导致的 空多强平的行情 就是抓期权平掉时候低点低吸为主 转弯就是有部分资金开始吸了 收盘强平附近再看看机会 有两次低点都差不多的优先 | [xiaozhaolucky]: tsll 尾盘强平结束时候是回踩了21.38没有跌破21.3可以21.3-21.4买一半 盘中买过就不加大仓位 另外一半20.5再买 周一有冲高也会走短线做",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CXBDxAdQwzneKQQJ3AzpW_01",
+      "message_id": "post_1CXBDxAdQwzneKQQJ3AzpW",
+      "et_date": "2026-01-16",
+      "evidence_span": "tsll 今天注意直线拉升 到转弯时候出昨天收盘卡机制的  也是昨天的高点18.45-18.6之间",
+      "context_excerpt": "[xiaozhaolucky]: 博通盘前也是像昨天一样卡机制348-350附近出收盘买的 | [xiaozhaolucky]: 今天周五有多空双杀 开盘还是以冲高出为主 收盘附近在吸一些被动减和强平回调到低价的 没有回调的一些热门股 到节后回来时候再看 | [xiaozhaolucky]: tsll 今天注意直线拉升 到转弯时候出昨天收盘卡机制的  也是昨天的高点18.45-18.6之间 | [xiaozhaolucky]: 18.42tsll短线出昨天收盘的",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CXBQKkvyDRfq6d5ersGKF_02",
+      "message_id": "post_1CXBQKkvyDRfq6d5ersGKF",
+      "et_date": "2026-01-16",
+      "evidence_span": "如果某个板块一个msci个股被剔除指数 基金会被动清除他仓位 这个板块指数会回调下 其他不是msci指数板块的个股会被动带低下 就会在产生机会  要看夜盘量化 去吸哪些转弯的 哪些就是在基金节后回流池子的",
+      "context_excerpt": "[xiaozhaolucky]: 90.9附近 回吸卖出的数量的一半 oklo 剩下也是收盘再看加 | [xiaozhaolucky]: bmnr这轮上去31.05 昨天31.8只开了个小仓位底仓 如果仓位买大了可以31.1-31.3有转弯往下回调时间减点 | [xiaozhaolucky]: 下周二夜盘是msci剔除指数卡机制的一种战法： 如果某个板块一个msci个股被剔除指数 基金会被动清除他仓位 这个板块指数会回调下 其他不是msci指数板块的个股会被动带低下 就会在产生机会  要看夜盘量化 去吸哪些转弯的 哪些就是在基金节后回流池子的 | [xiaozhaolucky]: 这轮 节日前最后一天都是分散的一些这两天的底仓  msci和周末讲话 加密法案有争议之类都要节日三天中去出消息  到周二早上夜盘时候在捡漏",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CXmLpkfJgT98WTJJHmS2R_01",
+      "message_id": "post_1CXmLpkfJgT98WTJJHmS2R",
+      "et_date": "2026-02-03",
+      "evidence_span": "一般在直线往下时候不去吸  转弯了 开始吸个股的转弯",
+      "context_excerpt": "[xiaozhaolucky]: 今天就消费类的 麦当劳之类的有护盘其他都随spy回调也是差不读spyV了或者收盘附近再看 spy690还是关键 | [xiaozhaolucky]: 81.75附近加了nvdl常规仓的一半 | [xiaozhaolucky]: 一般在直线往下时候不去吸  转弯了 开始吸个股的转弯 [IMAGE:https://img-v2-prod.whop.com/vaKNc3wbImrVN9Iec2giCI-xt5B7rVjKpZQ-BroU5oA/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2026-02-03%2Fuser_17909136_c5188dbd-1747-4df8-bb01-1ae309c23502.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3De41d092697124f3192324c4fa8e76562e07cd3d256292de02db2478361238521] | [xiaozhaolucky]: oklo注意这轮直线 ",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CXqEbeeJEeBEZ4JG5rGC1_01",
+      "message_id": "post_1CXqEbeeJEeBEZ4JG5rGC1",
+      "et_date": "2026-02-05",
+      "evidence_span": "第一个转弯时候比较重要点 后面的震荡就是量化在 低吸高抛",
+      "context_excerpt": "[xiaozhaolucky]: 192附近买了点amd正股 | [xiaozhaolucky]: 14.34出一半 14的tsll | [xiaozhaolucky]: 第一个转弯时候比较重要点 后面的震荡就是量化在 低吸高抛 [IMAGE:https://img-v2-prod.whop.com/ehefOYswSbHwgTAXLFnidGiAV0TvUAEHOO3MjKoChGo/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2026-02-05%2Fuser_17909136_8d0c37e5-22d0-47e3-bf95-613e645d63d4.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D2db357b55249d6c1afc036d67c0ef693f75e7a24082c94c6f02cb7876c8a44a1] [IMAGE:https://img-v2-prod.whop.com/CXHInX7tz6tX3eCqv72mA6OdomYglJ9KbQiW0Tl7kpQ/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2026-02-05%2Fuser_17909136_c8ea0d20-1cb4-4f5a-af65-a6d6d8a5e42b.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Ded236e8d9d1f486364e6fd3f8ab049d6bc3669c35411428ff74196fbc1590d3c] | [xiaozhaolucky]: 75.4出一半74的nvdl",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CYYkhSvf4o7gh2KZ5svxx_01",
+      "message_id": "post_1CYYkhSvf4o7gh2KZ5svxx",
+      "et_date": "2026-02-27",
+      "evidence_span": "今天因为军事冲突 是心电图的多空轮次上下扫",
+      "context_excerpt": "[xiaozhaolucky]: 79附近加nvdl常规仓的一半 | [xiaozhaolucky]: 82.4附近 crwv出低吸的一半 | [xiaozhaolucky]: 今天因为军事冲突 是心电图的多空轮次上下扫  | [xiaozhaolucky]: 137附近出剩下一半pltr  腾出点现金 ",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CYeTw3q9gxyfeZPgdRjQR_01",
+      "message_id": "post_1CYeTw3q9gxyfeZPgdRjQR",
+      "et_date": "2026-03-02",
+      "evidence_span": "夜盘的iren也因为btc 反弹直线了 等转弯时候可以出",
+      "context_excerpt": "[xiaozhaolucky]: 最近要把今天夜盘最低接近前面双底的价格要记录下  再次在战争冲突在到那个价格就可以在买上 | [xiaozhaolucky]: 14.37-14.45附近可以出 之前14.2那部分 或者出夜盘14.05的一半tsll | [xiaozhaolucky]: 夜盘的iren也因为btc 反弹直线了 等转弯时候可以出 | [xiaozhaolucky]: 41.5出夜盘 39.5的iren",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CaM5MRQ6qLU2W9xkonEUm_01",
+      "message_id": "post_1CaM5MRQ6qLU2W9xkonEUm",
+      "et_date": "2026-04-23",
+      "evidence_span": "周四周五 指数的回调如期开始 还是盯着指数的转弯 分批 一般都是收盘和周一夜盘有低点机会",
+      "context_excerpt": "[xiaozhaolucky]: 12.18出 一半 11.73的tsll | [xiaozhaolucky]: 12.37出11.73的tsll剩下一半 | [xiaozhaolucky]: 周四周五 指数的回调如期开始 还是盯着指数的转弯 分批 一般都是收盘和周一夜盘有低点机会 | [xiaozhaolucky]: btc 昨天的高位回调预警是最先行 也是这几周以来一直的先行指标",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CaoLEnEnNn4gBosB7tT93_01",
+      "message_id": "post_1CaoLEnEnNn4gBosB7tT93",
+      "et_date": "2026-05-07",
+      "evidence_span": "第二轮就是 加密回调币市场的转弯 加 明星股财报  在大盘股的第二轮回调",
+      "context_excerpt": "[LJ]: 美滋滋 | [xiaozhaolucky]: 第一轮是  特斯拉 加密  英伟达 微软等大盘股 | [xiaozhaolucky]: 第二轮就是 加密回调币市场的转弯 加 明星股财报  在大盘股的第二轮回调 | [xiaozhaolucky]: 每轮就是看时间轴规划好",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CaoWHiQkHwhGXbSc3cHjp_01",
+      "message_id": "post_1CaoWHiQkHwhGXbSc3cHjp",
+      "et_date": "2026-05-07",
+      "evidence_span": "btc会先回调 有2个回调预警就等转弯往上在做加密 就是第二轮 时间又是周四周五小回调的规律",
+      "context_excerpt": "[Caleb Wayne]: 等通知 😂 | [xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/gwJfhMq_SqsorwzciW8vPNr5fnlPFyhV_9KN2H3gkPo/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-05-07%2F09f13fc3-2df3-4a4d-8916-cfdcd9a0ac52.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dcc516feaaa6e90680e99eaaa4a04745d23b3c61cb5eb36336aeb4f9278a524c9] | [xiaozhaolucky]: btc会先回调 有2个回调预警就等转弯往上在做加密 就是第二轮 时间又是周四周五小回调的规律 | [黑猫]: 人民币汇率要破6.8",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1Cavx7k6erG8MavweBJ7xt_01",
+      "message_id": "post_1Cavx7k6erG8MavweBJ7xt",
+      "et_date": "2026-05-11",
+      "evidence_span": "就是转弯往下时候看力度 力度大就出  一般是滞后反应 币市场跌 股票不一定马上跌",
+      "context_excerpt": "[xiaozhaolucky]: 转弯往下就出 或者正股高点急速跌2个点 | [Yuuumi]: 不拿是吧赵哥，拐了就出 | [xiaozhaolucky]: 就是转弯往下时候看力度 力度大就出  一般是滞后反应 币市场跌 股票不一定马上跌 | [souyue]: 谢谢赵哥解惑",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CaxqcPRENjB9R25ZEcYSp_01",
+      "message_id": "post_1CaxqcPRENjB9R25ZEcYSp",
+      "et_date": "2026-05-12",
+      "evidence_span": "回调的转弯一轮比一轮低就是一些基金开始规避的信号",
+      "context_excerpt": "[xiaozhaolucky]: 指数的规律要看这周是不是打破 昨天是 横盘小红 量化就是之前说的比之前小 今天周二量不超过昨天的均线 就会横盘震荡几天 这周还是只适合做做日内 每天急跌急涨做做差价 访华没有超预期事件被动减基金会减持多点 创造弹性机会  [IMAGE:https://img-v2-prod.whop.com/p0syUO_L6batkgZo3C8Owf81SPkmUvQcfed7AZPmUbA/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-05-12%2F66106095-46af-44ac-880e-7ae9b5942b3f.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D18bbb1c8b69c221b701feca9580e357867573f5caaae39468d2217a238dd5f69] | [xiaozhaolucky]: 24.05开了nfxl奈飞双倍的常规仓的一半 减持了差不多一月左右  下一笔会在在探23附近再加 | [xiaozhaolucky]: 回调的转弯一轮比一轮低就是一些基金开始规避的信号 加上之前的高点计算是7400-7500  7400多个零头左右为高点 一个是访华可能没实质性内容 提前开始规避 一个是下周一开始有预防节日被动减的资金 [IMAGE:https://img-v2-prod.whop.com/iGAzu6q1klp235Z61lq_jBVRShMi_tY9Fkp7YdJ1q7Q/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-05-12%2F46863713-1db6-4d4f-a6c2-f0797e65a7e1.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dfeec5a8b391df17a62cf0da05989989d8ce659bcb740f939ee9fb2c855f0d4c4] [IMAGE:https://img-v2-prod.whop.com/UPY8bs-E3CPfkxpSVYNVKktdtBFd2BtRQYsOQdDLhwo/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-05-12%2F0b708e3c-4891-4c8a-9596-cf3c5276813d.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Debf782243c01e5212239928ee4a8e58489db36770da7cc0ecafc172feaba056e] | [xiaozhaolucky]: 15.9 加了少量的tsll  访华附近的异动出 ",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbA6WhgrnRR5k8HPSTH4m_01",
+      "message_id": "post_1CbA6WhgrnRR5k8HPSTH4m",
+      "et_date": "2026-05-18",
+      "evidence_span": "700就是日内做的点 当天卖的点就是盘前和盘前的转弯",
+      "context_excerpt": "[Xprimes]: 目前减的不多？是不是一般是节前3天被动减 | [Yuuumi]: 那mu今天704🥲，只要不低的话下去就可以买了吗？这样理解，赵哥？ | [xiaozhaolucky]: 700就是日内做的点 当天卖的点就是盘前和盘前的转弯 | [John]: 赵哥，关于今天白天韩国的走势，一开始跌后面又拉上来，可不可以理解为就是基金减持一部分，后面散户拉上去了￼￼￼￼，然后明天后天再继续减持？不知道我这么理解对不对￼￼",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbAJ4YcSAi4a3g4GEQpSL_01",
+      "message_id": "post_1CbAJ4YcSAi4a3g4GEQpSL",
+      "et_date": "2026-05-18",
+      "evidence_span": "都在往下这种就是心电图缓跌 不是之前的平行",
+      "context_excerpt": "[Yang kobe ]: 夜盘收盘是下午4点之前吗 | [xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/kKOChWfW-AQWL1zl32kPdkBcDciQPE2J8FhYQlnPUUs/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-05-18%2F91f94e88-1b55-4be4-a1a3-452d19e7fab1.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260603%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260603T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Ddf944dd14f28d37950378757a5df96900d0a3c46252ebdf52ccf27b422b9c6e1] | [xiaozhaolucky]: 都在往下这种就是心电图缓跌 不是之前的平行 | [向阳而生]: 收到！",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbAUTDLxtfdyC56hULXSK_05",
+      "message_id": "post_1CbAUTDLxtfdyC56hULXSK",
+      "et_date": "2026-05-18",
+      "evidence_span": "盘中就是心电图缓跌为主  速度也是越来越慢速",
+      "context_excerpt": "[xiaozhaolucky]: 每天看每天补那个缺口  越低 回流吃越多  没缺口也更安全 | [xiaozhaolucky]: 也不会A股那种一直跌 当中有反弹  一直跌是错误思路  A股做过在做美股 容易有受害者心理往往会做不好 | [xiaozhaolucky]: spx缺口在7230 一般都会摸下整数位7200 7500*0.96=7200 4%/9=0.44% spx平均跌幅都会控制在-0.44%上下 盘中就是心电图缓跌为主  速度也是越来越慢速 第一天肯定会波动多点速度多点正常 | [chenxiansheng83]: 好的，7200满仓",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbCKn5nMq1J7afd7SmFbM_01",
+      "message_id": "post_1CbCKn5nMq1J7afd7SmFbM",
+      "et_date": "2026-05-19",
+      "evidence_span": "盘中主要精力就是看分时 看转弯  看自己的第一感觉 不用去看情绪",
+      "context_excerpt": "[xiaozhaolucky]: 别的细的在加上又搞错了 | [John]: 哦哦好吧，明白 | [xiaozhaolucky]: 盘中主要精力就是看分时 看转弯  看自己的第一感觉 不用去看情绪 | [Caleb Wayne]: 有了赵哥 我真的不慌",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbTCUABxHQxKrNahAYqBm_01",
+      "message_id": "post_1CbTCUABxHQxKrNahAYqBm",
+      "et_date": "2026-05-27",
+      "evidence_span": "就是抓指数转弯去买个股",
+      "context_excerpt": "[黑猫]: 指数也太强了吧 | [xiaozhaolucky]: 没必要开盘回踩又说要跌 | [xiaozhaolucky]: 就是抓指数转弯去买个股 | [甜瓜lucky ]: 美股是真强啊",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1Cbco6yWWKWr5YfbVd8SrX_02",
+      "message_id": "post_1Cbco6yWWKWr5YfbVd8SrX",
+      "et_date": "2026-06-01",
+      "evidence_span": "一般就是开盘回踩找第一个转弯低吸个股",
+      "context_excerpt": "[xiaozhaolucky]: 15.05成本附近平出tsll | [xiaozhaolucky]: 7.29出剩下一半6.53的conl也是大肉了 | [xiaozhaolucky]: 今天还有很多问 连续2周每天说的 规律 一般就是开盘回踩找第一个转弯低吸个股 10点半 前后20分钟拉升 出一半 11点半 前后20分钟拉升 出一半 3点半有跳水回开盘附近在捡漏 机制是死的 人是活的 要每天套利那规律自然记住了 不然别人都知道规律  有的就2周了问什么是10点 11点半 [IMAGE:https://img-v2-prod.whop.com/Zz375HexZ5-WLH9NRXIkpJ5274T6hg2LWyJswCAqLqA/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-06-01%2F0ed5303c-89fd-4c92-b1da-ec5719e7a7c6.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dd02ff35900af77dbca94479b3f5f00f38a58b1742f00497883a3931d34a47ad6] | [xiaozhaolucky]: 6.56加回三分之一常规仓的conl",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbtFEeFpPw3WDL4ibSkfq_01",
+      "message_id": "post_1CbtFEeFpPw3WDL4ibSkfq",
+      "et_date": "2026-06-09",
+      "evidence_span": "然后就是基础日k  最低点不在低于前一天最低点了 算企稳考虑中线  然后缺口多少记住 补缺口了看看力度和转弯之类",
+      "context_excerpt": "[Hugo Lam]: 分别赋予权重打分这种吗 | [yhlssgb5]: 好多知识和内容 | [xiaozhaolucky]: 然后就是基础日k  最低点不在低于前一天最低点了 算企稳考虑中线  然后缺口多少记住 补缺口了看看力度和转弯之类 | [xiaozhaolucky]: 还有什么投机的那种 最低点高于前面最低点  又是整数没小数点的之类的",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbtJ15JUjsXkGR63QBTG8_01",
+      "message_id": "post_1CbtJ15JUjsXkGR63QBTG8",
+      "et_date": "2026-06-09",
+      "evidence_span": "指数转弯就是看普反这种时候就是 三倍利润日内最大",
+      "context_excerpt": "[xiaozhaolucky]: 均线的反弹是看得到的 | [xiaozhaolucky]: 往上就在卖剩下一半 往下了就在积累仓位 你卖过一半再跌也有稍许利润垫 | [xiaozhaolucky]: 指数转弯就是看普反这种时候就是 三倍利润日内最大 | [linlin 7]: 赵哥知道我喜欢买双倍 哈哈哈哈哈",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CcJPNumyBLjuG842DpDG6_01",
+      "message_id": "post_1CcJPNumyBLjuG842DpDG6",
+      "et_date": "2026-06-22",
+      "evidence_span": "conl也是开盘直线 等转弯出剩下一半 就是不断吃急跌的大肉",
+      "context_excerpt": "[xiaozhaolucky]: 14.02出剩下一半13.48的nok | [xiaozhaolucky]: 840在接回875卖出的lite | [xiaozhaolucky]: conl也是开盘直线 等转弯出剩下一半 就是不断吃急跌的大肉 | [xiaozhaolucky]: 5.95出剩下一半5.27的conl 死拿的4.87部分不动",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CcJTppCNLRWNCrYe256XM_01",
+      "message_id": "post_1CcJTppCNLRWNCrYe256XM",
+      "et_date": "2026-06-22",
+      "evidence_span": "压力位要记住 指数转弯要看",
+      "context_excerpt": "[xiaozhaolucky]: 短线兑现肯定有7550也接近了 | [蛤哈哈哈]: 应该是有人持仓下put了 | [xiaozhaolucky]: 压力位要记住 指数转弯要看 | [影帝9527]: 看来两个节日太近了 都是宽幅震荡么",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CcS5NsGE99ftoLz67tMuB_01",
+      "message_id": "post_1CcS5NsGE99ftoLz67tMuB",
+      "et_date": "2026-06-26",
+      "evidence_span": "没机器遍历的就是盯着指数 spx 转弯很尖就可以",
+      "context_excerpt": "[Yang kobe ]: 还是不会看转弯 | [John Kondracki ]: 是配合下方成交量么，还是量化看单子的量？ [IMAGE:https://img-v2-prod.whop.com/l67M-uYX3eZo8sB3c_jQoDT1pfvkP8P5k_YBhoiIol4/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_18117935%2Fimage%2Ffeed_dms_posts%2F2026-06-26%2F28b20e56-63f1-4abb-9677-7090b5e12240.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260628%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260628T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dd3b38c5e7dd29d0981677a00f13eda66b1812ba3b31171e34b65810f0dd5d154] | [xiaozhaolucky]: 没机器遍历的就是盯着指数 spx 转弯很尖就可以 | [xiaozhaolucky]: 要根据 大盘股的单子",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CcSBmuvrxyqcWpV8M9Q6X_01",
+      "message_id": "post_1CcSBmuvrxyqcWpV8M9Q6X",
+      "et_date": "2026-06-26",
+      "evidence_span": "一般指数转弯 买些弹性大的",
+      "context_excerpt": "[Chann1ng]: 赵哥请教下，前期存储盈利后最近清空了，是不是可以等下周事件后再考虑建仓存储了呢？ | [xiaozhaolucky]: 有些就是看自己手里的有没有转弯 | [xiaozhaolucky]: 一般指数转弯 买些弹性大的 | [xiaochi lucky]: 可以杠杆赵哥策略",
+      "proposed_family": "p_index_turn_candidate",
+      "recommended_action": "review_proposed"
+    }
+  ]
+}

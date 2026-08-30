@@ -1,0 +1,79 @@
+{
+  "topic": "block_print",
+  "total_candidates": 10,
+  "unique_clusters_count": 8,
+  "clusters": [
+    {
+      "atom_id": "atom_1CTyfbFudk261cM1sFhTuz_02",
+      "message_id": "post_1CTyfbFudk261cM1sFhTuz",
+      "et_date": "2025-10-10",
+      "evidence_span": "或者到股票支撑位附近看有大单入场在回买",
+      "context_excerpt": "[xiaozhaolucky]: sbet剩下的可以17.02附近都出 等16.25附近在套利 | [xiaozhaolucky]: upst 减仓点在53.4-53.5附近减仓 然后到盘后时间段看看能不能做个倒T | [xiaozhaolucky]: 周五冲高的开局卖出后    尽量把回买的时间压到3点半和7点半 有时候盘后有新闻会影响 周末也会有讲话  或者到股票支撑位附近看有大单入场在回买 | [xiaozhaolucky]: QQQ回调开始出现了",
+      "proposed_family": "p_block_print_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CaoM7J9UEqNWdgyajEnUw_01",
+      "message_id": "post_1CaoM7J9UEqNWdgyajEnUw",
+      "et_date": "2026-05-07",
+      "evidence_span": "大单检测  木头姐不是发过买了4000万",
+      "context_excerpt": "[幸运小沈]: 之前好多btc巨鲸爆仓了 | [LJ]: 腰斩都是分分钟 | [xiaozhaolucky]: 大单检测  木头姐不是发过买了4000万 | [xiaozhaolucky]: 那笔也正好是木头姐的第一笔",
+      "proposed_family": "p_block_print_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CaoMBkoFTyas7MERu5QSa_01",
+      "message_id": "post_1CaoMBkoFTyas7MERu5QSa",
+      "et_date": "2026-05-07",
+      "evidence_span": "哦对，还要看盘口大单检测",
+      "context_excerpt": "[xiaozhaolucky]: 那笔也正好是木头姐的第一笔 | [Xprimes]: hood财报出了，是要清仓还是等加仓？ | [赵哥保姆zhouzhoulucky]: 哦对，还要看盘口大单检测 | [xiaozhaolucky]: hood昨天减过了 等coin出财报才看币",
+      "proposed_family": "p_block_print_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1Cavw4xY4BtYdHoxKCfU1J_01",
+      "message_id": "post_1Cavw4xY4BtYdHoxKCfU1J",
+      "et_date": "2026-05-11",
+      "evidence_span": "一般-10左右才有大单",
+      "context_excerpt": "[Yangdong]: 我擦，我今天刚给我的股票群改成和你一样的名字。 | [xiaozhaolucky]: 没有7.3那么大啊 | [xiaozhaolucky]: 一般-10左右才有大单 | [向阳而生]: 🤣",
+      "proposed_family": "p_block_print_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CazpYDfRUCt7AvshzbSfE_01",
+      "message_id": "post_1CazpYDfRUCt7AvshzbSfE",
+      "et_date": "2026-05-13",
+      "evidence_span": "都是有大单下了比如期权检测都是几千万的单子",
+      "context_excerpt": "[xiaozhaolucky]: 直线下跌才短空 速度太空只能自己看 | [xiaozhaolucky]: 没有趋势改变前提前的 | [xiaozhaolucky]: 都是有大单下了比如期权检测都是几千万的单子 | [xiaozhaolucky]: 自己才跟一点点",
+      "proposed_family": "p_block_print_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbtDCSRnyC3ot6GgAbY34_01",
+      "message_id": "post_1CbtDCSRnyC3ot6GgAbY34",
+      "et_date": "2026-06-09",
+      "evidence_span": "转弯点一般是 小单卖出多大单一笔吸筹多的点",
+      "context_excerpt": "[xiaozhaolucky]: 遍历自选股和指数 | [xiaozhaolucky]: 找大单多的时间点 | [xiaozhaolucky]: 转弯点一般是 小单卖出多大单一笔吸筹多的点 | [xiaozhaolucky]: 1000个散户 每个人止损1万  1笔1000万吸掉哪些带血筹码的点就是转弯点",
+      "proposed_family": "p_block_print_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CbtDSXZNBVUdF5e77GYJu_01",
+      "message_id": "post_1CbtDSXZNBVUdF5e77GYJu",
+      "et_date": "2026-06-09",
+      "evidence_span": "比如soxl 那会就是 大单吃掉小单",
+      "context_excerpt": "[Hugo Lam]: 会不会有机构故意放大单然后吸引散户来买 | [xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/6_mAwvgaoEWGfO5Mi-5_LUdYyQS1DBqHD3mNKbAT1I0/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_dms_posts%2F2026-06-09%2F986c3886-bf77-44f4-b2e0-5d925f33c068.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260614%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260614T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Dba560b281b0eb1ae0ef89f91337cb60d7088d4c4adc671c700b70cf4320fa73f] | [xiaozhaolucky]: 比如soxl 那会就是 大单吃掉小单 | [camo]: 赵哥用的什么模型，这么厉害",
+      "proposed_family": "p_block_print_candidate",
+      "recommended_action": "review_proposed"
+    },
+    {
+      "atom_id": "atom_1CcS1o35bDe3u89XnHrdJ4_01",
+      "message_id": "post_1CcS1o35bDe3u89XnHrdJ4",
+      "et_date": "2026-06-26",
+      "evidence_span": "每次跌就是给回流资金介入的机会  7300-7200差100点每次只要A股港股跌就丝毫不怕 转弯就低吸介入",
+      "context_excerpt": "[xiaozhaolucky]:  [IMAGE:https://img-v2-prod.whop.com/3HXEeBm1HgB8TpRIxpcoF0GZd-zlTj3nJsOssbDYojo/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-06-26%2F19aeca0f-d1aa-4602-875d-75b47c3a6190.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260628%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260628T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D2d39715d779bee6ed7d7f98f7b550688d883a263cceb0abb73d61f0548bc7095] | [xiaozhaolucky]: 94.2买回三分之一常规仓的crwv | [xiaozhaolucky]: 每次跌就是给回流资金介入的机会  7300-7200差100点每次只要A股港股跌就丝毫不怕 转弯就低吸介入 [IMAGE:https://img-v2-prod.whop.com/6p0QH2GOo3dXqf2rbDaE_-nYiNakqsktryBjhuijWyY/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-06-26%2F9275ecf4-ad77-40ae-8bc9-c4586e20a546.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260628%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260628T000000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D7520738cad0ad7e74bd4868245ff2a19b063916cbb60ce97c9fe0804de9fea30] | [xiaozhaolucky]: 168出一半161.5的cbrs",
+      "proposed_family": "p_block_print_candidate",
+      "recommended_action": "review_proposed"
+    }
+  ]
+}
