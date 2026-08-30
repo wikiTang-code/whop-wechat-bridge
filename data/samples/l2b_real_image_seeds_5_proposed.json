@@ -14,7 +14,7 @@
     "statement": "九转序列用于计算曲率，反弹看红1-9，回调看绿1-9；出现绿1时减持防守。",
     "chart_notes": {
       "timeframe": "daily",
-      "markers": "富途BTC日K线图，K线走势上标有九转序列上升数字(红/粉1-9)与回调数字(绿1-9)",
+      "markers": "富途BTC日K线图(现价约87832)，上行一段粉/紫1-9，下行一段绿2-9，右下角绿9旁有紫9，虚线在8.7万附近对应8万6/8万7预警",
       "aligns_with_text": "match",
       "local_path": "data/media/zhao/2026-01-27/post_1CXYCpXPkLs5VVnU5aBkJe_0.jpg"
     },
@@ -38,13 +38,14 @@
     "statement": "每天只需要看转弯，真金白银是真，消息都是阻碍你。",
     "chart_notes": {
       "timeframe": "intraday",
-      "markers": "SPY分时走势图，低位两个红色箭头标注向上转弯拐点，下方附文字“两次转弯都是有效的就是看spy675收盘是不是收上面”",
+      "markers": "SPY分时图(现价约677.8)，两支红箭头指两个低点拐点，蓝气泡发言“两次转弯都是有效的就是看spy675收盘是不是收上面”，675为观察位非下单点",
       "aligns_with_text": "match",
       "local_path": "data/media/zhao/2026-02-17/post_1CYDwHo9hVfbwciyfsR9sa_0.jpg"
     },
     "not": [
       "BUY ALL",
-      "SELL ALL"
+      "SELL ALL",
+      "BUY SPY"
     ]
   },
   {
@@ -62,13 +63,15 @@
     "statement": "看二次握手用 SPX 图更精确。",
     "chart_notes": {
       "timeframe": "intraday",
-      "markers": ".SPX分时图，标注“二次握手”、“第一次7339 第二次跌还是7339 平行没跌破 一般第二次探底不破是比较确定的短线买点”，两个红色箭头指向回踩低点",
+      "markers": ".SPX分时图，红字标注“二次握手”、“第一次7339 第二次跌还是7339”、“平行没跌破 一般第二次探底不破是比较确定的短线买点”、“cifr iren 都比较符合短线二次平行”，两支红箭头对着两次近7339的底；7339/CIFR/IREN为图元观察标注，严禁下单",
       "aligns_with_text": "match",
       "local_path": "data/media/zhao/2026-05-12/post_1CayBBJeexEDaiEveHEmGa_0.jpg"
     },
     "not": [
       "BUY SPX",
-      "SELL SPX"
+      "SELL SPX",
+      "BUY CIFR",
+      "BUY IREN"
     ]
   },
   {
@@ -86,7 +89,7 @@
     "statement": "加密的高点常在第一轮投票过半时，低点常在下轮投票日期模糊和精确公布附近。",
     "chart_notes": {
       "timeframe": "event_driven_cycle",
-      "markers": "推文手绘周期轮廓折线图，标注“法案失败会跌下”、“大概日期确认出来公告会反弹”、“投票当天过程中第一轮通过概率高会涨”",
+      "markers": "法案轮廓折线图(非K线)，标注“法案失败会跌下”、“大概日期确认出来公告会反弹”、“小回调下几天 精确日期出来再反弹”、“投票当天 过程中第一轮通过概率高会涨”；下半推文为CONL/HOOD/BMNR减仓口播属L2a单据不并入战法",
       "aligns_with_text": "match",
       "local_path": "data/media/zhao/2026-05-15/post_1Cb4TAuGNsh8zYEUCgnce7_0.jpg"
     },
@@ -97,7 +100,7 @@
   },
   {
     "gold_id": "g_img_005",
-    "kid": "k_breakout_three_elements",
+    "kid": "k_gap_fill_round_number_bottom",
     "status": "proposed",
     "do_not_use_as_order": true,
     "source_message_ids": [
@@ -107,15 +110,16 @@
     "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
     "raw_text": "[xiaozhaolucky]: 最有爆发的三要素要时刻盯紧 抓机会",
     "evidence_span": "最有爆发的三要素要时刻盯紧 抓机会",
-    "statement": "最有爆发的三要素要时刻盯紧抓机会。",
+    "statement": "财报大跌补齐缺口且最低点触及整数位时，中线关注。",
     "chart_notes": {
       "timeframe": "daily",
-      "markers": "IREN日K走势图，赵哥红字手写标注“iren财报70跌46 三个缺口补掉了 最低点46是整数 就要中线关注了”，4个红色箭头指向缺口与46低点",
+      "markers": "IREN日K走势图，赵哥红字手写标注“iren财报70跌46 三个缺口补掉了 最低点46是整数 就要中线关注了”，左下3个红色箭头指缺口，右下一个红色箭头指46低点",
       "aligns_with_text": "partial",
       "local_path": "data/media/zhao/2026-05-27/post_1CbTUayc44sNzPweAjd3QW_0.jpg"
     },
     "not": [
       "BUY ALL",
+      "BUY IREN @ 46",
       "市价买单"
     ]
   }
