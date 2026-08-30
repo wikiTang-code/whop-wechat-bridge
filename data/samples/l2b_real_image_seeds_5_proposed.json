@@ -14,7 +14,7 @@
     "statement": "九转序列用于计算曲率，反弹看红1-9，回调看绿1-9；出现绿1时减持防守。",
     "chart_notes": {
       "timeframe": "intraday",
-      "markers": "K线走势叠加九转序列数字标号",
+      "markers": "unverified",
       "aligns_with_text": "partial",
       "local_path": "data/media/zhao/2026-01-27/post_1CXYCpXPkLs5VVnU5aBkJe_0.jpg"
     },
@@ -38,7 +38,7 @@
     "statement": "每天只需要看转弯，真金白银是真，消息都是阻碍你。",
     "chart_notes": {
       "timeframe": "intraday",
-      "markers": "行情走势拐点与分时波动",
+      "markers": "unverified",
       "aligns_with_text": "partial",
       "local_path": "data/media/zhao/2026-02-17/post_1CYDwHo9hVfbwciyfsR9sa_0.jpg"
     },
@@ -62,7 +62,7 @@
     "statement": "看二次握手用 SPX 图更精确。",
     "chart_notes": {
       "timeframe": "intraday",
-      "markers": "SPX分时图二次握手走势",
+      "markers": "unverified",
       "aligns_with_text": "partial",
       "local_path": "data/media/zhao/2026-05-12/post_1CayBBJeexEDaiEveHEmGa_0.jpg"
     },
@@ -86,7 +86,7 @@
     "statement": "加密的高点常在第一轮投票过半时，低点常在下轮投票日期模糊和精确公布附近。",
     "chart_notes": {
       "timeframe": "daily",
-      "markers": "周期走势与事件时间节点对比",
+      "markers": "unverified",
       "aligns_with_text": "partial",
       "local_path": "data/media/zhao/2026-05-15/post_1Cb4TAuGNsh8zYEUCgnce7_0.jpg"
     },
@@ -110,7 +110,7 @@
     "statement": "最有爆发的三要素要时刻盯紧抓机会。",
     "chart_notes": {
       "timeframe": "intraday",
-      "markers": "盘面走势图与异动放量区间",
+      "markers": "unverified",
       "aligns_with_text": "partial",
       "local_path": "data/media/zhao/2026-05-27/post_1CbTUayc44sNzPweAjd3QW_0.jpg"
     },
