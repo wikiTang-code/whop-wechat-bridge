@@ -149,7 +149,7 @@
     "et_date": "2026-05-11",
     "raw_text": "一般 11月是最高点",
     "machine_acts_r1_prime": [
-      "chat"
+      "lesson"
     ],
     "machine_acts_r1_old": [
       "chat"
@@ -158,11 +158,11 @@
       {
         "span": "一般 11月是最高点",
         "acts": [
-          "chat"
+          "lesson"
         ],
-        "topic": null,
+        "topic": "event",
         "timing": [],
-        "can_ascend": false,
+        "can_ascend": true,
         "l2_family": null
       }
     ]
@@ -390,7 +390,8 @@
     "raw_text": "nvdl这个那个空头止盈掉了 昨天是92-93建仓的今天也没动\n在回踩83附近也可以加仓 有周一低吸机会也会提示的 \n这个也是财报时候在动作 有双杀行情也会做",
     "machine_acts_r1_prime": [
       "fill",
-      "chat"
+      "chat",
+      "lesson"
     ],
     "machine_acts_r1_old": [
       "fill",
@@ -420,7 +421,7 @@
       {
         "span": "这个也是财报时候在动作 有双杀行情也会做",
         "acts": [
-          "chat"
+          "lesson"
         ],
         "topic": "options",
         "timing": [],
@@ -984,7 +985,8 @@
     "et_date": "2025-12-03",
     "raw_text": "然后就是板块这个技巧  我的是长桥电脑桌面端windows的  行情里面第二行就是\n每天有个领涨前四的 \n就是每天要看前四和倒数的\n比如太空板块 一直倒数的突然第一第二名了 就要注意了要反弹了",
     "machine_acts_r1_prime": [
-      "chat"
+      "chat",
+      "lesson"
     ],
     "machine_acts_r1_old": [
       "chat",
@@ -1004,31 +1006,31 @@
       {
         "span": "每天有个领涨前四的",
         "acts": [
-          "chat"
+          "lesson"
         ],
-        "topic": null,
+        "topic": "structure",
         "timing": [],
-        "can_ascend": false,
+        "can_ascend": true,
         "l2_family": null
       },
       {
         "span": "就是每天要看前四和倒数的",
         "acts": [
-          "chat"
+          "lesson"
         ],
-        "topic": null,
+        "topic": "structure",
         "timing": [],
-        "can_ascend": false,
+        "can_ascend": true,
         "l2_family": null
       },
       {
         "span": "比如太空板块 一直倒数的突然第一第二名了 就要注意了要反弹了",
         "acts": [
-          "chat"
+          "lesson"
         ],
-        "topic": null,
+        "topic": "structure",
         "timing": [],
-        "can_ascend": false,
+        "can_ascend": true,
         "l2_family": null
       }
     ]
