@@ -58,6 +58,9 @@ export function initDb() {
     try {
       db.prepare("ALTER TABLE trade_review_pool ADD COLUMN is_manual INTEGER DEFAULT 0").run();
     } catch (e) {}
+    try {
+      db.prepare("ALTER TABLE messages ADD COLUMN attachments TEXT").run();
+    } catch (e) {}
     console.log('[initDb] Database already initialized and ready (0ms).');
     return;
   }
@@ -536,8 +539,8 @@ export function getDb() {
 export function saveMessages(messages) {
   const conn = getDb();
   const insert = conn.prepare(`
-    INSERT OR IGNORE INTO messages (id, channel_id, channel_name, sender_id, sender_name, content, created_at, tickers, sectors, strategies)
-    VALUES (@id, @channel_id, @channel_name, @sender_id, @sender_name, @content, @created_at, @tickers, @sectors, @strategies)
+    INSERT OR IGNORE INTO messages (id, channel_id, channel_name, sender_id, sender_name, content, created_at, tickers, sectors, strategies, attachments)
+    VALUES (@id, @channel_id, @channel_name, @sender_id, @sender_name, @content, @created_at, @tickers, @sectors, @strategies, @attachments)
   `);
 
   const insertMany = conn.transaction((msgs) => {
@@ -546,6 +549,10 @@ export function saveMessages(messages) {
       let channelName = msg.channel_name;
       if (!channelName || channelName.startsWith('频道:')) {
         channelName = CHANNEL_NAME_FALLBACKS[msg.channel_id] || channelName;
+      }
+      let attachJson = null;
+      if (msg.attachments) {
+        attachJson = typeof msg.attachments === 'string' ? msg.attachments : JSON.stringify(msg.attachments);
       }
       insert.run({
         id: msg.id,
@@ -557,7 +564,8 @@ export function saveMessages(messages) {
         created_at: msg.created_at,
         tickers: dims.tickers,
         sectors: dims.sectors,
-        strategies: dims.strategies
+        strategies: dims.strategies,
+        attachments: attachJson
       });
     }
   });
