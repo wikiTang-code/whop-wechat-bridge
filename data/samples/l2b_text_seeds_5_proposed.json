@@ -1,0 +1,72 @@
+[
+  {
+    "sample_id": "t_prop_001",
+    "message_id": "post_1CcSFVJYUoMPpWRCM3yJR2",
+    "channel_name": "不用翻墙美股讨论区",
+    "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
+    "sender_name": "xiaozhaolucky",
+    "et_date": "2026-06-26",
+    "kid": "KID_GAP_TWICE",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "evidence_span": "一般到缺口 那个缺口价格记住 可以做2次",
+    "statement": "价格到达缺口位置时记住该缺口价格，该位置通常可做2次交易机会。",
+    "raw_context": "一般到缺口 那个缺口价格记住 可以做2次"
+  },
+  {
+    "sample_id": "t_prop_002",
+    "message_id": "post_1CcSCFt8PiMC7F56hYF1ik",
+    "channel_name": "不用翻墙美股讨论区",
+    "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
+    "sender_name": "xiaozhaolucky",
+    "et_date": "2026-06-26",
+    "kid": "KID_PULLBACK_ENTRY",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "evidence_span": "盘前半小时和开盘都会回踩下是正常现象 给回流资金低点去介入",
+    "statement": "盘前半小时与开盘时段出现回踩属于正常现象，是提供给回流资金低点介入的机会。",
+    "raw_context": "盘前半小时和开盘都会回踩下是正常现象 给回流资金低点去介入"
+  },
+  {
+    "sample_id": "t_prop_003",
+    "message_id": "post_1CcSBmuvrxyqcWpV8M9Q6X",
+    "channel_name": "不用翻墙美股讨论区",
+    "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
+    "sender_name": "xiaozhaolucky",
+    "et_date": "2026-06-26",
+    "kid": "KID_TURN_HIGH_BETA",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "evidence_span": "一般指数转弯 买些弹性大的",
+    "statement": "当大盘指数确认转弯向上时，优先买入弹性大的标的。",
+    "raw_context": "一般指数转弯 买些弹性大的"
+  },
+  {
+    "sample_id": "t_prop_004",
+    "message_id": "post_1CcS9acmvGW5h4atoZmFRq",
+    "channel_name": "不用翻墙美股讨论区",
+    "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
+    "sender_name": "xiaozhaolucky",
+    "et_date": "2026-06-26",
+    "kid": "KID_TURN_DIP_BUY",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "evidence_span": "重点是转弯   低吸弹性股",
+    "statement": "交易重点在于观察行情转弯拐点，并在拐点处低吸弹性个股。",
+    "raw_context": "重点是转弯   低吸弹性股"
+  },
+  {
+    "sample_id": "t_prop_005",
+    "message_id": "post_1CcS5REKiooZv2YFHDbah2",
+    "channel_name": "不用翻墙美股讨论区",
+    "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
+    "sender_name": "xiaozhaolucky",
+    "et_date": "2026-06-26",
+    "kid": "KID_QUANT_TURN_SIGNAL",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "evidence_span": "量化会遍历100个股票 都在大单买就转弯了",
+    "statement": "量化资金遍历核心股票池且多数出现大单买入时，市场即形成转弯拐点。",
+    "raw_context": "量化会遍历100个股票 都在大单买就转弯了"
+  }
+]

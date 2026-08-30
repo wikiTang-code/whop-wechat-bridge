@@ -693,13 +693,42 @@ app.get('/api/messages', (req, res) => {
   }
 });
 
-// GET /api/proxy-image - Proxy images from Whop/S3 to avoid CORS/GFW/Expiration issues
+// GET /api/proxy-image - Proxy images from local disk first, fallback to Whop/S3
 app.get('/api/proxy-image', async (req, res) => {
   try {
+    const localPathQuery = req.query.path;
     const imageUrl = req.query.url;
-    if (!imageUrl) {
-      return res.status(400).send('Missing url parameter');
+
+    // 1. 优先直接读取 local_path
+    if (localPathQuery) {
+      const safePath = path.resolve(__dirname, localPathQuery);
+      if (safePath.startsWith(path.resolve(__dirname, 'data/media')) && fs.existsSync(safePath)) {
+        res.setHeader('Content-Type', 'image/jpeg');
+        res.setHeader('Cache-Control', 'public, max-age=31536000');
+        return res.sendFile(safePath);
+      }
     }
+
+    if (!imageUrl) {
+      return res.status(400).send('Missing url or path parameter');
+    }
+
+    // 2. 如果提供了 URL，先从 manifest 匹配本地是否已缓存
+    try {
+      const manifestPath = path.resolve(__dirname, 'data/media/zhao/media_manifest.json');
+      if (fs.existsSync(manifestPath)) {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+        const matched = manifest.find(m => m.raw_url === imageUrl || (m.local_path && imageUrl.includes(m.message_id)));
+        if (matched && matched.local_path) {
+          const absPath = path.resolve(__dirname, matched.local_path);
+          if (fs.existsSync(absPath)) {
+            res.setHeader('Content-Type', 'image/jpeg');
+            res.setHeader('Cache-Control', 'public, max-age=31536000');
+            return res.sendFile(absPath);
+          }
+        }
+      }
+    } catch (e) {}
 
     if (!imageUrl.startsWith('https://img-v2-prod.whop.com') && !imageUrl.startsWith('https://assets-2-prod.whop.com')) {
       return res.status(403).send('Forbidden: Invalid image host');

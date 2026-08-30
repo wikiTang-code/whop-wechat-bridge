@@ -83,3 +83,18 @@ flowchart TD
 2. **纯文本金标**：无图消息照常提取 L2b 文本金标（如 G4/G5 `gold_text`，G6/G7 `proposed`，G1~G3 `unlocated`）；
 3. **隔离铁律**：行情图只用于战法形态标注（`do_not_use_as_order: true`），**绝对不产生 L2a 自动化买卖单**；
 4. **状态锁定**：`537 窗` 与 `known_kids_registry.json` 继续保持挂起与零写入。
+
+---
+
+## 4. 周一实盘真实验收清单 (10 行 Checklist)
+
+1. [ ] **环境就绪**：确认 VM/服务器上 `monitor.js` 守护进程处于正常活跃运行状态。
+2. [ ] **凭据检查**：确认机器本地 `.env` 包含最新 `WHOP_COOKIE`，且确认未提交至 Git。
+3. [ ] **事件触发**：等待开盘后赵哥群内发出第一张带图行情消息（GraphQL/RSC 实时推送）。
+4. [ ] **核验项 1 (磁盘)**：检查 `data/media/zhao/{et_date}/` 下是否当秒多出一个 `>15KB` 的全新 `.jpg` 原图。
+5. [ ] **核验项 2 (清单)**：检查 `data/media/zhao/media_manifest.json` 是否当秒追加一行 `status: "ok"` 记录。
+6. [ ] **核验项 3 (数据库)**：查询 SQLite `messages` 表，确认该消息记录的 `attachments` 列包含有效 `local_path` 与 `sha256`。
+7. [ ] **工作台验证**：打开 Web 工作台对应消息，确认 `/api/proxy-image` 秒级渲染本地真图而非空白/过期图。
+8. [ ] **硬门拦截检查**：若赵哥发的是骨架/头像，确认系统记录为 `placeholder_blocked` 且不污染 `ok` 清单。
+9. [ ] **故障排查纪律**：若任一项缺失，仅排查 `monitor.js` 监听与网络，**严禁另开 CDP 重新爬取**。
+10. [ ] **落盘收工**：首张图三项核验均通过即宣告进库落盘正方案正式实盘闭环！
