@@ -1,0 +1,428 @@
+{
+  "dip_action": {
+    "name": "急跌动作",
+    "queries": [
+      "急跌",
+      "急跌买回",
+      "急跌急涨"
+    ],
+    "hit_count": 218,
+    "date_min": "2025-10-09",
+    "date_max": "2026-06-26",
+    "sample_5": [
+      {
+        "message_id": "post_1CTx5riA4w3g8kQ6AruSne",
+        "et_date": "2025-10-09",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "急跌",
+        "hit_span": "有时候盘中如果遇到个股突然急跌会慢慢震荡上去  买股最佳时间在3点半-4点不跌破当天的低点 震荡行情也可以做做 t",
+        "raw_text": "最近行情走势总方向是 盘中时间9点半到2点 震荡走低 到3点半-4点买些支撑位的 夜盘和盘前冲高走 在等3点半到4点 有时候盘中如果遇到个股突然急跌会慢慢震荡上去  买股最佳时间在3点半-4点不跌破当天的低点 震荡行情也可以做做 tsll的日内支撑和阻力交易"
+      },
+      {
+        "message_id": "post_1CUpqf3VGMF7caH8jWoovP",
+        "et_date": "2025-11-05",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "急跌",
+        "hit_span": "近这轮抛售也是人为调控  2天急跌筹码便宜了 今天夜盘就有量化v 起来吸筹的迹象 [IMAGE:https://img-v2",
+        "raw_text": "最近这轮抛售也是人为调控  2天急跌筹码便宜了 今天夜盘就有量化v 起来吸筹的迹象 [IMAGE:https://img-v2-prod.whop.com/IOSZkHaDcjLy_MT35h_uGD_XheUIbb1Qm2JRPzRpWl8/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2025-11-05%2Fuser_17909136_1d623f39-7610-49ff-b440-558787f1969f.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Da497af4081b1d0170cd3cc616ef7d25412522b9e57df9854c5450de5f1768037]"
+      },
+      {
+        "message_id": "post_1CUpqfZHcmC8znEuXziSMh",
+        "et_date": "2025-11-05",
+        "channel_name": "不用翻墙期权",
+        "matched_keyword": "急跌",
+        "hit_span": "最近这轮抛售也是人为调控 2天急跌筹码便宜了 今天夜盘就有量化v 起来吸筹的迹象",
+        "raw_text": "最近这轮抛售也是人为调控 2天急跌筹码便宜了 今天夜盘就有量化v 起来吸筹的迹象"
+      },
+      {
+        "message_id": "post_1CZcAn63oNUu1fvUnSsPPb",
+        "et_date": "2026-03-31",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "急跌",
+        "hit_span": "就是那天跌破均价开始算短暂的急跌回调 然后 看今晚讲话内容  没有其他因素干扰情况 AI是给出 回踩 64",
+        "raw_text": "6440 和6500两个重要缺口收复 现在上面就6540一个周四均价线的缺口 就是那天跌破均价开始算短暂的急跌回调 然后 看今晚讲话内容  没有其他因素干扰情况 AI是给出 回踩 6400和6454两个回踩确认的方向   最重要就是周一的和平协议是否签订 是未来几个月 类似去年 4月6日 关税的大行情的关键 [IMAGE:https://img-v2-prod.whop.com/soS0Qe6p7_35842XEK-EhAwPeuRbzXWn5bhRKDWLP3k/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2Fuser_17909136%2Fimage%2Ffeed_forum_posts%2F2026-04-01%2F5252c43d-ab0a-4b2e-9dc9-bc4e9d5eb3cf.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D526f37b5d3cd2bf473693174ebbc25c5b384bf627317315a9043775041365689]"
+      },
+      {
+        "message_id": "post_1CZcAoZpUt2YNGp7rtiMcS",
+        "et_date": "2026-03-31",
+        "channel_name": "不用翻墙期权",
+        "matched_keyword": "急跌",
+        "hit_span": "就是那天跌破均价开始算短暂的急跌回调 然后 看今晚讲话内容 没有其他因素干扰情况 AI是给出 回踩 640",
+        "raw_text": "6440 和6500两个重要缺口收复 现在上面就6540一个周四均价线的缺口 就是那天跌破均价开始算短暂的急跌回调 然后 看今晚讲话内容 没有其他因素干扰情况 AI是给出 回踩 6400和6454两个回踩确认的方向 最重要就是周一的和平协议是否签订 是未来几个月 类似去年 4月6日 关税的大行情的关键"
+      }
+    ]
+  },
+  "plunge_systemic": {
+    "name": "普跌处理",
+    "queries": [
+      "普跌",
+      "同沉",
+      "一起跌"
+    ],
+    "hit_count": 25,
+    "date_min": "2025-10-22",
+    "date_max": "2026-06-25",
+    "sample_5": [
+      {
+        "message_id": "post_1CUNkbex7QXtdJhBXbM9jN",
+        "et_date": "2025-10-22",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "普跌",
+        "hit_span": "订单反弹 昨天123有建仓今天普跌可以补仓或者新建） mstr 276.7 低点 有小V  盘后再跳水可以配置 （股性中）",
+        "raw_text": "补充了点基本面和这段期间的股票涨幅股性 upst 48 低点 有小V  盘后再跳水可以配置   upsx 低点 13.4  有小V  盘后再跳水可以配置 基本面是贷款类之前正股还有个47低点今天也只跳到48附近 博弈贷款政策反转（股性中等反弹时候反弹区间达到正股50-52） conl 30.66   低点 有小V  盘后再跳水可以配置  coin的双倍 稳定币和btc交易所类  几次也是下杀到31附近反弹36（股性高） rklb 58.41  低点 有小V  盘后再跳水可以配置  太空火箭（今天下破64和60两个支撑 博弈反弹64阻力）（股性偏高） bmnr 46.56  低点 有小V  盘后再跳水可以配置 (股性偏高) （eth币囤币类今天下破52和49支撑 博弈回51阻力） crwv 114.17 低点 有小V  盘后再跳水可以配置 （股性中） （最近有减持 博弈减持完毕和订单反弹 昨天123有建仓今天普跌可以补仓或者新建） mstr 276.7 低点 有小V  盘后再跳水可以配置 （股性中） btc 囤币种类 今天跌破282支撑  可以把昨天305抛的低吸 或者新建仓 hood 120.88 低点 有小V  盘后再跳水可以配置 （股性中） 券商类和虚拟币交易所 今天跌破几个支撑回踩120支撑 可以配置 hims 46.15 低点 有小V  盘后再跳水可以配置 （股性中） 利空压制前两天在50-51横盘 今天跌破了48支撑 在46支撑住可以配置 nbis 94.64 低点 少量配置   26号接近后看有没有大跳水再加（股性中） 今天跳的多可以配置 要预留资金  26 27两天解禁看情况  保守的可以 27号后再入 tsll  等盘后看大跳水加  利好就走掉剩下的 mara 18.39 低点 有小V  盘后再跳水可以配置 （股性偏高） 矿工转型  今天在19支撑跌破  低点有反弹也可以配置 nvdl82.9 低点 有小V  盘后再跳水可以配置 （股性偏高） 英伟达的双倍  今天到了83-84支撑 小跌破 也可以配置 rddt 191.3 低点 有小V  盘后再跳水可以配置 （股性中） 美股版贴吧 今天在186支撑上也可以后续几天再看看有没有再跳 可以先配置在低了加 orcl 269.25 低点 有小V  盘后再跳水可以配置 （股性中） 和crwv同一天出的减持计划 今天在270有支撑 可以270附近配置  有在跳水加仓等减持完毕公告 tem81.9 低点 有小V  盘后再跳水可以配置 （股性中） 今天也是连续跌破两个支撑到80支撑上方 可以配置 open6.23 低点 有小V  盘后再跳水可以配置 （股性中） 有减持计划10个交易日 今天大盘回调前先跳了下可以注意6.1附近支撑 可以配置等反弹 joby 14.9 低点 有小V  盘后再跳水可以配置 （股性中） 无人机  跌破了15支撑 也是可以配置等反弹 zeta18.19 低点 有小V  盘后再跳水可以配置 （股性中） 电商  跌幅不是很大 下面有个17支撑能在跳到更安全点"
+      },
+      {
+        "message_id": "post_1CUQNskMxpMB2Dqa9udw5y",
+        "et_date": "2025-10-23",
+        "channel_name": "讨论区股票记录",
+        "matched_keyword": "普跌",
+        "hit_span": "上半场普跌 尾盘V的要把那个最低价记录号 后面好几天会围绕那个支撑反复上下测试",
+        "raw_text": " 上半场普跌 尾盘V的要把那个最低价记录号 后面好几天会围绕那个支撑反复上下测试"
+      },
+      {
+        "message_id": "post_1CUdSDSBtFvwqsy32mxmCR",
+        "et_date": "2025-10-30",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "普跌",
+        "hit_span": "一半不要补仓 有做空机构做空加普跌 盘前影响大 等利空消化和有资金介入在做他",
+        "raw_text": "eose还有一半不要补仓 有做空机构做空加普跌 盘前影响大 等利空消化和有资金介入在做他"
+      },
+      {
+        "message_id": "post_1CUdajZLN5ziLkvvtnTPxu",
+        "et_date": "2025-10-30",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "普跌",
+        "hit_span": "今天上半场普跌中都震荡为主要     盘前7点半开始出现了全部股票的统一的普跌 因为那会是有人工监控的",
+        "raw_text": "今天上半场普跌中都震荡为主要     盘前7点半开始出现了全部股票的统一的普跌 因为那会是有人工监控的 然后人工没动作就是说明要让量化持续 震荡到尾盘才会去手工吸 看尾盘哪些V的才能知道调仓换股在哪些"
+      },
+      {
+        "message_id": "post_1CUneqDWrL1neanZNr3gT6",
+        "et_date": "2025-11-04",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "普跌",
+        "hit_span": "都普跌情况下 可以自选单独设定一个页面 加上20-30个盘子大点的明星股和 一些小盘明星股  等",
+        "raw_text": "都普跌情况下 可以自选单独设定一个页面 加上20-30个盘子大点的明星股和 一些小盘明星股  等有一半以上异动有V迹象了 在去看其他哪些开始要吸筹的"
+      }
+    ]
+  },
+  "rally_divergence": {
+    "name": "普涨与分化",
+    "queries": [
+      "普涨",
+      "普涨我跌"
+    ],
+    "hit_count": 33,
+    "date_min": "2025-10-23",
+    "date_max": "2026-06-15",
+    "sample_5": [
+      {
+        "message_id": "post_1CUQeXed5TynjkscR7GTus",
+        "et_date": "2025-10-23",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "普涨",
+        "hit_span": "医疗板块属于普涨中慢涨的 昨天低吸了tem   hims支撑昨天最低价46也很明显 可以等几天",
+        "raw_text": "医疗板块属于普涨中慢涨的 昨天低吸了tem   hims支撑昨天最低价46也很明显 可以等几天看看补涨上去出"
+      },
+      {
+        "message_id": "post_1CUtwmwQ6bkcMwfN2s9UvM",
+        "et_date": "2025-11-07",
+        "channel_name": "讨论区股票记录",
+        "matched_keyword": "普涨",
+        "hit_span": "弹 这种模式 都4天这样了 就普涨那天除外",
+        "raw_text": "最近大多数股票都是 尾盘模式 盘中 有个低点确认后有个小V 尾盘在下探低点走确认 夜盘反弹 这种模式 都4天这样了 就普涨那天除外"
+      },
+      {
+        "message_id": "post_1CV86w1SjEbjKWyxNVNmWS",
+        "et_date": "2025-11-14",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "普涨",
+        "hit_span": "期权下周有普涨时候要减点  再开要开展期距离现在3个月的",
+        "raw_text": "期权下周有普涨时候要减点  再开要开展期距离现在3个月的"
+      },
+      {
+        "message_id": "post_1CVHPJK646kcNtgeN7EWuW",
+        "et_date": "2025-11-19",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "普涨",
+        "hit_span": "场的标志 参考一些明星股在夜盘普涨2%左右 盘前到开盘前仍然再普涨2%左右",
+        "raw_text": "夜盘和盘前都小涨2%时候是增量资金入场的标志 参考一些明星股在夜盘普涨2%左右 盘前到开盘前仍然再普涨2%左右"
+      },
+      {
+        "message_id": "post_1CVHg774tT97aWbbXM4m3f",
+        "et_date": "2025-11-19",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "普涨",
+        "hit_span": "有资金进来的市场是夜盘普涨2%  盘前再在夜盘的基础上在涨2%",
+        "raw_text": "最近只要还是存量市场 就会指数上下扫 盘中高点出 然后收盘后根据成交额有没有超过回吸 极端行情只能这样 有资金进来的市场是夜盘普涨2%  盘前再在夜盘的基础上在涨2%"
+      }
+    ]
+  },
+  "close_rhythm": {
+    "name": "尾盘与收盘节奏",
+    "queries": [
+      "收盘开仓",
+      "尾盘V",
+      "收盘寻底",
+      "收盘才去开仓"
+    ],
+    "hit_count": 8,
+    "date_min": "2025-10-09",
+    "date_max": "2026-05-12",
+    "sample_5": [
+      {
+        "message_id": "post_1CTwyxiME2ggY7WyzJ8d43",
+        "et_date": "2025-10-09",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "尾盘v",
+        "hit_span": "点  等尾盘3点半到4点在看看尾盘v的吸筹机会 有些个股在单边回调 [IMAGE:https://img-v2-prod.wh",
+        "raw_text": "QQQ今天在反复确认这个低点  等尾盘3点半到4点在看看尾盘v的吸筹机会 有些个股在单边回调 [IMAGE:https://img-v2-prod.whop.com/IB06_fBS2bcl2fIg6tWdclcrFvFmR-P6qwENa7rL9E8/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2025-10-09%2Fuser_17909136_e4687bc9-4f3b-4da1-9163-f3d82ff368a3.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Deb9cadb5783af2afd005cc04c0511e2dc5ef1f1cf42fdc6329265f0be482b4d2]"
+      },
+      {
+        "message_id": "post_1CTwyyQ32Z7VhLgFKFXsNJ",
+        "et_date": "2025-10-09",
+        "channel_name": "不用翻墙期权",
+        "matched_keyword": "尾盘v",
+        "hit_span": "低点 等尾盘3点半到4点在看看尾盘v的吸筹机会 有些个股在单边回调",
+        "raw_text": "QQQ今天在反复确认这个低点 等尾盘3点半到4点在看看尾盘v的吸筹机会 有些个股在单边回调"
+      },
+      {
+        "message_id": "post_1CTzEncUzZHr9GK526LH3w",
+        "et_date": "2025-10-10",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "收盘附近应该是最低价",
+        "hit_span": "今天抄底只能快收盘时候抄点 收盘附近应该是最低价 周一跳空在补仓做T  周一跳空后买比较重要点",
+        "raw_text": "这次态度强硬 周末会中方美方互撕关税和软件出口管制 要留出仓位给周一万一跳空留余地 和4月关税互撕一样 讲话当中有反弹 分批减点 今天抄底只能快收盘时候抄点 收盘附近应该是最低价 周一跳空在补仓做T  周一跳空后买比较重要点"
+      },
+      {
+        "message_id": "post_1CUQNskMxpMB2Dqa9udw5y",
+        "et_date": "2025-10-23",
+        "channel_name": "讨论区股票记录",
+        "matched_keyword": "尾盘V",
+        "hit_span": "上半场普跌 尾盘V的要把那个最低价记录号 后面好几天会围绕那个支撑反复上下测试",
+        "raw_text": " 上半场普跌 尾盘V的要把那个最低价记录号 后面好几天会围绕那个支撑反复上下测试"
+      },
+      {
+        "message_id": "post_1CUmD5347jxBaJYLPm3G86",
+        "et_date": "2025-11-03",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "尾盘V",
+        "hit_span": "的一半在15.8  剩下一半等尾盘V时候在加",
+        "raw_text": "joby也是回吸上周卖掉的一半在15.8  剩下一半等尾盘V时候在加"
+      }
+    ]
+  },
+  "shoe_drop": {
+    "name": "靴子落地机制",
+    "queries": [
+      "靴子落地",
+      "落地"
+    ],
+    "hit_count": 8,
+    "date_min": "2025-12-09",
+    "date_max": "2026-01-28",
+    "sample_5": [
+      {
+        "message_id": "post_1CVwX9jzHYpNtKB17UhLG9",
+        "et_date": "2025-12-09",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "靴子落地",
+        "hit_span": "前一天 如果先跌的 会议讲话会靴子落地当天反弹下 今天币市场和部分股冲了下指数带高了 就要等明天3点讲话看鲍威尔会不会鹰派",
+        "raw_text": "美联储利率讲话 前一天 如果先涨的 会议讲话不超预期会回踩2天 美联储利率讲话 前一天 如果先跌的 会议讲话会靴子落地当天反弹下 今天币市场和部分股冲了下指数带高了 就要等明天3点讲话看鲍威尔会不会鹰派下 给回踩机会 "
+      },
+      {
+        "message_id": "post_1CWFVx8WvujuKfwh3ePqrk",
+        "et_date": "2025-12-19",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "靴子落地",
+        "hit_span": "北京时间中午宣布了25基点 靴子落地了 btc和eth也是12点开始有反应反弹",
+        "raw_text": "日本加息 北京时间中午宣布了25基点 靴子落地了 btc和eth也是12点开始有反应反弹"
+      },
+      {
+        "message_id": "post_1CWFeomDNEWJpn54SzexW6",
+        "et_date": "2025-12-19",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "靴子落地",
+        "hit_span": "价格做参考  加息公布完后就是靴子落地 新的利息计算的产品也开始上线了  夜盘就是拿一部分 低价格的   然后开盘看是不是",
+        "raw_text": "今天 主要是夜盘和昨天收盘价格做参考  加息公布完后就是靴子落地 新的利息计算的产品也开始上线了  夜盘就是拿一部分 低价格的   然后开盘看是不是会走第一种 先结算在普涨那种 和开门时候那时候put都结算那次周五一样 那时候也是盘前最低点 人工干预上去了  先回踩下就直接普涨了尾盘在小回落 [IMAGE:https://img-v2-prod.whop.com/gCUh0vopwk683krsc_3KUV6kf31d2waqU6xYKhmThmM/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2025-12-19%2Fuser_17909136_138e567b-1d5b-403b-b7df-6ad477e21c14.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D8c1a4cf14afe5f0540cf085a87a27f247aff6ea33d332ff0594c7ce2e9adcfb7]"
+      },
+      {
+        "message_id": "post_1CWFepffko1ognbEUFZ8kG",
+        "et_date": "2025-12-19",
+        "channel_name": "不用翻墙期权",
+        "matched_keyword": "靴子落地",
+        "hit_span": "盘价格做参考 加息公布完后就是靴子落地 新的利息计算的产品也开始上线了 夜盘就是拿一部分 低价格的 然后开盘看是不是会走第",
+        "raw_text": "今天 主要是夜盘和昨天收盘价格做参考 加息公布完后就是靴子落地 新的利息计算的产品也开始上线了 夜盘就是拿一部分 低价格的 然后开盘看是不是会走第一种 先结算在普涨那种 和开门时候那时候put都结算那次周五一样 那时候也是盘前最低点 人工干预上去了 先回踩下就直接普涨了尾盘在小回落"
+      },
+      {
+        "message_id": "post_1CWiHteibFiRJNazVo1TL8",
+        "et_date": "2026-01-02",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "靴子落地",
+        "hit_span": "加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨  圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周",
+        "raw_text": "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨  圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周 基本在最后几天收盘配置好了双底的很多上一轮会10几cm的潜力个股 主要看btc 这轮9万政府资金和盘前的涨幅有没有稳定下来 盘前要在夜盘基础涨幅上不回落1-2%浮动 到盘中才能实现普涨"
+      }
+    ]
+  },
+  "holiday_cycle": {
+    "name": "节前节后日历律",
+    "queries": [
+      "节前被动减",
+      "节前最后天",
+      "节后资金回流",
+      "节后反弹"
+    ],
+    "hit_count": 18,
+    "date_min": "2025-12-23",
+    "date_max": "2026-05-20",
+    "sample_5": [
+      {
+        "message_id": "post_1CWQHtaGumtwwNkxLW7NqY",
+        "et_date": "2025-12-23",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "节前被动减持 而被动减",
+        "hit_span": "btc和eth今天是有节前被动减持 而被动减持的买点只能在最低附近 16.45买入可能几秒甚至几分钟半小时还在16.45附近 但",
+        "raw_text": "btc和eth今天是有节前被动减持 而被动减持的买点只能在最低附近 16.45买入可能几秒甚至几分钟半小时还在16.45附近 但是结束流出就会V下 上周五的16.8买入到18-18.5昨天卖出也是这样 16.45买 16.42问是不是要止损有点太慌了 [IMAGE:https://img-v2-prod.whop.com/SXMnyV9e7kpQE3Tyj9DnFERwpRFuqPZvQ1gdATCdRUY/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2025-12-23%2Fuser_17909136_9a8c4cec-5d24-4691-9420-561b06f2528b.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3Df7784664ec75b75142b365530ac7838bec9467c07e414d6818c7374deb22b6a9]"
+      },
+      {
+        "message_id": "post_1CWQHuVHAm3o2qjjZW2gVM",
+        "et_date": "2025-12-23",
+        "channel_name": "不用翻墙期权",
+        "matched_keyword": "节前被动减持 而被动减",
+        "hit_span": "btc和eth今天是有节前被动减持 而被动减持的买点只能在最低附近 16.45买入可能几秒甚至几分钟半小时还在16.45附近 但",
+        "raw_text": "btc和eth今天是有节前被动减持 而被动减持的买点只能在最低附近 16.45买入可能几秒甚至几分钟半小时还在16.45附近 但是结束流出就会V下 上周五的16.8买入到18-18.5昨天卖出也是这样 16.45买 16.42问是不是要止损有点太慌了"
+      },
+      {
+        "message_id": "post_1CWdBwTLLUZnJHfNxdTkQL",
+        "et_date": "2025-12-30",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "节前的被动减",
+        "hit_span": "二轮有没有再下来 没在下来就是节前的被动减现金流都差不多满足了客户赎回的要求了  最近几天没有再创新低的双底明星股就节后的反弹",
+        "raw_text": "今天qqq和币市场要看第二轮有没有再下来 没在下来就是节前的被动减现金流都差不多满足了客户赎回的要求了  最近几天没有再创新低的双底明星股就节后的反弹再出 有些在双底附近小跌的就明天低点在稍微加点"
+      },
+      {
+        "message_id": "post_1CWetoui66PVa4NtkGiC9Q",
+        "et_date": "2025-12-31",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "节前最后天",
+        "hit_span": "再吸回 今天量能会比昨天低点是节前最后天 反弹度也会少点  反弹不大的就不吸也不卖到周五再看",
+        "raw_text": "今天也是开盘反弹时候去减些昨天收盘买的 然后收盘后再吸回 今天量能会比昨天低点是节前最后天 反弹度也会少点  反弹不大的就不吸也不卖到周五再看"
+      },
+      {
+        "message_id": "post_1CWfRUgJMC9WUsfWSwhiTN",
+        "et_date": "2025-12-31",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "节前最后天",
+        "hit_span": "天尾盘也是基金被动减持留现金的节前最后天 可以收盘有些双底 或者双底跌破的建仓和少量补仓（昨天收盘加过的今天价格差不多的就少量补）",
+        "raw_text": "今天尾盘也是基金被动减持留现金的节前最后天 可以收盘有些双底 或者双底跌破的建仓和少量补仓（昨天收盘加过的今天价格差不多的就少量补） 周五夜盘和盘前有比今天收盘低的时候在加点 看周五是多空双杀还是开盘后走多空都结算然后普涨"
+      }
+    ]
+  },
+  "stock_nature": {
+    "name": "股性特例",
+    "queries": [
+      "马上抛",
+      "格局",
+      "腰斩",
+      "前高一半",
+      "反弹一半"
+    ],
+    "hit_count": 16,
+    "date_min": "2025-12-03",
+    "date_max": "2026-06-17",
+    "sample_5": [
+      {
+        "message_id": "post_1CVkJTMPBDiPHpvx618Da4",
+        "et_date": "2025-12-03",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "反弹一半",
+        "hit_span": "反弹 asts和rklb也是往反弹一半的方向走  rklb  （66.35+37.57）/2=51.96 asts (4",
+        "raw_text": "太空板块是昨天刚反弹 asts和rklb也是往反弹一半的方向走  rklb  （66.35+37.57）/2=51.96 asts (49.31+83.31)/2=66.31"
+      },
+      {
+        "message_id": "post_1CVkM5wnjrfMxNCiRzUhFq",
+        "et_date": "2025-12-03",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "反弹一半",
+        "hit_span": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切   asts资讯有被动清仓慌啥就是抢筹机会",
+        "raw_text": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切   asts资讯有被动清仓慌啥就是抢筹机会"
+      },
+      {
+        "message_id": "post_1CVmvGYm4bC96CTHAcGDPX",
+        "et_date": "2025-12-04",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "反弹一半",
+        "hit_span": "oklo也即将反弹一半位置了",
+        "raw_text": "oklo也即将反弹一半位置了"
+      },
+      {
+        "message_id": "post_1CVmwBUsctY2K3qVJMejjZ",
+        "et_date": "2025-12-04",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "反弹一半",
+        "hit_span": "星股小盘股  小盘股很多今天冲反弹一半涨幅的   币股今天小幅反弹高位震荡",
+        "raw_text": "今天盘面是高低切  有些七姐妹先反弹的资金出去 去了明星股小盘股  小盘股很多今天冲反弹一半涨幅的   币股今天小幅反弹高位震荡"
+      },
+      {
+        "message_id": "post_1CW1JCnbhgnKqFATpTS35x",
+        "et_date": "2025-12-11",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "腰斩",
+        "hit_span": "当初腰斩的太空股最近都在摸前高附近  目前就剩下rklb的低位的剩下一半 会18号日本加息之前走",
+        "raw_text": "当初腰斩的太空股最近都在摸前高附近  目前就剩下rklb的低位的剩下一半 会18号日本加息之前走 asts之前73时候都走了等之后再找机会 [IMAGE:https://img-v2-prod.whop.com/fYZExGjVHME3OyqfcqZYgZRjZchHMQnbkpTuJJ1JQ30/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2025-12-11%2Fuser_17909136_3d1fdc8c-0562-4926-9514-981629d22cdc.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D44bb78c3233f5789472f7df10a7318350836d2558efc7676abfc39872a2b0c44]"
+      }
+    ]
+  },
+  "macro_cycle_lessons": {
+    "name": "周期应对课",
+    "queries": [
+      "关门",
+      "关税",
+      "伊朗"
+    ],
+    "hit_count": 101,
+    "date_min": "2025-10-10",
+    "date_max": "2026-06-26",
+    "sample_5": [
+      {
+        "message_id": "post_1CTzEncUzZHr9GK526LH3w",
+        "et_date": "2025-10-10",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "关税",
+        "hit_span": "次态度强硬 周末会中方美方互撕关税和软件出口管制 要留出仓位给周一万一跳空留余地 和4月关税互撕一样 讲话当中有反弹",
+        "raw_text": "这次态度强硬 周末会中方美方互撕关税和软件出口管制 要留出仓位给周一万一跳空留余地 和4月关税互撕一样 讲话当中有反弹 分批减点 今天抄底只能快收盘时候抄点 收盘附近应该是最低价 周一跳空在补仓做T  周一跳空后买比较重要点"
+      },
+      {
+        "message_id": "post_1CUBBdhEJ3QVYMNTuYLUoN",
+        "et_date": "2025-10-16",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "关税",
+        "hit_span": "是特朗普先发了增加100%中国关税 说5点讲话 5点前又压了波股价   今天也是看讲话前跳水都是支撑位小仓位",
+        "raw_text": "今天和上周五差不多 周五是特朗普先发了增加100%中国关税 说5点讲话 5点前又压了波股价   今天也是看讲话前跳水都是支撑位小仓位 讲话时候如果大跳水在加仓"
+      },
+      {
+        "message_id": "post_1CV6SPVsSNLofbMrDzStwi",
+        "et_date": "2025-11-13",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "关门",
+        "hit_span": "时候的V的低点做确认 再讲最近关门的影响",
+        "raw_text": "尾盘可以以讲话时候的V的低点做确认 再讲最近关门的影响"
+      },
+      {
+        "message_id": "post_1CX3aaESonMPR9SLwieXgy",
+        "et_date": "2026-01-12",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "关税",
+        "hit_span": "1  法院推迟到周三宣布关税结果 2  周三到周一有msci剔除指数相继披露 3  周三到周一加密安全法案投票",
+        "raw_text": "这周事件多主要集中在周三到下周一 1  法院推迟到周三宣布关税结果 2  周三到周一有msci剔除指数相继披露 3  周三到周一加密安全法案投票 4  周三到周一 马丁路德金节日前三天的被动减 这周开仓主要都会集中到收盘才去开仓 仓位单次开仓也是平常常规仓的一半 盘中有很大回调才盘中和盘尾2段式开仓 "
+      },
+      {
+        "message_id": "post_1CX64E1YTsurGjtUwVnQwv",
+        "et_date": "2026-01-13",
+        "channel_name": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "matched_keyword": "关税",
+        "hit_span": "明天会关注下关税裁定后的波动找回调多的在开些仓位 [IMAGE:https://img-v2-prod.w",
+        "raw_text": "明天会关注下关税裁定后的波动找回调多的在开些仓位 [IMAGE:https://img-v2-prod.whop.com/DjVK3D9o6cHFMmjKS6d2TmhVgYGY1e7iFDV-wphAJXQ/plain/https%3A%2F%2Fassets-2-prod-private.whop.com%2Fuploads%2F2026-01-13%2Fuser_17909136_d4389d15-5dec-43d6-a079-c2da55a7363c.png%3FX-Amz-Algorithm%3DAWS4-HMAC-SHA256%26X-Amz-Credential%3DAKIA4KSQJCJ3YQMRKBHB%252F20260604%252Fus-east-1%252Fs3%252Faws4_request%26X-Amz-Date%3D20260604T120000Z%26X-Amz-Expires%3D86400%26X-Amz-SignedHeaders%3Dhost%26X-Amz-Signature%3D327437e50a7c3825fa810882e920fb4d9e89374a9ccde5b397c5e49c6c6f0276]"
+      }
+    ]
+  }
+}
