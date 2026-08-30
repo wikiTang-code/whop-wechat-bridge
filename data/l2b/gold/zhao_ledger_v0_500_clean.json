@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "dataset": "赵哥时序前 500 条消息 (2025-10-06 ~ 2025-10-17)",
+    "total_scanned": 500,
+    "bookmarked_stops": 20,
+    "valid_mechanism_entries": 4,
+    "valid_lessons_count": 14,
+    "skipped_stops_count": 6
+  },
+  "clean_ledger": [
+    {
+      "ledger_id": "mech_second_handshake",
+      "mechanism_name": "二次握手不破低点低吸",
+      "first_date": "2025-10-07",
+      "first_message_id": "post_1CTt7rqCrE8p2CFjCM4ZRL",
+      "first_evidence": "第一轮低点 在第一轮附近的完成二次握手",
+      "total_distinct_instances": 3,
+      "instances": [
+        {
+          "index": 35,
+          "message_id": "post_1CTtAYLiNZcRnKfVuyFiHs",
+          "et_date": "2025-10-07",
+          "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+          "evidence_span": ".5 大多数股票今天就盘中完成二次握手的吸筹",
+          "raw_text": "指数上QQQ盘后的收盘价要大于604.5 大多数股票今天就盘中完成二次握手的吸筹"
+        },
+        {
+          "index": 191,
+          "message_id": "post_1CTyoU93GVnALQzRxMAGnS",
+          "et_date": "2025-10-10",
+          "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+          "evidence_span": "盘中还有次二次握手确认的 日内低点不破可以在吸一波",
+          "raw_text": "盘中还有次二次握手确认的 日内低点不破可以在吸一波"
+        }
+      ]
+    },
+    {
+      "ledger_id": "mech_decay_equivalent_calc",
+      "mechanism_name": "期权/杠杆磨损值折算上一轮价格",
+      "first_date": "2025-10-08",
+      "first_message_id": "post_1CTupUZ5X6Q9X8RUSBd5c9",
+      "first_evidence": "近支撑分批回吸 第三次 计算了磨损值  18.8相当于第一轮的19.2",
+      "total_distinct_instances": 1,
+      "instances": []
+    },
+    {
+      "ledger_id": "mech_block_print_reentry",
+      "mechanism_name": "支撑位大单入场再回买",
+      "first_date": "2025-10-10",
+      "first_message_id": "post_1CTyfbFudk261cM1sFhTuz",
+      "first_evidence": "或者到股票支撑位附近看有大单入场在回买",
+      "total_distinct_instances": 1,
+      "instances": []
+    },
+    {
+      "ledger_id": "mech_gap_rebound_dip",
+      "mechanism_name": "跳空缺口回踩吸筹",
+      "first_date": "2025-10-13",
+      "first_message_id": "post_1CU5G6AyfAbjQTvRh8oCMD",
+      "first_evidence": "反制新闻，今天盘中可以盯着跳空缺口时候回吸点仓位",
+      "total_distinct_instances": 2,
+      "instances": [
+        {
+          "index": 256,
+          "message_id": "post_1CU5J9pm9nXuB1YbXUHjmB",
+          "et_date": "2025-10-13",
+          "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+          "evidence_span": "今天回吸时候尽量分批点缺口支撑一次 时间上尾盘有低点再一次",
+          "raw_text": "今天回吸时候尽量分批点缺口支撑一次 时间上尾盘有低点再一次"
+        }
+      ]
+    }
+  ],
+  "skipped_stops_audit": [
+    {
+      "index": 304,
+      "message_id": "post_1CU93o5Wm99h8PMzaK88Vh",
+      "et_date": "2025-10-15",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "缺口",
+      "reason": "weak_semantics_or_market_commentary (弱语义或单日盘面点评，不开新账)",
+      "raw_text": "NVDL盘前突破了昨天的高点 可以设置下跌破90减持一半的条件 ，上面缺口在92.5能突破会在回去95"
+    },
+    {
+      "index": 305,
+      "message_id": "post_1CU93oh4kojVbEGituNCtZ",
+      "et_date": "2025-10-15",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "reason": "weak_semantics_or_market_commentary (弱语义或单日盘面点评，不开新账)",
+      "raw_text": "NVDL盘前突破了昨天的高点 可以设置下跌破90减持一半的条件 ，上面缺口在92.5能突破会在回去95"
+    },
+    {
+      "index": 331,
+      "message_id": "post_1CU97szjJj5wDEH1Y2KqEi",
+      "et_date": "2025-10-15",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "缺口",
+      "reason": "weak_semantics_or_market_commentary (弱语义或单日盘面点评，不开新账)",
+      "raw_text": "今天走势和昨天一样的 开盘都是活性股 回踩下跳空缺口开始震荡往上  2点钟-3点钟可以减持点  尾盘特朗普如果发帖的回调也不用慌在支撑吸回就是了"
+    },
+    {
+      "index": 332,
+      "message_id": "post_1CU97tcTQfq18ds4K5b9ch",
+      "et_date": "2025-10-15",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "reason": "weak_semantics_or_market_commentary (弱语义或单日盘面点评，不开新账)",
+      "raw_text": "今天走势和昨天一样的 开盘都是活性股 回踩下跳空缺口开始震荡往上 2点钟-3点钟可以减持点 尾盘特朗普如果发帖的回调也不用慌在支撑吸回就是了"
+    },
+    {
+      "index": 392,
+      "message_id": "post_1CUAx9NNYEdHmXVhX5qncM",
+      "et_date": "2025-10-16",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "缺口",
+      "reason": "weak_semantics_or_market_commentary (弱语义或单日盘面点评，不开新账)",
+      "raw_text": "今天开盘和昨天差不多 盘前涨的 开盘会回踩下跳空缺口在往上  开盘后回踩后到支撑的可以低吸下"
+    },
+    {
+      "index": 393,
+      "message_id": "post_1CUAx9cBU93JKjtRQjejnt",
+      "et_date": "2025-10-16",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "reason": "weak_semantics_or_market_commentary (弱语义或单日盘面点评，不开新账)",
+      "raw_text": "今天开盘和昨天差不多 盘前涨的 开盘会回踩下跳空缺口在往上  开盘后回踩后到支撑的可以低吸下"
+    }
+  ]
+}
