@@ -1,0 +1,348 @@
+[
+  {
+    "cu_id": "cu_record_00003",
+    "date": "2025-10-06",
+    "raw_text": "[xiaozhaolucky]: 21.7也减仓点tsll 剩下原始持仓",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "TSLL",
+        "price": 21.7,
+        "fraction": "部分",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "减仓点，剩下原始持仓"
+      }
+    ],
+    "dup_of": "cu_trade_00001",
+    "status_summary": "🔁 dup_of 1195 (TSLL 减仓)"
+  },
+  {
+    "cu_id": "cu_record_00063",
+    "date": "2025-10-12",
+    "raw_text": "[xiaozhaolucky]: 夜盘8点到9点半A股开盘前没啥新闻应该会拉升一波\n[xiaozhaolucky]: fbl 8.95接了\n[xiaozhaolucky]: amzu 17.5接了\n[xiaozhaolucky]: rddt 118.5挂了点",
+    "actions": [
+      {
+        "action": "BUY",
+        "ticker": "FBL",
+        "price": 8.95,
+        "fraction": "接了",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "夜盘接单"
+      },
+      {
+        "action": "BUY",
+        "ticker": "AMZU",
+        "price": 17.5,
+        "fraction": "接了",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "夜盘接单"
+      },
+      {
+        "action": "BUY",
+        "ticker": "RDDT",
+        "price": 118.5,
+        "fraction": "挂了点",
+        "status": "planned",
+        "instrument": "stock",
+        "note": "挂单买入"
+      }
+    ],
+    "dup_of": null,
+    "status_summary": "🆕 独立新增 (3笔夜盘买入/挂单)"
+  },
+  {
+    "cu_id": "cu_record_00169",
+    "date": "2025-10-23",
+    "raw_text": "[xiaozhaolucky]: rklb这会冲高63.5-64之间可以减仓",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "RKLB",
+        "price": "63.5-64",
+        "fraction": "部分",
+        "status": "planned",
+        "instrument": "stock",
+        "note": "冲高建议减仓区间"
+      }
+    ],
+    "dup_of": "cu_trade_00089",
+    "status_summary": "🔁 dup_of 1195 (RKLB 冲高减仓)"
+  },
+  {
+    "cu_id": "cu_record_00242",
+    "date": "2025-11-03",
+    "raw_text": "[xiaozhaolucky]: 主要hims就是今天财报二次握手博弈 没利润垫的就不要留了",
+    "actions": [],
+    "l2b_knowledge": {
+      "statement": "财报日采用二次握手博弈策略；若无足够利润垫，财报前坚决不留仓位避险。",
+      "tags": [
+        "二次握手",
+        "财报博弈",
+        "利润垫纪律"
+      ]
+    },
+    "dup_of": null,
+    "status_summary": "💡 归入 L2b 战法纪律 (无 L2a 成交单据)"
+  },
+  {
+    "cu_id": "cu_record_00318",
+    "date": "2025-11-10",
+    "raw_text": "[xiaozhaolucky]: 135减仓hood\n[xiaozhaolucky]: 剩下看明天开盘再定",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "HOOD",
+        "price": 135,
+        "fraction": "部分",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "135 减仓"
+      }
+    ],
+    "dup_of": null,
+    "status_summary": "🆕 独立新增 (HOOD @135 减仓)"
+  },
+  {
+    "cu_id": "cu_record_00415",
+    "date": "2025-11-20",
+    "raw_text": "[xiaozhaolucky]: 盘中吸过的就尾盘不吸了 等盘前在压一波低点",
+    "actions": [],
+    "dup_of": null,
+    "status_summary": "⚪ 噪声过滤 (分时点拨，无明确标的)"
+  },
+  {
+    "cu_id": "cu_record_00515",
+    "date": "2025-12-04",
+    "raw_text": "[xiaozhaolucky]: meta期权也吃磨损了 开盘0.6都走了",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "META",
+        "price": 0.6,
+        "fraction": "全部",
+        "status": "filled",
+        "instrument": "option",
+        "note": "期权吃磨损，开盘 0.6 清仓"
+      }
+    ],
+    "dup_of": "cu_trade_00366",
+    "status_summary": "🔁 dup_of 1195 (META 期权清仓 @0.6)"
+  },
+  {
+    "cu_id": "cu_record_00636",
+    "date": "2025-12-18",
+    "raw_text": "[xiaozhaolucky]: 今天也是盘前和盘中反弹时候减掉点 明天周五再做",
+    "actions": [],
+    "dup_of": null,
+    "status_summary": "⚪ 噪声过滤 (仓位纪律，无标的)"
+  },
+  {
+    "cu_id": "cu_record_00714",
+    "date": "2026-01-02",
+    "raw_text": "[xiaozhaolucky]: 今天币预警也是要设置下 和加息那天夜盘一样",
+    "actions": [],
+    "dup_of": null,
+    "status_summary": "⚪ 噪声过滤 (风控提醒，无标的)"
+  },
+  {
+    "cu_id": "cu_record_00848",
+    "date": "2026-01-21",
+    "raw_text": "[xiaozhaolucky]: 夜盘16.75出一半16.54的tsll",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "TSLL",
+        "price": 16.75,
+        "fraction": "一半",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "出一半 16.54 成本仓位"
+      }
+    ],
+    "dup_of": "cu_trade_00488",
+    "status_summary": "🔁 dup_of 1195 (TSLL 做T出半仓)"
+  },
+  {
+    "cu_id": "cu_record_00939",
+    "date": "2026-01-30",
+    "raw_text": "[xiaozhaolucky]: 尾盘79回吸了开盘卖出的oklo那部分",
+    "actions": [
+      {
+        "action": "BUY",
+        "ticker": "OKLO",
+        "price": 79,
+        "fraction": "做T部分",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "尾盘回吸开盘卖出部分"
+      }
+    ],
+    "dup_of": "cu_trade_00542",
+    "status_summary": "🔁 dup_of 1195 (OKLO 尾盘回吸)"
+  },
+  {
+    "cu_id": "cu_record_01036",
+    "date": "2026-02-13",
+    "raw_text": "[xiaozhaolucky]: onds 盘前冲高也在9.23附近出掉了",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "ONDS",
+        "price": 9.23,
+        "fraction": "全部",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "盘前冲高出掉"
+      }
+    ],
+    "dup_of": "cu_trade_00612",
+    "status_summary": "🔁 dup_of 1195 (ONDS 盘前冲高出)"
+  },
+  {
+    "cu_id": "cu_record_01109",
+    "date": "2026-03-02",
+    "raw_text": "[xiaozhaolucky]: 夜盘14.05加仓了tsll",
+    "actions": [
+      {
+        "action": "BUY",
+        "ticker": "TSLL",
+        "price": 14.05,
+        "fraction": "加仓",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "夜盘加仓"
+      }
+    ],
+    "dup_of": "cu_trade_00678",
+    "status_summary": "🔁 dup_of 1195 (TSLL 夜盘加仓)"
+  },
+  {
+    "cu_id": "cu_record_01194",
+    "date": "2026-03-16",
+    "raw_text": "[xiaozhaolucky]: nvdl讲了 rubin销量 直线了 盘前在125全部止盈了",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "NVDL",
+        "price": 125,
+        "fraction": "全部",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "盘前全部止盈"
+      }
+    ],
+    "dup_of": "cu_trade_00731",
+    "status_summary": "🔁 dup_of 1195 (NVDL 盘前止盈)"
+  },
+  {
+    "cu_id": "cu_record_01310",
+    "date": "2026-04-07",
+    "raw_text": "[xiaozhaolucky]: 11.26出 11.26 的tsll 平仓保本了",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "TSLL",
+        "price": 11.26,
+        "fraction": "全部",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "平仓保本出"
+      }
+    ],
+    "dup_of": "cu_trade_00802",
+    "status_summary": "🔁 dup_of 1195 (TSLL 保本平仓)"
+  },
+  {
+    "cu_id": "cu_record_01384",
+    "date": "2026-04-23",
+    "raw_text": "[xiaozhaolucky]: tsll 夜盘 12.32 部分 12.56 出了一半",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "TSLL",
+        "price": 12.56,
+        "fraction": "一半",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "出了一半"
+      }
+    ],
+    "dup_of": "cu_trade_00856",
+    "status_summary": "🔁 dup_of 1195 (TSLL 做T出半仓)"
+  },
+  {
+    "cu_id": "cu_record_01462",
+    "date": "2026-05-08",
+    "raw_text": "[xiaozhaolucky]: 76.2附近出一半 74。33的hood",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "HOOD",
+        "price": 76.2,
+        "fraction": "一半",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "出 74.33 成本的一半"
+      }
+    ],
+    "dup_of": "cu_trade_00911",
+    "status_summary": "🔁 dup_of 1195 (HOOD 做T出半仓)"
+  },
+  {
+    "cu_id": "cu_record_01552",
+    "date": "2026-05-28",
+    "raw_text": "[xiaozhaolucky]: 6.74出一半6.8的conl 战争发酵了 避险",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "CONL",
+        "price": 6.74,
+        "fraction": "一半",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "避险出一半"
+      }
+    ],
+    "dup_of": "cu_trade_00984",
+    "status_summary": "🔁 dup_of 1195 (CONL 避险出半仓)"
+  },
+  {
+    "cu_id": "cu_record_01611",
+    "date": "2026-06-04",
+    "raw_text": "[xiaozhaolucky]: 108.5出一半106.75的nvdl",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "NVDL",
+        "price": 108.5,
+        "fraction": "一半",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "做T出一半"
+      }
+    ],
+    "dup_of": "cu_trade_01024",
+    "status_summary": "🔁 dup_of 1195 (NVDL 做T出半仓)"
+  },
+  {
+    "cu_id": "cu_record_01663",
+    "date": "2026-06-10",
+    "raw_text": "[xiaozhaolucky]: 865出掉787剩下一半的lite 等回踩",
+    "actions": [
+      {
+        "action": "SELL",
+        "ticker": "LITE",
+        "price": 865,
+        "fraction": "剩下一半",
+        "status": "filled",
+        "instrument": "stock",
+        "note": "出剩下一半等回踩"
+      }
+    ],
+    "dup_of": "cu_trade_01089",
+    "status_summary": "🔁 dup_of 1195 (LITE 波段止盈)"
+  }
+]

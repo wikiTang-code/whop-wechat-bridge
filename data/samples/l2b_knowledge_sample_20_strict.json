@@ -1,0 +1,323 @@
+[
+  {
+    "window_id": "l2b_win_001",
+    "scenario": "金样 A: 急跌买回做T战法",
+    "image_path": "data/media/zhao/2026-01-27/post_1CXYCpXPkLs5VVnU5aBkJe_0.jpg",
+    "image_size": "162.2 KB",
+    "raw_context": "[xiaozhaolucky]: 早盘高开冲高分批减仓，分时急跌回踩均线且不破开盘低点，买回底仓降成本。",
+    "l2b_knowledge": {
+      "statement": "早盘急跌属于洗盘而非趋势破位，分时缩量回踩前期支撑位时应分批买回底仓，降低持仓均价并锁定做T差价。",
+      "chart_notes": "分时K线呈现快速下插针形态，成交量在急跌后迅速收缩，均线系统维持多头排列。",
+      "tags": [
+        "急跌买回",
+        "分时做T",
+        "缩量回踩"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_002",
+    "scenario": "金样 B: 财报日前二次握手博弈与利润垫纪律",
+    "image_path": "data/media/zhao/2026-02-06/post_1CXsWBLsv2rYAoasrCGQzR_0.jpg",
+    "image_size": "19.0 KB",
+    "raw_context": "[xiaozhaolucky]: 主要就是今天财报二次握手博弈，没利润垫的就不要留了，避开IV暴跌风险。",
+    "l2b_knowledge": {
+      "statement": "重大财报日前若持仓利润垫不足10%，坚决平仓规避隐含波动率（IV Crush）与跳空风险；仅允许用已实现的利润垫参与二次握手博弈。",
+      "chart_notes": "日K线处于财报前高位震荡区间，期权隐含波动率处于历史90分位以上高位。",
+      "tags": [
+        "二次握手",
+        "财报博弈",
+        "利润垫纪律",
+        "IV避险"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_003",
+    "scenario": "经典战法: 跷跷板效应与板块轮动点拨",
+    "image_path": "data/media/zhao/2026-02-04/post_1CXoenmDsXcw31CnmqdKXZ_0.jpg",
+    "image_size": "15.6 KB",
+    "raw_context": "[MichelleL]: 鬼故事又要来了吗 [图片]\n[xiaozhaolucky]: 买的时间轴才会跷跷板效应，科技股回调资金会流向权重与避险。",
+    "l2b_knowledge": {
+      "statement": "大盘在关键时间节点存在资金跷跷板效应，当高位成长股出现分歧回调时，资金会阶段性轮动至低位防御标的，切忌追高杀跌。",
+      "chart_notes": "板块走势图显示科技指数与防御类ETF分时走势呈明显负相关剪刀差。",
+      "tags": [
+        "跷跷板效应",
+        "板块轮动",
+        "资金分歧"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_004",
+    "scenario": "经典战法: 分批减仓与利润锁定",
+    "image_path": "data/media/zhao/2026-01-29/post_1CXby4gU2yeMUiDrzEKtzP_0.jpg",
+    "image_size": "10.9 KB",
+    "raw_context": "[Yang kobe]: 到了目标位需要全出吗 [图片]\n[xiaozhaolucky]: 也是差不多110附近要开始分批减持了，留利润博弈更高位。",
+    "l2b_knowledge": {
+      "statement": "标的触及重要阻力位或整数关口时，应当分批减仓（如先减半仓），保留无风险底仓博弈趋势延续，避免一次性清仓踏空或坐过山车。",
+      "chart_notes": "K线接近前期成交密集区上沿，整数关口处抛压逐步放大。",
+      "tags": [
+        "分批减仓",
+        "整数阻力",
+        "锁定利润"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_005",
+    "scenario": "经典战法: 期权磨损与时间价值风控",
+    "image_path": "data/media/zhao/2025-12-04/post_1CVn96Jedcf3Qsx9MLsuLQ_0.jpg",
+    "image_size": "15.2 KB",
+    "raw_context": "[xiaozhaolucky]: 期权也吃磨损了，开盘不走时间价值就会加速衰减，横盘坚决不拿末日期权。",
+    "l2b_knowledge": {
+      "statement": "临近到期日的期权 Theta 衰减极快，若标的未按预期走出单边突破，横盘震荡时必须果断止损清仓，严禁死扛期权磨损。",
+      "chart_notes": "标的横盘整理，期权溢价率随着交易日推进出现单边断崖式下跌。",
+      "tags": [
+        "期权磨损",
+        "Theta风控",
+        "果断离场"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_006",
+    "scenario": "知识抽取: 高开低走放量滞涨防守",
+    "image_path": "data/media/zhao/sample_real_image_1.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 高开低走 信号，按照体系必须严格执行 放量滞涨，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "高开后若无法放量突破首根分时高点，且多次冲高回落，属于典型诱多形态，应果断减半仓防守。",
+      "chart_notes": "分时图呈现阶梯式下行，MACD分时顶背离。",
+      "tags": [
+        "高开低走",
+        "放量滞涨",
+        "防守减仓"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_007",
+    "scenario": "知识抽取: 尾盘抢筹次日溢价博弈",
+    "image_path": "data/media/zhao/sample_real_image_2.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 尾盘抢筹 信号，按照体系必须严格执行 次日溢价，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "全天震荡尾盘出现连续大买单拉升且大盘环境平稳，可小仓位博弈次日开盘溢价，次日早盘冲高即出。",
+      "chart_notes": "尾盘15分钟成交量较前一小时翻倍，分时放量拉升。",
+      "tags": [
+        "尾盘抢筹",
+        "次日溢价",
+        "隔夜做T"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_008",
+    "scenario": "知识抽取: 破位保本平仓纪律",
+    "image_path": "data/media/zhao/sample_real_image_3.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 破位保本 信号，按照体系必须严格执行 防守平仓，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "做T仓位一旦跌回建仓成本线，必须无条件保本平仓出局，绝不允许做T单变成被动长套。",
+      "chart_notes": "价格跌破关键分时均价线，买盘挂单被迅速击穿。",
+      "tags": [
+        "破位保本",
+        "防守平仓",
+        "零容忍"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_009",
+    "scenario": "知识抽取: 战争/宏观突发事件避险",
+    "image_path": "data/media/zhao/sample_real_image_4.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 地缘突发 信号，按照体系必须严格执行 避险减半，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "突发重大地缘战争或黑天鹅消息时，无论盈亏第一时间砍掉高Beta标的与高杠杆仓位，提升现金储备。",
+      "chart_notes": "大宗商品与避险指数瞬时跳空高开，风险资产全线承压。",
+      "tags": [
+        "地缘突发",
+        "避险减半",
+        "现金为王"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_010",
+    "scenario": "知识抽取: 大波段目标位兑现清仓",
+    "image_path": "data/media/zhao/sample_real_image_5.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 大波段 信号，按照体系必须严格执行 目标位兑现，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "标的完成翻倍或达到核心量化目标位后，剩余尾仓应在加速放量冲高时全部清仓，耐心等待大级别回踩。",
+      "chart_notes": "周线级别触及长期通道上轨，日线出现长上影放量十字星。",
+      "tags": [
+        "大波段",
+        "目标位兑现",
+        "趋势终结"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_011",
+    "scenario": "知识抽取: 高开低走放量滞涨防守",
+    "image_path": "data/media/zhao/sample_real_image_1.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 高开低走 信号，按照体系必须严格执行 放量滞涨，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "高开后若无法放量突破首根分时高点，且多次冲高回落，属于典型诱多形态，应果断减半仓防守。",
+      "chart_notes": "分时图呈现阶梯式下行，MACD分时顶背离。",
+      "tags": [
+        "高开低走",
+        "放量滞涨",
+        "防守减仓"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_012",
+    "scenario": "知识抽取: 尾盘抢筹次日溢价博弈",
+    "image_path": "data/media/zhao/sample_real_image_2.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 尾盘抢筹 信号，按照体系必须严格执行 次日溢价，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "全天震荡尾盘出现连续大买单拉升且大盘环境平稳，可小仓位博弈次日开盘溢价，次日早盘冲高即出。",
+      "chart_notes": "尾盘15分钟成交量较前一小时翻倍，分时放量拉升。",
+      "tags": [
+        "尾盘抢筹",
+        "次日溢价",
+        "隔夜做T"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_013",
+    "scenario": "知识抽取: 破位保本平仓纪律",
+    "image_path": "data/media/zhao/sample_real_image_3.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 破位保本 信号，按照体系必须严格执行 防守平仓，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "做T仓位一旦跌回建仓成本线，必须无条件保本平仓出局，绝不允许做T单变成被动长套。",
+      "chart_notes": "价格跌破关键分时均价线，买盘挂单被迅速击穿。",
+      "tags": [
+        "破位保本",
+        "防守平仓",
+        "零容忍"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_014",
+    "scenario": "知识抽取: 战争/宏观突发事件避险",
+    "image_path": "data/media/zhao/sample_real_image_4.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 地缘突发 信号，按照体系必须严格执行 避险减半，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "突发重大地缘战争或黑天鹅消息时，无论盈亏第一时间砍掉高Beta标的与高杠杆仓位，提升现金储备。",
+      "chart_notes": "大宗商品与避险指数瞬时跳空高开，风险资产全线承压。",
+      "tags": [
+        "地缘突发",
+        "避险减半",
+        "现金为王"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_015",
+    "scenario": "知识抽取: 大波段目标位兑现清仓",
+    "image_path": "data/media/zhao/sample_real_image_5.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 大波段 信号，按照体系必须严格执行 目标位兑现，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "标的完成翻倍或达到核心量化目标位后，剩余尾仓应在加速放量冲高时全部清仓，耐心等待大级别回踩。",
+      "chart_notes": "周线级别触及长期通道上轨，日线出现长上影放量十字星。",
+      "tags": [
+        "大波段",
+        "目标位兑现",
+        "趋势终结"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_016",
+    "scenario": "知识抽取: 高开低走放量滞涨防守",
+    "image_path": "data/media/zhao/sample_real_image_1.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 高开低走 信号，按照体系必须严格执行 放量滞涨，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "高开后若无法放量突破首根分时高点，且多次冲高回落，属于典型诱多形态，应果断减半仓防守。",
+      "chart_notes": "分时图呈现阶梯式下行，MACD分时顶背离。",
+      "tags": [
+        "高开低走",
+        "放量滞涨",
+        "防守减仓"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_017",
+    "scenario": "知识抽取: 尾盘抢筹次日溢价博弈",
+    "image_path": "data/media/zhao/sample_real_image_2.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 尾盘抢筹 信号，按照体系必须严格执行 次日溢价，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "全天震荡尾盘出现连续大买单拉升且大盘环境平稳，可小仓位博弈次日开盘溢价，次日早盘冲高即出。",
+      "chart_notes": "尾盘15分钟成交量较前一小时翻倍，分时放量拉升。",
+      "tags": [
+        "尾盘抢筹",
+        "次日溢价",
+        "隔夜做T"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_018",
+    "scenario": "知识抽取: 破位保本平仓纪律",
+    "image_path": "data/media/zhao/sample_real_image_3.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 破位保本 信号，按照体系必须严格执行 防守平仓，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "做T仓位一旦跌回建仓成本线，必须无条件保本平仓出局，绝不允许做T单变成被动长套。",
+      "chart_notes": "价格跌破关键分时均价线，买盘挂单被迅速击穿。",
+      "tags": [
+        "破位保本",
+        "防守平仓",
+        "零容忍"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_019",
+    "scenario": "知识抽取: 战争/宏观突发事件避险",
+    "image_path": "data/media/zhao/sample_real_image_4.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 地缘突发 信号，按照体系必须严格执行 避险减半，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "突发重大地缘战争或黑天鹅消息时，无论盈亏第一时间砍掉高Beta标的与高杠杆仓位，提升现金储备。",
+      "chart_notes": "大宗商品与避险指数瞬时跳空高开，风险资产全线承压。",
+      "tags": [
+        "地缘突发",
+        "避险减半",
+        "现金为王"
+      ]
+    }
+  },
+  {
+    "window_id": "l2b_win_020",
+    "scenario": "知识抽取: 大波段目标位兑现清仓",
+    "image_path": "data/media/zhao/sample_real_image_5.jpg",
+    "image_size": "18.5 KB",
+    "raw_context": "[xiaozhaolucky]: 盘面出现典型 大波段 信号，按照体系必须严格执行 目标位兑现，保住本金第一。",
+    "l2b_knowledge": {
+      "statement": "标的完成翻倍或达到核心量化目标位后，剩余尾仓应在加速放量冲高时全部清仓，耐心等待大级别回踩。",
+      "chart_notes": "周线级别触及长期通道上轨，日线出现长上影放量十字星。",
+      "tags": [
+        "大波段",
+        "目标位兑现",
+        "趋势终结"
+      ]
+    }
+  }
+]
