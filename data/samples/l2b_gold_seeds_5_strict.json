@@ -1,0 +1,122 @@
+[
+  {
+    "gold_id": "g_zhao_001",
+    "kid": "k_wave_value_extremes",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "source_message_ids": [
+      "msg_spx_arrow_chart_001"
+    ],
+    "et_date": "2026-06-26",
+    "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
+    "raw_text": "[xiaozhaolucky]: 知道了波动值 卖在最高就根本不用慌 底部区域心理有数了 急跌就有从容不迫又能接回",
+    "evidence_span": "知道了波动值 卖在最高就根本不用慌 底部区域心理有数了 急跌就有从容不迫又能接回",
+    "statement": "先用波动值标出当日高位与低位区域；卖在已标定的最高区域附近，底区急跌时才接回。",
+    "chart_notes": {
+      "timeframe": "intraday",
+      "markers": "箭头指冲高失败的尖(约7512)，现价约7474，黄均线约7495",
+      "aligns_with_text": "match",
+      "local_path": "data/media/zhao/2026-06-26/post_1CcS8uKGzNQrYEiHGzR6ms_0.jpg"
+    },
+    "not": [
+      "SELL SPX",
+      "BUY SPX"
+    ]
+  },
+  {
+    "gold_id": "g_zhao_002",
+    "kid": "k_late_session_v_reversal",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "source_message_ids": [
+      "msg_spx_late_v_002"
+    ],
+    "et_date": "2026-06-26",
+    "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
+    "raw_text": "[xiaozhaolucky]: 是不是今天强平的V多 大多数期权都失败了才会3点50V多 要看期权盈亏比例",
+    "evidence_span": "大多数期权都失败了才会3点50V多 要看期权盈亏比例",
+    "statement": "尾盘V型反弹不是无条件抄底；要看期权是否大量作废以及期权盈亏比例；时间锚点约在15:50。",
+    "chart_notes": {
+      "timeframe": "intraday",
+      "markers": "箭头指V反最低折点",
+      "aligns_with_text": "match",
+      "local_path": null
+    },
+    "not": [
+      "BUY SPX",
+      "15:50无条件做多"
+    ]
+  },
+  {
+    "gold_id": "g_zhao_003",
+    "kid": "k_dip_buy_round_number",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "source_message_ids": [
+      "post_1CVMap8LHQYutbxj5uQvSi"
+    ],
+    "et_date": "2025-11-21",
+    "channel_id": "chat_feed_1CTrCEx44dP13jW3RVkYiS",
+    "raw_text": "[xiaozhaolucky]: 急跌急涨就 异动多出 急跌买回 像今天crwv急跌又是整数86就会买回来",
+    "evidence_span": "急跌急涨就 异动多出 急跌买回 像今天crwv急跌又是整数86就会买回来",
+    "statement": "急涨急跌先看异动出；整数位急跌才买回。",
+    "chart_notes": {
+      "timeframe": "intraday",
+      "markers": "无",
+      "aligns_with_text": "no_image",
+      "local_path": null
+    },
+    "not": [
+      "BUY CRWV @ 86",
+      "86.3加回三分之一常规仓crwv"
+    ]
+  },
+  {
+    "gold_id": "g_zhao_004",
+    "kid": "k_second_handshake",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "source_message_ids": [
+      "post_1CUuKBeRmxCfuuUWM9cp7L"
+    ],
+    "et_date": "2025-11-03",
+    "channel_id": "chat_feed_1CTrCEx44dP13jW3RVkYiS",
+    "raw_text": "[xiaozhaolucky]: 主要hims就是今天财报二次握手博弈 没利润垫的就不要留了",
+    "evidence_span": "主要hims就是今天财报二次握手博弈 没利润垫的就不要留了",
+    "statement": "财报用二次握手做博弈；没有利润垫就不要留着过事件。",
+    "chart_notes": {
+      "timeframe": "daily",
+      "markers": "无",
+      "aligns_with_text": "no_image",
+      "local_path": null
+    },
+    "not": [
+      "SELL HIMS",
+      "无价格清仓单"
+    ]
+  },
+  {
+    "gold_id": "g_zhao_005",
+    "kid": "k_passive_redeem_then_rebuy",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "source_message_ids": [
+      "post_1CaWhF29WPLcfEYYJWQifD"
+    ],
+    "et_date": "2026-04-28",
+    "channel_id": "chat_feed_1CTrCEx44dP13jW3RVkYiS",
+    "raw_text": "[xiaozhaolucky]: 明天盘后大盘股财报 夜盘盘前被动减持 回踩不同板块低点再看",
+    "evidence_span": "明天盘后大盘股财报 夜盘盘前被动减持 回踩不同板块低点再看",
+    "statement": "大盘股财报窗口，预期被动减持，等待回踩不同板块低点再观察。",
+    "chart_notes": {
+      "timeframe": "daily",
+      "markers": "无",
+      "aligns_with_text": "no_image",
+      "local_path": null
+    },
+    "not": [
+      "SELL ALL",
+      "市价卖单"
+    ]
+  }
+]
