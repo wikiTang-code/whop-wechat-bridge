@@ -6,11 +6,11 @@
     "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
     "sender_name": "xiaozhaolucky",
     "et_date": "2026-06-26",
-    "kid": "KID_GAP_TWICE",
+    "kid": "k_gap_twice",
     "status": "proposed",
     "do_not_use_as_order": true,
     "evidence_span": "一般到缺口 那个缺口价格记住 可以做2次",
-    "statement": "价格到达缺口位置时记住该缺口价格，该位置通常可做2次交易机会。",
+    "statement": "价格到达缺口位置时记住该缺口价格，该位置通常可做2次。",
     "raw_context": "一般到缺口 那个缺口价格记住 可以做2次"
   },
   {
@@ -20,11 +20,11 @@
     "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
     "sender_name": "xiaozhaolucky",
     "et_date": "2026-06-26",
-    "kid": "KID_PULLBACK_ENTRY",
+    "kid": "k_pullback_entry",
     "status": "proposed",
     "do_not_use_as_order": true,
     "evidence_span": "盘前半小时和开盘都会回踩下是正常现象 给回流资金低点去介入",
-    "statement": "盘前半小时与开盘时段出现回踩属于正常现象，是提供给回流资金低点介入的机会。",
+    "statement": "盘前半小时和开盘出现回踩是正常现象，给回流资金低点去介入。",
     "raw_context": "盘前半小时和开盘都会回踩下是正常现象 给回流资金低点去介入"
   },
   {
@@ -34,11 +34,11 @@
     "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
     "sender_name": "xiaozhaolucky",
     "et_date": "2026-06-26",
-    "kid": "KID_TURN_HIGH_BETA",
+    "kid": "k_turn_elasticity",
     "status": "proposed",
     "do_not_use_as_order": true,
     "evidence_span": "一般指数转弯 买些弹性大的",
-    "statement": "当大盘指数确认转弯向上时，优先买入弹性大的标的。",
+    "statement": "一般指数转弯，买些弹性大的标的。",
     "raw_context": "一般指数转弯 买些弹性大的"
   },
   {
@@ -48,11 +48,12 @@
     "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
     "sender_name": "xiaozhaolucky",
     "et_date": "2026-06-26",
-    "kid": "KID_TURN_DIP_BUY",
+    "kid": "k_turn_elasticity",
+    "cluster_ref": "t_prop_003",
     "status": "proposed",
     "do_not_use_as_order": true,
     "evidence_span": "重点是转弯   低吸弹性股",
-    "statement": "交易重点在于观察行情转弯拐点，并在拐点处低吸弹性个股。",
+    "statement": "重点是转弯，低吸弹性股。",
     "raw_context": "重点是转弯   低吸弹性股"
   },
   {
@@ -62,11 +63,11 @@
     "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
     "sender_name": "xiaozhaolucky",
     "et_date": "2026-06-26",
-    "kid": "KID_QUANT_TURN_SIGNAL",
+    "kid": "k_quant_turn_100",
     "status": "proposed",
     "do_not_use_as_order": true,
     "evidence_span": "量化会遍历100个股票 都在大单买就转弯了",
-    "statement": "量化资金遍历核心股票池且多数出现大单买入时，市场即形成转弯拐点。",
+    "statement": "量化会遍历100个股票，都在大单买就转弯了。",
     "raw_context": "量化会遍历100个股票 都在大单买就转弯了"
   }
 ]
