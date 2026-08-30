@@ -1,0 +1,1231 @@
+{
+  "metadata": {
+    "segment": "第 5 档 (3001~4000 条消息)",
+    "date_range": "2025-12-31 ~ 2026-02-04",
+    "total_scanned": 1000,
+    "bookmarked_stops": 112,
+    "tree_nodes_populated_count": 3,
+    "skipped_stops_total": 103,
+    "skipped_breakdown": {
+      "weak_commentary_or_single_event": 42,
+      "duplicate_post": 52,
+      "pure_fill_order": 9
+    }
+  },
+  "tree_instances_summary": {
+    "gold_007_shoe_drops_settlement": {
+      "name": "重大事件靴子落地走普涨",
+      "status": "gold",
+      "instances_count": 3,
+      "sample_spans": [
+        "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨 \n\n\n\n圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周 基本在最后几天收盘配置好了双底的很多上一轮会10几cm的潜力个股 主要看btc 这轮9万政府资金和盘前的涨幅有没有稳定下来 盘前要在夜盘基础涨幅上不回落1-2%浮动\n",
+        "和上次加息一样的  都是压了2周 开盘最高收盘最低 就是理由换了  加息是清理旧的利息杠杆  节前被动减仓  节后就是相当于加息的靴子落地没有被动减了",
+        "tsll 利空销量靴子落地"
+      ]
+    },
+    "gold_011_zhao_poem_official": {
+      "name": "赵哥主观交易总诀 (打油诗全文本尊)",
+      "status": "gold",
+      "instances_count": 1,
+      "sample_spans": [
+        "口诀\n\n普跌同沉不用慌，收盘寻底看稳当；\n\n普涨我跌要提防，减持利空细查详。\n\n事件来临莫急闯，尾二收盘低吸仓，\n\n靴子落地迎反弹，持股静待红盘扬。\n\n节日前夕别乱抢，节前两日布局忙，\n\n节后资金回流至，顺势吃肉把利装。\n\n币市波动要盯紧，首阴一跌需警醒，\n\n首阳一涨别贪猛，信号初现辨分明。\n\n\n\n"
+      ]
+    },
+    "prop_008_gap_retrace_fill_dip": {
+      "name": "高开回踩补缺低吸法",
+      "status": "proposed",
+      "instances_count": 3,
+      "sample_spans": [
+        "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后",
+        "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种",
+        "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半"
+      ]
+    }
+  },
+  "gap_subdivision_summary": {
+    "prop_008_retrace_fill_count": 3,
+    "point_memos_count": 2
+  },
+  "tree_instances_detail": {
+    "gold_001_second_handshake": [],
+    "gold_003_gap_intraday_once": [],
+    "gold_004_position_control_70_pct": [],
+    "gold_005_half_retrace_watch": [],
+    "gold_006_passive_redeem_holiday": [],
+    "gold_007_shoe_drops_settlement": [
+      {
+        "index": 3017,
+        "tree_id": "gold_007_shoe_drops_settlement",
+        "tree_name": "重大事件靴子落地走普涨",
+        "message_id": "post_1CWiHteibFiRJNazVo1TL8",
+        "et_date": "2026-01-02",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨 \n\n\n\n圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周 基本在最后几天收盘配置好了双底的很多上一轮会10几cm的潜力个股 主要看btc 这轮9万政府资金和盘前的涨幅有没有稳定下来 盘前要在夜盘基础涨幅上不回落1-2%浮动\n",
+        "raw_text": "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨 \n\n\n\n圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周 基本在最后几天收盘配置好了双底的很多上一轮会10几cm的潜力个股 主要看btc 这轮9万政府资金和盘前的涨幅有没有稳定下来 盘前要在夜盘基础涨幅上不回落1-2%浮动\n\n\n\n到盘中才能实现普涨"
+      },
+      {
+        "index": 3019,
+        "tree_id": "gold_007_shoe_drops_settlement",
+        "tree_name": "重大事件靴子落地走普涨",
+        "message_id": "post_1CWiJ2j4hKDDhSnYqcE4mu",
+        "et_date": "2026-01-02",
+        "channel": "讨论区股票记录",
+        "evidence_span": "和上次加息一样的  都是压了2周 开盘最高收盘最低 就是理由换了  加息是清理旧的利息杠杆  节前被动减仓  节后就是相当于加息的靴子落地没有被动减了",
+        "raw_text": "和上次加息一样的  都是压了2周 开盘最高收盘最低 就是理由换了  加息是清理旧的利息杠杆  节前被动减仓  节后就是相当于加息的靴子落地没有被动减了"
+      },
+      {
+        "index": 3762,
+        "tree_id": "gold_007_shoe_drops_settlement",
+        "tree_name": "重大事件靴子落地走普涨",
+        "message_id": "post_1CXaTarsLUdQUWg7zyEvFV",
+        "et_date": "2026-01-28",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "tsll 利空销量靴子落地",
+        "raw_text": "tsll 利空销量靴子落地"
+      }
+    ],
+    "gold_008_index_turn_gate": [],
+    "gold_008b_block_print_reentry": [],
+    "gold_009_cost_exit_last_batch": [],
+    "gold_011_zhao_poem_official": [
+      {
+        "index": 3100,
+        "tree_id": "gold_011_zhao_poem_official",
+        "tree_name": "赵哥主观交易总诀 (打油诗全文本尊)",
+        "message_id": "post_1CWoRBJvkuBQgdN2Cq7Mci",
+        "et_date": "2026-01-04",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "口诀\n\n普跌同沉不用慌，收盘寻底看稳当；\n\n普涨我跌要提防，减持利空细查详。\n\n事件来临莫急闯，尾二收盘低吸仓，\n\n靴子落地迎反弹，持股静待红盘扬。\n\n节日前夕别乱抢，节前两日布局忙，\n\n节后资金回流至，顺势吃肉把利装。\n\n币市波动要盯紧，首阴一跌需警醒，\n\n首阳一涨别贪猛，信号初现辨分明。\n\n\n\n",
+        "raw_text": "口诀\n\n普跌同沉不用慌，收盘寻底看稳当；\n\n普涨我跌要提防，减持利空细查详。\n\n事件来临莫急闯，尾二收盘低吸仓，\n\n靴子落地迎反弹，持股静待红盘扬。\n\n节日前夕别乱抢，节前两日布局忙，\n\n节后资金回流至，顺势吃肉把利装。\n\n币市波动要盯紧，首阴一跌需警醒，\n\n首阳一涨别贪猛，信号初现辨分明。\n\n\n\n\n\n白话文\n\n大家都跌就不慌 收盘附近最低卡机制 反弹出\n\n大家都涨我独跌就要慌 看看是否有减持和政策利空\n\n事件出现等最后两天收盘抄底 事件靴子落地看反弹\n\n节日出现等节前最后两天抄底  节日过后看反弹\n\n币预警第一个 -1%和第一个+1要注意"
+      }
+    ],
+    "gold_012_profit_cushion": [],
+    "gold_013_supply_unlock_3_plus_1": [],
+    "prop_001_dip_buy_integer": [],
+    "prop_002_cut_in_half_100_percent": [],
+    "prop_003_valuation_dip_method": [],
+    "prop_004_event_low_dip_method": [],
+    "prop_005_block_print_method": [],
+    "prop_006_stop_loss_sweep_method": [],
+    "prop_007_night_plunge_premarket_intervention": [],
+    "prop_008_gap_retrace_fill_dip": [
+      {
+        "index": 3435,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
+        "message_id": "post_1CX9FDQWYuxmZPrZcsX4dK",
+        "et_date": "2026-01-15",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后",
+        "raw_text": "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后"
+      },
+      {
+        "index": 3702,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
+        "message_id": "post_1CXXyV6pokkucVAQou1uB2",
+        "et_date": "2026-01-27",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种",
+        "raw_text": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种"
+      },
+      {
+        "index": 3835,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
+        "message_id": "post_1CXcKzd7wY6DYprQ929U66",
+        "et_date": "2026-01-29",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半",
+        "raw_text": "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半"
+      }
+    ],
+    "prop_009_decay_equivalent_calc": [],
+    "prop_010_supply_unlock_ndays_dip": [],
+    "prop_011_earnings_call_reversal": [],
+    "prop_012_position_leverage_ratio": []
+  },
+  "gap_subdivision": {
+    "rule_replays": [
+      {
+        "index": 3435,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CX9FDQWYuxmZPrZcsX4dK",
+        "et_date": "2026-01-15",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后",
+        "raw_text": "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后"
+      },
+      {
+        "index": 3702,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CXXyV6pokkucVAQou1uB2",
+        "et_date": "2026-01-27",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种",
+        "raw_text": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的 \n\n\n\n最近主要低吸三种的  回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种"
+      },
+      {
+        "index": 3835,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CXcKzd7wY6DYprQ929U66",
+        "et_date": "2026-01-29",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半",
+        "raw_text": "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半"
+      }
+    ],
+    "point_memos": [
+      {
+        "index": 3700,
+        "type": "point_memo_watch",
+        "message_id": "post_1CXWep6YF9bECBYrw9CEqv",
+        "et_date": "2026-01-26",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "memo_span": "今天大盘都是一些冷门的护盘股做护盘  明星股中小盘类都普跌 ，加上没有利空讲话这样 准备明天再看下有没有激进讲话 有在往下补一些前期的 缺口时候再入一些",
+        "raw_text": "今天大盘都是一些冷门的护盘股做护盘  明星股中小盘类都普跌 ，加上没有利空讲话这样 准备明天再看下有没有激进讲话 有在往下补一些前期的 缺口时候再入一些"
+      },
+      {
+        "index": 3957,
+        "type": "point_memo_watch",
+        "message_id": "post_1CXmPkh8jm75wQUV3vVksX",
+        "et_date": "2026-02-03",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "memo_span": "nvdl之前的双底在77.3有过分红78.3扣个1元然后78也有个小缺口  下一次加仓会在这里附近加  最近openai那个利空 也是人为写的文章压下去了股价",
+        "raw_text": "nvdl之前的双底在77.3有过分红78.3扣个1元然后78也有个小缺口  下一次加仓会在这里附近加  最近openai那个利空 也是人为写的文章压下去了股价"
+      }
+    ]
+  },
+  "skipped_audit_log": [
+    {
+      "index": 3010,
+      "message_id": "post_1CWhij4H3Ut3joFquxBZWM",
+      "et_date": "2026-01-01",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天币预警也是要设置下 和加息那天夜盘起量差不多 就是币今天8万9这边有没有在回调8万3 在回调就盘中会走多空双杀 币8万9到8万8震荡就可能走开盘结算回踩下普涨"
+    },
+    {
+      "index": 3011,
+      "message_id": "post_1CWhijjMm5wcYjcgtj8G65",
+      "et_date": "2026-01-01",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天币预警也是要设置下 和加息那天夜盘起量差不多 就是币今天8万9这边有没有在回调8万3 在回调就盘中会走多空双杀 币8万9到8万8震荡就可能走开盘结算回踩下普涨"
+    },
+    {
+      "index": 3012,
+      "message_id": "post_1CWhitDKbsPW4FPyJgtC9d",
+      "et_date": "2026-01-01",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "被动减",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "节前都是被动减有个10% 休息一天的现金赎回流要求也是卡了这个机制在三天收盘才买入 今天是节日过去实际多余的就会在吸筹 也关注成交额是不是比节前多1.5倍"
+    },
+    {
+      "index": 3014,
+      "message_id": "post_1CWhiuamynpeJtGtPHTKdv",
+      "et_date": "2026-01-01",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "节前都是被动减有个10% 休息一天的现金赎回流要求也是卡了这个机制在三天收盘才买入 今天是节日过去实际多余的就会在吸筹 也关注成交额是不是比节前多1.5倍"
+    },
+    {
+      "index": 3018,
+      "message_id": "post_1CWiHunVjsdts18jmeTvW1",
+      "et_date": "2026-01-02",
+      "channel": "不用翻墙期权",
+      "trigger": "靴子",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨\n\n\n\n圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周 基本在最后几天收盘配置好了双底的很多上一轮会10几cm的潜力个股 主要看btc 这轮9万政府资金和盘前的涨幅有没有稳定下来 盘前要在夜盘基础涨幅上不回落1-2%浮动\n\n"
+    },
+    {
+      "index": 3020,
+      "message_id": "post_1CWiK4zNFsJXppHjsweTsm",
+      "et_date": "2026-01-02",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "被动减",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "去年是没有日本加息 圣诞节前跌一周 圣诞节后反弹3天 元旦在跌节前 节前最后天最低点收盘 节后回来周五那天反弹多周一反弹下周二再摸低点 \n\n\n\n\n\n今年多了加息这个压2周周五加息反弹周一在反弹点\n\n\n\n就圣诞 节前被动减 元旦被动减  主要看今天有没有反弹大点 就基本和去年走势一致了"
+    },
+    {
+      "index": 3021,
+      "message_id": "post_1CWiK5ZxHZafj3EfWEPyqu",
+      "et_date": "2026-01-02",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "去年是没有日本加息 圣诞节前跌一周 圣诞节后反弹3天 元旦在跌节前 节前最后天最低点收盘 节后回来周五那天反弹多周一反弹下周二再摸低点\n\n\n\n\n\n今年多了加息这个压2周周五加息反弹周一在反弹点\n\n\n\n就圣诞 节前被动减 元旦被动减 主要看今天有没有反弹大点 就基本和去年走势一致了"
+    },
+    {
+      "index": 3023,
+      "message_id": "post_1CWiKzguj5zn5qBcR6tsqH",
+      "et_date": "2026-01-02",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天就是只盯着btc 那个币市场最重要 周一到周三都是高开走低 9万-8万2是前面3天都是突然往下跳  今天看是不是不跳了 然后夜盘减过点 剩下就是币跳8万8时候注意要不要出  然后币或者夜盘指数坚持住就 可能走 11月14 和12月19日加息那种 都结算掉走普涨"
+    },
+    {
+      "index": 3024,
+      "message_id": "post_1CWiL1L3M2auRenqqBAx3G",
+      "et_date": "2026-01-02",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天就是只盯着btc 那个币市场最重要 周一到周三都是高开走低 9万-8万2是前面3天都是突然往下跳 今天看是不是不跳了 然后夜盘减过点 剩下就是币跳8万8时候注意要不要出 然后币或者夜盘指数坚持住就 可能走 11月14 和12月19日加息那种 都结算掉走普涨"
+    },
+    {
+      "index": 3055,
+      "message_id": "post_1CWikQwTT5GgzAqe88mcq8",
+      "et_date": "2026-01-02",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "360-358附近 博通死拿的部分出一半 反弹了一半位置附近"
+    },
+    {
+      "index": 3056,
+      "message_id": "post_1CWikRUup3B5npsgzHj7kd",
+      "et_date": "2026-01-02",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "360-358附近 博通死拿的部分出一半 反弹了一半位置附近"
+    },
+    {
+      "index": 3059,
+      "message_id": "post_1CWimoSgCeaJUiw7B1niKx",
+      "et_date": "2026-01-02",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天走一轮轮结算 上下扫那种 就qqq多的轮次 止盈  到收盘附近在回吸 最后一小时有强平时间的影响"
+    },
+    {
+      "index": 3060,
+      "message_id": "post_1CWimp2mw8dDwogaPEpahF",
+      "et_date": "2026-01-02",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天走一轮轮结算 上下扫那种 就qqq多的轮次 止盈 到收盘附近在回吸 最后一小时有强平时间的影响"
+    },
+    {
+      "index": 3067,
+      "message_id": "post_1CWis9NEU5sGRUN9Jak24q",
+      "et_date": "2026-01-02",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "被动减",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "一年就10个卡节前被动减持的机制 节后涨了出的短线\n\n\n\n10个节日每个卡10%就是翻倍了"
+    },
+    {
+      "index": 3068,
+      "message_id": "post_1CWisAP2duKD8GJKGs8eYQ",
+      "et_date": "2026-01-02",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "一年就10个卡节前被动减持的机制 节后涨了出的短线\n\n\n\n10个节日每个卡10%就是翻倍了"
+    },
+    {
+      "index": 3093,
+      "message_id": "post_1CWoLfEvuv9t9bYWbBtN8o",
+      "et_date": "2026-01-04",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "币预警这轮 设置两个价格一个跌破91000的回调一个升破93400的突破预警 今天也是到了上轮的高点附近 看这次能不能突破 币上次和这次也是保留死拿的部分低价筹码  跌破就做T仓位继续加   涨破就回踩加 低价的继续死拿"
+    },
+    {
+      "index": 3094,
+      "message_id": "post_1CWoLfnh3w1mMCaTmui7Jm",
+      "et_date": "2026-01-04",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "币预警这轮 设置两个价格一个跌破91000的回调一个升破93400的突破预警 今天也是到了上轮的高点附近 看这次能不能突破 币上次和这次也是保留死拿的部分低价筹码 跌破就做T仓位继续加 涨破就回踩加 低价的继续死拿"
+    },
+    {
+      "index": 3101,
+      "message_id": "post_1CWoRCHf2sy2uyrMp9PQmL",
+      "et_date": "2026-01-04",
+      "channel": "不用翻墙期权",
+      "trigger": "口诀",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "口诀\n\n普跌同沉不用慌，收盘寻底看稳当；\n\n普涨我跌要提防，减持利空细查详。\n\n事件来临莫急闯，尾二收盘低吸仓，\n\n靴子落地迎反弹，持股静待红盘扬。\n\n节日前夕别乱抢，节前两日布局忙，\n\n节后资金回流至，顺势吃肉把利装。\n\n币市波动要盯紧，首阴一跌需警醒，\n\n首阳一涨别贪猛，信号初现辨分明。\n\n\n\n"
+    },
+    {
+      "index": 3102,
+      "message_id": "post_1CWpLprELFhE18Ud1nebW2",
+      "et_date": "2026-01-05",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "元旦后基金系的资金都在回流目前做t部分的资金剩下最后一部分资金等btc跳预警走\n\n死拿部分 准备到加息前12月09号的高点附近再出一半"
+    },
+    {
+      "index": 3103,
+      "message_id": "post_1CWpLrnNLpHMu5VfsLA1Nm",
+      "et_date": "2026-01-05",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "元旦后基金系的资金都在回流目前做t部分的资金剩下最后一部分资金等btc跳预警走\n\n死拿部分 准备到加息前12月09号的高点附近再出一半"
+    },
+    {
+      "index": 3110,
+      "message_id": "post_1CWpQPb1YcGE6rnq18p8Xo",
+      "et_date": "2026-01-05",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "oklo 87高买那部分也可以到成本87附近出 也可以留点死拿的博下之前跌下来的高点"
+    },
+    {
+      "index": 3111,
+      "message_id": "post_1CWpQQDLcDMH6X8CGsbksr",
+      "et_date": "2026-01-05",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "oklo 87高买那部分也可以到成本87附近出 也可以留点死拿的博下之前跌下来的高点"
+    },
+    {
+      "index": 3114,
+      "message_id": "post_1CWpQynYEaoXfVz9B425pv",
+      "et_date": "2026-01-05",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "conl 16.8的部分可以18.3-18.5分批出 死拿的可以根据自己留点底仓"
+    },
+    {
+      "index": 3115,
+      "message_id": "post_1CWpQzFyRUgDfxhBq1TNiZ",
+      "et_date": "2026-01-05",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "conl 16.8的部分可以18.3-18.5分批出 死拿的可以根据自己留点底仓"
+    },
+    {
+      "index": 3122,
+      "message_id": "post_1CWpRVx16UWbkssRkXL7E1",
+      "et_date": "2026-01-05",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "28.2出掉 27.5的sofi  26.5那部分可以死拿"
+    },
+    {
+      "index": 3123,
+      "message_id": "post_1CWpRWVAqJGG96DVVv24FW",
+      "et_date": "2026-01-05",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "28.2出掉 27.5的sofi 26.5那部分可以死拿"
+    },
+    {
+      "index": 3124,
+      "message_id": "post_1CWpRryRb5njD5WN9zi2qi",
+      "et_date": "2026-01-05",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "iren  cift这两个也快到 圣诞节跌下来的价格也可以死拿的等转弯出一半"
+    },
+    {
+      "index": 3125,
+      "message_id": "post_1CWpRsUyMB1SHvJWkwZEJA",
+      "et_date": "2026-01-05",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "iren cift这两个也快到 圣诞节跌下来的价格也可以死拿的等转弯出一半"
+    },
+    {
+      "index": 3126,
+      "message_id": "post_1CWpRyZbKFbWpiNB5Jn4es",
+      "et_date": "2026-01-05",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "iren 45.6附近可以死拿的部分出一半"
+    },
+    {
+      "index": 3127,
+      "message_id": "post_1CWpRzEs5HMBwsGFiUw7te",
+      "et_date": "2026-01-05",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "iren 45.6附近可以死拿的部分出一半"
+    },
+    {
+      "index": 3128,
+      "message_id": "post_1CWpS1bKsukFqzfMut1npX",
+      "et_date": "2026-01-05",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "cifr17.3附近可以死拿的出一半"
+    },
+    {
+      "index": 3134,
+      "message_id": "post_1CWpTiA1f1mSbqHTThCWkk",
+      "et_date": "2026-01-05",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "最近 基金都要重新回流 都会有收盘最低的一定要明星股财报没问题 可以卡机制 可以卡机制 可以卡机制"
+    },
+    {
+      "index": 3150,
+      "message_id": "post_1CWpmueJ71SJFd8NX4b8bn",
+      "et_date": "2026-01-05",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "币价格设置个93800跌破这个预警 跌破也可以手里币股票死拿的部分出一半"
+    },
+    {
+      "index": 3151,
+      "message_id": "post_1CWpmwBdKuU1eqCcCWygBo",
+      "et_date": "2026-01-05",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "币价格设置个93800跌破这个预警 跌破也可以手里币股票死拿的部分出一半"
+    },
+    {
+      "index": 3173,
+      "message_id": "post_1CWrGD1cgpUVswpZeqmCaB",
+      "et_date": "2026-01-06",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "oklo今天盘前到了上一轮95跌下来的位置 今天盘前也到了95今天可以在前面跌下来的位置出 死拿的一半仓位 剩下当底仓看前一轮的109能不能再到"
+    },
+    {
+      "index": 3174,
+      "message_id": "post_1CWrGDXzL4fC4kbW1YevdW",
+      "et_date": "2026-01-06",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "oklo今天盘前到了上一轮95跌下来的位置 今天盘前也到了95今天可以在前面跌下来的位置出 死拿的一半仓位 剩下当底仓看前一轮的109能不能再到"
+    },
+    {
+      "index": 3178,
+      "message_id": "post_1CWrHidQhgDdEcN5kqv5ub",
+      "et_date": "2026-01-06",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "tsll在18.4-18.45回吸之前卖出的一半  有几家基金减持 剩下一半也是收盘附近再看"
+    },
+    {
+      "index": 3282,
+      "message_id": "post_1CWwvdd9zDtHJ4oFd2veSy",
+      "et_date": "2026-01-09",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "我们的oklo也出了大利好死拿的剩下一半115-117也都出"
+    },
+    {
+      "index": 3283,
+      "message_id": "post_1CWwveSsBTKctFg3kA1AKJ",
+      "et_date": "2026-01-09",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "我们的oklo也出了大利好死拿的剩下一半115-117也都出"
+    },
+    {
+      "index": 3294,
+      "message_id": "post_1CWx1ozGhH93gWJNFsr4UQ",
+      "et_date": "2026-01-09",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天周五轮次是 多空强平  更多的机会就收盘和盘后卡机制"
+    },
+    {
+      "index": 3295,
+      "message_id": "post_1CWx1pW5yc1ddeJsnDmKsg",
+      "et_date": "2026-01-09",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天周五轮次是 多空强平 更多的机会就收盘和盘后卡机制"
+    },
+    {
+      "index": 3308,
+      "message_id": "post_1CWx46Jg1947Foh75b8Nze",
+      "et_date": "2026-01-09",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "nbis也快到 公式的106附近了 可以104.3附近逐步减死拿剩下的一半"
+    },
+    {
+      "index": 3309,
+      "message_id": "post_1CWx46mbBWmpSTtUBxU8DF",
+      "et_date": "2026-01-09",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "nbis也快到 公式的106附近了 可以104.3附近逐步减死拿剩下的一半"
+    },
+    {
+      "index": 3320,
+      "message_id": "post_1CX3aaESonMPR9SLwieXgy",
+      "et_date": "2026-01-12",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "被动减",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "这周事件多主要集中在周三到下周一\n\n\n\n1  法院推迟到周三宣布关税结果\n\n2  周三到周一有msci剔除指数相继披露\n\n3  周三到周一加密安全法案投票\n\n4  周三到周一 马丁路德金节日前三天的被动减\n\n\n\n\n\n这周开仓主要都会集中到收盘才去开仓 仓位单次开仓也是平常常规仓的一半\n\n盘中有很大回"
+    },
+    {
+      "index": 3321,
+      "message_id": "post_1CX3aavsMHoQqxvH8SZ9hx",
+      "et_date": "2026-01-12",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "这周事件多主要集中在周三到下周一\n\n\n\n1 法院推迟到周三宣布关税结果\n\n2 周三到周一有msci剔除指数相继披露\n\n3 周三到周一加密安全法案投票\n\n4 周三到周一 马丁路德金节日前三天的被动减\n\n\n\n\n\n这周开仓主要都会集中到收盘才去开仓 仓位单次开仓也是平常常规仓的一半\n\n盘中有很大回调才盘中"
+    },
+    {
+      "index": 3324,
+      "message_id": "post_1CX3g2WhosE6Xj2CFDfzrm",
+      "et_date": "2026-01-12",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "tem今天有合同利好 可以74.5-75出死拿的全部"
+    },
+    {
+      "index": 3325,
+      "message_id": "post_1CX3g35CbpFRbUYrGUXHj5",
+      "et_date": "2026-01-12",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tem今天有合同利好 可以74.5-75出死拿的全部"
+    },
+    {
+      "index": 3326,
+      "message_id": "post_1CX3h1aendxYdYCA9ewM14",
+      "et_date": "2026-01-12",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "crwv\n\n可以把做仓位低价格买的在88.2附近出  死拿的仓位一半位置在98还没动"
+    },
+    {
+      "index": 3327,
+      "message_id": "post_1CX3h2GuCHcMXEsD869Lb4",
+      "et_date": "2026-01-12",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "crwv\n\n可以把做仓位低价格买的在88.2附近出 死拿的仓位一半位置在98还没动"
+    },
+    {
+      "index": 3334,
+      "message_id": "post_1CX3ntH2xLmVZV4Ki14tdE",
+      "et_date": "2026-01-12",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "iren距离前一轮加息前的高点11月28日 51.5差个1.5了 死拿剩下一半也可以今天50附近出"
+    },
+    {
+      "index": 3335,
+      "message_id": "post_1CX3ntzcuaEhJa5o3M2pzp",
+      "et_date": "2026-01-12",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "iren距离前一轮加息前的高点11月28日 51.5差个1.5了 死拿剩下一半也可以今天50附近出"
+    },
+    {
+      "index": 3355,
+      "message_id": "post_1CX5a9kpLabbKzQU1vkfWN",
+      "et_date": "2026-01-13",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "cifr今天达到了 之前跌下来的一半 18.75可以出死拿的一半"
+    },
+    {
+      "index": 3356,
+      "message_id": "post_1CX5aAGcuDAxpK4f2sQTBG",
+      "et_date": "2026-01-13",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "cifr今天达到了 之前跌下来的一半 18.75可以出死拿的一半"
+    },
+    {
+      "index": 3406,
+      "message_id": "post_1CX7YBT7d1NoG95AAEmTY3",
+      "et_date": "2026-01-14",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "被动减",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "法院裁定后 就是节日前三天的被动减和msci剔除事件\n\n\n\n仓位的话 今天收盘附近4成左右  明后天也是收盘附近有低的在加 盘中异动就短线出\n\n明后天 被动减也是每天加个1成左右\n\n\n\n加密是21日附近投票结束  加密这三天有跌这轮低点可以不断做日内"
+    },
+    {
+      "index": 3407,
+      "message_id": "post_1CX7YBzBhVka1owgP4o4Tc",
+      "et_date": "2026-01-14",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "法院裁定后 就是节日前三天的被动减和msci剔除事件\n\n\n\n仓位的话 今天收盘附近4成左右 明后天也是收盘附近有低的在加 盘中异动就短线出\n\n明后天 被动减也是每天加个1成左右\n\n\n\n加密是21日附近投票结束 加密这三天有跌这轮低点可以不断做日内"
+    },
+    {
+      "index": 3408,
+      "message_id": "post_1CX7Yx8naxiG6sWGwVRiGk",
+      "et_date": "2026-01-14",
+      "channel": "讨论区股票记录",
+      "trigger": "被动减",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "qqq今天如果收盘最低 就又是节前 收盘低 夜盘盘前反弹 在隔天收盘低那种被动减模式"
+    },
+    {
+      "index": 3429,
+      "message_id": "post_1CX96Eukp6rn4vnZigg9Pd",
+      "et_date": "2026-01-15",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "盘前涨的时候出87.5-88.5之间出昨天82.7的nvdl 也是第四轮卡了机制"
+    },
+    {
+      "index": 3430,
+      "message_id": "post_1CX96Fx9A6t4LXU3KY6sq8",
+      "et_date": "2026-01-15",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘前涨的时候出87.5-88.5之间出昨天82.7的nvdl 也是第四轮卡了机制"
+    },
+    {
+      "index": 3436,
+      "message_id": "post_1CX9FDwsu6qezeridvP4wK",
+      "et_date": "2026-01-15",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天也是盘中和收盘附近找些被动减持机制下 有性价比的回吸\n\n\n\n主要是明天周五空的轮次找这三天补完缺口 没怎么跌的布局节后"
+    },
+    {
+      "index": 3437,
+      "message_id": "post_1CX9KwNBKqUUmcvPjnur5D",
+      "et_date": "2026-01-15",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "crwv今天到了98一半的位置可以出死拿的一半"
+    },
+    {
+      "index": 3438,
+      "message_id": "post_1CX9Kww3BU7Kc8vnETFxwQ",
+      "et_date": "2026-01-15",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "crwv今天到了98一半的位置可以出死拿的一半"
+    },
+    {
+      "index": 3457,
+      "message_id": "post_1CXAwnyUV5NF9MuWoCHXEY",
+      "et_date": "2026-01-16",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "博通盘前也是像昨天一样卡机制348-350附近出收盘买的"
+    },
+    {
+      "index": 3458,
+      "message_id": "post_1CXAwopjL3AT22E9tc1vJP",
+      "et_date": "2026-01-16",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "博通盘前也是像昨天一样卡机制348-350附近出收盘买的"
+    },
+    {
+      "index": 3459,
+      "message_id": "post_1CXB9iXusdpdhG5z14JrSY",
+      "et_date": "2026-01-16",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "被动减",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天周五有多空双杀 开盘还是以冲高出为主  收盘附近在吸一些被动减和强平回调到低价的   没有回调的一些热门股 到节后回来时候再看"
+    },
+    {
+      "index": 3460,
+      "message_id": "post_1CXB9izZPvDTvmpKkKrsA7",
+      "et_date": "2026-01-16",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天周五有多空双杀 开盘还是以冲高出为主 收盘附近在吸一些被动减和强平回调到低价的 没有回调的一些热门股 到节后回来时候再看"
+    },
+    {
+      "index": 3462,
+      "message_id": "post_1CXBDxAdQwzneKQQJ3AzpW",
+      "et_date": "2026-01-16",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "tsll 今天注意直线拉升 到转弯时候出昨天收盘卡机制的  也是昨天的高点18.45-18.6之间"
+    },
+    {
+      "index": 3475,
+      "message_id": "post_1CXBJYu7RBF7rJN7KS6RgX",
+      "et_date": "2026-01-16",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "被动减",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天有被动减和收盘附近强平的影响 主要在收盘附近吸为主"
+    },
+    {
+      "index": 3476,
+      "message_id": "post_1CXBJZN8sBoq7ii79qAbcJ",
+      "et_date": "2026-01-16",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天有被动减和收盘附近强平的影响 主要在收盘附近吸为主"
+    },
+    {
+      "index": 3481,
+      "message_id": "post_1CXBQKkvyDRfq6d5ersGKF",
+      "et_date": "2026-01-16",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "下周二夜盘是msci剔除指数卡机制的一种战法：\n\n\n\n如果某个板块一个msci个股被剔除指数 基金会被动清除他仓位 这个板块指数会回调下 其他不是msci指数板块的个股会被动带低下 就会在产生机会  要看夜盘量化 去吸哪些转弯的 哪些就是在基金节后回流池子的"
+    },
+    {
+      "index": 3482,
+      "message_id": "post_1CXBQLGERgfRg4rxBmPG1r",
+      "et_date": "2026-01-16",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "下周二夜盘是msci剔除指数卡机制的一种战法：\n\n\n\n如果某个板块一个msci个股被剔除指数 基金会被动清除他仓位 这个板块指数会回调下 其他不是msci指数板块的个股会被动带低下 就会在产生机会 要看夜盘量化 去吸哪些转弯的 哪些就是在基金节后回流池子的"
+    },
+    {
+      "index": 3531,
+      "message_id": "post_1CXLhaLRT31K2gq4zznL1m",
+      "et_date": "2026-01-21",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天也是盘前冲高开盘小冲回落 也是收盘附近吸的机制  收盘附近吸的一般夜盘 盘前2个时间会短线出 在收盘附近再跌低价格在回吸"
+    },
+    {
+      "index": 3532,
+      "message_id": "post_1CXLhaoDBmwricWsf79qJc",
+      "et_date": "2026-01-21",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天也是盘前冲高开盘小冲回落 也是收盘附近吸的机制 收盘附近吸的一般夜盘 盘前2个时间会短线出 在收盘附近再跌低价格在回吸"
+    },
+    {
+      "index": 3701,
+      "message_id": "post_1CXWepYVaUme33WkqmsbE3",
+      "et_date": "2026-01-26",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天大盘都是一些冷门的护盘股做护盘 明星股中小盘类都普跌 ，加上没有利空讲话这样 准备明天再看下有没有激进讲话 有在往下补一些前期的 缺口时候再入一些"
+    },
+    {
+      "index": 3703,
+      "message_id": "post_1CXXyVaKKMyqhE5ppgZu5P",
+      "et_date": "2026-01-27",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "这两天财报连续披露的日子 像前几天说的联合健康 英特尔这种财报前反弹多的 都会因为财报披露利空短期下跌 然后对应板块指数带下去些其他没披露的\n\n\n\n最近主要低吸三种的 回调支撑位的 补之前元旦前下跌缺口的 和双底接近的 三种"
+    },
+    {
+      "index": 3732,
+      "message_id": "post_1CXYCsaug13g9n8skB89hX",
+      "et_date": "2026-01-27",
+      "channel": "讨论区股票记录",
+      "trigger": "减持",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "上次大减持就是绿1出加密"
+    },
+    {
+      "index": 3763,
+      "message_id": "post_1CXaTczgsrm1cfNZdF72vz",
+      "et_date": "2026-01-28",
+      "channel": "不用翻墙期权",
+      "trigger": "靴子",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll 利空销量靴子落地"
+    },
+    {
+      "index": 3799,
+      "message_id": "post_1CXbs8fHS3aYaKC7GqgsVT",
+      "et_date": "2026-01-29",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天开盘 最近发财报的股票很多都有止损call的会盘中回调下 不要一下子进很多 有些到收盘和明天周五结算时候在加次"
+    },
+    {
+      "index": 3800,
+      "message_id": "post_1CXbs9BGR64LKCHpXRyVDH",
+      "et_date": "2026-01-29",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天开盘 最近发财报的股票很多都有止损call的会盘中回调下 不要一下子进很多 有些到收盘和明天周五结算时候在加次"
+    },
+    {
+      "index": 3831,
+      "message_id": "post_1CXcJt2xUfkEtSgNeHcLum",
+      "et_date": "2026-01-29",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "15.95加了点tsll 预留点明天结算周期权再加"
+    },
+    {
+      "index": 3832,
+      "message_id": "post_1CXcJtZfsLsLFZ6WA2t1SY",
+      "et_date": "2026-01-29",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "15.95加了点tsll 预留点明天结算周期权再加"
+    },
+    {
+      "index": 3833,
+      "message_id": "post_1CXcKKhf3YadWSPzvwPtNW",
+      "et_date": "2026-01-29",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "微软尾盘也V了下 也是 call止损  put部分结算的现象"
+    },
+    {
+      "index": 3834,
+      "message_id": "post_1CXcKLErd5UU3Ps8tNYgYX",
+      "et_date": "2026-01-29",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "微软尾盘也V了下 也是 call止损 put部分结算的现象"
+    },
+    {
+      "index": 3836,
+      "message_id": "post_1CXcL17Gcq4rbpwKLGVWkL",
+      "et_date": "2026-01-29",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "4.31 低吸回之前卖出的rxrx 也是常规仓的一半下面4.19有个缺口 看下会不会补缺口 补缺口再加剩下一半"
+    },
+    {
+      "index": 3851,
+      "message_id": "post_1CXcVfCCqAhWCVDVu7uDWK",
+      "et_date": "2026-01-29",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "tsll明天还有机会的还是16附近吸 明天期权结算也有机会  再来次无限套利"
+    },
+    {
+      "index": 3852,
+      "message_id": "post_1CXcVfxySn1GoGFCmLZpgo",
+      "et_date": "2026-01-29",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll明天还有机会的还是16附近吸 明天期权结算也有机会 再来次无限套利"
+    },
+    {
+      "index": 3853,
+      "message_id": "post_1CXcW5scPr9tRC1GpmPka9",
+      "et_date": "2026-01-29",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "tsll今天就是特斯拉 call止损 收盘最低卡了下收盘最低的机制  盘后给了惊喜 \n\n\n\n本来是想夜盘和盘前出了 提前给了惊喜"
+    },
+    {
+      "index": 3854,
+      "message_id": "post_1CXcW6KayhcLBtdDsdMPgu",
+      "et_date": "2026-01-29",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll今天就是特斯拉 call止损 收盘最低卡了下收盘最低的机制 盘后给了惊喜\n\n\n\n本来是想夜盘和盘前出了 提前给了惊喜"
+    },
+    {
+      "index": 3855,
+      "message_id": "post_1CXdMuFaFjACrQJUKDCh5u",
+      "et_date": "2026-01-30",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "盘前回吸了常规一半的tsll在16.38 剩下看盘中结算在跳 15.多区间再吸"
+    },
+    {
+      "index": 3856,
+      "message_id": "post_1CXdMvbuK54SHqwkSAMFNW",
+      "et_date": "2026-01-30",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘前回吸了常规一半的tsll在16.38 剩下看盘中结算在跳 15.多区间再吸"
+    },
+    {
+      "index": 3857,
+      "message_id": "post_1CXdebwEAayK8svGKyKR7Y",
+      "et_date": "2026-01-30",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天主要盘中找些 这周财报 盘中结算影响造成的低点做低吸 主要是tsll为主"
+    },
+    {
+      "index": 3858,
+      "message_id": "post_1CXdecTVfWukaP4MTMmiv2",
+      "et_date": "2026-01-30",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天主要盘中找些 这周财报 盘中结算影响造成的低点做低吸 主要是tsll为主"
+    },
+    {
+      "index": 3867,
+      "message_id": "post_1CXdnCAwkmUueteLJFSMjG",
+      "et_date": "2026-01-30",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "tsll最近要注意16附近的转弯价格  可以一半死拿一半做T\n\n\n\n资讯里面有几家一直做特斯拉的昨天收盘附近开始再吸了"
+    },
+    {
+      "index": 3868,
+      "message_id": "post_1CXdnCm6cxKzTQ8GTaaqRw",
+      "et_date": "2026-01-30",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll最近要注意16附近的转弯价格 可以一半死拿一半做T\n\n\n\n资讯里面有几家一直做特斯拉的昨天收盘附近开始再吸了"
+    },
+    {
+      "index": 3870,
+      "message_id": "post_1CXdq42wsTztn3beTnycDz",
+      "et_date": "2026-01-30",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "死拿朝着这个目标"
+    },
+    {
+      "index": 3871,
+      "message_id": "post_1CXdq6tix6LGxYRmrrw8gP",
+      "et_date": "2026-01-30",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "tsll这轮 到一半的位置是20    前高是23.62\n\n死拿朝着这个目标\n\n\n也是下周有回调16区间在有部分配置死拿"
+    },
+    {
+      "index": 3894,
+      "message_id": "post_1CXjFb4qXBbRosBycJH82f",
+      "et_date": "2026-02-02",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "盘前开始有人工干预可以注意手里一些成本上的做些减持"
+    },
+    {
+      "index": 3895,
+      "message_id": "post_1CXjFbrZU8k3mtNdDjDUMV",
+      "et_date": "2026-02-02",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘前开始有人工干预可以注意手里一些成本上的做些减持"
+    },
+    {
+      "index": 3933,
+      "message_id": "post_1CXjgJ8xcNTnVMoDCGv6rr",
+      "et_date": "2026-02-02",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "tsll（死拿的部分按16成本算）\n\n死拿的部分就20 和23.62两个点 当中有派息了再扣减\n\n\n\n实际情况到那个附近差不多也会出到时候说\n\n\n\n做T部分就过程中 低吸高抛做做T部分的"
+    },
+    {
+      "index": 3934,
+      "message_id": "post_1CXjgKUh4y7wUCVGgkqHdX",
+      "et_date": "2026-02-02",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll（死拿的部分按16成本算）\n\n死拿的部分就20 和23.62两个点 当中有派息了再扣减\n\n\n\n实际情况到那个附近差不多也会出到时候说\n\n\n\n做T部分就过程中 低吸高抛做做T部分的"
+    },
+    {
+      "index": 3958,
+      "message_id": "post_1CXmPmCQL9k9SMz5Znp74h",
+      "et_date": "2026-02-03",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "nvdl之前的双底在77.3有过分红78.3扣个1元然后78也有个小缺口 下一次加仓会在这里附近加 最近openai那个利空 也是人为写的文章压下去了股价"
+    },
+    {
+      "index": 3961,
+      "message_id": "post_1CXmZvVngEFTCABHf9xhhx",
+      "et_date": "2026-02-03",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "最近和之前关门时候机制差不多  然后昨天开始有些个股有每天的0dt期权了会造成尾盘附近强平波动 \n\n\n\n这轮推出也是为了配合尾盘吸  夜盘 盘前涨出的机制的\n\n存量市场会存续一段时间了\n\n\n\n目前开门前就大多数情况是 收盘附近吸 或者盘后吸（盘后有财报影响时候）\n\n\n\n夜盘 盘前  开盘的第一个小时"
+    },
+    {
+      "index": 3962,
+      "message_id": "post_1CXmZw4GqopaS7rumZvYZi",
+      "et_date": "2026-02-03",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "最近和之前关门时候机制差不多 然后昨天开始有些个股有每天的0dt期权了会造成尾盘附近强平波动\n\n\n\n这轮推出也是为了配合尾盘吸 夜盘 盘前涨出的机制的\n\n存量市场会存续一段时间了\n\n\n\n目前开门前就大多数情况是 收盘附近吸 或者盘后吸（盘后有财报影响时候）\n\n\n\n夜盘 盘前 开盘的第一个小时冲高就卖"
+    },
+    {
+      "index": 3963,
+      "message_id": "post_1CXmZx6JCfmL4XNgSyKC7i",
+      "et_date": "2026-02-03",
+      "channel": "讨论区股票记录",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "最近和之前关门时候机制差不多 然后昨天开始有些个股有每天的0dt期权了会造成尾盘附近强平波动\n\n\n\n这轮推出也是为了配合尾盘吸 夜盘 盘前涨出的机制的\n\n存量市场会存续一段时间了\n\n\n\n目前开门前就大多数情况是 收盘附近吸 或者盘后吸（盘后有财报影响时候）\n\n\n\n夜盘 盘前 开盘的第一个小时冲高就卖"
+    }
+  ]
+}

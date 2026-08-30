@@ -1,21 +1,22 @@
 {
   "metadata": {
-    "dataset": "赵哥全量前 2000 条消息 (1~2000 档树键深度融合版)",
+    "dataset": "赵哥前 2000 条消息 (树键精准对齐与分流版)",
     "date_range": "2025-10-06 ~ 2025-11-26",
     "total_scanned": 2000,
     "bookmarked_stops": 222,
-    "tree_nodes_populated_count": 4,
-    "skipped_stops_total": 159,
+    "tree_nodes_populated_count": 9,
+    "skipped_stops_total": 157,
     "skipped_breakdown": {
       "pure_fill_order": 6,
       "duplicate_post": 92,
-      "weak_commentary_or_single_event": 61
+      "weak_commentary_or_single_event": 59
     }
   },
   "tree_instances_summary": {
     "gold_001_second_handshake": {
       "name": "二次握手不破低点低吸",
-      "instances_count": 30,
+      "status": "gold",
+      "instances_count": 29,
       "sample_spans": [
         "目前第一轮抛压后小反弹  等看下有没有第二轮下压 不破第一轮低点 在第一轮附近的完成二次握手",
         "指数上QQQ盘后的收盘价要大于604.5 大多数股票今天就盘中完成二次握手的吸筹",
@@ -24,30 +25,75 @@
     },
     "gold_004_position_control_70_pct": {
       "name": "7成底仓与3成做T机动",
+      "status": "gold",
       "instances_count": 2,
       "sample_spans": [
         "昨天盘后的股单有些高的也可以减点 维持7成死拿开门 3成做T",
         "手里到价格的减点 维持7成 有1-3成资金机动 激进的可以9成死拿 1成机动"
       ]
     },
+    "gold_008b_block_print_reentry": {
+      "name": "标的大单入场与回买",
+      "status": "gold",
+      "instances_count": 1,
+      "sample_spans": [
+        "周五冲高的开局卖出后    尽量把回买的时间压到3点半和7点半 有时候盘后有新闻会影响 周末也会有讲话 \n\n\n\n或者到股票支撑位附近看有大单入场在回买"
+      ]
+    },
     "gold_009_cost_exit_last_batch": {
       "name": "分批只减最后补的一笔成本出",
-      "instances_count": 2,
+      "status": "gold",
+      "instances_count": 1,
       "sample_spans": [
-        "分批只减自己最后补的那笔\n\n\n\n距离举例  \n\n\n\n比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买",
-        "成本出 那个低点出来就挂低点 在上下扫扫到就可以了"
+        "分批只减自己最后补的那笔\n\n\n\n距离举例  \n\n\n\n比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买"
       ]
     },
     "gold_013_supply_unlock_3_plus_1": {
       "name": "减持3天后第4天看",
+      "status": "gold",
       "instances_count": 1,
       "sample_spans": [
         "盘前17点到18点这段没有人工介入 量化惯性抛售的时间段的低点价格可以自己记录下以那个支撑参考   然后手里有些有减持公告的 看下今天会不会在压一个价格比如 \n\n\n\nunh减持了5天了\n\n orcl 两轮减持 第一轮减持后 ceo 副总又减持了7天\n\nnbis解禁后的卖出\n\ncrwv 第二轮 减持的"
       ]
+    },
+    "prop_007_night_plunge_premarket_intervention": {
+      "name": "夜盘普跌盘前干预买入法",
+      "status": "proposed",
+      "instances_count": 1,
+      "sample_spans": [
+        "夜盘普跌 盘前干预 买入法\n\n这个11月也要练习会\n\n\n\n都普跌时候就不要慌 时间点在夜盘和盘前一小时跌 \n\n\n\n要注意18点30分有没有小V 有就低吸不慌\n\n\n\n盘中和盘前有拉升很高就做T出来资金备用 在二次握手在回吸"
+      ]
+    },
+    "prop_008_gap_retrace_fill_dip": {
+      "name": "高开回踩补缺低吸法",
+      "status": "proposed",
+      "instances_count": 15,
+      "sample_spans": [
+        "盘前没有官方的反制新闻，今天盘中可以盯着跳空缺口时候回吸点仓位",
+        "今天回吸时候尽量分批点缺口支撑一次 时间上尾盘有低点再一次",
+        "今天走势和昨天一样的 开盘都是活性股 回踩下跳空缺口开始震荡往上  2点钟-3点钟可以减持点  尾盘特朗普如果发帖的回调也不用慌在支撑吸回就是了"
+      ]
+    },
+    "prop_009_decay_equivalent_calc": {
+      "name": "期权/杠杆磨损值折算上一轮价格",
+      "status": "proposed",
+      "instances_count": 1,
+      "sample_spans": [
+        "tsll 注意 回调 18.8-18.7  和17.9-17.8附近支撑分批回吸 第三次 计算了磨损值  18.8相当于第一轮的19.2"
+      ]
+    },
+    "prop_010_supply_unlock_ndays_dip": {
+      "name": "减持过一段天数靠近支撑回吸",
+      "status": "proposed",
+      "instances_count": 1,
+      "sample_spans": [
+        "orcl也要注意昨天270-271的支撑 和crwv一样减持9天左右了到接近支撑可以回吸"
+      ]
     }
   },
   "gap_subdivision_summary": {
-    "rule_replays_count": 15,
+    "gold_003_intraday_once_count": 0,
+    "prop_008_retrace_fill_count": 15,
     "boundary_negative_cases_count": 1,
     "point_memos_count": 12
   },
@@ -57,7 +103,6 @@
         "index": 33,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CTt7rqCrE8p2CFjCM4ZRL",
         "et_date": "2025-10-07",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -68,7 +113,6 @@
         "index": 35,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CTtAYLiNZcRnKfVuyFiHs",
         "et_date": "2025-10-07",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -79,7 +123,6 @@
         "index": 191,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CTyoU93GVnALQzRxMAGnS",
         "et_date": "2025-10-10",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -90,7 +133,6 @@
         "index": 654,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUNScbuhunNBvEtEGDsxH",
         "et_date": "2025-10-22",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -101,7 +143,6 @@
         "index": 656,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUNSfZUQeev49mtNBMSsR",
         "et_date": "2025-10-22",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -112,7 +153,6 @@
         "index": 658,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUNSoSdtVrHpZpV6nnFv5",
         "et_date": "2025-10-22",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -123,7 +163,6 @@
         "index": 660,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUNSsGxnavBAQnrmNcBt2",
         "et_date": "2025-10-22",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -134,7 +173,6 @@
         "index": 908,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUa4NcqaxDBrc7Z3PL9Lx",
         "et_date": "2025-10-28",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -145,7 +183,6 @@
         "index": 973,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUbzYn3414EDhrejPeQcp",
         "et_date": "2025-10-29",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -156,7 +193,6 @@
         "index": 983,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUc1NcZWUAufrm1k75Fbg",
         "et_date": "2025-10-29",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -167,7 +203,6 @@
         "index": 1082,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "operational_refinement",
         "message_id": "post_1CUmGFpPD6jKwnB54zJ6np",
         "et_date": "2025-11-03",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -178,7 +213,6 @@
         "index": 1093,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUmUiUL6v896HC9aBaHAy",
         "et_date": "2025-11-03",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -189,7 +223,6 @@
         "index": 1105,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUmeuPxRjz1xowyEu66st",
         "et_date": "2025-11-03",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -200,7 +233,6 @@
         "index": 1107,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUmfq1T3WFzbUs5ss2Q88",
         "et_date": "2025-11-03",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -211,7 +243,6 @@
         "index": 1109,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUmgeMaQEpDpqdjJkrA8B",
         "et_date": "2025-11-03",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -222,7 +253,6 @@
         "index": 1116,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUmh4qvLUSdJANNrdDJPJ",
         "et_date": "2025-11-03",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -233,7 +263,6 @@
         "index": 1118,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "operational_refinement",
         "message_id": "post_1CUmhB2b2UWVArYfdyoc7Z",
         "et_date": "2025-11-03",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -244,7 +273,6 @@
         "index": 1120,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUmhoAGUop4SppGjvML7p",
         "et_date": "2025-11-03",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -255,7 +283,6 @@
         "index": 1123,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUmztmNvu3Wk5sAUKsMXi",
         "et_date": "2025-11-03",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -266,7 +293,6 @@
         "index": 1129,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUn5C5kdVcjD8S3ASBXq6",
         "et_date": "2025-11-03",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -277,7 +303,6 @@
         "index": 1139,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUniKH8y1RjMw69EhdW8C",
         "et_date": "2025-11-04",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -288,7 +313,6 @@
         "index": 1145,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUnibiqNFd85Dc1ZKeNuC",
         "et_date": "2025-11-04",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -299,7 +323,6 @@
         "index": 1149,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUnisCUf51Z3nR8w6Ux9e",
         "et_date": "2025-11-04",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -310,7 +333,6 @@
         "index": 1151,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "operational_refinement",
         "message_id": "post_1CUniyDM83k5jPcidp8fFv",
         "et_date": "2025-11-04",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -321,7 +343,6 @@
         "index": 1153,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUnj9gbp7SPj4eN2FaNk2",
         "et_date": "2025-11-04",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -332,7 +353,6 @@
         "index": 1159,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUo2DSjcFjSdcZaQh9MLE",
         "et_date": "2025-11-04",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -340,21 +360,9 @@
         "raw_text": "盘中开盘后有些比盘前的低点还低的就要等尾盘出二次握手确认在吸  形成二个低点确认二次握手时候"
       },
       {
-        "index": 1176,
-        "tree_id": "gold_001_second_handshake",
-        "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
-        "message_id": "post_1CUo4CwBKwdMn48M6LiZPQ",
-        "et_date": "2025-11-04",
-        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "evidence_span": "夜盘普跌 盘前干预 买入法\n\n这个11月也要练习会\n\n\n\n都普跌时候就不要慌 时间点在夜盘和盘前一小时跌 \n\n\n\n要注意18点30分有没有小V 有就低吸不慌\n\n\n\n盘中和盘前有拉升很高就做T出来资金备用 在二次握手在回吸",
-        "raw_text": "夜盘普跌 盘前干预 买入法\n\n这个11月也要练习会\n\n\n\n都普跌时候就不要慌 时间点在夜盘和盘前一小时跌 \n\n\n\n要注意18点30分有没有小V 有就低吸不慌\n\n\n\n盘中和盘前有拉升很高就做T出来资金备用 在二次握手在回吸"
-      },
-      {
         "index": 1216,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUozepwSpRriKtcPSsGmP",
         "et_date": "2025-11-04",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -365,7 +373,6 @@
         "index": 1296,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUrqx5cKcmK8A8mfb4s4f",
         "et_date": "2025-11-06",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -376,7 +383,6 @@
         "index": 1302,
         "tree_id": "gold_001_second_handshake",
         "tree_name": "二次握手不破低点低吸",
-        "instance_subtype": "rule_instantiation",
         "message_id": "post_1CUrs155geNAUPzrSudxef",
         "et_date": "2025-11-06",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -411,7 +417,18 @@
     "gold_006_passive_redeem_holiday": [],
     "gold_007_shoe_drops_settlement": [],
     "gold_008_index_turn_gate": [],
-    "gold_008b_block_print_reentry": [],
+    "gold_008b_block_print_reentry": [
+      {
+        "index": 153,
+        "tree_id": "gold_008b_block_print_reentry",
+        "tree_name": "支撑位大单入场再回买",
+        "message_id": "post_1CTyfbFudk261cM1sFhTuz",
+        "et_date": "2025-10-10",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "周五冲高的开局卖出后    尽量把回买的时间压到3点半和7点半 有时候盘后有新闻会影响 周末也会有讲话 \n\n\n\n或者到股票支撑位附近看有大单入场在回买",
+        "raw_text": "周五冲高的开局卖出后    尽量把回买的时间压到3点半和7点半 有时候盘后有新闻会影响 周末也会有讲话 \n\n\n\n或者到股票支撑位附近看有大单入场在回买"
+      }
+    ],
     "gold_009_cost_exit_last_batch": [
       {
         "index": 1208,
@@ -422,16 +439,6 @@
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
         "evidence_span": "分批只减自己最后补的那笔\n\n\n\n距离举例  \n\n\n\n比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买",
         "raw_text": "分批只减自己最后补的那笔\n\n\n\n距离举例  \n\n\n\n比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买"
-      },
-      {
-        "index": 1953,
-        "tree_id": "gold_009_cost_exit_last_batch",
-        "tree_name": "分批只减最后补的一笔成本出",
-        "message_id": "post_1CVUwum51oSMjxBZWkJ6Hx",
-        "et_date": "2025-11-25",
-        "channel": "讨论区股票记录",
-        "evidence_span": "成本出 那个低点出来就挂低点 在上下扫扫到就可以了",
-        "raw_text": "成本出 那个低点出来就挂低点 在上下扫扫到就可以了"
       }
     ],
     "gold_011_zhao_poem_official": [],
@@ -454,14 +461,23 @@
     "prop_004_event_low_dip_method": [],
     "prop_005_block_print_method": [],
     "prop_006_stop_loss_sweep_method": [],
-    "prop_007_night_plunge_premarket_intervention": []
-  },
-  "gap_subdivision": {
-    "rule_replays": [
+    "prop_007_night_plunge_premarket_intervention": [
+      {
+        "index": 1176,
+        "tree_id": "prop_007_night_plunge_premarket_intervention",
+        "tree_name": "夜盘普跌盘前干预买入法",
+        "message_id": "post_1CUo4CwBKwdMn48M6LiZPQ",
+        "et_date": "2025-11-04",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "夜盘普跌 盘前干预 买入法\n\n这个11月也要练习会\n\n\n\n都普跌时候就不要慌 时间点在夜盘和盘前一小时跌 \n\n\n\n要注意18点30分有没有小V 有就低吸不慌\n\n\n\n盘中和盘前有拉升很高就做T出来资金备用 在二次握手在回吸",
+        "raw_text": "夜盘普跌 盘前干预 买入法\n\n这个11月也要练习会\n\n\n\n都普跌时候就不要慌 时间点在夜盘和盘前一小时跌 \n\n\n\n要注意18点30分有没有小V 有就低吸不慌\n\n\n\n盘中和盘前有拉升很高就做T出来资金备用 在二次握手在回吸"
+      }
+    ],
+    "prop_008_gap_retrace_fill_dip": [
       {
         "index": 254,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CU5G6AyfAbjQTvRh8oCMD",
         "et_date": "2025-10-13",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -470,8 +486,8 @@
       },
       {
         "index": 256,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CU5J9pm9nXuB1YbXUHjmB",
         "et_date": "2025-10-13",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -480,8 +496,8 @@
       },
       {
         "index": 331,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CU97szjJj5wDEH1Y2KqEi",
         "et_date": "2025-10-15",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -490,8 +506,8 @@
       },
       {
         "index": 392,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CUAx9NNYEdHmXVhX5qncM",
         "et_date": "2025-10-16",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -500,8 +516,8 @@
       },
       {
         "index": 595,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CUJhjWZKFacoZ8sqGKwmn",
         "et_date": "2025-10-20",
         "channel": "讨论区股票记录",
@@ -510,8 +526,8 @@
       },
       {
         "index": 866,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CUXnXJNbrCswnAbh3ctcL",
         "et_date": "2025-10-27",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -520,8 +536,8 @@
       },
       {
         "index": 877,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CUXrPAzvCLB9ZMcheT1Ro",
         "et_date": "2025-10-27",
         "channel": "讨论区股票记录",
@@ -530,8 +546,8 @@
       },
       {
         "index": 878,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CUXro2hTFMTgLHjEn1o2Q",
         "et_date": "2025-10-27",
         "channel": "讨论区股票记录",
@@ -540,8 +556,8 @@
       },
       {
         "index": 884,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CUXsMJtrZq9AA1vuGt8Gm",
         "et_date": "2025-10-27",
         "channel": "讨论区股票记录",
@@ -550,8 +566,8 @@
       },
       {
         "index": 900,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CUZmunNHDyjwhNkCapaWN",
         "et_date": "2025-10-28",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -560,8 +576,8 @@
       },
       {
         "index": 946,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CUbcrYTvgRXhQJsJJ8KzW",
         "et_date": "2025-10-29",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -570,8 +586,8 @@
       },
       {
         "index": 1294,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CUrqS1gEbDeMNrvE2mL7j",
         "et_date": "2025-11-06",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -580,8 +596,8 @@
       },
       {
         "index": 1488,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CUzUs1GVDwFmBEtgbrPQC",
         "et_date": "2025-11-10",
         "channel": "讨论区股票记录",
@@ -590,8 +606,8 @@
       },
       {
         "index": 1491,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
         "message_id": "post_1CUzVQh6NnYArr9um2ze6F",
         "et_date": "2025-11-10",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -600,8 +616,171 @@
       },
       {
         "index": 1551,
-        "tree_id": "gold_003_gap_intraday_once",
-        "subtype": "rule_replay",
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
+        "message_id": "post_1CV2QmfgJeYW5tAAPdNrbu",
+        "et_date": "2025-11-11",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "周一夜盘跳空 很多昨天都只是回踩了周五的最高价附近  今天也是回踩周五的均价附近 再把一些没到的缺口给回补掉",
+        "raw_text": "周一夜盘跳空 很多昨天都只是回踩了周五的最高价附近  今天也是回踩周五的均价附近 再把一些没到的缺口给回补掉"
+      }
+    ],
+    "prop_009_decay_equivalent_calc": [
+      {
+        "index": 45,
+        "tree_id": "prop_009_decay_equivalent_calc",
+        "tree_name": "期权/杠杆磨损值折算上一轮价格",
+        "message_id": "post_1CTupUZ5X6Q9X8RUSBd5c9",
+        "et_date": "2025-10-08",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "tsll 注意 回调 18.8-18.7  和17.9-17.8附近支撑分批回吸 第三次 计算了磨损值  18.8相当于第一轮的19.2",
+        "raw_text": "tsll 注意 回调 18.8-18.7  和17.9-17.8附近支撑分批回吸 第三次 计算了磨损值  18.8相当于第一轮的19.2"
+      }
+    ],
+    "prop_010_supply_unlock_ndays_dip": [
+      {
+        "index": 755,
+        "tree_id": "prop_010_supply_unlock_ndays_dip",
+        "tree_name": "减持过一段天数靠近支撑回吸",
+        "message_id": "post_1CUQEqpxenkFQQVpLnhmnE",
+        "et_date": "2025-10-23",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "orcl也要注意昨天270-271的支撑 和crwv一样减持9天左右了到接近支撑可以回吸",
+        "raw_text": "orcl也要注意昨天270-271的支撑 和crwv一样减持9天左右了到接近支撑可以回吸"
+      }
+    ]
+  },
+  "gap_subdivision": {
+    "rule_replays": [
+      {
+        "index": 254,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CU5G6AyfAbjQTvRh8oCMD",
+        "et_date": "2025-10-13",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "盘前没有官方的反制新闻，今天盘中可以盯着跳空缺口时候回吸点仓位",
+        "raw_text": "盘前没有官方的反制新闻，今天盘中可以盯着跳空缺口时候回吸点仓位"
+      },
+      {
+        "index": 256,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CU5J9pm9nXuB1YbXUHjmB",
+        "et_date": "2025-10-13",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天回吸时候尽量分批点缺口支撑一次 时间上尾盘有低点再一次",
+        "raw_text": "今天回吸时候尽量分批点缺口支撑一次 时间上尾盘有低点再一次"
+      },
+      {
+        "index": 331,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CU97szjJj5wDEH1Y2KqEi",
+        "et_date": "2025-10-15",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天走势和昨天一样的 开盘都是活性股 回踩下跳空缺口开始震荡往上  2点钟-3点钟可以减持点  尾盘特朗普如果发帖的回调也不用慌在支撑吸回就是了",
+        "raw_text": "今天走势和昨天一样的 开盘都是活性股 回踩下跳空缺口开始震荡往上  2点钟-3点钟可以减持点  尾盘特朗普如果发帖的回调也不用慌在支撑吸回就是了"
+      },
+      {
+        "index": 392,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CUAx9NNYEdHmXVhX5qncM",
+        "et_date": "2025-10-16",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天开盘和昨天差不多 盘前涨的 开盘会回踩下跳空缺口在往上  开盘后回踩后到支撑的可以低吸下",
+        "raw_text": "今天开盘和昨天差不多 盘前涨的 开盘会回踩下跳空缺口在往上  开盘后回踩后到支撑的可以低吸下"
+      },
+      {
+        "index": 595,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CUJhjWZKFacoZ8sqGKwmn",
+        "et_date": "2025-10-20",
+        "channel": "讨论区股票记录",
+        "evidence_span": "orcl可以设置低点分批 279缺口补完 274的支撑 可以分批",
+        "raw_text": "orcl可以设置低点分批 279缺口补完 274的支撑 可以分批"
+      },
+      {
+        "index": 866,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CUXnXJNbrCswnAbh3ctcL",
+        "et_date": "2025-10-27",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "夜盘和盘前都跳涨 开盘后注意 个股回踩缺口附近后才去低吸",
+        "raw_text": "夜盘和盘前都跳涨 开盘后注意 个股回踩缺口附近后才去低吸"
+      },
+      {
+        "index": 877,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CUXrPAzvCLB9ZMcheT1Ro",
+        "et_date": "2025-10-27",
+        "channel": "讨论区股票记录",
+        "evidence_span": "tsm也是夜盘的300是跳空回踩290缺口",
+        "raw_text": "tsm也是夜盘的300是跳空回踩290缺口"
+      },
+      {
+        "index": 878,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CUXro2hTFMTgLHjEn1o2Q",
+        "et_date": "2025-10-27",
+        "channel": "讨论区股票记录",
+        "evidence_span": "周一跳涨都会回踩下缺口以便后续的不回补",
+        "raw_text": "周一跳涨都会回踩下缺口以便后续的不回补"
+      },
+      {
+        "index": 884,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CUXsMJtrZq9AA1vuGt8Gm",
+        "et_date": "2025-10-27",
+        "channel": "讨论区股票记录",
+        "evidence_span": "eose跳空高开回踩缺口支撑在15.7",
+        "raw_text": "eose跳空高开回踩缺口支撑在15.7"
+      },
+      {
+        "index": 900,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CUZmunNHDyjwhNkCapaWN",
+        "et_date": "2025-10-28",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "目前大盘也在回踩跳空缺口 尽量个股等回踩跳涨的缺口后再回补和低吸",
+        "raw_text": "目前大盘也在回踩跳空缺口 尽量个股等回踩跳涨的缺口后再回补和低吸"
+      },
+      {
+        "index": 946,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CUbcrYTvgRXhQJsJJ8KzW",
+        "et_date": "2025-10-29",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "bmnr今天回踩了 50.6-51的缺口可以 50.6-51附近回吸部分 等会议后再看加仓",
+        "raw_text": "bmnr今天回踩了 50.6-51的缺口可以 50.6-51附近回吸部分 等会议后再看加仓"
+      },
+      {
+        "index": 1294,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CUrqS1gEbDeMNrvE2mL7j",
+        "et_date": "2025-11-06",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天回踩前天夜盘最低价附近补缺口 以那天最低价附近做参考低吸，尾盘在确认下\n\n前面开盘回踩买了就不加其他尾盘确认后再低吸其他的",
+        "raw_text": "今天回踩前天夜盘最低价附近补缺口 以那天最低价附近做参考低吸，尾盘在确认下\n\n前面开盘回踩买了就不加其他尾盘确认后再低吸其他的"
+      },
+      {
+        "index": 1488,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CUzUs1GVDwFmBEtgbrPQC",
+        "et_date": "2025-11-10",
+        "channel": "讨论区股票记录",
+        "evidence_span": "夜盘有政策导致的高开盘中一定会回踩补下缺口",
+        "raw_text": "夜盘有政策导致的高开盘中一定会回踩补下缺口"
+      },
+      {
+        "index": 1491,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CUzVQh6NnYArr9um2ze6F",
+        "et_date": "2025-11-10",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "夜盘有政策导致的高开盘中一定会回踩补下缺口\n\n\n\n目前是2个月来第三次 一定要把规律性常识高开回踩这个攻破 \n\n\n\n给自己三次实战来攻破这个难题",
+        "raw_text": "夜盘有政策导致的高开盘中一定会回踩补下缺口\n\n\n\n目前是2个月来第三次 一定要把规律性常识高开回踩这个攻破 \n\n\n\n给自己三次实战来攻破这个难题"
+      },
+      {
+        "index": 1551,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
         "message_id": "post_1CV2QmfgJeYW5tAAPdNrbu",
         "et_date": "2025-11-11",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -774,16 +953,6 @@
       "raw_text": "指数上QQQ盘后的收盘价要大于604.5 大多数股票今天就盘中完成二次握手的吸筹"
     },
     {
-      "index": 45,
-      "message_id": "post_1CTupUZ5X6Q9X8RUSBd5c9",
-      "et_date": "2025-10-08",
-      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "磨损值",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
-      "raw_text": "tsll 注意 回调 18.8-18.7  和17.9-17.8附近支撑分批回吸 第三次 计算了磨损值  18.8相当于第一轮的19.2"
-    },
-    {
       "index": 46,
       "message_id": "post_1CTupVFfGCrjXuncDvLWRv",
       "et_date": "2025-10-08",
@@ -852,16 +1021,6 @@
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "bmnr可以60-60.5附近在减持点 突然拉升下降也是昨天抄底资金在做T降本\n\n\n\n下来还是57附近去看补仓"
-    },
-    {
-      "index": 153,
-      "message_id": "post_1CTyfbFudk261cM1sFhTuz",
-      "et_date": "2025-10-10",
-      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "大单入场",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
-      "raw_text": "周五冲高的开局卖出后    尽量把回买的时间压到3点半和7点半 有时候盘后有新闻会影响 周末也会有讲话 \n\n\n\n或者到股票支撑位附近看有大单入场在回买"
     },
     {
       "index": 154,
@@ -1302,16 +1461,6 @@
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "upst和upsx 开盘异动冲高可以注意止盈和减持"
-    },
-    {
-      "index": 755,
-      "message_id": "post_1CUQEqpxenkFQQVpLnhmnE",
-      "et_date": "2025-10-23",
-      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "减持",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
-      "raw_text": "orcl也要注意昨天270-271的支撑 和crwv一样减持9天左右了到接近支撑可以回吸"
     },
     {
       "index": 756,
@@ -2292,6 +2441,16 @@
       "category": "weak_commentary_or_single_event",
       "reason": "单日事件点评或弱语义描述，未达到树节点标准",
       "raw_text": "有些低位 2份 一份死拿一份做正T"
+    },
+    {
+      "index": 1953,
+      "message_id": "post_1CVUwum51oSMjxBZWkJ6Hx",
+      "et_date": "2025-11-25",
+      "channel": "讨论区股票记录",
+      "trigger": "成本出",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "成本出 那个低点出来就挂低点 在上下扫扫到就可以了"
     },
     {
       "index": 1973,

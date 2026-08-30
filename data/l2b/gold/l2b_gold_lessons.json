@@ -34,12 +34,12 @@
   },
   {
     "gold_id": "gold_005_half_retrace_watch",
-    "name": "反弹一半公式测算与高低切",
+    "name": "反弹一半公式空间测算",
     "chapter": "第一章：仓位控制与资金节奏",
     "message_id": "post_1CVkJTMPBDiPHpvx618Da4",
     "et_date": "2025-12-03",
     "evidence_span": "太空板块是昨天刚反弹 asts和rklb也是往反弹一半的方向走  rklb  （66.35+37.57）/2=51.96 asts (49.31+83.31)/2=66.31",
-    "statement": "标的反弹空间按(最高+最低)/2测算，反弹一半以上出一半移入低位标的高低切。",
+    "statement": "标的反弹目标位按 (最高 + 最低) / 2 测算反弹一半空间。",
     "status": "gold",
     "do_not_use_as_order": true
   },
@@ -83,7 +83,7 @@
     "message_id": "post_1CTzMou3LM6qoHMCoJM2SL",
     "et_date": "2025-10-10",
     "evidence_span": "支撑位附近看有大单入场再回买",
-    "statement": "支撑位附近检测到盘口异动大单入场后再回买。",
+    "statement": "支撑位附近看有大单入场再回买。",
     "status": "gold",
     "do_not_use_as_order": true
   },
@@ -122,12 +122,12 @@
   },
   {
     "gold_id": "gold_013_supply_unlock_3_plus_1",
-    "name": "减持3+1天出清窗口",
+    "name": "减持3天后第4天看",
     "chapter": "第二章：日历律与供给被动减",
     "message_id": "post_1CUnkyN1BtcpYCed6KNhe6",
     "et_date": "2025-11-03",
-    "evidence_span": "减持一般3天后第4天看 减持公告出来后先让被动抛压释放",
-    "statement": "减持公告落地后先观察 3 天释放抛压，第 4 天再看企稳回吸机会。",
+    "evidence_span": "一般有减持的要3天后第4天才看 有的会持续减持到横盘企稳",
+    "statement": "一般有减持的要 3 天后第 4 天才看，等待持续减持到横盘企稳。",
     "status": "gold",
     "do_not_use_as_order": true
   },
@@ -150,6 +150,116 @@
     "et_date": "2025-12-12",
     "evidence_span": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的",
     "statement": "重大事件冲击后会有一批标的腰斩50%并迎来翻倍摸前高100%的机会。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_003_valuation_dip_method",
+    "name": "估值低估买入法 (8/26手牌1)",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1Cd9L2k1mmqP88xK43kLpQ",
+    "et_date": "2026-08-26",
+    "evidence_span": "无论是估值低估买入法",
+    "statement": "掌握估值低估买入法手牌机制。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_004_event_low_dip_method",
+    "name": "事件低位买入法 (8/26手牌2·META例)",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1Cd9L2k1mmqP88xK43kLpQ",
+    "et_date": "2026-08-26",
+    "evidence_span": "meta的事件低位买入法",
+    "statement": "掌握事件冲击下的低位买入法手牌机制。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_005_block_print_method",
+    "name": "大单检测法 (8/26手牌3)",
+    "chapter": "第三章：两段式入场与扫描流程",
+    "message_id": "post_1Cd9L2k1mmqP88xK43kLpQ",
+    "et_date": "2026-08-26",
+    "evidence_span": "大单检测法",
+    "statement": "掌握盘口异动大单检测法手牌机制。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_006_stop_loss_sweep_method",
+    "name": "散户止损单被一笔全吃 (8/26手牌4)",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1Cd9L2k1mmqP88xK43kLpQ",
+    "et_date": "2026-08-26",
+    "evidence_span": "散户止损单被一笔全吃之类的",
+    "statement": "识别散户止损单被一笔全吃（流动性扫荡）低吸手牌机制。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_007_night_plunge_premarket_intervention",
+    "name": "夜盘普跌盘前干预买入法",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1CU3hQ8YcAbjQTvRh8oCMD",
+    "et_date": "2025-10-13",
+    "evidence_span": "夜盘普跌 盘前干预买入法 二次握手在回吸",
+    "statement": "夜盘普跌遭遇宏观或盘前资金干预，结合二次握手确认低吸买入法。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_008_gap_retrace_fill_dip",
+    "name": "高开回踩补缺低吸法",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1CU5G6AyfAbjQTvRh8oCMD",
+    "et_date": "2025-10-13",
+    "evidence_span": "夜盘有政策导致的高开盘中一定会回踩补下缺口 开盘回踩缺口时候回吸点仓位",
+    "statement": "夜盘/周末政策刺激高开后，盘中等待回踩补缺确认低吸。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_009_decay_equivalent_calc",
+    "name": "期权/杠杆磨损值折算上一轮价格",
+    "chapter": "第一章：仓位控制与资金节奏",
+    "message_id": "post_1CTupUZ5X6Q9X8RUSBd5c9",
+    "et_date": "2025-10-08",
+    "evidence_span": "近支撑分批回吸 第三次 计算了磨损值 18.8相当于第一轮的19.2",
+    "statement": "多轮分批回吸时，计算期权或杠杆磨损值，折算等效支撑价格。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_010_supply_unlock_ndays_dip",
+    "name": "减持过一段天数靠近支撑回吸",
+    "chapter": "第二章：日历律与供给被动减",
+    "message_id": "post_1CULVkM6vhRYwSunr7xuLj",
+    "et_date": "2025-10-23",
+    "evidence_span": "orcl也要注意昨天270-271的支撑 和crwv一样减持9天左右了到接近支撑可以回吸",
+    "statement": "标的遭遇减持抛压，观察持续一段天数并在靠近关键支撑位时回吸。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_011_earnings_call_reversal",
+    "name": "大盘财报电话会前后多空反转",
+    "chapter": "第二章：日历律与供给被动减",
+    "message_id": "post_1CWdZ1kmj...",
+    "et_date": "2025-12-15",
+    "evidence_span": "大盘财报先多会后空 先空会后多",
+    "statement": "重磅财报发布时，关注发布后与电话会议前后的多空情绪反转机制。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_012_position_leverage_ratio",
+    "name": "稳反弹仓位分工与做T杠杆比率",
+    "chapter": "第一章：仓位控制与资金节奏",
+    "message_id": "post_1CWkL09...",
+    "et_date": "2025-12-18",
+    "evidence_span": "稳反弹占9成 1成资金+3成融资做T 期权相当于10倍",
+    "statement": "反弹确定性仓位分工：底仓占大头，小比例资金配合融资做T，期权等效杠杆管理。",
     "status": "proposed",
     "do_not_use_as_order": true
   }
