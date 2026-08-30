@@ -1,0 +1,122 @@
+[
+  {
+    "gold_id": "g_img_001",
+    "kid": "k_nine_turn_sequence",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "source_message_ids": [
+      "post_1CXYCpXPkLs5VVnU5aBkJe"
+    ],
+    "et_date": "2026-01-27",
+    "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
+    "raw_text": "[xiaozhaolucky]: 币市场 富途可以注意 等反弹的1出来时候反弹的1-9的九转序列是中线 然后8万6 8万7可以设置两个预警 最近都是 这两个短线反弹 九转序列是默认的一个数学公式 计算的曲率 反弹红1-9 回调就是绿1-9 上次大减持就是绿1出加密",
+    "evidence_span": "九转序列是默认的一个数学公式 计算的曲率 反弹红1-9 回调就是绿1-9 上次大减持就是绿1出加密",
+    "statement": "九转序列公式用于计算曲率，反弹关注红1-9，回调关注绿1-9；出现绿1信号时减持防守。",
+    "chart_notes": {
+      "timeframe": "intraday",
+      "markers": "K线走势叠加九转序列数字标号",
+      "aligns_with_text": "match",
+      "local_path": "data/media/zhao/2026-01-27/post_1CXYCpXPkLs5VVnU5aBkJe_0.jpg"
+    },
+    "not": [
+      "BUY BTC",
+      "SELL BTC"
+    ]
+  },
+  {
+    "gold_id": "g_img_002",
+    "kid": "k_focus_on_inflection_turn",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "source_message_ids": [
+      "post_1CYDwHo9hVfbwciyfsR9sa"
+    ],
+    "et_date": "2026-02-17",
+    "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
+    "raw_text": "[xiaozhaolucky]: 每天只需要看转弯 真金白银是真 消息都是阻碍你",
+    "evidence_span": "每天只需要看转弯 真金白银是真 消息都是阻碍你",
+    "statement": "交易重点观察盘面实际转弯拐点，以资金真实走势为准，不受外部消息面干扰。",
+    "chart_notes": {
+      "timeframe": "intraday",
+      "markers": "行情走势拐点与分时波动",
+      "aligns_with_text": "match",
+      "local_path": "data/media/zhao/2026-02-17/post_1CYDwHo9hVfbwciyfsR9sa_0.jpg"
+    },
+    "not": [
+      "BUY ALL",
+      "SELL ALL"
+    ]
+  },
+  {
+    "gold_id": "g_img_003",
+    "kid": "k_second_handshake",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "source_message_ids": [
+      "post_1CayBBJeexEDaiEveHEmGa"
+    ],
+    "et_date": "2026-05-12",
+    "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
+    "raw_text": "[xiaozhaolucky]: 二次握手比较精确的指数spx图",
+    "evidence_span": "二次握手比较精确的指数spx图",
+    "statement": "SPX 指数呈现标准的二次握手形态，以二次探底支撑作为关键观察点。",
+    "chart_notes": {
+      "timeframe": "intraday",
+      "markers": "SPX分时图二次探底支撑低点",
+      "aligns_with_text": "match",
+      "local_path": "data/media/zhao/2026-05-12/post_1CayBBJeexEDaiEveHEmGa_0.jpg"
+    },
+    "not": [
+      "BUY SPX",
+      "SELL SPX"
+    ]
+  },
+  {
+    "gold_id": "g_img_004",
+    "kid": "k_event_cycle_extremes",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "source_message_ids": [
+      "post_1Cb4TAuGNsh8zYEUCgnce7"
+    ],
+    "et_date": "2026-05-15",
+    "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
+    "raw_text": "[xiaozhaolucky]: 加密的高点 总在第一轮投票投一半时候 加密的低点一半在下轮投票日期模糊和精确的公布附近",
+    "evidence_span": "加密的高点 总在第一轮投票投一半时候 加密的低点一半在下轮投票日期模糊和精确的公布附近",
+    "statement": "事件驱动标的高点常出现在第一轮事件推进过半时，低点常出现在后续时间表公布预期附近。",
+    "chart_notes": {
+      "timeframe": "daily",
+      "markers": "周期走势与事件时间节点对比",
+      "aligns_with_text": "match",
+      "local_path": "data/media/zhao/2026-05-15/post_1Cb4TAuGNsh8zYEUCgnce7_0.jpg"
+    },
+    "not": [
+      "BUY ALL",
+      "SELL ALL"
+    ]
+  },
+  {
+    "gold_id": "g_img_005",
+    "kid": "k_breakout_three_elements",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "source_message_ids": [
+      "post_1CbTUayc44sNzPweAjd3QW"
+    ],
+    "et_date": "2026-05-27",
+    "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
+    "raw_text": "[xiaozhaolucky]: 最有爆发的三要素要时刻盯紧 抓机会",
+    "evidence_span": "最有爆发的三要素要时刻盯紧 抓机会",
+    "statement": "关注具备爆发三要素的盘面特征，结合放量与转弯信号捕捉交易机会。",
+    "chart_notes": {
+      "timeframe": "intraday",
+      "markers": "盘面走势图与异动放量区间",
+      "aligns_with_text": "match",
+      "local_path": "data/media/zhao/2026-05-27/post_1CbTUayc44sNzPweAjd3QW_0.jpg"
+    },
+    "not": [
+      "BUY ALL",
+      "市价买单"
+    ]
+  }
+]

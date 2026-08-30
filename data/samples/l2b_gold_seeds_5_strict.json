@@ -63,7 +63,8 @@
     "not": [
       "BUY CRWV @ 86",
       "86.3加回三分之一常规仓crwv"
-    ]
+    ],
+    "note": "源自 2026-07-01 增量广播切窗数据 (l2a_cleaned_20260828_incr01.jsonl)。因增量切窗数据源与当前 SQLite messages 表索引/空格差异未在单条 post 中完全匹配，在此保留增量切窗对应的上下文证据，不编造虚假 post_id。"
   },
   {
     "gold_id": "g_zhao_004",

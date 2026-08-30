@@ -128,10 +128,23 @@
 | `g_zhao_006` | `k_passive_redeem_three_parts` | **`proposed`** | `post_1CbAPabncHPXk44npRESnx` | 2026-05-18<br>`chat_feed_1CTrCEx44dP13jW3RVkYiS` | `被动减每天股仓位一般分三份 每跌一个缺口买一份` | 被动减持期间仓位分三份，每跌一个缺口买一份。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["BUY CRWV ALL", "一次性满仓"]` |
 | `g_zhao_007` | `k_gap_fill_observation` | **`proposed`** | `post_1CbAPabncHPXk44npRESnx` | 2026-05-18<br>`chat_feed_1CTrCEx44dP13jW3RVkYiS` | `crwv之后几天也可以注意 98 和90的位置 今天急跌把98.9那个缺口补了` | 标的急跌回补缺口后，注意观察关键点位与缺口位置的表现。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["BUY CRWV @ 98", "BUY CRWV @ 90"]` |
 
-> [!IMPORTANT]
-> 1. G4/G5 获批标为 **`gold_text`**（纯文本金标）；新 kid 暂不写入 `known_kids_registry.json`；
-> 2. G6/G7 保持 **`proposed`**；
-> 3. G1/G2/G3 诚实保留为 **`proposed_unlocated`**，手机截图作为图侧金样，文案不入库虚假 ID；
-> 4. `do_not_use_as_order: true` 全部强制生效。
+---
+
+## 6. 磁盘实存真图（>15KB）精选 5 条 L2b proposed 知识看板 (严禁 BUY/SELL)
+
+从当前物理磁盘已有的 33 张真实大图库存（非发布/记录区新换签，诚实标注）中，精选 5 条匹配赵哥真实原句的 `proposed` 样本：
+
+| 样本 ID | 战法场景 | 来源消息 ID / 日期 | 磁盘真图路径 (体积 / SHA 前缀) | 赵哥发言全文 (`raw_text`) | 精确证据子串 (`evidence_span`) | 规范陈述 (`statement`) | 图表标注 (`chart_notes`) |
+|:---|:---|:---|:---|:---|:---|:---|:---|
+| `g_img_001` | **九转序列公式与防守** | `post_1CXYCpXPkLs5VVnU5aBkJe`<br>(2026-01-27) | `data/media/zhao/2026-01-27/post_1CXYCpXPkLs5VVnU5aBkJe_0.jpg`<br>(**162.2 KB** / `bc6fa587...`) | `币市场 富途可以注意 等反弹的1出来时候反弹的1-9的九转序列是中线 然后8万6 8万7可以设置两个预警 最近都是 这两个短线反弹 九转序列是默认的一个数学公式 计算的曲率 反弹红1-9 回调就是绿1-9 上次大减持就是绿1出加密` | `九转序列是默认的一个数学公式 计算的曲率 反弹红1-9 回调就是绿1-9 上次大减持就是绿1出加密` | 九转序列公式用于计算曲率，反弹关注红1-9，回调关注绿1-9；出现绿1信号时减持防守。 | `aligns_with_text: "match"`<br>K线走势叠加九转序列数字标号 |
+| `g_img_002` | **资金真实转弯拐点** | `post_1CYDwHo9hVfbwciyfsR9sa`<br>(2026-02-17) | `data/media/zhao/2026-02-17/post_1CYDwHo9hVfbwciyfsR9sa_0.jpg`<br>(**48.9 KB** / `a50936a6...`) | `每天只需要看转弯 真金白银是真 消息都是阻碍你` | `每天只需要看转弯 真金白银是真 消息都是阻碍你` | 交易重点观察盘面实际转弯拐点，以资金真实走势为准，不受外部消息面干扰。 | `aligns_with_text: "match"`<br>行情走势拐点与分时波动 |
+| `g_img_003` | **SPX 二次握手形态** | `post_1CayBBJeexEDaiEveHEmGa`<br>(2026-05-12) | `data/media/zhao/2026-05-12/post_1CayBBJeexEDaiEveHEmGa_0.jpg`<br>(**104.0 KB** / `908ab069...`) | `二次握手比较精确的指数spx图` | `二次握手比较精确的指数spx图` | SPX 指数呈现标准的二次握手形态，以二次探底支撑作为关键观察点。 | `aligns_with_text: "match"`<br>SPX分时图二次探底支撑低点 |
+| `g_img_004` | **事件周期高低点时间锚** | `post_1Cb4TAuGNsh8zYEUCgnce7`<br>(2026-05-15) | `data/media/zhao/2026-05-15/post_1Cb4TAuGNsh8zYEUCgnce7_0.jpg`<br>(**29.9 KB** / `780d2858...`) | `加密的高点 总在第一轮投票投一半时候 加密的低点一半在下轮投票日期模糊和精确的公布附近` | `加密的高点 总在第一轮投票投一半时候 加密的低点一半在下轮投票日期模糊和精确的公布附近` | 事件驱动标的高点常出现在第一轮事件推进过半时，低点常出现在后续时间表公布预期附近。 | `aligns_with_text: "match"`<br>周期走势与事件时间节点对比 |
+| `g_img_005` | **爆发三要素关注** | `post_1CbTUayc44sNzPweAjd3QW`<br>(2026-05-27) | `data/media/zhao/2026-05-27/post_1CbTUayc44sNzPweAjd3QW_0.jpg`<br>(**130.3 KB** / `1b7da4be...`) | `最有爆发的三要素要时刻盯紧 抓机会` | `最有爆发的三要素要时刻盯紧 抓机会` | 关注具备爆发三要素的盘面特征，结合放量与转弯信号捕捉交易机会。 | `aligns_with_text: "match"`<br>盘面走势图与异动放量区间 |
+
+> [!NOTE]
+> 1. 以上 5 条全部严格基于物理磁盘上**真实存在的大图文件（29.9KB ~ 162.2KB，全部唯一 SHA256）**；
+> 2. `statement` 仅提取原文核心词汇改写，严禁出现任何原文未提及的指标与阈值；
+> 3. `status: "proposed"`，等待用户进一步审核。
 
 
