@@ -1,0 +1,575 @@
+{
+  "metadata": {
+    "segment": "第 2 档 (501~1000 条消息)",
+    "date_range": "2025-10-17 ~ 2025-10-30",
+    "total_scanned": 500,
+    "bookmarked_stops": 55,
+    "new_ledger_entries_created": 1,
+    "linked_to_old_ledger_count": 19,
+    "skipped_stops_total": 34,
+    "skipped_breakdown": {
+      "weak_commentary_or_single_event": 13,
+      "duplicate_post": 18,
+      "pure_fill_order": 3
+    }
+  },
+  "new_ledger_entries": [
+    {
+      "ledger_id": "mech_passive_redeem_supply",
+      "mechanism_name": "基金被动减持与供给释放周期",
+      "first_discovered": {
+        "index": 607,
+        "message_id": "post_1CULVkM6vhRYwSunr7xuLj",
+        "et_date": "2025-10-21",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "crwv可以122-123附近配置点  减持完毕公告虽然还没出 但是有企稳迹象了",
+        "raw_text": "crwv可以122-123附近配置点  减持完毕公告虽然还没出 但是有企稳迹象了"
+      },
+      "later_instances_count": 1,
+      "instances": [
+        {
+          "index": 675,
+          "message_id": "post_1CUNkbex7QXtdJhBXbM9jN",
+          "et_date": "2025-10-22",
+          "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+          "evidence_span": "补充了点基本面和这段期间的股票涨幅股性\n\n\n\n\n\nupst 48 低点 有小V  盘后再跳水可以配置   upsx 低点 13.4  有小V  盘后再跳水可以配置\n\n基本面是贷款类之前正股还有个47低点今天也只跳到48附近 博弈贷款政策反转（股性中等反弹时候反弹区间达到正股50-52）\n\nconl ",
+          "raw_text": "补充了点基本面和这段期间的股票涨幅股性\n\n\n\n\n\nupst 48 低点 有小V  盘后再跳水可以配置   upsx 低点 13.4  有小V  盘后再跳水可以配置\n\n基本面是贷款类之前正股还有个47低点今天也只跳到48附近 博弈贷款政策反转（股性中等反弹时候反弹区间达到正股50-52）\n\nconl 30.66   低点 有小V  盘后再跳水可以配置 \n\ncoin的双倍 稳定币和btc交易所类  几次也是下杀到31附近反弹36（股性高）\n\nrklb 58.41  低点 有小V  盘后再跳水可以配置"
+        }
+      ]
+    }
+  ],
+  "linked_to_old_ledger_instances": [
+    {
+      "index": 582,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUJd5DUDhsWnnm2xZS3FJ",
+      "et_date": "2025-10-20",
+      "channel": "讨论区股票记录",
+      "evidence_span": "orcl下一个支撑在279这里有个缺口",
+      "raw_text": "orcl下一个支撑在279这里有个缺口"
+    },
+    {
+      "index": 583,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUJdDa2fmLcdJEkZaDXuW",
+      "et_date": "2025-10-20",
+      "channel": "讨论区股票记录",
+      "evidence_span": "oklo150.5这里有个缺口支撑",
+      "raw_text": "oklo150.5这里有个缺口支撑"
+    },
+    {
+      "index": 592,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUJhTzoMNn2Uh8hBGUXvK",
+      "et_date": "2025-10-20",
+      "channel": "讨论区股票记录",
+      "evidence_span": "orcl 279有个缺口 然后最近有高管那天冲高时候减持",
+      "raw_text": "orcl 279有个缺口 然后最近有高管那天冲高时候减持"
+    },
+    {
+      "index": 595,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUJhjWZKFacoZ8sqGKwmn",
+      "et_date": "2025-10-20",
+      "channel": "讨论区股票记录",
+      "evidence_span": "orcl可以设置低点分批 279缺口补完 274的支撑 可以分批",
+      "raw_text": "orcl可以设置低点分批 279缺口补完 274的支撑 可以分批"
+    },
+    {
+      "index": 634,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUNK26anWs3hyYy4b7Mh6",
+      "et_date": "2025-10-22",
+      "channel": "讨论区股票记录",
+      "evidence_span": "qubt支撑在15.2 iren52.5有个缺口",
+      "raw_text": "qubt支撑在15.2 iren52.5有个缺口"
+    },
+    {
+      "index": 654,
+      "target_old_ledger_id": "mech_second_handshake",
+      "target_mechanism_name": "二次握手不破低点低吸",
+      "message_id": "post_1CUNScbuhunNBvEtEGDsxH",
+      "et_date": "2025-10-22",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "evidence_span": "rklb 盘中低点在60.36  盘如果有二次握手探底没有破的可以回吸",
+      "raw_text": "rklb 盘中低点在60.36  盘如果有二次握手探底没有破的可以回吸"
+    },
+    {
+      "index": 656,
+      "target_old_ledger_id": "mech_second_handshake",
+      "target_mechanism_name": "二次握手不破低点低吸",
+      "message_id": "post_1CUNSfZUQeev49mtNBMSsR",
+      "et_date": "2025-10-22",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "evidence_span": "hood 122.9盘中低点 尾盘如果有二次握手探底没有破的可以回吸",
+      "raw_text": "hood 122.9盘中低点 尾盘如果有二次握手探底没有破的可以回吸"
+    },
+    {
+      "index": 658,
+      "target_old_ledger_id": "mech_second_handshake",
+      "target_mechanism_name": "二次握手不破低点低吸",
+      "message_id": "post_1CUNSoSdtVrHpZpV6nnFv5",
+      "et_date": "2025-10-22",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "evidence_span": "bmnr 48盘中低点   尾盘如果有二次握手探底没有破的可以回吸",
+      "raw_text": "bmnr 48盘中低点   尾盘如果有二次握手探底没有破的可以回吸"
+    },
+    {
+      "index": 660,
+      "target_old_ledger_id": "mech_second_handshake",
+      "target_mechanism_name": "二次握手不破低点低吸",
+      "message_id": "post_1CUNSsGxnavBAQnrmNcBt2",
+      "et_date": "2025-10-22",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "evidence_span": "mara 盘中低点在18.99 尾盘如果有二次握手探底没有破的可以回吸",
+      "raw_text": "mara 盘中低点在18.99 尾盘如果有二次握手探底没有破的可以回吸"
+    },
+    {
+      "index": 786,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUQQF9aCLHqFi3GUviPjp",
+      "et_date": "2025-10-23",
+      "channel": "讨论区股票记录",
+      "evidence_span": "小米港股的话也是昨天的45.7这个支撑注意着阻力在50.9那个跳空缺口",
+      "raw_text": "小米港股的话也是昨天的45.7这个支撑注意着阻力在50.9那个跳空缺口"
+    },
+    {
+      "index": 866,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUXnXJNbrCswnAbh3ctcL",
+      "et_date": "2025-10-27",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "evidence_span": "夜盘和盘前都跳涨 开盘后注意 个股回踩缺口附近后才去低吸",
+      "raw_text": "夜盘和盘前都跳涨 开盘后注意 个股回踩缺口附近后才去低吸"
+    },
+    {
+      "index": 877,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUXrPAzvCLB9ZMcheT1Ro",
+      "et_date": "2025-10-27",
+      "channel": "讨论区股票记录",
+      "evidence_span": "tsm也是夜盘的300是跳空回踩290缺口",
+      "raw_text": "tsm也是夜盘的300是跳空回踩290缺口"
+    },
+    {
+      "index": 878,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUXro2hTFMTgLHjEn1o2Q",
+      "et_date": "2025-10-27",
+      "channel": "讨论区股票记录",
+      "evidence_span": "周一跳涨都会回踩下缺口以便后续的不回补",
+      "raw_text": "周一跳涨都会回踩下缺口以便后续的不回补"
+    },
+    {
+      "index": 884,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUXsMJtrZq9AA1vuGt8Gm",
+      "et_date": "2025-10-27",
+      "channel": "讨论区股票记录",
+      "evidence_span": "eose跳空高开回踩缺口支撑在15.7",
+      "raw_text": "eose跳空高开回踩缺口支撑在15.7"
+    },
+    {
+      "index": 900,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUZmunNHDyjwhNkCapaWN",
+      "et_date": "2025-10-28",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "evidence_span": "目前大盘也在回踩跳空缺口 尽量个股等回踩跳涨的缺口后再回补和低吸",
+      "raw_text": "目前大盘也在回踩跳空缺口 尽量个股等回踩跳涨的缺口后再回补和低吸"
+    },
+    {
+      "index": 908,
+      "target_old_ledger_id": "mech_second_handshake",
+      "target_mechanism_name": "二次握手不破低点低吸",
+      "message_id": "post_1CUa4NcqaxDBrc7Z3PL9Lx",
+      "et_date": "2025-10-28",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "evidence_span": "储能有个eose  讲话后 在15.10附近没在下去了可以15.2附近小仓位建仓  到14.9-14.8附近再加 要二次握手下 稳健点",
+      "raw_text": "储能有个eose  讲话后 在15.10附近没在下去了可以15.2附近小仓位建仓  到14.9-14.8附近再加 要二次握手下 稳健点"
+    },
+    {
+      "index": 946,
+      "target_old_ledger_id": "mech_gap_rebound_dip",
+      "target_mechanism_name": "跳空缺口回踩吸筹",
+      "message_id": "post_1CUbcrYTvgRXhQJsJJ8KzW",
+      "et_date": "2025-10-29",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "evidence_span": "bmnr今天回踩了 50.6-51的缺口可以 50.6-51附近回吸部分 等会议后再看加仓",
+      "raw_text": "bmnr今天回踩了 50.6-51的缺口可以 50.6-51附近回吸部分 等会议后再看加仓"
+    },
+    {
+      "index": 973,
+      "target_old_ledger_id": "mech_second_handshake",
+      "target_mechanism_name": "二次握手不破低点低吸",
+      "message_id": "post_1CUbzYn3414EDhrejPeQcp",
+      "et_date": "2025-10-29",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "evidence_span": "hims 可以46附近 建个仓位 符合二次握手",
+      "raw_text": "hims 可以46附近 建个仓位 符合二次握手"
+    },
+    {
+      "index": 983,
+      "target_old_ledger_id": "mech_second_handshake",
+      "target_mechanism_name": "二次握手不破低点低吸",
+      "message_id": "post_1CUc1NcZWUAufrm1k75Fbg",
+      "et_date": "2025-10-29",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "evidence_span": "鲍威尔讲话快结束了 主要他鹰派发言创造了机会  主要盘后三巨头财报和中美会晤也会拉下 这轮下跌中主要老股票回踩二次握手的做了配置",
+      "raw_text": "鲍威尔讲话快结束了 主要他鹰派发言创造了机会  主要盘后三巨头财报和中美会晤也会拉下 这轮下跌中主要老股票回踩二次握手的做了配置"
+    }
+  ],
+  "skipped_stops_audit": [
+    {
+      "index": 576,
+      "message_id": "post_1CUJbFGukG2RaAtejbmeXF",
+      "et_date": "2025-10-20",
+      "channel": "讨论区股票记录",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "26号nbis有解禁 crwv 128 和130两个支撑 就是crwv有减持最近"
+    },
+    {
+      "index": 581,
+      "message_id": "post_1CUJcN4H1X63gUgjN71zfj",
+      "et_date": "2025-10-20",
+      "channel": "讨论区股票记录",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "亚马逊一直是210支撑 前妻减持还剩10%以下了"
+    },
+    {
+      "index": 608,
+      "message_id": "post_1CULVkoqMJpdroQa1pQoQT",
+      "et_date": "2025-10-21",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "crwv可以122-123附近配置点  减持完毕公告虽然还没出 但是有企稳迹象了"
+    },
+    {
+      "index": 618,
+      "message_id": "post_1CULYcgiH97K42wvuBm8Tv",
+      "et_date": "2025-10-21",
+      "channel": "讨论区股票记录",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "甲骨文也可以左侧 和crwv一样是同一天减持 270强支撑 可以273附近找机会配置点"
+    },
+    {
+      "index": 633,
+      "message_id": "post_1CUNJiGJatDVKUM73eAuk9",
+      "et_date": "2025-10-22",
+      "channel": "讨论区股票记录",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "特斯拉有财报 手里死拿不动的仓位盘后看情况出 会有双杀出现"
+    },
+    {
+      "index": 635,
+      "message_id": "post_1CUNLbtSfmiVwL6BcayfgE",
+      "et_date": "2025-10-22",
+      "channel": "讨论区股票记录",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "orcl可以273-274配置 就是这个orcl减持人数多 要预留点"
+    },
+    {
+      "index": 655,
+      "message_id": "post_1CUNSdCgBA76PDrBKbXxU3",
+      "et_date": "2025-10-22",
+      "channel": "不用翻墙期权",
+      "trigger": "二次握手",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "rklb 盘中低点在60.36 盘如果有二次握手探底没有破的可以回吸"
+    },
+    {
+      "index": 657,
+      "message_id": "post_1CUNSfxQLv5jL3A5gVnEBr",
+      "et_date": "2025-10-22",
+      "channel": "不用翻墙期权",
+      "trigger": "二次握手",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "hood 122.9盘中低点 尾盘如果有二次握手探底没有破的可以回吸"
+    },
+    {
+      "index": 659,
+      "message_id": "post_1CUNSox5hRbAjX1EWGHYHr",
+      "et_date": "2025-10-22",
+      "channel": "不用翻墙期权",
+      "trigger": "二次握手",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "bmnr 48盘中低点 尾盘如果有二次握手探底没有破的可以回吸"
+    },
+    {
+      "index": 661,
+      "message_id": "post_1CUNSsj9M6D7xKQtMwaokK",
+      "et_date": "2025-10-22",
+      "channel": "不用翻墙期权",
+      "trigger": "二次握手",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "mara 盘中低点在18.99 尾盘如果有二次握手探底没有破的可以回吸"
+    },
+    {
+      "index": 676,
+      "message_id": "post_1CUNkcSu5TcdNFh9uQmCj3",
+      "et_date": "2025-10-22",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "补充了点基本面和这段期间的股票涨幅股性\n\n\n\n\n\nupst 48 低点 有小V 盘后再跳水可以配置 upsx 低点 13.4 有小V 盘后再跳水可以配置\n\n基本面是贷款类之前正股还有个47低点今天也只跳到48附近 博弈贷款政策反转（股性中等反弹时候反弹区间达到正股50-52）\n\nconl 30.66"
+    },
+    {
+      "index": 680,
+      "message_id": "post_1CUNkqL8aZt1vxmXpxg8Em",
+      "et_date": "2025-10-22",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "补充了点基本面和这段期间的股票涨幅股性\n\n\n\n\n\nupst 48 低点 有小V 盘后再跳水可以配置 upsx 低点 13.4 有小V 盘后再跳水可以配置\n\n基本面是贷款类之前正股还有个47低点今天也只跳到48附近 博弈贷款政策反转（股性中等反弹时候反弹区间达到正股50-52）\n\nconl 30.66"
+    },
+    {
+      "index": 733,
+      "message_id": "post_1CUPj7uR837gYecRv7kZK7",
+      "et_date": "2025-10-23",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "盘后吸的mstr 目前冲到了289附近 预计是289-292进行减持 可以注意下分批减"
+    },
+    {
+      "index": 734,
+      "message_id": "post_1CUPj8Mzdwbp3BajNXJQXj",
+      "et_date": "2025-10-23",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘后吸的mstr 目前冲到了289附近 预计是289-292进行减持 可以注意下分批减"
+    },
+    {
+      "index": 747,
+      "message_id": "post_1CUQDhuZpiPPEB9MniVKbB",
+      "et_date": "2025-10-23",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "upst和upsx 开盘异动冲高可以注意止盈和减持"
+    },
+    {
+      "index": 748,
+      "message_id": "post_1CUQDiBqjNwq8Vdk42nRRg",
+      "et_date": "2025-10-23",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "upst和upsx 开盘异动冲高可以注意止盈和减持"
+    },
+    {
+      "index": 755,
+      "message_id": "post_1CUQEqpxenkFQQVpLnhmnE",
+      "et_date": "2025-10-23",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "orcl也要注意昨天270-271的支撑 和crwv一样减持9天左右了到接近支撑可以回吸"
+    },
+    {
+      "index": 756,
+      "message_id": "post_1CUQErL2VQXoZJhjLoYP6s",
+      "et_date": "2025-10-23",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "orcl也要注意昨天270-271的支撑 和crwv一样减持9天左右了到接近支撑可以回吸"
+    },
+    {
+      "index": 777,
+      "message_id": "post_1CUQNjg84UPAx3teZhXq5u",
+      "et_date": "2025-10-23",
+      "channel": "讨论区股票记录",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "oscr昨天出减持披露 明天开始慢慢企稳注意18.4的支撑"
+    },
+    {
+      "index": 789,
+      "message_id": "post_1CUQQjni1bzg4B6t1RC7K5",
+      "et_date": "2025-10-23",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "tsll目前19.6 快到说的19.8的极限位置 19.8摸到没站稳也可以减持点"
+    },
+    {
+      "index": 790,
+      "message_id": "post_1CUQQjXX4Vr4qmx4ZCQbzt",
+      "et_date": "2025-10-23",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll目前19.6 快到说的19.8的极限位置 19.8摸到没站稳也可以减持点"
+    },
+    {
+      "index": 813,
+      "message_id": "post_1CUQbd367KkD9P1eufNJaB",
+      "et_date": "2025-10-23",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "周五机会还是大 要会晤周末就不会乱讲话 可以在期权结算双杀时候找回踩支撑的吸"
+    },
+    {
+      "index": 843,
+      "message_id": "post_1CUScgVZmm4qkFuw13H74g",
+      "et_date": "2025-10-24",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "握手",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不属于机制课，归入 L2a fill",
+      "raw_text": "tsll尾盘强平时候19.3出现2次握手都是同一个委托单子在吃"
+    },
+    {
+      "index": 844,
+      "message_id": "post_1CUScgkUa1jbQg4AMvEknj",
+      "et_date": "2025-10-24",
+      "channel": "不用翻墙期权",
+      "trigger": "握手",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll尾盘强平时候19.3出现2次握手都是同一个委托单子在吃"
+    },
+    {
+      "index": 867,
+      "message_id": "post_1CUXnY3jbAX7nm5zhohPET",
+      "et_date": "2025-10-27",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "夜盘和盘前都跳涨 开盘后注意 个股回踩缺口附近后才去低吸"
+    },
+    {
+      "index": 876,
+      "message_id": "post_1CUXrGQ6e6rBYC67DkxNsE",
+      "et_date": "2025-10-27",
+      "channel": "讨论区股票记录",
+      "trigger": "减持",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不属于机制课，归入 L2a fill",
+      "raw_text": "orcl副总裁减持 278支撑"
+    },
+    {
+      "index": 881,
+      "message_id": "post_1CUXrx77WNhpKSm5VeJZwA",
+      "et_date": "2025-10-27",
+      "channel": "讨论区股票记录",
+      "trigger": "减持",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不属于机制课，归入 L2a fill",
+      "raw_text": "irdm这个之前有减持 17.3是最近支撑"
+    },
+    {
+      "index": 901,
+      "message_id": "post_1CUZmvPd2Dm4cqQnYWsPTw",
+      "et_date": "2025-10-28",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "目前大盘也在回踩跳空缺口 尽量个股等回踩跳涨的缺口后再回补和低吸"
+    },
+    {
+      "index": 909,
+      "message_id": "post_1CUa4NyX672whCEmTi314h",
+      "et_date": "2025-10-28",
+      "channel": "不用翻墙期权",
+      "trigger": "二次握手",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "储能有个eose  讲话后 在15.10附近没在下去了可以15.2附近小仓位建仓  到14.9-14.8附近再加 要二次握手下 稳健点"
+    },
+    {
+      "index": 947,
+      "message_id": "post_1CUbcrnPZL7NfEjRXP2erX",
+      "et_date": "2025-10-29",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "bmnr今天回踩了 50.6-51的缺口可以 50.6-51附近回吸部分 等会议后再看加仓"
+    },
+    {
+      "index": 974,
+      "message_id": "post_1CUbzZ8uB87TCyptapUYaW",
+      "et_date": "2025-10-29",
+      "channel": "不用翻墙期权",
+      "trigger": "二次握手",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "hims 可以46附近 建个仓位 符合二次握手"
+    },
+    {
+      "index": 984,
+      "message_id": "post_1CUc1Nu5ZZ9xskjPk5RHcF",
+      "et_date": "2025-10-29",
+      "channel": "不用翻墙期权",
+      "trigger": "二次握手",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "鲍威尔讲话快结束了 主要他鹰派发言创造了机会  主要盘后三巨头财报和中美会晤也会拉下 这轮下跌中主要老股票回踩二次握手的做了配置"
+    },
+    {
+      "index": 993,
+      "message_id": "post_1CUdRqvHtYgxjLwbp5TXAW",
+      "et_date": "2025-10-30",
+      "channel": "讨论区股票记录",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "orcl有ceo和副总裁有减持 等今天尾盘看看 有V了可以进"
+    },
+    {
+      "index": 997,
+      "message_id": "post_1CUdSzNL3nvT1cHyxot5un",
+      "et_date": "2025-10-30",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，不开新账",
+      "raw_text": "今天盘中反弹时候都主要减持为主  加仓都等3点半到盘后再看看"
+    }
+  ]
+}
