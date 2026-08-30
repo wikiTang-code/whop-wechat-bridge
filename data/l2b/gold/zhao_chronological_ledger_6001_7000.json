@@ -1,200 +1,36 @@
 {
   "metadata": {
-    "segment": "第 8 档 (6001~7000 条消息) 精修定版",
+    "segment": "第 7 档 (6001~7000 条)",
     "date_range": "2026-05-07 ~ 2026-05-13",
     "total_scanned": 1000,
-    "bookmarked_stops": 112,
+    "bookmarked_stops": 129,
     "tree_nodes_populated_count": 1,
-    "skipped_stops_total": 109,
+    "skipped_stops_total": 124,
     "skipped_breakdown": {
-      "weak_commentary_or_single_event": 98,
-      "pure_fill_order": 2,
+      "weak_commentary_or_single_event": 77,
+      "same_day_suffix": 37,
+      "pure_fill_order": 1,
       "duplicate_post": 8,
       "image_caption_memo": 1
     }
   },
   "tree_instances_summary": {
-    "gold_001_second_handshake": {
-      "name": "二次握手不破低点低吸",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_003_gap_intraday_once": {
-      "name": "缺口每次只做一次日内",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_004_position_control_70_pct": {
-      "name": "7成底仓与3成做T机动",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_005_half_retrace_watch": {
-      "name": "反弹一半公式空间测算",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
     "gold_006_passive_redeem_holiday": {
       "name": "节前基金被动减持与赎回",
       "status": "gold",
-      "instances_count": 3,
+      "instances_count": 5,
       "sample_spans": [
-        "节日被动减才会买多",
-        "25日是周一要按 上一周算  一二是  三四五日被动减前面的 主动规避回调",
-        "节前跌  节后再反弹 节后是月末的在多等一周把月末减持也规避"
+        "在前面高点是之前事件  不是这次被动减导致的跌造成的",
+        "11.63剩下一半tsll 17-18看看 下次被动减在加点 中线仓位",
+        "有天收跌比较多就要等下周 被动减后再开始加仓位"
       ]
-    },
-    "gold_007_shoe_drops_settlement": {
-      "name": "重大事件靴子落地走普涨",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_008_index_turn_gate": {
-      "name": "入场扫描：指数转弯再看个股",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_008b_block_print_reentry": {
-      "name": "标的大单入场与回买",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_009_cost_exit_last_batch": {
-      "name": "分批只减最后补的一笔成本出",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_011_zhao_poem_official": {
-      "name": "赵哥主观交易总诀 (打油诗全文本尊)",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_012_profit_cushion": {
-      "name": "没利润垫不过财报",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_013_supply_unlock_3_plus_1": {
-      "name": "减持3天后第4天看",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_001_dip_buy_integer": {
-      "name": "急跌整数无小数点底部要素",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_002_cut_in_half_100_percent": {
-      "name": "事件腰斩50%迎翻倍100%机会",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_003_valuation_dip_method": {
-      "name": "估值低估买入法 (8/26手牌1)",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_004_event_low_dip_method": {
-      "name": "事件低位买入法 (8/26手牌2·META例)",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_005_block_print_method": {
-      "name": "大单检测法 (8/26手牌3)",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_006_stop_loss_sweep_method": {
-      "name": "散户止损单被一笔全吃 (8/26手牌4)",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_007_night_plunge_premarket_intervention": {
-      "name": "夜盘普跌盘前干预买入法",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_008_gap_retrace_fill_dip": {
-      "name": "高开回踩补缺低吸法",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_009_decay_equivalent_calc": {
-      "name": "期权/杠杆磨损值折算上一轮价格",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_010_supply_unlock_ndays_dip": {
-      "name": "减持过一段天数靠近支撑回吸",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_011_earnings_call_reversal": {
-      "name": "大盘财报电话会前后多空反转",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_012_position_leverage_ratio": {
-      "name": "稳反弹仓位分工与做T杠杆比率",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_013_three_dip_types_selection": {
-      "name": "低吸三大模式：支撑位/节前缺口/双底形态",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_014_msci_exclusion_sector_sympathy_dip": {
-      "name": "MSCI剔除被动清仓与同板块非成分股错杀低吸",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_015_intraday_session_rhythm_0dte": {
-      "name": "跨交易时段节奏与0DTE尾盘配合",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_016_index_macro_gap_heavy_dip": {
-      "name": "指数大缺口隔月回补与个股低位大仓位吸筹法",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_017_price_level_turn_over_news": {
-      "name": "盘口转弯优先于新闻小作文纪律",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
     }
   },
   "gap_subdivision_summary": {
-    "point_memos_count": 25
+    "gold_003_intraday_once_count": 0,
+    "prop_008_retrace_fill_count": 0,
+    "boundary_negative_cases_count": 0,
+    "point_memos_count": 23
   },
   "tree_instances_detail": {
     "gold_001_second_handshake": [],
@@ -203,37 +39,59 @@
     "gold_005_half_retrace_watch": [],
     "gold_006_passive_redeem_holiday": [
       {
-        "index": 6083,
+        "index": 6078,
         "tree_id": "gold_006_passive_redeem_holiday",
         "tree_name": "节前基金被动减持与赎回",
-        "subtype": "passive_redeem_calendar_refinement",
-        "message_id": "post_1CaoS37iGc7W2eYGQC3Ana",
+        "subtype": "passive_redeem_holiday_and_clock",
+        "message_id": "post_1CaoRtfMyYGjGyyx3KyVcF",
         "et_date": "2026-05-07",
         "channel": "不用翻墙美股讨论区",
-        "evidence_span": "节日被动减才会买多",
-        "raw_text": "节日被动减才会买多"
+        "evidence_span": "在前面高点是之前事件  不是这次被动减导致的跌造成的",
+        "raw_text": "在前面高点是之前事件  不是这次被动减导致的跌造成的"
       },
       {
-        "index": 6105,
+        "index": 6305,
         "tree_id": "gold_006_passive_redeem_holiday",
         "tree_name": "节前基金被动减持与赎回",
-        "subtype": "passive_redeem_calendar_refinement",
-        "message_id": "post_1CaoTAcB4Mmgw59CLDAf68",
-        "et_date": "2026-05-07",
+        "subtype": "passive_redeem_holiday_and_clock",
+        "message_id": "post_1CaqDBVDjLKztdxYC7q3aC",
+        "et_date": "2026-05-08",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "11.63剩下一半tsll 17-18看看 下次被动减在加点 中线仓位",
+        "raw_text": "11.63剩下一半tsll 17-18看看 下次被动减在加点 中线仓位"
+      },
+      {
+        "index": 6480,
+        "tree_id": "gold_006_passive_redeem_holiday",
+        "tree_name": "节前基金被动减持与赎回",
+        "subtype": "passive_redeem_holiday_and_clock",
+        "message_id": "post_1CavrJZ9Nm138e3Rt5j7TL",
+        "et_date": "2026-05-11",
         "channel": "不用翻墙美股讨论区",
-        "evidence_span": "25日是周一要按 上一周算  一二是  三四五日被动减前面的 主动规避回调",
-        "raw_text": "25日是周一要按 上一周算  一二是  三四五日被动减前面的 主动规避回调"
+        "evidence_span": "有天收跌比较多就要等下周 被动减后再开始加仓位",
+        "raw_text": "有天收跌比较多就要等下周 被动减后再开始加仓位"
       },
       {
-        "index": 6705,
+        "index": 6585,
         "tree_id": "gold_006_passive_redeem_holiday",
         "tree_name": "节前基金被动减持与赎回",
-        "subtype": "passive_redeem_calendar_refinement",
-        "message_id": "post_1CaxzLbvqhTD9MJL4D7bzy",
+        "subtype": "passive_redeem_holiday_and_clock",
+        "message_id": "post_1CaxfGBb5z2395RS69LZrX",
         "et_date": "2026-05-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "昨天$SPX成交量开始萎缩日内一直在横盘附近震荡\n\n量化在打仗结束时候的起涨点计算的spx的高点在7400-7500之间 7400多个零头左右\n\n时间点在访华日期附近  访华下一周是被动减 在下一周是月末和第二季度末 养老金调仓\n\n也是去年的4月6日（今年一直也说的是4月6日这个关键日期和平修订案的",
+        "raw_text": "昨天$SPX成交量开始萎缩日内一直在横盘附近震荡\n\n量化在打仗结束时候的起涨点计算的spx的高点在7400-7500之间 7400多个零头左右\n\n时间点在访华日期附近  访华下一周是被动减 在下一周是月末和第二季度末 养老金调仓\n\n也是去年的4月6日（今年一直也说的是4月6日这个关键日期和平修订案的日期）之后的第二个回调低吸点"
+      },
+      {
+        "index": 6868,
+        "tree_id": "gold_006_passive_redeem_holiday",
+        "tree_name": "节前基金被动减持与赎回",
+        "subtype": "passive_redeem_holiday_and_clock",
+        "message_id": "post_1CazfejMoS2vC6jiExYSVi",
+        "et_date": "2026-05-13",
         "channel": "不用翻墙美股讨论区",
-        "evidence_span": "节前跌  节后再反弹 节后是月末的在多等一周把月末减持也规避",
-        "raw_text": "节前跌  节后再反弹 节后是月末的在多等一周把月末减持也规避"
+        "evidence_span": "等月末再看看 下周 到被动减周期再看看做空的",
+        "raw_text": "等月末再看看 下周 到被动减周期再看看做空的"
       }
     ],
     "gold_007_shoe_drops_settlement": [],
@@ -262,7 +120,8 @@
     "prop_017_price_level_turn_over_news": []
   },
   "gap_subdivision": {
-    "rule_replays": [],
+    "gold_003_rule_replays": [],
+    "prop_008_retrace_replays": [],
     "boundary_negative_cases": [],
     "point_memos": [
       {
@@ -428,15 +287,6 @@
         "raw_text": "分批缺口 做日内为主"
       },
       {
-        "index": 6438,
-        "type": "point_memo_watch",
-        "message_id": "post_1CaqVRKvaS7761AETG6uj3",
-        "et_date": "2026-05-08",
-        "channel": "不用翻墙美股讨论区",
-        "memo_span": "回调也只是补被动减的缺口",
-        "raw_text": "回调也只是补被动减的缺口"
-      },
-      {
         "index": 6587,
         "type": "point_memo_watch",
         "message_id": "post_1CaxfNssDJZZxJY7eZaTar",
@@ -453,15 +303,6 @@
         "channel": "不用翻墙美股讨论区",
         "memo_span": "先调整和后调整的 先后往下补缺口",
         "raw_text": "先调整和后调整的 先后往下补缺口"
-      },
-      {
-        "index": 6707,
-        "type": "point_memo_watch",
-        "message_id": "post_1CaxzR2XbU9Ac8y7TAWMtJ",
-        "et_date": "2026-05-12",
-        "channel": "不用翻墙美股讨论区",
-        "memo_span": "加速不是会有缺口  缺口就被动减补",
-        "raw_text": "加速不是会有缺口  缺口就被动减补"
       },
       {
         "index": 6749,
@@ -584,14 +425,14 @@
       "raw_text": "微软就是卡财报 信息好  杀多跌的时候补缺口 到前高有 盈利性价比"
     },
     {
-      "index": 6078,
-      "message_id": "post_1CaoRtfMyYGjGyyx3KyVcF",
+      "index": 6083,
+      "message_id": "post_1CaoS37iGc7W2eYGQC3Ana",
       "et_date": "2026-05-07",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
-      "raw_text": "在前面高点是之前事件  不是这次被动减导致的跌造成的"
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-07) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
+      "raw_text": "节日被动减才会买多"
     },
     {
       "index": 6084,
@@ -609,9 +450,19 @@
       "et_date": "2026-05-07",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-07) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "就是都是设置好了 高点 正好被动减下来点 在造点6月事件"
+    },
+    {
+      "index": 6105,
+      "message_id": "post_1CaoTAcB4Mmgw59CLDAf68",
+      "et_date": "2026-05-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "被动减",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-07) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
+      "raw_text": "25日是周一要按 上一周算  一二是  三四五日被动减前面的 主动规避回调"
     },
     {
       "index": 6109,
@@ -619,8 +470,8 @@
       "et_date": "2026-05-07",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-07) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "正好在被动减前面一刻都没多"
     },
     {
@@ -639,8 +490,8 @@
       "et_date": "2026-05-07",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-07) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "盘前3小时那个中国区销量+36%资讯  就是 美国基金 被动减今天高点测试机会"
     },
     {
@@ -719,8 +570,8 @@
       "et_date": "2026-05-07",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-07) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "等下个节日25日被动减在死拿"
     },
     {
@@ -729,8 +580,8 @@
       "et_date": "2026-05-07",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-07) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "就是 5月1劳动节3天被动减"
     },
     {
@@ -739,8 +590,8 @@
       "et_date": "2026-05-07",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-07) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "然后就是被动减 回调多  下个节日事件"
     },
     {
@@ -749,9 +600,39 @@
       "et_date": "2026-05-07",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-07) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
+      "raw_text": "看异动 没异动最后也会18日前后出等下次被动减 换其他一批"
+    },
+    {
+      "index": 6154,
+      "message_id": "post_1CaoW5u7MnMYTRhM4DgZgx",
+      "et_date": "2026-05-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
       "category": "weak_commentary_or_single_event",
       "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
-      "raw_text": "看异动 没异动最后也会18日前后出等下次被动减 换其他一批"
+      "raw_text": "到了事件  到了转弯才操作"
+    },
+    {
+      "index": 6156,
+      "message_id": "post_1CaoW7ti3nwmrCeKkXQAx9",
+      "et_date": "2026-05-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "指数和币市场没转弯怎么吸"
+    },
+    {
+      "index": 6158,
+      "message_id": "post_1CaoWHiQkHwhGXbSc3cHjp",
+      "et_date": "2026-05-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "btc会先回调 有2个回调预警就等转弯往上在做加密 就是第二轮 时间又是周四周五小回调的规律"
     },
     {
       "index": 6165,
@@ -824,13 +705,23 @@
       "raw_text": "一三天消化 往下面缺口看能不能企稳"
     },
     {
+      "index": 6198,
+      "message_id": "post_1Caoa1N76Rs2qf4qLrUqVE",
+      "et_date": "2026-05-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "企稳",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "要小红横盘开盘段时间不往下的分时才企稳"
+    },
+    {
       "index": 6199,
       "message_id": "post_1Caoa23JH3pQeK9hjUF6qJ",
       "et_date": "2026-05-07",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-07) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "就是特斯拉 那个被动减横盘三天那种"
     },
     {
@@ -839,9 +730,39 @@
       "et_date": "2026-05-07",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-07) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
+      "raw_text": "像特斯拉那种 财报出来跌3天 周一 冲了下在回落 被动减横盘3天"
+    },
+    {
+      "index": 6202,
+      "message_id": "post_1Caoa6RMtEaeabixHZa9Xo",
+      "et_date": "2026-05-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "企稳",
       "category": "weak_commentary_or_single_event",
       "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
-      "raw_text": "像特斯拉那种 财报出来跌3天 周一 冲了下在回落 被动减横盘3天"
+      "raw_text": "越横盘说明越企稳"
+    },
+    {
+      "index": 6205,
+      "message_id": "post_1Caoa7ghg6285WXxfpBrg6",
+      "et_date": "2026-05-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "币市场没转弯肯定等"
+    },
+    {
+      "index": 6208,
+      "message_id": "post_1Caoa9hNKbAqPn37UT64n3",
+      "et_date": "2026-05-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "资金买卖才有转弯"
     },
     {
       "index": 6212,
@@ -914,16 +835,6 @@
       "raw_text": "一个超跌就可以 不做 都利空 都超跌 都减持"
     },
     {
-      "index": 6305,
-      "message_id": "post_1CaqDBVDjLKztdxYC7q3aC",
-      "et_date": "2026-05-08",
-      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "被动减",
-      "category": "pure_fill_order",
-      "reason": "点位成交/减持口播，不进策略树",
-      "raw_text": "11.63剩下一半tsll 17-18看看 下次被动减在加点 中线仓位"
-    },
-    {
       "index": 6306,
       "message_id": "post_1CaqDCQyRfRxQm22P8tjp1",
       "et_date": "2026-05-08",
@@ -969,8 +880,8 @@
       "et_date": "2026-05-08",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-08) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "访华后面马上被动减了 就是美国节日"
     },
     {
@@ -979,8 +890,8 @@
       "et_date": "2026-05-08",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-08) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "等下次被动减再看长拿的"
     },
     {
@@ -989,8 +900,8 @@
       "et_date": "2026-05-08",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-08) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "没看小事件了 只看访华的高点和之后节日被动减"
     },
     {
@@ -1059,19 +970,9 @@
       "et_date": "2026-05-08",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日缺口讨论或点位备忘，未达到独立规则标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-08) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "回调也只是补被动减的缺口"
-    },
-    {
-      "index": 6480,
-      "message_id": "post_1CavrJZ9Nm138e3Rt5j7TL",
-      "et_date": "2026-05-11",
-      "channel": "不用翻墙美股讨论区",
-      "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
-      "raw_text": "有天收跌比较多就要等下周 被动减后再开始加仓位"
     },
     {
       "index": 6487,
@@ -1079,8 +980,8 @@
       "et_date": "2026-05-11",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-11) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "感觉知道3天被动减后时间过得好快，一转眼大半年了"
     },
     {
@@ -1089,8 +990,8 @@
       "et_date": "2026-05-11",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-11) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "只看指数收跌就 等被动减再加"
     },
     {
@@ -1124,6 +1025,46 @@
       "raw_text": "conl可以在9.3附近出掉一半死拿的仓位"
     },
     {
+      "index": 6519,
+      "message_id": "post_1CavwjK6widf1c3H89Cq5u",
+      "et_date": "2026-05-11",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "主要是注意 这周有一天转弯会转跌"
+    },
+    {
+      "index": 6527,
+      "message_id": "post_1Cavx5bRF8Ue7YokChue5o",
+      "et_date": "2026-05-11",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "转弯往下就出 或者正股高点急速跌2个点"
+    },
+    {
+      "index": 6528,
+      "message_id": "post_1Cavx7k6erG8MavweBJ7xt",
+      "et_date": "2026-05-11",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "就是转弯往下时候看力度 力度大就出  一般是滞后反应 币市场跌 股票不一定马上跌"
+    },
+    {
+      "index": 6530,
+      "message_id": "post_1CavxEJ46kysZg5oE6E7XG",
+      "et_date": "2026-05-11",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "第一个箭头 股价还没反应 股价反弹上去第二个箭头没有过第一个高点有点疲软了 在转弯就可以日内出"
+    },
+    {
       "index": 6534,
       "message_id": "post_1CavxkiDEX35m39poPWe4Y",
       "et_date": "2026-05-11",
@@ -1139,8 +1080,8 @@
       "et_date": "2026-05-11",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-11) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "15号之后主要做被动减的"
     },
     {
@@ -1169,8 +1110,8 @@
       "et_date": "2026-05-11",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-11) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "上市再看看 周期在被动减时候 还是会优先老的股票的被动减加仓"
     },
     {
@@ -1179,8 +1120,8 @@
       "et_date": "2026-05-11",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-11) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "会进入被动减那几天跌的周期"
     },
     {
@@ -1189,19 +1130,9 @@
       "et_date": "2026-05-11",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-11) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "被动减做熟悉了反复说了"
-    },
-    {
-      "index": 6585,
-      "message_id": "post_1CaxfGBb5z2395RS69LZrX",
-      "et_date": "2026-05-12",
-      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
-      "raw_text": "昨天$SPX成交量开始萎缩日内一直在横盘附近震荡\n\n量化在打仗结束时候的起涨点计算的spx的高点在7400-7500之间 7400多个零头左右\n\n时间点在访华日期附近  访华下一周是被动减 在下一周是月末和第二季度末 养老金调仓\n\n也是去年的4月6日（今年一直也说的是4月6日这个关键日期和平修订案的"
     },
     {
       "index": 6586,
@@ -1239,8 +1170,8 @@
       "et_date": "2026-05-12",
       "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "指数的规律要看这周是不是打破 昨天是 横盘小红 量化就是之前说的比之前小\n\n今天周二量不超过昨天的均线 就会横盘震荡几天\n\n\n\n这周还是只适合做做日内 每天急跌急涨做做差价\n\n访华没有超预期事件被动减基金会减持多点 创造弹性机会"
     },
     {
@@ -1278,9 +1209,9 @@
       "message_id": "post_1CaxqcPRENjB9R25ZEcYSp",
       "et_date": "2026-05-12",
       "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "trigger": "转弯",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "回调的转弯一轮比一轮低就是一些基金开始规避的信号\n\n加上之前的高点计算是7400-7500  7400多个零头左右为高点\n\n\n\n一个是访华可能没实质性内容 提前开始规避\n\n一个是下周一开始有预防节日被动减的资金"
     },
     {
@@ -1288,10 +1219,20 @@
       "message_id": "post_1CaxqdAf8X4KCxuvLSxpzx",
       "et_date": "2026-05-12",
       "channel": "不用翻墙期权",
-      "trigger": "被动减",
+      "trigger": "转弯",
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "回调的转弯一轮比一轮低就是一些基金开始规避的信号\n\n加上之前的高点计算是7400-7500 7400多个零头左右为高点\n\n\n\n一个是访华可能没实质性内容 提前开始规避\n\n一个是下周一开始有预防节日被动减的资金"
+    },
+    {
+      "index": 6630,
+      "message_id": "post_1CaxqqovqoPD2HWqCE4DiJ",
+      "et_date": "2026-05-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "做空也是盯着转弯出"
     },
     {
       "index": 6652,
@@ -1299,8 +1240,8 @@
       "et_date": "2026-05-12",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "没反弹也会到时候出 到被动减在做了"
     },
     {
@@ -1309,8 +1250,8 @@
       "et_date": "2026-05-12",
       "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "今天短线就只到周四访华的夜盘前跌破支撑的话也都会止损 到下周被动减结束再看"
     },
     {
@@ -1329,8 +1270,8 @@
       "et_date": "2026-05-12",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "只是抓个访华时间差  然后等后天2周被动减结束再加"
     },
     {
@@ -1339,9 +1280,19 @@
       "et_date": "2026-05-12",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "然后等2周 被动减结束 当中 看个股期权有没有put的"
+    },
+    {
+      "index": 6705,
+      "message_id": "post_1CaxzLbvqhTD9MJL4D7bzy",
+      "et_date": "2026-05-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
+      "raw_text": "节前跌  节后再反弹 节后是月末的在多等一周把月末减持也规避"
     },
     {
       "index": 6707,
@@ -1349,8 +1300,8 @@
       "et_date": "2026-05-12",
       "channel": "不用翻墙美股讨论区",
       "trigger": "缺口",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日缺口讨论或点位备忘，未达到独立规则标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "加速不是会有缺口  缺口就被动减补"
     },
     {
@@ -1359,8 +1310,8 @@
       "et_date": "2026-05-12",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "到被动减再加"
     },
     {
@@ -1369,8 +1320,8 @@
       "et_date": "2026-05-12",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "加速涨出货，被动减加仓"
     },
     {
@@ -1389,9 +1340,29 @@
       "et_date": "2026-05-12",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
+      "raw_text": "被动减再加就是了"
+    },
+    {
+      "index": 6725,
+      "message_id": "post_1Cay1YGx7Dzn4M3y6VhCr4",
+      "et_date": "2026-05-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "整数",
       "category": "weak_commentary_or_single_event",
       "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
-      "raw_text": "被动减再加就是了"
+      "raw_text": "闪迪1600那个整数 就是人为调控"
+    },
+    {
+      "index": 6726,
+      "message_id": "post_1Cay1Z5FmMbpks4CFLTK5Y",
+      "et_date": "2026-05-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "整数",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "整数一般就是高低点"
     },
     {
       "index": 6749,
@@ -1419,9 +1390,19 @@
       "et_date": "2026-05-12",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
+      "raw_text": "主要是访华没实质性利好被动减那段会有2周左右的"
+    },
+    {
+      "index": 6770,
+      "message_id": "post_1Cay5LJiabLZ6hktq8wt67",
+      "et_date": "2026-05-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
       "category": "weak_commentary_or_single_event",
       "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
-      "raw_text": "主要是访华没实质性利好被动减那段会有2周左右的"
+      "raw_text": "我现在看第二个转弯买卖，就看有没有到第一个转弯高点低点附近了，感觉弹性股很多都这样，有时候也会飞掉"
     },
     {
       "index": 6772,
@@ -1449,9 +1430,19 @@
       "et_date": "2026-05-12",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-12) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
+      "raw_text": "后面被动减机会更多点"
+    },
+    {
+      "index": 6805,
+      "message_id": "post_1Cay9uuSZ1rwtnMeUVEDpq",
+      "et_date": "2026-05-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
       "category": "weak_commentary_or_single_event",
       "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
-      "raw_text": "后面被动减机会更多点"
+      "raw_text": "根据 11 月 26 日的描述，“回调段”和“反弹段”的规律有什么不同？\n\nA.\n\n回调段关注成交额，反弹段关注均线支撑\n\nB.\n\n回调段盘前买，反弹段尾盘买\n\nC.\n\n回调段是尾盘买、夜盘减；反弹段是盘前/开盘吸、高点转弯减\n\nD.\n\n两者没有区别，都是收盘买入"
     },
     {
       "index": 6813,
@@ -1462,6 +1453,16 @@
       "category": "image_caption_memo",
       "reason": "二次握手配图说明（非不破低点低吸操作规则复述），降为图注备忘",
       "raw_text": "二次握手比较精确的指数spx图"
+    },
+    {
+      "index": 6825,
+      "message_id": "post_1CayDBimS7qWuZiWjJGZg1",
+      "et_date": "2026-05-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "转弯",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "是不是也可以直接挂单到某个转弯价格附近也可以"
     },
     {
       "index": 6858,
@@ -1484,23 +1485,13 @@
       "raw_text": "很多时候很低的 一些利润也可以留着里面 利润也伤不到本金  多做几轮 利润 都相当于初始投入的本金了"
     },
     {
-      "index": 6868,
-      "message_id": "post_1CazfejMoS2vC6jiExYSVi",
-      "et_date": "2026-05-13",
-      "channel": "不用翻墙美股讨论区",
-      "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
-      "raw_text": "等月末再看看 下周 到被动减周期再看看做空的"
-    },
-    {
       "index": 6871,
       "message_id": "post_1CazfrszHPAedjvs8aN4Cz",
       "et_date": "2026-05-13",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-13) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "被动减都会把慢的换一批"
     },
     {
@@ -1509,8 +1500,8 @@
       "et_date": "2026-05-13",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-13) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "时间周期 就盯着被动减持后做常规的股票为主"
     },
     {
@@ -1549,8 +1540,8 @@
       "et_date": "2026-05-13",
       "channel": "不用翻墙美股讨论区",
       "trigger": "被动减",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-05-13) 节点 [gold_006_passive_redeem_holiday] 规则已计账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "有实质利好 就还是等被动减买和谈的"
     },
     {
