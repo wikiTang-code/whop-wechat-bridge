@@ -1,0 +1,162 @@
+[
+  {
+    "theme": "passive_trim",
+    "theme_name": "被动减持与节前赎回",
+    "query": "被动减 | 被动减持 | 现金流 | 赎回流 | 节前被动",
+    "hit_count": 281,
+    "date_min": "2025-12-23",
+    "date_max": "2026-06-26",
+    "sample_5_ids": [
+      "post_1CWPpm2jbJ3NBzzQjvsUaz",
+      "post_1CWQHtaGumtwwNkxLW7NqY",
+      "post_1CWQHuVHAm3o2qjjZW2gVM",
+      "post_1CWRgX6B35JGg4PnvHMeXe",
+      "post_1CWRgnimdKrSdLrULKUudQ"
+    ],
+    "jsonl_file": "data/runs/l2b_theme_hits_passive_trim.jsonl"
+  },
+  {
+    "theme": "handshake_double_bottom",
+    "theme_name": "二次握手与平行探底",
+    "query": "二次握手 | 两次握手 | 平行探底 | 二次平行 | 两次探底 | 探底不破",
+    "hit_count": 35,
+    "date_min": "2025-10-07",
+    "date_max": "2026-05-27",
+    "sample_5_ids": [
+      "post_1CTt7rqCrE8p2CFjCM4ZRL",
+      "post_1CTtAYLiNZcRnKfVuyFiHs",
+      "post_1CTyoU93GVnALQzRxMAGnS",
+      "post_1CUNScbuhunNBvEtEGDsxH",
+      "post_1CUNSfZUQeev49mtNBMSsR"
+    ],
+    "jsonl_file": "data/runs/l2b_theme_hits_handshake_double_bottom.jsonl"
+  },
+  {
+    "theme": "turn_elasticity",
+    "theme_name": "转弯拐点与弹性股",
+    "query": "指数转弯 | 转弯买 | 转弯低吸 | 资金转弯 | 大单买就转弯 | 量化会遍历",
+    "hit_count": 42,
+    "date_min": "2025-11-26",
+    "date_max": "2026-06-26",
+    "sample_5_ids": [
+      "post_1CVWfwGVUrGTDvA5pRgShS",
+      "post_1CXcLnVaktzgk25MYdEZUD",
+      "post_1CXcLob7s9NjNhemsiGxn6",
+      "post_1Ca7hDjki9oDDJGcsEkySR",
+      "post_1CaJHnoz3vfWYoCf4NfZAz"
+    ],
+    "jsonl_file": "data/runs/l2b_theme_hits_turn_elasticity.jsonl"
+  },
+  {
+    "theme": "dip_buy_integer",
+    "theme_name": "急跌买回与整数关口",
+    "query": "急跌买回 | 急跌急涨 | 没小数点 | 整数的 | 急跌最低价",
+    "hit_count": 34,
+    "date_min": "2026-05-12",
+    "date_max": "2026-06-10",
+    "sample_5_ids": [
+      "post_1CaxnesNysNSLpHvCt5xgp",
+      "post_1CaxnffSEye8hG8qvWV4RE",
+      "post_1CbAA9meko8Qe5Y5rff1q6",
+      "post_1CbACTfS2jkjV6Z1QgYJDa",
+      "post_1CbAMAoHtH2ikcZSLMZTU2"
+    ],
+    "jsonl_file": "data/runs/l2b_theme_hits_dip_buy_integer.jsonl"
+  },
+  {
+    "theme": "gap_fill",
+    "theme_name": "缺口回补与二次博弈",
+    "query": "缺口连续补 | 到缺口 | 补掉三个缺口 | 补掉缺口 | 缺口价格记住",
+    "hit_count": 28,
+    "date_min": "2026-04-30",
+    "date_max": "2026-06-26",
+    "sample_5_ids": [
+      "post_1CaaMn5UbzLsRojqhuQ1qr",
+      "post_1CaaMnzJBp82f6x4WGNaYf",
+      "post_1CbASmAPtdCknnaHcfBcAo",
+      "post_1CbE4KGhsuwj7GqN4okRAU",
+      "post_1CbRmsyXacDqEEvkHDiM4d"
+    ],
+    "jsonl_file": "data/runs/l2b_theme_hits_gap_fill.jsonl"
+  },
+  {
+    "theme": "friday_settlement",
+    "theme_name": "周五多空双杀与结算普涨",
+    "query": "周五夜盘 | 多空双杀 | 周五结算 | 结算然后普涨 | 周五那天反弹",
+    "hit_count": 22,
+    "date_min": "2025-10-20",
+    "date_max": "2026-06-25",
+    "sample_5_ids": [
+      "post_1CUJhgAq7KQe5SgJ88v925",
+      "post_1CVKp1BtmTjgM4253uAWn4",
+      "post_1CWReXWwGGpaLvjaW6pNuj",
+      "post_1CWRgidmW87f8mGdQ2mv6g",
+      "post_1CWRuaDTnNEERJCZ5PH6AP"
+    ],
+    "jsonl_file": "data/runs/l2b_theme_hits_friday_settlement.jsonl"
+  },
+  {
+    "theme": "pullback_timing",
+    "theme_name": "回踩时段与开仓分段纪律",
+    "query": "盘前半小时和开盘 | 回踩下是正常现象 | 集中到收盘才去开仓 | 2段式开仓 | 两段式开仓 | 开盘回踩 | 每天开盘的回踩 | 回踩介入 | 回踩支撑",
+    "hit_count": 52,
+    "date_min": "2025-10-13",
+    "date_max": "2026-06-26",
+    "sample_5_ids": [
+      "post_1CU5JESWeRWkpTsKibRi7r",
+      "post_1CU8fUf5oumEu8rp3Xb6x2",
+      "post_1CUJXE4hnMxUBDHuFMgjVg",
+      "post_1CUJaCxqY6R2brvuxa6441",
+      "post_1CUNJM5nh9u1aSLvk1EFBm"
+    ],
+    "jsonl_file": "data/runs/l2b_theme_hits_pullback_timing.jsonl"
+  },
+  {
+    "theme": "etf_decay_adjustment",
+    "theme_name": "杠杆磨损与波动值修正",
+    "query": "计算了磨损值 | 磨损值 | 相当于第一轮 | 磨损计算 | 杠杆损耗 | 磨损 | 时间价值磨损",
+    "hit_count": 61,
+    "date_min": "2025-10-08",
+    "date_max": "2026-06-26",
+    "sample_5_ids": [
+      "post_1CU99r8BEDs31VopD4fLV9",
+      "post_1CUCm1YY1YyFk7WsNhuv7v",
+      "post_1CUCsEK3KWuw8LEDneGpuf",
+      "post_1CUdSLpJYkWvDRNdSNCJZk",
+      "post_1CUzPgQpHogAQwWjuGArYe"
+    ],
+    "jsonl_file": "data/runs/l2b_theme_hits_etf_decay_adjustment.jsonl"
+  },
+  {
+    "theme": "bounce_confirmation",
+    "theme_name": "皮球反弹与到处找新闻",
+    "query": "皮球 | 到处找新闻 | 二次确认 | 找理由 | 情绪反弹",
+    "hit_count": 36,
+    "date_min": "2025-10-23",
+    "date_max": "2026-06-22",
+    "sample_5_ids": [
+      "post_1CUQPN5Kq8wQt363s6W83j",
+      "post_1CV6ZzEHT8JbjJNGGHHaMy",
+      "post_1CVDaPURYoeEeYVFACbgqj",
+      "post_1CViT4nSsrqVvgnbNq2cca",
+      "post_1CVkKHy6523CChbBXoUfAS"
+    ],
+    "jsonl_file": "data/runs/l2b_theme_hits_bounce_confirmation.jsonl"
+  },
+  {
+    "theme": "structure_indicators",
+    "theme_name": "结构形态与均线九转",
+    "query": "九转 | 底结构形成 | 顶结构形成 | 日K九转 | 绿9 | 紫9",
+    "hit_count": 12,
+    "date_min": "2025-12-19",
+    "date_max": "2026-05-19",
+    "sample_5_ids": [
+      "post_1CWFWt79jhoy6h4TcprWBG",
+      "post_1CWFWu8rQX5ny3bTC4b1iU",
+      "post_1CWrD45JZj4qXhqK3kd6Tc",
+      "post_1CWrD7YbfNj2Hf5Hwnw7qe",
+      "post_1CXYCFXZr1Up2YPYicQyVe"
+    ],
+    "jsonl_file": "data/runs/l2b_theme_hits_structure_indicators.jsonl"
+  }
+]
