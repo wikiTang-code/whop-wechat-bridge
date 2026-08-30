@@ -1,0 +1,228 @@
+import Database from 'better-sqlite3';
+import fs from 'fs';
+import path from 'path';
+
+const dbPath = path.resolve('whop_archive.db');
+const db = new Database(dbPath);
+
+console.log('========================================================================================');
+console.log('📖 执行 10001~11000 消息段严格精修：成本线降细则 + 皮球回均线减一半/不看打仗小作文');
+console.log('========================================================================================\n');
+
+// 1. 读取 10001 ~ 11000 条赵哥时序消息
+const zhaoMessages = db.prepare(`
+  SELECT id, channel_name, channel_id, sender_name, content, created_at
+  FROM messages
+  WHERE (sender_name LIKE '%赵%' OR sender_name LIKE '%zhao%' OR sender_name = 'xiaozhaolucky' OR channel_name = '不用翻墙美股发布')
+    AND content IS NOT NULL
+  ORDER BY created_at ASC
+  LIMIT 1000 OFFSET 10000
+`).all();
+
+const goldLessons = JSON.parse(fs.readFileSync('data/l2b/gold/l2b_gold_lessons.json', 'utf-8'));
+const treeInstancesMap = new Map();
+goldLessons.forEach(g => treeInstancesMap.set(g.gold_id, []));
+
+const gapSubdivision = {
+  gold_003_rule_replays: [],
+  prop_008_retrace_replays: [],
+  boundary_negative_cases: [],
+  point_memos: []
+};
+
+const skippedAuditLog = [];
+const seenContentSet = new Set();
+const seenNodeDateMap = new Map();
+
+let bookmarkedCount = 0;
+
+const BOOKMARK_REGEX = /(法\b|机制|要素|口诀|打油诗|普跌同沉|普涨我跌|事件来临|节日前夕|币市波动|一般要|一般有|相当于|二次握手|握手|缺口|只做一次|只做一次日内|被动减|减持|总仓位不要超过|7成|3成|反弹一半|\/2=|大单检测|大单入场|散户止损|死拿|成本出|磨损值|两段式|靴子|结算|利润垫|财报|皮球|无条件降仓|光标|15:30.*结算)/;
+
+for (let i = 0; i < zhaoMessages.length; i++) {
+  const globalIdx = 10001 + i;
+  const msg = zhaoMessages[i];
+  let text = msg.content || '';
+  text = text.replace(/\[IMAGE:https?:\/\/[^\]]+\]/g, '').trim();
+  if (text.length < 6) continue;
+
+  const match = text.match(BOOKMARK_REGEX);
+  if (!match) continue;
+
+  bookmarkedCount++;
+  const triggerWord = match[0];
+  const etDate = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date(msg.created_at));
+
+  // 跨频道去重
+  const contentKey = text.replace(/\s+/g, '');
+  const isDuplicate = seenContentSet.has(contentKey);
+  seenContentSet.add(contentKey);
+
+  if (isDuplicate) {
+    skippedAuditLog.push({
+      index: globalIdx,
+      message_id: msg.id,
+      et_date: etDate,
+      channel: msg.channel_name,
+      trigger: triggerWord,
+      category: 'duplicate_post',
+      reason: '跨频道完全重复发布，不重复记账',
+      raw_text: text.slice(0, 150)
+    });
+    continue;
+  }
+
+  // 通用挂接辅助函数
+  const tryAddInstance = (nodeId, treeName, spanText, fullText, subtype) => {
+    if (!seenNodeDateMap.has(nodeId)) seenNodeDateMap.set(nodeId, new Set());
+    const dateSet = seenNodeDateMap.get(nodeId);
+
+    let validSpan = spanText;
+    if (!text.includes(validSpan)) {
+      validSpan = text.slice(0, 120);
+    }
+
+    if (!dateSet.has(etDate)) {
+      dateSet.add(etDate);
+      treeInstancesMap.get(nodeId).push({
+        index: globalIdx,
+        tree_id: nodeId,
+        tree_name: treeName,
+        subtype: subtype || 'rule_replay',
+        message_id: msg.id,
+        et_date: etDate,
+        channel: msg.channel_name,
+        evidence_span: validSpan,
+        raw_text: fullText
+      });
+      return true;
+    } else {
+      skippedAuditLog.push({
+        index: globalIdx,
+        message_id: msg.id,
+        et_date: etDate,
+        channel: msg.channel_name,
+        trigger: triggerWord,
+        category: 'same_day_suffix',
+        reason: `同日 (${etDate}) 节点 [${nodeId}] 规则已记账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数`,
+        raw_text: text.slice(0, 150)
+      });
+      return false;
+    }
+  };
+
+  // 1. prop_017: 皮球回均线减一半 + 不要到处找新闻打仗评论 (post_1Cbt6PsJRwP9cnCFMJtupX)
+  if (text.includes('皮球') || (text.includes('回均线减一半') && (text.includes('打仗') || text.includes('新闻')))) {
+    tryAddInstance('prop_017_price_level_turn_over_news', '盘口转弯优先于新闻小作文纪律', text.slice(0, 150), text.slice(0, 250), 'bouncing_ball_and_no_war_news_refinement');
+    continue;
+  }
+
+  // 2. prop_015: 15:30 期权结算看 V 转弯与每票分三份
+  if (text.includes('15:30') && (text.includes('结算') || text.includes('V转弯') || text.includes('分三份'))) {
+    tryAddInstance('prop_015_intraday_session_rhythm_0dte', '跨交易时段节奏与0DTE尾盘配合', text.slice(0, 150), text.slice(0, 250), 'settlement_session_three_batches');
+    continue;
+  }
+
+  // 3. gold_004: 缺口到之前 3~4 成、缺口到了加大 / 跌破上周五最低无条件降仓 (仓位细则)
+  if (text.includes('无条件降仓') || (text.includes('缺口到之前') && text.includes('3～4成')) || (text.includes('跌破') && text.includes('最低') && text.includes('降仓'))) {
+    tryAddInstance('gold_004_position_control_70_pct', '7成底仓与3成做T机动', text.slice(0, 150), text.slice(0, 250), 'break_low_unconditional_cut_refinement');
+    continue;
+  }
+
+  // 4. gold_005: 成本线约等于半程 (降为细则，不占公式实例)
+  if (text.includes('反弹均价就是反弹一半的成本线') || (text.includes('反弹一半') && text.includes('成本线'))) {
+    tryAddInstance('gold_005_half_retrace_watch', '反弹一半公式空间测算', text.slice(0, 150), text.slice(0, 250), 'half_retrace_cost_line_explanation');
+    continue;
+  }
+
+  // 5. gold_003: 缺口是否补完判定 (光标到缺口右侧日 K 最低价细则)
+  if (text.includes('缺口') && (text.includes('光标') || text.includes('右侧日K'))) {
+    tryAddInstance('gold_003_gap_intraday_once', '缺口每次只做一次日内', text.slice(0, 150), text.slice(0, 250), 'gap_fill_cursor_check_refinement');
+    continue;
+  }
+
+  // 6. 纯点位成交
+  const isPureFill = /(\b\d+(\.\d+)?\s*(出|买|接|减|加|挂|止损|清仓|建仓|减持|减仓)|(出|买|接|减|加|减持)\s*(\d+(\.\d+)?|点|一半))/i.test(text) && text.length < 40;
+  if (isPureFill) {
+    skippedAuditLog.push({
+      index: globalIdx,
+      message_id: msg.id,
+      et_date: etDate,
+      channel: msg.channel_name,
+      trigger: triggerWord,
+      category: 'pure_fill_order',
+      reason: '点位成交/减持口播，不进策略树',
+      raw_text: text.slice(0, 150)
+    });
+    continue;
+  }
+
+  // 7. 其余弱点评与问答
+  skippedAuditLog.push({
+    index: globalIdx,
+    message_id: msg.id,
+    et_date: etDate,
+    channel: msg.channel_name,
+    trigger: triggerWord,
+    category: 'weak_commentary_or_single_event',
+    reason: '单日讨论区问答或弱语义描述，未达到树节点标准',
+    raw_text: text.slice(0, 150)
+  });
+}
+
+// 统计
+const instanceSummary = {};
+for (const [tId, insts] of treeInstancesMap.entries()) {
+  if (insts.length > 0) {
+    const lessonObj = goldLessons.find(g => g.gold_id === tId);
+    instanceSummary[tId] = {
+      name: lessonObj?.name || tId,
+      status: lessonObj?.status || 'proposed',
+      instances_count: insts.length,
+      sample_spans: insts.slice(0, 3).map(s => s.evidence_span)
+    };
+  }
+}
+
+const skipStats = {};
+skippedAuditLog.forEach(s => skipStats[s.category] = (skipStats[s.category] || 0) + 1);
+
+const resultData = {
+  metadata: {
+    segment: '10001~11000 消息段 (2026-06-04 ~ 2026-06-10)',
+    date_range: `${new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(zhaoMessages[0].created_at))} ~ ${new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(zhaoMessages[zhaoMessages.length - 1].created_at))}`,
+    total_scanned: zhaoMessages.length,
+    bookmarked_stops: bookmarkedCount,
+    tree_nodes_populated_count: Object.keys(instanceSummary).length,
+    skipped_stops_total: skippedAuditLog.length,
+    skipped_breakdown: skipStats
+  },
+  tree_instances_summary: instanceSummary,
+  gap_subdivision_summary: {
+    gold_003_intraday_once_count: treeInstancesMap.get('gold_003_gap_intraday_once')?.length || 0,
+    prop_008_retrace_fill_count: 0,
+    boundary_negative_cases_count: 0,
+    point_memos_count: 0
+  },
+  tree_instances_detail: Object.fromEntries(treeInstancesMap),
+  gap_subdivision: gapSubdivision,
+  skipped_audit_log: skippedAuditLog
+};
+
+const outPath = 'data/l2b/gold/zhao_chronological_ledger_10001_11000.json';
+fs.writeFileSync(outPath, JSON.stringify(resultData, null, 2), 'utf-8');
+
+console.log(`========================================================================================`);
+console.log(`✅ 成功输出 10001~11000 消息段精准总账: ${outPath}`);
+console.log(`   - 扫描消息总数: ${zhaoMessages.length} 条`);
+console.log(`   - 书签触发停靠: ${bookmarkedCount} 条`);
+console.log(`   - 命中的树节点数: ${Object.keys(instanceSummary).length} 个`);
+console.log(`   - 全量真实 Skip 审计: ${skippedAuditLog.length} 条\n`);
+
+Object.entries(instanceSummary).forEach(([tId, info]) => {
+  console.log(`🌳 [${tId}] (${info.status}) ${info.name}: 挂接 ${info.instances_count} 条实战实例`);
+});

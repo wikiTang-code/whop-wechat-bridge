@@ -1,18 +1,35 @@
 {
   "metadata": {
-    "segment": "10001~11000 消息段 (2026-06-04 ~ 2026-07-22)",
+    "segment": "10001~11000 消息段 (2026-06-04 ~ 2026-06-10)",
     "date_range": "2026-06-04 ~ 2026-06-10",
     "total_scanned": 1000,
-    "bookmarked_stops": 107,
-    "tree_nodes_populated_count": 1,
-    "skipped_stops_total": 106,
+    "bookmarked_stops": 113,
+    "tree_nodes_populated_count": 4,
+    "skipped_stops_total": 107,
     "skipped_breakdown": {
-      "weak_commentary_or_single_event": 88,
-      "duplicate_post": 14,
+      "weak_commentary_or_single_event": 83,
+      "duplicate_post": 15,
+      "same_day_suffix": 5,
       "pure_fill_order": 4
     }
   },
   "tree_instances_summary": {
+    "gold_003_gap_intraday_once": {
+      "name": "缺口每次只做一次日内",
+      "status": "gold",
+      "instances_count": 1,
+      "sample_spans": [
+        "光标对准那个缺口的日K的最低价算补完"
+      ]
+    },
+    "gold_004_position_control_70_pct": {
+      "name": "7成底仓与3成做T机动",
+      "status": "gold",
+      "instances_count": 1,
+      "sample_spans": [
+        "弱势反弹中指数跌破周五的最低点是无条件降仓位和止损当天的 说明趋势往下然后就是看是不是单边下跌周五的重演\n\n\n\n再次造成 A股港股减持跌的连锁反应"
+      ]
+    },
     "gold_005_half_retrace_watch": {
       "name": "反弹一半公式空间测算",
       "status": "gold",
@@ -20,24 +37,58 @@
       "sample_spans": [
         "就是暴跌最低收盘 就是大多数都是亏的  反弹均价就是反弹一半的成本线"
       ]
+    },
+    "prop_017_price_level_turn_over_news": {
+      "name": "盘口转弯优先于新闻小作文纪律",
+      "status": "proposed",
+      "instances_count": 3,
+      "sample_spans": [
+        "暴跌适用的皮球理论",
+        "二次探底和皮球理论结合了",
+        "皮球理论 说了几天了"
+      ]
     }
   },
   "gap_subdivision_summary": {
-    "gold_003_intraday_once_count": 0,
+    "gold_003_intraday_once_count": 1,
     "prop_008_retrace_fill_count": 0,
     "boundary_negative_cases_count": 0,
     "point_memos_count": 0
   },
   "tree_instances_detail": {
     "gold_001_second_handshake": [],
-    "gold_003_gap_intraday_once": [],
-    "gold_004_position_control_70_pct": [],
+    "gold_003_gap_intraday_once": [
+      {
+        "index": 10810,
+        "tree_id": "gold_003_gap_intraday_once",
+        "tree_name": "缺口每次只做一次日内",
+        "subtype": "gap_fill_cursor_check_refinement",
+        "message_id": "post_1CbtG68VNZjgrmhKbjpjk9",
+        "et_date": "2026-06-09",
+        "channel": "不用翻墙美股讨论区",
+        "evidence_span": "光标对准那个缺口的日K的最低价算补完",
+        "raw_text": "光标对准那个缺口的日K的最低价算补完"
+      }
+    ],
+    "gold_004_position_control_70_pct": [
+      {
+        "index": 10577,
+        "tree_id": "gold_004_position_control_70_pct",
+        "tree_name": "7成底仓与3成做T机动",
+        "subtype": "break_low_unconditional_cut_refinement",
+        "message_id": "post_1CbsvdBpJvbPPqwB2LhVMD",
+        "et_date": "2026-06-09",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "弱势反弹中指数跌破周五的最低点是无条件降仓位和止损当天的 说明趋势往下然后就是看是不是单边下跌周五的重演\n\n\n\n再次造成 A股港股减持跌的连锁反应",
+        "raw_text": "弱势反弹中指数跌破周五的最低点是无条件降仓位和止损当天的 说明趋势往下然后就是看是不是单边下跌周五的重演\n\n\n\n再次造成 A股港股减持跌的连锁反应"
+      }
+    ],
     "gold_005_half_retrace_watch": [
       {
         "index": 10382,
         "tree_id": "gold_005_half_retrace_watch",
         "tree_name": "反弹一半公式空间测算",
-        "subtype": "rule_replay",
+        "subtype": "half_retrace_cost_line_explanation",
         "message_id": "post_1CbrAJPK1vSrgJbvYBoUqk",
         "et_date": "2026-06-08",
         "channel": "不用翻墙美股讨论区",
@@ -69,7 +120,41 @@
     "prop_014_msci_exclusion_sector_sympathy_dip": [],
     "prop_015_intraday_session_rhythm_0dte": [],
     "prop_016_index_macro_gap_heavy_dip": [],
-    "prop_017_price_level_turn_over_news": []
+    "prop_017_price_level_turn_over_news": [
+      {
+        "index": 10414,
+        "tree_id": "prop_017_price_level_turn_over_news",
+        "tree_name": "盘口转弯优先于新闻小作文纪律",
+        "subtype": "bouncing_ball_and_no_war_news_refinement",
+        "message_id": "post_1CbrCXhovG1zZ4ZdbLUCg6",
+        "et_date": "2026-06-08",
+        "channel": "不用翻墙美股讨论区",
+        "evidence_span": "暴跌适用的皮球理论",
+        "raw_text": "暴跌适用的皮球理论"
+      },
+      {
+        "index": 10672,
+        "tree_id": "prop_017_price_level_turn_over_news",
+        "tree_name": "盘口转弯优先于新闻小作文纪律",
+        "subtype": "bouncing_ball_and_no_war_news_refinement",
+        "message_id": "post_1Cbt69Dbgpy4USATag5Vz9",
+        "et_date": "2026-06-09",
+        "channel": "不用翻墙美股讨论区",
+        "evidence_span": "二次探底和皮球理论结合了",
+        "raw_text": "二次探底和皮球理论结合了"
+      },
+      {
+        "index": 10983,
+        "tree_id": "prop_017_price_level_turn_over_news",
+        "tree_name": "盘口转弯优先于新闻小作文纪律",
+        "subtype": "bouncing_ball_and_no_war_news_refinement",
+        "message_id": "post_1Cbv2CGiyh44dvQ3FG6dYQ",
+        "et_date": "2026-06-10",
+        "channel": "不用翻墙美股讨论区",
+        "evidence_span": "皮球理论 说了几天了",
+        "raw_text": "皮球理论 说了几天了"
+      }
+    ]
   },
   "gap_subdivision": {
     "gold_003_rule_replays": [],
@@ -544,8 +629,8 @@
       "et_date": "2026-06-08",
       "channel": "不用翻墙美股讨论区",
       "trigger": "相当于",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-06-08) 节点 [prop_017_price_level_turn_over_news] 规则已记账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "就相当于A点 你用三倍的力气拍皮球拍下去  后面 反弹震荡次数会加多点 原来1天反弹的分成3天上探震荡测试"
     },
     {
@@ -579,21 +664,11 @@
       "raw_text": "指数跌 就会造成 A股港股继续跌 又可以减持回流美国了"
     },
     {
-      "index": 10577,
-      "message_id": "post_1CbsvdBpJvbPPqwB2LhVMD",
-      "et_date": "2026-06-09",
-      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "减持",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
-      "raw_text": "弱势反弹中指数跌破周五的最低点是无条件降仓位和止损当天的 说明趋势往下然后就是看是不是单边下跌周五的重演\n\n\n\n再次造成 A股港股减持跌的连锁反应"
-    },
-    {
       "index": 10578,
       "message_id": "post_1Cbsvdr3itTDaG7kRLYPp3",
       "et_date": "2026-06-09",
       "channel": "不用翻墙期权",
-      "trigger": "减持",
+      "trigger": "无条件降仓",
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "弱势反弹中指数跌破周五的最低点是无条件降仓位和止损当天的 说明趋势往下然后就是看是不是单边下跌周五的重演\n\n\n\n再次造成 A股港股减持跌的连锁反应"
@@ -804,8 +879,8 @@
       "et_date": "2026-06-09",
       "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
       "trigger": "缺口",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-06-09) 节点 [prop_017_price_level_turn_over_news] 规则已记账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "暴跌补缺口了就用 皮球理论 回均线减一半或者盈利大的soxl那种短线止盈 做套利\n\n\n\n大跌错误做法：找新闻啊 看打仗啊 看网站评论啊等无效做法"
     },
     {
@@ -829,6 +904,16 @@
       "raw_text": "异动大死拿也会都出点"
     },
     {
+      "index": 10691,
+      "message_id": "post_1Cbt6mWwb7jYy5FHLa3WdW",
+      "et_date": "2026-06-09",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "皮球",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-06-09) 节点 [prop_017_price_level_turn_over_news] 规则已记账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
+      "raw_text": "这个昨天才讲过皮球理论就是暴跌后回均价的"
+    },
+    {
       "index": 10703,
       "message_id": "post_1Cbt8XMq3PjjyMJ3XxwRMn",
       "et_date": "2026-06-09",
@@ -847,6 +932,26 @@
       "category": "weak_commentary_or_single_event",
       "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
       "raw_text": "就和财报前 跌的 财报如果比跌幅实际情况好会涨一样"
+    },
+    {
+      "index": 10716,
+      "message_id": "post_1Cbt9fAoy8f8tDRwRTLKQk",
+      "et_date": "2026-06-09",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "皮球",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-06-09) 节点 [prop_017_price_level_turn_over_news] 规则已记账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
+      "raw_text": "皮球理论 当A点开始急速暴跌从水上暴跌水下 第一个单子大的转弯点会反弹均价线附近的B点"
+    },
+    {
+      "index": 10717,
+      "message_id": "post_1Cbt9fp1ZS2pcwtk9FGf2V",
+      "et_date": "2026-06-09",
+      "channel": "不用翻墙期权",
+      "trigger": "皮球",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "皮球理论 当A点开始急速暴跌从水上暴跌水下 第一个单子大的转弯点会反弹均价线附近的B点"
     },
     {
       "index": 10745,
@@ -929,23 +1034,13 @@
       "raw_text": "就不动啊你就只赚那三分之一仓的钱小赚或者成本出看行情"
     },
     {
-      "index": 10810,
-      "message_id": "post_1CbtG68VNZjgrmhKbjpjk9",
-      "et_date": "2026-06-09",
-      "channel": "不用翻墙美股讨论区",
-      "trigger": "缺口",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
-      "raw_text": "光标对准那个缺口的日K的最低价算补完"
-    },
-    {
       "index": 10812,
       "message_id": "post_1CbtGCpnKg9nWJfDLxAV4M",
       "et_date": "2026-06-09",
       "channel": "不用翻墙美股讨论区",
-      "trigger": "缺口",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "trigger": "光标",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-06-09) 节点 [gold_003_gap_intraday_once] 规则已记账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
       "raw_text": "比如这个你光标移动到缺口右边会出价格701-702就是缺口了"
     },
     {
