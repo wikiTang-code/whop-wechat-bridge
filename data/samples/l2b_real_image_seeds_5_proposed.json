@@ -13,9 +13,9 @@
     "evidence_span": "九转序列是默认的一个数学公式 计算的曲率 反弹红1-9 回调就是绿1-9 上次大减持就是绿1出加密",
     "statement": "九转序列用于计算曲率，反弹看红1-9，回调看绿1-9；出现绿1时减持防守。",
     "chart_notes": {
-      "timeframe": "intraday",
-      "markers": "unverified",
-      "aligns_with_text": "partial",
+      "timeframe": "daily",
+      "markers": "富途BTC日K线图，K线走势上标有九转序列上升数字(红/粉1-9)与回调数字(绿1-9)",
+      "aligns_with_text": "match",
       "local_path": "data/media/zhao/2026-01-27/post_1CXYCpXPkLs5VVnU5aBkJe_0.jpg"
     },
     "not": [
@@ -38,8 +38,8 @@
     "statement": "每天只需要看转弯，真金白银是真，消息都是阻碍你。",
     "chart_notes": {
       "timeframe": "intraday",
-      "markers": "unverified",
-      "aligns_with_text": "partial",
+      "markers": "SPY分时走势图，低位两个红色箭头标注向上转弯拐点，下方附文字“两次转弯都是有效的就是看spy675收盘是不是收上面”",
+      "aligns_with_text": "match",
       "local_path": "data/media/zhao/2026-02-17/post_1CYDwHo9hVfbwciyfsR9sa_0.jpg"
     },
     "not": [
@@ -62,8 +62,8 @@
     "statement": "看二次握手用 SPX 图更精确。",
     "chart_notes": {
       "timeframe": "intraday",
-      "markers": "unverified",
-      "aligns_with_text": "partial",
+      "markers": ".SPX分时图，标注“二次握手”、“第一次7339 第二次跌还是7339 平行没跌破 一般第二次探底不破是比较确定的短线买点”，两个红色箭头指向回踩低点",
+      "aligns_with_text": "match",
       "local_path": "data/media/zhao/2026-05-12/post_1CayBBJeexEDaiEveHEmGa_0.jpg"
     },
     "not": [
@@ -85,9 +85,9 @@
     "evidence_span": "加密的高点 总在第一轮投票投一半时候 加密的低点一半在下轮投票日期模糊和精确的公布附近",
     "statement": "加密的高点常在第一轮投票过半时，低点常在下轮投票日期模糊和精确公布附近。",
     "chart_notes": {
-      "timeframe": "daily",
-      "markers": "unverified",
-      "aligns_with_text": "partial",
+      "timeframe": "event_driven_cycle",
+      "markers": "推文手绘周期轮廓折线图，标注“法案失败会跌下”、“大概日期确认出来公告会反弹”、“投票当天过程中第一轮通过概率高会涨”",
+      "aligns_with_text": "match",
       "local_path": "data/media/zhao/2026-05-15/post_1Cb4TAuGNsh8zYEUCgnce7_0.jpg"
     },
     "not": [
@@ -109,8 +109,8 @@
     "evidence_span": "最有爆发的三要素要时刻盯紧 抓机会",
     "statement": "最有爆发的三要素要时刻盯紧抓机会。",
     "chart_notes": {
-      "timeframe": "intraday",
-      "markers": "unverified",
+      "timeframe": "daily",
+      "markers": "IREN日K走势图，赵哥红字手写标注“iren财报70跌46 三个缺口补掉了 最低点46是整数 就要中线关注了”，4个红色箭头指向缺口与46低点",
       "aligns_with_text": "partial",
       "local_path": "data/media/zhao/2026-05-27/post_1CbTUayc44sNzPweAjd3QW_0.jpg"
     },
