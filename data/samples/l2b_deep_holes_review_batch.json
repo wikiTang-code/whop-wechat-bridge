@@ -1,0 +1,160 @@
+[
+  {
+    "group_id": "hole_1_poem_fragments",
+    "name": "打油诗与总诀原句碎片",
+    "samples": [
+      {
+        "sample_id": "t_poem_001",
+        "message_id": "post_1CUdajZLN5ziLkvvtnTPxu",
+        "channel_name": "不用翻墙美股发布",
+        "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "sender_name": "赵哥",
+        "et_date": "2025-10-30",
+        "kid": "k_plunge_monitor_tail_rebound",
+        "status": "proposed",
+        "do_not_use_as_order": true,
+        "evidence_span": "今天上半场普跌中都震荡为主要... 震荡到尾盘才会去手工吸 看尾盘哪些V的才能知道调仓换股在哪些",
+        "statement": "上半场普跌震荡到尾盘才手工吸，看尾盘哪些V的知道调仓换股方向。",
+        "raw_context": "今天上半场普跌中都震荡为主要     盘前7点半开始出现了全部股票的统一的普跌 因为那会是有人工监控的 然后人工没动作就是说明要让量化持续 震荡到尾盘才会去手工吸 看尾盘哪些V的才能知道调仓换股在哪些"
+      },
+      {
+        "sample_id": "t_poem_002",
+        "message_id": "post_1CUQNskMxpMB2Dqa9udw5y",
+        "channel_name": "讨论区股票记录",
+        "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
+        "sender_name": "xiaozhaolucky",
+        "et_date": "2025-10-23",
+        "kid": "k_plunge_record_low_support",
+        "status": "proposed",
+        "do_not_use_as_order": true,
+        "evidence_span": "上半场普跌 尾盘V的要把那个最低价记录号 后面好几天会围绕那个支撑反复上下测试",
+        "statement": "上半场普跌尾盘V的要记录最低价，后面好几天会围绕该支撑反复测试。",
+        "raw_context": " 上半场普跌 尾盘V的要把那个最低价记录号 后面好几天会围绕那个支撑反复上下测试"
+      },
+      {
+        "sample_id": "t_poem_003",
+        "message_id": "post_1CUQeXed5TynjkscR7GTus",
+        "channel_name": "不用翻墙美股发布",
+        "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "sender_name": "赵哥",
+        "et_date": "2025-10-23",
+        "kid": "k_slow_sector_catchup_exit",
+        "status": "proposed",
+        "do_not_use_as_order": true,
+        "evidence_span": "医疗板块属于普涨中慢涨的... 可以等几天看看补涨上去出",
+        "statement": "板块属于普涨中慢涨的，可以等几天补涨上去出。",
+        "raw_context": "医疗板块属于普涨中慢涨的 昨天低吸了tem   hims支撑昨天最低价46也很明显 可以等几天看看补涨上去出"
+      },
+      {
+        "sample_id": "t_poem_004",
+        "message_id": "post_1CWiHteibFiRJNazVo1TL8",
+        "channel_name": "不用翻墙美股发布",
+        "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "sender_name": "赵哥",
+        "et_date": "2026-01-02",
+        "kid": "k_shoe_drops_settlement_rebound",
+        "status": "proposed",
+        "do_not_use_as_order": true,
+        "evidence_span": "第二周周五靴子落地 开盘多空都结算走普涨",
+        "statement": "事件压盘后靴子落地，开盘多空都结算走普涨。",
+        "raw_context": "日本加息前也是压了两周 第二周周五靴子落地 开盘多空都结算走普涨  圣诞开盘最后收盘最低压了一周 元旦开盘最高收盘最低压了一周 基本在最后几天收盘配置好了双底的很多上一轮会10几cm的潜力个股"
+      }
+    ]
+  },
+  {
+    "group_id": "hole_2_stock_nature",
+    "name": "股性：利好减仓与急涨急跌",
+    "samples": [
+      {
+        "sample_id": "t_nat_001",
+        "message_id": "post_1CUHUYyypHCJ98772Njevt",
+        "channel_name": "不用翻墙美股发布",
+        "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "sender_name": "赵哥",
+        "et_date": "2025-10-20",
+        "kid": "k_good_news_trim_then_rebuy",
+        "status": "proposed",
+        "do_not_use_as_order": true,
+        "evidence_span": "tsll 周末马斯克讲了很多利好 可以20.55附近减掉点 有回落到19.5附近在吸回来",
+        "statement": "周末讲了很多利好先减掉点，有回落再吸回来。",
+        "raw_context": "tsll 周末马斯克讲了很多利好 可以20.55附近减掉点 有回落到19.5附近在吸回来"
+      },
+      {
+        "sample_id": "t_nat_002",
+        "message_id": "post_1CUHUKx6mAppiMpeP5DbEs",
+        "channel_name": "不用翻墙美股发布",
+        "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "sender_name": "赵哥",
+        "et_date": "2025-10-20",
+        "kid": "k_news_ease_night_trim",
+        "status": "proposed",
+        "do_not_use_as_order": true,
+        "evidence_span": "周末讲话缓和有利好 可以夜盘8-9点减仓点",
+        "statement": "周末讲话缓和有利好，可以夜盘8-9点减仓点。",
+        "raw_context": "周末讲话缓和有利好 可以夜盘8-9点减仓点"
+      },
+      {
+        "sample_id": "t_nat_003",
+        "message_id": "post_1CUAuzjyZ18HkQXM9mjHXL",
+        "channel_name": "不用翻墙美股发布",
+        "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "sender_name": "赵哥",
+        "et_date": "2025-10-16",
+        "kid": "k_earnings_sympathy_trim",
+        "status": "proposed",
+        "do_not_use_as_order": true,
+        "evidence_span": "受到台积电财报利好影响带动可以89附近减掉点 开盘在看下86支撑会不会在跌破",
+        "statement": "受到相关财报利好影响带动先减掉点，开盘再看支撑会不会跌破。",
+        "raw_context": "nvdl受到台积电财报利好影响带动可以89附近减掉点 开盘在看下86支撑会不会在跌破 跌破在84-85附近再看情况低吸"
+      }
+    ]
+  },
+  {
+    "group_id": "hole_3_macro_cycles",
+    "name": "真实周期课：关税/关门/地缘与议息应对",
+    "samples": [
+      {
+        "sample_id": "t_cyc_001",
+        "message_id": "post_1CTzEncUzZHr9GK526LH3w",
+        "channel_name": "不用翻墙美股发布",
+        "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "sender_name": "赵哥",
+        "et_date": "2025-10-10",
+        "kid": "k_tariff_weekend_risk_discipline",
+        "status": "proposed",
+        "do_not_use_as_order": true,
+        "evidence_span": "周末会中方美方互撕关税和软件出口管制 要留出仓位给周一万一跳空留余地... 今天抄底只能快收盘时候抄点 收盘附近应该是最低价 周一跳空在补仓做T",
+        "statement": "周末有关税互撕风险要留仓位给周一跳空余地，抄底快收盘时少抄点，周一跳空后再补仓做T。",
+        "raw_context": "这次态度强硬 周末会中方美方互撕关税和软件出口管制 要留出仓位给周一万一跳空留余地 和4月关税互撕一样 讲话当中有反弹 分批减点 今天抄底只能快收盘时候抄点 收盘附近应该是最低价 周一跳空在补仓做T  周一跳空后买比较重要点"
+      },
+      {
+        "sample_id": "t_cyc_002",
+        "message_id": "post_1CUBBdhEJ3QVYMNTuYLUoN",
+        "channel_name": "不用翻墙美股发布",
+        "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "sender_name": "赵哥",
+        "et_date": "2025-10-16",
+        "kid": "k_speech_tariff_dip_entry",
+        "status": "proposed",
+        "do_not_use_as_order": true,
+        "evidence_span": "看讲话前跳水都是支撑位小仓位 讲话时候如果大跳水在加仓",
+        "statement": "讲话前跳水在支撑位小仓位，讲话时若大跳水再加仓。",
+        "raw_context": "今天和上周五差不多 周五是特朗普先发了增加100%中国关税 说5点讲话 5点前又压了波股价   今天也是看讲话前跳水都是支撑位小仓位 讲话时候如果大跳水在加仓"
+      },
+      {
+        "sample_id": "t_cyc_003",
+        "message_id": "post_1CVwojJUJUkZf7iRmkkY5J",
+        "channel_name": "不用翻墙美股发布",
+        "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "sender_name": "赵哥",
+        "et_date": "2025-12-09",
+        "kid": "k_fed_rate_decision_rhythm",
+        "status": "proposed",
+        "do_not_use_as_order": true,
+        "evidence_span": "明天三点有美联储利率决议 一般盘前会压下 利率出来前2-3点会拉下 鲍威尔讲话鹰派的话会再跌 可以盘前低的时候低吸做小T 买回踩今天低点的2点左右拉升都日内出避开下讲话",
+        "statement": "美联储利率决议盘前压下、出来前拉升，盘前低吸买回踩低点的，拉升在讲话前日内出避开讲话。",
+        "raw_context": "明天三点有美联储利率决议  一般盘前会压下 利率出来前2-3点会拉下 鲍威尔讲话鹰派的话会再跌 可以盘前低的时候低吸做小T 买回踩今天低点的2点左右拉升都日内出避开下讲话  讲话完等反应完再分批吸回到17号在总体降点规避日本加息"
+      }
+    ]
+  }
+]
