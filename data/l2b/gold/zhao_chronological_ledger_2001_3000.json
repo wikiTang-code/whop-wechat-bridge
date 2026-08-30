@@ -1,0 +1,1694 @@
+{
+  "metadata": {
+    "segment": "第 4 档 (2001~3000 条消息)",
+    "date_range": "2025-11-26 ~ 2025-12-31",
+    "total_scanned": 1000,
+    "bookmarked_stops": 145,
+    "skipped_stops_total": 103,
+    "skipped_breakdown": {
+      "weak_commentary_or_single_event": 29,
+      "duplicate_post": 72,
+      "pure_fill_order": 2
+    }
+  },
+  "tree_instances_summary": {
+    "gold_001_second_handshake": {
+      "name": "二次握手不破低点低吸",
+      "status": "gold",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "gold_003_gap_intraday_once": {
+      "name": "缺口每次只做一次日内",
+      "status": "gold",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "gold_004_position_control_70_pct": {
+      "name": "7成底仓与3成做T机动",
+      "status": "gold",
+      "instances_count": 10,
+      "sample_spans": [
+        "盘后34.8-34.9可以回吸bmnr  \n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "盘后78-78.2之间可以加仓点nvdl\n\n盘中有部分83.5加的盘中没到成本还没出\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "盘后crwv 78-78.3可以加仓\n\n盘中有部分84附近买的也是盘中还没到成本下周在看下位置出\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+      ]
+    },
+    "gold_005_half_retrace_watch": {
+      "name": "反弹一半公式空间测算",
+      "status": "gold",
+      "instances_count": 13,
+      "sample_spans": [
+        "apld  （36.7+19）/2=27.85\n\n\n\napld 达到了高点跌低点后反弹了一半 最近可以注意转弯回调时候出一半 剩下一半博弈下能不能摸前高36。7",
+        "tsll   （23.18+14.81）/2=18.995\n\n\n\n今天tsll也低位反弹了跌下来的一半 和apld一样今天出现了溢价到20",
+        "太空板块是昨天刚反弹 asts和rklb也是往反弹一半的方向走 \n\n\n\nrklb  （66.35+37.57）/2=51.96\n\nasts (49.31+83.31)/2=66.31"
+      ]
+    },
+    "gold_006_passive_redeem_holiday": {
+      "name": "节前基金被动减持与赎回",
+      "status": "gold",
+      "instances_count": 5,
+      "sample_spans": [
+        "btc和eth今天是有节前被动减持 而被动减持的买点只能在最低附近\n\n\n\n16.45买入可能几秒甚至几分钟半小时还在16.45附近 但是结束流出就会V下\n\n\n\n上周五的16.8买入到18-18.5昨天卖出也是这样\n\n\n\n16.45买 16.42问是不是要止损有点太慌了",
+        "今天和明天要注意收盘附近没有在创低点的话就是基金的被动减持留现金流就快结束了 可以找双底附近的标拿节后的反弹",
+        "今天qqq和币市场要看第二轮有没有再下来 没在下来就是节前的被动减现金流都差不多满足了客户赎回的要求了 \n\n\n\n最近几天没有再创新低的双底明星股就节后的反弹再出 有些在双底附近小跌的就明天低点在稍微加点"
+      ]
+    },
+    "gold_007_shoe_drops_settlement": {
+      "name": "重大事件靴子落地走普涨",
+      "status": "gold",
+      "instances_count": 3,
+      "sample_spans": [
+        "美联储利率讲话 前一天 如果先涨的 会议讲话不超预期会回踩2天\n\n美联储利率讲话 前一天 如果先跌的 会议讲话会靴子落地当天反弹下\n\n\n\n今天币市场和部分股冲了下指数带高了 就要等明天3点讲话看鲍威尔会不会鹰派下\n\n给回踩机会",
+        "日本加息 北京时间中午宣布了25基点 靴子落地了 btc和eth也是12点开始有反应反弹",
+        "今天 主要是夜盘和昨天收盘价格做参考  加息公布完后就是靴子落地 新的利息计算的产品也开始上线了  夜盘就是拿一部分 低价格的  \n\n\n\n然后开盘看是不是会走第一种 先结算在普涨那种 和开门时候那时候put都结算那次周五一样 那时候也是盘前最低点 人工干预上去了  先回踩下就直接普涨了尾盘在小回落"
+      ]
+    },
+    "gold_008_index_turn_gate": {
+      "name": "入场扫描：指数转弯再看个股",
+      "status": "gold",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "gold_008b_block_print_reentry": {
+      "name": "标的大单入场与回买",
+      "status": "gold",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "gold_009_cost_exit_last_batch": {
+      "name": "分批只减最后补的一笔成本出",
+      "status": "gold",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "gold_011_zhao_poem_official": {
+      "name": "赵哥主观交易总诀 (打油诗全文本尊)",
+      "status": "gold",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "gold_012_profit_cushion": {
+      "name": "没利润垫不过财报",
+      "status": "gold",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "gold_013_supply_unlock_3_plus_1": {
+      "name": "减持3天后第4天看",
+      "status": "gold",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "prop_001_dip_buy_integer": {
+      "name": "急跌整数无小数点底部要素",
+      "status": "proposed",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "prop_002_cut_in_half_100_percent": {
+      "name": "事件腰斩50%迎翻倍100%机会",
+      "status": "proposed",
+      "instances_count": 1,
+      "sample_spans": [
+        "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的"
+      ]
+    },
+    "prop_003_valuation_dip_method": {
+      "name": "估值低估买入法 (8/26手牌1)",
+      "status": "proposed",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "prop_004_event_low_dip_method": {
+      "name": "事件低位买入法 (8/26手牌2·META例)",
+      "status": "proposed",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "prop_005_block_print_method": {
+      "name": "大单检测法 (8/26手牌3)",
+      "status": "proposed",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "prop_006_stop_loss_sweep_method": {
+      "name": "散户止损单被一笔全吃 (8/26手牌4)",
+      "status": "proposed",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "prop_007_night_plunge_premarket_intervention": {
+      "name": "夜盘普跌盘前干预买入法",
+      "status": "proposed",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "prop_008_gap_retrace_fill_dip": {
+      "name": "高开回踩补缺低吸法",
+      "status": "proposed",
+      "instances_count": 4,
+      "sample_spans": [
+        "夜盘前 btc和eth价格有出现大的跳水 币股今天的回踩企稳要等到盘前再看是不是补上周四感恩节的缺口",
+        "tsll注意今天要回踩下18.1这个缺口可以注意分时转弯吸",
+        "tsll今天也是注意回踩之前的缺口 19.6-19.7"
+      ]
+    },
+    "prop_009_decay_equivalent_calc": {
+      "name": "期权/杠杆磨损值折算上一轮价格",
+      "status": "proposed",
+      "instances_count": 0,
+      "sample_spans": []
+    },
+    "prop_010_supply_unlock_ndays_dip": {
+      "name": "减持过一段天数靠近支撑回吸",
+      "status": "proposed",
+      "instances_count": 0,
+      "sample_spans": []
+    }
+  },
+  "gap_subdivision_summary": {
+    "gold_003_intraday_once_count": 0,
+    "prop_008_retrace_fill_count": 4,
+    "point_memos_count": 6
+  },
+  "tree_instances_detail": {
+    "gold_001_second_handshake": [],
+    "gold_003_gap_intraday_once": [],
+    "gold_004_position_control_70_pct": [
+      {
+        "index": 2574,
+        "tree_id": "gold_004_position_control_70_pct",
+        "tree_name": "7成底仓与3成做T机动",
+        "message_id": "post_1CW3UCsAesy8CkMKzSDzA7",
+        "et_date": "2025-12-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "盘后34.8-34.9可以回吸bmnr  \n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "raw_text": "盘后34.8-34.9可以回吸bmnr  \n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+      },
+      {
+        "index": 2575,
+        "tree_id": "gold_004_position_control_70_pct",
+        "tree_name": "7成底仓与3成做T机动",
+        "message_id": "post_1CW3UJPTC3V6Asfw15ipL8",
+        "et_date": "2025-12-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "盘后78-78.2之间可以加仓点nvdl\n\n盘中有部分83.5加的盘中没到成本还没出\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "raw_text": "盘后78-78.2之间可以加仓点nvdl\n\n盘中有部分83.5加的盘中没到成本还没出\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+      },
+      {
+        "index": 2576,
+        "tree_id": "gold_004_position_control_70_pct",
+        "tree_name": "7成底仓与3成做T机动",
+        "message_id": "post_1CW3UPtKawRXGk35XdiCZ2",
+        "et_date": "2025-12-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "盘后crwv 78-78.3可以加仓\n\n盘中有部分84附近买的也是盘中还没到成本下周在看下位置出\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "raw_text": "盘后crwv 78-78.3可以加仓\n\n盘中有部分84附近买的也是盘中还没到成本下周在看下位置出\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+      },
+      {
+        "index": 2577,
+        "tree_id": "gold_004_position_control_70_pct",
+        "tree_name": "7成底仓与3成做T机动",
+        "message_id": "post_1CW3UUuGA4UoycSSBAfqsP",
+        "et_date": "2025-12-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "盘后  oklo 87.2附近可以加仓\n\n盘中有部分97的盘中没到成本下周也会看下出的位置\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "raw_text": "盘后  oklo 87.2附近可以加仓\n\n盘中有部分97的盘中没到成本下周也会看下出的位置\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+      },
+      {
+        "index": 2578,
+        "tree_id": "gold_004_position_control_70_pct",
+        "tree_name": "7成底仓与3成做T机动",
+        "message_id": "post_1CW3UYBL3NsMFz7nTrRZqy",
+        "et_date": "2025-12-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "盘后iren在40.1-40.2之间回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "raw_text": "盘后iren在40.1-40.2之间回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+      },
+      {
+        "index": 2579,
+        "tree_id": "gold_004_position_control_70_pct",
+        "tree_name": "7成底仓与3成做T机动",
+        "message_id": "post_1CW3UccQW3EDSXNjaZWMkM",
+        "et_date": "2025-12-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "盘后cifr昨天抛的可以在17.1附近回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "raw_text": "盘后cifr昨天抛的可以在17.1附近回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+      },
+      {
+        "index": 2580,
+        "tree_id": "gold_004_position_control_70_pct",
+        "tree_name": "7成底仓与3成做T机动",
+        "message_id": "post_1CW3UfppaMVZZE8XkFtgqG",
+        "et_date": "2025-12-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "盘后intc 可以在37.7附近新开\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "raw_text": "盘后intc 可以在37.7附近新开\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+      },
+      {
+        "index": 2581,
+        "tree_id": "gold_004_position_control_70_pct",
+        "tree_name": "7成底仓与3成做T机动",
+        "message_id": "post_1CW3UihyfLsVxUNPW1X2D4",
+        "et_date": "2025-12-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "盘后hood可以在119.6附近回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "raw_text": "盘后hood可以在119.6附近回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+      },
+      {
+        "index": 2582,
+        "tree_id": "gold_004_position_control_70_pct",
+        "tree_name": "7成底仓与3成做T机动",
+        "message_id": "post_1CW3UpeJjExvwnio2z5Di5",
+        "et_date": "2025-12-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "nbis昨天抛的可以87.7附近回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "raw_text": "nbis昨天抛的可以87.7附近回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+      },
+      {
+        "index": 2592,
+        "tree_id": "gold_004_position_control_70_pct",
+        "tree_name": "7成底仓与3成做T机动",
+        "message_id": "post_1CW3VFgWyJT4kTmLrMdyXe",
+        "et_date": "2025-12-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "apld之前全走了 也在27.8附近在重开些底仓\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+        "raw_text": "apld之前全走了 也在27.8附近在重开些底仓\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+      }
+    ],
+    "gold_005_half_retrace_watch": [
+      {
+        "index": 2072,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CVgdiJouH7QSzKp6qRYGn",
+        "et_date": "2025-12-01",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "apld  （36.7+19）/2=27.85\n\n\n\napld 达到了高点跌低点后反弹了一半 最近可以注意转弯回调时候出一半 剩下一半博弈下能不能摸前高36。7",
+        "raw_text": "apld  （36.7+19）/2=27.85\n\n\n\napld 达到了高点跌低点后反弹了一半 最近可以注意转弯回调时候出一半 剩下一半博弈下能不能摸前高36。7"
+      },
+      {
+        "index": 2160,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CVkHzp5Xbq5tF1umCTZnR",
+        "et_date": "2025-12-03",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "tsll   （23.18+14.81）/2=18.995\n\n\n\n今天tsll也低位反弹了跌下来的一半 和apld一样今天出现了溢价到20",
+        "raw_text": "tsll   （23.18+14.81）/2=18.995\n\n\n\n今天tsll也低位反弹了跌下来的一半 和apld一样今天出现了溢价到20"
+      },
+      {
+        "index": 2162,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CVkJTMPBDiPHpvx618Da4",
+        "et_date": "2025-12-03",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "太空板块是昨天刚反弹 asts和rklb也是往反弹一半的方向走 \n\n\n\nrklb  （66.35+37.57）/2=51.96\n\nasts (49.31+83.31)/2=66.31",
+        "raw_text": "太空板块是昨天刚反弹 asts和rklb也是往反弹一半的方向走 \n\n\n\nrklb  （66.35+37.57）/2=51.96\n\nasts (49.31+83.31)/2=66.31"
+      },
+      {
+        "index": 2169,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CVkM5wnjrfMxNCiRzUhFq",
+        "et_date": "2025-12-03",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切\n\n\n\n  asts资讯有被动清仓慌啥就是抢筹机会",
+        "raw_text": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切\n\n\n\n  asts资讯有被动清仓慌啥就是抢筹机会"
+      },
+      {
+        "index": 2214,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CVmtJN6K3Zw66u9VTSAQ4",
+        "et_date": "2025-12-04",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "oklo  （135+79）/2=107\n\n\n\n电力股oklo也在冲一半",
+        "raw_text": "oklo  （135+79）/2=107\n\n\n\n电力股oklo也在冲一半"
+      },
+      {
+        "index": 2216,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CVmvGYm4bC96CTHAcGDPX",
+        "et_date": "2025-12-04",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "oklo也即将反弹一半位置了",
+        "raw_text": "oklo也即将反弹一半位置了"
+      },
+      {
+        "index": 2220,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CVmwBUsctY2K3qVJMejjZ",
+        "et_date": "2025-12-04",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天盘面是高低切  有些七姐妹先反弹的资金出去 去了明星股小盘股  小盘股很多今天冲反弹一半涨幅的   币股今天小幅反弹高位震荡",
+        "raw_text": "今天盘面是高低切  有些七姐妹先反弹的资金出去 去了明星股小盘股  小盘股很多今天冲反弹一半涨幅的   币股今天小幅反弹高位震荡"
+      },
+      {
+        "index": 2222,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CVmzJiust6RZrFv8ez4QE",
+        "et_date": "2025-12-04",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "141.79  10月28日 \n\n65.22   11月21日\n\n（141.79+65.22）/2=103\n\ncrwv有个数据中心延期建好的利空涨幅会受限制",
+        "raw_text": "141.79  10月28日 \n\n65.22   11月21日\n\n（141.79+65.22）/2=103\n\ncrwv有个数据中心延期建好的利空涨幅会受限制"
+      },
+      {
+        "index": 2331,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CVwRQ5aYty2B8oiyTRTHd",
+        "et_date": "2025-12-09",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "bmnr   （10月28日 54+24.3）/2=39.15\n\n今天bmnr也快接近39.15一半的位置了",
+        "raw_text": "bmnr   （10月28日 54+24.3）/2=39.15\n\n今天bmnr也快接近39.15一半的位置了"
+      },
+      {
+        "index": 2333,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CVwRaic2rqwu4JokgAGZB",
+        "et_date": "2025-12-09",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "conl （10月28   41.68+15.92)/2=28.8\n\n\n\nconl今天23离开28.8还有点距离会震荡下在上到保守的一半位置",
+        "raw_text": "conl （10月28   41.68+15.92)/2=28.8\n\n\n\nconl今天23离开28.8还有点距离会震荡下在上到保守的一半位置"
+      },
+      {
+        "index": 2771,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CWLuKy16ZjU293xadgsdH",
+        "et_date": "2025-12-21",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "基于的价值投资都是 \n\n\n\n 100 跌50 又能回100的股票类   50买到100  股票市值没变对于50买入的人却是翻倍   \n\n\n\ncrwv\n\n\n\n10月29日高点140.33 开票价137.75    关门影响的最低价11月21的65.11   开门后的高点12月10日的91.22\n\n\n\n",
+        "raw_text": "基于的价值投资都是 \n\n\n\n 100 跌50 又能回100的股票类   50买到100  股票市值没变对于50买入的人却是翻倍   \n\n\n\ncrwv\n\n\n\n10月29日高点140.33 开票价137.75    关门影响的最低价11月21的65.11   开门后的高点12月10日的91.22\n\n\n\n加息后的低点63.8  加息的前一天周四的盘中产生    盘后出了利好公告 债务还了一部分 加上新的项目合同 政府能源的和人工智能的\n\n\n\n第一轮计算公式   （137.75+65.11）/2=101"
+      },
+      {
+        "index": 2774,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CWLw4tY2wEcj4h1qh6QKM",
+        "et_date": "2025-12-21",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "oklo\n\n\n\n\n\n上一轮 高点 10月29日最高152 开盘价 134.53  就是取最高点那天看下最高点是不是几分钟内秒跌的 秒跌的就取开盘价格\n\n\n\n\n\n上一轮高点取的时间段是基于qqq最高点回调时间 前面的回调不是关门这个事件影响 只取事件影响的时间段\n\n\n\n最低点11月21日  大家可以注",
+        "raw_text": "oklo\n\n\n\n\n\n上一轮 高点 10月29日最高152 开盘价 134.53  就是取最高点那天看下最高点是不是几分钟内秒跌的 秒跌的就取开盘价格\n\n\n\n\n\n上一轮高点取的时间段是基于qqq最高点回调时间 前面的回调不是关门这个事件影响 只取事件影响的时间段\n\n\n\n最低点11月21日  大家可以注意低点时间大多数前一轮开门前几天的时间大多数低点都在11月21日前后\n\n\n\n（135+79）/2=107 当时在109出过一半oklo  他属于到了一半位置没到前高的  然后109一半他出了15亿定增"
+      },
+      {
+        "index": 2777,
+        "tree_id": "gold_005_half_retrace_watch",
+        "tree_name": "反弹一半公式空间测算",
+        "message_id": "post_1CWLwqcjbFYaNdMwrfcEif",
+        "et_date": "2025-12-21",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "nbis  上一轮  \n\n高点 11月3日134\n\n低点 11月21日   78.21\n\n（134+78.21）/2=106.1上轮最高在   103.84差一点没有达到一半的价格\n\n这轮\n\n最高12月4日 103.84\n\n最低12月17  75.25\n\n(103.84+75.25)/2=89.54",
+        "raw_text": "nbis  上一轮  \n\n高点 11月3日134\n\n低点 11月21日   78.21\n\n（134+78.21）/2=106.1上轮最高在   103.84差一点没有达到一半的价格\n\n这轮\n\n最高12月4日 103.84\n\n最低12月17  75.25\n\n(103.84+75.25)/2=89.54 一半这个保守位置"
+      }
+    ],
+    "gold_006_passive_redeem_holiday": [
+      {
+        "index": 2847,
+        "tree_id": "gold_006_passive_redeem_holiday",
+        "tree_name": "节前基金被动减持与赎回",
+        "message_id": "post_1CWQHtaGumtwwNkxLW7NqY",
+        "et_date": "2025-12-23",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "btc和eth今天是有节前被动减持 而被动减持的买点只能在最低附近\n\n\n\n16.45买入可能几秒甚至几分钟半小时还在16.45附近 但是结束流出就会V下\n\n\n\n上周五的16.8买入到18-18.5昨天卖出也是这样\n\n\n\n16.45买 16.42问是不是要止损有点太慌了",
+        "raw_text": "btc和eth今天是有节前被动减持 而被动减持的买点只能在最低附近\n\n\n\n16.45买入可能几秒甚至几分钟半小时还在16.45附近 但是结束流出就会V下\n\n\n\n上周五的16.8买入到18-18.5昨天卖出也是这样\n\n\n\n16.45买 16.42问是不是要止损有点太慌了"
+      },
+      {
+        "index": 2976,
+        "tree_id": "gold_006_passive_redeem_holiday",
+        "tree_name": "节前基金被动减持与赎回",
+        "message_id": "post_1CWd9XiBGfHZ8JgG1E2wgK",
+        "et_date": "2025-12-30",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天和明天要注意收盘附近没有在创低点的话就是基金的被动减持留现金流就快结束了 可以找双底附近的标拿节后的反弹",
+        "raw_text": "今天和明天要注意收盘附近没有在创低点的话就是基金的被动减持留现金流就快结束了 可以找双底附近的标拿节后的反弹"
+      },
+      {
+        "index": 2978,
+        "tree_id": "gold_006_passive_redeem_holiday",
+        "tree_name": "节前基金被动减持与赎回",
+        "message_id": "post_1CWdBwTLLUZnJHfNxdTkQL",
+        "et_date": "2025-12-30",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天qqq和币市场要看第二轮有没有再下来 没在下来就是节前的被动减现金流都差不多满足了客户赎回的要求了 \n\n\n\n最近几天没有再创新低的双底明星股就节后的反弹再出 有些在双底附近小跌的就明天低点在稍微加点",
+        "raw_text": "今天qqq和币市场要看第二轮有没有再下来 没在下来就是节前的被动减现金流都差不多满足了客户赎回的要求了 \n\n\n\n最近几天没有再创新低的双底明星股就节后的反弹再出 有些在双底附近小跌的就明天低点在稍微加点"
+      },
+      {
+        "index": 2984,
+        "tree_id": "gold_006_passive_redeem_holiday",
+        "tree_name": "节前基金被动减持与赎回",
+        "message_id": "post_1CWdYCt7eKhk9VVnbnnbGu",
+        "et_date": "2025-12-30",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "收盘时候可以19.5附近接回点tsll  明天还有被动减可以挂点在18.9附近",
+        "raw_text": "收盘时候可以19.5附近接回点tsll  明天还有被动减可以挂点在18.9附近"
+      },
+      {
+        "index": 2991,
+        "tree_id": "gold_006_passive_redeem_holiday",
+        "tree_name": "节前基金被动减持与赎回",
+        "message_id": "post_1CWfRUgJMC9WUsfWSwhiTN",
+        "et_date": "2025-12-31",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天尾盘也是基金被动减持留现金的节前最后天 可以收盘有些双底 或者双底跌破的建仓和少量补仓（昨天收盘加过的今天价格差不多的就少量补）\n\n\n\n周五夜盘和盘前有比今天收盘低的时候在加点 看周五是多空双杀还是开盘后走多空都结算然后普涨",
+        "raw_text": "今天尾盘也是基金被动减持留现金的节前最后天 可以收盘有些双底 或者双底跌破的建仓和少量补仓（昨天收盘加过的今天价格差不多的就少量补）\n\n\n\n周五夜盘和盘前有比今天收盘低的时候在加点 看周五是多空双杀还是开盘后走多空都结算然后普涨"
+      }
+    ],
+    "gold_007_shoe_drops_settlement": [
+      {
+        "index": 2341,
+        "tree_id": "gold_007_shoe_drops_settlement",
+        "tree_name": "重大事件靴子落地走普涨",
+        "message_id": "post_1CVwX9jzHYpNtKB17UhLG9",
+        "et_date": "2025-12-09",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "美联储利率讲话 前一天 如果先涨的 会议讲话不超预期会回踩2天\n\n美联储利率讲话 前一天 如果先跌的 会议讲话会靴子落地当天反弹下\n\n\n\n今天币市场和部分股冲了下指数带高了 就要等明天3点讲话看鲍威尔会不会鹰派下\n\n给回踩机会",
+        "raw_text": "美联储利率讲话 前一天 如果先涨的 会议讲话不超预期会回踩2天\n\n美联储利率讲话 前一天 如果先跌的 会议讲话会靴子落地当天反弹下\n\n\n\n今天币市场和部分股冲了下指数带高了 就要等明天3点讲话看鲍威尔会不会鹰派下\n\n给回踩机会"
+      },
+      {
+        "index": 2680,
+        "tree_id": "gold_007_shoe_drops_settlement",
+        "tree_name": "重大事件靴子落地走普涨",
+        "message_id": "post_1CWFVx8WvujuKfwh3ePqrk",
+        "et_date": "2025-12-19",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "日本加息 北京时间中午宣布了25基点 靴子落地了 btc和eth也是12点开始有反应反弹",
+        "raw_text": "日本加息 北京时间中午宣布了25基点 靴子落地了 btc和eth也是12点开始有反应反弹"
+      },
+      {
+        "index": 2708,
+        "tree_id": "gold_007_shoe_drops_settlement",
+        "tree_name": "重大事件靴子落地走普涨",
+        "message_id": "post_1CWFeomDNEWJpn54SzexW6",
+        "et_date": "2025-12-19",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天 主要是夜盘和昨天收盘价格做参考  加息公布完后就是靴子落地 新的利息计算的产品也开始上线了  夜盘就是拿一部分 低价格的  \n\n\n\n然后开盘看是不是会走第一种 先结算在普涨那种 和开门时候那时候put都结算那次周五一样 那时候也是盘前最低点 人工干预上去了  先回踩下就直接普涨了尾盘在小回落",
+        "raw_text": "今天 主要是夜盘和昨天收盘价格做参考  加息公布完后就是靴子落地 新的利息计算的产品也开始上线了  夜盘就是拿一部分 低价格的  \n\n\n\n然后开盘看是不是会走第一种 先结算在普涨那种 和开门时候那时候put都结算那次周五一样 那时候也是盘前最低点 人工干预上去了  先回踩下就直接普涨了尾盘在小回落"
+      }
+    ],
+    "gold_008_index_turn_gate": [],
+    "gold_008b_block_print_reentry": [],
+    "gold_009_cost_exit_last_batch": [],
+    "gold_011_zhao_poem_official": [],
+    "gold_012_profit_cushion": [],
+    "gold_013_supply_unlock_3_plus_1": [],
+    "prop_001_dip_buy_integer": [],
+    "prop_002_cut_in_half_100_percent": [
+      {
+        "index": 2572,
+        "tree_id": "prop_002_cut_in_half_100_percent",
+        "tree_name": "事件腰斩50%迎翻倍100%机会",
+        "message_id": "post_1CW3HsW4H6pc9hrhxxJVen",
+        "et_date": "2025-12-12",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的",
+        "raw_text": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的"
+      }
+    ],
+    "prop_003_valuation_dip_method": [],
+    "prop_004_event_low_dip_method": [],
+    "prop_005_block_print_method": [],
+    "prop_006_stop_loss_sweep_method": [],
+    "prop_007_night_plunge_premarket_intervention": [],
+    "prop_008_gap_retrace_fill_dip": [
+      {
+        "index": 2043,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
+        "message_id": "post_1CVf49uaCxDwQtVVMLLmWR",
+        "et_date": "2025-11-30",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "夜盘前 btc和eth价格有出现大的跳水 币股今天的回踩企稳要等到盘前再看是不是补上周四感恩节的缺口",
+        "raw_text": "夜盘前 btc和eth价格有出现大的跳水 币股今天的回踩企稳要等到盘前再看是不是补上周四感恩节的缺口"
+      },
+      {
+        "index": 2104,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
+        "message_id": "post_1CVi43zD3zzz6wM7zswvpn",
+        "et_date": "2025-12-02",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "tsll注意今天要回踩下18.1这个缺口可以注意分时转弯吸",
+        "raw_text": "tsll注意今天要回踩下18.1这个缺口可以注意分时转弯吸"
+      },
+      {
+        "index": 2212,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
+        "message_id": "post_1CVmt8dqs8CasMWZ73UXYw",
+        "et_date": "2025-12-04",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "tsll今天也是注意回踩之前的缺口 19.6-19.7",
+        "raw_text": "tsll今天也是注意回踩之前的缺口 19.6-19.7"
+      },
+      {
+        "index": 2699,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "tree_name": "高开回踩补缺低吸法",
+        "message_id": "post_1CWFZsGVt61obJbNVhzLWg",
+        "et_date": "2025-12-19",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "12月19日更新一半仓位死拿一半仓位做T新一轮股单\n\n\n\n每个板块选1-2个  三个板块配置\n\n\n\n盘中有四巫日季度期权和周期权平仓时候的回踩去介入\n\n\n\n七姐妹和大盘股 \n\n\n\nnvdl 盘中在找下76-77之间的机会 原来83.5没动\n\n甲骨文会找下185附近的机会\n\n微软双倍msfl可以找26",
+        "raw_text": "12月19日更新一半仓位死拿一半仓位做T新一轮股单\n\n\n\n每个板块选1-2个  三个板块配置\n\n\n\n盘中有四巫日季度期权和周期权平仓时候的回踩去介入\n\n\n\n七姐妹和大盘股 \n\n\n\nnvdl 盘中在找下76-77之间的机会 原来83.5没动\n\n甲骨文会找下185附近的机会\n\n微软双倍msfl可以找26.6附近在重新开仓\n\n亚马逊双倍amzu 可以34  和33两个价格开仓\n\ntsll 后面找20.7附近缺口机会\n\nintc这轮低点在35.7附近找 35.7-36的低吸机会\n\n\n\n\n\n\n\n明星股小盘"
+      }
+    ],
+    "prop_009_decay_equivalent_calc": [],
+    "prop_010_supply_unlock_ndays_dip": []
+  },
+  "gap_subdivision": {
+    "rule_replays": [
+      {
+        "index": 2043,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CVf49uaCxDwQtVVMLLmWR",
+        "et_date": "2025-11-30",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "夜盘前 btc和eth价格有出现大的跳水 币股今天的回踩企稳要等到盘前再看是不是补上周四感恩节的缺口",
+        "raw_text": "夜盘前 btc和eth价格有出现大的跳水 币股今天的回踩企稳要等到盘前再看是不是补上周四感恩节的缺口"
+      },
+      {
+        "index": 2104,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CVi43zD3zzz6wM7zswvpn",
+        "et_date": "2025-12-02",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "tsll注意今天要回踩下18.1这个缺口可以注意分时转弯吸",
+        "raw_text": "tsll注意今天要回踩下18.1这个缺口可以注意分时转弯吸"
+      },
+      {
+        "index": 2212,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CVmt8dqs8CasMWZ73UXYw",
+        "et_date": "2025-12-04",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "tsll今天也是注意回踩之前的缺口 19.6-19.7",
+        "raw_text": "tsll今天也是注意回踩之前的缺口 19.6-19.7"
+      },
+      {
+        "index": 2699,
+        "tree_id": "prop_008_gap_retrace_fill_dip",
+        "message_id": "post_1CWFZsGVt61obJbNVhzLWg",
+        "et_date": "2025-12-19",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "12月19日更新一半仓位死拿一半仓位做T新一轮股单\n\n\n\n每个板块选1-2个  三个板块配置\n\n\n\n盘中有四巫日季度期权和周期权平仓时候的回踩去介入\n\n\n\n七姐妹和大盘股 \n\n\n\nnvdl 盘中在找下76-77之间的机会 原来83.5没动\n\n甲骨文会找下185附近的机会\n\n微软双倍msfl可以找26",
+        "raw_text": "12月19日更新一半仓位死拿一半仓位做T新一轮股单\n\n\n\n每个板块选1-2个  三个板块配置\n\n\n\n盘中有四巫日季度期权和周期权平仓时候的回踩去介入\n\n\n\n七姐妹和大盘股 \n\n\n\nnvdl 盘中在找下76-77之间的机会 原来83.5没动\n\n甲骨文会找下185附近的机会\n\n微软双倍msfl可以找26.6附近在重新开仓\n\n亚马逊双倍amzu 可以34  和33两个价格开仓\n\ntsll 后面找20.7附近缺口机会\n\nintc这轮低点在35.7附近找 35.7-36的低吸机会\n\n\n\n\n\n\n\n明星股小盘"
+      }
+    ],
+    "boundary_negative_cases": [],
+    "point_memos": [
+      {
+        "index": 2127,
+        "type": "point_memo_watch",
+        "message_id": "post_1CViT4nSsrqVvgnbNq2cca",
+        "et_date": "2025-12-02",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "memo_span": "tsll今天回补了18.1这个缺口 然后明天还会震荡次做二次确认 明天可以今天的低点17.8也观察下机会 可以盘前挂个17.83",
+        "raw_text": "tsll今天回补了18.1这个缺口 然后明天还会震荡次做二次确认 明天可以今天的低点17.8也观察下机会 可以盘前挂个17.83"
+      },
+      {
+        "index": 2288,
+        "type": "point_memo_watch",
+        "message_id": "post_1CVuPnQTVtiw7dHhUmGi8f",
+        "et_date": "2025-12-08",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "memo_span": "tsll今天等往上转弯时候可以入一笔 今天补了19.6-19.7的缺口会往下在探底下  也是指数方向标作用",
+        "raw_text": "tsll今天等往上转弯时候可以入一笔 今天补了19.6-19.7的缺口会往下在探底下  也是指数方向标作用"
+      },
+      {
+        "index": 2296,
+        "type": "point_memo_watch",
+        "message_id": "post_1CVuSB4vToPacwukbhfz4v",
+        "et_date": "2025-12-08",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "memo_span": "今天也是很多小盘股达到了一半位置 然后特斯拉等一些大盘股需要回补下上周一些跳高的缺口 今天行情会震荡回调横盘为主做回调调整 \n\n\n\n\n\n大多数时候等收盘附近再看",
+        "raw_text": "今天也是很多小盘股达到了一半位置 然后特斯拉等一些大盘股需要回补下上周一些跳高的缺口 今天行情会震荡回调横盘为主做回调调整 \n\n\n\n\n\n大多数时候等收盘附近再看"
+      },
+      {
+        "index": 2884,
+        "type": "point_memo_watch",
+        "message_id": "post_1CWVZ2D23xirVSSbLho89G",
+        "et_date": "2025-12-26",
+        "channel": "不用翻墙期权",
+        "memo_span": "tsll今天杀call 等第一个转弯时候可以买个一半到补缺口再加一半",
+        "raw_text": "tsll今天杀call 等第一个转弯时候可以买个一半到补缺口再加一半"
+      },
+      {
+        "index": 2946,
+        "type": "point_memo_watch",
+        "message_id": "post_1CWbCVEwMB9aRFUTA1bvw3",
+        "et_date": "2025-12-29",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "memo_span": "tsll今天注意补了缺口后20.2附近开始有转弯 可以20.2-20.3加一半",
+        "raw_text": "tsll今天注意补了缺口后20.2附近开始有转弯 可以20.2-20.3加一半"
+      },
+      {
+        "index": 2948,
+        "type": "point_memo_watch",
+        "message_id": "post_1CWbJu2pxhbmJB6Tc6v7Af",
+        "et_date": "2025-12-29",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "memo_span": "tsll可以把补缺口时候20.3的部分 这轮上冲时候20.85-21附近转弯往下出 后面2天还会震荡下 21.4的部分就到21.4接近附近再出",
+        "raw_text": "tsll可以把补缺口时候20.3的部分 这轮上冲时候20.85-21附近转弯往下出 后面2天还会震荡下 21.4的部分就到21.4接近附近再出"
+      }
+    ]
+  },
+  "skipped_audit_log": [
+    {
+      "index": 2019,
+      "message_id": "post_1CVWzLZiD4QvYwNMcAnPd9",
+      "et_date": "2025-11-26",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "相当于",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "反弹段一般就是 先是稳反弹的占9成仓 1成资金和3成融资不是备用吗 1+3融资正T  12月iv看降了 资金增量了就1成做期权 期权相当于10倍杠杆的  3融资继续日内正T\n\n\n\n\n\n低位时候有些资金就拿股票和双倍的货 反弹高点下来的一半左右出一半剩下在博新高"
+    },
+    {
+      "index": 2020,
+      "message_id": "post_1CVWzMHcz2gXXJARqr7mNk",
+      "et_date": "2025-11-26",
+      "channel": "不用翻墙期权",
+      "trigger": "相当于",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "反弹段一般就是 先是稳反弹的占9成仓 1成资金和3成融资不是备用吗 1+3融资正T 12月iv看降了 资金增量了就1成做期权 期权相当于10倍杠杆的 3融资继续日内正T\n\n\n\n\n\n低位时候有些资金就拿股票和双倍的货 反弹高点下来的一半左右出一半剩下在博新高"
+    },
+    {
+      "index": 2029,
+      "message_id": "post_1CVaVP3mjHMQweCxDJvFY9",
+      "et_date": "2025-11-28",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天主要半天 量低 加结算有三种类型 收盘也早可以回踩一次和收盘一次  收盘也会看下哪些机会博周末的\n\n\n\n\n\n特朗普一般周五先有个小发言 周末又吹的"
+    },
+    {
+      "index": 2030,
+      "message_id": "post_1CVaVPZR73S5gkQY3aKeRZ",
+      "et_date": "2025-11-28",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天主要半天 量低 加结算有三种类型 收盘也早可以回踩一次和收盘一次 收盘也会看下哪些机会博周末的\n\n\n\n\n\n特朗普一般周五先有个小发言 周末又吹的"
+    },
+    {
+      "index": 2031,
+      "message_id": "post_1CVabj94asiqycBE26XUzJ",
+      "et_date": "2025-11-28",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "三个结算的 周期权 月期权 和养老金的再平衡"
+    },
+    {
+      "index": 2035,
+      "message_id": "post_1CVaj6KHyBd9eKjKtMfgx2",
+      "et_date": "2025-11-28",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "加密货币今天有杠杆结算 盘后iren 47.8附近少量加仓点"
+    },
+    {
+      "index": 2036,
+      "message_id": "post_1CVaj6XGSg2FK5utLKnaxq",
+      "et_date": "2025-11-28",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "加密货币今天有杠杆结算 盘后iren 47.8附近少量加仓点"
+    },
+    {
+      "index": 2044,
+      "message_id": "post_1CVf4ABQGg2vegMPitX7mf",
+      "et_date": "2025-11-30",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "夜盘前 btc和eth价格有出现大的跳水 币股今天的回踩企稳要等到盘前再看是不是补上周四感恩节的缺口"
+    },
+    {
+      "index": 2073,
+      "message_id": "post_1CVgdiVxP6gqHvxCQN4w2N",
+      "et_date": "2025-12-01",
+      "channel": "不用翻墙期权",
+      "trigger": "/2=",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "apld  （36.7+19）/2=27.85\n\n\n\napld 达到了高点跌低点后反弹了一半 最近可以注意转弯回调时候出一半 剩下一半博弈下能不能摸前高36。7"
+    },
+    {
+      "index": 2105,
+      "message_id": "post_1CVi44CCVeEd7ofK1JBbQ2",
+      "et_date": "2025-12-02",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll注意今天要回踩下18.1这个缺口可以注意分时转弯吸"
+    },
+    {
+      "index": 2123,
+      "message_id": "post_1CViPvkfLQmdGwicHbt57s",
+      "et_date": "2025-12-02",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "soun近期反弹的不多 12多有公司出售减持 资讯里面第四条 可以11.4附近吸做正T"
+    },
+    {
+      "index": 2124,
+      "message_id": "post_1CViPwDV7kk3zPypbfAuup",
+      "et_date": "2025-12-02",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "soun近期反弹的不多 12多有公司出售减持 资讯里面第四条 可以11.4附近吸做正T"
+    },
+    {
+      "index": 2128,
+      "message_id": "post_1CViT521nW5wgEyis9K681",
+      "et_date": "2025-12-02",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll今天回补了18.1这个缺口 然后明天还会震荡次做二次确认 明天可以今天的低点17.8也观察下机会 可以盘前挂个17.83"
+    },
+    {
+      "index": 2129,
+      "message_id": "post_1CViTB2xr9f9SAe4LpLJnU",
+      "et_date": "2025-12-02",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "最近有些因为基金减持的（被动原因 因为客户要赎回减持的）比如asts减持了5天到低点附近的就可以回吸"
+    },
+    {
+      "index": 2130,
+      "message_id": "post_1CViTBLEAfXavpx539k9Wz",
+      "et_date": "2025-12-02",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "最近有些因为基金减持的（被动原因 因为客户要赎回减持的）比如asts减持了5天到低点附近的就可以回吸"
+    },
+    {
+      "index": 2141,
+      "message_id": "post_1CVjvoM1fizUfwgV37zVQt",
+      "et_date": "2025-12-03",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "相当于",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "人工智能板块相当于周一币股的角色   其他板块修复  人工智能板块被微软带跌收盘才看人工智能板块的 优先做其他板块的回踩正T"
+    },
+    {
+      "index": 2142,
+      "message_id": "post_1CVjvovH4amxnfHrwnSbTm",
+      "et_date": "2025-12-03",
+      "channel": "不用翻墙期权",
+      "trigger": "相当于",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "人工智能板块相当于周一币股的角色 其他板块修复 人工智能板块被微软带跌收盘才看人工智能板块的 优先做其他板块的回踩正T"
+    },
+    {
+      "index": 2145,
+      "message_id": "post_1CVjwEwPqKbiF9bii4ipoR",
+      "et_date": "2025-12-03",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "bmnr conl之类币股今天根据币价格可以设置跌破条件减持的条件\n\n\n\nbmnr33.7跌破减点  conl21.2跌破减点"
+    },
+    {
+      "index": 2146,
+      "message_id": "post_1CVjwFMeQu76oeTTGxSFZX",
+      "et_date": "2025-12-03",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "bmnr conl之类币股今天根据币价格可以设置跌破条件减持的条件\n\n\n\nbmnr33.7跌破减点 conl21.2跌破减点"
+    },
+    {
+      "index": 2149,
+      "message_id": "post_1CVjwffnpw89i93YAK8NKx",
+      "et_date": "2025-12-03",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "要素",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "tsll今天走独立行情不是风向标了 马斯克盘前讲了机器人未来的规划 机器人属性占大部分要素"
+    },
+    {
+      "index": 2150,
+      "message_id": "post_1CVjwgRNLiVtJTVDkkXeoF",
+      "et_date": "2025-12-03",
+      "channel": "不用翻墙期权",
+      "trigger": "要素",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll今天走独立行情不是风向标了 马斯克盘前讲了机器人未来的规划 机器人属性占大部分要素"
+    },
+    {
+      "index": 2161,
+      "message_id": "post_1CVkJ14WNTz7FeGvSd2VfU",
+      "et_date": "2025-12-03",
+      "channel": "不用翻墙期权",
+      "trigger": "/2=",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll   （23.18+14.81）/2=18.995\n\n\n\n今天tsll也低位反弹了跌下来的一半 和apld一样今天出现了溢价到20"
+    },
+    {
+      "index": 2163,
+      "message_id": "post_1CVkJTrJfRpgbrZYB9pemo",
+      "et_date": "2025-12-03",
+      "channel": "不用翻墙期权",
+      "trigger": "反弹一半",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "太空板块是昨天刚反弹 asts和rklb也是往反弹一半的方向走\n\n\n\nrklb （66.35+37.57）/2=51.96\n\nasts (49.31+83.31)/2=66.31"
+    },
+    {
+      "index": 2170,
+      "message_id": "post_1CVkM6AT8gQCHGsYg9cbD1",
+      "et_date": "2025-12-03",
+      "channel": "不用翻墙期权",
+      "trigger": "反弹一半",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切\n\n\n\n  asts资讯有被动清仓慌啥就是抢筹机会"
+    },
+    {
+      "index": 2173,
+      "message_id": "post_1CVkPr1oM1Byve4PFiE5rj",
+      "et_date": "2025-12-03",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "前四",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "然后就是板块这个技巧  我的是长桥电脑桌面端windows的  行情里面第二行就是\n\n\n\n\n\n每天有个领涨前四的 \n\n\n\n\n\n就是每天要看前四和倒数的\n\n\n\n\n\n比如太空板块 一直倒数的突然第一第二名了 就要注意了要反弹了"
+    },
+    {
+      "index": 2174,
+      "message_id": "post_1CVkPrXTcK5TruQkcribFU",
+      "et_date": "2025-12-03",
+      "channel": "不用翻墙期权",
+      "trigger": "前四",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "然后就是板块这个技巧 我的是长桥电脑桌面端windows的 行情里面第二行就是\n\n\n\n\n\n每天有个领涨前四的\n\n\n\n\n\n就是每天要看前四和倒数的\n\n\n\n\n\n比如太空板块 一直倒数的突然第一第二名了 就要注意了要反弹了"
+    },
+    {
+      "index": 2213,
+      "message_id": "post_1CVmt8yeNnhT6fw39co8xr",
+      "et_date": "2025-12-04",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll今天也是注意回踩之前的缺口 19.6-19.7"
+    },
+    {
+      "index": 2215,
+      "message_id": "post_1CVmtJcDc3HxuDdwZvyUR6",
+      "et_date": "2025-12-04",
+      "channel": "不用翻墙期权",
+      "trigger": "/2=",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "oklo  （135+79）/2=107\n\n\n\n电力股oklo也在冲一半"
+    },
+    {
+      "index": 2217,
+      "message_id": "post_1CVmvGiuCsieHbdBMdCjZW",
+      "et_date": "2025-12-04",
+      "channel": "不用翻墙期权",
+      "trigger": "反弹一半",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "oklo也即将反弹一半位置了"
+    },
+    {
+      "index": 2221,
+      "message_id": "post_1CVmwByvG6VJJ5r2LbqCeg",
+      "et_date": "2025-12-04",
+      "channel": "不用翻墙期权",
+      "trigger": "反弹一半",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天盘面是高低切 有些七姐妹先反弹的资金出去 去了明星股小盘股 小盘股很多今天冲反弹一半涨幅的 币股今天小幅反弹高位震荡"
+    },
+    {
+      "index": 2223,
+      "message_id": "post_1CVmzJvyFtkDfVAs2ZBMxd",
+      "et_date": "2025-12-04",
+      "channel": "不用翻墙期权",
+      "trigger": "/2=",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "141.79  10月28日 \n\n65.22   11月21日\n\n（141.79+65.22）/2=103\n\ncrwv有个数据中心延期建好的利空涨幅会受限制"
+    },
+    {
+      "index": 2254,
+      "message_id": "post_1CVoiWToJRZ8UuNznTP71i",
+      "et_date": "2025-12-05",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "QQQ开始结算call 了要等转弯吸这部分开始空方了"
+    },
+    {
+      "index": 2255,
+      "message_id": "post_1CVoiWsq2KvTuxxn3qdhWb",
+      "et_date": "2025-12-05",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "QQQ开始结算call 了要等转弯吸这部分开始空方了"
+    },
+    {
+      "index": 2258,
+      "message_id": "post_1CVoinYGkRKapSv1XMoKHi",
+      "et_date": "2025-12-05",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "奈飞双倍仓位大的可以39附近减点 到36.5附近在加做个T今天有put结算的"
+    },
+    {
+      "index": 2259,
+      "message_id": "post_1CVoinyezidiPg4eznEea9",
+      "et_date": "2025-12-05",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "奈飞双倍仓位大的可以39附近减点 到36.5附近在加做个T今天有put结算的"
+    },
+    {
+      "index": 2286,
+      "message_id": "post_1CVuPDMFJkC52sCMmMppv3",
+      "et_date": "2025-12-08",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "rklb51是一半的价格 到了可以死拿的部分减一半"
+    },
+    {
+      "index": 2287,
+      "message_id": "post_1CVuPDoAr7VaRSkTxPnkaX",
+      "et_date": "2025-12-08",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "rklb51是一半的价格 到了可以死拿的部分减一半"
+    },
+    {
+      "index": 2289,
+      "message_id": "post_1CVuPnhLkbZSFERJgf9XMk",
+      "et_date": "2025-12-08",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll今天等往上转弯时候可以入一笔 今天补了19.6-19.7的缺口会往下在探底下  也是指数方向标作用"
+    },
+    {
+      "index": 2297,
+      "message_id": "post_1CVuSBG4o2yREqkyBJy7ih",
+      "et_date": "2025-12-08",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天也是很多小盘股达到了一半位置 然后特斯拉等一些大盘股需要回补下上周一些跳高的缺口 今天行情会震荡回调横盘为主做回调调整 \n\n\n\n\n\n大多数时候等收盘附近再看"
+    },
+    {
+      "index": 2332,
+      "message_id": "post_1CVwRQHgSAP7m1cyKD39WE",
+      "et_date": "2025-12-09",
+      "channel": "不用翻墙期权",
+      "trigger": "/2=",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "bmnr   （10月28日 54+24.3）/2=39.15\n\n今天bmnr也快接近39.15一半的位置了"
+    },
+    {
+      "index": 2334,
+      "message_id": "post_1CVwRb7u6mfUr762QGkLjo",
+      "et_date": "2025-12-09",
+      "channel": "不用翻墙期权",
+      "trigger": "/2=",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "conl （10月28 41.68+15.92)/2=28.8\n\n\n\nconl今天23离开28.8还有点距离会震荡下在上到保守的一半位置"
+    },
+    {
+      "index": 2337,
+      "message_id": "post_1CVwSdAzsyPSvaZ3njCjmq",
+      "et_date": "2025-12-09",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "bmnr 39.15也是一半涨幅的位置可以死拿的低位的出一半 剩下一半博前高\n\n\n\n做T部分还是有回踩时候做正T为主\n\n\n\n一半涨幅到了会震荡下"
+    },
+    {
+      "index": 2338,
+      "message_id": "post_1CVwSdxwALzq8naNKSmjmA",
+      "et_date": "2025-12-09",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "bmnr 39.15也是一半涨幅的位置可以死拿的低位的出一半 剩下一半博前高\n\n\n\n做T部分还是有回踩时候做正T为主\n\n\n\n一半涨幅到了会震荡下"
+    },
+    {
+      "index": 2342,
+      "message_id": "post_1CVwXA8Es45bCFHjhVYSui",
+      "et_date": "2025-12-09",
+      "channel": "不用翻墙期权",
+      "trigger": "靴子",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "美联储利率讲话 前一天 如果先涨的 会议讲话不超预期会回踩2天\n\n美联储利率讲话 前一天 如果先跌的 会议讲话会靴子落地当天反弹下\n\n\n\n今天币市场和部分股冲了下指数带高了 就要等明天3点讲话看鲍威尔会不会鹰派下\n\n给回踩机会"
+    },
+    {
+      "index": 2414,
+      "message_id": "post_1CVzzVwUBxZjHzdvDEtaZs",
+      "et_date": "2025-12-11",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "夜盘被机器检测为利空 盘前在人工干预阶段都拉升了些把夜盘的补的利用人工干预机制都出了一波 盘中还是关注哪些会回夜盘最低附近在进行回补"
+    },
+    {
+      "index": 2415,
+      "message_id": "post_1CVzzWN2JrRNy5j5KT9dqs",
+      "et_date": "2025-12-11",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "夜盘被机器检测为利空 盘前在人工干预阶段都拉升了些把夜盘的补的利用人工干预机制都出了一波 盘中还是关注哪些会回夜盘最低附近在进行回补"
+    },
+    {
+      "index": 2462,
+      "message_id": "post_1CW1JCnbhgnKqFATpTS35x",
+      "et_date": "2025-12-11",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "腰斩",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "当初腰斩的太空股最近都在摸前高附近 \n\n目前就剩下rklb的低位的剩下一半 会18号日本加息之前走\n\nasts之前73时候都走了等之后再找机会"
+    },
+    {
+      "index": 2463,
+      "message_id": "post_1CW1JDW4ZjTJVLnHhSv6rY",
+      "et_date": "2025-12-11",
+      "channel": "不用翻墙期权",
+      "trigger": "腰斩",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "当初腰斩的太空股最近都在摸前高附近\n\n目前就剩下rklb的低位的剩下一半 会18号日本加息之前走\n\nasts之前73时候都走了等之后再找机会"
+    },
+    {
+      "index": 2467,
+      "message_id": "post_1CW1JwZ2reuzUnoqdDnCeY",
+      "et_date": "2025-12-11",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "甲骨文有两批put结算196是阻力两轮都上不去 低吸点就放在187附近在往上转弯 日内的就是开盘那波短线出"
+    },
+    {
+      "index": 2468,
+      "message_id": "post_1CW1JwpwimgW3LqpH3NUZu",
+      "et_date": "2025-12-11",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "甲骨文有两批put结算196是阻力两轮都上不去 低吸点就放在187附近在往上转弯 日内的就是开盘那波短线出"
+    },
+    {
+      "index": 2496,
+      "message_id": "post_1CW1Zq7uKhDQXZwTb47wTx",
+      "et_date": "2025-12-11",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "hood 有技术官清仓减持 可以博通财报后看有没有回踩可以配点底仓 btc+交易券商概念"
+    },
+    {
+      "index": 2497,
+      "message_id": "post_1CW1ZqV2YAmwQKzVvXWChX",
+      "et_date": "2025-12-11",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "hood 有技术官清仓减持 可以博通财报后看有没有回踩可以配点底仓 btc+交易券商概念"
+    },
+    {
+      "index": 2548,
+      "message_id": "post_1CW34LXFCPEPjwz97D8nvJ",
+      "et_date": "2025-12-12",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "大盘子财报的技巧也是必须掌握的他比较容易 就是先多的会后空  先空的会后多\n\n\n\n我们手里股票就可以利用机制高抛低吸"
+    },
+    {
+      "index": 2549,
+      "message_id": "post_1CW34LyHatr7ERSJY7AkyA",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "大盘子财报的技巧也是必须掌握的他比较容易 就是先多的会后空 先空的会后多\n\n\n\n我们手里股票就可以利用机制高抛低吸"
+    },
+    {
+      "index": 2570,
+      "message_id": "post_1CW3HnEQoWKZ5RuNkxu13j",
+      "et_date": "2025-12-12",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "rklb之前 低位死拿的剩下一半 今天开盘冲65附近差前高66一元也可以都走\n\n\n\n这会也反弹64.2附近可以注意之前没走的都止盈\n\n\n\n后面也会在关注短线上的机会"
+    },
+    {
+      "index": 2571,
+      "message_id": "post_1CW3HnieVWJNks7cbXbMch",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "rklb之前 低位死拿的剩下一半 今天开盘冲65附近差前高66一元也可以都走\n\n\n\n这会也反弹64.2附近可以注意之前没走的都止盈\n\n\n\n后面也会在关注短线上的机会"
+    },
+    {
+      "index": 2573,
+      "message_id": "post_1CW3HtKcBv1ommXJtxrtAg",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "腰斩",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的"
+    },
+    {
+      "index": 2583,
+      "message_id": "post_1CW3Usru7GwbYU3aukjmQo",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "总仓位不要超过",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘后34.8-34.9可以回吸bmnr\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+    },
+    {
+      "index": 2584,
+      "message_id": "post_1CW3UtokAgYZN8NoxCcVow",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "总仓位不要超过",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘后78-78.2之间可以加仓点nvdl\n\n盘中有部分83.5加的盘中没到成本还没出\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+    },
+    {
+      "index": 2585,
+      "message_id": "post_1CW3UurA89v51R7KnDU6RB",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "总仓位不要超过",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘后78-78.2之间可以加仓点nvdl\n\n盘中有部分83.5加的盘中没到成本还没出\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+    },
+    {
+      "index": 2586,
+      "message_id": "post_1CW3UvvFZ4UkmUx61QaqQj",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "总仓位不要超过",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘后 oklo 87.2附近可以加仓\n\n盘中有部分97的盘中没到成本下周也会看下出的位置\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+    },
+    {
+      "index": 2587,
+      "message_id": "post_1CW3Ux7eBsd88Nx2wzr6H7",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "总仓位不要超过",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘后iren在40.1-40.2之间回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+    },
+    {
+      "index": 2588,
+      "message_id": "post_1CW3UxtRqrvEBLaDniHnbE",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "总仓位不要超过",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘后cifr昨天抛的可以在17.1附近回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+    },
+    {
+      "index": 2589,
+      "message_id": "post_1CW3Uya6gZxzMh8s7NLgAN",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "总仓位不要超过",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘后intc 可以在37.7附近新开\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+    },
+    {
+      "index": 2590,
+      "message_id": "post_1CW3UzT19ztgCxYXKgMGez",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "总仓位不要超过",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘后hood可以在119.6附近回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+    },
+    {
+      "index": 2591,
+      "message_id": "post_1CW3UzzhSyX69zLxybvZnD",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "总仓位不要超过",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "nbis昨天抛的可以87.7附近回吸\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+    },
+    {
+      "index": 2593,
+      "message_id": "post_1CW3VFwy7LySGWCq3A7bh9",
+      "et_date": "2025-12-12",
+      "channel": "不用翻墙期权",
+      "trigger": "总仓位不要超过",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "apld之前全走了 也在27.8附近在重开些底仓\n\n\n\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+    },
+    {
+      "index": 2600,
+      "message_id": "post_1CW8cq8e4hNmrMn1WPe3mK",
+      "et_date": "2025-12-15",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "相当于",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "盘中今天注意币市场的回踩预警时候在做吸回  ai看今天博通和英伟达能不能企稳\n\n也是回踩吸回 继续反弹就分批出手里的\n\n\n\n特斯拉今天走独立行情 周末马斯克吹的比较多 也是临近他解除限售了\n\n前高因为派息过 目前tsll 22.5附近相当于之前的23"
+    },
+    {
+      "index": 2601,
+      "message_id": "post_1CW8cqkwr46c4gtazgcd7J",
+      "et_date": "2025-12-15",
+      "channel": "不用翻墙期权",
+      "trigger": "相当于",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盘中今天注意币市场的回踩预警时候在做吸回 ai看今天博通和英伟达能不能企稳\n\n也是回踩吸回 继续反弹就分批出手里的\n\n\n\n特斯拉今天走独立行情 周末马斯克吹的比较多 也是临近他解除限售了\n\n前高因为派息过 目前tsll 22.5附近相当于之前的23"
+    },
+    {
+      "index": 2681,
+      "message_id": "post_1CWFVxywb1EzFLXuwYrpbM",
+      "et_date": "2025-12-19",
+      "channel": "不用翻墙期权",
+      "trigger": "靴子",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "日本加息 北京时间中午宣布了25基点 靴子落地了 btc和eth也是12点开始有反应反弹"
+    },
+    {
+      "index": 2700,
+      "message_id": "post_1CWFZvfeggB5vteQfwLtx5",
+      "et_date": "2025-12-19",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "12月19日更新一半仓位死拿一半仓位做T新一轮股单\n\n\n\n每个板块选1-2个 三个板块配置\n\n\n\n盘中有四巫日季度期权和周期权平仓时候的回踩去介入\n\n\n\n七姐妹和大盘股\n\n\n\nnvdl 盘中在找下76-77之间的机会 原来83.5没动\n\n甲骨文会找下185附近的机会\n\n微软双倍msfl可以找26.6"
+    },
+    {
+      "index": 2702,
+      "message_id": "post_1CWFahp6SRTLfTZC89BgY1",
+      "et_date": "2025-12-19",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天周五是四巫日季度期权交割和 周期权交割\n\n\n\n主要看开盘是空方开局 先回踩往下 结算put 然后后半场回升 尾盘1小时在强平小回落\n\n\n\n\n\n还是开盘先多方开局 先反弹 在后半场回踩 在尾盘1小时强平再回踩"
+    },
+    {
+      "index": 2703,
+      "message_id": "post_1CWFai7aDADdwZwjmZfkBC",
+      "et_date": "2025-12-19",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天周五是四巫日季度期权交割和 周期权交割\n\n\n\n主要看开盘是空方开局 先回踩往下 结算put 然后后半场回升 尾盘1小时在强平小回落\n\n\n\n\n\n还是开盘先多方开局 先反弹 在后半场回踩 在尾盘1小时强平再回踩"
+    },
+    {
+      "index": 2709,
+      "message_id": "post_1CWFepffko1ognbEUFZ8kG",
+      "et_date": "2025-12-19",
+      "channel": "不用翻墙期权",
+      "trigger": "靴子",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天 主要是夜盘和昨天收盘价格做参考 加息公布完后就是靴子落地 新的利息计算的产品也开始上线了 夜盘就是拿一部分 低价格的\n\n\n\n然后开盘看是不是会走第一种 先结算在普涨那种 和开门时候那时候put都结算那次周五一样 那时候也是盘前最低点 人工干预上去了 先回踩下就直接普涨了尾盘在小回落"
+    },
+    {
+      "index": 2713,
+      "message_id": "post_1CWGD4JXdH9rvJJRUMoFgQ",
+      "et_date": "2025-12-19",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天的分时可以参考上次11月14日 结算普涨的走势"
+    },
+    {
+      "index": 2715,
+      "message_id": "post_1CWGD7tWTiNsjid4iKRkZa",
+      "et_date": "2025-12-19",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天走势可以参考11月14日结算普涨的走势  以这两天的价格低点 在置顶有写好附近低吸为主"
+    },
+    {
+      "index": 2720,
+      "message_id": "post_1CWGDow9nSKxnPrEsLZR3K",
+      "et_date": "2025-12-19",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "crwv  nbis oklo nvdl msfl 等ai的 都是在盘前压一下后 开盘直接结算起来这有盘中结算震荡低点就是正T吸为主  币股是开盘有压了下转弯就给机会吸了"
+    },
+    {
+      "index": 2721,
+      "message_id": "post_1CWGDpXWYjfjAunNk6JH4K",
+      "et_date": "2025-12-19",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "crwv nbis oklo nvdl msfl 等ai的 都是在盘前压一下后 开盘直接结算起来这有盘中结算震荡低点就是正T吸为主 币股是开盘有压了下转弯就给机会吸了"
+    },
+    {
+      "index": 2730,
+      "message_id": "post_1CWGFt6pvvUDLU6o6qZPHC",
+      "et_date": "2025-12-19",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "nbis也是 低位的可以死拿 把之前87的部分  等下有87的价格出"
+    },
+    {
+      "index": 2731,
+      "message_id": "post_1CWGFthV1NFSbS9To9XoNS",
+      "et_date": "2025-12-19",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "nbis也是 低位的可以死拿 把之前87的部分 等下有87的价格出"
+    },
+    {
+      "index": 2767,
+      "message_id": "post_1CWLqbrPpSfcm2irfm7pT5",
+      "et_date": "2025-12-21",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "conl bmnr  iren cifr hood 周五很低买的可以做好一半死拿跌下来一半位置 一半仓位用来正T"
+    },
+    {
+      "index": 2768,
+      "message_id": "post_1CWLqcTBxTH1SZwR7subue",
+      "et_date": "2025-12-21",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "conl bmnr iren cifr hood 周五很低买的可以做好一半死拿跌下来一半位置 一半仓位用来正T"
+    },
+    {
+      "index": 2772,
+      "message_id": "post_1CWLuMPQzz7XkQGLiPe4Rx",
+      "et_date": "2025-12-21",
+      "channel": "不用翻墙期权",
+      "trigger": "翻倍",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "基于的价值投资都是\n\n\n\n100 跌50 又能回100的股票类 50买到100 股票市值没变对于50买入的人却是翻倍\n\n\n\ncrwv\n\n\n\n10月29日高点140.33 开票价137.75 关门影响的最低价11月21的65.11 开门后的高点12月10日的91.22\n\n\n\n加息后的低点63.8 加息"
+    },
+    {
+      "index": 2773,
+      "message_id": "post_1CWLuUbwbhS7EvhKs97CBG",
+      "et_date": "2025-12-21",
+      "channel": "历史股票期权记录区",
+      "trigger": "翻倍",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "基于的价值投资都是\n\n\n\n100 跌50 又能回100的股票类 50买到100 股票市值没变对于50买入的人却是翻倍\n\n\n\ncrwv\n\n\n\n10月29日高点140.33 开票价137.75 关门影响的最低价11月21的65.11 开门后的高点12月10日的91.22\n\n\n\n加息后的低点63.8 加息"
+    },
+    {
+      "index": 2775,
+      "message_id": "post_1CWLw5mgTqS6twXrR1BZEY",
+      "et_date": "2025-12-21",
+      "channel": "不用翻墙期权",
+      "trigger": "/2=",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "oklo\n\n\n\n\n\n上一轮 高点 10月29日最高152 开盘价 134.53 就是取最高点那天看下最高点是不是几分钟内秒跌的 秒跌的就取开盘价格\n\n\n\n\n\n上一轮高点取的时间段是基于qqq最高点回调时间 前面的回调不是关门这个事件影响 只取事件影响的时间段\n\n\n\n最低点11月21日 大家可以注意低"
+    },
+    {
+      "index": 2776,
+      "message_id": "post_1CWLw66PRrtK3gy33HJ4nP",
+      "et_date": "2025-12-21",
+      "channel": "历史股票期权记录区",
+      "trigger": "/2=",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "oklo\n\n\n\n\n\n上一轮 高点 10月29日最高152 开盘价 134.53 就是取最高点那天看下最高点是不是几分钟内秒跌的 秒跌的就取开盘价格\n\n\n\n\n\n上一轮高点取的时间段是基于qqq最高点回调时间 前面的回调不是关门这个事件影响 只取事件影响的时间段\n\n\n\n最低点11月21日 大家可以注意低"
+    },
+    {
+      "index": 2778,
+      "message_id": "post_1CWLwqwUTDCU3fUxe4KU2w",
+      "et_date": "2025-12-21",
+      "channel": "不用翻墙期权",
+      "trigger": "/2=",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "nbis  上一轮  \n\n高点 11月3日134\n\n低点 11月21日   78.21\n\n（134+78.21）/2=106.1上轮最高在   103.84差一点没有达到一半的价格\n\n这轮\n\n最高12月4日 103.84\n\n最低12月17  75.25\n\n(103.84+75.25)/2=89.54"
+    },
+    {
+      "index": 2779,
+      "message_id": "post_1CWLwrA3b6TrT7GJopo379",
+      "et_date": "2025-12-21",
+      "channel": "历史股票期权记录区",
+      "trigger": "/2=",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "nbis  上一轮  \n\n高点 11月3日134\n\n低点 11月21日   78.21\n\n（134+78.21）/2=106.1上轮最高在   103.84差一点没有达到一半的价格\n\n这轮\n\n最高12月4日 103.84\n\n最低12月17  75.25\n\n(103.84+75.25)/2=89.54"
+    },
+    {
+      "index": 2833,
+      "message_id": "post_1CWPpm2jbJ3NBzzQjvsUaz",
+      "et_date": "2025-12-23",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "圣诞节的 基金机制就是被动流出要流出20%现金流给赎回 等qqq转弯和收盘在吸为主"
+    },
+    {
+      "index": 2834,
+      "message_id": "post_1CWPpmei1GjwETBuX9xtoJ",
+      "et_date": "2025-12-23",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "圣诞节的 基金机制就是被动流出要流出20%现金流给赎回 等qqq转弯和收盘在吸为主"
+    },
+    {
+      "index": 2843,
+      "message_id": "post_1CWPvyzJSyMZ7Smjcz4ThF",
+      "et_date": "2025-12-23",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "博通大盘股 今天随大盘股板块反弹 也可以做T的仓位346附近减点 338-340去回吸 \n\n\n\n335-338有一半死拿那部分可以再拿段时间"
+    },
+    {
+      "index": 2844,
+      "message_id": "post_1CWPvzbM2WmsLPVkH9WLrR",
+      "et_date": "2025-12-23",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "博通大盘股 今天随大盘股板块反弹 也可以做T的仓位346附近减点 338-340去回吸\n\n\n\n335-338有一半死拿那部分可以再拿段时间"
+    },
+    {
+      "index": 2848,
+      "message_id": "post_1CWQHuVHAm3o2qjjZW2gVM",
+      "et_date": "2025-12-23",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "btc和eth今天是有节前被动减持 而被动减持的买点只能在最低附近\n\n\n\n16.45买入可能几秒甚至几分钟半小时还在16.45附近 但是结束流出就会V下\n\n\n\n上周五的16.8买入到18-18.5昨天卖出也是这样\n\n\n\n16.45买 16.42问是不是要止损有点太慌了"
+    },
+    {
+      "index": 2857,
+      "message_id": "post_1CWRheb23kS2eBvNfqH7Cm",
+      "et_date": "2025-12-24",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "博通可以350附近出剩下的做T仓位 可以留一半仓位做死拿"
+    },
+    {
+      "index": 2858,
+      "message_id": "post_1CWRhf6gmijg6FCawYxP13",
+      "et_date": "2025-12-24",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "博通可以350附近出剩下的做T仓位 可以留一半仓位做死拿"
+    },
+    {
+      "index": 2947,
+      "message_id": "post_1CWbCVtiBKafq1sVsy1jWd",
+      "et_date": "2025-12-29",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll今天注意补了缺口后20.2附近开始有转弯 可以20.2-20.3加一半"
+    },
+    {
+      "index": 2949,
+      "message_id": "post_1CWbJuZeQzhmEk7xwaLYwT",
+      "et_date": "2025-12-29",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "tsll可以把补缺口时候20.3的部分 这轮上冲时候20.85-21附近转弯往下出 后面2天还会震荡下 21.4的部分就到21.4接近附近再出"
+    },
+    {
+      "index": 2977,
+      "message_id": "post_1CWd9YJac3VYjj6JJ97jcM",
+      "et_date": "2025-12-30",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天和明天要注意收盘附近没有在创低点的话就是基金的被动减持留现金流就快结束了 可以找双底附近的标拿节后的反弹"
+    },
+    {
+      "index": 2979,
+      "message_id": "post_1CWdBxEEi7AVm31KrjuJsq",
+      "et_date": "2025-12-30",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天qqq和币市场要看第二轮有没有再下来 没在下来就是节前的被动减现金流都差不多满足了客户赎回的要求了\n\n\n\n最近几天没有再创新低的双底明星股就节后的反弹再出 有些在双底附近小跌的就明天低点在稍微加点"
+    },
+    {
+      "index": 2982,
+      "message_id": "post_1CWdX6UTAzoYJ2UEG5LKC9",
+      "et_date": "2025-12-30",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "最近三天像wood这样的网红基金都是会每天被动去减持 只要现金流不够就会盘中高点去抛售点 造成每天尾盘最低的现象"
+    },
+    {
+      "index": 2983,
+      "message_id": "post_1CWdX7T6X8KAkAi45TE8tC",
+      "et_date": "2025-12-30",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "最近三天像wood这样的网红基金都是会每天被动去减持 只要现金流不够就会盘中高点去抛售点 造成每天尾盘最低的现象"
+    },
+    {
+      "index": 2985,
+      "message_id": "post_1CWdYDVpChCgbYvscHv3Yd",
+      "et_date": "2025-12-30",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "收盘时候可以19.5附近接回点tsll 明天还有被动减可以挂点在18.9附近"
+    },
+    {
+      "index": 2992,
+      "message_id": "post_1CWfRVAyso2GexT6b2FWWw",
+      "et_date": "2025-12-31",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天尾盘也是基金被动减持留现金的节前最后天 可以收盘有些双底 或者双底跌破的建仓和少量补仓（昨天收盘加过的今天价格差不多的就少量补）\n\n\n\n周五夜盘和盘前有比今天收盘低的时候在加点 看周五是多空双杀还是开盘后走多空都结算然后普涨"
+    }
+  ]
+}
