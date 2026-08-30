@@ -1,0 +1,438 @@
+{
+  "metadata": {
+    "total_messages": 12124,
+    "skipped_short_count": 9166,
+    "skipped_l2a_count": 592,
+    "clean_candidates_count": 2366,
+    "attached_count": 19,
+    "outliers_total_count": 2347,
+    "outlier_clusters_count": 7
+  },
+  "attached_sample_20": [
+    {
+      "anchor_kid": "k_second_handshake",
+      "anchor_sample_id": "t_dedup_001",
+      "sentence_id": "post_1CTt7rqCrE8p2CFjCM4ZRL",
+      "et_date": "2025-10-07",
+      "span": "目前第一轮抛压后小反弹  等看下有没有第二轮下压 不破第一轮低点 在第一轮附近的完成二次握手",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_second_handshake",
+      "anchor_sample_id": "t_dedup_001",
+      "sentence_id": "post_1CTt7sjP6o5KoaVnZf5jiX",
+      "et_date": "2025-10-07",
+      "span": "目前第一轮抛压后小反弹  等看下有没有第二轮下压 不破第一轮低点 在第一轮附近的完成二次握手",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_second_handshake",
+      "anchor_sample_id": "t_dedup_002",
+      "sentence_id": "post_1CTyoU93GVnALQzRxMAGnS",
+      "et_date": "2025-10-10",
+      "span": "盘中还有次二次握手确认的 日内低点不破可以在吸一波",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_second_handshake",
+      "anchor_sample_id": "t_dedup_002",
+      "sentence_id": "post_1CTyoUPng2JHjGbFuNcudh",
+      "et_date": "2025-10-10",
+      "span": "盘中还有次二次握手确认的 日内低点不破可以在吸一波",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_half_retrace_watch",
+      "anchor_sample_id": "t_dedup_006",
+      "sentence_id": "post_1CVkJTMPBDiPHpvx618Da4",
+      "et_date": "2025-12-03",
+      "span": "太空板块是昨天刚反弹 asts和rklb也是往反弹一半的方向走 \nrklb  （66.35+37.57）/2=51.96\nasts (49.31+83.31)/2=66.31",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_half_retrace_watch",
+      "anchor_sample_id": "t_dedup_006",
+      "sentence_id": "post_1CVkJTrJfRpgbrZYB9pemo",
+      "et_date": "2025-12-03",
+      "span": "太空板块是昨天刚反弹 asts和rklb也是往反弹一半的方向走\nrklb （66.35+37.57）/2=51.96\nasts (49.31+83.31)/2=66.31",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_half_retrace_watch",
+      "anchor_sample_id": "t_dedup_007",
+      "sentence_id": "post_1CVkM5wnjrfMxNCiRzUhFq",
+      "et_date": "2025-12-03",
+      "span": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切\n  asts资讯有被动清仓慌啥就是抢筹机会",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_half_retrace_watch",
+      "anchor_sample_id": "t_dedup_007",
+      "sentence_id": "post_1CVkM6AT8gQCHGsYg9cbD1",
+      "et_date": "2025-12-03",
+      "span": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切\n  asts资讯有被动清仓慌啥就是抢筹机会",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_zhao_poem_official",
+      "anchor_sample_id": "t_dedup_014",
+      "sentence_id": "post_1CWoRBJvkuBQgdN2Cq7Mci",
+      "et_date": "2026-01-04",
+      "span": "口诀\n普跌同沉不用慌，收盘寻底看稳当；\n普涨我跌要提防，减持利空细查详。\n事件来临莫急闯，尾二收盘低吸仓，\n靴子落地迎反弹，持股静待红盘扬。\n节日前夕别乱抢，节前两日布局忙，\n节后资金回流至，顺势吃肉",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_zhao_poem_official",
+      "anchor_sample_id": "t_dedup_014",
+      "sentence_id": "post_1CWoRCHf2sy2uyrMp9PQmL",
+      "et_date": "2026-01-04",
+      "span": "口诀\n普跌同沉不用慌，收盘寻底看稳当；\n普涨我跌要提防，减持利空细查详。\n事件来临莫急闯，尾二收盘低吸仓，\n靴子落地迎反弹，持股静待红盘扬。\n节日前夕别乱抢，节前两日布局忙，\n节后资金回流至，顺势吃肉",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_gap_intraday_once",
+      "anchor_sample_id": "t_dedup_004",
+      "sentence_id": "post_1CbE4JTR7XvBrPPFqZzJZ5",
+      "et_date": "2026-05-20",
+      "span": "底部几大要素 \n缺口连续补掉上轮起涨所有的\n急跌最低价是整数的没小数点 昨天 46.0\n第二天最低价高于前一天46.0的",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_gap_intraday_once",
+      "anchor_sample_id": "t_dedup_004",
+      "sentence_id": "post_1CbE4KGhsuwj7GqN4okRAU",
+      "et_date": "2026-05-20",
+      "span": "底部几大要素\n缺口连续补掉上轮起涨所有的\n急跌最低价是整数的没小数点 昨天 46.0\n第二天最低价高于前一天46.0的",
+      "similarity": 1,
+      "distance": 0
+    },
+    {
+      "anchor_kid": "k_cost_exit_last_batch",
+      "anchor_sample_id": "t_dedup_010",
+      "sentence_id": "post_1CUovuqHikTdzgQiiS7ENA",
+      "et_date": "2025-11-04",
+      "span": "分批只减自己最后补的那笔\n距离举例  \n比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买",
+      "similarity": 0.8772,
+      "distance": 0.1228
+    },
+    {
+      "anchor_kid": "k_cost_exit_last_batch",
+      "anchor_sample_id": "t_dedup_010",
+      "sentence_id": "post_1CUovv7kUxTA2T6RCQvg8i",
+      "et_date": "2025-11-04",
+      "span": "分批只减自己最后补的那笔\n距离举例  \n比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买",
+      "similarity": 0.8772,
+      "distance": 0.1228
+    },
+    {
+      "anchor_kid": "k_shoe_drops_settlement_rebound",
+      "anchor_sample_id": "t_dedup_011",
+      "sentence_id": "post_1CVwojJUJUkZf7iRmkkY5J",
+      "et_date": "2025-12-09",
+      "span": "明天三点有美联储利率决议 \n一般盘前会压下 利率出来前2-3点会拉下\n鲍威尔讲话鹰派的话会再跌\n可以盘前低的时候低吸做小T 买回踩今天低点的2点左右拉升都日内出避开下讲话 \n讲话完等反应完再分批吸回到",
+      "similarity": 0.7389,
+      "distance": 0.2611
+    },
+    {
+      "anchor_kid": "k_shoe_drops_settlement_rebound",
+      "anchor_sample_id": "t_dedup_011",
+      "sentence_id": "post_1CVwojZS6PqdqVtKswjWD3",
+      "et_date": "2025-12-09",
+      "span": "明天三点有美联储利率决议 \n一般盘前会压下 利率出来前2-3点会拉下\n鲍威尔讲话鹰派的话会再跌\n可以盘前低的时候低吸做小T 买回踩今天低点的2点左右拉升都日内出避开下讲话 \n讲话完等反应完再分批吸回到",
+      "similarity": 0.7389,
+      "distance": 0.2611
+    },
+    {
+      "anchor_kid": "k_cut_in_half_100",
+      "anchor_sample_id": "t_dedup_009",
+      "sentence_id": "post_1CW1JCnbhgnKqFATpTS35x",
+      "et_date": "2025-12-11",
+      "span": "当初腰斩的太空股最近都在摸前高附近 \n目前就剩下rklb的低位的剩下一半 会18号日本加息之前走\nasts之前73时候都走了等之后再找机会",
+      "similarity": 0.688,
+      "distance": 0.312
+    },
+    {
+      "anchor_kid": "k_cut_in_half_100",
+      "anchor_sample_id": "t_dedup_009",
+      "sentence_id": "post_1CW1JDW4ZjTJVLnHhSv6rY",
+      "et_date": "2025-12-11",
+      "span": "当初腰斩的太空股最近都在摸前高附近\n目前就剩下rklb的低位的剩下一半 会18号日本加息之前走\nasts之前73时候都走了等之后再找机会",
+      "similarity": 0.688,
+      "distance": 0.312
+    },
+    {
+      "anchor_kid": "k_dip_action",
+      "anchor_sample_id": "t_dedup_005",
+      "sentence_id": "post_1CUpqf3VGMF7caH8jWoovP",
+      "et_date": "2025-11-05",
+      "span": "最近这轮抛售也是人为调控  2天急跌筹码便宜了 今天夜盘就有量化v 起来吸筹的迹象",
+      "similarity": 0.662,
+      "distance": 0.338
+    }
+  ],
+  "outliers": [
+    {
+      "cluster_tmp_id": "cluster_outlier_001",
+      "size": 19,
+      "spans": [
+        {
+          "id": "post_1CW3UCsAesy8CkMKzSDzA7",
+          "et_date": "2025-12-12",
+          "span": "盘后34.8-34.9可以回吸bmnr  \n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+          "raw_text": "盘后34.8-34.9可以回吸bmnr  \n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+        },
+        {
+          "id": "post_1CW3UJPTC3V6Asfw15ipL8",
+          "et_date": "2025-12-12",
+          "span": "盘后78-78.2之间可以加仓点nvdl\n盘中有部分83.5加的盘中没到成本还没出\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+          "raw_text": "盘后78-78.2之间可以加仓点nvdl\n盘中有部分83.5加的盘中没到成本还没出\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+        },
+        {
+          "id": "post_1CW3UPtKawRXGk35XdiCZ2",
+          "et_date": "2025-12-12",
+          "span": "盘后crwv 78-78.3可以加仓\n盘中有部分84附近买的也是盘中还没到成本下周在看下位置出\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+          "raw_text": "盘后crwv 78-78.3可以加仓\n盘中有部分84附近买的也是盘中还没到成本下周在看下位置出\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+        },
+        {
+          "id": "post_1CW3UUuGA4UoycSSBAfqsP",
+          "et_date": "2025-12-12",
+          "span": "盘后  oklo 87.2附近可以加仓\n盘中有部分97的盘中没到成本下周也会看下出的位置\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+          "raw_text": "盘后  oklo 87.2附近可以加仓\n盘中有部分97的盘中没到成本下周也会看下出的位置\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+        },
+        {
+          "id": "post_1CW3UYBL3NsMFz7nTrRZqy",
+          "et_date": "2025-12-12",
+          "span": "盘后iren在40.1-40.2之间回吸\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金",
+          "raw_text": "盘后iren在40.1-40.2之间回吸\n盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金"
+        }
+      ]
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_002",
+      "size": 8,
+      "spans": [
+        {
+          "id": "post_1CUNScbuhunNBvEtEGDsxH",
+          "et_date": "2025-10-22",
+          "span": "rklb 盘中低点在60.36  盘如果有二次握手探底没有破的可以回吸",
+          "raw_text": "rklb 盘中低点在60.36  盘如果有二次握手探底没有破的可以回吸"
+        },
+        {
+          "id": "post_1CUNSdCgBA76PDrBKbXxU3",
+          "et_date": "2025-10-22",
+          "span": "rklb 盘中低点在60.36 盘如果有二次握手探底没有破的可以回吸",
+          "raw_text": "rklb 盘中低点在60.36 盘如果有二次握手探底没有破的可以回吸"
+        },
+        {
+          "id": "post_1CUNSfZUQeev49mtNBMSsR",
+          "et_date": "2025-10-22",
+          "span": "hood 122.9盘中低点 尾盘如果有二次握手探底没有破的可以回吸",
+          "raw_text": "hood 122.9盘中低点 尾盘如果有二次握手探底没有破的可以回吸"
+        },
+        {
+          "id": "post_1CUNSfxQLv5jL3A5gVnEBr",
+          "et_date": "2025-10-22",
+          "span": "hood 122.9盘中低点 尾盘如果有二次握手探底没有破的可以回吸",
+          "raw_text": "hood 122.9盘中低点 尾盘如果有二次握手探底没有破的可以回吸"
+        },
+        {
+          "id": "post_1CUNSoSdtVrHpZpV6nnFv5",
+          "et_date": "2025-10-22",
+          "span": "bmnr 48盘中低点   尾盘如果有二次握手探底没有破的可以回吸",
+          "raw_text": "bmnr 48盘中低点   尾盘如果有二次握手探底没有破的可以回吸"
+        }
+      ]
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_003",
+      "size": 8,
+      "spans": [
+        {
+          "id": "post_1CWGDRbetGXERHFi61NqKz",
+          "et_date": "2025-12-19",
+          "span": "盘中可以注意币股的几个转弯往上时候低吸 conl  bmnr iren cifr  hood",
+          "raw_text": "盘中可以注意币股的几个转弯往上时候低吸 conl  bmnr iren cifr  hood"
+        },
+        {
+          "id": "post_1CWGDSAZwiqGBqv2qVWsH6",
+          "et_date": "2025-12-19",
+          "span": "盘中可以注意币股的几个转弯往上时候低吸 conl bmnr iren cifr hood",
+          "raw_text": "盘中可以注意币股的几个转弯往上时候低吸 conl bmnr iren cifr hood"
+        },
+        {
+          "id": "post_1CWLqbrPpSfcm2irfm7pT5",
+          "et_date": "2025-12-21",
+          "span": "conl bmnr  iren cifr hood 周五很低买的可以做好一半死拿跌下来一半位置 一半仓位用来正T",
+          "raw_text": "conl bmnr  iren cifr hood 周五很低买的可以做好一半死拿跌下来一半位置 一半仓位用来正T"
+        },
+        {
+          "id": "post_1CWLqcTBxTH1SZwR7subue",
+          "et_date": "2025-12-21",
+          "span": "conl bmnr iren cifr hood 周五很低买的可以做好一半死拿跌下来一半位置 一半仓位用来正T",
+          "raw_text": "conl bmnr iren cifr hood 周五很低买的可以做好一半死拿跌下来一半位置 一半仓位用来正T"
+        },
+        {
+          "id": "post_1CWLpjprb1qpkqzw4QhYQz",
+          "et_date": "2025-12-21",
+          "span": "btc和eth也是周末跳空小涨的 今天是注意预警的延续性  没有回调迹象 就是低位补仓的 bmnr conl iren cifr hood之类的持股为主",
+          "raw_text": "btc和eth也是周末跳空小涨的 今天是注意预警的延续性  没有回调迹象 就是低位补仓的 bmnr conl iren cifr hood之类的持股为主"
+        }
+      ]
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_004",
+      "size": 6,
+      "spans": [
+        {
+          "id": "post_1CTzMou3LM6qoHMCoJM2SL",
+          "et_date": "2025-10-10",
+          "span": "收盘在更新收盘价看是不是V\nnvdl 英伟达双倍  盘后最低价跳到 85.6    周一跳空在跌到78-80附近可以买了长拿  最近有中东订单（比较推荐）\nCRWV 没跳到128支撑 周一跳空在127-128可以买了博短线反弹\nNBIS 没",
+          "raw_text": "收盘在更新收盘价看是不是V\nnvdl 英伟达双倍  盘后最低价跳到 85.6    周一跳空在跌到78-80附近可以买了长拿  最近有中东订单（比较推荐）\nCRWV 没跳到128支撑 周一跳空在127-128可以买了博短线反弹\nNBIS 没跳到118支撑  周一跳空在117-188附近可以博短线反弹\nRKLB 盘后最低子啊58.5  周一跳空在57-58可以博短线反弹\ntsll  特斯拉双倍  盘后最低价跳到16.88  周一如果跳空到16.1-16.88附近可以加仓买了长拿 马斯克增持价格在正股370--390区间 （比较推荐）\nMSTR   btc囤币类 盘后最低价跳到286 周一如果跳空"
+        },
+        {
+          "id": "post_1CTzMpfmdKaGUkowS5DTtF",
+          "et_date": "2025-10-10",
+          "span": "收盘在更新收盘价看是不是V\nnvdl 英伟达双倍  盘后最低价跳到 85.6    周一跳空在跌到78-80附近可以买了长拿  最近有中东订单（比较推荐）\nCRWV 没跳到128支撑 周一跳空在127-128可以买了博短线反弹\nNBIS 没",
+          "raw_text": "收盘在更新收盘价看是不是V\nnvdl 英伟达双倍  盘后最低价跳到 85.6    周一跳空在跌到78-80附近可以买了长拿  最近有中东订单（比较推荐）\nCRWV 没跳到128支撑 周一跳空在127-128可以买了博短线反弹\nNBIS 没跳到118支撑  周一跳空在117-188附近可以博短线反弹\nRKLB 盘后最低子啊58.5  周一跳空在57-58可以博短线反弹\ntsll  特斯拉双倍  盘后最低价跳到16.88  周一如果跳空到16.1-16.88附近可以加仓买了长拿 马斯克增持价格在正股370--390区间 （比较推荐）\nMSTR   btc囤币类 盘后最低价跳到286 周一如果跳空"
+        },
+        {
+          "id": "post_1CU4MK14XGEXAabK9iEcGQ",
+          "et_date": "2025-10-12",
+          "span": "把周五比较推荐的几个股单单独拉了下\n主要波动率和抄底胜率都高点\n到有低点时候在实时发布买点 卖点 可以先加自选 了解下\nnvdl 英伟达双倍 盘后最低价跳到 85.6 周一跳空在跌到78-80附近可以买了长拿 最近有中东订单（比较推荐）\nt",
+          "raw_text": "把周五比较推荐的几个股单单独拉了下\n主要波动率和抄底胜率都高点\n到有低点时候在实时发布买点 卖点 可以先加自选 了解下\nnvdl 英伟达双倍 盘后最低价跳到 85.6 周一跳空在跌到78-80附近可以买了长拿 最近有中东订单（比较推荐）\ntsll 特斯拉双倍 盘后最低价跳到16.88 周一如果跳空到16.1-16.88附近可以加仓买了长拿 马斯克增持价格在正股370--390区间 （比较推荐）\nBMNR ETH囤币类 盘后最低价跳到47.3 周一如果跳空到46-47可以加仓买了拿61附近（波动大，比较推荐）\nCONL coin的双倍做多 稳定币和虚拟货币交易所类别 盘后最低跳到36.7 周一如"
+        },
+        {
+          "id": "post_1CU4MKNJ2KLUBnHc4eVKuq",
+          "et_date": "2025-10-12",
+          "span": "把周五比较推荐的几个股单单独拉了下\n主要波动率和抄底胜率都高点\n到有低点时候在实时发布买点 卖点 可以先加自选 了解下\nnvdl 英伟达双倍 盘后最低价跳到 85.6 周一跳空在跌到78-80附近可以买了长拿 最近有中东订单（比较推荐）\nt",
+          "raw_text": "把周五比较推荐的几个股单单独拉了下\n主要波动率和抄底胜率都高点\n到有低点时候在实时发布买点 卖点 可以先加自选 了解下\nnvdl 英伟达双倍 盘后最低价跳到 85.6 周一跳空在跌到78-80附近可以买了长拿 最近有中东订单（比较推荐）\ntsll 特斯拉双倍 盘后最低价跳到16.88 周一如果跳空到16.1-16.88附近可以加仓买了长拿 马斯克增持价格在正股370--390区间 （比较推荐）\nBMNR ETH囤币类 盘后最低价跳到47.3 周一如果跳空到46-47可以加仓买了拿61附近（波动大，比较推荐）\nCONL coin的双倍做多 稳定币和虚拟货币交易所类别 盘后最低跳到36.7 周一如"
+        },
+        {
+          "id": "post_1CU7DpSaReYUTsAyFSZLkm",
+          "et_date": "2025-10-14",
+          "span": "tsll今天也是从18.3这里起来 夜盘19.2如果买了的话可以18.3附近小加   \n盯着几个昨天优先反弹的买\nnvdl 英伟达双倍 盘后最低价跳到 85.6 周一跳空在跌到78-80附近可以买了长拿 最近有中东订单（比较推荐）\ntsll",
+          "raw_text": "tsll今天也是从18.3这里起来 夜盘19.2如果买了的话可以18.3附近小加   \n盯着几个昨天优先反弹的买\nnvdl 英伟达双倍 盘后最低价跳到 85.6 周一跳空在跌到78-80附近可以买了长拿 最近有中东订单（比较推荐）\ntsll 特斯拉双倍 盘后最低价跳到16.88 周一如果跳空到16.1-16.88附近可以加仓买了长拿 马斯克增持价格在正股370--390区间 （比较推荐）\nBMNR ETH囤币类 盘后最低价跳到47.3 周一如果跳空到46-47可以加仓买了拿61附近（波动大，比较推荐）\nCONL coin的双倍做多 稳定币和虚拟货币交易所类别 盘后最低跳到36.7 周一如果跳空"
+        }
+      ]
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_005",
+      "size": 6,
+      "spans": [
+        {
+          "id": "post_1CUNma4qaRWCvSbxwBJsSm",
+          "et_date": "2025-10-22",
+          "span": "conl  分批吸 30.8-31.2 预留点特斯拉财报前后看情况",
+          "raw_text": "conl  分批吸 30.8-31.2 预留点特斯拉财报前后看情况"
+        },
+        {
+          "id": "post_1CUNmckSYdeo39Q3PpWkB1",
+          "et_date": "2025-10-22",
+          "span": "conl 分批吸 30.8-31.2 预留点特斯拉财报前后看情况",
+          "raw_text": "conl 分批吸 30.8-31.2 预留点特斯拉财报前后看情况"
+        },
+        {
+          "id": "post_1CUNmbmenVXoHhy4KgPXAV",
+          "et_date": "2025-10-22",
+          "span": "mstr  277-280 分批吸 预留点特斯拉财报前后看情况",
+          "raw_text": "mstr  277-280 分批吸 预留点特斯拉财报前后看情况"
+        },
+        {
+          "id": "post_1CUNmdMHv5sKtFdLhjsDbD",
+          "et_date": "2025-10-22",
+          "span": "mstr 277-280 分批吸 预留点特斯拉财报前后看情况",
+          "raw_text": "mstr 277-280 分批吸 预留点特斯拉财报前后看情况"
+        },
+        {
+          "id": "post_1CUNmgB1kLbJMSqXCSzdKn",
+          "et_date": "2025-10-22",
+          "span": "rklb 58.8-59.2分批吸 预留点特斯拉财报前后看情况",
+          "raw_text": "rklb 58.8-59.2分批吸 预留点特斯拉财报前后看情况"
+        }
+      ]
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_006",
+      "size": 6,
+      "spans": [
+        {
+          "id": "post_1CWFWGy1wASDLkf6DuLf1x",
+          "et_date": "2025-12-19",
+          "span": "bmnr可以夜盘和盘前找找28.8-29附近的价格回吸点 盘中有平期权波动回踩再加一笔",
+          "raw_text": "bmnr可以夜盘和盘前找找28.8-29附近的价格回吸点 盘中有平期权波动回踩再加一笔"
+        },
+        {
+          "id": "post_1CWFWHTzA9ysGXyiTMXkpM",
+          "et_date": "2025-12-19",
+          "span": "bmnr可以夜盘和盘前找找28.8-29附近的价格回吸点 盘中有平期权波动回踩再加一笔",
+          "raw_text": "bmnr可以夜盘和盘前找找28.8-29附近的价格回吸点 盘中有平期权波动回踩再加一笔"
+        },
+        {
+          "id": "post_1CWFWNfdRGoFeArku1XsUP",
+          "et_date": "2025-12-19",
+          "span": "conl可以夜盘和盘前找找16.8-17附近的价格回吸点 盘中有平期权波动回踩再加一笔",
+          "raw_text": "conl可以夜盘和盘前找找16.8-17附近的价格回吸点 盘中有平期权波动回踩再加一笔"
+        },
+        {
+          "id": "post_1CWFWP1FLay6ty28qJTeB2",
+          "et_date": "2025-12-19",
+          "span": "conl可以夜盘和盘前找找16.8-17附近的价格回吸点 盘中有平期权波动回踩再加一笔",
+          "raw_text": "conl可以夜盘和盘前找找16.8-17附近的价格回吸点 盘中有平期权波动回踩再加一笔"
+        },
+        {
+          "id": "post_1CWFZPSWB4kNWPG9WJ9u7z",
+          "et_date": "2025-12-19",
+          "span": "eose  夜盘和盘前12.2-12.4附近可以介入一笔 盘中有平期权波动回踩再加一笔",
+          "raw_text": "eose  夜盘和盘前12.2-12.4附近可以介入一笔 盘中有平期权波动回踩再加一笔"
+        }
+      ]
+    },
+    {
+      "cluster_tmp_id": "cluster_outlier_007",
+      "size": 6,
+      "spans": [
+        {
+          "id": "post_1CYKXMPqhUzp7M2JhCcjZa",
+          "et_date": "2026-02-20",
+          "span": "15.57-15.65附近出 今天15.05剩下一半tsll 保留昨天14.95的做死拿",
+          "raw_text": "15.57-15.65附近出 今天15.05剩下一半tsll 保留昨天14.95的做死拿"
+        },
+        {
+          "id": "post_1CYKXMxeB82mGBxCtFFoGi",
+          "et_date": "2026-02-20",
+          "span": "15.57-15.65附近出 今天15.05剩下一半tsll 保留昨天14.95的做死拿",
+          "raw_text": "15.57-15.65附近出 今天15.05剩下一半tsll 保留昨天14.95的做死拿"
+        },
+        {
+          "id": "post_1CYKawD8jj3sQDzqaT79mz",
+          "et_date": "2026-02-20",
+          "span": "tsll今天日内剩下一半也是在冲15.5-15.6出日内 死拿的仓位14.95那部分不动",
+          "raw_text": "tsll今天日内剩下一半也是在冲15.5-15.6出日内 死拿的仓位14.95那部分不动"
+        },
+        {
+          "id": "post_1CYKawo14UcTvGx89sqiVi",
+          "et_date": "2026-02-20",
+          "span": "tsll今天日内剩下一半也是在冲15.5-15.6出日内 死拿的仓位14.95那部分不动",
+          "raw_text": "tsll今天日内剩下一半也是在冲15.5-15.6出日内 死拿的仓位14.95那部分不动"
+        },
+        {
+          "id": "post_1CYT8FHZn5RLwM3Y9zbvkU",
+          "et_date": "2026-02-24",
+          "span": "tsll   14.96-15附近 出当时 14.95死拿的部分  现在14.2剩下一半当死拿了",
+          "raw_text": "tsll   14.96-15附近 出当时 14.95死拿的部分  现在14.2剩下一半当死拿了"
+        }
+      ]
+    }
+  ]
+}
