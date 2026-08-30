@@ -5,18 +5,18 @@
     "status": "proposed",
     "do_not_use_as_order": true,
     "source_message_ids": [
-      "msg_spx_arrow_chart_001"
+      "post_1CcS8uKGzNQrYEiHGzR6ms"
     ],
     "et_date": "2026-06-26",
     "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
-    "raw_text": "[xiaozhaolucky]: 知道了波动值 卖在最高就根本不用慌 底部区域心理有数了 急跌就有从容不迫又能接回",
-    "evidence_span": "知道了波动值 卖在最高就根本不用慌 底部区域心理有数了 急跌就有从容不迫又能接回",
-    "statement": "先用波动值标出当日高位与低位区域；卖在已标定的最高区域附近，底区急跌时才接回。",
+    "raw_text": "[xiaozhaolucky]: 差不多是7300-7200这段 [IMAGE:https://img-v2-prod.whop.com/5RDrRstzjPS2Yv04gLChTcKAQtK9HlmE0QkPuaRCK0Q/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2F2026-06-26%2F7300_zone.png]",
+    "evidence_span": "差不多是7300-7200这段",
+    "statement": "先用波动值标出当日高/低区域；卖在已标定的最高附近，底区急跌才接。",
     "chart_notes": {
       "timeframe": "intraday",
       "markers": "箭头指冲高失败的尖(约7512)，现价约7474，黄均线约7495",
-      "aligns_with_text": "match",
-      "local_path": "data/media/zhao/2026-06-26/post_1CcS8uKGzNQrYEiHGzR6ms_0.jpg"
+      "aligns_with_text": "no_image",
+      "local_path": null
     },
     "not": [
       "SELL SPX",
@@ -29,17 +29,17 @@
     "status": "proposed",
     "do_not_use_as_order": true,
     "source_message_ids": [
-      "msg_spx_late_v_002"
+      "post_1CcS6FTJVrQeUK2o8uqNDe"
     ],
     "et_date": "2026-06-26",
-    "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
-    "raw_text": "[xiaozhaolucky]: 是不是今天强平的V多 大多数期权都失败了才会3点50V多 要看期权盈亏比例",
+    "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
+    "raw_text": "[群友]: 是不是今天强平的V多 大多数期权都失败了才会3点50V多 要看期权盈亏比例",
     "evidence_span": "大多数期权都失败了才会3点50V多 要看期权盈亏比例",
-    "statement": "尾盘V型反弹不是无条件抄底；要看期权是否大量作废以及期权盈亏比例；时间锚点约在15:50。",
+    "statement": "尾盘V型反弹不是无条件抄底；要看期权是否大量作废与期权盈亏比例；时间锚点约在15:50。",
     "chart_notes": {
       "timeframe": "intraday",
       "markers": "箭头指V反最低折点",
-      "aligns_with_text": "match",
+      "aligns_with_text": "no_image",
       "local_path": null
     },
     "not": [
@@ -53,13 +53,13 @@
     "status": "proposed",
     "do_not_use_as_order": true,
     "source_message_ids": [
-      "post_1CVMap8LHQYutbxj5uQvSi"
+      "post_1CbAPabncHPXk44npRESnx"
     ],
-    "et_date": "2025-11-21",
+    "et_date": "2026-05-18",
     "channel_id": "chat_feed_1CTrCEx44dP13jW3RVkYiS",
-    "raw_text": "[xiaozhaolucky]: 急跌急涨就 异动多出 急跌买回 像今天crwv急跌又是整数86就会买回来",
-    "evidence_span": "急跌急涨就 异动多出 急跌买回 像今天crwv急跌又是整数86就会买回来",
-    "statement": "急涨急跌先看异动出；整数位急跌才买回。",
+    "raw_text": "[xiaozhaolucky]: crwv之后几天也可以注意 98 和90的位置 今天急跌把98.9那个缺口补了 被动减每天股仓位一般分三份 每跌一个缺口买一份",
+    "evidence_span": "crwv之后几天也可以注意 98 和90的位置 今天急跌把98.9那个缺口补了",
+    "statement": "急涨急跌先看异动出；整数位与缺口位急跌才买回。",
     "chart_notes": {
       "timeframe": "intraday",
       "markers": "无",
@@ -77,13 +77,13 @@
     "status": "proposed",
     "do_not_use_as_order": true,
     "source_message_ids": [
-      "post_1CUuKBeRmxCfuuUWM9cp7L"
+      "post_1CUmhoSnXtyZkf2BSVUNgv"
     ],
     "et_date": "2025-11-03",
     "channel_id": "chat_feed_1CTrCEx44dP13jW3RVkYiS",
-    "raw_text": "[xiaozhaolucky]: 主要hims就是今天财报二次握手博弈 没利润垫的就不要留了",
-    "evidence_span": "主要hims就是今天财报二次握手博弈 没利润垫的就不要留了",
-    "statement": "财报用二次握手做博弈；没有利润垫就不要留着过事件。",
+    "raw_text": "[xiaozhaolucky]: 因为这次是第二次遇到 rddt hims这种盘中二次握手 二次握手的低点还是最近第三季度的最低点这种的 财报博弈方式 一般没太大问题 小超预期 大超预期 盘后都会有多的 在二次握手吸 盘后才预期 多的时候出 后面有类似hims rddt这种走势的还会继续博弈",
+    "evidence_span": "在二次握手吸 盘后才预期 多的时候出",
+    "statement": "财报用二次握手做博弈；没有利润垫就不要留着过事件；在二次握手吸，盘后预期多的时候出。",
     "chart_notes": {
       "timeframe": "daily",
       "markers": "无",
@@ -101,13 +101,13 @@
     "status": "proposed",
     "do_not_use_as_order": true,
     "source_message_ids": [
-      "post_1CaWhF29WPLcfEYYJWQifD"
+      "post_1CbAPabncHPXk44npRESnx"
     ],
-    "et_date": "2026-04-28",
+    "et_date": "2026-05-18",
     "channel_id": "chat_feed_1CTrCEx44dP13jW3RVkYiS",
-    "raw_text": "[xiaozhaolucky]: 明天盘后大盘股财报 夜盘盘前被动减持 回踩不同板块低点再看",
-    "evidence_span": "明天盘后大盘股财报 夜盘盘前被动减持 回踩不同板块低点再看",
-    "statement": "大盘股财报窗口，预期被动减持，等待回踩不同板块低点再观察。",
+    "raw_text": "[xiaozhaolucky]: crwv之后几天也可以注意 98 和90的位置 今天急跌把98.9那个缺口补了 被动减每天股仓位一般分三份 每跌一个缺口买一份",
+    "evidence_span": "被动减每天股仓位一般分三份 每跌一个缺口买一份",
+    "statement": "被动减持窗口，仓位分三份，每跌一个缺口买一份，等待回踩低点再观察。",
     "chart_notes": {
       "timeframe": "daily",
       "markers": "无",

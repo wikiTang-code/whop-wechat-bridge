@@ -115,24 +115,20 @@
 
 ---
 
-## 5. 真实大图（>15KB 唯一哈希）L2b 20 窗战法知识抽取看板 (严禁出 BUY/SELL)
+## 5. 真实原文与精确 SQLite 溯源 L2b 5 条种子看板 (status: proposed, 严禁 BUY/SELL)
 
-从磁盘筛选出的 33 份真实行情大图（>15KB）中精选 20 窗，提取 `statement` + `chart_notes`：
+所有条目均已完成 SQLite `messages` 真实 ID 穿透核对，`evidence_span` 100% 为库内精确连续子串：
 
-| 窗口 ID | 战法场景归属 | 对应真实大图路径 (体积) | 核心战法与纪律陈述 (`statement`) | 图表与盘面细节 (`chart_notes`) | 战法标签 (`tags`) |
-|:---|:---|:---|:---|:---|:---|
-| `l2b_win_001` | **金样 A: 急跌买回战法** | `2026-01-27/post_1CXYCpXPkLs5VVnU5aBkJe_0.jpg` (162.2 KB) | 早盘急跌属于洗盘而非趋势破位，分时缩量回踩前期支撑位时应分批买回底仓，降低持仓均价并锁定做T差价。 | 分时K线呈现快速下插针形态，成交量在急跌后迅速收缩，均线系统维持多头排列。 | `["急跌买回", "分时做T", "缩量回踩"]` |
-| `l2b_win_002` | **金样 B: 财报二次握手与利润垫** | `2026-02-06/post_1CXsWBLsv2rYAoasrCGQzR_0.jpg` (19.0 KB) | 重大财报日前若持仓利润垫不足10%，坚决平仓规避隐含波动率（IV Crush）与跳空风险；仅允许用已实现的利润垫参与二次握手博弈。 | 日K线处于财报前高位震荡区间，期权隐含波动率处于历史90分位以上高位。 | `["二次握手", "财报博弈", "利润垫纪律", "IV避险"]` |
-| `l2b_win_003` | **经典战法: 跷跷板效应与轮动** | `2026-02-04/post_1CXoenmDsXcw31CnmqdKXZ_0.jpg` (15.6 KB) | 大盘在关键时间节点存在资金跷跷板效应，当高位成长股出现分歧回调时，资金会阶段性轮动至低位防御标的，切忌追高杀跌。 | 板块走势图显示科技指数与防御类ETF分时走势呈明显负相关剪刀差。 | `["跷跷板效应", "板块轮动", "资金分歧"]` |
-| `l2b_win_004` | **经典战法: 分批减仓锁利** | `2026-01-29/post_1CXby4gU2yeMUiDrzEKtzP_0.jpg` (10.9 KB) | 标的触及重要阻力位或整数关口时，应当分批减仓（如先减半仓），保留无风险底仓博弈趋势延续，避免一次性清仓踏空或坐过山车。 | K线接近前期成交密集区上沿，整数关口处抛压逐步放大。 | `["分批减仓", "整数阻力", "锁定利润"]` |
-| `l2b_win_005` | **经典战法: 期权磨损与Theta风控** | `2025-12-04/post_1CVn96Jedcf3Qsx9MLsuLQ_0.jpg` (15.2 KB) | 临近到期日的期权 Theta 衰减极快，若标的未按预期走出单边突破，横盘震荡时必须果断止损清仓，严禁死扛期权磨损。 | 标的横盘整理，期权溢价率随着交易日推进出现单边断崖式下跌。 | `["期权磨损", "Theta风控", "果断离场"]` |
-| `l2b_win_006~020` | **高开放量滞涨 / 破位保本 / 地缘避险等** | 覆盖真实大图批次 (15~162 KB) | 包含放量滞涨防守减半仓、跌回成本线零容忍保本平仓、突发地缘事件第一时间砍高Beta提升现金等核心风控纪律。 | 分时均线破位、量价背离、长上影线见顶等形态细节支撑。 | `["放量滞涨", "保本平仓", "地缘避险", "大波段兑现"]` |
+| 种子 ID | kid | 状态 | 真实来源消息 ID | 日期 / 频道 ID | 精确连续子串 (`evidence_span`) | 规范陈述 (`statement`) | 图表标注 (`chart_notes`) | not 禁词 |
+|:---|:---|:---|:---|:---|:---|:---|:---|:---|
+| `g_zhao_001` | `k_wave_value_extremes` | `proposed` | `post_1CcS8uKGzNQrYEiHGzR6ms` | 2026-06-26<br>`chat_feed_1CU95KbtifP1JtuqTiVXZb` | `差不多是7300-7200这段` | 先用波动值标出当日高/低区域；卖在已标定的最高附近，底区急跌才接。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["SELL SPX", "BUY SPX"]` |
+| `g_zhao_002` | `k_late_session_v_reversal` | `proposed` | `post_1CcS6FTJVrQeUK2o8uqNDe` | 2026-06-26<br>`chat_feed_1CTr5VAdNHtbZAFaTitvoT` | `大多数期权都失败了才会3点50V多 要看期权盈亏比例` | 尾盘V型反弹不是无条件抄底；要看期权是否大量作废与期权盈亏比例；时间锚点约在15:50。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["BUY SPX", "15:50无条件做多"]` |
+| `g_zhao_003` | `k_dip_buy_round_number` | `proposed` | `post_1CbAPabncHPXk44npRESnx` | 2026-05-18<br>`chat_feed_1CTrCEx44dP13jW3RVkYiS` | `crwv之后几天也可以注意 98 和90的位置 今天急跌把98.9那个缺口补了` | 急涨急跌先看异动出；整数位与缺口位急跌才买回。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["BUY CRWV @ 86", "86.3加回三分之一常规仓crwv"]` |
+| `g_zhao_004` | `k_second_handshake` | `proposed` | `post_1CUmhoSnXtyZkf2BSVUNgv` | 2025-11-03<br>`chat_feed_1CTrCEx44dP13jW3RVkYiS` | `在二次握手吸 盘后才预期 多的时候出` | 财报用二次握手做博弈；没有利润垫就不要留着过事件；在二次握手吸，盘后预期多的时候出。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["SELL HIMS", "无价格清仓单"]` |
+| `g_zhao_005` | `k_passive_redeem_then_rebuy` | `proposed` | `post_1CbAPabncHPXk44npRESnx` | 2026-05-18<br>`chat_feed_1CTrCEx44dP13jW3RVkYiS` | `被动减每天股仓位一般分三份 每跌一个缺口买一份` | 被动减持窗口，仓位分三份，每跌一个缺口买一份，等待回踩低点再观察。 | `aligns_with_text: "no_image"`<br>`local_path: null` | `["SELL ALL", "市价卖单"]` |
 
----
+> [!NOTE]
+> 1. 新 kid 保持 `proposed`，未写入 `known_kids_registry.json`；
+> 2. `do_not_use_as_order: true` 全部强制生效；
+> 3. 无真图条目统一标为 `aligns_with_text: "no_image"`, `local_path: null`，绝不虚假 match。
 
-## 四、 下一步严格执行路线图
-
-1. **Step 1 (已完成)**: 代码/工作台别名修正为网页名；核实记录区两个 feed id。
-2. **Step 2 (已完成)**: 记录区 L2a dry-cut（1,753 组 CU，537 组喊单窗）独立生成并建立特征库。
-3. **Step 3 (进行中)**: 发布区（234）+ 记录区（189）配图自适应落盘，达到 ≥80% 硬交付门槛。
-4. **Step 4 (待启动)**: 记录区抽检 20 窗原文 → 生成独立 `l2a_cleaned_20260829_l2a_record01.jsonl`（重复标 `dup_of`）；配图达标后启动 20 窗多模态 L2b 抽检。
