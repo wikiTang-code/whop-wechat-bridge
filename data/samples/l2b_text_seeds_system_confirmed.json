@@ -1,0 +1,62 @@
+[
+  {
+    "sample_id": "t_sys_001",
+    "message_id": "post_1CbrD7FHjUzRrSTsCabUzT",
+    "channel_name": "不用翻墙美股讨论区",
+    "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
+    "sender_name": "xiaozhaolucky",
+    "et_date": "2026-06-08",
+    "kid": "k_spx_normal_daily_range_50_60",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "evidence_span": "前面正常时间 spx都是50-60点的上下区间",
+    "statement": "正常时间SPX一般是50-60点的上下区间。",
+    "raw_context": "前面正常时间 spx都是50-60点的上下区间",
+    "notes": "证实SPX正常时段日内高低区间带宽约为50-60点"
+  },
+  {
+    "sample_id": "t_sys_002",
+    "message_id": "post_1CVkM5wnjrfMxNCiRzUhFq",
+    "channel_name": "不用翻墙美股发布",
+    "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+    "sender_name": "赵哥",
+    "et_date": "2025-12-03",
+    "kid": "k_sector_high_low_rotation",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "evidence_span": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切   asts资讯有被动清仓慌啥就是抢筹机会",
+    "statement": "标的反弹一半以上出一半移入低位标的高低切，基金被动清仓是抢筹机会。",
+    "raw_context": "前几天不是apld反弹一半以上了 出一半 移入 asts 高低切   asts资讯有被动清仓慌啥就是抢筹机会",
+    "notes": "证实高低切、反弹一半出一半换低位、被动清仓抢筹"
+  },
+  {
+    "sample_id": "t_sys_003",
+    "message_id": "post_1CUovuqHikTdzgQiiS7ENA",
+    "channel_name": "不用翻墙美股发布",
+    "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+    "sender_name": "赵哥",
+    "et_date": "2025-11-04",
+    "kid": "k_cost_exit_last_batch",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "evidence_span": "分批只减自己最后补的那笔 比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买",
+    "statement": "分批只减自己最后补的那笔，反弹到成本附近先成本出，等回踩确认往低买。",
+    "raw_context": "分批只减自己最后补的那笔 距离举例   比如40补的bmnr  也在反弹40附近就先成本出   盘后压低过37.5  就是等在回踩确认往低买",
+    "notes": "证实分批只减最后补的一笔、成本出等回踩低买"
+  },
+  {
+    "sample_id": "t_sys_004",
+    "message_id": "post_1CTx2tE4XYqgex4QqCLb74",
+    "channel_name": "不用翻墙美股发布",
+    "channel_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+    "sender_name": "赵哥",
+    "et_date": "2025-10-09",
+    "kid": "k_sector_leader_identification",
+    "status": "proposed",
+    "do_not_use_as_order": true,
+    "evidence_span": "都是eth板块  bmnr是龙头 56没怎么下去  sbet 套利下",
+    "statement": "同板块中龙头标的回调幅度小，其他标的做套利。",
+    "raw_context": "sbet 可以16.26附近建仓点 主要还是等bmnr  都是eth板块  bmnr是龙头 56没怎么下去  sbet 套利下",
+    "notes": "证实板块龙头识别与跟风标的套利"
+  }
+]
