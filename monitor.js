@@ -6,6 +6,7 @@ import { executeOrder, getUnifiedPortfolio } from './trading.js';
 import { getMarketContextForTickers } from './kline.js';
 import { runWithRateLimit } from './rate-limiter.js';
 import { processMessageForCampaigns, checkAndCloseStaleCampaigns } from './campaign-engine.js';
+import { downloadAndPersistAttachments } from './scripts/media_downloader.js';
 
 dotenv.config();
 
@@ -1383,6 +1384,18 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       // Filter out messages that are already in the DB to count actual new ones
       const actuallyNewMessages = normalizedMessages.filter(msg => !isMessageArchived(msg.id));
       
+      // 行业标准正方案：在消息写入 SQLite 的同一秒，同步抓取活签下载附件并落盘！
+      for (const msg of actuallyNewMessages) {
+        try {
+          const persistedAttachments = await downloadAndPersistAttachments(msg);
+          if (persistedAttachments) {
+            msg.attachments = persistedAttachments;
+          }
+        } catch (e) {
+          console.error(`[MediaDownloader] 同步下载附件异常 (${msg.id}):`, e.message);
+        }
+      }
+
       actuallyNewMessages.forEach(msg => {
         if (targetSpeakers.includes(msg.sender_id)) {
           newSpeakerMessages.push(msg);
