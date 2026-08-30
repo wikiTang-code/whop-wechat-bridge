@@ -6,7 +6,7 @@ const dbPath = path.resolve('whop_archive.db');
 const db = new Database(dbPath);
 
 console.log('========================================================================================');
-console.log('📖 执行第 7 档 (5001~6000 条) 精修：指数转弯 + 被动减操作时钟/细则 + 盘口转弯优先新闻');
+console.log('📖 执行第 7 档 (5001~6000 条) 严格精修：解决 Grok 对账 4 大差异');
 console.log('========================================================================================\n');
 
 // 1. 读取第 5001 ~ 6000 条消息
@@ -35,7 +35,7 @@ const seen70PctDays = new Set();
 
 let bookmarkedCount = 0;
 
-const BOOKMARK_REGEX = /(法\b|机制|要素|口诀|打油诗|普跌同沉|普涨我跌|事件来临|节日前夕|币市波动|一般要|一般有|相当于|二次握手|握手|缺口|只做一次|被动减|减持|总仓位不要超过|7成|3成|反弹一半|\/2=|大单检测|大单入场|散户止损|死拿|成本出|磨损值|两段式|靴子|结算|利润垫|转弯|指数门|QQQ等转弯|找新闻|不要到处找新闻|被动减：夜盘|3–3:30|3点强平)/;
+const BOOKMARK_REGEX = /(法\b|机制|要素|口诀|打油诗|普跌同沉|普涨我跌|事件来临|节日前夕|币市波动|一般要|一般有|相当于|二次握手|握手|缺口|只做一次|被动减|减持|总仓位不要超过|7成|3成|反弹一半|\/2=|大单检测|大单入场|散户止损|死拿|成本出|磨损值|两段式|靴子|结算|利润垫|转弯|指数门|QQQ等转弯|到处找新闻|看到点位看转弯|3–3:30|3点强平)/;
 
 for (let i = 0; i < zhaoMessages.length; i++) {
   const globalIdx = 5001 + i;
@@ -75,8 +75,8 @@ for (let i = 0; i < zhaoMessages.length; i++) {
     continue;
   }
 
-  // 1. prop_017: 盘口转弯优先于新闻小作文
-  if (text.includes('不要到处找新闻') || (text.includes('跌看点位看转弯') && text.includes('新闻'))) {
+  // 1. prop_017: 盘口转弯优先于新闻小作文 (post_1CaM8rTWT7FyzvdGbUMxzS)
+  if (text.includes('到处找新闻') || text.includes('看到点位看转弯')) {
     treeInstancesMap.get('prop_017_price_level_turn_over_news').push({
       index: globalIdx,
       tree_id: 'prop_017_price_level_turn_over_news',
@@ -90,7 +90,7 @@ for (let i = 0; i < zhaoMessages.length; i++) {
     continue;
   }
 
-  // 2. prop_015: 3~3:30 V买、盘后 4~4:15 卖
+  // 2. prop_015: 跨时段操作 (3~3:30 V买、盘后 4~4:15 卖)
   if (text.includes('3–3:30') || (text.includes('3点') && text.includes('盘后') && text.includes('卖'))) {
     treeInstancesMap.get('prop_015_intraday_session_rhythm_0dte').push({
       index: globalIdx,
@@ -105,7 +105,7 @@ for (let i = 0; i < zhaoMessages.length; i++) {
     continue;
   }
 
-  // 3. gold_008: 入场扫描：指数转弯再看个股 (2026-04-20 post_1CaFCe6NUnN9AtgCH4nh93)
+  // 3. gold_008: 入场扫描：指数转弯再看个股 (post_1CaFCe6NUnN9AtgCH4nh93)
   if (text.includes('QQQ等转弯往上再看科技股') || (text.includes('QQQ') && text.includes('转弯往上') && text.includes('回吸'))) {
     treeInstancesMap.get('gold_008_index_turn_gate').push({
       index: globalIdx,
@@ -120,20 +120,33 @@ for (let i = 0; i < zhaoMessages.length; i++) {
     continue;
   }
 
-  // 4. gold_006: 节前被动减 (含被动减时钟：夜盘出一半->看韩指/A股->盘前再出->次日3点强平再吸；节前5天主动规避3天被动减)
+  // 4. gold_006: 节前被动减 (收下操作时钟 + 5天规避/3天被动减/先加密后科技 4 条核心规则)
   if (text.includes('被动减') || text.includes('节前前5天') || (text.includes('劳动节') && text.includes('科技')) || (text.includes('大陆') && text.includes('被动减'))) {
-    const isClockRefinement = text.includes('韩指') || text.includes('3点强平') || text.includes('循环');
-    treeInstancesMap.get('gold_006_passive_redeem_holiday').push({
-      index: globalIdx,
-      tree_id: 'gold_006_passive_redeem_holiday',
-      tree_name: '节前基金被动减持与赎回',
-      subtype: isClockRefinement ? 'passive_redeem_clock_refinement' : 'holiday_passive_redeem',
-      message_id: msg.id,
-      et_date: etDate,
-      channel: msg.channel_name,
-      evidence_span: text.slice(0, 150),
-      raw_text: text.slice(0, 250)
-    });
+    const isCoreRule = text.includes('夜盘出一半') || text.includes('韩指') || text.includes('3点强平') || text.includes('前5天') || text.includes('先加密') || text.includes('分三天回踩');
+    if (isCoreRule) {
+      treeInstancesMap.get('gold_006_passive_redeem_holiday').push({
+        index: globalIdx,
+        tree_id: 'gold_006_passive_redeem_holiday',
+        tree_name: '节前基金被动减持与赎回',
+        subtype: 'passive_redeem_clock_and_calendar_rules',
+        message_id: msg.id,
+        et_date: etDate,
+        channel: msg.channel_name,
+        evidence_span: text.slice(0, 150),
+        raw_text: text.slice(0, 250)
+      });
+    } else {
+      skippedAuditLog.push({
+        index: globalIdx,
+        message_id: msg.id,
+        et_date: etDate,
+        channel: msg.channel_name,
+        trigger: triggerWord,
+        category: 'single_ticker_memo',
+        reason: '个股劳动节点位备忘，不作为通用机制规则',
+        raw_text: text.slice(0, 150)
+      });
+    }
     continue;
   }
 
@@ -166,7 +179,7 @@ for (let i = 0; i < zhaoMessages.length; i++) {
     continue;
   }
 
-  // 6. 缺口精细分流 (收下核心教案，反例/单票股单降备忘)
+  // 6. prop_008: 缺口回踩低吸 (严格收敛为 4 条核心规则：普涨隔天踩下沿、每天小幅回补3~3:30看、分三次回买、下沿低吸)
   if (text.includes('缺口')) {
     if (text.includes('不会回补') || text.includes('最多摸上沿')) {
       gapSubdivision.boundary_negative_cases.push({
@@ -260,7 +273,7 @@ skippedAuditLog.forEach(s => skipStats[s.category] = (skipStats[s.category] || 0
 
 const resultData = {
   metadata: {
-    segment: '第 7 档 (5001~6000 条消息) 精修定版',
+    segment: '第 7 档 (5001~6000 条消息) Grok 严密对账精修版',
     date_range: `${new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(zhaoMessages[0].created_at))} ~ ${new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(zhaoMessages[zhaoMessages.length - 1].created_at))}`,
     total_scanned: zhaoMessages.length,
     bookmarked_stops: bookmarkedCount,
@@ -283,7 +296,7 @@ const outPath = 'data/l2b/gold/zhao_chronological_ledger_5001_6000.json';
 fs.writeFileSync(outPath, JSON.stringify(resultData, null, 2), 'utf-8');
 
 console.log(`========================================================================================`);
-console.log(`✅ 成功输出精修定版第 7 档 (5001~6000 条) 时序总账: ${outPath}`);
+console.log(`✅ 成功输出第 7 档 (5001~6000 条) 严密对账精修版: ${outPath}`);
 console.log(`   - 扫描消息总数: ${zhaoMessages.length} 条`);
 console.log(`   - 命中的树节点数: ${Object.keys(instanceSummary).length} 个`);
 console.log(`   - 全量真实 Skip 审计: ${skippedAuditLog.length} 条\n`);
