@@ -11,17 +11,6 @@
     "do_not_use_as_order": true
   },
   {
-    "gold_id": "gold_002_dip_buy_integer",
-    "name": "急跌整数无小数点底部要素",
-    "chapter": "第四章：微观执行与股性特征",
-    "message_id": "post_1CbE4JTR7XvBrPPFqZzJZ5",
-    "et_date": "2026-05-20",
-    "evidence_span": "底部几大要素  缺口连续补掉上轮起涨所有的 急跌最低价是整数的没小数点 昨天 46.0 第二天最低价高于前一天46.0的",
-    "statement": "底部形态确认：缺口连续回补，急跌最低价是整数无小数点，次日最低价抬高。",
-    "status": "gold",
-    "do_not_use_as_order": true
-  },
-  {
     "gold_id": "gold_003_gap_intraday_once",
     "name": "缺口每次只做一次日内",
     "chapter": "第四章：微观执行与股性特征",
@@ -77,13 +66,24 @@
     "do_not_use_as_order": true
   },
   {
-    "gold_id": "gold_008_scan_index_turn_block_print",
-    "name": "两段式扫描：指数转弯到自选大单",
+    "gold_id": "gold_008_index_turn_gate",
+    "name": "入场扫描：指数转弯再看个股",
     "chapter": "第三章：两段式入场与扫描流程",
     "message_id": "post_1CaFCe6NUnN9AtgCH4nh93",
     "et_date": "2026-04-20",
     "evidence_span": "QQQ等转弯往上再看科技股分批回吸",
-    "statement": "入场扫描流程：先确认 QQQ/SPY 指数转弯，进而轮询自选名单异动大单介入。",
+    "statement": "入场扫描流程：先确认 QQQ/SPY 指数转弯往上，再看科技个股分批回吸。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_008b_block_print_reentry",
+    "name": "标的大单入场与回买",
+    "chapter": "第三章：两段式入场与扫描流程",
+    "message_id": "post_1CTzMou3LM6qoHMCoJM2SL",
+    "et_date": "2025-10-10",
+    "evidence_span": "支撑位附近看有大单入场再回买",
+    "statement": "支撑位附近检测到盘口异动大单入场后再回买。",
     "status": "gold",
     "do_not_use_as_order": true
   },
@@ -99,17 +99,6 @@
     "do_not_use_as_order": true
   },
   {
-    "gold_id": "gold_010_cut_in_half_100_percent",
-    "name": "事件腰斩50%迎翻倍100%机会",
-    "chapter": "第四章：微观执行与股性特征",
-    "message_id": "post_1CW3HtKcBv1ommXJtxrtAg",
-    "et_date": "2025-12-12",
-    "evidence_span": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的",
-    "statement": "重大事件冲击后会有一批标的腰斩50%并迎来翻倍摸前高100%的机会。",
-    "status": "gold",
-    "do_not_use_as_order": true
-  },
-  {
     "gold_id": "gold_011_zhao_poem_official",
     "name": "赵哥主观交易总诀 (打油诗全文本尊)",
     "chapter": "全书总纲",
@@ -118,6 +107,50 @@
     "evidence_span": "口诀\n普跌同沉不用慌，收盘寻底看稳当；\n普涨我跌要提防，减持利空细查详。\n事件来临莫急闯，尾二收盘低吸仓，\n靴子落地迎反弹，持股静待红盘扬。\n节日前夕别乱抢，节前两日布局忙，\n节后资金回流至，顺势吃肉把利装。\n币市波动要盯紧，首阴一跌需警醒，\n首阳一涨别贪猛，信号初现辨分明。\n\n白话文\n大家都跌就不慌 收盘附近最低卡机制 反弹出\n大家都涨我独跌就要慌 看看是否有减持和政策利空\n事件出现等最后两天收盘抄底 事件靴子落地看反弹\n节日出现等节前最后两天抄底  节日过后看反弹\n币预警第一个 -1%和第一个+1要注意",
     "statement": "主观交易总诀（系统普跌不慌、普涨独跌查减持、事件等最后两天、靴子落地拿反弹、节日节前两天建仓）。",
     "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_012_profit_cushion",
+    "name": "没利润垫不过财报",
+    "chapter": "第五章：交易铁律与硬禁止项",
+    "message_id": "post_1CUmieqA238QoWpWp4oB7j",
+    "et_date": "2025-11-20",
+    "evidence_span": "没利润垫的不建议博弈财报 容易回撤大",
+    "statement": "持仓若无足够利润垫，禁止重仓博弈财报行情，防止剧烈回撤。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "gold_013_supply_unlock_3_plus_1",
+    "name": "减持3+1天出清窗口",
+    "chapter": "第二章：日历律与供给被动减",
+    "message_id": "post_1CUnkyN1BtcpYCed6KNhe6",
+    "et_date": "2025-11-03",
+    "evidence_span": "减持一般3天后第4天看 减持公告出来后先让被动抛压释放",
+    "statement": "减持公告落地后先观察 3 天释放抛压，第 4 天再看企稳回吸机会。",
+    "status": "gold",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_001_dip_buy_integer",
+    "name": "急跌整数无小数点底部要素",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1CbE4JTR7XvBrPPFqZzJZ5",
+    "et_date": "2026-05-20",
+    "evidence_span": "底部几大要素  缺口连续补掉上轮起涨所有的 急跌最低价是整数的没小数点 昨天 46.0 第二天最低价高于前一天46.0的",
+    "statement": "底部形态确认：缺口连续回补，急跌最低价是整数无小数点，次日最低价抬高。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_002_cut_in_half_100_percent",
+    "name": "事件腰斩50%迎翻倍100%机会",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1CW3HtKcBv1ommXJtxrtAg",
+    "et_date": "2025-12-12",
+    "evidence_span": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的",
+    "statement": "重大事件冲击后会有一批标的腰斩50%并迎来翻倍摸前高100%的机会。",
+    "status": "proposed",
     "do_not_use_as_order": true
   }
 ]
