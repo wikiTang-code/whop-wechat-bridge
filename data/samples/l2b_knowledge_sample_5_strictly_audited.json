@@ -1,0 +1,106 @@
+[
+  {
+    "l2b_id": "l2b_true_001",
+    "scenario": "金样 A: 盘面点位区间与支撑带点拨",
+    "source_message_ids": [
+      "post_1CcS8uKGzNQrYEiHGzR6ms"
+    ],
+    "channel_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
+    "date": "2026-06-26",
+    "raw_text": "[xiaozhaolucky]: 差不多是7300-7200这段 [IMAGE:https://img-v2-prod.whop.com/5RDrRstzjPS2Yv04gLChTcKAQtK9HlmE0QkPuaRCK0Q/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Fuploads%2F2026-06-26%2F7300_zone.png]",
+    "image_path": "data/media/zhao/2026-06-26/post_1CcS8uKGzNQrYEiHGzR6ms_0.jpg",
+    "evidence_span": "差不多是7300-7200这段",
+    "statement": "盘面核心支撑/震荡区间关注 7300-7200 点位段。",
+    "chart_notes": "图表展示大盘指数分时下探至 7200-7300 区域后的分时走势。",
+    "tags": [
+      "点位区间",
+      "支撑观察"
+    ],
+    "aligns_with_text": true,
+    "do_not_use_as_order": true
+  },
+  {
+    "l2b_id": "l2b_true_002",
+    "scenario": "金样 B: 财报日二次握手与利润垫纪律",
+    "source_message_ids": [
+      "post_1CUuKBeRmxCfuuUWM9cp7L"
+    ],
+    "channel_id": "chat_feed_1CTrCEx44dP13jW3RVkYiS",
+    "date": "2025-11-03",
+    "raw_text": "[xiaozhaolucky]: 主要hims就是今天财报二次握手博弈 没利润垫的就不要留了",
+    "image_path": null,
+    "evidence_span": "主要hims就是今天财报二次握手博弈 没利润垫的就不要留了",
+    "statement": "财报日参与二次握手博弈的前提是具备足够的持仓利润垫；没有利润垫的持仓在财报前不应保留。",
+    "chart_notes": "unreadable (无附图，纯口播纪律)",
+    "tags": [
+      "二次握手",
+      "财报博弈",
+      "利润垫纪律"
+    ],
+    "aligns_with_text": true,
+    "do_not_use_as_order": true
+  },
+  {
+    "l2b_id": "l2b_true_003",
+    "scenario": "资金跷跷板效应与买入时间轴点拨",
+    "source_message_ids": [
+      "msg_discussion_michelle_001",
+      "post_1CbVBCF6R65EfVbBvgo4Ra"
+    ],
+    "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
+    "date": "2026-05-28",
+    "raw_text": "[MichelleL]: 鬼故事又要来了吗\n[xiaozhaolucky]: 买的时间轴才会跷跷板效应",
+    "image_path": "data/media/zhao/2026-05-28/post_1CbVBCF6R65EfVbBvgo4Ra_0.jpg",
+    "evidence_span": "买的时间轴才会跷跷板效应",
+    "statement": "板块与个股的强弱轮动取决于买入的时间轴，不同时间节点资金存在跷跷板分流效应。",
+    "chart_notes": "群友提问行情分时截图，图表呈现分时急跌波动。",
+    "tags": [
+      "跷跷板效应",
+      "买入时间轴",
+      "资金轮动"
+    ],
+    "aligns_with_text": true,
+    "do_not_use_as_order": true
+  },
+  {
+    "l2b_id": "l2b_true_004",
+    "scenario": "目标位分批减持纪律",
+    "source_message_ids": [
+      "msg_discussion_yang_002",
+      "post_1CbVBiFLCWkrqq4DyiEG3a"
+    ],
+    "channel_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
+    "date": "2026-05-28",
+    "raw_text": "[Yang kobe ]: 看到了谢谢\n[xiaozhaolucky]: 也是差不多110附近要开始分批减持了",
+    "image_path": "data/media/zhao/2026-05-28/post_1CbVBiFLCWkrqq4DyiEG3a_0.jpg",
+    "evidence_span": "也是差不多110附近要开始分批减持了",
+    "statement": "标的运行至 110 附近的目标位区域时，应当开始执行分批减持。",
+    "chart_notes": "群友晒单持仓截图，显示个股持仓盈亏与成本。",
+    "tags": [
+      "分批减持",
+      "目标位执行"
+    ],
+    "aligns_with_text": true,
+    "do_not_use_as_order": true
+  },
+  {
+    "l2b_id": "l2b_true_005",
+    "scenario": "地缘风险与避险防守纪律",
+    "source_message_ids": [
+      "post_1CbTEhPMVhdmZyGKdWZBsy"
+    ],
+    "channel_id": "chat_feed_1CTrCEx44dP13jW3RVkYiS",
+    "date": "2026-05-28",
+    "raw_text": "[xiaozhaolucky]: 6.74出一半6.8的conl 战争发酵了 避险",
+    "image_path": null,
+    "evidence_span": "战争发酵了 避险",
+    "statement": "地缘战争等宏观黑天鹅风险发酵时，应主动减仓防守避险。",
+    "chart_notes": "unreadable (无附图，交易流水附带的避险口播)",
+    "tags": [
+      "地缘避险",
+      "主动防守"
+    ],
+    "aligns_with_text": true,
+    "do_not_use_as_order": true
+  }
+]
