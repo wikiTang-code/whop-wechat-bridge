@@ -50,7 +50,7 @@
     "message_id": "post_1CWfRUgJMC9WUsfWSwhiTN",
     "et_date": "2025-12-31",
     "evidence_span": "今天尾盘也是基金被动减持留现金的节前最后天 可以收盘有些双底 或者双底跌破的建仓和少量补仓",
-    "statement": "节前最后 2~3 天基金被动减持留现金流，尾盘双底收盘建仓，节后看反弹。",
+    "statement": "节前最后 2~3 天基金被动减持留现金流，尾盘双底(极限*0.98)收盘建仓，节后看反弹。",
     "status": "gold",
     "do_not_use_as_order": true
   },
@@ -148,7 +148,7 @@
     "chapter": "第四章：微观执行与股性特征",
     "message_id": "post_1CW3HtKcBv1ommXJtxrtAg",
     "et_date": "2025-12-12",
-    "evidence_span": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的",
+    "evidence_span": "日本加息之后也会有一批腰斩 50%和翻倍前高100%的机会 到时候也会在布局新的 100跌50 50去买",
     "statement": "重大事件冲击后会有一批标的腰斩50%并迎来翻倍摸前高100%的机会。",
     "status": "proposed",
     "do_not_use_as_order": true
@@ -293,6 +293,17 @@
     "et_date": "2026-01-10",
     "evidence_span": "收盘附近吸 夜盘/盘前短出 开盘第一小时冲高卖 0DTE配合尾盘波动",
     "statement": "全天交易时段节奏分工：收盘低吸、夜盘盘前短线兑现、开盘冲高减仓、0DTE博尾盘。",
+    "status": "proposed",
+    "do_not_use_as_order": true
+  },
+  {
+    "gold_id": "prop_016_index_macro_gap_heavy_dip",
+    "name": "指数大缺口隔月回补与个股低位大仓位吸筹法",
+    "chapter": "第四章：微观执行与股性特征",
+    "message_id": "post_1CX29Pm...",
+    "et_date": "2026-02-18",
+    "evidence_span": "隔几个月指数大缺口回补 个股价低 是大仓位吸的日子",
+    "statement": "指数级别大缺口经历数月周期回补、个股估值低位时，是大仓位回吸的重要窗口。",
     "status": "proposed",
     "do_not_use_as_order": true
   }

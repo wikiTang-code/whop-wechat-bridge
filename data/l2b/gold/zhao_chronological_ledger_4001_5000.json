@@ -1,35 +1,18 @@
 {
   "metadata": {
-    "segment": "第 6 档 (4001~5000 条消息)",
+    "segment": "第 6 档 (4001~5000 条消息) 精修定版",
     "date_range": "2026-02-04 ~ 2026-03-20",
     "total_scanned": 1000,
     "bookmarked_stops": 106,
-    "skipped_stops_total": 95,
+    "tree_nodes_populated_count": 4,
+    "skipped_stops_total": 99,
     "skipped_breakdown": {
       "pure_fill_order": 13,
       "duplicate_post": 46,
-      "weak_commentary_or_single_event": 36
+      "weak_commentary_or_single_event": 40
     }
   },
   "tree_instances_summary": {
-    "gold_001_second_handshake": {
-      "name": "二次握手不破低点低吸",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_003_gap_intraday_once": {
-      "name": "缺口每次只做一次日内",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_004_position_control_70_pct": {
-      "name": "7成底仓与3成做T机动",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
     "gold_005_half_retrace_watch": {
       "name": "反弹一半公式空间测算",
       "status": "gold",
@@ -52,139 +35,19 @@
     "gold_007_shoe_drops_settlement": {
       "name": "重大事件靴子落地走普涨",
       "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_008_index_turn_gate": {
-      "name": "入场扫描：指数转弯再看个股",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_008b_block_print_reentry": {
-      "name": "标的大单入场与回买",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_009_cost_exit_last_batch": {
-      "name": "分批只减最后补的一笔成本出",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_011_zhao_poem_official": {
-      "name": "赵哥主观交易总诀 (打油诗全文本尊)",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_012_profit_cushion": {
-      "name": "没利润垫不过财报",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "gold_013_supply_unlock_3_plus_1": {
-      "name": "减持3天后第4天看",
-      "status": "gold",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_001_dip_buy_integer": {
-      "name": "急跌整数无小数点底部要素",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
+      "instances_count": 1,
+      "sample_spans": [
+        "今天周五和上次开门一样走结算普涨"
+      ]
     },
     "prop_002_cut_in_half_100_percent": {
       "name": "事件腰斩50%迎翻倍100%机会",
       "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_003_valuation_dip_method": {
-      "name": "估值低估买入法 (8/26手牌1)",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_004_event_low_dip_method": {
-      "name": "事件低位买入法 (8/26手牌2·META例)",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_005_block_print_method": {
-      "name": "大单检测法 (8/26手牌3)",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_006_stop_loss_sweep_method": {
-      "name": "散户止损单被一笔全吃 (8/26手牌4)",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_007_night_plunge_premarket_intervention": {
-      "name": "夜盘普跌盘前干预买入法",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_008_gap_retrace_fill_dip": {
-      "name": "高开回踩补缺低吸法",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_009_decay_equivalent_calc": {
-      "name": "期权/杠杆磨损值折算上一轮价格",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_010_supply_unlock_ndays_dip": {
-      "name": "减持过一段天数靠近支撑回吸",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_011_earnings_call_reversal": {
-      "name": "大盘财报电话会前后多空反转",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_012_position_leverage_ratio": {
-      "name": "稳反弹仓位分工与做T杠杆比率",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_013_three_dip_types_selection": {
-      "name": "低吸三大模式：支撑位/节前缺口/双底形态",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_014_msci_exclusion_sector_sympathy_dip": {
-      "name": "MSCI剔除被动清仓与同板块非成分股错杀低吸",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
-    },
-    "prop_015_intraday_session_rhythm_0dte": {
-      "name": "跨交易时段节奏与0DTE尾盘配合",
-      "status": "proposed",
-      "instances_count": 0,
-      "sample_spans": []
+      "instances_count": 1,
+      "sample_spans": [
+        "前这轮情况和上次周五 11月14日 完全一样了  11月13日的盘后是压的最低点 btc 8万整数\n\n\n\n\n\n2月5日昨天的盘后也是压最低 BTC6万\n\n\n\n这轮准备   100跌50  50去买入的股票 主要目前有\n\n\n\ntsll  还有16的两笔 当初一笔死拿 和16.05的一半常规仓  今天解"
+      ]
     }
-  },
-  "gap_subdivision_summary": {
-    "prop_008_retrace_fill_count": 0,
-    "point_memos_count": 6
   },
   "tree_instances_detail": {
     "gold_001_second_handshake": [],
@@ -227,6 +90,7 @@
         "index": 4255,
         "tree_id": "gold_006_passive_redeem_holiday",
         "tree_name": "节前基金被动减持与赎回",
+        "subtype": "holiday_passive_redeem",
         "message_id": "post_1CY2VXVXAyfmda4fpjoLN8",
         "et_date": "2026-02-11",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -237,6 +101,7 @@
         "index": 4290,
         "tree_id": "gold_006_passive_redeem_holiday",
         "tree_name": "节前基金被动减持与赎回",
+        "subtype": "double_bottom_098_refinement",
         "message_id": "post_1CY4UpkuVnJ2sgwk3GeUzr",
         "et_date": "2026-02-12",
         "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
@@ -244,7 +109,18 @@
         "raw_text": "昨天被动减的幅度不多 今天被动减持力度相当于 之前2天的力度  spy还是看 是685 \n\n还是680支撑  明天还有天被动减 要预留上次的675反弹\n\n\n\n\n\n个股亿上周四盘后最低的价格算双底   极限会跌破双底的-2% 价格乘0.98就可以"
       }
     ],
-    "gold_007_shoe_drops_settlement": [],
+    "gold_007_shoe_drops_settlement": [
+      {
+        "index": 4152,
+        "tree_id": "gold_007_shoe_drops_settlement",
+        "tree_name": "重大事件靴子落地走普涨",
+        "message_id": "post_1CXrzi7Cb4odEYGYCyz1n5",
+        "et_date": "2026-02-06",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "今天周五和上次开门一样走结算普涨",
+        "raw_text": "今天周五和上次开门一样走结算普涨"
+      }
+    ],
     "gold_008_index_turn_gate": [],
     "gold_008b_block_print_reentry": [],
     "gold_009_cost_exit_last_batch": [],
@@ -252,7 +128,18 @@
     "gold_012_profit_cushion": [],
     "gold_013_supply_unlock_3_plus_1": [],
     "prop_001_dip_buy_integer": [],
-    "prop_002_cut_in_half_100_percent": [],
+    "prop_002_cut_in_half_100_percent": [
+      {
+        "index": 4131,
+        "tree_id": "prop_002_cut_in_half_100_percent",
+        "tree_name": "事件腰斩50%迎翻倍100%机会",
+        "message_id": "post_1CXrjbmWH3JU48EsX52ydX",
+        "et_date": "2026-02-06",
+        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+        "evidence_span": "前这轮情况和上次周五 11月14日 完全一样了  11月13日的盘后是压的最低点 btc 8万整数\n\n\n\n\n\n2月5日昨天的盘后也是压最低 BTC6万\n\n\n\n这轮准备   100跌50  50去买入的股票 主要目前有\n\n\n\ntsll  还有16的两笔 当初一笔死拿 和16.05的一半常规仓  今天解",
+        "raw_text": "前这轮情况和上次周五 11月14日 完全一样了  11月13日的盘后是压的最低点 btc 8万整数\n\n\n\n\n\n2月5日昨天的盘后也是压最低 BTC6万\n\n\n\n这轮准备   100跌50  50去买入的股票 主要目前有\n\n\n\ntsll  还有16的两笔 当初一笔死拿 和16.05的一半常规仓  今天解放了2笔14和15的 \n\n这部分资金到13.8在探底时候找机会吸两次\n\n自己感觉上这轮  13.8是底部 主要看下周五能不能给机会  大家可以看看 11月14日和11月21日 两次14.8底部\n\n\n\n"
+      }
+    ],
     "prop_003_valuation_dip_method": [],
     "prop_004_event_low_dip_method": [],
     "prop_005_block_print_method": [],
@@ -265,66 +152,8 @@
     "prop_012_position_leverage_ratio": [],
     "prop_013_three_dip_types_selection": [],
     "prop_014_msci_exclusion_sector_sympathy_dip": [],
-    "prop_015_intraday_session_rhythm_0dte": []
-  },
-  "gap_subdivision": {
-    "rule_replays": [],
-    "point_memos": [
-      {
-        "index": 4189,
-        "type": "point_memo_watch",
-        "message_id": "post_1CXxZmVP766dQTStNQcVRK",
-        "et_date": "2026-02-09",
-        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "memo_span": "夜盘因为周末讲话比较亢奋 高开的多 盘前和盘中就会回落补下高开的缺口，盘中和收盘附近会找下周五的收盘左右做点日内",
-        "raw_text": "夜盘因为周末讲话比较亢奋 高开的多 盘前和盘中就会回落补下高开的缺口，盘中和收盘附近会找下周五的收盘左右做点日内"
-      },
-      {
-        "index": 4634,
-        "type": "point_memo_watch",
-        "message_id": "post_1CYhrppc2LRqKyu5XdNkJk",
-        "et_date": "2026-03-04",
-        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "memo_span": "昨天spy把12月17日的缺口66912月17日以来第一次回补 加上最近特朗普从战争后开始转移到btc法案上 说明 吸筹差不多吸足了 政府资金一直这几轮都是币市场里面做\n\n\n\n最近死拿的几个价格也罗列下\n\n\n\n13.55的tsll  \n\n25的amzu    30.7达成亚马逊220一半涨幅的目标 ",
-        "raw_text": "昨天spy把12月17日的缺口66912月17日以来第一次回补 加上最近特朗普从战争后开始转移到btc法案上 说明 吸筹差不多吸足了 政府资金一直这几轮都是币市场里面做\n\n\n\n最近死拿的几个价格也罗列下\n\n\n\n13.55的tsll  \n\n25的amzu    30.7达成亚马逊220一半涨幅的目标 出了一半\n\n71.7的hood\n\n\n\n76.7的nvdl\n\n3月9日 76.7的nvdl 变做T仓位在77.2附近出  \n\n73.7的夜盘买入变死拿\n\n\n\n\n\n3月9日 新增 186的amd  193"
-      },
-      {
-        "index": 4635,
-        "type": "point_memo_watch",
-        "message_id": "post_1CYhrqH32F1gxr2TzvfeMV",
-        "et_date": "2026-03-04",
-        "channel": "不用翻墙期权",
-        "memo_span": "昨天spy把12月17日的缺口66912月17日以来第一次回补 加上最近特朗普从战争后开始转移到btc法案上 说明 吸筹差不多吸足了 政府资金一直这几轮都是币市场里面做\n\n\n\n最近死拿的几个价格也罗列下\n\n\n\n13.55的tsll\n\n25的amzu\n\n71.7的hood\n\n76.7的nvdl\n\n昨天",
-        "raw_text": "昨天spy把12月17日的缺口66912月17日以来第一次回补 加上最近特朗普从战争后开始转移到btc法案上 说明 吸筹差不多吸足了 政府资金一直这几轮都是币市场里面做\n\n\n\n最近死拿的几个价格也罗列下\n\n\n\n13.55的tsll\n\n25的amzu\n\n71.7的hood\n\n76.7的nvdl\n\n昨天的37.8 的iren也接近前面低点\n\n\n\n最近还有很多底部黄金坑的会出来 目前八成左右"
-      },
-      {
-        "index": 4687,
-        "type": "point_memo_watch",
-        "message_id": "post_1CYiQqQ4JwTcZmPRoDqtFy",
-        "et_date": "2026-03-04",
-        "channel": "讨论区股票记录",
-        "memo_span": "然后那种  昨天 12月17日 669缺口回补  就是隔开好几个月指数缺口回补了 个股价格很低 也是大仓位吸的日子",
-        "raw_text": "然后那种  昨天 12月17日 669缺口回补  就是隔开好几个月指数缺口回补了 个股价格很低 也是大仓位吸的日子"
-      },
-      {
-        "index": 4826,
-        "type": "point_memo_watch",
-        "message_id": "post_1CYt72NVixsvCGJ7yoHsEN",
-        "et_date": "2026-03-09",
-        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "memo_span": "昨天spy把12月17日的缺口66912月17日以来第一次回补 加上最近特朗普从战争后开始转移到btc法案上 说明 吸筹差不多吸足了 政府资金一直这几轮都是币市场里面做\n\n\n\n最近死拿的几个价格也罗列下\n\n\n\n13.55的tsll\n\n夜盘做T部分出了  13.55 维持死拿没变化\n\n\n\n25的amz",
-        "raw_text": "昨天spy把12月17日的缺口66912月17日以来第一次回补 加上最近特朗普从战争后开始转移到btc法案上 说明 吸筹差不多吸足了 政府资金一直这几轮都是币市场里面做\n\n\n\n最近死拿的几个价格也罗列下\n\n\n\n13.55的tsll\n\n夜盘做T部分出了  13.55 维持死拿没变化\n\n\n\n25的amzu 30.7达成亚马逊220一半涨幅的目标 出了一半\n\n27.25做了个做T仓位 28.75附近出了当天的做T剩下一半25继续死拿博新高\n\n\n\n71.7的hood  73.7的做T出了一半 和71.7"
-      },
-      {
-        "index": 4928,
-        "type": "point_memo_watch",
-        "message_id": "post_1CZ7MXYFoVTYPegEdSZXyS",
-        "et_date": "2026-03-16",
-        "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-        "memo_span": "今天指数也是667-672  5个点的盘中空间  只是spy上面有个673-675的缺口 看明天开盘后指数在那个区间 这几天会上探补掉",
-        "raw_text": "今天指数也是667-672  5个点的盘中空间  只是spy上面有个673-675的缺口 看明天开盘后指数在那个区间 这几天会上探补掉"
-      }
-    ]
+    "prop_015_intraday_session_rhythm_0dte": [],
+    "prop_016_index_macro_gap_heavy_dip": []
   },
   "skipped_audit_log": [
     {
@@ -348,34 +177,14 @@
       "raw_text": "吃晚饭手里其他也记得看看人工干预涨得多的减点。今天开盘再看看是不是走结算在回吸"
     },
     {
-      "index": 4131,
-      "message_id": "post_1CXrjbmWH3JU48EsX52ydX",
-      "et_date": "2026-02-06",
-      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "死拿",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
-      "raw_text": "前这轮情况和上次周五 11月14日 完全一样了  11月13日的盘后是压的最低点 btc 8万整数\n\n\n\n\n\n2月5日昨天的盘后也是压最低 BTC6万\n\n\n\n这轮准备   100跌50  50去买入的股票 主要目前有\n\n\n\ntsll  还有16的两笔 当初一笔死拿 和16.05的一半常规仓  今天解"
-    },
-    {
       "index": 4132,
       "message_id": "post_1CXrjcTAke43T7nrWnBk9a",
       "et_date": "2026-02-06",
       "channel": "不用翻墙期权",
-      "trigger": "死拿",
+      "trigger": "100跌50",
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "前这轮情况和上次周五 11月14日 完全一样了 11月13日的盘后是压的最低点 btc 8万整数\n\n\n\n\n\n2月5日昨天的盘后也是压最低 BTC6万\n\n\n\n这轮准备 100跌50 50去买入的股票 主要目前有\n\n\n\ntsll 还有16的两笔 当初一笔死拿 和16.05的一半常规仓 今天解放了2笔14"
-    },
-    {
-      "index": 4152,
-      "message_id": "post_1CXrzi7Cb4odEYGYCyz1n5",
-      "et_date": "2026-02-06",
-      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
-      "trigger": "结算",
-      "category": "weak_commentary_or_single_event",
-      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
-      "raw_text": "今天周五和上次开门一样走结算普涨"
     },
     {
       "index": 4153,
@@ -386,6 +195,16 @@
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "今天周五和上次开门一样走结算普涨"
+    },
+    {
+      "index": 4189,
+      "message_id": "post_1CXxZmVP766dQTStNQcVRK",
+      "et_date": "2026-02-09",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "夜盘因为周末讲话比较亢奋 高开的多 盘前和盘中就会回落补下高开的缺口，盘中和收盘附近会找下周五的收盘左右做点日内"
     },
     {
       "index": 4190,
@@ -848,6 +667,26 @@
       "raw_text": "tsll 最近有\n\n\n\n13.55 死拿的常规仓\n\n\n\n14.05之前的死拿的常规仓 跌破就变做T仓位了\n\n\n\n盘前可以14.05的部分在14.05出一半"
     },
     {
+      "index": 4634,
+      "message_id": "post_1CYhrppc2LRqKyu5XdNkJk",
+      "et_date": "2026-03-04",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "昨天spy把12月17日的缺口66912月17日以来第一次回补 加上最近特朗普从战争后开始转移到btc法案上 说明 吸筹差不多吸足了 政府资金一直这几轮都是币市场里面做\n\n\n\n最近死拿的几个价格也罗列下\n\n\n\n13.55的tsll  \n\n25的amzu    30.7达成亚马逊220一半涨幅的目标 "
+    },
+    {
+      "index": 4635,
+      "message_id": "post_1CYhrqH32F1gxr2TzvfeMV",
+      "et_date": "2026-03-04",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "昨天spy把12月17日的缺口66912月17日以来第一次回补 加上最近特朗普从战争后开始转移到btc法案上 说明 吸筹差不多吸足了 政府资金一直这几轮都是币市场里面做\n\n\n\n最近死拿的几个价格也罗列下\n\n\n\n13.55的tsll\n\n25的amzu\n\n71.7的hood\n\n76.7的nvdl\n\n昨天"
+    },
+    {
       "index": 4636,
       "message_id": "post_1CYhs9czj4Xqn8VXYvDHtv",
       "et_date": "2026-03-04",
@@ -976,6 +815,16 @@
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "tsll做T仓位还有 15.05和 15.3两笔\n\n\n\n\n\n15.05成本到了 出15.05那部分\n\n\n\n13.55死拿和机构差不多 木头姐昨天补仓13.6还比我们高5分"
+    },
+    {
+      "index": 4687,
+      "message_id": "post_1CYiQqQ4JwTcZmPRoDqtFy",
+      "et_date": "2026-03-04",
+      "channel": "讨论区股票记录",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "然后那种  昨天 12月17日 669缺口回补  就是隔开好几个月指数缺口回补了 个股价格很低 也是大仓位吸的日子"
     },
     {
       "index": 4688,
@@ -1148,6 +997,16 @@
       "raw_text": "28.73出夜盘27.25的amzu做T部分 只留25死拿的剩下一半博新高"
     },
     {
+      "index": 4826,
+      "message_id": "post_1CYt72NVixsvCGJ7yoHsEN",
+      "et_date": "2026-03-09",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "昨天spy把12月17日的缺口66912月17日以来第一次回补 加上最近特朗普从战争后开始转移到btc法案上 说明 吸筹差不多吸足了 政府资金一直这几轮都是币市场里面做\n\n\n\n最近死拿的几个价格也罗列下\n\n\n\n13.55的tsll\n\n夜盘做T部分出了  13.55 维持死拿没变化\n\n\n\n25的amz"
+    },
+    {
       "index": 4827,
       "message_id": "post_1CYt7BM9KorHkhaozEbfWj",
       "et_date": "2026-03-09",
@@ -1256,6 +1115,16 @@
       "category": "duplicate_post",
       "reason": "跨频道完全重复发布，不重复记账",
       "raw_text": "讲销量时候 出2份 夜盘全部止盈 死拿的再出三分之一"
+    },
+    {
+      "index": 4928,
+      "message_id": "post_1CZ7MXYFoVTYPegEdSZXyS",
+      "et_date": "2026-03-16",
+      "channel": "频道:forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日事件点评或弱语义描述，未达到树节点标准",
+      "raw_text": "今天指数也是667-672  5个点的盘中空间  只是spy上面有个673-675的缺口 看明天开盘后指数在那个区间 这几天会上探补掉"
     },
     {
       "index": 4929,
