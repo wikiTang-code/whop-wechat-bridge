@@ -1,0 +1,1259 @@
+[
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1CTrD3rwtkAvaX52YdhnBK",
+    "et_date": "2025-10-06",
+    "raw_text": "1 打卡",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "1 打卡",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1CUmeAcKDW56NtNjxpK4rL",
+    "et_date": "2025-11-03",
+    "raw_text": "hims 46-47也分批出掉点",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "hims 46-47也分批出掉点",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1CW1ccVjzjAuzoU3V6V6qH",
+    "et_date": "2025-12-11",
+    "raw_text": "币市场也在博通财报后 连续跳2个1%反弹",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "币市场也在博通财报后 连续跳2个1%反弹",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1CXV7FbTr6YQEJfz7Psr4u",
+    "et_date": "2026-01-25",
+    "raw_text": "27.7接回常规仓一半的bmnr",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "27.7接回常规仓一半的bmnr",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1CYsbHAMM76NpN27T7abyX",
+    "et_date": "2026-03-09",
+    "raw_text": "19.45出一半 18.3的bmnr",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "19.45出一半 18.3的bmnr",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1CaoE3UnKP4cXXP24pmqLi",
+    "et_date": "2026-05-07",
+    "raw_text": "刚买了一点arm",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "刚买了一点arm",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1Caw3dC2et63BdqhajzPjh",
+    "et_date": "2026-05-11",
+    "raw_text": "一般 11月是最高点",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "一般 11月是最高点",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1Cb4CyBbqnPqUR4FbQfQQ3",
+    "et_date": "2026-05-15",
+    "raw_text": "所以看他周末的论调",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "所以看他周末的论调",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1CbCJLQRF7rymuXV3FVz4B",
+    "et_date": "2026-05-19",
+    "raw_text": "指数控制了",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "指数控制了",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1CbJAiLGZ3fye9dTztopur",
+    "et_date": "2026-05-22",
+    "raw_text": "几个节日都很临近",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "几个节日都很临近",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1CbX9Vuuj6DYjpKevJXvFz",
+    "et_date": "2026-05-29",
+    "raw_text": "7月3日的提前一周就是6月底",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "7月3日的提前一周就是6月底",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1CbhuMWdxHJdx1kmc4Za3t",
+    "et_date": "2026-06-04",
+    "raw_text": "不多，6块5就行",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "不多，6块5就行",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1Cbt1zh5kn3TRixyR3McwK",
+    "et_date": "2026-06-09",
+    "raw_text": "现在买不合适了",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "现在买不合适了",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1Cc5JyKQkrtVJ77vnjU9Xv",
+    "et_date": "2026-06-15",
+    "raw_text": "投票日期出了才会有起涨的基础点",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "投票日期出了才会有起涨的基础点",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "chat",
+    "message_id": "post_1CcLMhEwW2jjKmKkuL9xbN",
+    "et_date": "2026-06-23",
+    "raw_text": "牛马公司，我才30出头，头发都开始掉了",
+    "machine_acts": [
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "牛马公司，我才30出头，头发都开始掉了",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "fill",
+    "message_id": "post_1CTrEFCGbPeJw47ebC7uQ8",
+    "et_date": "2025-10-06",
+    "raw_text": "tsll 21.05减仓三分之一",
+    "machine_acts": [
+      "fill"
+    ],
+    "spans": [
+      {
+        "span": "tsll 21.05减仓三分之一",
+        "acts": [
+          "fill"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "fill",
+    "message_id": "post_1CUuEV9aDspCdSLDKnfSp1",
+    "et_date": "2025-11-07",
+    "raw_text": "nvdl这个那个空头止盈掉了 昨天是92-93建仓的今天也没动\n在回踩83附近也可以加仓 有周一低吸机会也会提示的 \n这个也是财报时候在动作 有双杀行情也会做",
+    "machine_acts": [
+      "fill",
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "nvdl这个那个空头止盈掉了 昨天是92-93建仓的今天也没动",
+        "acts": [
+          "fill"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "在回踩83附近也可以加仓 有周一低吸机会也会提示的",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "这个也是财报时候在动作 有双杀行情也会做",
+        "acts": [
+          "chat"
+        ],
+        "topic": "options",
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "fill",
+    "message_id": "post_1CWrLrX4r6DABwAfPdq1tw",
+    "et_date": "2026-01-06",
+    "raw_text": "剩下仓位止损设置在4.4",
+    "machine_acts": [
+      "fill"
+    ],
+    "spans": [
+      {
+        "span": "剩下仓位止损设置在4.4",
+        "acts": [
+          "fill"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "fill",
+    "message_id": "post_1CXjVibukLLLKXa38r5USn",
+    "et_date": "2026-02-02",
+    "raw_text": "止损提高到3.2",
+    "machine_acts": [
+      "fill"
+    ],
+    "spans": [
+      {
+        "span": "止损提高到3.2",
+        "acts": [
+          "fill"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "fill",
+    "message_id": "post_1CYRbFDRjWciCvF38vnHnd",
+    "et_date": "2026-02-23",
+    "raw_text": "14.2附近 加了tsll",
+    "machine_acts": [
+      "fill"
+    ],
+    "spans": [
+      {
+        "span": "14.2附近 加了tsll",
+        "acts": [
+          "fill"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "fill",
+    "message_id": "post_1CYyGnxQhJ3qys8V3vnPMh",
+    "et_date": "2026-03-12",
+    "raw_text": "81.9加了昨天85卖出的nvdl那部分 新开也是常规仓的一半",
+    "machine_acts": [
+      "fill"
+    ],
+    "spans": [
+      {
+        "span": "81.9加了昨天85卖出的nvdl那部分 新开也是常规仓的一半",
+        "acts": [
+          "fill"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "fill",
+    "message_id": "post_1CZtMwmUMxxwGjGxkmrJfA",
+    "et_date": "2026-04-09",
+    "raw_text": "68.85回吸了74.6卖出的hood的一半仓位  留一半等指数补缺口时候再加",
+    "machine_acts": [
+      "fill"
+    ],
+    "spans": [
+      {
+        "span": "68.85回吸了74.6卖出的hood的一半仓位  留一半等指数补缺口时候再加",
+        "acts": [
+          "fill"
+        ],
+        "topic": "gap",
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "fill",
+    "message_id": "post_1CaqDx8gxJLrLBfkR1mGgq",
+    "et_date": "2026-05-08",
+    "raw_text": "74.33附近加回 79卖出的hood",
+    "machine_acts": [
+      "fill"
+    ],
+    "spans": [
+      {
+        "span": "74.33附近加回 79卖出的hood",
+        "acts": [
+          "fill"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "fill",
+    "message_id": "post_1CbeXKJErk3ScAeb4F9Zgw",
+    "et_date": "2026-06-02",
+    "raw_text": "14.33加回三分之一常规仓的tsll",
+    "machine_acts": [
+      "fill"
+    ],
+    "spans": [
+      {
+        "span": "14.33加回三分之一常规仓的tsll",
+        "acts": [
+          "fill"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "fill",
+    "message_id": "post_1Cc9Qsyqm4sqvEjKEVJDdn",
+    "et_date": "2026-06-17",
+    "raw_text": "262开了三分之一常规仓的ibm",
+    "machine_acts": [
+      "fill"
+    ],
+    "spans": [
+      {
+        "span": "262开了三分之一常规仓的ibm",
+        "acts": [
+          "fill"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "lesson",
+    "message_id": "post_1CTtAjE5nfQDkK18bjGqNm",
+    "et_date": "2025-10-07",
+    "raw_text": "This pullback is healthy and necessary. Additionally, Chinese funds will flow back, and they have been withdrawing these days because it is very difficult to trade at new historical highs every week.\n这次回调是健康的，也是必要的，加上中国资金会回流本土，这几天在撤离，因为每周都在交易历史新高非常困难。\n机器关于这次回调的看法",
+    "machine_acts": [
+      "chat",
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "This pullback is healthy and necessary. Additionally, Chinese funds will flow back, and they have been withdrawing these days because it is very difficult to trade at new historical highs every week.",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "这次回调是健康的，也是必要的，加上中国资金会回流本土，这几天在撤离，因为每周都在交易历史新高非常困难",
+        "acts": [
+          "lesson"
+        ],
+        "topic": "flow",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      },
+      {
+        "span": "机器关于这次回调的看法",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "lesson",
+    "message_id": "post_1CUnkyN1BtcpYCed6KNhe6",
+    "et_date": "2025-11-04",
+    "raw_text": "盘前17点到18点这段没有人工介入 量化惯性抛售的时间段的低点价格可以自己记录下以那个支撑参考   然后手里有些有减持公告的 看下今天会不会在压一个价格比如 \nunh减持了5天了\n orcl 两轮减持 第一轮减持后 ceo 副总又减持了7天\nnbis解禁后的卖出\ncrwv 第二轮 减持的第三天\n一般有减持的要3天后第四天才看有的会持续减持到横盘企稳",
+    "machine_acts": [
+      "lesson",
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "盘前17点到18点这段没有人工介入 量化惯性抛售的时间段的低点价格可以自己记录下以那个支撑参考   然后手里有些有减持公告的 看下今天会不会在压一个价格比如",
+        "acts": [
+          "lesson"
+        ],
+        "topic": "manual_bid",
+        "timing": [
+          "盘前"
+        ],
+        "can_ascend": true,
+        "l2_family": null
+      },
+      {
+        "span": "unh减持了5天了",
+        "acts": [
+          "chat"
+        ],
+        "topic": "supply_unlock",
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "orcl 两轮减持 第一轮减持后 ceo 副总又减持了7天",
+        "acts": [
+          "chat"
+        ],
+        "topic": "supply_unlock",
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "nbis解禁后的卖出",
+        "acts": [
+          "chat"
+        ],
+        "topic": "supply_unlock",
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "crwv 第二轮 减持的第三天",
+        "acts": [
+          "chat"
+        ],
+        "topic": "supply_unlock",
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "一般有减持的要3天后第四天才看有的会持续减持到横盘企稳",
+        "acts": [
+          "lesson"
+        ],
+        "topic": "supply_unlock",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": "k_passive_redeem"
+      }
+    ]
+  },
+  {
+    "audit_stratum": "lesson",
+    "message_id": "post_1CViU26LQRobZR1WJaEXW4",
+    "et_date": "2025-12-02",
+    "raw_text": "英伟达和特斯拉成交额还是和昨天上周一到周三 成交额是一样的  目前就是每天存量小碎步上去  通过做T出现这样平均的成交额",
+    "machine_acts": [
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "英伟达和特斯拉成交额还是和昨天上周一到周三 成交额是一样的  目前就是每天存量小碎步上去  通过做T出现这样平均的成交额",
+        "acts": [
+          "lesson"
+        ],
+        "topic": "tape_stat",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "lesson",
+    "message_id": "post_1CWhitDKbsPW4FPyJgtC9d",
+    "et_date": "2026-01-01",
+    "raw_text": "节前都是被动减有个10% 休息一天的现金赎回流要求也是卡了这个机制在三天收盘才买入 今天是节日过去实际多余的就会在吸筹 也关注成交额是不是比节前多1.5倍",
+    "machine_acts": [
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "节前都是被动减有个10% 休息一天的现金赎回流要求也是卡了这个机制在三天收盘才买入 今天是节日过去实际多余的就会在吸筹 也关注成交额是不是比节前多1.5倍",
+        "acts": [
+          "lesson"
+        ],
+        "topic": "structure",
+        "timing": [
+          "收盘"
+        ],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "lesson",
+    "message_id": "post_1CYWwUd46TR3Tay1GDyde2",
+    "et_date": "2026-02-26",
+    "raw_text": "英伟达杀call就是捡漏他的低点和其他的股的低点",
+    "machine_acts": [
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "英伟达杀call就是捡漏他的低点和其他的股的低点",
+        "acts": [
+          "lesson"
+        ],
+        "topic": "options",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "lesson",
+    "message_id": "post_1CaoLdfhQ3SCvP8jD1euFG",
+    "et_date": "2026-05-07",
+    "raw_text": "币就是看转弯往上",
+    "machine_acts": [
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "币就是看转弯往上",
+        "acts": [
+          "lesson"
+        ],
+        "topic": "index_turn",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "lesson",
+    "message_id": "post_1CbAD2Vr8wJtEvqBB94EEf",
+    "et_date": "2026-05-18",
+    "raw_text": "周末讲话主要 鼓励基金 慢跑式的减持   他这个基调出来就是被动减前面2天 今天加明天会有主动规避的",
+    "machine_acts": [
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "周末讲话主要 鼓励基金 慢跑式的减持   他这个基调出来就是被动减前面2天 今天加明天会有主动规避的",
+        "acts": [
+          "lesson"
+        ],
+        "topic": "supply_unlock",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": "k_passive_redeem"
+      }
+    ]
+  },
+  {
+    "audit_stratum": "lesson",
+    "message_id": "post_1CbTCUABxHQxKrNahAYqBm",
+    "et_date": "2026-05-27",
+    "raw_text": "就是抓指数转弯去买个股",
+    "machine_acts": [
+      "qa",
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "就是抓指数转弯去买个股",
+        "acts": [
+          "qa",
+          "lesson"
+        ],
+        "topic": "index_turn",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "lesson",
+    "message_id": "post_1CbkDKw3Qe2WEWKJtRsNpS",
+    "et_date": "2026-06-05",
+    "raw_text": "最低点日k没出现就是还有底部",
+    "machine_acts": [
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "最低点日k没出现就是还有底部",
+        "acts": [
+          "lesson"
+        ],
+        "topic": "structure",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "lesson",
+    "message_id": "post_1Cc7ChJPyUJuhMWzWDwsna",
+    "et_date": "2026-06-16",
+    "raw_text": "成交额缩量就是没备用资金顶了",
+    "machine_acts": [
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "成交额缩量就是没备用资金顶了",
+        "acts": [
+          "lesson"
+        ],
+        "topic": "flow",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "qa",
+    "message_id": "post_1CTzHbumAvcQcSaYeTCFKY",
+    "et_date": "2025-10-10",
+    "raw_text": "tsll目前记者问及再谈和马斯克关系  有所上涨 18.3仓位买的重的可以18减点仓位\n给周一留余地",
+    "machine_acts": [
+      "qa",
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "tsll目前记者问及再谈和马斯克关系  有所上涨 18.3仓位买的重的可以18减点仓位",
+        "acts": [
+          "qa"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "给周一留余地",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "qa",
+    "message_id": "post_1CVkPr1oM1Byve4PFiE5rj",
+    "et_date": "2025-12-03",
+    "raw_text": "然后就是板块这个技巧  我的是长桥电脑桌面端windows的  行情里面第二行就是\n每天有个领涨前四的 \n就是每天要看前四和倒数的\n比如太空板块 一直倒数的突然第一第二名了 就要注意了要反弹了",
+    "machine_acts": [
+      "chat",
+      "qa"
+    ],
+    "spans": [
+      {
+        "span": "然后就是板块这个技巧  我的是长桥电脑桌面端windows的  行情里面第二行就是",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "每天有个领涨前四的",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "就是每天要看前四和倒数的",
+        "acts": [
+          "qa"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      },
+      {
+        "span": "比如太空板块 一直倒数的突然第一第二名了 就要注意了要反弹了",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "qa",
+    "message_id": "post_1CaoVpgbPsy5GGbZVbUuSF",
+    "et_date": "2026-05-07",
+    "raw_text": "就是hood财报那天 跌一样",
+    "machine_acts": [
+      "qa"
+    ],
+    "spans": [
+      {
+        "span": "就是hood财报那天 跌一样",
+        "acts": [
+          "qa"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "qa",
+    "message_id": "post_1Cb2rKhjCdAfuAApNiJkG5",
+    "et_date": "2026-05-14",
+    "raw_text": "就是  法案最终不通过 是不是又重来一次  下次第四次投票那样资金不就是重复来一轮",
+    "machine_acts": [
+      "qa",
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "就是  法案最终不通过 是不是又重来一次  下次第四次投票那样资金不就是重复来一轮",
+        "acts": [
+          "qa",
+          "lesson"
+        ],
+        "topic": "flow",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "qa",
+    "message_id": "post_1CbE9sPboa7ryWWgVoApW4",
+    "et_date": "2026-05-20",
+    "raw_text": "就是lite那种",
+    "machine_acts": [
+      "qa"
+    ],
+    "spans": [
+      {
+        "span": "就是lite那种",
+        "acts": [
+          "qa"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "qa",
+    "message_id": "post_1CbV9f48o4eMhLkupesBsf",
+    "et_date": "2026-05-28",
+    "raw_text": "就是多空都开吃波动",
+    "machine_acts": [
+      "qa",
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "就是多空都开吃波动",
+        "acts": [
+          "qa",
+          "lesson"
+        ],
+        "topic": "structure",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "qa",
+    "message_id": "post_1CbiGRFCoSC1ifYBjAJeDp",
+    "et_date": "2026-06-04",
+    "raw_text": "就是政府做短线",
+    "machine_acts": [
+      "qa",
+      "lesson"
+    ],
+    "spans": [
+      {
+        "span": "就是政府做短线",
+        "acts": [
+          "qa",
+          "lesson"
+        ],
+        "topic": "event",
+        "timing": [],
+        "can_ascend": true,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "qa",
+    "message_id": "post_1Cbxn6adcgXSgE2Yoq723R",
+    "et_date": "2026-06-12",
+    "raw_text": "你的梯子有问题吧",
+    "machine_acts": [
+      "qa"
+    ],
+    "spans": [
+      {
+        "span": "你的梯子有问题吧",
+        "acts": [
+          "qa"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "watch",
+    "message_id": "post_1CTrBkqsrg5XyP3kC4XRj7",
+    "et_date": "2025-10-06",
+    "raw_text": "目前TSLL没有动打算等收盘或者发布会看看再决定",
+    "machine_acts": [
+      "watch"
+    ],
+    "spans": [
+      {
+        "span": "目前TSLL没有动打算等收盘或者发布会看看再决定",
+        "acts": [
+          "watch"
+        ],
+        "topic": null,
+        "timing": [
+          "收盘"
+        ],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "watch",
+    "message_id": "post_1CV63wthf44dNW8Luk2yfH",
+    "et_date": "2025-11-13",
+    "raw_text": "18.05附近加仓了点tsll  剩下等尾盘附近再看看",
+    "machine_acts": [
+      "watch"
+    ],
+    "spans": [
+      {
+        "span": "18.05附近加仓了点tsll  剩下等尾盘附近再看看",
+        "acts": [
+          "watch"
+        ],
+        "topic": null,
+        "timing": [
+          "尾盘"
+        ],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "watch",
+    "message_id": "post_1CWj8Toebz7xC78QJnvYPy",
+    "et_date": "2026-01-02",
+    "raw_text": "tsll这轮有点抄底的量起来了 可以收盘附近有回踩18.2-18.3分批在加点、",
+    "machine_acts": [
+      "watch"
+    ],
+    "spans": [
+      {
+        "span": "tsll这轮有点抄底的量起来了 可以收盘附近有回踩18.2-18.3分批在加点、",
+        "acts": [
+          "watch"
+        ],
+        "topic": "mean_revert",
+        "timing": [
+          "收盘"
+        ],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "watch",
+    "message_id": "post_1Ca7Y3ftcaosEwdSwUFezv",
+    "et_date": "2026-04-16",
+    "raw_text": "今天 高低切 昨天涨多的回调点 昨天没涨的补涨",
+    "machine_acts": [
+      "watch"
+    ],
+    "spans": [
+      {
+        "span": "今天 高低切 昨天涨多的回调点 昨天没涨的补涨",
+        "acts": [
+          "watch"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "news",
+    "message_id": "post_1CTyfbFudk261cM1sFhTuz",
+    "et_date": "2025-10-10",
+    "raw_text": "周五冲高的开局卖出后    尽量把回买的时间压到3点半和7点半 有时候盘后有新闻会影响 周末也会有讲话 \n或者到股票支撑位附近看有大单入场在回买",
+    "machine_acts": [
+      "news",
+      "chat"
+    ],
+    "spans": [
+      {
+        "span": "周五冲高的开局卖出后    尽量把回买的时间压到3点半和7点半 有时候盘后有新闻会影响 周末也会有讲话",
+        "acts": [
+          "news"
+        ],
+        "topic": null,
+        "timing": [
+          "盘后"
+        ],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "或者到股票支撑位附近看有大单入场在回买",
+        "acts": [
+          "chat"
+        ],
+        "topic": "block_print",
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "news",
+    "message_id": "post_1CXZtC9qwg5R3ZJDeemjGm",
+    "et_date": "2026-01-28",
+    "raw_text": "美东时间\n07:00：美国抵押贷款银行协会（MBA）抵押贷款申请指数\n10:00：特朗普与贝森特发表讲话（暂定）\n14:00：美联储联邦公开市场委员会（FOMC）利率决议\n14:30：鲍威尔新闻发布会",
+    "machine_acts": [
+      "chat",
+      "news"
+    ],
+    "spans": [
+      {
+        "span": "美东时间",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "07:00：美国抵押贷款银行协会（MBA）抵押贷款申请指数",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "10:00：特朗普与贝森特发表讲话（暂定）",
+        "acts": [
+          "chat"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "14:00：美联储联邦公开市场委员会（FOMC）利率决议",
+        "acts": [
+          "chat"
+        ],
+        "topic": "event",
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      },
+      {
+        "span": "14:30：鲍威尔新闻发布会",
+        "acts": [
+          "news"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  },
+  {
+    "audit_stratum": "news",
+    "message_id": "post_1CazfwipeHAMsMa8E2HoeL",
+    "et_date": "2026-05-13",
+    "raw_text": "美国新闻对这次谈 和之前中东5天在对比的",
+    "machine_acts": [
+      "news"
+    ],
+    "spans": [
+      {
+        "span": "美国新闻对这次谈 和之前中东5天在对比的",
+        "acts": [
+          "news"
+        ],
+        "topic": null,
+        "timing": [],
+        "can_ascend": false,
+        "l2_family": null
+      }
+    ]
+  }
+]
