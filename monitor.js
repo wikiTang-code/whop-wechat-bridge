@@ -1424,17 +1424,17 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       for (const msg of allNormalizedMessages) {
         dispatchIngestTopHalf(msg);
       }
+      generateQueueStatus();
     } catch (isrErr) {
       console.error('[ISR Top Half] 分发写入异常:', isrErr.message);
     }
 
-    // 🏛️ 中断下半部 (Bottom Half / DPC): P0 异步媒体下载与门禁工作者 (全频道新图即下 + >15KB + SHA 门禁)
-    try {
-      await runMediaWorker(20);
-      generateQueueStatus();
-    } catch (dpcErr) {
-      console.error('[DPC Media Worker] 下半部媒体处理异常:', dpcErr.message);
-    }
+    // 🏛️ 中断下半部 (Bottom Half / DPC): 异步非阻塞执行（不卡死轮询主线程）
+    setImmediate(() => {
+      runMediaWorker(10)
+        .then(() => generateQueueStatus())
+        .catch(err => console.error('[DPC Media Worker] 异步下半部异常:', err.message));
+    });
 
     // Process campaigns for new speaker messages
     for (const msg of newSpeakerMessages) {

@@ -79,25 +79,27 @@ export function dispatchIngestTopHalf(rawMsg) {
     looks_like_rule: looksLikeRule
   };
 
-  // 5. 下半部队列分发裁定
+  // 5. 下半部队列分发裁定 (按水位过滤历史，避免盲目入队过期附件)
   const dispatchedQueues = [];
 
-  // P0 媒体队列 (全频道一视同仁，只要有附件即丢入队列)
-  if (hasMedia) {
+  // 获取当前 media 水位线时间戳 (默认以 2026-08-28 之后的活跃窗口为基准)
+  const mediaWmRow = db.prepare(`SELECT last_processed_ts FROM pipeline_watermarks WHERE pipeline_name = 'wm_media'`).get();
+  const mediaWmTs = mediaWmRow ? Number(mediaWmRow.last_processed_ts) : 1787800000000; // 约 2026-08-27
+
+  // P0 媒体队列：全频道一视同仁，但仅对处于水位线之后的活跃新附件入队，历史过期附件不入队
+  if (hasMedia && createdAt >= mediaWmTs) {
     dispatchedQueues.push('media');
   }
 
-  // P1 L2a 跟单切窗队列 (仅跟单/发布区，且赵哥/周哥发言)
+  // P1 L2a 跟单切窗队列：仅在跟单发布区，且为赵哥/周哥发言 (与是否有图完全解耦)
   if ((channelClass === 'broadcast' || channelClass === 'record') && (speaker === 'zhao' || speaker === 'zhou')) {
     dispatchedQueues.push('l2a_cut');
   }
 
-  // P1 L2b 知识窗切窗队列 (赵哥全频道发言)
-  if (speaker === 'zhao') {
-    dispatchedQueues.push('l2b_cut');
-  }
+  // P1 L2b 知识窗切窗队列：按规划暂停入队，等待规范定稿后开放，禁止夜盘误跑
+  // if (speaker === 'zhao') { dispatchedQueues.push('l2b_cut'); }
 
-  // P2 时序动态账本队列 (命中规则特征词)
+  // P2 时序动态账本队列：仅在命中规则特征词且为赵哥发言时触发
   if (looksLikeRule && speaker === 'zhao') {
     dispatchedQueues.push('timeline');
   }
