@@ -248,12 +248,12 @@ const STRICT_20_SEEDS = [
     local_path: 'data/media/zhao/2026-05-15/post_1Cb4TAuGNsh8zYEUCgnce7_0.jpg',
     not: []
   },
-  // --- 7. g_img_005: IREN 跌补三缺口46整数底图 ---
+  // --- 7. g_img_005: 最有爆发的三要素图 ---
   {
     seed_id: 'g_img_005',
     post_id: 'post_1CbTUayc44sNzPweAjd3QW',
     kid: 'pending_new',
-    label: 'IREN 跌补三缺口46整数底图',
+    label: '最有爆发的三要素图',
     evidence_span: '最有爆发的三要素要时刻盯紧 抓机会',
     statement: '最有爆发的三要素要时刻盯紧，抓机会。',
     local_path: 'data/media/zhao/2026-05-27/post_1CbTUayc44sNzPweAjd3QW_0.jpg',
@@ -306,7 +306,7 @@ const STRICT_20_SEEDS = [
     kid: 'pending_new',
     label: '期权与杠杆磨损值折算上一轮价格',
     evidence_span: '回调 18.8-18.7  和17.9-17.8附近支撑分批回吸 第三次 计算了磨损值  18.8相当于第一轮的19.2',
-    statement: '近支撑分批回吸计算磨损值，折算等效支撑价格。',
+    statement: '回调支撑分批回吸计算磨损值，18.8相当于第一轮的19.2。',
     not: []
   },
   // --- 13. 纪律: 分批只减最后补的一笔成本出 ---
@@ -357,7 +357,7 @@ const STRICT_20_SEEDS = [
     label: '总仓位不超过7成留3成做T',
     evidence_span: '盘后所有的股票加起来总仓位不要超过7成 周一万一有回踩还要有做T资金',
     statement: '盘后总仓位不超过7成，保留3成做T资金。',
-    not: ['总仓位超过7成']
+    not: []
   },
   // --- 18. 公式: RKLB/ASTS 反弹一半方向测算 ---
   {
@@ -374,9 +374,9 @@ const STRICT_20_SEEDS = [
     seed_id: 'playbook_supply_unlock',
     post_id: 'post_1CULVkM6vhRYwSunr7xuLj',
     kid: 'pending_new',
-    label: '减持企稳迹象配置',
+    label: '减持企稳迹象',
     evidence_span: '减持完毕公告虽然还没出 但是有企稳迹象了',
-    statement: '减持完毕公告虽未出，但出现企稳迹象时可关注。',
+    statement: '减持完毕公告虽然还没出，但是有企稳迹象了。',
     not: []
   },
   // --- 20. 纪律: 被动减每天股仓位一般分三份每跌一个缺口买一份 ---
@@ -386,8 +386,8 @@ const STRICT_20_SEEDS = [
     kid: 'pending_new',
     label: '被动减每天股仓位一般分三份每跌一个缺口买一份',
     evidence_span: '被动减每天股仓位一般分三份 每跌一个缺口买一份',
-    statement: '被动减持期间仓位分三份，每跌一个缺口买一份。',
-    not: ['一次性满仓买入']
+    statement: '被动减每天股仓位一般分三份，每跌一个缺口买一份。',
+    not: []
   }
 ];
 

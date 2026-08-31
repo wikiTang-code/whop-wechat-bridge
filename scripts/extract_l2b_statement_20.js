@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 console.log('========================================================================================');
-console.log('🧪 执行 L2b 20 窗战法口诀「只抽 statement、禁止 BUY/SELL、带全量元数据」小样产出');
+console.log('🧪 执行 L2b 20 窗战法口诀「带完整 raw_text、去加词、禁止 BUY/SELL」小样产出');
 console.log('========================================================================================\n');
 
 const inputLines = fs.readFileSync('data/samples/l2b_dry_cut_20.jsonl', 'utf-8').trim().split('\n').filter(Boolean);
@@ -41,7 +41,7 @@ inputLines.forEach((line, idx) => {
     };
   }
 
-  // 4. 组装 L2b 知识原子产物 (绝对禁止 BUY / SELL / ORDER 动作)
+  // 4. 组装 L2b 知识原子产物 (包含完整 raw_text，绝对禁止 BUY / SELL / ORDER 动作)
   const knowledgeRecord = {
     cu_id: w.cu_id,
     post_id: w.post_id,
@@ -56,6 +56,8 @@ inputLines.forEach((line, idx) => {
     chart_notes: chartNotes,
     context_stale: w.context_stale || false,
     is_same_feed: w.is_same_feed,
+    raw_text: w.raw_text, // 挂载完整切窗原文
+    dialogue_messages: w.dialogue_messages, // 挂载结构化对话
     not: w.not || [],
     status: "proposed",
     do_not_use_as_order: true, // 绝对硬锁：禁止作为订单执行
@@ -76,9 +78,9 @@ const outPath = 'data/samples/l2b_knowledge_extracted_20.jsonl';
 const outContent = extractionResults.map(r => JSON.stringify(r)).join('\n') + '\n';
 fs.writeFileSync(outPath, outContent, 'utf-8');
 
-console.log(`✅ 成功落盘 20 窗知识小样: ${path.resolve(outPath)} (共 ${extractionResults.length} 条)`);
+console.log(`✅ 成功落盘 20 窗带 raw_text 知识小样: ${path.resolve(outPath)} (共 ${extractionResults.length} 条)`);
 console.log('========================================================================================');
-console.log('📋 20 窗「只抽 statement、禁止 BUY/SELL」清单全景核验表:');
+console.log('📋 20 窗带 raw_text「无加词、只抽 statement、禁止 BUY/SELL」清单全景核验:');
 console.log('========================================================================================');
 
 console.log('序号 | CU ID | 规范 kid | 状态 | 严禁下单锁 | 抽取的战法口诀 statement');
