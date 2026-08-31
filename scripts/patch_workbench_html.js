@@ -12,7 +12,7 @@ const thirdColReplacement = `<div class="column-body">
         <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px;">
           <details id="l2b-drycut-container" open style="border: 1px solid #8957e5; background: #12161c; border-radius: 4px; padding: 6px;">
             <summary style="color: #d2a8ff; font-size: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold;">
-              <span>🧪 L2b 20 窗切窗固定样本透视</span>
+              <span>🧪 L2b 20 窗切窗固定样本透视 (带定级)</span>
               <span style="font-size: 10px; background: rgba(137,87,229,0.25); color: #d2a8ff; padding: 2px 6px; border-radius: 4px;">常驻 20 窗</span>
             </summary>
             <div id="l2b-drycut-list" style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
@@ -55,7 +55,7 @@ if (html.includes(duplicateTarget)) {
   html = html.replace(duplicateTarget, '');
 }
 
-// 5. 替换 loadDryCut20Samples 为完整透出每条对话真实频道来源与配图强绑定的版本
+// 5. 替换 loadDryCut20Samples 为带「定级徽章 (gold_text / proposed / skip)」的完整版本
 const oldFuncStart = 'async function loadDryCut20Samples()';
 const oldFuncEnd = 'function selectCu(cuId, e)';
 const idxStart = html.indexOf(oldFuncStart);
@@ -78,6 +78,30 @@ const newFunctions = `// 辅助清洗 raw_text，将超长 [IMAGE:https://...] �
     // 全局存储 20 窗中各窗当前选中的图片索引与多图数据
     window.cuImageIndexes = window.cuImageIndexes || {};
     window.cuImagesData = window.cuImagesData || {};
+
+    // 20 窗定级映射表 (严格对应 l2b_20_grade.md)
+    const L2B_20_GRADES = {
+      1: { grade: 'gold_text', color: '#f2cc60', bg: 'rgba(242,204,96,0.15)', border: '#f2cc60', text: '🥇 gold_text' },
+      2: { grade: 'gold_text', color: '#f2cc60', bg: 'rgba(242,204,96,0.15)', border: '#f2cc60', text: '🥇 gold_text' },
+      3: { grade: 'proposed', color: '#58a6ff', bg: 'rgba(88,166,255,0.15)', border: '#388bfd', text: '🥈 proposed' },
+      4: { grade: 'proposed', color: '#58a6ff', bg: 'rgba(88,166,255,0.15)', border: '#388bfd', text: '🥈 proposed' },
+      5: { grade: 'proposed', color: '#58a6ff', bg: 'rgba(88,166,255,0.15)', border: '#388bfd', text: '🥈 proposed' },
+      6: { grade: 'proposed', color: '#58a6ff', bg: 'rgba(88,166,255,0.15)', border: '#388bfd', text: '🥈 proposed' },
+      7: { grade: 'proposed', color: '#58a6ff', bg: 'rgba(88,166,255,0.15)', border: '#388bfd', text: '🥈 proposed' },
+      8: { grade: 'gold_text', color: '#f2cc60', bg: 'rgba(242,204,96,0.15)', border: '#f2cc60', text: '🥇 gold_text' },
+      9: { grade: 'gold_text', color: '#f2cc60', bg: 'rgba(242,204,96,0.15)', border: '#f2cc60', text: '🥇 gold_text' },
+      10: { grade: 'proposed', color: '#58a6ff', bg: 'rgba(88,166,255,0.15)', border: '#388bfd', text: '🥈 proposed' },
+      11: { grade: 'skip', color: '#8b949e', bg: 'rgba(139,148,158,0.15)', border: '#8b949e', text: '⚪ skip' },
+      12: { grade: 'skip', color: '#8b949e', bg: 'rgba(139,148,158,0.15)', border: '#8b949e', text: '⚪ skip' },
+      13: { grade: 'proposed', color: '#58a6ff', bg: 'rgba(88,166,255,0.15)', border: '#388bfd', text: '🥈 proposed' },
+      14: { grade: 'proposed', color: '#58a6ff', bg: 'rgba(88,166,255,0.15)', border: '#388bfd', text: '🥈 proposed' },
+      15: { grade: 'skip', color: '#8b949e', bg: 'rgba(139,148,158,0.15)', border: '#8b949e', text: '⚪ skip' },
+      16: { grade: 'proposed', color: '#58a6ff', bg: 'rgba(88,166,255,0.15)', border: '#388bfd', text: '🥈 proposed' },
+      17: { grade: 'proposed', color: '#58a6ff', bg: 'rgba(88,166,255,0.15)', border: '#388bfd', text: '🥈 proposed' },
+      18: { grade: 'gold_text', color: '#f2cc60', bg: 'rgba(242,204,96,0.15)', border: '#f2cc60', text: '🥇 gold_text' },
+      19: { grade: 'skip', color: '#8b949e', bg: 'rgba(139,148,158,0.15)', border: '#8b949e', text: '⚪ skip' },
+      20: { grade: 'proposed', color: '#58a6ff', bg: 'rgba(88,166,255,0.15)', border: '#388bfd', text: '🥈 proposed' }
+    };
 
     function switchCuImage(cuId, delta) {
       const imgs = window.cuImagesData[cuId] || [];
@@ -121,6 +145,9 @@ const newFunctions = `// 辅助清洗 raw_text，将超长 [IMAGE:https://...] �
           item.style.border = '1px solid var(--border)';
           item.style.borderRadius = '4px';
           item.style.fontSize = '11px';
+
+          const gradeInfo = L2B_20_GRADES[idx + 1] || { color: '#8b949e', bg: 'rgba(139,148,158,0.1)', border: '#8b949e', text: 'proposed' };
+          const gradeBadge = \`<span class="badge" style="background:\${gradeInfo.bg}; color:\${gradeInfo.color}; border:1px solid \${gradeInfo.border}; padding:1px 6px; border-radius:3px; font-weight:bold; font-size:10px;">\${gradeInfo.text}</span>\`;
 
           // 整理窗内全部有效真图
           const rawImgs = (Array.isArray(w.images) && w.images.length > 0)
@@ -187,7 +214,10 @@ const newFunctions = `// 辅助清洗 raw_text，将超长 [IMAGE:https://...] �
           item.innerHTML = \`
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <span style="font-weight:bold; color:#58a6ff;">[\` + (idx+1) + \`] \` + escapeHtml(w.cu_id) + \`</span>
-              \` + seedBadge + \`
+              <div style="display:flex; gap:4px; align-items:center;">
+                \` + gradeBadge + \`
+                \` + seedBadge + \`
+              </div>
             </div>
             <div style="color:var(--text-muted); margin-bottom:4px; font-size:10px;">
               📡 <strong>\` + escapeHtml(w.channel_name) + \`</strong> (\` + escapeHtml(w.feed_id) + \`) | 🔑 锚点: <code>\` + escapeHtml(w.post_id) + \`</code> | 🏷️ <span style="color:#d2a8ff; font-weight:bold;">\` + escapeHtml(w.kid) + \`</span>
@@ -213,4 +243,4 @@ if (idxStart !== -1 && idxEnd !== -1) {
 }
 
 fs.writeFileSync('public/review_workbench.html', html, 'utf-8');
-console.log('✅ review_workbench.html 升级每条对话频道透出与图文联动完成！');
+console.log('✅ review_workbench.html 升级定级徽章展示完成！');
