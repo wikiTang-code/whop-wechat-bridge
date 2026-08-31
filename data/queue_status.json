@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-08-31T01:19:29.938Z",
-  "badge_summary": "库至 08-30, 20:4 · 图待下 0 · L2a 切窗已至 08-28",
+  "updated_at": "2026-08-31T01:22:57.139Z",
+  "badge_summary": "库至 08/30 20:44 · 图待下 0 · L2a 切窗已至 08-28",
   "database_overview": {
     "total_messages": 75981,
     "total_ingest_events": 10448
@@ -8,63 +8,75 @@
   "watermarks": {
     "wm_raw": {
       "last_ts": 1788137082900,
-      "last_date_et": "2026-08-30, 20:44:42",
+      "last_date_et": "08/30 20:44",
       "last_id": "post_1CeZuDUxdYtjckChAM4WGN",
       "updated_at": "2026-08-31T01:19:29.560Z"
     },
     "wm_media": {
-      "last_ts": 1788135930952,
-      "last_date_et": "2026-08-30, 20:25:30",
+      "last_ts": 1788135921000,
+      "last_date_et": "08/30 20:25",
       "last_id": "post_1CeZskZeTudbyBxxM5pxz9",
-      "updated_at": "2026-08-31T01:19:29.928Z"
+      "updated_at": "2026-08-31T01:22:56.989Z"
     },
     "wm_l2a_cut": {
       "last_ts": 1787961600000,
-      "last_date_et": "2026-08-28, 20:00:00",
+      "last_date_et": "08/28 20:00",
       "last_id": "post_1CeVzEvXP5LptWq4o78Uf5",
-      "updated_at": "2026-08-31T01:19:12.204Z"
+      "updated_at": "2026-08-31T01:22:56.989Z"
     }
   },
   "queues": {
     "media": {
       "pending": 0,
       "running": 0,
-      "done": 415,
-      "failed": 1,
+      "ok": 5,
+      "skipped": 411,
+      "paused": 0,
+      "failed": 0,
       "total": 416
     },
     "l2a_cut": {
       "pending": 0,
       "running": 0,
-      "done": 390,
+      "ok": 0,
+      "skipped": 390,
+      "paused": 0,
       "failed": 0,
       "total": 390
     },
     "l2b_cut": {
       "pending": 0,
       "running": 0,
-      "done": 2064,
+      "ok": 0,
+      "skipped": 0,
+      "paused": 2064,
       "failed": 0,
       "total": 2064
     },
     "timeline": {
       "pending": 98,
       "running": 0,
-      "done": 0,
+      "ok": 0,
+      "skipped": 0,
+      "paused": 0,
       "failed": 0,
       "total": 98
     },
     "extract_l2a": {
       "pending": 0,
       "running": 0,
-      "done": 0,
+      "ok": 0,
+      "skipped": 0,
+      "paused": 0,
       "failed": 0,
       "total": 0
     },
     "extract_l2b": {
       "pending": 0,
       "running": 0,
-      "done": 0,
+      "ok": 0,
+      "skipped": 0,
+      "paused": 0,
       "failed": 0,
       "total": 0
     }

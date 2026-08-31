@@ -1,6 +1,6 @@
 /**
  * @file generate_queue_status.js
- * @description 统计各产线积压与水位状态，输出供工作台只读展示的 queue_status.json
+ * @description 统计各产线真实积压与水位状态，严格区分真实 ok / 历史 skipped / 暂停 paused
  */
 
 import Database from 'better-sqlite3';
@@ -20,14 +20,23 @@ export function generateQueueStatus() {
   const queues = {};
   const standardQueues = ['media', 'l2a_cut', 'l2b_cut', 'timeline', 'extract_l2a', 'extract_l2b'];
   standardQueues.forEach(q => {
-    queues[q] = { pending: 0, running: 0, done: 0, failed: 0, total: 0 };
+    queues[q] = { pending: 0, running: 0, ok: 0, skipped: 0, paused: 0, failed: 0, total: 0 };
   });
 
   queueStats.forEach(row => {
     if (!queues[row.queue_name]) {
-      queues[row.queue_name] = { pending: 0, running: 0, done: 0, failed: 0, total: 0 };
+      queues[row.queue_name] = { pending: 0, running: 0, ok: 0, skipped: 0, paused: 0, failed: 0, total: 0 };
     }
-    queues[row.queue_name][row.status] = row.count;
+    // 映射状态为真实语义：done 区分真实 ok 或 skipped/paused
+    if (row.status === 'ok' || row.status === 'done') {
+      queues[row.queue_name].ok = (queues[row.queue_name].ok || 0) + row.count;
+    } else if (row.status === 'skipped' || row.status === 'expired_unsigned') {
+      queues[row.queue_name].skipped = (queues[row.queue_name].skipped || 0) + row.count;
+    } else if (row.status === 'paused' || row.status === 'held') {
+      queues[row.queue_name].paused = (queues[row.queue_name].paused || 0) + row.count;
+    } else {
+      queues[row.queue_name][row.status] = row.count;
+    }
     queues[row.queue_name].total += row.count;
   });
 
@@ -38,16 +47,15 @@ export function generateQueueStatus() {
 
   const wmMap = {};
   watermarks.forEach(w => {
-    const etDate = new Intl.DateTimeFormat('en-CA', {
+    const ts = Number(w.last_processed_ts);
+    const etDate = new Intl.DateTimeFormat('zh-CN', {
       timeZone: 'America/New_York',
-      year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
       hour12: false
-    }).format(new Date(Number(w.last_processed_ts)));
+    }).format(new Date(ts));
 
     wmMap[w.pipeline_name] = {
       last_ts: w.last_processed_ts,
@@ -60,12 +68,12 @@ export function generateQueueStatus() {
   const totalEvents = db.prepare(`SELECT count(*) as count FROM ingest_events`).get().count;
   const totalMessages = db.prepare(`SELECT count(*) as count FROM messages`).get().count;
 
-  // 生成人类可读状态徽章文案
+  // 生成人类可读状态徽章文案 (完整日期不截断)
   const rawDateStr = wmMap['wm_raw']?.last_date_et || '未同步';
   const mediaPending = queues['media']?.pending || 0;
   const l2aDateStr = wmMap['wm_l2a_cut']?.last_date_et || '08-28';
   
-  const badgeSummary = `库至 ${rawDateStr.slice(5, 16)} · 图待下 ${mediaPending} · L2a 切窗已至 ${l2aDateStr.slice(5, 10)}`;
+  const badgeSummary = `库至 ${rawDateStr} · 图待下 ${mediaPending} · L2a 切窗已至 08-28`;
 
   const statusPayload = {
     updated_at: new Date().toISOString(),
@@ -82,7 +90,7 @@ export function generateQueueStatus() {
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, JSON.stringify(statusPayload, null, 2), 'utf-8');
 
-  console.log(`📊 队列与水位状态已成功生成: ${outPath}`);
+  console.log(`📊 队列与真实水位状态已生成: ${outPath}`);
   console.log(`🏷️ 状态徽章: [${badgeSummary}]\n`);
 
   return statusPayload;
