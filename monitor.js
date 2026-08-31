@@ -7,6 +7,9 @@ import { getMarketContextForTickers } from './kline.js';
 import { runWithRateLimit } from './rate-limiter.js';
 import { processMessageForCampaigns, checkAndCloseStaleCampaigns } from './campaign-engine.js';
 import { downloadAndPersistAttachments } from './scripts/media_downloader.js';
+import { dispatchIngestTopHalf } from './scripts/ingest_dispatcher.js';
+import { runMediaWorker } from './scripts/media_worker.js';
+import { generateQueueStatus } from './scripts/generate_queue_status.js';
 
 dotenv.config();
 
@@ -1415,6 +1418,23 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
 
     // Save all synchronized messages to the database
     saveMessages(allNormalizedMessages);
+
+    // 🏛️ 中断上半部 (Top Half / ISR): 全频道一视同仁快速打标分发 + 丢入下半部队列 (耗时 < 10ms，绝不调模型)
+    try {
+      for (const msg of allNormalizedMessages) {
+        dispatchIngestTopHalf(msg);
+      }
+    } catch (isrErr) {
+      console.error('[ISR Top Half] 分发写入异常:', isrErr.message);
+    }
+
+    // 🏛️ 中断下半部 (Bottom Half / DPC): P0 异步媒体下载与门禁工作者 (全频道新图即下 + >15KB + SHA 门禁)
+    try {
+      await runMediaWorker(20);
+      generateQueueStatus();
+    } catch (dpcErr) {
+      console.error('[DPC Media Worker] 下半部媒体处理异常:', dpcErr.message);
+    }
 
     // Process campaigns for new speaker messages
     for (const msg of newSpeakerMessages) {

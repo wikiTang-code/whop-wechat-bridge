@@ -1,52 +1,52 @@
 {
-  "updated_at": "2026-08-31T01:11:27.378Z",
-  "badge_summary": "库至 08-30, 20:0 · 图待下 322 · L2a 切窗已至 ",
+  "updated_at": "2026-08-31T01:16:30.518Z",
+  "badge_summary": "库至 08-30, 20:4 · 图待下 390 · L2a 切窗已至 ",
   "database_overview": {
-    "total_messages": 75911,
-    "total_ingest_events": 9948
+    "total_messages": 75981,
+    "total_ingest_events": 10448
   },
   "watermarks": {
     "wm_raw": {
-      "last_ts": 1788134533000,
-      "last_date_et": "2026-08-30, 20:02:13",
-      "last_id": "post_1CeVMWfa7s3SwVLxrSg3X9",
-      "updated_at": "2026-08-31T01:11:27.303Z"
+      "last_ts": 1788137082900,
+      "last_date_et": "2026-08-30, 20:44:42",
+      "last_id": "post_1CeZuDUxdYtjckChAM4WGN",
+      "updated_at": "2026-08-31T01:16:30.290Z"
     },
     "wm_media": {
       "last_ts": 1788134533000,
       "last_date_et": "2026-08-30, 20:02:13",
-      "last_id": "post_1Ce9hwG7AVapzQMrcZFnSo",
-      "updated_at": "2026-08-31T01:11:27.367Z"
+      "last_id": "post_1CeB8so3LNRpUHJgHtUEC5",
+      "updated_at": "2026-08-31T01:16:30.507Z"
     }
   },
   "queues": {
     "media": {
-      "pending": 322,
+      "pending": 390,
       "running": 0,
-      "done": 5,
+      "done": 25,
       "failed": 1,
-      "total": 328
+      "total": 416
     },
     "l2a_cut": {
-      "pending": 178,
+      "pending": 390,
       "running": 0,
       "done": 0,
       "failed": 0,
-      "total": 178
+      "total": 390
     },
     "l2b_cut": {
-      "pending": 1826,
+      "pending": 2064,
       "running": 0,
       "done": 0,
       "failed": 0,
-      "total": 1826
+      "total": 2064
     },
     "timeline": {
-      "pending": 89,
+      "pending": 98,
       "running": 0,
       "done": 0,
       "failed": 0,
-      "total": 89
+      "total": 98
     },
     "extract_l2a": {
       "pending": 0,
