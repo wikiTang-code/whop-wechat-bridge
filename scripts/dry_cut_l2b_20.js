@@ -147,12 +147,24 @@ function buildWindow(targetMsg, seedMetadata = {}) {
     throw new Error(`❌ 严重契约违背: evidence_span 不是 raw_text 连续子串: [${targetMsg.id}]\nSpan: "${evidenceSpan}"`);
   }
 
+  // 软标记判断: 后文消息距离锚点时间跨度是否超过 24 小时
+  let contextStale = false;
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+  for (const nm of nextMsgs) {
+    const deltaMs = Number(nm.created_at) - createdTs;
+    if (deltaMs > ONE_DAY_MS) {
+      contextStale = true;
+      break;
+    }
+  }
+
   return {
     post_id: targetMsg.id,
     feed_id: channelId,
     channel_name: registry[channelId]?.name || channelId,
     et_date: new Date(createdTs).toISOString().slice(0, 10),
     is_same_feed: isSameFeed,
+    context_stale: contextStale,
     has_real_image: hasRealImage,
     image_count: images.length,
     images: images,
