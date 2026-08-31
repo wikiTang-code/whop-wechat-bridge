@@ -16,6 +16,38 @@ import fs from 'fs';
 const dbPath = path.resolve('whop_archive.db');
 const db = new Database(dbPath);
 
+// 初始化 ISR / DPC 流水线所需核心表结构
+db.exec(`
+  CREATE TABLE IF NOT EXISTS ingest_events (
+    message_id TEXT PRIMARY KEY,
+    created_at INTEGER NOT NULL,
+    channel_id TEXT NOT NULL,
+    channel_name TEXT,
+    channel_class TEXT NOT NULL,
+    speaker TEXT NOT NULL,
+    flags TEXT,
+    dispatched_queues TEXT,
+    created_ts INTEGER NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS pipeline_tasks (
+    queue_name TEXT NOT NULL,
+    message_id TEXT NOT NULL,
+    event_id INTEGER,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    PRIMARY KEY (queue_name, message_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS pipeline_watermarks (
+    pipeline_name TEXT PRIMARY KEY,
+    last_processed_ts INTEGER,
+    last_processed_id TEXT,
+    updated_at INTEGER NOT NULL
+  );
+`);
+
 let channelRegistryCache = null;
 function getChannelRegistry() {
   if (channelRegistryCache) return channelRegistryCache;
