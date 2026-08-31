@@ -1,0 +1,200 @@
+{
+  "gate_name": "Media Gate v1.0 (8/26 Verification)",
+  "target_date": "2026-08-26",
+  "total_files_scanned": 27,
+  "passed_count": 27,
+  "rejected_count": 0,
+  "pass_rate": "100.0%",
+  "passed_files": [
+    {
+      "file": "post_1CeRhXS7WhjahffSsAL5bj_0.jpg",
+      "sizeKb": "16.7",
+      "sizeBytes": 17149,
+      "sha": "ec8430f2",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRhXS7WhjahffSsAL5bj_0.jpg"
+    },
+    {
+      "file": "post_1CeRiQAFkQ2322w1imyUJK_0.jpg",
+      "sizeKb": "32.3",
+      "sizeBytes": 33118,
+      "sha": "209debae",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRiQAFkQ2322w1imyUJK_0.jpg"
+    },
+    {
+      "file": "post_1CeRjLgaL8THixGC1wTNmd_0.jpg",
+      "sizeKb": "78.1",
+      "sizeBytes": 79990,
+      "sha": "8d01813e",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRjLgaL8THixGC1wTNmd_0.jpg"
+    },
+    {
+      "file": "post_1CeRNyrLU14ReWhJ3yKte6_0.jpg",
+      "sizeKb": "201.2",
+      "sizeBytes": 206075,
+      "sha": "72bcc78d",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRNyrLU14ReWhJ3yKte6_0.jpg"
+    },
+    {
+      "file": "post_1CeRNyrLU14ReWhJ3yKte6_1.jpg",
+      "sizeKb": "201.6",
+      "sizeBytes": 206434,
+      "sha": "d6b271b1",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRNyrLU14ReWhJ3yKte6_1.jpg"
+    },
+    {
+      "file": "post_1CeRP5FHKC6qUZqFqG3KUH_0.jpg",
+      "sizeKb": "206.3",
+      "sizeBytes": 211226,
+      "sha": "778dec0e",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRP5FHKC6qUZqFqG3KUH_0.jpg"
+    },
+    {
+      "file": "post_1CeRTz2CidkZLasXGt4zBo_0.jpg",
+      "sizeKb": "44.9",
+      "sizeBytes": 45936,
+      "sha": "52583f22",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRTz2CidkZLasXGt4zBo_0.jpg"
+    },
+    {
+      "file": "post_1CeRU3eJtpMovq4wVqfipp_0.jpg",
+      "sizeKb": "43.3",
+      "sizeBytes": 44300,
+      "sha": "8edeade6",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRU3eJtpMovq4wVqfipp_0.jpg"
+    },
+    {
+      "file": "post_1CeRUDYqaCv1T2NcDmF7pt_0.jpg",
+      "sizeKb": "33.9",
+      "sizeBytes": 34670,
+      "sha": "2f7b5fac",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRUDYqaCv1T2NcDmF7pt_0.jpg"
+    },
+    {
+      "file": "post_1CeRUvt6VHHw3PBzPP89qc_0.jpg",
+      "sizeKb": "42.3",
+      "sizeBytes": 43314,
+      "sha": "6bad0368",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRUvt6VHHw3PBzPP89qc_0.jpg"
+    },
+    {
+      "file": "post_1CeRWtZwbXax3DCuWxgn2C_0.jpg",
+      "sizeKb": "41.1",
+      "sizeBytes": 42128,
+      "sha": "49b75ce8",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRWtZwbXax3DCuWxgn2C_0.jpg"
+    },
+    {
+      "file": "post_1CeRXeLu6ucbHmekG7baGd_0.jpg",
+      "sizeKb": "35.3",
+      "sizeBytes": 36174,
+      "sha": "7239a868",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRXeLu6ucbHmekG7baGd_0.jpg"
+    },
+    {
+      "file": "post_1CeRY7exjxPr1CADEJ3xEu_0.jpg",
+      "sizeKb": "245.4",
+      "sizeBytes": 251284,
+      "sha": "6d7b8f5e",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRY7exjxPr1CADEJ3xEu_0.jpg"
+    },
+    {
+      "file": "post_1CeRYbXgAiVexha76tgrgN_0.jpg",
+      "sizeKb": "158.0",
+      "sizeBytes": 161759,
+      "sha": "ec6e44bb",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRYbXgAiVexha76tgrgN_0.jpg"
+    },
+    {
+      "file": "post_1CeRzeGnwTvvoQwdm7GpgB_0.jpg",
+      "sizeKb": "200.0",
+      "sizeBytes": 204793,
+      "sha": "05fae152",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeRzeGnwTvvoQwdm7GpgB_0.jpg"
+    },
+    {
+      "file": "post_1CeS13VM1zdRnSpQcRbjn8_0.jpg",
+      "sizeKb": "639.6",
+      "sizeBytes": 654931,
+      "sha": "a5f31b58",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeS13VM1zdRnSpQcRbjn8_0.jpg"
+    },
+    {
+      "file": "post_1CeS13VM1zdRnSpQcRbjn8_1.jpg",
+      "sizeKb": "647.1",
+      "sizeBytes": 662604,
+      "sha": "ef59b9a2",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeS13VM1zdRnSpQcRbjn8_1.jpg"
+    },
+    {
+      "file": "post_1CeS2vYbxKRqESAR6bdpsA_0.jpg",
+      "sizeKb": "427.9",
+      "sizeBytes": 438187,
+      "sha": "9d21edbe",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeS2vYbxKRqESAR6bdpsA_0.jpg"
+    },
+    {
+      "file": "post_1CeS321vTJKNycqYvCJRdf_0.jpg",
+      "sizeKb": "221.5",
+      "sizeBytes": 226802,
+      "sha": "61a4546d",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeS321vTJKNycqYvCJRdf_0.jpg"
+    },
+    {
+      "file": "post_1CeS3kkWj8RZp8HXqaDKcR_0.jpg",
+      "sizeKb": "240.0",
+      "sizeBytes": 245719,
+      "sha": "659487d4",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeS3kkWj8RZp8HXqaDKcR_0.jpg"
+    },
+    {
+      "file": "post_1CeS3tLuuSpp6dgMmKLpmH_0.jpg",
+      "sizeKb": "151.8",
+      "sizeBytes": 155393,
+      "sha": "f559a486",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeS3tLuuSpp6dgMmKLpmH_0.jpg"
+    },
+    {
+      "file": "post_1CeS6KXRqSfrGvM8aa7hco_0.jpg",
+      "sizeKb": "18.2",
+      "sizeBytes": 18631,
+      "sha": "27e0623b",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeS6KXRqSfrGvM8aa7hco_0.jpg"
+    },
+    {
+      "file": "post_1CeS6mFgsGCdfZ2ko99tb5_0.jpg",
+      "sizeKb": "95.2",
+      "sizeBytes": 97484,
+      "sha": "0eae27ec",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeS6mFgsGCdfZ2ko99tb5_0.jpg"
+    },
+    {
+      "file": "post_1CeS7XPX7jArDTrPKXmTrN_0.jpg",
+      "sizeKb": "101.8",
+      "sizeBytes": 104266,
+      "sha": "af51b22a",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeS7XPX7jArDTrPKXmTrN_0.jpg"
+    },
+    {
+      "file": "post_1CeS7YjeCGecQCbUcvbLKv_0.jpg",
+      "sizeKb": "52.7",
+      "sizeBytes": 54004,
+      "sha": "d8868d0f",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeS7YjeCGecQCbUcvbLKv_0.jpg"
+    },
+    {
+      "file": "post_1CeS9ZfhaXUCb5Yuv4a3UR_0.jpg",
+      "sizeKb": "17.2",
+      "sizeBytes": 17591,
+      "sha": "af6d2334",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeS9ZfhaXUCb5Yuv4a3UR_0.jpg"
+    },
+    {
+      "file": "post_1CeSLVr3LUYnrPixZyrgRZ_0.jpg",
+      "sizeKb": "169.9",
+      "sizeBytes": 173936,
+      "sha": "a3739c94",
+      "fullPath": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhao\\2026-08-26\\post_1CeSLVr3LUYnrPixZyrgRZ_0.jpg"
+    }
+  ],
+  "rejected_files": []
+}

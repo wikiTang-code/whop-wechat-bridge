@@ -1,0 +1,2464 @@
+{
+  "metadata": {
+    "segment": "incr 时序增量档 (2026-07-01 ~ 2026-08-28)",
+    "date_range": "2026-07-01 ~ 2026-08-28",
+    "total_scanned": 4774,
+    "bookmarked_stops": 238,
+    "tree_nodes_populated_count": 2,
+    "skipped_stops_total": 236,
+    "skipped_breakdown": {
+      "weak_commentary_or_single_event": 160,
+      "duplicate_post": 56,
+      "pure_fill_order": 12,
+      "macro_philosophy_memo": 7,
+      "same_day_suffix": 1
+    }
+  },
+  "tree_instances_summary": {
+    "gold_007_shoe_drops_settlement": {
+      "name": "重大事件靴子落地走普涨",
+      "status": "gold",
+      "instances_count": 1,
+      "sample_spans": [
+        "英伟达财报后的高点一直卖卖卖 就是为了应对杰克逊霍尔沃什的讲话  一个反弹了 后手讲话就会偏鹰让指数和盘面上下波动好让回流资金吃点短线盈利  加上可以让周一的A股继续闷杀下再减持"
+      ]
+    },
+    "gold_008_index_turn_gate": {
+      "name": "入场扫描：指数转弯再看个股",
+      "status": "gold",
+      "instances_count": 1,
+      "sample_spans": [
+        "7640的极限点一直是每天反复说极限点位去低吸低吸低吸 因为指数的话7700  7760 7820按60的波动值会往上波动一轮\n指数低位的 按轮动都能分批次获利"
+      ]
+    }
+  },
+  "gap_subdivision_summary": {
+    "gold_003_intraday_once_count": 0,
+    "prop_008_retrace_fill_count": 0,
+    "boundary_negative_cases_count": 0,
+    "point_memos_count": 0
+  },
+  "tree_instances_detail": {
+    "gold_001_second_handshake": [],
+    "gold_003_gap_intraday_once": [],
+    "gold_004_position_control_70_pct": [],
+    "gold_005_half_retrace_watch": [],
+    "gold_006_passive_redeem_holiday": [],
+    "gold_007_shoe_drops_settlement": [
+      {
+        "index": 17382,
+        "tree_id": "gold_007_shoe_drops_settlement",
+        "tree_name": "重大事件靴子落地走普涨",
+        "subtype": "macro_speech_hawkish_dip_refinement",
+        "message_id": "post_1CeVTnVgH2fcvx5zHmRhJC",
+        "et_date": "2026-08-28",
+        "channel": "历史股票期权记录区",
+        "evidence_span": "英伟达财报后的高点一直卖卖卖 就是为了应对杰克逊霍尔沃什的讲话  一个反弹了 后手讲话就会偏鹰让指数和盘面上下波动好让回流资金吃点短线盈利  加上可以让周一的A股继续闷杀下再减持",
+        "raw_text": "英伟达财报后的高点一直卖卖卖 就是为了应对杰克逊霍尔沃什的讲话  一个反弹了 后手讲话就会偏鹰让指数和盘面上下波动好让回流资金吃点短线盈利  加上可以让周一的A股继续闷杀下再减持"
+      }
+    ],
+    "gold_008_index_turn_gate": [
+      {
+        "index": 17348,
+        "tree_id": "gold_008_index_turn_gate",
+        "tree_name": "入场扫描：指数转弯再看个股",
+        "subtype": "index_extreme_low_and_leveraged_etf_refinement",
+        "message_id": "post_1CeVM9uP2Fo3WyWmQxnLvr",
+        "et_date": "2026-08-28",
+        "channel": "历史股票期权记录区",
+        "evidence_span": "7640的极限点一直是每天反复说极限点位去低吸低吸低吸 因为指数的话7700  7760 7820按60的波动值会往上波动一轮\n指数低位的 按轮动都能分批次获利",
+        "raw_text": "7640的极限点一直是每天反复说极限点位去低吸低吸低吸 因为指数的话7700  7760 7820按60的波动值会往上波动一轮\n指数低位的 按轮动都能分批次获利"
+      }
+    ],
+    "gold_008b_block_print_reentry": [],
+    "gold_009_cost_exit_last_batch": [],
+    "gold_011_zhao_poem_official": [],
+    "gold_012_profit_cushion": [],
+    "gold_013_supply_unlock_3_plus_1": [],
+    "prop_001_dip_buy_integer": [],
+    "prop_002_cut_in_half_100_percent": [],
+    "prop_003_valuation_dip_method": [],
+    "prop_004_event_low_dip_method": [],
+    "prop_005_block_print_method": [],
+    "prop_006_stop_loss_sweep_method": [],
+    "prop_007_night_plunge_premarket_intervention": [],
+    "prop_008_gap_retrace_fill_dip": [],
+    "prop_009_decay_equivalent_calc": [],
+    "prop_010_supply_unlock_ndays_dip": [],
+    "prop_011_earnings_call_reversal": [],
+    "prop_012_position_leverage_ratio": [],
+    "prop_013_three_dip_types_selection": [],
+    "prop_014_msci_exclusion_sector_sympathy_dip": [],
+    "prop_015_intraday_session_rhythm_0dte": [],
+    "prop_016_index_macro_gap_heavy_dip": [],
+    "prop_017_price_level_turn_over_news": []
+  },
+  "gap_subdivision": {
+    "gold_003_rule_replays": [],
+    "prop_008_retrace_replays": [],
+    "boundary_negative_cases": [],
+    "point_memos": []
+  },
+  "skipped_audit_log": [
+    {
+      "index": 12704,
+      "message_id": "post_1CcbUVTbfWjupJDTNjGQQq",
+      "et_date": "2026-07-01",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "4.86出一半之前死拿的4.85那部分conl  conl时不时会日内13个点  跌了再去倒T加"
+    },
+    {
+      "index": 12705,
+      "message_id": "post_1CcbUW25PZeCWbsjFXmxKy",
+      "et_date": "2026-07-01",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "4.86出一半之前死拿的4.85那部分conl conl时不时会日内13个点 跌了再去倒T加"
+    },
+    {
+      "index": 12716,
+      "message_id": "post_1CcbYiT8KWm4sgeVzqYLgS",
+      "et_date": "2026-07-01",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "5.1附近再出剩下一半4.85死拿的那部分conl"
+    },
+    {
+      "index": 12717,
+      "message_id": "post_1CcbYjizwCRY1vsC4VDobR",
+      "et_date": "2026-07-01",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "5.1附近再出剩下一半4.85死拿的那部分conl"
+    },
+    {
+      "index": 12736,
+      "message_id": "post_1CcdSacKd1FQ8XC31wJwJ7",
+      "et_date": "2026-07-02",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "收盘是最低点的话盘后的低点加一笔 节后回来节日中说港股A股还要减持再加一次"
+    },
+    {
+      "index": 12737,
+      "message_id": "post_1CcdSbS9HiQGUAFz5g5xQD",
+      "et_date": "2026-07-02",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "收盘是最低点的话盘后的低点加一笔 节后回来节日中说港股A股还要减持再加一次"
+    },
+    {
+      "index": 12755,
+      "message_id": "post_1Ccdhaw7d43gmrETdS6v2G",
+      "et_date": "2026-07-02",
+      "channel": "历史股票期权记录区",
+      "trigger": "被动减",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "7500的日内压力和7550的日K压力都很重\n\n\n\n三天被动减的量就会在第三天集中在一起释放"
+    },
+    {
+      "index": 12756,
+      "message_id": "post_1CcdhbpcYU9AnLykz7FEoo",
+      "et_date": "2026-07-02",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "7500的日内压力和7550的日K压力都很重\n\n三天被动减的量就会在第三天集中在一起释放"
+    },
+    {
+      "index": 12759,
+      "message_id": "post_1CcjpwRnJrxpcFmwffSK74",
+      "et_date": "2026-07-05",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "节日发表了利好讲话全面高开 也是止盈和减持大部分"
+    },
+    {
+      "index": 12760,
+      "message_id": "post_1CcjpxJToBex2s3eYLFNGJ",
+      "et_date": "2026-07-05",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "节日发表了利好讲话全面高开 也是止盈和减持大部分"
+    },
+    {
+      "index": 12801,
+      "message_id": "post_1Ccn9PyPA2Bg34Ae9oSCKy",
+      "et_date": "2026-07-07",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "7550仍然是日K的压力 没过去依然会触发 A股港股的减持去震荡\n\n\n\n讲话的高开是最明确的卖出止盈点\n\n都会二次探底给再重新来过的机会"
+    },
+    {
+      "index": 12802,
+      "message_id": "post_1Ccn9QgYtnSiH8PbaYAv6U",
+      "et_date": "2026-07-07",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "7550仍然是日K的压力 没过去依然会触发 A股港股的减持去震荡\n\n讲话的高开是最明确的卖出止盈点\n\n都会二次探底给再重新来过的机会"
+    },
+    {
+      "index": 12819,
+      "message_id": "post_1Ccnsajv2gQRGzkZtZZDiQ",
+      "et_date": "2026-07-07",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "6月29日的讲话 要把A股港股剩下一半的外资基金也减持回流美股\n\n\n\n这样 急涨急跌的的短线震荡周期就会拉长 \n\n\n\n每次反弹会触发去减持A股港股\n\n\n\n单边下跌模式就会触发连锁反应\n\n\n\n每次有单边下跌就可以盘中一次 收盘是股价最低附近的再加一次"
+    },
+    {
+      "index": 12820,
+      "message_id": "post_1CcnsbnLns2omZ8ZB9LnDT",
+      "et_date": "2026-07-07",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "6月29日的讲话 要把A股港股剩下一半的外资基金也减持回流美股\n\n这样 急涨急跌的的短线震荡周期就会拉长\n\n每次反弹会触发去减持A股港股\n\n单边下跌模式就会触发连锁反应\n\n每次有单边下跌就可以盘中一次 收盘是股价最低附近的再加一次"
+    },
+    {
+      "index": 12851,
+      "message_id": "post_1CcpM2DfrU559iw1KzeTYe",
+      "et_date": "2026-07-08",
+      "channel": "历史股票期权记录区",
+      "trigger": "被动减",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "被动减的速度太慢 今天盘前特朗普又在早新闻说了重启伊朗打仗事件 盘前随机把股价压低了一段  制造了人为急跌"
+    },
+    {
+      "index": 12852,
+      "message_id": "post_1CcpM3APvNxUpoNsnhrC4Z",
+      "et_date": "2026-07-08",
+      "channel": "不用翻墙期权",
+      "trigger": "被动减",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "被动减的速度太慢 今天盘前特朗普又在早新闻说了重启伊朗打仗事件 盘前随机把股价压低了一段 制造了人为急跌"
+    },
+    {
+      "index": 12871,
+      "message_id": "post_1CcpekfALMBp8DYKD6vVvr",
+      "et_date": "2026-07-08",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "博通和苹果确认了长协单 361.5低于估值10元在安全边界这笔 可以暂时死拿  等之后急跌在加一笔做T仓位"
+    },
+    {
+      "index": 12872,
+      "message_id": "post_1CcpemSTAVsjWPfSzNqE82",
+      "et_date": "2026-07-08",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "博通和苹果确认了长协单 361.5低于估值10元在安全边界这笔 可以暂时死拿 等之后急跌在加一笔做T仓位"
+    },
+    {
+      "index": 12935,
+      "message_id": "post_1CcyZCUGhhqYTxRnN8W1Hf",
+      "et_date": "2026-07-13",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "周五像复读机一样的警示风险\n\n\n\n主要就是周五讲讲话推迟到了周末 周五就是真空期的诱多陷阱\n\n\n\n\n\n海力士能不能买 不能 机构 125线下那么低\n\nmu能不能追啊 不能 周末讲话过了再看\n\nA股周一怎么看  周五下半场都在减持了周末在讲话继续减持对特朗普有利\n\n收盘什么能买的吗  买个几秒钟过过瘾"
+    },
+    {
+      "index": 12936,
+      "message_id": "post_1CcyZD6oq6jZmPmnWwuhjU",
+      "et_date": "2026-07-13",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "周五像复读机一样的警示风险\n\n主要就是周五讲讲话推迟到了周末 周五就是真空期的诱多陷阱\n\n&nbsp;\n\n海力士能不能买 不能 机构 125线下那么低\n\nmu能不能追啊 不能 周末讲话过了再看\n\nA股周一怎么看 周五下半场都在减持了周末在讲话继续减持对特朗普有利\n\n收盘什么能买的吗 买个几秒钟过过瘾"
+    },
+    {
+      "index": 12961,
+      "message_id": "post_1CczAxKJ7GSyCdDbSHVW2G",
+      "et_date": "2026-07-13",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "这周 cpi ppi 美联储会议  周五或者周末特朗普对于减持回流的第二次讲话 都是事件堆满了 也会是急跌急涨 伴随的一周"
+    },
+    {
+      "index": 12962,
+      "message_id": "post_1CczAy8JPCHFQkXofbChA5",
+      "et_date": "2026-07-13",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "这周 cpi ppi 美联储会议 周五或者周末特朗普对于减持回流的第二次讲话 都是事件堆满了 也会是急跌急涨 伴随的一周"
+    },
+    {
+      "index": 12973,
+      "message_id": "post_1CczDtStQw5o6xcbQsT4De",
+      "et_date": "2026-07-13",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "不用特别在意新闻 A股减持 美股就有回流"
+    },
+    {
+      "index": 12974,
+      "message_id": "post_1CczDu6JoHH7CaoqqZJAg9",
+      "et_date": "2026-07-13",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "不用特别在意新闻 A股减持 美股就有回流"
+    },
+    {
+      "index": 12981,
+      "message_id": "post_1CczESFZgcqo7k9wZfa4Cx",
+      "et_date": "2026-07-13",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "A股的反弹是为了更大的减持做准备"
+    },
+    {
+      "index": 13016,
+      "message_id": "post_1Cd2BcFMrhA6Se36JJ66w1",
+      "et_date": "2026-07-14",
+      "channel": "历史股票期权记录区",
+      "trigger": "出牌",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "韩国救市方案一共有三个\n\n一个是延长杠杆的强平时间到第三个交易日 原本是当天就强平现在有了缓刑期\n\n一个是增加担保额度给予1-2天增加保证金的宽限期\n\n一个是出售美元和周四紧急会议决定韩币是否加息\n\n基本都是周三周四2天的缓冲期去降低杠杆\n\n\n\n现在看美国明后天怎么出牌 这次的反弹会不会引发更大的减"
+    },
+    {
+      "index": 13017,
+      "message_id": "post_1Cd2Bd5aDwPxyb6FbPbNMq",
+      "et_date": "2026-07-14",
+      "channel": "不用翻墙期权",
+      "trigger": "出牌",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "韩国救市方案一共有三个\n\n一个是延长杠杆的强平时间到第三个交易日 原本是当天就强平现在有了缓刑期\n\n一个是增加担保额度给予1-2天增加保证金的宽限期\n\n一个是出售美元和周四紧急会议决定韩币是否加息\n\n现在看美国明后天怎么出牌 这次的反弹会不会引发更大的减持回流去做应对"
+    },
+    {
+      "index": 13043,
+      "message_id": "post_1Cd49LemLRU5a6q52xhqRH",
+      "et_date": "2026-07-15",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "a股周二跟随了下韩国救市  这个反弹会引发下更多的减持去回流"
+    },
+    {
+      "index": 13044,
+      "message_id": "post_1Cd49MRFWa2jqj2q2N14oA",
+      "et_date": "2026-07-15",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "a股周二跟随了下韩国救市 这个反弹会引发下更多的减持去回流"
+    },
+    {
+      "index": 13074,
+      "message_id": "post_1Cd5GSCaTq5P18wDB7Nqvt",
+      "et_date": "2026-07-16",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "周二明确指出了 A股的反弹是为了更大了减持 今天日期兑现\n\n\n\n主要A股自己没有政策去跟随韩国的救市\n\n\n\n韩国的就是只是延期强平 今天时间到了也开始去杠杆大跌"
+    },
+    {
+      "index": 13075,
+      "message_id": "post_1Cd5GT4pXMGTmADhc5kfCB",
+      "et_date": "2026-07-16",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "二明确指出了 A股的反弹是为了更大了减持 今天日期兑现\n\n主要A股自己没有政策去跟随韩国的救市\n\n韩国的就是只是延期强平 今天时间到了也开始去杠杆大跌"
+    },
+    {
+      "index": 13105,
+      "message_id": "post_1Cd6CUWzfVg78Z7kw5hnyG",
+      "et_date": "2026-07-16",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "5.0加了三分之一常规仓conl做T仓位  最低有4.75半笔暂时当死拿的"
+    },
+    {
+      "index": 13106,
+      "message_id": "post_1Cd6CVN31nwPE7L2zJK9Po",
+      "et_date": "2026-07-16",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "5.0加了三分之一常规仓conl做T仓位 最低有4.75半笔暂时当死拿的"
+    },
+    {
+      "index": 13108,
+      "message_id": "post_1Cd7MF8xNp9vqC8p3cvNje",
+      "et_date": "2026-07-17",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "今天特朗普的讲话还是针对大陆的减持下杀 引发了A股港股更多的减持 代价也是七伤拳一样 以美股跌为代价去加速赶底和让更多的资金回流 满仓的仓位还有朝着美联储讲话后的那次针对回流和减持是否结束那次才去加 \n\n\n\n今天还是只少量加1-2成摊平点昨天的那笔价格做反弹出为主"
+    },
+    {
+      "index": 13109,
+      "message_id": "post_1Cd7MFwiAgbdLeoa95KLgz",
+      "et_date": "2026-07-17",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天特朗普的讲话还是针对大陆的减持下杀 引发了A股港股更多的减持 代价也是七伤拳一样 以美股跌为代价去加速赶底和让更多的资金回流 满仓的仓位还有朝着美联储讲话后的那次针对回流和减持是否结束那次才去加\n\n今天还是只少量加1-2成摊平点昨天的那笔价格做反弹出为主"
+    },
+    {
+      "index": 13128,
+      "message_id": "post_1Cd7VEhH9JqH9MyBKrzTzk",
+      "et_date": "2026-07-17",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "最近的急跌 属于回流太慢 特朗普一个让美股自己加速赶底部  一个自损自身估值 去引发A股港股更多的减持\n\n\n\n周二说过A股这个反弹是为了引发更大的减持而反弹的"
+    },
+    {
+      "index": 13129,
+      "message_id": "post_1Cd7VFWwFSrEgWQb96qZrk",
+      "et_date": "2026-07-17",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "最近的急跌 属于回流太慢 特朗普一个让美股自己加速赶底部 一个自损自身估值 去引发A股港股更多的减持\n\n周二说过A股这个反弹是为了引发更大的减持而反弹的"
+    },
+    {
+      "index": 13138,
+      "message_id": "post_1Cd7hmwUbLvcyq5oeQBbxf",
+      "et_date": "2026-07-17",
+      "channel": "历史股票期权记录区",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "今天周五 昨天尾盘强平的V很多说明很多期权要被结算 今天开盘也会下压下让剩下一批期权结算掉 然后让一些回流的资金入一部分"
+    },
+    {
+      "index": 13139,
+      "message_id": "post_1Cd7hndu1U62WCQApUEXQn",
+      "et_date": "2026-07-17",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天周五 昨天尾盘强平的V很多说明很多期权要被结算 今天开盘也会下压下让剩下一批期权结算掉 然后让一些回流的资金入一部分"
+    },
+    {
+      "index": 13140,
+      "message_id": "post_1Cd7iixRHCEni5FZjWCzNf",
+      "et_date": "2026-07-17",
+      "channel": "历史股票期权记录区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "今天qqq离682-685这个缺口进先等他补了或者V了再看加日内"
+    },
+    {
+      "index": 13141,
+      "message_id": "post_1Cd7ijbqMDrJKKqJEj1Qqb",
+      "et_date": "2026-07-17",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天qqq离682-685这个缺口进先等他补了或者V了再看加日内"
+    },
+    {
+      "index": 13150,
+      "message_id": "post_1Cd7k1X7Sm6yXuSuzXUpEN",
+      "et_date": "2026-07-17",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "avgo  362加了6分之一常规仓 死拿的avgo仓位"
+    },
+    {
+      "index": 13151,
+      "message_id": "post_1Cd7k25WiHSNTs3UBXEkHS",
+      "et_date": "2026-07-17",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "avgo 362加了6分之一常规仓 死拿的avgo仓位"
+    },
+    {
+      "index": 13154,
+      "message_id": "post_1Cd7kWvPqm2bAGSL7Qh5pp",
+      "et_date": "2026-07-17",
+      "channel": "历史股票期权记录区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "盯着缺口接近点做低吸\n\n\n\n走结算概率大"
+    },
+    {
+      "index": 13155,
+      "message_id": "post_1Cd7kXcVNrk5Uipyvyxhxp",
+      "et_date": "2026-07-17",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "盯着缺口接近点做低吸\n\n走结算概率大"
+    },
+    {
+      "index": 13161,
+      "message_id": "post_1Cd7kzdhT4BquyxPijCP2q",
+      "et_date": "2026-07-17",
+      "channel": "历史股票期权记录区",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "今天都提前说了V点买股票走结算 普涨的意思 还在问啥是结算就是常识问题没记忆"
+    },
+    {
+      "index": 13162,
+      "message_id": "post_1Cd7m1R47rHxqE4882NY5o",
+      "et_date": "2026-07-17",
+      "channel": "不用翻墙期权",
+      "trigger": "结算",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天都提前说了V点买股票走结算 普涨的意思 还在问啥是结算就是常识问题没记忆"
+    },
+    {
+      "index": 13194,
+      "message_id": "post_1CdDMktHCk4k6Z4gRRGR3f",
+      "et_date": "2026-07-20",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "379出掉376avgo做T那部分 就拿着 362附近死拿的部分"
+    },
+    {
+      "index": 13195,
+      "message_id": "post_1CdDMmXefgaVrmhQrGrDvB",
+      "et_date": "2026-07-20",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "379出掉376avgo做T那部分 就拿着 362附近死拿的部分"
+    },
+    {
+      "index": 13216,
+      "message_id": "post_1CdFHdoJKn8qW78wMCyA22",
+      "et_date": "2026-07-21",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "conl 今天日内涨13%  5.7出掉之前5.55剩下一半 保留4.85死拿的设置 跌破5.45出一半"
+    },
+    {
+      "index": 13217,
+      "message_id": "post_1CdFHebqY3pCX2cHBJvYxT",
+      "et_date": "2026-07-21",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "conl 今天日内涨13% 5.7出掉之前5.55剩下一半 保留4.85死拿的设置 跌破5.45出一半"
+    },
+    {
+      "index": 13220,
+      "message_id": "post_1CdFJCzYbKmmaMHD6ovRxy",
+      "et_date": "2026-07-21",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "5.85也出个4.85死拿的一半conl"
+    },
+    {
+      "index": 13221,
+      "message_id": "post_1CdFJEi4adQgqKeaK6DbLV",
+      "et_date": "2026-07-21",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "5.85也出个4.85死拿的一半conl"
+    },
+    {
+      "index": 13258,
+      "message_id": "post_1CdLvZEW8owJopj3YXVB2Z",
+      "et_date": "2026-07-24",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "A股港股进一步在前几天反弹基础上进行减持，美股也是用自身压迫方式去触发亚洲的减持回流，下周就是美联储议息会议了，这段时间都是拉开价差 有急跌的票 分开价差分三次低吸积累仓位为主"
+    },
+    {
+      "index": 13259,
+      "message_id": "post_1CdLvdNwPPJpEkbtrxHwsZ",
+      "et_date": "2026-07-24",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "A股港股进一步在前几天反弹基础上进行减持，美股也是用自身压迫方式去触发亚洲的减持回流，下周就是美联储议息会议了，这段时间都是拉开价差 有急跌的票 分开价差分三次低吸积累仓位为主"
+    },
+    {
+      "index": 13287,
+      "message_id": "post_1CdMBHNViU2xzsATGknepn",
+      "et_date": "2026-07-24",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "387出一半362死拿的avgo"
+    },
+    {
+      "index": 13288,
+      "message_id": "post_1CdMBJ9LznCkzgsAANuPJU",
+      "et_date": "2026-07-24",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "387出一半362死拿的avgo"
+    },
+    {
+      "index": 13300,
+      "message_id": "post_1CdSf8XdmobKhukoj2WN2H",
+      "et_date": "2026-07-27",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "conl今天有利好 看直线时候出掉做T部分5.29那部分 死拿的4.85就当底仓 急跌加做T仓位"
+    },
+    {
+      "index": 13301,
+      "message_id": "post_1CdSf9DDNLYdUNzZw116cC",
+      "et_date": "2026-07-27",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "conl今天有利好 看直线时候出掉做T部分5.29那部分 死拿的4.85就当底仓 急跌加做T仓位"
+    },
+    {
+      "index": 13339,
+      "message_id": "post_1CdUZPcnADgt3Zq6pNRPyB",
+      "et_date": "2026-07-28",
+      "channel": "历史股票期权记录区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "qqq还有个650之前夜盘的缺口今天看能不能接近的时候补掉"
+    },
+    {
+      "index": 13340,
+      "message_id": "post_1CdUZQJAfKKPE81YKZCpUN",
+      "et_date": "2026-07-28",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "qqq还有个650之前夜盘的缺口今天看能不能接近的时候补掉"
+    },
+    {
+      "index": 13442,
+      "message_id": "post_1CdWoQeHSTreP6WexvFdHL",
+      "et_date": "2026-07-29",
+      "channel": "历史股票期权记录区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "基本每次美联储利率决议 都在 2点数据出来前做低吸吃机制\n\n\n\n有时候觉得自己生活在平行世界 \n\n\n\n每次跌了买都要解释一遍 当天的时间段"
+    },
+    {
+      "index": 13443,
+      "message_id": "post_1CdWoRi3Lfm46ZCVpKCfBq",
+      "et_date": "2026-07-29",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "基本每次美联储利率决议 都在 2点数据出来前做低吸吃机制\n\n有时候觉得自己生活在平行世界\n\n每次跌了买都要解释一遍 当天的时间段"
+    },
+    {
+      "index": 13476,
+      "message_id": "post_1CdXQe9fc6XQdEX5jtM2qC",
+      "et_date": "2026-07-29",
+      "channel": "历史股票期权记录区",
+      "trigger": "二次握手",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "昨天是明确指出过 \n\n\n\n沃什讲话利好 就卖出  等二次握手二次探底买回\n\n\n\n例如nbis 第一次150买 160卖 盘后149了再接就是正常操作\n\n\n\n财报电话会议没啥问题  韩国开盘消化点杠杆不跌了 指数就会上去\n\n\n\n要做到心中有数 不要跌了1-2元问要不要止损 就是等急跌再加了操作"
+    },
+    {
+      "index": 13477,
+      "message_id": "post_1CdXQfbHJ4qzVBwru3rbaY",
+      "et_date": "2026-07-29",
+      "channel": "不用翻墙期权",
+      "trigger": "二次握手",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "昨天是明确指出过\n\n沃什讲话利好 就卖出 等二次握手二次探底买回\n\n例如nbis 第一次150买 160卖 盘后149了再接就是正常操作\n\n财报电话会议没啥问题 韩国开盘消化点杠杆不跌了 指数就会上去\n\n要做到心中有数 不要跌了1-2元问要不要止损 就是等急跌再加了操作"
+    },
+    {
+      "index": 13479,
+      "message_id": "post_1CdXU5STyTNN1Au4ZtbYPR",
+      "et_date": "2026-07-29",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "今天也要注意下A股港股的，夜间看了一些摩根基金主理人访谈采访 这周韩国周一出现杠杆危机时候对A股港股的回流是暂停的 今天韩国去杠杆第三天 a股港股如果反而低走就是要把前几天的减持给补上 还是以日内有利润出为主 每天要腾出资金做日内"
+    },
+    {
+      "index": 13480,
+      "message_id": "post_1CdXU6ECYAyKnP13fo5u8Q",
+      "et_date": "2026-07-29",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天也要注意下A股港股的，夜间看了一些摩根基金主理人访谈采访 这周韩国周一出现杠杆危机时候对A股港股的回流是暂停的 今天韩国去杠杆第三天 a股港股如果反而低走就是要把前几天的减持给补上 还是以日内有利润出为主 每天要腾出资金做日内"
+    },
+    {
+      "index": 13500,
+      "message_id": "post_1CdYEi2Ynm44LtM9fvVTTL",
+      "et_date": "2026-07-30",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "637出掉623那笔lite  把597那半份先当死拿的"
+    },
+    {
+      "index": 13501,
+      "message_id": "post_1CdYEj7u1RMiiUdxQz3gB9",
+      "et_date": "2026-07-30",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "637出掉623那笔lite  把597那半份先当死拿的"
+    },
+    {
+      "index": 13502,
+      "message_id": "post_1CdYFMD32g2TkovznEEwmz",
+      "et_date": "2026-07-30",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "最近最低点 高于前面几天的股 可以每天做急跌的后的低吸吃日内无限重来的反弹 \n\n\n\nA股港股的减持回流模式会增补一段时间"
+    },
+    {
+      "index": 13503,
+      "message_id": "post_1CdYFN77jby8Xu3mvuxBb6",
+      "et_date": "2026-07-30",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "最近最低点 高于前面几天的股 可以每天做急跌的后的低吸吃日内无限重来的反弹\n\nA股港股的减持回流模式会增补一段时间"
+    },
+    {
+      "index": 13533,
+      "message_id": "post_1CdYMUP9R632rbWvp6V9Fp",
+      "et_date": "2026-07-30",
+      "channel": "历史股票期权记录区",
+      "trigger": "二次握手",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "模式内的二次握手的急跌每天复读机讲累了  当然是跌的时候大资金进场\n\n\n\n不要每次买了稍微跌点 又天塌了 \n\n\n\n就是急跌低吸以进攻做防御"
+    },
+    {
+      "index": 13534,
+      "message_id": "post_1CdYMVAxuRd31QGY787P9T",
+      "et_date": "2026-07-30",
+      "channel": "不用翻墙期权",
+      "trigger": "二次握手",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "模式内的二次握手的急跌每天复读机讲累了 当然是跌的时候大资金进场\n\n不要每次买了稍微跌点 又天塌了\n\n就是急跌低吸以进攻做防御"
+    },
+    {
+      "index": 13611,
+      "message_id": "post_1CdYRcj9ZMH4XkdLnVoTmQ",
+      "et_date": "2026-07-30",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "早上传声筒已经说了 韩国跌的时候没减持A股港股"
+    },
+    {
+      "index": 13731,
+      "message_id": "post_1CdYVqAoDWzcqfCG7pkRYy",
+      "et_date": "2026-07-30",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "然后做 普涨微跌的谷歌之类 谷歌不是324有个缺口"
+    },
+    {
+      "index": 13749,
+      "message_id": "post_1CdYWGqCXTdaFfeLzk7aZ8",
+      "et_date": "2026-07-30",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "都减持完毕了没得减了"
+    },
+    {
+      "index": 13762,
+      "message_id": "post_1CdYXe8kGJmXJ7y2aPxMbr",
+      "et_date": "2026-07-30",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "成本出",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "赵哥，我能不能问问英伟达 。 有300股nvdl 成本33  要涨回成本出吗？"
+    },
+    {
+      "index": 13796,
+      "message_id": "post_1CdYZKVfaTF735kueA87xe",
+      "et_date": "2026-07-30",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "20-30%就是要减持和止盈 设置跌破多少都出"
+    },
+    {
+      "index": 13853,
+      "message_id": "post_1CdYcxcYwRrSijufvfvJEg",
+      "et_date": "2026-07-30",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "就会减持 回流美国做美股"
+    },
+    {
+      "index": 13929,
+      "message_id": "post_1CdaGdRwnFzNe1JHQtJ6RC",
+      "et_date": "2026-07-31",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "因为韩国原因 回流是有很多天没减持的 特朗普的传声筒的一些助手答记者问知道的\n\n特朗普正式说延迟应该在周末\n\n下一轮qqq650附近和强势股在二次探底时候就可能说回流结束"
+    },
+    {
+      "index": 13930,
+      "message_id": "post_1CdaGe7iFMMxdCHPPiKYj2",
+      "et_date": "2026-07-31",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "因为韩国原因 回流是有很多天没减持的 特朗普的传声筒的一些助手答记者问知道的\n\n特朗普正式说延迟应该在周末\n\n下一轮qqq650附近和强势股在二次探底时候就可能说回流结束"
+    },
+    {
+      "index": 13997,
+      "message_id": "post_1CdaVxKyAtKuzGbraQ7ude",
+      "et_date": "2026-07-31",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "大单检测",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "美股只做大单检测跟随 跟应对"
+    },
+    {
+      "index": 14036,
+      "message_id": "post_1CdajcZyC2UHBff1ZDVvQv",
+      "et_date": "2026-07-31",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "就是小机制尾盘的强平3点有个往下强平就高点走了下"
+    },
+    {
+      "index": 14047,
+      "message_id": "post_1Cdft7zNeDDcKbwk4jStAG",
+      "et_date": "2026-08-03",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "周五韩国政府账户接收了散户t+3强平的仓位在今天开始慢慢去这批接受的杠杆\n\n\n\nA股港股继续开始了减持回流 加上周四有闪迪等存储的财报 这周还是每天拉开价差 分批次低吸"
+    },
+    {
+      "index": 14048,
+      "message_id": "post_1CdftAKYRmdmShhJ8EvVgr",
+      "et_date": "2026-08-03",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "周五韩国政府账户接收了散户t+3强平的仓位在今天开始慢慢去这批接受的杠杆\n\nA股港股继续开始了减持回流 加上周四有闪迪等存储的财报 这周还是每天拉开价差 分批次低吸"
+    },
+    {
+      "index": 14079,
+      "message_id": "post_1Cdg24w6nRh1yPuJN4Vewz",
+      "et_date": "2026-08-03",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "3成",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "高了就减3成"
+    },
+    {
+      "index": 14080,
+      "message_id": "post_1Cdg25SJC6Vjwa4xkTPrcc",
+      "et_date": "2026-08-03",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "3成",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "每次急跌加3成啊"
+    },
+    {
+      "index": 14089,
+      "message_id": "post_1Cdg2HJGEseSgKKRZesegw",
+      "et_date": "2026-08-03",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "利润垫",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "有利润垫不用怕二次"
+    },
+    {
+      "index": 14138,
+      "message_id": "post_1CdhcvoAvUUMhMyFVk5htc",
+      "et_date": "2026-08-04",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "利润垫",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "有利润垫不用怕急跌"
+    },
+    {
+      "index": 14147,
+      "message_id": "post_1CdhdE8w7RZZKq1trH4o1H",
+      "et_date": "2026-08-04",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "3成",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "急跌加2-3成"
+    },
+    {
+      "index": 14169,
+      "message_id": "post_1Cdhh1p63uFHRwvAEq6UV6",
+      "et_date": "2026-08-04",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "死拿",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "一份低位死拿加1一份急跌做T买做正T"
+    },
+    {
+      "index": 14194,
+      "message_id": "post_1Cdhpo6Eun3VH5NWFGuuhs",
+      "et_date": "2026-08-04",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "7成",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "我3.27成本服了"
+    },
+    {
+      "index": 14261,
+      "message_id": "post_1CdhwK6uFamKmFFPgWm55K",
+      "et_date": "2026-08-04",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "利润垫",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "跌了有利润垫抗"
+    },
+    {
+      "index": 14294,
+      "message_id": "post_1CdhxbwG3CcsH79er74uja",
+      "et_date": "2026-08-04",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "缺口昨天的看看"
+    },
+    {
+      "index": 14333,
+      "message_id": "post_1CdhzaT5XVsqJBAnKCrUJs",
+      "et_date": "2026-08-04",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "成本出",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "成本出成本的啊"
+    },
+    {
+      "index": 14477,
+      "message_id": "post_1CdmTzmUAG6L5s6brLgnac",
+      "et_date": "2026-08-06",
+      "channel": "历史股票期权记录区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "西数数据财报后很多估值给到420-430前面缺口422附近 存储仓位等拉开价差会再加一批  qqq今天注意注意700整数位关口附近的支撑回踩探底看能不能支撑住"
+    },
+    {
+      "index": 14478,
+      "message_id": "post_1CdmU1Z2AgrsKx7Zd3WBws",
+      "et_date": "2026-08-06",
+      "channel": "不用翻墙期权",
+      "trigger": "缺口",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "西数数据财报后很多估值给到420-430前面缺口422附近 存储仓位等拉开价差会再加一批 qqq今天注意注意700整数位关口附近的支撑回踩探底看能不能支撑住"
+    },
+    {
+      "index": 14641,
+      "message_id": "post_1CdmivdxqdgSY1DGQYppi1",
+      "et_date": "2026-08-06",
+      "channel": "历史股票期权记录区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "西部数据今天-20到-8就是估值资讯的捡漏利用机制"
+    },
+    {
+      "index": 14642,
+      "message_id": "post_1CdmiwQcfdcQrkHXA4sBqP",
+      "et_date": "2026-08-06",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "西部数据今天-20到-8就是估值资讯的捡漏利用机制"
+    },
+    {
+      "index": 14644,
+      "message_id": "post_1CdmizspRy52cbHkuDUN22",
+      "et_date": "2026-08-06",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "各种机制 不要 名字变了就又不会  就是从谷歌的估值捡漏变成西部数据 名字换了换"
+    },
+    {
+      "index": 14648,
+      "message_id": "post_1CdmjMchddazN36XgUpQ3N",
+      "et_date": "2026-08-06",
+      "channel": "历史股票期权记录区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "一个财报跌了 不要老是找纯文字的信息 只看有数字依托的 什么机构 持股多少 评级估值看多少低位  上限后续多少\n\n\n\n不是要做科研攻关人员  要赚钱要套利 要卡机制"
+    },
+    {
+      "index": 14649,
+      "message_id": "post_1CdmjNdphCWfvxE7hf2Ay3",
+      "et_date": "2026-08-06",
+      "channel": "不用翻墙期权",
+      "trigger": "机制",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "一个财报跌了 不要老是找纯文字的信息 只看有数字依托的 什么机构 持股多少 评级估值看多少低位 上限后续多少\n\n不是要做科研攻关人员 要赚钱要套利 要卡机制"
+    },
+    {
+      "index": 14652,
+      "message_id": "post_1CdmjWpa4omZbMFVuN5wCk",
+      "et_date": "2026-08-06",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "比如他做T很多轮了  或者减持了 成本抬高了 比如是500就看620还是成本是正买进去看620"
+    },
+    {
+      "index": 14677,
+      "message_id": "post_1CdmkhE3VR8qEsp35MySEd",
+      "et_date": "2026-08-06",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "财报砸了 估值给了就是卡这个机制"
+    },
+    {
+      "index": 14691,
+      "message_id": "post_1CdmmE7gdndkFJaxNqdphz",
+      "et_date": "2026-08-06",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "财报很低的砸盘了 买了一半死拿一半做T"
+    },
+    {
+      "index": 14692,
+      "message_id": "post_1CdmmFHuXvoWSmmgzC3MaT",
+      "et_date": "2026-08-06",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "把各种机制 综合运用结合"
+    },
+    {
+      "index": 14740,
+      "message_id": "post_1CdoWj1PeAWSUFMVfDuUHz",
+      "et_date": "2026-08-07",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "spcx107.5的部分先死拿 等急跌再找机会加 解禁的比例不是很高之前违规解禁很多都出了"
+    },
+    {
+      "index": 14741,
+      "message_id": "post_1CdoWjjTcgsxS5AarU7PoK",
+      "et_date": "2026-08-07",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "spcx107.5的部分先死拿 等急跌再找机会加 解禁的比例不是很高之前违规解禁很多都出了"
+    },
+    {
+      "index": 14771,
+      "message_id": "post_1CdobHjffPfxMUsWx7NBCo",
+      "et_date": "2026-08-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "合并后再来次违规减持又可以套现"
+    },
+    {
+      "index": 14798,
+      "message_id": "post_1CdogburX4BcDwMNc1ubrm",
+      "et_date": "2026-08-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "赵哥迈威尔下方还有缺口要补吗"
+    },
+    {
+      "index": 14799,
+      "message_id": "post_1Cdoge4DK6XZDrQ8M7yMHd",
+      "et_date": "2026-08-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "我看下方好像还有缺口不确定能不能到"
+    },
+    {
+      "index": 14801,
+      "message_id": "post_1CdohQBfvdYR3NQhb2nKpy",
+      "et_date": "2026-08-07",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "价差如果到缺口再加一次"
+    },
+    {
+      "index": 14844,
+      "message_id": "post_1CdwBXhEBtzV26JLTeW7FN",
+      "et_date": "2026-08-11",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "昨天美股收盘是-0.3%微跌的这样触发了 早上A股港股的减持  韩国是涨 说明这几天又有减持回流 横盘等下一次去冲破上面的阻力  今天横盘尾盘也可能微跌继续去触发A股港股的减持回流"
+    },
+    {
+      "index": 14845,
+      "message_id": "post_1CdwBYVmktbpTmxxCZW6oS",
+      "et_date": "2026-08-11",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "昨天美股收盘是-0.3%微跌的这样触发了 早上A股港股的减持 韩国是涨 说明这几天又有减持回流 横盘等下一次去冲破上面的阻力 今天横盘尾盘也可能微跌继续去触发A股港股的减持回流"
+    },
+    {
+      "index": 14864,
+      "message_id": "post_1CdwTQ4N4SznFVTKKvyM6r",
+      "et_date": "2026-08-11",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "spcx就是107.5买的可以138-148做减持"
+    },
+    {
+      "index": 14926,
+      "message_id": "post_1CdxudEAEKHWrWqqaAytW7",
+      "et_date": "2026-08-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "3成",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "2-3成盘中再看看出一些 下次在急跌在仓位等量加回"
+    },
+    {
+      "index": 14936,
+      "message_id": "post_1Cdy5SBVLD7d6fgd9BkXn6",
+      "et_date": "2026-08-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "之前一直说的450缺口和500的估值"
+    },
+    {
+      "index": 14948,
+      "message_id": "post_1Cdy699vnYwhaEoLzDx6vr",
+      "et_date": "2026-08-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "今天指数不一定要收跌 要明天收跌 今天肯定要让A股小高开下去减持出资金"
+    },
+    {
+      "index": 15007,
+      "message_id": "post_1CdyA1D33t1ocuJeCWzPSz",
+      "et_date": "2026-08-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "因为他450-480那个缺口都补了 都新高了"
+    },
+    {
+      "index": 15039,
+      "message_id": "post_1CdySpJJ3UKggAjLeW1aKq",
+      "et_date": "2026-08-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "相当于",
+      "category": "macro_philosophy_memo",
+      "reason": "多板块龙头组合持仓结构 + 增减持信息收全再动打牌比喻，暂不占用 prop_003~006 四手牌空壳",
+      "raw_text": "今天方向是没出来的 就是横盘心电图 相当于 打牌 我牌打完了 已经有了先手权利 等A股港股出牌"
+    },
+    {
+      "index": 15047,
+      "message_id": "post_1CdyT3kRypmr8Yh8MVxj4Z",
+      "et_date": "2026-08-12",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "还要等A股港股有减持回流"
+    },
+    {
+      "index": 15083,
+      "message_id": "post_1CdzwFbGoWiPXUNkRWRxEL",
+      "et_date": "2026-08-13",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "后面A股港股减持的回流加之前的他测试好才会去突破"
+    },
+    {
+      "index": 15225,
+      "message_id": "post_1Ce2kwXvHiQEXTzRbWYhgL",
+      "et_date": "2026-08-14",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "指数高点就是死拿一批都出"
+    },
+    {
+      "index": 15244,
+      "message_id": "post_1Ce2mkJroff6XniFdmSXbV",
+      "et_date": "2026-08-14",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "就是溯源下死拿的检测单子那个点最终都出逃"
+    },
+    {
+      "index": 15247,
+      "message_id": "post_1Ce2mvjjt23LoqPXhSnt6V",
+      "et_date": "2026-08-14",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "只是他195留了个缺口"
+    },
+    {
+      "index": 15254,
+      "message_id": "post_1Ce2nfmutfNjBSsyBmWcWZ",
+      "et_date": "2026-08-14",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "主要昨天的两个控盘指数的55开期权今天在结算"
+    },
+    {
+      "index": 15259,
+      "message_id": "post_1Ce2nxoDJYkvSqiKFT6F3F",
+      "et_date": "2026-08-14",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "361死拿就是那时候出来大单"
+    },
+    {
+      "index": 15271,
+      "message_id": "post_1Ce2oi85ybqPomh9cA5Grn",
+      "et_date": "2026-08-14",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "散户止损",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "大单把散户止损单吃掉时候去买买买"
+    },
+    {
+      "index": 15343,
+      "message_id": "post_1Ce8hBqJdteQH7RmqxueT6",
+      "et_date": "2026-08-17",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "补7755和7717两个缺口"
+    },
+    {
+      "index": 15347,
+      "message_id": "post_1Ce8hNjXELFWqXw8nJCgDv",
+      "et_date": "2026-08-17",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "今天反弹的点数就会被减持吃掉在回流 冲破7800去7900"
+    },
+    {
+      "index": 15355,
+      "message_id": "post_1Ce8hyVZCo18PJvU2xtqtV",
+      "et_date": "2026-08-17",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "就是7775不是个关键点 只是上周四他开仓的点  7755缺口才是重要点"
+    },
+    {
+      "index": 15373,
+      "message_id": "post_1Ce8iSsUVzZQtwjfgZtWRw",
+      "et_date": "2026-08-17",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "7755的缺口和7717的"
+    },
+    {
+      "index": 15385,
+      "message_id": "post_1Ce8ig4P8jskrW9Xdgw3SV",
+      "et_date": "2026-08-17",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "散户止损",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "我们就是要做就是吃掉散户止损的筹码"
+    },
+    {
+      "index": 15386,
+      "message_id": "post_1Ce8ii1WC6wS98gGKiLpL9",
+      "et_date": "2026-08-17",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "散户止损",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "1000个散户止损2000万美金 1笔机构单单笔2000万吃掉这1000个止损"
+    },
+    {
+      "index": 15418,
+      "message_id": "post_1Ce8kPAUBBUBaKvjr2nbvP",
+      "et_date": "2026-08-17",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "到缺口附近开始分批价差"
+    },
+    {
+      "index": 15422,
+      "message_id": "post_1Ce8mjp8bHcErjwuG9xi9b",
+      "et_date": "2026-08-17",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "所以明天要看7717那个点补不补和 明天A股港股有没有减持"
+    },
+    {
+      "index": 15482,
+      "message_id": "post_1CeAU9FYDeeStnV1s6RY33",
+      "et_date": "2026-08-18",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "昨天说了 7755的隔天波动看开盘7717这个缺口是不是补  开在7700出现双开大资金控盘就按双开的走"
+    },
+    {
+      "index": 15498,
+      "message_id": "post_1CeAgUDaL2ZEfQpkeLWWrh",
+      "et_date": "2026-08-18",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "上周四7775 是7800开的 要7775他到了才会在砸25点恐慌到7755那个缺口附近"
+    },
+    {
+      "index": 15551,
+      "message_id": "post_1CeApRTQiCHWkdyKqgALqV",
+      "et_date": "2026-08-18",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "光主要是光etf有减持"
+    },
+    {
+      "index": 15553,
+      "message_id": "post_1CeApVWjAQL7gN2gCoYiqk",
+      "et_date": "2026-08-18",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "在跌点 到缺口再买"
+    },
+    {
+      "index": 15567,
+      "message_id": "post_1CeC8bCtUJKBQUMFu1f9Nv",
+      "et_date": "2026-08-19",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "今天A股就是前几天说的会把反弹的涨幅给吞掉\n\n\n\n反弹是为了更大的减持回流美股  只要A股港股跌了 美股的跌就会有更多后备资金去抄底"
+    },
+    {
+      "index": 15568,
+      "message_id": "post_1CeC8btxMi4VtMPeEBXsHS",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "今天A股就是前几天说的会把反弹的涨幅给吞掉\n\n反弹是为了更大的减持回流美股 只要A股港股跌了 美股的跌就会有更多后备资金去抄底"
+    },
+    {
+      "index": 15582,
+      "message_id": "post_1CeC94sxFeCb7XyNwfgr2W",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "就是一个利好触发了抄底量化机制"
+    },
+    {
+      "index": 15604,
+      "message_id": "post_1CeC9pT7iPeegBDHLmRh14",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "死拿就是硬吃磨损的 属于盲盒"
+    },
+    {
+      "index": 15616,
+      "message_id": "post_1CeCAmDJVRjj5diekJn8FP",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "单边下跌尾盘买  A股有减持吃掉前几天涨幅就不用慌了 就会回流美国"
+    },
+    {
+      "index": 15628,
+      "message_id": "post_1CeCBE4TNqKGHKkM2exjkt",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "他属于柜台交易  门槛的最高级 是一级市场里面减持"
+    },
+    {
+      "index": 15669,
+      "message_id": "post_1CeCGRhA2hoRc3dTCSknEs",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "特斯拉要去补缺口了吧"
+    },
+    {
+      "index": 15683,
+      "message_id": "post_1CeCHf7UHQfCEmrFFADLq5",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "拉子肯定是补缺口去的"
+    },
+    {
+      "index": 15690,
+      "message_id": "post_1CeCJGApA8u8Jh2YwXjVp8",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "财报时候4.55有一笔  4.85还有笔之前死拿的"
+    },
+    {
+      "index": 15707,
+      "message_id": "post_1CeCKdpCkT1joyax4kvBgR",
+      "et_date": "2026-08-19",
+      "channel": "历史股票期权记录区",
+      "trigger": "同花顺",
+      "category": "macro_philosophy_memo",
+      "reason": "多板块龙头组合持仓结构 + 增减持信息收全再动打牌比喻，暂不占用 prop_003~006 四手牌空壳",
+      "raw_text": "抄底买入各个板块明星股 就如同打牌  当你凑出同花顺和王炸 让别人无路可走"
+    },
+    {
+      "index": 15708,
+      "message_id": "post_1CeCKeMvNm9ZqKPAWCYFUF",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙期权",
+      "trigger": "同花顺",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "抄底买入各个板块明星股 就如同打牌 当你凑出同花顺和王炸 让别人无路可走"
+    },
+    {
+      "index": 15735,
+      "message_id": "post_1CeCMRvdj9WNZNW4WdvEcb",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "4.85死拿的还有"
+    },
+    {
+      "index": 15814,
+      "message_id": "post_1CeCR53yJcWWfmirQDFgsy",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "3成",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "隔天再加个1-3成"
+    },
+    {
+      "index": 15826,
+      "message_id": "post_1CeCRHZxW4CQKjCRGgKpF9",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "因为有那个氛围 新闻每天再讲  减持回流美国本土"
+    },
+    {
+      "index": 15827,
+      "message_id": "post_1CeCRLbUDCdXveeDrYo2Jo",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "这个回流机制是访华那天一路讲到现在了"
+    },
+    {
+      "index": 15843,
+      "message_id": "post_1CeCSGqkiEUMPHGduymPx5",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "利润垫",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "利润垫足够可以9成"
+    },
+    {
+      "index": 15862,
+      "message_id": "post_1CeCSpWfq7cTRMzACGA1dz",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "他缺口在195上次说了会给机会"
+    },
+    {
+      "index": 15923,
+      "message_id": "post_1CeCiU7su4pF2pwvvDEyAX",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "今天A股减持的还没到美国本土"
+    },
+    {
+      "index": 15925,
+      "message_id": "post_1CeCibtm9YFdJsZUjZf94i",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "然后他今天还回落 别的国家不知道情况只看指数的话也会触发减持"
+    },
+    {
+      "index": 15946,
+      "message_id": "post_1CeCnGyZhp9j1axf8KmQ8t",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "同花顺",
+      "category": "macro_philosophy_memo",
+      "reason": "多板块龙头组合持仓结构 + 增减持信息收全再动打牌比喻，暂不占用 prop_003~006 四手牌空壳",
+      "raw_text": "大多数人就是同花顺里面连板梯队里面选"
+    },
+    {
+      "index": 15960,
+      "message_id": "post_1CeCo7xinEQoLiJ8URyF87",
+      "et_date": "2026-08-19",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "同花顺",
+      "category": "macro_philosophy_memo",
+      "reason": "多板块龙头组合持仓结构 + 增减持信息收全再动打牌比喻，暂不占用 prop_003~006 四手牌空壳",
+      "raw_text": "之前的数据 同花顺里面的连板梯队"
+    },
+    {
+      "index": 15997,
+      "message_id": "post_1CeDunpRHyEQBB3nkxoPNF",
+      "et_date": "2026-08-20",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "conl在特朗普加密政策的利好下续涨了16%  盘前5.4出掉了4.85剩下一半死拿的仓位\n\n准备后面btc继续强势的话coin先做正股 急跌在开始继续conl的分批低吸 然后看低位的cifr这个炒币股能不能反转 主要财报炒币亏在amd卡炒币亏损上"
+    },
+    {
+      "index": 15998,
+      "message_id": "post_1CeDuoPvM76D7T5afqEaLZ",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "conl在特朗普加密政策的利好下续涨了16% 盘前5.4出掉了4.85剩下一半死拿的仓位\n\n准备后面btc继续强势的话coin先做正股 急跌在开始继续conl的分批低吸 然后看低位的cifr这个炒币股能不能反转 主要财报炒币亏在amd卡炒币亏损上"
+    },
+    {
+      "index": 15999,
+      "message_id": "post_1CeDwfoHoe5Zs5fsKV9ddL",
+      "et_date": "2026-08-20",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "A股周一题材股增量的冲高 被周二到周四的三连减持都给吞掉了 周二银行股护盘加速了周三当天的力度\n\n今天盘前到开盘也会和昨天一样小压盘下 回流都有t+2的时差效应 \n\n强势股主要看qqq的转弯去低吸"
+    },
+    {
+      "index": 16000,
+      "message_id": "post_1CeDwgStB4MA6GiRUdH19C",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "A股周一题材股增量的冲高 被周二到周四的三连减持都给吞掉了 周二银行股护盘加速了周三当天的力度\n\n今天盘前到开盘也会和昨天一样小压盘下 回流都有t+2的时差效应\n\n强势股主要看qqq的转弯去低吸"
+    },
+    {
+      "index": 16011,
+      "message_id": "post_1CeDx9Vh19UcmcfMdwyoRx",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "今天是周二  明天周五是周三最大减持的回流量 每天就吸就可以"
+    },
+    {
+      "index": 16131,
+      "message_id": "post_1CeEAyxH1DXPYpEydvZ4r4",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "相当于",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "相当于说，如果是这个位置1000个一笔进去，意义也不大"
+    },
+    {
+      "index": 16132,
+      "message_id": "post_1CeEB4X4yrtEZKnUbGXKTt",
+      "et_date": "2026-08-20",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "重点的再发下 今天和明天是减持回流量相对大的两天 会急跌急涨锯齿多\n也是仓位布局到7-8成左右  有些急涨的就一半出 在调入急跌的 高低切自己切切\n\n波动明天或者周一就平稳下来小了"
+    },
+    {
+      "index": 16133,
+      "message_id": "post_1CeEB57zGCjff8QiqynvqM",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "重点的再发下 今天和明天是减持回流量相对大的两天 会急跌急涨锯齿多\n\n也是仓位布局到7-8成左右 有些急涨的就一半出 在调入急跌的 高低切自己切切\n\n波动明天或者周一就平稳下来小了"
+    },
+    {
+      "index": 16142,
+      "message_id": "post_1CeEBxph4jAxirEUwMYyTo",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "3成",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "3成是动态的会 异动的出换低位  争取只保留最低价那份死拿"
+    },
+    {
+      "index": 16166,
+      "message_id": "post_1CeED6nLAH5EZ8E5uPHspn",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "目的还是死拿到测试7820的突破"
+    },
+    {
+      "index": 16251,
+      "message_id": "post_1CeEM4zCq1NVvLcEN6CQxa",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "然后lite 那种情况  846 和829都买了   涨上去860了 先把最高那个批次给出了  829 最低批次拿全部或者拿一半 死拿着"
+    },
+    {
+      "index": 16253,
+      "message_id": "post_1CeEMAQ4KR3ictRp8Ci2Rb",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "这种就是常用的 三三原则的核心  批次价差拉开分三次买三次卖  把自己成本控制在最低方便死拿"
+    },
+    {
+      "index": 16319,
+      "message_id": "post_1CeEbZwT8wfyy3STU37dFe",
+      "et_date": "2026-08-20",
+      "channel": "历史股票期权记录区",
+      "trigger": "同花顺",
+      "category": "macro_philosophy_memo",
+      "reason": "多板块龙头组合持仓结构 + 增减持信息收全再动打牌比喻，暂不占用 prop_003~006 四手牌空壳",
+      "raw_text": "当你手里就只拿着同花顺和王炸时候 基本就是躺平\n\n之前一直防范着7700-60=7640的恐慌波动 实际上却是以不跌反涨去抗压\n今天spx也是以冷门股的跌 硬性去卡到7640这个低点"
+    },
+    {
+      "index": 16320,
+      "message_id": "post_1CeEbahy2FpVG3s5MyzNMy",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙期权",
+      "trigger": "同花顺",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "当你手里就只拿着同花顺和王炸时候 基本就是躺平\n\n之前一直防范着7700-60=7640的恐慌波动 实际上却是以不跌反涨去抗压\n\n今天spx也是以冷门股的跌 硬性去卡到7640这个低点"
+    },
+    {
+      "index": 16323,
+      "message_id": "post_1CeEc39iKGR3t1JXG4cuEZ",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "相当于",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "主要就是之前说的当你手里都是有10几个点潜质短期的票  相当于 重仓一个票一样"
+    },
+    {
+      "index": 16328,
+      "message_id": "post_1CeEcHDXP2dAWTv5oLtcLg",
+      "et_date": "2026-08-20",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "回流又多了一天资金就是四连减持"
+    },
+    {
+      "index": 16372,
+      "message_id": "post_1CeFVbDmhiXtbLAXUGLKBb",
+      "et_date": "2026-08-21",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "结算",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "8月18日，汇丰香港开始向部分中国内地存量投资客户发出通知，要求客户提交“开立维持账户之声明书”并更新联系方式。\n通知显示，若汇丰在8月20日前仍未收到声明书，客户的投资相关服务可能被暂停；若9月12日前仍未收到，投资服务可能被终止。\n\n根据汇丰官方声明书，中国内地投资者须确认，用于香港投资账户及结"
+    },
+    {
+      "index": 16383,
+      "message_id": "post_1CeFYorRGnZ6Zk7tqAAwBG",
+      "et_date": "2026-08-21",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "成本出",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "woconl还有 6块多 7快多的批次。 希望到成本出"
+    },
+    {
+      "index": 16387,
+      "message_id": "post_1CeFmRoGKyhyspczx16vap",
+      "et_date": "2026-08-21",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "近期的重点就是大仓位7-8成堆好股票 然后再慢慢检测有期权在小仓位慢慢开练习增加收益  在小修小补增加点新的急跌的个股  像今天A股还是被减持在压制回流资金更多就方向更明确\n\n指数跌我们手里股票就有涨幅  指数涨就会更有溢价空间"
+    },
+    {
+      "index": 16388,
+      "message_id": "post_1CeFmSPoSCuFEGaaJ7KoSE",
+      "et_date": "2026-08-21",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "近期的重点就是大仓位7-8成堆好股票 然后再慢慢检测有期权在小仓位慢慢开练习增加收益 在小修小补增加点新的急跌的个股 像今天A股还是被减持在压制回流资金更多就方向更明确\n\n指数跌我们手里股票就有涨幅 指数涨就会更有溢价空间"
+    },
+    {
+      "index": 16437,
+      "message_id": "post_1CeG2PFYNxn3Na32XxT3PH",
+      "et_date": "2026-08-21",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "缺口",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "特斯拉补缺口了"
+    },
+    {
+      "index": 16466,
+      "message_id": "post_1CeG5xhoa53or6D6sSFXcV",
+      "et_date": "2026-08-21",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "3成",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "动态8成  3成日内"
+    },
+    {
+      "index": 16467,
+      "message_id": "post_1CeG5yb28wzKD648mtpf4a",
+      "et_date": "2026-08-21",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "3成",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "3成灵活卖了买 买了卖"
+    },
+    {
+      "index": 16538,
+      "message_id": "post_1CeG8LJVwmgSQgzBzRBMVE",
+      "et_date": "2026-08-21",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "9月有个节日 A股减持太多天 本来还有2轮震荡会缩小到就节日前高点 在节后低点"
+    },
+    {
+      "index": 16540,
+      "message_id": "post_1CeG8fpjLaYtNvMrLhBk4V",
+      "et_date": "2026-08-21",
+      "channel": "历史股票期权记录区",
+      "trigger": "死拿",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "日内有异动或者大单出逃要有出有买  比如cifr大单出逃检测了都卖了就2个仓换一个苹果的3分之一仓先耗着  在慢慢看哪些急跌的在慢慢调换\n\n不然一直死拿不就日内机会又错过\n\n5-8成是动态的  开盘8成 有些股高了你分批出3成  在分批入急跌的3成"
+    },
+    {
+      "index": 16541,
+      "message_id": "post_1CeG8gM42pDWN4YQeEdNHu",
+      "et_date": "2026-08-21",
+      "channel": "不用翻墙期权",
+      "trigger": "死拿",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "日内有异动或者大单出逃要有出有买 比如cifr大单出逃检测了都卖了就2个仓换一个苹果的3分之一仓先耗着 在慢慢看哪些急跌的在慢慢调换\n\n不然一直死拿不就日内机会又错过\n\n5-8成是动态的 开盘8成 有些股高了你分批出3成 在分批入急跌的3成"
+    },
+    {
+      "index": 16630,
+      "message_id": "post_1CeMhm27ikjLUKhydzs39V",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "7成",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "7成了，硬抗。。"
+    },
+    {
+      "index": 16653,
+      "message_id": "post_1CeMo4qdKei8RAWZvWjG6w",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "A股港股减持延长了"
+    },
+    {
+      "index": 16658,
+      "message_id": "post_1CeMob862XAPnsZsG8Em3w",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "连续跌才会造成A股港股的减持"
+    },
+    {
+      "index": 16660,
+      "message_id": "post_1CeMocm2TKze5uBMfvg1x7",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "现在要补减持"
+    },
+    {
+      "index": 16667,
+      "message_id": "post_1CeMotEwPRNQGDgAbDUZxJ",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "A股港股减持就看 开盘回踩吸"
+    },
+    {
+      "index": 16675,
+      "message_id": "post_1CeMozPqR1mpZk1kB1i7gA",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "不然减持A股港股回流干嘛"
+    },
+    {
+      "index": 16682,
+      "message_id": "post_1CeMp8PPwpUMsXWHXqtXkH",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "美股跌收盘就会触发减持"
+    },
+    {
+      "index": 16684,
+      "message_id": "post_1CeMp9iLt4pTjewJSc2xMg",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "触发了A港减持 开盘回踩买"
+    },
+    {
+      "index": 16688,
+      "message_id": "post_1CeMpBico1AeZG13ncH83w",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "机制不是自己想  就是卡机制"
+    },
+    {
+      "index": 16689,
+      "message_id": "post_1CeMpC7YWr5sWmbkZuP5tT",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "机制出来就无限套利"
+    },
+    {
+      "index": 16700,
+      "message_id": "post_1CeMpfBpsb2JWTJ5uz33CA",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "因为现在要减持A港股 不要夜盘买 每天都是盘前或者开盘回踩买"
+    },
+    {
+      "index": 16729,
+      "message_id": "post_1CeMqLHmjpbcfvuBf37rWg",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "机制是没变化的 就是A港股跌 会开盘附近有个回踩低点 大多数回流要开盘附近才会加"
+    },
+    {
+      "index": 16798,
+      "message_id": "post_1CeN4fQ3easinqGBTjH5Z7",
+      "et_date": "2026-08-24",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "A股之前的反弹是因为韩国跌是暂停了几天减持的 所以这次减持了5天  回流的资金在开盘的回踩才会进去 这样老资金可以砸一波在和新资金一起低位进场\n开盘回踩只要是极限值7640就不应该害怕 盘中都会V起来去给出一半的机会  再回开盘价格就再买就是了没有回就拿着等指数冲高在卖"
+    },
+    {
+      "index": 16799,
+      "message_id": "post_1CeN4hGWRFBnKg9Q9DA8oY",
+      "et_date": "2026-08-24",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "A股之前的反弹是因为韩国跌是暂停了几天减持的 所以这次减持了5天 回流的资金在开盘的回踩才会进去 这样老资金可以砸一波在和新资金一起低位进场\n\n开盘回踩只要是极限值7640就不应该害怕 盘中都会V起来去给出一半的机会 再回开盘价格就再买就是了没有回就拿着等指数冲高在卖"
+    },
+    {
+      "index": 16850,
+      "message_id": "post_1CePcXqrFPr4taxjxyUKA2",
+      "et_date": "2026-08-25",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "7成",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "对我来说赵哥7成仓，我就可以满了😂"
+    },
+    {
+      "index": 16853,
+      "message_id": "post_1CePcZfyztzRhpVv6TUwBE",
+      "et_date": "2026-08-25",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "当然还有很多机制没学到"
+    },
+    {
+      "index": 16854,
+      "message_id": "post_1CePcZjnPAHuJuicvuJj2M",
+      "et_date": "2026-08-25",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "7成",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "说了 赵哥7成 直接满仓满融"
+    },
+    {
+      "index": 16956,
+      "message_id": "post_1CeRQwsiShiVsFYXhdgZd8",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "持股多前提是 持的股要有弹性 要是各种卡机制"
+    },
+    {
+      "index": 16966,
+      "message_id": "post_1CeRS2MqBRdUFubKuWz2Xe",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙期权",
+      "trigger": "散户止损",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "就像昨天的riot开盘那么多人说怎么那么弱  直线+7%就又变成强势股  操作决定了股票强弱  急跌吃散户止损时候买入  大单开始止盈就看转弯卖出"
+    },
+    {
+      "index": 16967,
+      "message_id": "post_1CeRS32yC1tMs1NfgHq6Zc",
+      "et_date": "2026-08-26",
+      "channel": "历史股票期权记录区",
+      "trigger": "散户止损",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "就像昨天的riot开盘那么多人说怎么那么弱  直线+7%就又变成强势股  操作决定了股票强弱  急跌吃散户止损时候买入  大单开始止盈就看转弯卖出"
+    },
+    {
+      "index": 16987,
+      "message_id": "post_1CeRTijPRPNANc8dQB97VY",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "macro_philosophy_memo",
+      "reason": "多板块龙头组合持仓结构 + 增减持信息收全再动打牌比喻，暂不占用 prop_003~006 四手牌空壳",
+      "raw_text": "增持还减持都要看 当你信息收集是全部时候 掌握最全信息检测才是稳定出牌的人 手里都是炸弹同花顺王炸让对面怎么赢"
+    },
+    {
+      "index": 16991,
+      "message_id": "post_1CeRUK4SQCV2Ztu38YsceG",
+      "et_date": "2026-08-26",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "像ttmi这种 减持和买的人都是同一个 空心柱子不断减持逼迫散户指数  散户都止损完毕 一把单子全部吸回 披露增持资讯当天在拉升"
+    },
+    {
+      "index": 16992,
+      "message_id": "post_1CeRUKuyVcaBoF7aiLF8SB",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "像ttmi这种 减持和买的人都是同一个 空心柱子不断减持逼迫散户指数 散户都止损完毕 一把单子全部吸回 披露增持资讯当天在拉升"
+    },
+    {
+      "index": 16995,
+      "message_id": "post_1CeRUdRXh7jC5Db9wo5seD",
+      "et_date": "2026-08-26",
+      "channel": "讨论区股票记录",
+      "trigger": "大单检测",
+      "category": "macro_philosophy_memo",
+      "reason": "多板块龙头组合持仓结构 + 增减持信息收全再动打牌比喻，暂不占用 prop_003~006 四手牌空壳",
+      "raw_text": "无论是估值低估买入法  meta的事件低位买入法  大单检测法  散户止损单被一笔全吃之类的 当你掌握的机制越多 你的手牌更能凑出同花顺和王炸"
+    },
+    {
+      "index": 17036,
+      "message_id": "post_1CeRX2hf9ztuVMsD6duCpT",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "资讯减持就是"
+    },
+    {
+      "index": 17047,
+      "message_id": "post_1CeRh4WH8UJbFrLfgc1Xpm",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "这个130是清仓式减持的"
+    },
+    {
+      "index": 17048,
+      "message_id": "post_1CeRh7MSXFju1esPXxR61i",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "有些巨额减持不是一天两天的 甲骨文都减持了1年才当年高点减持完毕"
+    },
+    {
+      "index": 17049,
+      "message_id": "post_1CeRh99io2ETyL4rARP1kh",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "他就和A股减持类似 不会跌的价格减"
+    },
+    {
+      "index": 17052,
+      "message_id": "post_1CeRhDrmRpFQBt7bwgMA4u",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "都跌多了就不会去减持 里面也是会等反弹再减"
+    },
+    {
+      "index": 17053,
+      "message_id": "post_1CeRhEz37yVMAS2wc3LweN",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "只是没有弹性 没有那种减持完毕的好"
+    },
+    {
+      "index": 17055,
+      "message_id": "post_1CeRhM75g3h4o3f62RFdaS",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "像航空 我就会选减持完毕那种"
+    },
+    {
+      "index": 17056,
+      "message_id": "post_1CeRhMtSRS1g3JN9xRzUeU",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "没得减持了今天就出了增持的资讯"
+    },
+    {
+      "index": 17082,
+      "message_id": "post_1CeRihZT1ANrnbnDG2Qvjy",
+      "et_date": "2026-08-26",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "原本A股减持3天的话会英伟达财报前指数要反弹一轮 现在等于把第一个反弹给变成继续震荡跌吸筹了"
+    },
+    {
+      "index": 17151,
+      "message_id": "post_1CeTQa3f5KTBZZVfXMvNJC",
+      "et_date": "2026-08-27",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "intc也是连续很多天减持后昨天出的唯一大单吃掉散户的信号"
+    },
+    {
+      "index": 17152,
+      "message_id": "post_1CeTQaYGhtDspJ4E8FZ4bE",
+      "et_date": "2026-08-27",
+      "channel": "历史股票期权记录区",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "intc也是连续很多天减持后昨天出的唯一大单吃掉散户的信号"
+    },
+    {
+      "index": 17154,
+      "message_id": "post_1CeTQhzX6yNvgr1Mc7FtHQ",
+      "et_date": "2026-08-27",
+      "channel": "历史股票期权记录区",
+      "trigger": "散户止损",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "1000个散户止损单并不重要 重要是1笔吃掉1000个散户的瞬间"
+    },
+    {
+      "index": 17155,
+      "message_id": "post_1CeTQiGuuP667ohmFNeCDG",
+      "et_date": "2026-08-27",
+      "channel": "不用翻墙期权",
+      "trigger": "散户止损",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "1000个散户止损单并不重要 重要是1笔吃掉1000个散户的瞬间"
+    },
+    {
+      "index": 17169,
+      "message_id": "post_1CeTRcdsUQx4jFMiZiSTko",
+      "et_date": "2026-08-27",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "散户止损",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "买点  1000个散户止损被1个单笔全吃"
+    },
+    {
+      "index": 17231,
+      "message_id": "post_1CeTXKdXk4FAqyppWCv5Qn",
+      "et_date": "2026-08-27",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "散户止损",
+      "category": "pure_fill_order",
+      "reason": "点位成交/减持口播，不进策略树",
+      "raw_text": "就又是1000散户止损1笔吸的走势就又是买点"
+    },
+    {
+      "index": 17282,
+      "message_id": "post_1CeTeQ1eZXMUB5TMJ9NpjH",
+      "et_date": "2026-08-27",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "利润垫",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "为啥一直跌了吸不怕 极限低点吸不怕 有利润垫着   里面的股东才要怕才要慌他们占的资金远大于投资者"
+    },
+    {
+      "index": 17349,
+      "message_id": "post_1CeVMAkWGZfBb94nzR2Zzg",
+      "et_date": "2026-08-28",
+      "channel": "不用翻墙期权",
+      "trigger": "7640的极限点",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "7640的极限点一直是每天反复说极限点位去低吸低吸低吸 因为指数的话7700 7760 7820按60的波动值会往上波动一轮\n\n指数低位的 按轮动都能分批次获利"
+    },
+    {
+      "index": 17350,
+      "message_id": "post_1CeVMVymwsprr6ZNoYSXtn",
+      "et_date": "2026-08-28",
+      "channel": "不用翻墙期权",
+      "trigger": "指数低什么都不敢买",
+      "category": "same_day_suffix",
+      "reason": "同日 (2026-08-28) 节点 [gold_008_index_turn_gate] 规则已记账 1 次，同日多发作为当日 fill 宿主审计，不虚增规则计数",
+      "raw_text": "36.5出掉34.75剩下一半spyu   指数低什么都不敢买时候就可以买指数 指数前瞻预测知道要上去指数的杠杆是必然涨的"
+    },
+    {
+      "index": 17351,
+      "message_id": "post_1CeVMWfa7s3SwVLxrSg3X9",
+      "et_date": "2026-08-28",
+      "channel": "历史股票期权记录区",
+      "trigger": "指数低什么都不敢买",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "36.5出掉34.75剩下一半spyu   指数低什么都不敢买时候就可以买指数 指数前瞻预测知道要上去指数的杠杆是必然涨的"
+    },
+    {
+      "index": 17364,
+      "message_id": "post_1CeVQijtW9yUxSj5Db9L5j",
+      "et_date": "2026-08-28",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "大盘股今天冲高  高点会有减持一批 小盘股压制 指数回调 就会压收盘最低"
+    },
+    {
+      "index": 17383,
+      "message_id": "post_1CeVTo3VdR9t1ub8iA1nz9",
+      "et_date": "2026-08-28",
+      "channel": "不用翻墙期权",
+      "trigger": "减持",
+      "category": "duplicate_post",
+      "reason": "跨频道完全重复发布，不重复记账",
+      "raw_text": "英伟达财报后的高点一直卖卖卖 就是为了应对杰克逊霍尔沃什的讲话 一个反弹了 后手讲话就会偏鹰让指数和盘面上下波动好让回流资金吃点短线盈利 加上可以让周一的A股继续闷杀下再减持"
+    },
+    {
+      "index": 17409,
+      "message_id": "post_1CeVWo5fE5rDTALoDmDvCr",
+      "et_date": "2026-08-28",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "减持",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "周一 A股肯定要减持的"
+    },
+    {
+      "index": 17422,
+      "message_id": "post_1CeVXKNQjyhqMjRhyr7NeT",
+      "et_date": "2026-08-28",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "像但斌上次来美国学习就是知道了机制也会非盘中买"
+    },
+    {
+      "index": 17426,
+      "message_id": "post_1CeVXeEn4ymBUAuZ7jRM2v",
+      "et_date": "2026-08-28",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "机制",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "先做A股 转美股要了解机制"
+    },
+    {
+      "index": 17431,
+      "message_id": "post_1CeVYDyzW2UPT66aGYfwoX",
+      "et_date": "2026-08-28",
+      "channel": "不用翻墙美股讨论区",
+      "trigger": "被动减",
+      "category": "weak_commentary_or_single_event",
+      "reason": "单日讨论区问答或弱语义描述，未达到树节点标准",
+      "raw_text": "触发周一的一个回踩这样周二周三节前反弹点去被动减"
+    }
+  ]
+}
