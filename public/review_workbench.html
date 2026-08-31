@@ -489,22 +489,26 @@
           const card = document.getElementById(`card-${reviewId}`);
           if (card) {
             // 平滑淡出后彻底从待审池 DOM 移除，避免尸卡占用中列
-            card.style.transition = 'all 0.3s ease';
+            card.style.transition = 'all 0.25s ease';
             card.style.opacity = '0';
             card.style.transform = 'scale(0.95)';
             setTimeout(() => {
               card.remove();
-              // 检查待审池是否已空
               const queueList = document.getElementById('review-queue-list');
               const remaining = queueList.querySelectorAll('.card').length;
               document.getElementById('queue-count').innerText = `${remaining} 待审`;
               if (remaining === 0) {
                 queueList.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">当日无待审计划单 (已被成交覆盖或已审核)</div>';
               }
-            }, 300);
+            }, 250);
           }
-          // 同步刷新左列流，使左列对应动作立即更新为灰卡（已忽略）或已核准标签
-          loadStream(currentDate);
+          
+          // 🏛️ 全层级联动刷新：左列动作流、中列待审池、右列战法徽章、顶部水位状态徽章全部立即重新对齐
+          await Promise.all([
+            loadStream(currentDate),
+            loadGates(selectedCuId, currentDate),
+            updateIncrementalStatus()
+          ]);
         }
       } catch (e) {
         alert("操作失败: " + e.message);

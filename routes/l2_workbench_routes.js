@@ -444,6 +444,7 @@ router.get('/review/queue', (req, res) => {
 
 /**
  * 2.1 待审动作提交: POST /api/review/action
+ * 🏛️ 服务端核心能力：每次 verify 或 dismiss 提交后，自动在后台同步清理全部层级缓存，确保全局视图自洽
  */
 router.post('/review/action', (req, res) => {
   const { review_id, cu_id, decision } = req.body;
@@ -463,9 +464,18 @@ router.post('/review/action', (req, res) => {
   
   fs.appendFileSync(HUMAN_VERIFIED_LOG_PATH, JSON.stringify(logEntry) + '\n', 'utf-8');
   
+  // 🏛️ 服务器角色核心能力：自动后台清空全部层级缓存并立即触发状态重载
+  cachedL2aRecords = null;
+  cachedL2bZhaoMap = null;
+  cachedL2bMrzhou = null;
+
+  console.log(`[L2Workbench] 收到人工审核动作 (${review_id} -> ${decision})，服务端已全层级同步刷新缓存。`);
+
   res.json({
     success: true,
-    result: logEntry
+    result: logEntry,
+    server_synced: true,
+    cache_cleared: true
   });
 });
 
