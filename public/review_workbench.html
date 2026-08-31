@@ -105,6 +105,7 @@
       <label style="font-size: 12px; color: var(--text-muted); margin-left: 6px;">选择美东日期:</label>
       <select id="date-picker" class="date-select" onchange="onDateChanged(this.value)"></select>
       <span id="date-summary-badge" class="batch-badge" style="background: rgba(56, 139, 253, 0.15); color: #58a6ff; font-weight: normal;">📅 当日 CU: 0 (动作: 0, 空窗: 0)</span>
+      <span id="source-channel-badge" class="batch-badge" style="background: rgba(163, 113, 247, 0.15); color: #d2a8ff; border: 1px solid rgba(163, 113, 247, 0.3);">📡 数据源: 历史股票期权记录区 (forum_feed_1CTr7SqVMzFfuFiiRJLEHN)</span>
       <div class="status-banner">🛑 券商对账: exit code 2 (阻断中·零实盘挂单)</div>
     </div>
   </header>
@@ -239,6 +240,22 @@
         const res = await fetch(`/api/l2a/today?date=${date}`);
         const data = await res.json();
         
+        // 1. 更新顶栏当日数据源频道徽章
+        const srcBadge = document.getElementById('source-channel-badge');
+        if (srcBadge) {
+          const channels = data.source_channels || [];
+          if (channels.length === 1) {
+            srcBadge.innerText = `📡 频道: ${channels[0].channel_name} (${channels[0].feed_id})`;
+            srcBadge.style.color = '#d2a8ff';
+          } else if (channels.length > 1) {
+            const listStr = channels.map(c => `${c.channel_name}(${c.feed_id})`).join(' · ');
+            srcBadge.innerText = `📡 跨 ${channels.length} 个频道: ${listStr}`;
+            srcBadge.style.color = '#f0883e';
+          } else {
+            srcBadge.innerText = `📡 频道: 历史股票期权记录区 (forum_feed_1CTr7SqVMzFfuFiiRJLEHN)`;
+          }
+        }
+
         const actionCount = data.stream.filter(s => !s.is_empty_view).length;
         const emptyCount = data.stream.filter(s => s.is_empty_view).length;
         document.getElementById('stream-count').innerText = `${data.stream.length} 项 (拆解动作: ${actionCount}, 纯观点: ${emptyCount})`;
@@ -257,6 +274,9 @@
           div.setAttribute('data-cu-id', item.cu_id);
           div.onclick = (e) => selectCu(item.cu_id, e);
 
+          const channelTagText = item.channel_name || '历史股票期权记录区';
+          const feedIdText = item.feed_id || 'forum_feed_1CTr7SqVMzFfuFiiRJLEHN';
+
           if (!item.parse_ok) {
             div.className = `card ${selectedCuId === item.cu_id ? 'active' : ''}`;
             div.innerHTML = `
@@ -264,10 +284,11 @@
                 <span class="tag tag-failed">🚨 解析失败 (parse_ok=false)</span>
                 <span style="color: var(--red); font-size: 11px;">${escapeHtml(item.cu_id)}</span>
               </div>
+              <div class="card-meta">频道: ${escapeHtml(channelTagText)} · <code>${escapeHtml(feedIdText)}</code></div>
               <div style="color: var(--red); font-size: 11px;">${escapeHtml(item.raw_error)}</div>
               ${item.raw_text ? `
                 <details style="margin-top: 6px;">
-                  <summary style="font-size: 11px; color: var(--accent);">💬 展开原始对话</summary>
+                  <summary style="font-size: 11px; color: var(--accent);">💬 展开原始对话 [${escapeHtml(channelTagText)}]</summary>
                   <pre style="white-space: pre-wrap; font-size: 11px; color: var(--text); margin-top: 4px;">${escapeHtml(item.raw_text)}</pre>
                 </details>
               ` : ''}
@@ -280,10 +301,10 @@
                 <span style="color: var(--text-muted);">💬 仅观点 / 空窗 (无动作)</span>
                 <span class="tag tag-empty-view">纯观点</span>
               </div>
-              <div class="card-meta">CU: ${escapeHtml(item.cu_id)} | ${escapeHtml(item.et_session)} | 标签: ${escapeHtml((item.strategy_tags || []).join(', ') || '宏观/分析')}</div>
+              <div class="card-meta">CU: ${escapeHtml(item.cu_id)} | <strong>${escapeHtml(channelTagText)}</strong> | ${escapeHtml(item.et_session)}</div>
               ${item.raw_text ? `
                 <details style="margin-top: 6px;">
-                  <summary style="font-size: 11px; color: var(--text-muted);">💬 展开观点原文 (点击卡片联动右列)</summary>
+                  <summary style="font-size: 11px; color: var(--text-muted);">💬 展开观点原文 [${escapeHtml(channelTagText)}]</summary>
                   <pre style="white-space: pre-wrap; font-size: 11px; color: var(--text); margin-top: 4px; max-height: 150px; overflow-y: auto;">${escapeHtml(item.raw_text)}</pre>
                 </details>
               ` : ''}
@@ -296,11 +317,11 @@
                 <span style="color: var(--text-muted); text-decoration: line-through;">${escapeHtml(item.action)} <strong>${escapeHtml(item.ticker)}</strong></span>
                 <span class="tag tag-dismissed">已忽略 (dismissed)</span>
               </div>
-              <div class="card-meta">CU: ${escapeHtml(item.cu_id)} | ${escapeHtml(item.instrument)} | 状态: 人工已忽略</div>
+              <div class="card-meta">CU: ${escapeHtml(item.cu_id)} | <strong>${escapeHtml(channelTagText)}</strong> | 状态: 人工已忽略</div>
               <div style="font-size: 11px; color: var(--text-muted);">口播条件: ${escapeHtml(item.condition || '无')}</div>
               ${item.raw_text ? `
                 <details style="margin-top: 6px;">
-                  <summary style="font-size: 11px; color: var(--text-muted);">💬 展开原始对话 (已判定非实盘订单)</summary>
+                  <summary style="font-size: 11px; color: var(--text-muted);">💬 展开原始对话 [${escapeHtml(channelTagText)}] (非实盘单)</summary>
                   <pre style="white-space: pre-wrap; font-size: 11px; color: var(--text-muted); margin-top: 4px; max-height: 150px; overflow-y: auto;">${escapeHtml(item.raw_text)}</pre>
                 </details>
               ` : ''}
@@ -320,12 +341,12 @@
                 <span>${escapeHtml(item.action)} <strong>${escapeHtml(item.ticker)}</strong> ${item.price ? '@ $' + item.price : ''}</span>
                 ${tagHtml}
               </div>
-              <div class="card-meta">CU: ${escapeHtml(item.cu_id)} | ${escapeHtml(item.instrument)} | 分数: ${escapeHtml(item.fraction || '未明')}</div>
+              <div class="card-meta">CU: ${escapeHtml(item.cu_id)} | <strong>${escapeHtml(channelTagText)}</strong> | ${escapeHtml(item.instrument)} | 分数: ${escapeHtml(item.fraction || '未明')}</div>
               <div style="font-size: 11px; color: var(--text-muted);">口播条件: ${escapeHtml(item.condition || '无')}</div>
               <div style="font-size: 10px; color: #484f58; margin-top: 4px;">⏳ 券商 Fills: [等待真实流水对账]</div>
               ${item.raw_text ? `
                 <details style="margin-top: 6px;">
-                  <summary style="font-size: 11px; color: var(--accent);">💬 展开原文 (前200字)</summary>
+                  <summary style="font-size: 11px; color: var(--accent);">💬 展开原文 [${escapeHtml(channelTagText)}] (前200字)</summary>
                   <pre style="white-space: pre-wrap; font-size: 11px; color: var(--text); margin-top: 4px; max-height: 150px; overflow-y: auto;">${escapeHtml(item.raw_text)}</pre>
                 </details>
               ` : ''}

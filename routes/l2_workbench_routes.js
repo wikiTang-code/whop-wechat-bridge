@@ -9,12 +9,26 @@ const INCR_POINTER_PATH = 'data/runs/l2a_incr_latest.json';
 const L2B_ZHAO_HITS_PATH = 'data/runs/l2b_zhao_kid_hits.jsonl';
 const L2B_MRZHOU_PATH = 'data/l2b/mrzhou/atoms.json';
 const HUMAN_VERIFIED_LOG_PATH = 'data/runs/l2a_human_verified_actions.jsonl';
+const CHANNEL_REGISTRY_PATH = 'config/channel_registry.json';
 
 const TIER1_HARD_FILL_CUS = new Set(['cu_trade_00955', 'cu_trade_01174']);
 
 let cachedL2aRecords = null;
 let cachedL2bZhaoMap = null;
 let cachedL2bMrzhou = null;
+let cachedChannelRegistry = null;
+
+function getChannelRegistry() {
+  if (cachedChannelRegistry) return cachedChannelRegistry;
+  try {
+    if (fs.existsSync(CHANNEL_REGISTRY_PATH)) {
+      cachedChannelRegistry = JSON.parse(fs.readFileSync(CHANNEL_REGISTRY_PATH, 'utf-8'));
+    }
+  } catch (e) {
+    console.error('[L2Workbench] 加载 channel_registry 失败:', e.message);
+  }
+  return cachedChannelRegistry || {};
+}
 
 function loadL2aData() {
   if (cachedL2aRecords) return cachedL2aRecords;
@@ -242,6 +256,7 @@ router.get('/l2a/today', (req, res) => {
   let actionCuCount = 0;
   let emptyCuCount = 0;
 
+  const registry = getChannelRegistry();
   const handledReviews = getHandledReviews();
   const INDEX_ETF_SET = new Set(['QQQ', 'SPY', 'SPX', 'IWM', 'DIA', 'TQQQ', 'SQQQ']);
   // 严格观察词组（剔除单独宽泛的“看”，必须是明确的大盘观察/缺口博弈短语）
@@ -284,12 +299,18 @@ router.get('/l2a/today', (req, res) => {
       });
     }
 
+    const feedId = r.channel || r.channel_id || 'forum_feed_1CTr7SqVMzFfuFiiRJLEHN';
+    const regInfo = registry[feedId];
+    const canonicalChannelName = regInfo ? regInfo.name : '历史股票期权记录区';
+
     if (actions.length === 0) {
       emptyCuCount++;
       // W7: 纯观点空窗独立为灰卡
       stream.push({
         action_id: `${r.cu_id}_view_empty`,
         cu_id: r.cu_id,
+        feed_id: feedId,
+        channel_name: canonicalChannelName,
         et_session: r.et_session || 'regular',
         is_empty_view: true,
         speech_act: r.parsed?.speech_act || 'market_view',
@@ -324,6 +345,8 @@ router.get('/l2a/today', (req, res) => {
           action_id: `${r.cu_id}_act_${idx}`,
           review_id: reviewId,
           cu_id: r.cu_id,
+          feed_id: feedId,
+          channel_name: canonicalChannelName,
           et_session: r.et_session || 'regular',
           is_empty_view: false,
           is_dismissed: isDismissed,
@@ -342,12 +365,27 @@ router.get('/l2a/today', (req, res) => {
     }
   }
   
+  // 提取当日所有涉及的频道
+  const distinctFeeds = new Set();
+  const sourceChannels = [];
+  for (const r of dateRecords) {
+    const fId = r.channel || r.channel_id || 'forum_feed_1CTr7SqVMzFfuFiiRJLEHN';
+    if (!distinctFeeds.has(fId)) {
+      distinctFeeds.add(fId);
+      sourceChannels.push({
+        feed_id: fId,
+        channel_name: registry[fId]?.name || '历史股票期权记录区'
+      });
+    }
+  }
+
   res.json({
     date: reqDate,
     cu_count: dateRecords.length,
     action_cu_count: actionCuCount,
     empty_cu_count: emptyCuCount,
     total_actions: stream.length,
+    source_channels: sourceChannels,
     stream
   });
 });
