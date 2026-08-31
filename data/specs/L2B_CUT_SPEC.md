@@ -59,24 +59,23 @@ L2b 切窗产物写入独立的 `data/runs/l2b_knowledge_*.jsonl`，每条记录
 
 ```json
 {
-  "cu_id": "cu_l2b_20260830_00001",
+  "cu_id": "cu_l2b_drycut_20260830_00001",
+  "post_id": "post_1CUmhoAGUop4SppGjvML7p",
   "feed_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
   "channel_name": "历史股票期权记录区",
   "kid": "k_second_handshake",
   "type": "playbook",
-  "statement": "主要hims就是今天财报二次握手博弈 没利润垫的就不要留了",
-  "evidence_span": "主要hims就是今天财报二次握手博弈 没利润垫的就不要留了",
+  "statement": "盘中二次握手低点博弈财报，在二次握手吸，盘后多的时候出。",
+  "evidence_span": "因为这次是第二次遇到 rddt  hims这种盘中二次握手  二次握手的低点还是最近第三季度的最低点这种的 财报博弈方式 一般没太大问题 小超预期 大超预期 盘后都会有多的  在二次握手吸   盘后才预期 多的时候出",
   "matched_phrase": "二次握手",
-  "raw_text": "[post_1CUmieqA3rqzHWzhDCDkrD] 2025/11/03 xiaozhaolucky: 主要hims就是今天财报二次握手博弈 没利润垫的就不要留了",
+  "raw_text": "[post_1CUmhoAGUop4SppGjvML7p] 📡【历史股票期权记录区 (forum_feed_1CTr7SqVMzFfuFiiRJLEHN)】 2025/11/3 16:57:29 xiaozhaolucky: 因为这次是第二次遇到 rddt  hims这种盘中二次握手  二次握手的低点还是最近第三季度的最低点这种的 财报博弈方式 一般没太大问题 小超预期 大超预期 盘后都会有多的  在二次握手吸   盘后才预期 多的时候出",
   "chart_notes": {
     "has_image": false,
     "aligns_with_text": "no_image",
     "local_path": "no_image",
     "sha": "no_image"
   },
-  "not": [
-    "没利润垫留仓过财报"
-  ],
+  "not": [],
   "status": "proposed",
   "do_not_use_as_order": true,
   "created_at": 1787935644129
@@ -93,15 +92,18 @@ L2b 切窗产物写入独立的 `data/runs/l2b_knowledge_*.jsonl`，每条记录
 3. **`kid` 严格撞表与 `pending_new` 保护**：
    - 切窗抽取时，`kid` 只允许匹配已有知识库表（25 hits + G4/G5 + g_img_001~005 + 受控 proposed 表）；
    - 若出现新战法但未在表中登记，**必须赋予 `kid: "pending_new"`，绝对禁止模型自造 `k_*` 标识符**。
-4. **`chart_notes` 规范元数据**：
+4. **全量切窗边界防串与软门纪律**：
+   - **同频 ≠ 同时段**：同频道消息按时间序排列，若后文距离锚点超过 24 小时，全量切窗时必须标注 `context_stale: true` 软门提醒，不得硬丢窗；
+   - **同文双发口诀哈希去重**：若记录区与期权区等不同频道双发同一口诀，全量时按 `statement_hash` 严格去重，仅保留一条主窗（优先保留记录区或带图窗）。
+5. **`chart_notes` 规范元数据**：
    - 若存在真图，必须完整填入 `local_path`、`sha`、`aligns_with_text` 与 `has_image: true`；
    - 若无图，必须显式填入 `has_image: false`，其余字段填 `"no_image"`，**严禁用 `null` 模糊糊弄**。
-5. **`status` 默认 `proposed`**：
+6. **`status` 默认 `proposed`**：
    - 抽取产物默认全量标记为 **`status: "proposed"`**（金标与闸门必须人工在工作台审核后方可晋升）；
-6. **`do_not_use_as_order: true`**：
+7. **`do_not_use_as_order: true`**：
    - **全量布尔硬锁**，下游执行引擎读取到此字段必须绝对阻断下单；
-7. **禁止写入 registry**：严禁回写代码本、手册与频道登记册；
-8. **禁止混入 L2a actions**：绝不允许向 `parsed.actions` 注入知识原子。
+8. **禁止写入 registry**：严禁回写代码本、手册与频道登记册；
+9. **禁止混入 L2a actions**：绝不允许向 `parsed.actions` 注入知识原子。
 
 ---
 
