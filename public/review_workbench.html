@@ -44,13 +44,17 @@
     .tag { padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 600; }
     .tag-speech-filled { background: rgba(56, 139, 253, 0.15); color: #58a6ff; border: 1px solid #388bfd; }
     .tag-planned { background: rgba(210, 153, 34, 0.15); color: #d29922; border: 1px solid #d29922; }
+    .tag-dismissed { background: rgba(139, 148, 158, 0.15); color: #8b949e; border: 1px solid #8b949e; }
+    .tag-verified { background: rgba(63, 185, 80, 0.15); color: #3fb950; border: 1px solid #3fb950; }
     .tag-failed { background: rgba(248, 81, 73, 0.15); color: #f85149; border: 1px solid #f85149; }
     .tag-kid { background: rgba(163, 113, 247, 0.15); color: #bc8cff; border: 1px solid #a371f7; }
     .tag-empty-view { background: rgba(139, 148, 158, 0.15); color: #8b949e; border: 1px solid #8b949e; }
     
-    /* 空窗灰卡 */
+    /* 空窗/已忽略灰卡 */
     .card-empty-view { background: #12161c; border: 1px dashed #30363d; opacity: 0.85; }
     .card-empty-view:hover { border-color: #8b949e; opacity: 1; }
+    .card-dismissed { background: #12161c; border: 1px solid #21262d; opacity: 0.65; }
+    .card-dismissed:hover { opacity: 0.9; }
     .card.flash-highlight { animation: highlight-pulse 1.5s ease-out; }
     @keyframes highlight-pulse {
       0% { border-color: #f2cc60; box-shadow: 0 0 12px rgba(242, 204, 96, 0.5); }
@@ -66,6 +70,29 @@
     
     details { background: #12161c; border: 1px solid var(--border); border-radius: 4px; padding: 8px; margin-top: 8px; font-size: 12px; }
     summary { cursor: pointer; color: var(--text-muted); font-weight: bold; outline: none; }
+
+    /* 移动端响应式优化 (避免三列挤成竖排) */
+    @media (max-width: 850px) {
+      body { padding: 8px; }
+      .grid-container {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        gap: 12px;
+      }
+      .column {
+        height: 480px;
+        min-width: 100%;
+      }
+      .header-controls {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .card-title {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -188,7 +215,7 @@
       const badge = document.getElementById('date-summary-badge');
       const stat = allDateStats[date];
       if (stat) {
-        badge.innerText = `📅 当日 CU: ${stat.cu_count} (动作窗: ${stat.action_cu_count}, 观点空窗: ${stat.empty_cu_count})`;
+        badge.innerText = `📅 当日原始 CU: ${stat.cu_count} 窗 (动作窗: ${stat.action_cu_count}, 纯观点窗: ${stat.empty_cu_count})`;
       } else {
         badge.innerText = `📅 当日 CU 统计: -`;
       }
@@ -214,7 +241,7 @@
         
         const actionCount = data.stream.filter(s => !s.is_empty_view).length;
         const emptyCount = data.stream.filter(s => s.is_empty_view).length;
-        document.getElementById('stream-count').innerText = `${data.stream.length} 卡片 (${actionCount}动作, ${emptyCount}空窗)`;
+        document.getElementById('stream-count').innerText = `${data.stream.length} 项 (拆解动作: ${actionCount}, 纯观点: ${emptyCount})`;
         
         const container = document.getElementById('l2a-stream-list');
         container.innerHTML = '';
@@ -261,13 +288,37 @@
                 </details>
               ` : ''}
             `;
+          } else if (item.is_dismissed) {
+            // 已忽略的计划单/观点转为灰卡展示，严禁再标“计划挂单”
+            div.className = `card card-dismissed ${selectedCuId === item.cu_id ? 'active' : ''}`;
+            div.innerHTML = `
+              <div class="card-title">
+                <span style="color: var(--text-muted); text-decoration: line-through;">${escapeHtml(item.action)} <strong>${escapeHtml(item.ticker)}</strong></span>
+                <span class="tag tag-dismissed">已忽略 (dismissed)</span>
+              </div>
+              <div class="card-meta">CU: ${escapeHtml(item.cu_id)} | ${escapeHtml(item.instrument)} | 状态: 人工已忽略</div>
+              <div style="font-size: 11px; color: var(--text-muted);">口播条件: ${escapeHtml(item.condition || '无')}</div>
+              ${item.raw_text ? `
+                <details style="margin-top: 6px;">
+                  <summary style="font-size: 11px; color: var(--text-muted);">💬 展开原始对话 (已判定非实盘订单)</summary>
+                  <pre style="white-space: pre-wrap; font-size: 11px; color: var(--text-muted); margin-top: 4px; max-height: 150px; overflow-y: auto;">${escapeHtml(item.raw_text)}</pre>
+                </details>
+              ` : ''}
+            `;
           } else {
             const isFilled = item.status === 'filled_speech';
+            const isVerified = item.is_verified || item.status === 'verified';
             div.className = `card ${selectedCuId === item.cu_id ? 'active' : ''}`;
+            
+            let tagHtml = `<span class="tag ${isFilled ? 'tag-speech-filled' : 'tag-planned'}">${isFilled ? '口述已成交' : '计划挂单'}</span>`;
+            if (isVerified) {
+              tagHtml = `<span class="tag tag-verified">✓ 人工已核准</span>`;
+            }
+
             div.innerHTML = `
               <div class="card-title">
                 <span>${escapeHtml(item.action)} <strong>${escapeHtml(item.ticker)}</strong> ${item.price ? '@ $' + item.price : ''}</span>
-                <span class="tag ${isFilled ? 'tag-speech-filled' : 'tag-planned'}">${isFilled ? '口述已成交' : '计划挂单'}</span>
+                ${tagHtml}
               </div>
               <div class="card-meta">CU: ${escapeHtml(item.cu_id)} | ${escapeHtml(item.instrument)} | 分数: ${escapeHtml(item.fraction || '未明')}</div>
               <div style="font-size: 11px; color: var(--text-muted);">口播条件: ${escapeHtml(item.condition || '无')}</div>
@@ -437,9 +488,23 @@
         if (data.success) {
           const card = document.getElementById(`card-${reviewId}`);
           if (card) {
-            card.style.opacity = '0.5';
-            card.innerHTML = `<div style="color: ${decision === 'ack' ? 'var(--green)' : 'var(--text-muted)'}; font-weight: bold; text-align: center; padding: 10px;">✓ 已处理: ${data.result.status} (零实盘打单)</div>`;
+            // 平滑淡出后彻底从待审池 DOM 移除，避免尸卡占用中列
+            card.style.transition = 'all 0.3s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+              card.remove();
+              // 检查待审池是否已空
+              const queueList = document.getElementById('review-queue-list');
+              const remaining = queueList.querySelectorAll('.card').length;
+              document.getElementById('queue-count').innerText = `${remaining} 待审`;
+              if (remaining === 0) {
+                queueList.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">当日无待审计划单 (已被成交覆盖或已审核)</div>';
+              }
+            }, 300);
           }
+          // 同步刷新左列流，使左列对应动作立即更新为灰卡（已忽略）或已核准标签
+          loadStream(currentDate);
         }
       } catch (e) {
         alert("操作失败: " + e.message);

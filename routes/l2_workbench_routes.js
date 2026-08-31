@@ -83,18 +83,28 @@ function loadL2bData() {
   return { zhaoMap: cachedL2bZhaoMap, mrzhou: cachedL2bMrzhou };
 }
 
-function getHandledReviewIds() {
-  const handledSet = new Set();
+function getHandledReviews() {
+  const handledMap = new Map();
   if (fs.existsSync(HUMAN_VERIFIED_LOG_PATH)) {
     const lines = fs.readFileSync(HUMAN_VERIFIED_LOG_PATH, 'utf-8').trim().split('\n').filter(Boolean);
     for (const l of lines) {
       try {
         const item = JSON.parse(l);
-        if (item.review_id) handledSet.add(item.review_id);
+        if (item.review_id) {
+          handledMap.set(item.review_id, item);
+          // 同时支持 cu_id + ticker + action 维度键
+          const cuKey = `${item.cu_id}_${item.ticker || ''}_${item.action || ''}`;
+          handledMap.set(cuKey, item);
+        }
       } catch (e) {}
     }
   }
-  return handledSet;
+  return handledMap;
+}
+
+function getHandledReviewIds() {
+  const handledMap = getHandledReviews();
+  return new Set(handledMap.keys());
 }
 
 const QUEUE_STATUS_PATH = 'data/queue_status.json';
@@ -232,9 +242,13 @@ router.get('/l2a/today', (req, res) => {
   let actionCuCount = 0;
   let emptyCuCount = 0;
 
+  const handledReviews = getHandledReviews();
+  const INDEX_ETF_SET = new Set(['QQQ', 'SPY', 'SPX', 'IWM', 'DIA', 'TQQQ', 'SQQQ']);
+  const INDEX_OBSERVE_REGEX = /(参考|对照|看|缺口|能不能|接近|触及|等他补)/;
+
   for (const r of dateRecords) {
     const isParseOk = r.parse_ok === true;
-    const actions = r.parsed?.actions || [];
+    let actions = r.parsed?.actions || [];
     
     if (!isParseOk) {
       stream.push({
@@ -247,6 +261,22 @@ router.get('/l2a/today', (req, res) => {
         actions: []
       });
       continue;
+    }
+
+    // 规则 2: 清洗规则：指数 ETF + 观察特征词 且同窗已有其它个股成交 -> 指数不进 planned
+    const hasOtherStockFilled = actions.some(a => a.status === 'filled' && !INDEX_ETF_SET.has((a.ticker || '').toUpperCase()));
+    if (hasOtherStockFilled) {
+      actions = actions.filter(a => {
+        const isIndex = INDEX_ETF_SET.has((a.ticker || '').toUpperCase());
+        const isPlanned = a.status === 'planned';
+        const condOrRaw = (a.condition || '') + (r.raw_text || '');
+        const isObserve = INDEX_OBSERVE_REGEX.test(condOrRaw);
+        if (isIndex && isPlanned && isObserve) {
+          // 降级为观察观点，不作为交易计划单
+          return false;
+        }
+        return true;
+      });
     }
 
     if (actions.length === 0) {
@@ -267,16 +297,37 @@ router.get('/l2a/today', (req, res) => {
       actionCuCount++;
       for (let idx = 0; idx < actions.length; idx++) {
         const a = actions[idx];
+        const reviewId = `${r.cu_id}_${a.ticker}_${a.action}_${a.price || 'null'}_${idx}`;
+        const cuKey = `${r.cu_id}_${a.ticker || ''}_${a.action || ''}`;
+        const handledItem = handledReviews.get(reviewId) || handledReviews.get(cuKey);
+        
+        let status = a.status === 'filled' ? 'filled_speech' : 'planned';
+        let isDismissed = false;
+        let isVerified = false;
+
+        if (handledItem) {
+          if (handledItem.decision === 'dismiss' || handledItem.status === 'human_dismissed') {
+            isDismissed = true;
+            status = 'dismissed';
+          } else if (handledItem.decision === 'ack' || handledItem.status === 'human_verified') {
+            isVerified = true;
+            status = 'verified';
+          }
+        }
+
         stream.push({
           action_id: `${r.cu_id}_act_${idx}`,
+          review_id: reviewId,
           cu_id: r.cu_id,
           et_session: r.et_session || 'regular',
           is_empty_view: false,
+          is_dismissed: isDismissed,
+          is_verified: isVerified,
           ticker: a.ticker,
           action: a.action,
           price: a.price,
           fraction: a.fraction,
-          status: a.status === 'filled' ? 'filled_speech' : 'planned',
+          status: status,
           instrument: a.instrument,
           condition: a.condition,
           raw_text: r.raw_text || '',
@@ -325,9 +376,25 @@ router.get('/review/queue', (req, res) => {
     }
   }
 
+  const INDEX_ETF_SET = new Set(['QQQ', 'SPY', 'SPX', 'IWM', 'DIA', 'TQQQ', 'SQQQ']);
+  const INDEX_OBSERVE_REGEX = /(参考|对照|看|缺口|能不能|接近|触及|等他补)/;
+
   for (const r of dateRecords) {
     if (!r.parse_ok) continue;
-    const actions = r.parsed?.actions || [];
+    let actions = r.parsed?.actions || [];
+    
+    // 过滤指数 ETF 观察句
+    const hasOtherStockFilled = actions.some(a => a.status === 'filled' && !INDEX_ETF_SET.has((a.ticker || '').toUpperCase()));
+    if (hasOtherStockFilled) {
+      actions = actions.filter(a => {
+        const isIndex = INDEX_ETF_SET.has((a.ticker || '').toUpperCase());
+        const isPlanned = a.status === 'planned';
+        const condOrRaw = (a.condition || '') + (r.raw_text || '');
+        const isObserve = INDEX_OBSERVE_REGEX.test(condOrRaw);
+        if (isIndex && isPlanned && isObserve) return false;
+        return true;
+      });
+    }
     
     for (let idx = 0; idx < actions.length; idx++) {
       const a = actions[idx];
@@ -336,9 +403,10 @@ router.get('/review/queue', (req, res) => {
 
       if (isPlanned || isTier1HardFill) {
         const reviewId = `${r.cu_id}_${a.ticker}_${a.action}_${a.price || 'null'}_${idx}`;
+        const cuKey = `${r.cu_id}_${a.ticker || ''}_${a.action || ''}`;
         
-        // W1: 已审核过则排除
-        if (handledReviewIds.has(reviewId)) {
+        // W1: 已审核过则排除 (支持 review_id 或 cuKey)
+        if (handledReviewIds.has(reviewId) || handledReviewIds.has(cuKey)) {
           continue;
         }
 
