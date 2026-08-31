@@ -1146,28 +1146,26 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
     .map((s) => s.trim())
     .filter(Boolean);
 
-  let channelMappings = {};
+  let channelRegistry = {};
   try {
-    if (process.env.WHOP_CHANNEL_MAPPINGS) {
-      channelMappings = JSON.parse(process.env.WHOP_CHANNEL_MAPPINGS);
+    const regPath = path.join(process.cwd(), 'config', 'channel_registry.json');
+    if (fs.existsSync(regPath)) {
+      channelRegistry = JSON.parse(fs.readFileSync(regPath, 'utf-8'));
     }
   } catch (err) {
-    console.error('Failed to parse WHOP_CHANNEL_MAPPINGS from env:', err.message);
+    console.error('Failed to load channel_registry.json in monitor.js:', err.message);
   }
 
-  const CHANNEL_NAME_FALLBACKS = {
-    'forum_feed_1CTr7SqVMzFfuFiiRJLEHN': '历史股票期权记录区',
-    'chat_feed_1CTr5VAdNHtbZAFaTitvoT': '不用翻墙美股讨论区',
-    'chat_feed_1CTr7QocNpDZ9FXZ6fvWe4': '不用翻墙美股发布',
-    'chat_feed_1CTrCEx44dP13jW3RVkYiS': '不用翻墙期权',
-    'chat_feed_1CWLuNUVYVVYttro8gAvJ5': '历史股票期权记录区(备份)',
-    'chat_feed_1CU95KbtifP1JtuqTiVXZb': '讨论区股票记录'
-  };
+  let channelMappings = {};
+  // 权威登记册是唯一主干
+  for (const [fId, info] of Object.entries(channelRegistry)) {
+    channelMappings[fId] = info.name;
+  }
 
-  // Assign a default name for configured IDs if missing
+  // 覆盖兜底（以防有未登记的 feedId）
   channelIds.forEach(id => {
     if (!channelMappings[id]) {
-      channelMappings[id] = CHANNEL_NAME_FALLBACKS[id] || `频道:${id}`;
+      channelMappings[id] = channelRegistry[id]?.name || `频道:${id}`;
     }
   });
 

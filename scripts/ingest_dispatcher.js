@@ -11,9 +11,24 @@
 
 import Database from 'better-sqlite3';
 import path from 'path';
+import fs from 'fs';
 
 const dbPath = path.resolve('whop_archive.db');
 const db = new Database(dbPath);
+
+let channelRegistryCache = null;
+function getChannelRegistry() {
+  if (channelRegistryCache) return channelRegistryCache;
+  try {
+    const regPath = path.resolve('config', 'channel_registry.json');
+    if (fs.existsSync(regPath)) {
+      channelRegistryCache = JSON.parse(fs.readFileSync(regPath, 'utf-8'));
+    }
+  } catch (e) {
+    console.error('[Ingest Dispatcher] 读取 channel_registry 失败:', e.message);
+  }
+  return channelRegistryCache || {};
+}
 
 // 冻结的规则关键词词表 (严禁在此开新规则，只作为下半部唤醒触发器)
 const RULE_TRIGGER_REGEX = /(法\b|机制|要素|口诀|打油诗|普跌同沉|普涨我跌|事件来临|节日前夕|币市波动|一般要|一般有|相当于|二次握手|握手|缺口|只做一次|只做一次日内|被动减|减持|总仓位不要超过|7成|3成|反弹一半|\/2=|大单检测|大单入场|散户止损|死拿|成本出|磨损值|两段式|靴子|结算|利润垫|同花顺|王炸|出牌|手牌|四手牌|指数低什么都不敢买|7640的极限点)/;
@@ -28,7 +43,6 @@ export function dispatchIngestTopHalf(rawMsg) {
   const startTs = Date.now();
   const text = rawMsg.content || rawMsg.title || '';
   const senderName = (rawMsg.sender_name || rawMsg.user?.name || rawMsg.user?.username || '').trim();
-  const channelName = (rawMsg.channel_name || '').trim();
   const channelId = rawMsg.channel_id || rawMsg.feedId || '';
   const createdAt = Number(rawMsg.created_at || rawMsg.createdAt || Date.now());
 
@@ -41,17 +55,11 @@ export function dispatchIngestTopHalf(rawMsg) {
     speaker = 'zhou';
   }
 
-  // 2. 频道分类
-  let channelClass = 'other';
-  if (channelName.includes('发布') || channelId.includes('forum_feed_1CTr7SqVMzFfuFiiRJLEHN')) {
-    channelClass = 'broadcast';
-  } else if (channelName.includes('记录') || channelName.includes('交易')) {
-    channelClass = 'record';
-  } else if (channelName.includes('讨论') || channelId.includes('chat_feed_1CTr5VAdNHtbZAFaTitvoT')) {
-    channelClass = 'discuss';
-  } else if (channelName.includes('期权') || channelName.includes('option')) {
-    channelClass = 'option';
-  }
+  // 2. 频道分类 (强制读权威登记册 registry[feed_id].class，严禁模糊猜测)
+  const registry = getChannelRegistry();
+  const regInfo = registry[channelId];
+  let channelClass = regInfo ? regInfo.channel_class : 'other';
+  let canonicalChannelName = regInfo ? regInfo.name : (rawMsg.channel_name || channelId);
 
   // 3. 附件标准化
   let attachments = [];

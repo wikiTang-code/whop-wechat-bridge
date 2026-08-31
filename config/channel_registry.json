@@ -1,0 +1,72 @@
+{
+  "chat_feed_1CTr7QocNpDZ9FXZ6fvWe4": {
+    "feed_id": "chat_feed_1CTr7QocNpDZ9FXZ6fvWe4",
+    "name": "不用翻墙美股发布",
+    "channel_class": "broadcast",
+    "purpose": "L2a 交易口播与发布核心区",
+    "is_l2a_primary": true
+  },
+  "forum_feed_1CTr7SqVMzFfuFiiRJLEHN": {
+    "feed_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+    "name": "历史股票期权记录区",
+    "channel_class": "record",
+    "purpose": "历史股票期权记录区 (原名)，独立产物与长文记录",
+    "is_l2a_primary": false
+  },
+  "chat_feed_1CTrCEx44dP13jW3RVkYiS": {
+    "feed_id": "chat_feed_1CTrCEx44dP13jW3RVkYiS",
+    "name": "不用翻墙期权",
+    "channel_class": "option",
+    "purpose": "期权讨论与实时短播，默认不进 L2a",
+    "is_l2a_primary": false
+  },
+  "chat_feed_1CTr5VAdNHtbZAFaTitvoT": {
+    "feed_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
+    "name": "不用翻墙美股讨论区",
+    "channel_class": "discuss",
+    "purpose": "群友美股综合讨论区，不进 L2a",
+    "is_l2a_primary": false
+  },
+  "chat_feed_1CU95KbtifP1JtuqTiVXZb": {
+    "feed_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
+    "name": "讨论区股票记录",
+    "channel_class": "discuss_record",
+    "purpose": "讨论区股票记录存档",
+    "is_l2a_primary": false
+  },
+  "chat_feed_1CWLuNUVYVVYttro8gAvJ5": {
+    "feed_id": "chat_feed_1CWLuNUVYVVYttro8gAvJ5",
+    "name": "历史股票期权记录区(备份)",
+    "channel_class": "record_backup",
+    "purpose": "历史备份区",
+    "is_l2a_primary": false
+  },
+  "chat_feed_1CabPvHkbHhMwHft19jd83": {
+    "feed_id": "chat_feed_1CabPvHkbHhMwHft19jd83",
+    "name": "财报日提醒",
+    "channel_class": "notification",
+    "purpose": "财报日自动提醒",
+    "is_l2a_primary": false
+  },
+  "chat_feed_1CaPyASfSWTuruMgL2u3sT": {
+    "feed_id": "chat_feed_1CaPyASfSWTuruMgL2u3sT",
+    "name": "股票分析",
+    "channel_class": "analysis",
+    "purpose": "股票分析专区",
+    "is_l2a_primary": false
+  },
+  "chat_feed_1CaEnj8BrNBr95YSbgabYZ": {
+    "feed_id": "chat_feed_1CaEnj8BrNBr95YSbgabYZ",
+    "name": "日内波段信号检测",
+    "channel_class": "signal",
+    "purpose": "日内量化信号检测",
+    "is_l2a_primary": false
+  },
+  "chat_feed_1CaChz8Ru2cjRfAFKi7KbF": {
+    "feed_id": "chat_feed_1CaChz8Ru2cjRfAFKi7KbF",
+    "name": "每日选股",
+    "channel_class": "stock_pick",
+    "purpose": "每日精选股票推荐",
+    "is_l2a_primary": false
+  }
+}

@@ -17,14 +17,20 @@ function getCachedStmt(sql) {
   return stmtCache.get(sql);
 }
 
-const CHANNEL_NAME_FALLBACKS = {
-  'forum_feed_1CTr7SqVMzFfuFiiRJLEHN': '不用翻墙美股发布',
-  'chat_feed_1CTrCEx44dP13jW3RVkYiS': '历史股票期权记录区',
-  'chat_feed_1CTr5VAdNHtbZAFaTitvoT': '不用翻墙美股讨论区',
-  'chat_feed_1CU95KbtifP1JtuqTiVXZb': '讨论区股票记录',
-  'chat_feed_1CWLuNUVYVVYttro8gAvJ5': '市值理论100跌50 公式记录',
-  'chat_feed_1CTr7QocNpDZ9FXZ6fvWe4': '早期历史交流区'
-};
+// 权威频道登记册加载器 (全系统唯一频道来源)
+let channelRegistryMap = null;
+function getChannelRegistryMap() {
+  if (channelRegistryMap) return channelRegistryMap;
+  try {
+    const regPath = path.join(process.cwd(), 'config', 'channel_registry.json');
+    if (fs.existsSync(regPath)) {
+      channelRegistryMap = JSON.parse(fs.readFileSync(regPath, 'utf-8'));
+    }
+  } catch (e) {
+    console.error('[DB Channel Registry] 加载失败:', e.message);
+  }
+  return channelRegistryMap || {};
+}
 
 export function initDb() {
   db = new Database(dbPath, { timeout: 10000 });
@@ -543,13 +549,12 @@ export function saveMessages(messages) {
     VALUES (@id, @channel_id, @channel_name, @sender_id, @sender_name, @content, @created_at, @tickers, @sectors, @strategies, @attachments)
   `);
 
+  const registry = getChannelRegistryMap();
   const insertMany = conn.transaction((msgs) => {
     for (const msg of msgs) {
       const dims = extractTradingDimensions(msg.content);
-      let channelName = msg.channel_name;
-      if (!channelName || channelName.startsWith('频道:')) {
-        channelName = CHANNEL_NAME_FALLBACKS[msg.channel_id] || channelName;
-      }
+      const regInfo = registry[msg.channel_id];
+      let channelName = regInfo ? regInfo.name : (msg.channel_name || msg.channel_id);
       let attachJson = null;
       if (msg.attachments) {
         attachJson = typeof msg.attachments === 'string' ? msg.attachments : JSON.stringify(msg.attachments);
@@ -673,8 +678,17 @@ export function getMessages({ search, limit = 50, offset = 0, senderIds = [], ex
   const stmt = conn.prepare(query);
   const countStmt = conn.prepare(countQuery);
 
-  const messages = stmt.all(...params, limit, offset);
+  const rawMessages = stmt.all(...params, limit, offset);
   const total = countStmt.get(...params)?.count || 0;
+
+  const registry = getChannelRegistryMap();
+  const messages = rawMessages.map(m => {
+    const regInfo = registry[m.channel_id];
+    return {
+      ...m,
+      channel_name: regInfo ? regInfo.name : (m.channel_name || m.channel_id)
+    };
+  });
 
   return { messages, total };
 }
@@ -1108,14 +1122,14 @@ export function getMessageContext({ messageId, limit = 10 }) {
   const target = conn.prepare('SELECT created_at, channel_id FROM messages WHERE id = ?').get(messageId);
   if (!target) return { messages: [], targetId: messageId };
   
-  // 2. 查出在此之前最邻近的 limit 条消息
+  // 2. 查出在此之前最邻近且严格同一 channel_id 的 limit 条消息
   const before = conn.prepare(`
     SELECT * FROM messages 
     WHERE channel_id = ? AND created_at < ? 
     ORDER BY created_at DESC LIMIT ?
   `).all(target.channel_id, target.created_at, limit);
   
-  // 3. 查出在此之后最邻近的 limit 条消息
+  // 3. 查出在此之后最邻近且严格同一 channel_id 的 limit 条消息
   const after = conn.prepare(`
     SELECT * FROM messages 
     WHERE channel_id = ? AND created_at > ? 
@@ -1131,10 +1145,22 @@ export function getMessageContext({ messageId, limit = 10 }) {
     targetMsg,
     ...after
   ];
+
+  // 6. 统一通过权威登记册修正 channel_name，杜绝历史脏标或旧别名
+  const registry = getChannelRegistryMap();
+  const normalized = combined.map(m => {
+    const regInfo = registry[m.channel_id];
+    return {
+      ...m,
+      channel_name: regInfo ? regInfo.name : (m.channel_name || m.channel_id)
+    };
+  });
   
   return {
-    messages: combined,
-    targetId: messageId
+    messages: normalized,
+    targetId: messageId,
+    channel_id: target.channel_id,
+    channel_name: registry[target.channel_id]?.name || target.channel_id
   };
 }
 
@@ -1385,14 +1411,21 @@ export function getContextAroundMessages(messageIds, contextBefore = 3, contextA
 
 /**
  * 获取数据库中所有唯一的频道信息 (channel_id 和 channel_name)
+ * 🏛️ 强制通过权威登记册收口为 1:1 规范名称
  */
 export function getDistinctChannels() {
   const conn = getDb();
-  return conn.prepare(`
-    SELECT DISTINCT channel_id, channel_name 
+  const rows = conn.prepare(`
+    SELECT DISTINCT channel_id
     FROM messages 
     WHERE channel_id IS NOT NULL AND channel_id != ''
   `).all();
+
+  const registry = getChannelRegistryMap();
+  return rows.map(r => ({
+    channel_id: r.channel_id,
+    channel_name: registry[r.channel_id]?.name || r.channel_id
+  }));
 }
 
 /**
