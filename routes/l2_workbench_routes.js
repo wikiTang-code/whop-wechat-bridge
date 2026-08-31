@@ -244,7 +244,8 @@ router.get('/l2a/today', (req, res) => {
 
   const handledReviews = getHandledReviews();
   const INDEX_ETF_SET = new Set(['QQQ', 'SPY', 'SPX', 'IWM', 'DIA', 'TQQQ', 'SQQQ']);
-  const INDEX_OBSERVE_REGEX = /(参考|对照|看|缺口|能不能|接近|触及|等他补)/;
+  // 严格观察词组（剔除单独宽泛的“看”，必须是明确的大盘观察/缺口博弈短语）
+  const INDEX_OBSERVE_REGEX = /(参考|对照|缺口|能不能|接近|触及|等他补|盯.*转弯|看能不能)/;
 
   for (const r of dateRecords) {
     const isParseOk = r.parse_ok === true;
@@ -263,16 +264,20 @@ router.get('/l2a/today', (req, res) => {
       continue;
     }
 
-    // 规则 2: 清洗规则：指数 ETF + 观察特征词 且同窗已有其它个股成交 -> 指数不进 planned
+    // 规则 2: 清洗规则（三件必须同时满足，缺一不可）：
+    // 1. 标的是指数 ETF (QQQ/SPY/SPX/IWM 等)
+    // 2. 属于计划单 (planned) 且无明确价格/且句中包含强观察词 (参考/对照/缺口/能不能/接近/等他补)，绝不误杀真实 filled 口播或明确限价挂单
+    // 3. 同窗已有其它个股已成交 (filled)
     const hasOtherStockFilled = actions.some(a => a.status === 'filled' && !INDEX_ETF_SET.has((a.ticker || '').toUpperCase()));
     if (hasOtherStockFilled) {
       actions = actions.filter(a => {
         const isIndex = INDEX_ETF_SET.has((a.ticker || '').toUpperCase());
-        const isPlanned = a.status === 'planned';
-        const condOrRaw = (a.condition || '') + (r.raw_text || '');
-        const isObserve = INDEX_OBSERVE_REGEX.test(condOrRaw);
-        if (isIndex && isPlanned && isObserve) {
-          // 降级为观察观点，不作为交易计划单
+        const isPlannedWithoutExactPrice = a.status === 'planned' && (a.price === null || a.price === undefined || a.price === 0);
+        const condOrRaw = (a.condition || '') + ' ' + (r.raw_text || '');
+        const isStrongObserve = INDEX_OBSERVE_REGEX.test(condOrRaw);
+        
+        // 三件同时满足才降级为宏观观察观点，不作为交易计划单
+        if (isIndex && isPlannedWithoutExactPrice && isStrongObserve) {
           return false;
         }
         return true;
@@ -377,21 +382,24 @@ router.get('/review/queue', (req, res) => {
   }
 
   const INDEX_ETF_SET = new Set(['QQQ', 'SPY', 'SPX', 'IWM', 'DIA', 'TQQQ', 'SQQQ']);
-  const INDEX_OBSERVE_REGEX = /(参考|对照|看|缺口|能不能|接近|触及|等他补)/;
+  const INDEX_OBSERVE_REGEX = /(参考|对照|缺口|能不能|接近|触及|等他补|盯.*转弯|看能不能)/;
 
   for (const r of dateRecords) {
     if (!r.parse_ok) continue;
     let actions = r.parsed?.actions || [];
     
-    // 过滤指数 ETF 观察句
+    // 规则 2: 清洗规则（三件必须同时满足，缺一不可）：
+    // 1. 标的是指数 ETF (QQQ/SPY/SPX/IWM 等)
+    // 2. 属于计划单 (planned) 且无明确价格/且句中包含强观察词 (参考/对照/缺口/能不能/接近/等他补)，绝不误杀真实 filled 口播或明确限价挂单
+    // 3. 同窗已有其它个股已成交 (filled)
     const hasOtherStockFilled = actions.some(a => a.status === 'filled' && !INDEX_ETF_SET.has((a.ticker || '').toUpperCase()));
     if (hasOtherStockFilled) {
       actions = actions.filter(a => {
         const isIndex = INDEX_ETF_SET.has((a.ticker || '').toUpperCase());
-        const isPlanned = a.status === 'planned';
-        const condOrRaw = (a.condition || '') + (r.raw_text || '');
-        const isObserve = INDEX_OBSERVE_REGEX.test(condOrRaw);
-        if (isIndex && isPlanned && isObserve) return false;
+        const isPlannedWithoutExactPrice = a.status === 'planned' && (a.price === null || a.price === undefined || a.price === 0);
+        const condOrRaw = (a.condition || '') + ' ' + (r.raw_text || '');
+        const isStrongObserve = INDEX_OBSERVE_REGEX.test(condOrRaw);
+        if (isIndex && isPlannedWithoutExactPrice && isStrongObserve) return false;
         return true;
       });
     }
