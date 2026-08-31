@@ -1,0 +1,105 @@
+{
+  "version": "0.1",
+  "updated": "2026-08-31",
+  "note": "v0.1 先锁特斯拉族 + 指数 + 常用票。全市场/板块等 TSLA 轴样板过关。",
+  "families": {
+    "TSLA": {"members": ["TSLA", "TSLL"], "label": "特斯拉族"},
+    "NVDA": {"members": ["NVDA", "NVDL"], "label": "英伟达族"},
+    "COIN": {"members": ["COIN", "CONL"], "label": "加密券商族"},
+    "INDEX": {"members": ["SPX", "SPY", "QQQ"], "label": "指数"}
+  },
+  "tickers": {
+    "TSLA": {
+      "canonical": "TSLA",
+      "family": "TSLA",
+      "instrument": "equity",
+      "aliases": ["TSLA", "tsla", "特斯拉", "特斯拉正股"]
+    },
+    "TSLL": {
+      "canonical": "TSLL",
+      "family": "TSLA",
+      "instrument": "etf_2x",
+      "aliases": ["TSLL", "tsll", "TSSL", "tssl", "特斯拉双倍", "特斯拉杠杆"]
+    },
+    "QQQ": {
+      "canonical": "QQQ",
+      "family": "INDEX",
+      "instrument": "etf",
+      "aliases": ["QQQ", "qqq", "纳指", "纳指ETF"]
+    },
+    "SPY": {
+      "canonical": "SPY",
+      "family": "INDEX",
+      "instrument": "etf",
+      "aliases": ["SPY", "spy"]
+    },
+    "SPX": {
+      "canonical": "SPX",
+      "family": "INDEX",
+      "instrument": "index",
+      "aliases": ["SPX", "spx", "标普", "标普指数"]
+    },
+    "NVDA": {
+      "canonical": "NVDA",
+      "family": "NVDA",
+      "instrument": "equity",
+      "aliases": ["NVDA", "nvda", "英伟达"]
+    },
+    "NVDL": {
+      "canonical": "NVDL",
+      "family": "NVDA",
+      "instrument": "etf_2x",
+      "aliases": ["NVDL", "nvdl"]
+    },
+    "HOOD": {
+      "canonical": "HOOD",
+      "family": "HOOD",
+      "instrument": "equity",
+      "aliases": ["HOOD", "hood", "罗宾"]
+    },
+    "CRWV": {
+      "canonical": "CRWV",
+      "family": "CRWV",
+      "instrument": "equity",
+      "aliases": ["CRWV", "crwv"]
+    },
+    "CONL": {
+      "canonical": "CONL",
+      "family": "COIN",
+      "instrument": "etf_2x",
+      "aliases": ["CONL", "conl"]
+    },
+    "COIN": {
+      "canonical": "COIN",
+      "family": "COIN",
+      "instrument": "equity",
+      "aliases": ["COIN", "coin"]
+    },
+    "BULL": {
+      "canonical": "BULL",
+      "family": "BULL",
+      "instrument": "etf",
+      "aliases": ["BULL", "bull", "微牛", "WEINU"]
+    },
+    "LITE": {
+      "canonical": "LITE",
+      "family": "LITE",
+      "instrument": "equity",
+      "aliases": ["LITE", "lite"]
+    },
+    "GOOGL": {
+      "canonical": "GOOGL",
+      "family": "GOOG",
+      "instrument": "equity",
+      "aliases": ["GOOGL", "googl", "GOOG", "谷歌", "谷歌A"]
+    }
+  },
+  "sector_buckets_later": {
+    "note": "板块是检索别名，不是合并轴。样板过关后再扩。",
+    "metals": [],
+    "crypto": ["COIN", "CONL", "MSTR"],
+    "oil": [],
+    "semi": ["NVDA", "NVDL", "MU", "LITE"],
+    "storage": ["WDC", "MU"]
+  }
+}
