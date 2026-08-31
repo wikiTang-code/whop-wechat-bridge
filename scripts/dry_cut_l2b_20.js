@@ -52,37 +52,50 @@ function buildWindow(targetMsg, seedMetadata = {}) {
   });
   const rawText = rawTextLines.join('\n\n');
 
-  // 检查真图
-  let hasRealImage = false;
-  let localImagePath = 'no_image';
-  let imageSha = 'no_image';
+  // 检查真图 (收集窗内所有 7 条对话对应的已落盘有效真图)
+  const images = [];
 
+  // 1. 如果种子显式指定了本地路径且存在
   if (seedMetadata.local_path && fs.existsSync(seedMetadata.local_path)) {
-    hasRealImage = true;
-    localImagePath = seedMetadata.local_path;
-    imageSha = getRealFileSha(seedMetadata.local_path);
-  } else {
-    for (const m of allMsgs) {
-      if (m.attachments) {
-        try {
-          const atts = typeof m.attachments === 'string' ? JSON.parse(m.attachments) : m.attachments;
-          if (Array.isArray(atts)) {
-            for (const att of atts) {
-              if (att.local_path && fs.existsSync(att.local_path)) {
-                const stat = fs.statSync(att.local_path);
-                if (stat.size > 15 * 1024) {
-                  hasRealImage = true;
-                  localImagePath = att.local_path;
-                  imageSha = getRealFileSha(att.local_path);
-                  break;
+    const sha = getRealFileSha(seedMetadata.local_path);
+    const stat = fs.statSync(seedMetadata.local_path);
+    images.push({
+      post_id: targetMsg.id,
+      local_path: seedMetadata.local_path,
+      image_sha: sha,
+      size_bytes: stat.size
+    });
+  }
+
+  // 2. 遍历窗内全部 7 条消息，自动关联本地所有已下载真图
+  for (const m of allMsgs) {
+    if (m.attachments) {
+      try {
+        const atts = typeof m.attachments === 'string' ? JSON.parse(m.attachments) : m.attachments;
+        if (Array.isArray(atts)) {
+          for (const att of atts) {
+            if (att.local_path && fs.existsSync(att.local_path)) {
+              const stat = fs.statSync(att.local_path);
+              if (stat.size > 5 * 1024) { // 有效图
+                const sha = getRealFileSha(att.local_path);
+                if (!images.some(img => img.local_path === att.local_path)) {
+                  images.push({
+                    post_id: m.id,
+                    local_path: att.local_path,
+                    image_sha: sha,
+                    size_bytes: stat.size
+                  });
                 }
               }
             }
           }
-        } catch (e) {}
-      }
+        }
+      } catch (e) {}
     }
   }
+
+  const hasRealImage = images.length > 0;
+  const primaryImg = images[0] || { local_path: 'no_image', image_sha: 'no_image' };
 
   // 严格提取 evidence_span (必须是 raw_text 里的连续子串)
   let evidenceSpan = seedMetadata.evidence_span;
@@ -97,8 +110,10 @@ function buildWindow(targetMsg, seedMetadata = {}) {
     et_date: new Date(createdTs).toISOString().slice(0, 10),
     is_same_feed: isSameFeed,
     has_real_image: hasRealImage,
-    local_image_path: localImagePath,
-    image_sha: imageSha,
+    image_count: images.length,
+    images: images,
+    local_image_path: primaryImg.local_path,
+    image_sha: primaryImg.image_sha,
     kid: seedMetadata.kid || 'pending_new',
     statement: seedMetadata.statement || targetMsg.content.slice(0, 80).replace(/\n/g, ' '),
     evidence_span: evidenceSpan,

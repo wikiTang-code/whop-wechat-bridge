@@ -510,6 +510,31 @@
       modal.style.display = 'flex';
     }
 
+    // 全局存储 20 窗中各窗当前选中的图片索引与多图数据
+    window.cuImageIndexes = window.cuImageIndexes || {};
+    window.cuImagesData = window.cuImagesData || {};
+
+    function switchCuImage(cuId, delta) {
+      const imgs = window.cuImagesData[cuId] || [];
+      if (imgs.length <= 1) return;
+      let cur = window.cuImageIndexes[cuId] || 0;
+      cur = (cur + delta + imgs.length) % imgs.length;
+      window.cuImageIndexes[cuId] = cur;
+
+      const activeImg = imgs[cur];
+      const imgElem = document.getElementById('img-view-' + cuId);
+      const shaElem = document.getElementById('img-sha-' + cuId);
+      const pathElem = document.getElementById('img-path-' + cuId);
+      const pagerElem = document.getElementById('img-pager-' + cuId);
+
+      if (imgElem) {
+        imgElem.src = activeImg.web_url;
+      }
+      if (shaElem) shaElem.innerText = '🖼️ 真图核准 (SHA: ' + activeImg.image_sha + ')';
+      if (pathElem) pathElem.innerText = '静态路径: ' + activeImg.web_url;
+      if (pagerElem) pagerElem.innerText = (cur + 1) + ' / ' + imgs.length;
+    }
+
     async function loadDryCut20Samples() {
       try {
         const res = await fetch('/api/l2b/drycut20');
@@ -530,40 +555,69 @@
           item.style.borderRadius = '4px';
           item.style.fontSize = '11px';
 
-          // 转换本地磁盘路径为前端可访问的静态 URL (/media/zhao/...)
-          let webImgUrl = null;
-          const hasImg = w.has_real_image && w.local_image_path && w.local_image_path !== 'no_image';
-          if (hasImg) {
-            webImgUrl = w.local_image_path.replace(/\\/g, '/').replace(/^data\/media\/zhao\//, '/media/zhao/');
-          }
+          // 整理窗内全部有效真图
+          const rawImgs = (Array.isArray(w.images) && w.images.length > 0)
+            ? w.images
+            : (w.has_real_image && w.local_image_path && w.local_image_path !== 'no_image' 
+                ? [{ local_path: w.local_image_path, image_sha: w.image_sha, post_id: w.post_id }] 
+                : []);
 
-          const seedBadge = w.seed_id ? `<span class="badge" style="background:#8957e5; color:#fff; padding:1px 5px; border-radius:3px;">⭐ ${escapeHtml(w.seed_id)}</span>` : '';
+          const validImages = rawImgs.map(img => ({
+            local_path: img.local_path,
+            web_url: img.local_path.replace(/\\/g, '/').replace(/^data\/media\/zhao\//, '/media/zhao/'),
+            image_sha: img.image_sha,
+            post_id: img.post_id
+          }));
+
+          window.cuImagesData[w.cu_id] = validImages;
+          window.cuImageIndexes[w.cu_id] = 0;
+
+          const hasImgs = validImages.length > 0;
+          const activeImg = hasImgs ? validImages[0] : null;
+
+          const seedBadge = w.seed_id ? `<span class="badge" style="background:#8957e5; color:#fff; padding:1px 5px; border-radius:3px;">⭐ ` + escapeHtml(w.seed_id) + `</span>` : '';
           const cleanedRaw = cleanRawTextForDisplay(w.raw_text);
+
+          let imageSectionHtml = '';
+          if (hasImgs) {
+            const multiControl = validImages.length > 1 ? `
+              <button onclick="switchCuImage('` + escapeHtml(w.cu_id) + `', -1)" style="background:#21262d; border:1px solid #30363d; color:#c9d1d9; border-radius:3px; padding:1px 5px; font-size:10px; cursor:pointer;">◀ 上一张</button>
+              <span id="img-pager-` + escapeHtml(w.cu_id) + `" style="font-size:10px; color:#58a6ff; font-weight:bold;">1 / ` + validImages.length + `</span>
+              <button onclick="switchCuImage('` + escapeHtml(w.cu_id) + `', 1)" style="background:#21262d; border:1px solid #30363d; color:#c9d1d9; border-radius:3px; padding:1px 5px; font-size:10px; cursor:pointer;">下一张 ▶</button>
+            ` : '';
+
+            imageSectionHtml = `
+              <div style="margin:6px 0; padding:6px; background:#0d1117; border-radius:4px; border:1px solid #30363d;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                  <span id="img-sha-` + escapeHtml(w.cu_id) + `" style="color:#3fb950; font-weight:bold; font-size:10px;">🖼️ 真图核准 (SHA: ` + escapeHtml(activeImg.image_sha) + `)</span>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    ` + multiControl + `
+                    <span style="color:#58a6ff; font-size:10px; cursor:pointer; margin-left:4px;" onclick="const im = document.getElementById('img-view-` + escapeHtml(w.cu_id) + `'); if(im) showModalImage(im.src);">🔍 放大</span>
+                  </div>
+                </div>
+                <div style="text-align:center; background:#010409; border-radius:4px; padding:4px;">
+                  <img id="img-view-` + escapeHtml(w.cu_id) + `" src="` + escapeHtml(activeImg.web_url) + `" style="max-width:100%; max-height:170px; object-fit:contain; border-radius:4px; cursor:zoom-in;" onclick="showModalImage(this.src)" onerror="this.style.display='none'">
+                </div>
+                <div id="img-path-` + escapeHtml(w.cu_id) + `" style="font-size:9px; color:var(--text-muted); margin-top:4px; word-break:break-all;">静态路径: ` + escapeHtml(activeImg.web_url) + `</div>
+              </div>
+            `;
+          } else {
+            imageSectionHtml = `<div style="font-size:10px; color:var(--text-muted); margin:4px 0;">配图状态: <span style="color:#8b949e;">no_image</span></div>`;
+          }
 
           item.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-              <span style="font-weight:bold; color:#58a6ff;">[${idx+1}] ${escapeHtml(w.cu_id)}</span>
-              ${seedBadge}
+              <span style="font-weight:bold; color:#58a6ff;">[` + (idx+1) + `] ` + escapeHtml(w.cu_id) + `</span>
+              ` + seedBadge + `
             </div>
             <div style="color:var(--text-muted); margin-bottom:4px; font-size:10px;">
-              📡 ${escapeHtml(w.channel_name)} | 🔑 ${escapeHtml(w.post_id)} | 🏷️ <span style="color:#d2a8ff; font-weight:bold;">${escapeHtml(w.kid)}</span>
+              📡 ` + escapeHtml(w.channel_name) + ` | 🔑 ` + escapeHtml(w.post_id) + ` | 🏷️ <span style="color:#d2a8ff; font-weight:bold;">` + escapeHtml(w.kid) + `</span>
             </div>
-            <div style="margin-bottom:6px; color:#f0f6fc; line-height:1.3;"><strong>口诀:</strong> ${escapeHtml(w.statement)}</div>
-            ${hasImg && webImgUrl ? `
-              <div style="margin:6px 0; padding:6px; background:#0d1117; border-radius:4px; border:1px solid #30363d;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                  <span style="color:#3fb950; font-weight:bold; font-size:10px;">🖼️ 真图核准 (SHA: ${escapeHtml(w.image_sha)})</span>
-                  <span style="color:#58a6ff; font-size:10px; cursor:pointer;" onclick="showModalImage('${webImgUrl}')">🔍 点击放大</span>
-                </div>
-                <img src="${webImgUrl}" style="max-width:100%; max-height:160px; object-fit:contain; border-radius:4px; cursor:zoom-in; border:1px solid #21262d;" onclick="showModalImage('${webImgUrl}')" onerror="this.style.display='none'">
-                <div style="font-size:9px; color:var(--text-muted); margin-top:3px; word-break:break-all;">静态路径: ${escapeHtml(webImgUrl)}</div>
-              </div>
-            ` : `
-              <div style="font-size:10px; color:var(--text-muted); margin:4px 0;">配图状态: <span style="color:#8b949e;">no_image</span></div>
-            `}
+            <div style="margin-bottom:6px; color:#f0f6fc; line-height:1.3;"><strong>口诀:</strong> ` + escapeHtml(w.statement) + `</div>
+            ` + imageSectionHtml + `
             <details style="margin-top:6px; background:#0d1117; border:1px solid #21262d; border-radius:3px; padding:4px 6px;">
-              <summary style="color:var(--accent); font-size:11px; cursor:pointer;">📖 展开 raw_text 上下文 (${w.dialogue_message_count}条同频对话)</summary>
-              <pre style="margin-top:6px; white-space:pre-wrap; font-size:10px; color:var(--text); line-height:1.4; max-height:200px; overflow-y:auto;">${escapeHtml(cleanedRaw)}</pre>
+              <summary style="color:var(--accent); font-size:11px; cursor:pointer;">📖 展开 raw_text 上下文 (` + w.dialogue_message_count + `条同频对话)</summary>
+              <pre style="margin-top:6px; white-space:pre-wrap; font-size:10px; color:var(--text); line-height:1.4; max-height:200px; overflow-y:auto;">` + escapeHtml(cleanedRaw) + `</pre>
             </details>
           `;
           box.appendChild(item);
