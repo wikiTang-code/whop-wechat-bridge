@@ -248,6 +248,8 @@ app.use((req, res, next) => {
 app.use(cors());
 // Serve static assets from public folder
 app.use(express.static(path.join(__dirname, 'public')));
+// 静态托管已落盘的赵哥真图资源目录
+app.use('/media/zhao', express.static(path.join(__dirname, 'data/media/zhao')));
 // Regular JSON body parser for APIs
 app.use(express.json());
 
