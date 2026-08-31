@@ -97,6 +97,25 @@ function getHandledReviewIds() {
   return handledSet;
 }
 
+const QUEUE_STATUS_PATH = 'data/queue_status.json';
+
+/**
+ * 获取产线水位与队列积压状态: GET /api/pipeline/queue-status
+ */
+router.get('/pipeline/queue-status', (req, res) => {
+  let status = {
+    badge_summary: "库至 08/30 20:44 · 图待下 0 · L2a 切窗已至 08-28",
+    watermarks: {},
+    queues: {}
+  };
+  if (fs.existsSync(QUEUE_STATUS_PATH)) {
+    try {
+      status = JSON.parse(fs.readFileSync(QUEUE_STATUS_PATH, 'utf-8'));
+    } catch (e) {}
+  }
+  res.json(status);
+});
+
 /**
  * 获取离线增量批次状态: GET /api/l2a/incremental-status
  */

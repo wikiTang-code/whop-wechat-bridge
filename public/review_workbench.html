@@ -125,18 +125,15 @@
 
     async function updateIncrementalStatus() {
       try {
-        const res = await fetch('/api/l2a/incremental-status');
+        const res = await fetch('/api/pipeline/queue-status');
         const data = await res.json();
         const badge = document.getElementById('batch-status-text');
-        if (data.has_incremental) {
-          badge.innerText = `基础: 2026-06-26 | 最新增量: ${data.latest_as_of} (+${data.incremental_cu_count} CU)`;
+        if (data.badge_summary) {
+          badge.innerText = `🌊 ${data.badge_summary}`;
           badge.style.color = '#3fb950';
-        } else {
-          badge.innerText = `基础库存截止: 2026-06-26 · 增量批次: 暂无`;
-          badge.style.color = 'var(--accent)';
         }
       } catch (e) {
-        console.error("获取增量状态失败:", e);
+        console.error("获取流水线状态失败:", e);
       }
     }
 
