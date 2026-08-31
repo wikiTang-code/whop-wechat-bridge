@@ -581,4 +581,27 @@ router.get('/l2b/gates', (req, res) => {
   });
 });
 
+/**
+ * 4. L2b 20 窗 Dry-Cut 样本清单接口: GET /api/l2b/drycut20
+ */
+router.get('/l2b/drycut20', (req, res) => {
+  const samplePath = 'data/samples/l2b_dry_cut_20.jsonl';
+  if (!fs.existsSync(samplePath)) {
+    return res.status(404).json({ success: false, error: '未找到 l2b_dry_cut_20.jsonl 文件' });
+  }
+
+  try {
+    const lines = fs.readFileSync(samplePath, 'utf-8').trim().split('\n').filter(Boolean);
+    const records = lines.map(l => JSON.parse(l));
+    res.json({
+      success: true,
+      count: records.length,
+      windows: records
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 export default router;
+

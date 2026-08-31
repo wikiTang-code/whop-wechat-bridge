@@ -472,8 +472,72 @@
         `;
         container.appendChild(mrzhouSection);
 
+        // 挂载 L2b 20 窗 Dry-Cut 样本与真图穿透模块
+        const drycutSection = document.createElement('details');
+        drycutSection.open = false;
+        drycutSection.style.marginTop = '12px';
+        drycutSection.style.border = '1px solid #a371f7';
+        drycutSection.innerHTML = `
+          <summary style="color: #d2a8ff; font-size: 12px; cursor: pointer;">🧪 L2b 20 窗切窗样本透视 (点开查验 raw_text / 配图 / 纯汉字证据)</summary>
+          <div id="l2b-drycut-list" style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="color: var(--text-muted); font-size: 11px;">正在加载 20 窗切窗样本...</div>
+          </div>
+        `;
+        container.appendChild(drycutSection);
+        loadDryCut20Samples();
+
       } catch (e) {
         console.error("加载 L2b 闸门失败:", e);
+      }
+    }
+
+    async function loadDryCut20Samples() {
+      try {
+        const res = await fetch('/api/l2b/drycut20');
+        const data = await res.json();
+        const box = document.getElementById('l2b-drycut-list');
+        if (!box) return;
+        if (!data.success || !data.windows) {
+          box.innerHTML = `<div style="color: #f85149; font-size: 11px;">加载样本失败: ${data.error}</div>`;
+          return;
+        }
+
+        box.innerHTML = '';
+        data.windows.forEach((w, idx) => {
+          const item = document.createElement('div');
+          item.style.padding = '8px';
+          item.style.background = '#161b22';
+          item.style.border = '1px solid var(--border)';
+          item.style.borderRadius = '4px';
+          item.style.fontSize = '11px';
+
+          const hasImg = w.has_real_image && w.local_image_path !== 'no_image';
+          const seedBadge = w.seed_id ? `<span class="badge" style="background:#8957e5; color:#fff;">⭐ ${escapeHtml(w.seed_id)}</span>` : '';
+
+          item.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-weight:bold; color:#58a6ff;">[${idx+1}] ${escapeHtml(w.cu_id)}</span>
+              ${seedBadge}
+            </div>
+            <div style="color:var(--text-muted); margin-bottom:4px;">
+              📡 ${escapeHtml(w.channel_name)} | 🔑 ${escapeHtml(w.post_id)} | 🏷️ <span style="color:#d2a8ff;">${escapeHtml(w.kid)}</span>
+            </div>
+            <div style="margin-bottom:4px;"><strong>口诀:</strong> ${escapeHtml(w.statement)}</div>
+            ${hasImg ? `
+              <div style="margin:6px 0; padding:6px; background:#0d1117; border-radius:4px; border:1px solid #30363d;">
+                <div style="color:#3fb950; font-weight:bold; margin-bottom:4px;">🖼️ 真图核准挂载 (SHA: ${escapeHtml(w.image_sha)})</div>
+                <div style="font-size:10px; color:var(--text-muted); word-break:break-all;">路径: ${escapeHtml(w.local_image_path)}</div>
+              </div>
+            ` : ''}
+            <details style="margin-top:6px; background:#0d1117;">
+              <summary style="color:var(--accent); font-size:11px; cursor:pointer;">📖 展开 raw_text 上下文 (${w.dialogue_message_count}条同频对话)</summary>
+              <pre style="margin-top:6px; white-space:pre-wrap; font-size:10px; color:var(--text); line-height:1.4; max-height:220px; overflow-y:auto;">${escapeHtml(w.raw_text)}</pre>
+            </details>
+          `;
+          box.appendChild(item);
+        });
+      } catch (e) {
+        console.error("加载 20 窗样本异常:", e);
       }
     }
 

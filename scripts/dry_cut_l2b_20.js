@@ -251,7 +251,7 @@ const STRICT_20_SEEDS = [
   {
     seed_id: 'playbook_rubber_ball',
     post_id: 'post_1Cbwt9woNwEzibuyrHM7bb',
-    kid: 'k_rubber_ball_after_gap_fill',
+    kid: 'pending_new',
     label: '皮球理论水下急跌埋伏异动出',
     evidence_span: '皮球理论就是 水下急跌埋伏 异动出',
     statement: '皮球理论就是水下急跌埋伏，异动出。',
