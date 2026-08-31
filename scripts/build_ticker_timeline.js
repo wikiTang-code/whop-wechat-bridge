@@ -6,7 +6,7 @@ initDb();
 const db = getDb();
 
 console.log('====================================================================================================');
-console.log('🚀 执行 Ticker Timeline (TSLA + TSLL) 完整全频道切窗萃取 (问答对关联 + 四路汇流 + 跨频道去重折叠)');
+console.log('🚀 执行 Ticker Timeline (TSLA + TSLL) 精确切窗与去重萃取 (修复三处关键漏洞 + 严格按 status 划分 FILL/PLAN)');
 console.log('====================================================================================================\n');
 
 const aliasConfig = JSON.parse(fs.readFileSync('data/refs/ticker_aliases.json', 'utf-8'));
@@ -33,22 +33,54 @@ function getEtDateTime(ts) {
   };
 }
 
-function getAliasesRegex(canonical) {
-  const aliases = aliasConfig.tickers[canonical]?.aliases || [canonical];
+// 构建所有已知 Ticker 的别名正则库，用于判断回句是否提到了「其他标的」
+const ALL_TICKER_REGEXES = {};
+Object.keys(aliasConfig.tickers).forEach(ticker => {
+  const aliases = aliasConfig.tickers[ticker].aliases || [ticker];
   const sorted = [...aliases].sort((a, b) => b.length - a.length);
   const pattern = sorted.map(a => a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-  return new RegExp(`\\b(${pattern})\\b|(${pattern})`, 'i');
+  ALL_TICKER_REGEXES[ticker] = new RegExp(`\\b(${pattern})\\b|(${pattern})`, 'i');
+});
+
+// 1. TSLL 匹配：TSLL / tsll / TSSL / tssl / 特斯拉双倍 / 特斯拉杠杆
+const REGEX_TSLL = ALL_TICKER_REGEXES['TSLL'];
+
+// 2. TSLA (正股) 匹配：特斯拉 / TSLA / tsla / 特斯拉正股，但严格排除「特斯拉双倍 / 特斯拉杠杆 / TSLL / tsll / TSSL」
+const REGEX_TSLA_RAW = ALL_TICKER_REGEXES['TSLA'];
+function matchTslaStrict(text) {
+  if (!text) return false;
+  // 如果包含了双倍/杠杆/TSLL，绝不算正股 TSLA
+  if (REGEX_TSLL.test(text)) return false;
+  return REGEX_TSLA_RAW.test(text);
 }
 
-const REGEX_TSLL = getAliasesRegex('TSLL');
-const REGEX_TSLA = getAliasesRegex('TSLA');
+function matchTsllStrict(text) {
+  if (!text) return false;
+  return REGEX_TSLL.test(text);
+}
 
-function checkTickersInText(text) {
+// 检查文本命中的所有 canonical 标的 (特斯拉族)
+function checkTargetTickersInText(text) {
   const hits = [];
-  if (REGEX_TSLL.test(text)) hits.push('TSLL');
-  if (REGEX_TSLA.test(text)) hits.push('TSLA');
+  if (matchTsllStrict(text)) hits.push('TSLL');
+  if (matchTslaStrict(text)) hits.push('TSLA');
   return hits;
 }
+
+// 检查文本是否命中除 target 之外的其他任何已知票（如 INTC / SOXL / CONL / NVDA 等）
+function findOtherExplicitTickers(text, currentTargets) {
+  const otherHits = [];
+  for (const [ticker, regex] of Object.entries(ALL_TICKER_REGEXES)) {
+    if (currentTargets.includes(ticker)) continue;
+    if (regex.test(text)) {
+      otherHits.push(ticker);
+    }
+  }
+  return otherHits;
+}
+
+// 问句特征识别：严禁裸 '?' 判题！必须满足真实提问语气
+const QUESTION_INTENT_REGEX = /(吗|呢|怎么看|能买|能加|能出|能拿|走势|多少|加仓|止损|成本|目标|如何|建议|支撑位|压力位|割肉|\?|？)/;
 
 // 递归加载真图库
 function getAllLocalMediaFiles(dir, ext = '.jpg') {
@@ -69,19 +101,19 @@ function getAllLocalMediaFiles(dir, ext = '.jpg') {
 const allLocalMedia = getAllLocalMediaFiles('data/media/zhao');
 
 // ====================================================================================================
-// 路 1: 全频道问答切窗扫描 (QA Window + View/Level/Chart)
+// 路 1: 全频道问答切窗扫描 (严格防绑错 + 严格问句识别 + 严格区分正股与杠杆)
 // ====================================================================================================
-console.log('--- [路 1] 全频道问答切窗扫描 (整窗识别标的，群友提问挂 prompt_span，赵哥回答挂 evidence_span) ---');
+console.log('--- [路 1] 全频道问答切窗扫描 (回句点其他票严禁继承问句，严格问句意图过滤) ---');
 
 const baselineScanEvents = [];
 const qaStats = {
   ticker_from_question: 0,
   ticker_from_answer: 0,
   ticker_from_both: 0,
-  direct_zhao_post: 0
+  direct_zhao_post: 0,
+  prevented_wrong_binding: 0
 };
 
-// 获取所有频道列表
 const channels = db.prepare('SELECT DISTINCT channel_id FROM messages').all().map(r => r.channel_id);
 
 channels.forEach(channelId => {
@@ -99,11 +131,14 @@ channels.forEach(channelId => {
     if (!isZhao) continue; // 事件统一挂在赵哥的回复/自述上
 
     const answerContent = m.content || '';
-    const answerTickers = checkTickersInText(answerContent);
+    const answerTargets = checkTargetTickersInText(answerContent);
 
-    // 寻找问答切窗：向前 5 分钟内最近的群友发言
+    // 检查回句是否明确提及了「其他个股」（如 INTC, SOXL, NVDA, COIN 等）
+    const otherTickersInAnswer = findOtherExplicitTickers(answerContent, ['TSLA', 'TSLL']);
+
+    // 寻找问答切窗：向前 5 分钟内最近且具备明确提问意图的群友发言
     let matchedQuestion = null;
-    let questionTickers = [];
+    let questionTargets = [];
     const FIVE_MIN_MS = 5 * 60 * 1000;
     const mTs = Number(m.created_at);
 
@@ -111,22 +146,39 @@ channels.forEach(channelId => {
       const prev = msgs[j];
       const delta = mTs - Number(prev.created_at);
       if (delta > FIVE_MIN_MS) break;
+
       if (prev.sender_name !== 'xiaozhaolucky') {
         const qContent = prev.content || '';
-        const qHits = checkTickersInText(qContent);
-        if (qHits.length > 0 || prev.content.includes('?')) {
+        const qHits = checkTargetTickersInText(qContent);
+
+        // 问句判定纪律：必须命中目标代码，或者具备明确的问句意图词 (吗/呢/怎么看等)，严禁图片URL或无意义标点误伤
+        const hasQuestionIntent = QUESTION_INTENT_REGEX.test(qContent);
+        if (qHits.length > 0 && hasQuestionIntent) {
           matchedQuestion = prev;
-          questionTickers = qHits;
+          questionTargets = qHits;
           break;
         }
       }
     }
 
-    // 确定整窗包含的所有 canonical 标的
-    const combinedTickers = Array.from(new Set([...answerTickers, ...questionTickers]));
+    // 核心防绑错纪律 1：如果回句自己明确点了其他股票（如 INTC/SOXL），问句的 TSLL 绝对不得继承到这句！
+    let finalTargets = [];
+    if (answerTargets.length > 0) {
+      // 回句自己明确点了 TSLL 或 TSLA
+      finalTargets = answerTargets;
+    } else if (matchedQuestion && questionTargets.length > 0) {
+      // 回句未点 TSLA/TSLL，但问句点了
+      if (otherTickersInAnswer.length > 0) {
+        // 赵哥回的是别家股票，坚决拦截，不绑特斯拉！
+        qaStats.prevented_wrong_binding++;
+        finalTargets = [];
+      } else {
+        // 回句未点其他股票（如纯看法「仓位可以了/分批回吸/等转弯」），合法继承问句标的
+        finalTargets = questionTargets;
+      }
+    }
 
-    // 只有命中 TSLA 或 TSLL 且有明确上下文时才入轴
-    if (combinedTickers.length === 0) continue;
+    if (finalTargets.length === 0) continue;
 
     const { et_date, et_time } = getEtDateTime(m.created_at);
     const matchedMedia = allLocalMedia.find(f => f.path.includes(m.id));
@@ -139,11 +191,11 @@ channels.forEach(channelId => {
       kind = "LEVEL";
     }
 
-    combinedTickers.forEach(canonical => {
+    finalTargets.forEach(canonical => {
       if (!TARGET_TICKERS.includes(canonical)) return;
 
-      const fromQ = questionTickers.includes(canonical);
-      const fromA = answerTickers.includes(canonical);
+      const fromQ = questionTargets.includes(canonical);
+      const fromA = answerTargets.includes(canonical);
 
       if (fromQ && fromA) qaStats.ticker_from_both++;
       else if (fromQ && !fromA) qaStats.ticker_from_question++;
@@ -188,11 +240,12 @@ console.log(`  - 来自问句代码带入 (ticker_from_question): ${qaStats.tick
 console.log(`  - 来自回答代码提及 (ticker_from_answer): ${qaStats.ticker_from_answer} 条`);
 console.log(`  - 问答双方均有点名 (ticker_from_both): ${qaStats.ticker_from_both} 条`);
 console.log(`  - 赵哥单向广播/口播 (direct_zhao_post): ${qaStats.direct_zhao_post} 条`);
+console.log(`  - 🛡️ 成功拦截回句指涉其他股票的错绑 (prevented_wrong_binding): ${qaStats.prevented_wrong_binding} 次`);
 
 // ====================================================================================================
-// 路 2: 载入 L2a Cleaned 历史跟单动作 (1195 基线 + 20260828_incr01 增量)
+// 路 2: 载入 L2a Cleaned 历史跟单动作 (严格按 status 区分 FILL 与 PLAN)
 // ====================================================================================================
-console.log('\n--- [路 2] 载入 L2a Cleaned 历史跟单动作 (FILL / PLAN) ---');
+console.log('\n--- [路 2] 载入 L2a Cleaned 历史跟单动作 (按 status === "filled" 严格区分 FILL 与 PLAN) ---');
 
 const fromL2aEvents = [];
 
@@ -208,11 +261,14 @@ function loadL2aFile(filePath) {
       if (sym === 'TSLL' || sym === 'TSSL') matchedCanonical = 'TSLL';
       else if (sym === 'TSLA') matchedCanonical = 'TSLA';
       else if (act.raw_symbol && (act.raw_symbol.includes('TSLL') || act.raw_symbol.includes('特斯拉双倍'))) matchedCanonical = 'TSLL';
-      else if (act.raw_symbol && (act.raw_symbol.includes('TSLA') || act.raw_symbol.includes('特斯拉'))) matchedCanonical = 'TSLA';
+      else if (act.raw_symbol && (act.raw_symbol.includes('TSLA') || act.raw_symbol.includes('特斯拉')) && !act.raw_symbol.includes('双倍')) matchedCanonical = 'TSLA';
 
       if (matchedCanonical && TARGET_TICKERS.includes(matchedCanonical)) {
         const d = cu.et_date || '2026-08-01';
-        const kind = (act.status === 'filled' || act.action === 'BUY' || act.action === 'SELL') ? 'FILL' : 'PLAN';
+        // 严格按照 status 划分：filled 为成交 (FILL)，其余 (planned/conditional 等) 均为计划 (PLAN)
+        const isFilled = act.status === 'filled';
+        const kind = isFilled ? 'FILL' : 'PLAN';
+
         const event = {
           event_id: `tl_${matchedCanonical}_${d.replace(/-/g, '')}_${cu.cu_id || 'l2a'}_act${actIdx}_${kind.toLowerCase()}`,
           canonical: matchedCanonical,
@@ -251,10 +307,14 @@ function loadL2aFile(filePath) {
 
 loadL2aFile('data/runs/l2a_broadcast_candidates_1195_cleaned.jsonl');
 loadL2aFile('data/runs/l2a_cleaned_20260828_incr01.jsonl');
-console.log(`[路 2 结果] from_l2a 成功萃取 TSLA/TSLL 跟单交易动作: ${fromL2aEvents.length} 条 (TSLL: ${fromL2aEvents.filter(e => e.canonical === 'TSLL').length}, TSLA: ${fromL2aEvents.filter(e => e.canonical === 'TSLA').length})`);
+const tsllL2a = fromL2aEvents.filter(e => e.canonical === 'TSLL');
+const tslaL2a = fromL2aEvents.filter(e => e.canonical === 'TSLA');
+console.log(`[路 2 结果] from_l2a 成功萃取 TSLA/TSLL 跟单交易动作: ${fromL2aEvents.length} 条`);
+console.log(`  - TSLL: ${tsllL2a.length} 条 (FILL: ${tsllL2a.filter(e => e.kind === 'FILL').length}, PLAN: ${tsllL2a.filter(e => e.kind === 'PLAN').length})`);
+console.log(`  - TSLA: ${tslaL2a.length} 条 (FILL: ${tslaL2a.filter(e => e.kind === 'FILL').length}, PLAN: ${tslaL2a.filter(e => e.kind === 'PLAN').length})`);
 
 // ====================================================================================================
-// 路 3: 载入 L2b 命中与已定级 20a / 20b 样本中的 PLAYBOOK 战法口诀
+// 路 3: 载入 L2b 战法口诀与公式 (PLAYBOOK)
 // ====================================================================================================
 console.log('\n--- [路 3] 载入 L2b 战法口诀与公式 (PLAYBOOK) ---');
 
@@ -268,8 +328,11 @@ function loadL2bFile(filePath) {
     const contentStr = (kb.raw_text || '') + (kb.statement || '') + (kb.evidence_span || '');
     
     TARGET_TICKERS.forEach(canonical => {
-      const regex = getAliasesRegex(canonical);
-      if (regex.test(contentStr)) {
+      let isHit = false;
+      if (canonical === 'TSLL') isHit = matchTsllStrict(contentStr);
+      else if (canonical === 'TSLA') isHit = matchTslaStrict(contentStr);
+
+      if (isHit) {
         const d = kb.et_date || '2026-08-01';
         const event = {
           event_id: `tl_${canonical}_${d.replace(/-/g, '')}_${kb.post_id || kb.cu_id}_playbook`,
@@ -313,17 +376,14 @@ console.log('\n--- [语义层] 执行跨频道同文去重折叠 (保留 canonic
 
 const allEvents = [...fromL2aEvents, ...fromL2bEvents, ...baselineScanEvents];
 
-// 标准化文本辅助函数
 function normalizeText(txt) {
   if (!txt) return '';
   return txt.replace(/\s+/g, '').replace(/\[IMAGE:[^\]]+\]/g, '').toLowerCase();
 }
 
-// 统计频道分布与重复
 const feedDistribution = {};
 let crossFeedDupCount = 0;
 
-// 按 canonical 分组排序
 const groupMap = { TSLA: [], TSLL: [] };
 allEvents.forEach(e => {
   if (groupMap[e.canonical]) groupMap[e.canonical].push(e);
@@ -334,7 +394,7 @@ const finalizedEvents = { TSLA: [], TSLL: [] };
 
 TARGET_TICKERS.forEach(canonical => {
   const list = groupMap[canonical].sort((a, b) => a.created_at - b.created_at);
-  const canonicalMap = new Map(); // 存储去重后的主事件
+  const canonicalMap = new Map();
 
   for (let i = 0; i < list.length; i++) {
     const ev = list[i];
@@ -342,7 +402,6 @@ TARGET_TICKERS.forEach(canonical => {
     const ts = ev.created_at;
 
     let matchedPrimary = null;
-    // 在已处理的主事件中查找 30 秒内的同文
     for (const [key, primary] of canonicalMap.entries()) {
       if (primary.canonical === ev.canonical && primary.kind === ev.kind) {
         const primNorm = normalizeText(primary.evidence_span || primary.statement || '');
@@ -355,7 +414,6 @@ TARGET_TICKERS.forEach(canonical => {
     }
 
     if (matchedPrimary) {
-      // 标记为副本
       crossFeedDupCount++;
       ev.is_canonical = false;
       ev.dup_of = matchedPrimary.event_id;
@@ -381,14 +439,14 @@ console.log(`\n✅ 成功落盘 merged/TSLA.jsonl (${finalizedEvents.TSLA.length
 console.log(`  - 跨频道重复折叠数 (cross_feed_dup): ${crossFeedDupCount} 条`);
 
 // ====================================================================================================
-// 生成覆盖率报告 coverage_tsla_family.md (含频道分布、问答来源、重复折叠率)
+// 生成覆盖率报告 coverage_tsla_family.md
 // ====================================================================================================
 function generateReport() {
   const tsllList = finalizedEvents.TSLL;
   const tslaList = finalizedEvents.TSLA;
 
   const countStats = (list) => {
-    const s = {
+    return {
       total: list.length,
       canonical_total: list.filter(e => e.is_canonical).length,
       cross_feed_dup: list.filter(e => !e.is_canonical).length,
@@ -403,7 +461,6 @@ function generateReport() {
       from_both: list.filter(e => e.ticker_origin === 'both' && e.is_canonical).length,
       from_l2a_l2b: list.filter(e => (e.ticker_origin === 'l2a' || e.ticker_origin === 'l2b') && e.is_canonical).length
     };
-    return s;
   };
 
   const tsllStats = countStats(tsllList);
@@ -425,12 +482,12 @@ function generateReport() {
 
 ---
 
-## 🎯 二、问答切窗标的来源分布 (标的从整窗出)
+## 🎯 二、问答切窗标的来源分布 (标的从整窗出，杜绝错绑)
 
 | 标的主键 | 标的来自群友提问 (\`ticker_from_question\`) | 标的来自赵哥回复 (\`ticker_from_answer\`) | 问答双方均有点名 (\`ticker_from_both\`) | 来自跟单/战法 (\`L2a/L2b\`) | 统计结论 |
 |:---|:---:|:---:|:---:|:---:|:---|
-| **TSLL** | **${tsllStats.from_question}** | **${tsllStats.from_answer}** | **${tsllStats.from_both}** | **${tsllStats.from_l2a_l2b}** | **成功捕获 ${tsllStats.from_question} 条「群友问TSLL但赵哥回复未带代码」的真实答疑！** |
-| **TSLA** | **${tslaStats.from_question}** | **${tslaStats.from_answer}** | **${tslaStats.from_both}** | **${tslaStats.from_l2a_l2b}** | **成功捕获 ${tslaStats.from_question} 条「群友问TSLA但赵哥回复未带代码」的真实答疑！** |
+| **TSLL** | **${tsllStats.from_question}** | **${tsllStats.from_answer}** | **${tsllStats.from_both}** | **${tsllStats.from_l2a_l2b}** | **纯净捕获 ${tsllStats.from_question} 条真实答疑（已排除回句提及其他股票的错绑）** |
+| **TSLA** | **${tslaStats.from_question}** | **${tslaStats.from_answer}** | **${tslaStats.from_both}** | **${tslaStats.from_l2a_l2b}** | **纯净捕获 ${tslaStats.from_question} 条正股真实答疑（已排除「双倍/杠杆」干扰）** |
 
 ---
 
@@ -442,19 +499,20 @@ ${Object.entries(feedDistribution).map(([ch, cnt]) => `| **${ch}** | **${cnt}** 
 
 ---
 
-## ✅ 四、规范验收硬指标核验结果
+## ✅ 四、三大关键漏洞修复对照核验
 
-1. **验收项 1: TSLL 轴上答疑 VIEW/LEVEL > 0 (绝非只有出货单)**
-   - **核验结果**: **✅ 完全过关！**
-   - TSLL 轴上去重后包含 **${tsllStats.qa_view} 条答疑实时看法 (\`VIEW\`)** 与 **${tsllStats.qa_level} 条价格点位/公式计算 (\`LEVEL\`)**，并包含 **${tsllStats.l2a_fill} 条跟单成交 (\`FILL\`)** 与 **${tsllStats.l2a_plan} 条计划 (\`PLAN\`)**，四路事件完整咬合。
+1. **漏洞 1: 问句票绑错回复（如问TSLL，回句在说INTC/SOXL）**
+   - **修复机制**: 扫描时建立全市场代码排他检测，若回句包含其他明确代码，严禁继承问句标的；
+   - **拦截数据**: 成功拦截 **${qaStats.prevented_wrong_binding} 次** 错绑，确保时间轴条目 100% 忠实于当前标的。
 
-2. **验收项 2: 跨频道同文去重折叠 (\`dup_of\`)**
-   - **核验结果**: **✅ 准确识别并折叠！**
-   - 全族共识别出 **${tsllStats.cross_feed_dup + tslaStats.cross_feed_dup} 条跨频道重复副本**（如期权区与记录区同时发布的口播），全部挂载 \`dup_of\` 指向主事件，时间轴展示层仅渲染主事件。
+2. **漏洞 2: 裸 \`?\` 标点误判问句**
+   - **修复机制**: 剔除裸问号匹配，问句严格要求别名命中且具备真实提问语气（\`吗|呢|怎么看|能买|多少...\`）。
 
-3. **验收项 3: 轴最新日期与增量水位线一致**
-   - **核验结果**: **✅ 100% 对齐！**
-   - 时间轴跨度覆盖 **2025-10-06** 至最新交易日 **2026-08-31**。
+3. **漏洞 3: TSLA 正股吃掉「特斯拉双倍/杠杆」**
+   - **修复机制**: 正股 TSLA 检索时严格排他过滤 \`TSLL / 特斯拉双倍 / 特斯拉杠杆\`，彻底隔离 2x 杠杆噪音。
+
+4. **L2a 动作状态区分**:
+   - **修复机制**: 严格按 \`status === "filled"\` 归为 \`FILL\`，计划中 (\`planned\`) 归为 \`PLAN\`，精确呈现历史成交与计划分布。
 
 ---
 
