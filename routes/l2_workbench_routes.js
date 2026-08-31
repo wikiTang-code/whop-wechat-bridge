@@ -646,5 +646,82 @@ router.get('/ticker_timeline/:symbol', (req, res) => {
   }
 });
 
+/**
+ * 6. 标的历史 K 线序列接口: GET /api/ticker_kline/:symbol
+ */
+router.get('/ticker_kline/:symbol', (req, res) => {
+  const symbol = (req.params.symbol || 'TSLL').toUpperCase();
+  const klinePath = `data/runs/ticker_timeline/kline/${symbol}.json`;
+  if (!fs.existsSync(klinePath)) {
+    return res.status(404).json({ success: false, error: `未找到标的 ${symbol} 的 K 线数据` });
+  }
+  try {
+    const klines = JSON.parse(fs.readFileSync(klinePath, 'utf-8'));
+    res.json({
+      success: true,
+      symbol,
+      klines
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+/**
+ * 7. 前后完整真实上下文回溯接口: GET /api/ticker_timeline/context/:post_id
+ */
+router.get('/ticker_timeline/context/:post_id', (req, res) => {
+  const postId = req.params.post_id;
+  try {
+    const targetMsg = db.prepare('SELECT id, channel_id, sender_name, created_at, content FROM messages WHERE id = ?').get(postId);
+    if (!targetMsg) {
+      return res.status(404).json({ success: false, error: '未找到该消息原始记录' });
+    }
+
+    const channelId = targetMsg.channel_id;
+    const targetTs = Number(targetMsg.created_at);
+
+    // 向前抓取 4 条，向后抓取 4 条，加上自己共 9 条完整真实上下文流
+    const prevMsgs = db.prepare(`
+      SELECT id, channel_id, sender_name, created_at, content 
+      FROM messages 
+      WHERE channel_id = ? AND created_at < ? 
+      ORDER BY created_at DESC 
+      LIMIT 4
+    `).all(channelId, targetTs).reverse();
+
+    const nextMsgs = db.prepare(`
+      SELECT id, channel_id, sender_name, created_at, content 
+      FROM messages 
+      WHERE channel_id = ? AND created_at > ? 
+      ORDER BY created_at ASC 
+      LIMIT 4
+    `).all(channelId, targetTs);
+
+    const contextList = [...prevMsgs, targetMsg, ...nextMsgs].map(m => {
+      const d = new Date(Number(m.created_at));
+      const etStr = d.toLocaleString('en-US', { timeZone: 'America/New_York' });
+      return {
+        id: m.id,
+        sender_name: m.sender_name || '群友',
+        is_zhao: m.sender_name === 'xiaozhaolucky',
+        is_target: m.id === postId,
+        time_et: etStr,
+        created_at: Number(m.created_at),
+        content: m.content || ''
+      };
+    });
+
+    res.json({
+      success: true,
+      target_post_id: postId,
+      channel_id: channelId,
+      messages: contextList
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 export default router;
 
