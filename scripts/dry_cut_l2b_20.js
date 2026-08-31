@@ -64,10 +64,24 @@ function buildWindow(targetMsg, seedMetadata = {}) {
   // 验证是否 100% 同 feed_id
   const isSameFeed = allMsgs.every(m => (m.channel_id || channelId) === channelId);
 
-  // 格式化 raw_text
-  const rawTextLines = allMsgs.map(m => {
+  // 格式化 raw_text (在每条消息前显式标注其真实频道名称与 feed_id)
+  const dialogueMessages = allMsgs.map(m => {
     const dt = new Date(Number(m.created_at)).toLocaleString('zh-CN', { timeZone: 'America/New_York' });
-    return `[${m.id}] ${dt} ${m.sender_name}: ${m.content}`;
+    const cName = registry[m.channel_id]?.name || m.channel_id || registry[channelId]?.name || channelId;
+    const fId = m.channel_id || channelId;
+    return {
+      post_id: m.id,
+      feed_id: fId,
+      channel_name: cName,
+      time_et: dt,
+      sender_name: m.sender_name,
+      content: m.content,
+      is_anchor_post: m.id === targetMsg.id
+    };
+  });
+
+  const rawTextLines = dialogueMessages.map(m => {
+    return `[${m.post_id}] 📡【${m.channel_name} (${m.feed_id})】 ${m.time_et} ${m.sender_name}: ${m.content}`;
   });
   const rawText = rawTextLines.join('\n\n');
 
@@ -86,8 +100,11 @@ function buildWindow(targetMsg, seedMetadata = {}) {
     const sha = getRealFileSha(seedMetadata.local_path);
     const stat = fs.statSync(seedMetadata.local_path);
     const dt = new Date(Number(targetMsg.created_at)).toLocaleString('zh-CN', { timeZone: 'America/New_York' });
+    const cName = registry[targetMsg.channel_id]?.name || registry[channelId]?.name || channelId;
     images.push({
       post_id: targetMsg.id,
+      feed_id: targetMsg.channel_id || channelId,
+      channel_name: cName,
       sender_name: targetMsg.sender_name,
       time_et: dt,
       post_caption: getPostCaption(targetMsg),
@@ -101,12 +118,15 @@ function buildWindow(targetMsg, seedMetadata = {}) {
   for (const m of allMsgs) {
     const matchedFiles = ALL_LOCAL_MEDIA.filter(f => f.path.includes(m.id));
     const dt = new Date(Number(m.created_at)).toLocaleString('zh-CN', { timeZone: 'America/New_York' });
+    const cName = registry[m.channel_id]?.name || registry[channelId]?.name || channelId;
     const caption = getPostCaption(m);
     for (const mf of matchedFiles) {
       if (!images.some(img => img.local_path === mf.path)) {
         const sha = getRealFileSha(mf.path);
         images.push({
           post_id: m.id,
+          feed_id: m.channel_id || channelId,
+          channel_name: cName,
           sender_name: m.sender_name,
           time_et: dt,
           post_caption: caption,
@@ -145,6 +165,7 @@ function buildWindow(targetMsg, seedMetadata = {}) {
     status: seedMetadata.status || 'proposed',
     do_not_use_as_order: true,
     raw_text: rawText,
+    dialogue_messages: dialogueMessages,
     dialogue_message_count: allMsgs.length
   };
 }

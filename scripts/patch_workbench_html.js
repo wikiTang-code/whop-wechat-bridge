@@ -55,7 +55,7 @@ if (html.includes(duplicateTarget)) {
   html = html.replace(duplicateTarget, '');
 }
 
-// 5. 替换 loadDryCut20Samples 为支持「切图联动显示对应对话来源、发言人、发送时间与消息说明」的完整版本
+// 5. 替换 loadDryCut20Samples 为完整透出每条对话真实频道来源与配图强绑定的版本
 const oldFuncStart = 'async function loadDryCut20Samples()';
 const oldFuncEnd = 'function selectCu(cuId, e)';
 const idxStart = html.indexOf(oldFuncStart);
@@ -98,7 +98,7 @@ const newFunctions = `// 辅助清洗 raw_text，将超长 [IMAGE:https://...] �
       }
       if (shaElem) shaElem.innerText = '🖼️ 附图核准 (SHA: ' + activeImg.image_sha + ')';
       if (pagerElem) pagerElem.innerText = (cur + 1) + ' / ' + imgs.length;
-      if (metaElem) metaElem.innerHTML = '🔑 来源消息: <code style="color:#58a6ff;">' + escapeHtml(activeImg.post_id) + '</code> (' + escapeHtml(activeImg.time_et || '美东时间') + ' · ' + escapeHtml(activeImg.sender_name || 'xiaozhaolucky') + ')';
+      if (metaElem) metaElem.innerHTML = '📡 <strong>' + escapeHtml(activeImg.channel_name || '讨论区股票记录') + '</strong> | 🔑 <code>' + escapeHtml(activeImg.post_id) + '</code> (' + escapeHtml(activeImg.time_et || '美东时间') + ' · ' + escapeHtml(activeImg.sender_name || 'xiaozhaolucky') + ')';
       if (captionElem) captionElem.innerHTML = '💬 <strong>同帖口播:</strong> ' + escapeHtml(activeImg.post_caption || '无文字口播（纯图消息）');
     }
 
@@ -126,7 +126,7 @@ const newFunctions = `// 辅助清洗 raw_text，将超长 [IMAGE:https://...] �
           const rawImgs = (Array.isArray(w.images) && w.images.length > 0)
             ? w.images
             : (w.has_real_image && w.local_image_path && w.local_image_path !== 'no_image' 
-                ? [{ local_path: w.local_image_path, image_sha: w.image_sha, post_id: w.post_id, sender_name: 'xiaozhaolucky', time_et: w.et_date, post_caption: w.statement }] 
+                ? [{ local_path: w.local_image_path, image_sha: w.image_sha, post_id: w.post_id, channel_name: w.channel_name, feed_id: w.feed_id, sender_name: 'xiaozhaolucky', time_et: w.et_date, post_caption: w.statement }] 
                 : []);
 
           const validImages = rawImgs.map(img => ({
@@ -134,6 +134,8 @@ const newFunctions = `// 辅助清洗 raw_text，将超长 [IMAGE:https://...] �
             web_url: img.local_path.replace(/\\\\/g, '/').replace(/^data\\/media\\/zhao\\//, '/media/zhao/'),
             image_sha: img.image_sha,
             post_id: img.post_id || w.post_id,
+            channel_name: img.channel_name || w.channel_name,
+            feed_id: img.feed_id || w.feed_id,
             sender_name: img.sender_name || 'xiaozhaolucky',
             time_et: img.time_et || w.et_date,
             post_caption: img.post_caption || '无文字口播（纯图消息）'
@@ -170,7 +172,7 @@ const newFunctions = `// 辅助清洗 raw_text，将超长 [IMAGE:https://...] �
                 </div>
                 <div style="margin-top:6px; padding:6px; background:#161b22; border:1px solid #21262d; border-radius:3px;">
                   <div id="img-meta-\` + escapeHtml(w.cu_id) + \`" style="font-size:10px; color:var(--text-muted); margin-bottom:2px;">
-                    🔑 来源消息: <code style="color:#58a6ff;">\` + escapeHtml(activeImg.post_id) + \`</code> (\` + escapeHtml(activeImg.time_et) + \` · \` + escapeHtml(activeImg.sender_name) + \`)
+                    📡 <strong>\` + escapeHtml(activeImg.channel_name) + \`</strong> | 🔑 <code>\` + escapeHtml(activeImg.post_id) + \`</code> (\` + escapeHtml(activeImg.time_et) + \` · \` + escapeHtml(activeImg.sender_name) + \`)
                   </div>
                   <div id="img-caption-\` + escapeHtml(w.cu_id) + \`" style="font-size:10px; color:#c9d1d9; line-height:1.3;">
                     💬 <strong>同帖口播:</strong> \` + escapeHtml(activeImg.post_caption) + \`
@@ -188,13 +190,13 @@ const newFunctions = `// 辅助清洗 raw_text，将超长 [IMAGE:https://...] �
               \` + seedBadge + \`
             </div>
             <div style="color:var(--text-muted); margin-bottom:4px; font-size:10px;">
-              📡 \` + escapeHtml(w.channel_name) + \` | 🔑 锚点: \` + escapeHtml(w.post_id) + \` | 🏷️ <span style="color:#d2a8ff; font-weight:bold;">\` + escapeHtml(w.kid) + \`</span>
+              📡 <strong>\` + escapeHtml(w.channel_name) + \`</strong> (\` + escapeHtml(w.feed_id) + \`) | 🔑 锚点: <code>\` + escapeHtml(w.post_id) + \`</code> | 🏷️ <span style="color:#d2a8ff; font-weight:bold;">\` + escapeHtml(w.kid) + \`</span>
             </div>
             <div style="margin-bottom:6px; color:#f0f6fc; line-height:1.3;"><strong>口诀:</strong> \` + escapeHtml(w.statement) + \`</div>
             \` + imageSectionHtml + \`
             <details style="margin-top:6px; background:#0d1117; border:1px solid #21262d; border-radius:3px; padding:4px 6px;">
               <summary style="color:var(--accent); font-size:11px; cursor:pointer;">📖 展开 raw_text 上下文 (\` + w.dialogue_message_count + \`条同频对话)</summary>
-              <pre style="margin-top:6px; white-space:pre-wrap; font-size:10px; color:var(--text); line-height:1.4; max-height:200px; overflow-y:auto;">\` + escapeHtml(cleanedRaw) + \`</pre>
+              <pre style="margin-top:6px; white-space:pre-wrap; font-size:10px; color:var(--text); line-height:1.4; max-height:220px; overflow-y:auto;">\` + escapeHtml(cleanedRaw) + \`</pre>
             </details>
           \`;
           box.appendChild(item);
@@ -211,4 +213,4 @@ if (idxStart !== -1 && idxEnd !== -1) {
 }
 
 fs.writeFileSync('public/review_workbench.html', html, 'utf-8');
-console.log('✅ review_workbench.html 升级图文对话联动说明成功！');
+console.log('✅ review_workbench.html 升级每条对话频道透出与图文联动完成！');
