@@ -71,15 +71,26 @@ function buildWindow(targetMsg, seedMetadata = {}) {
   });
   const rawText = rawTextLines.join('\n\n');
 
-  // 检查真图 (收集窗内所有 7 条对话对应的已落盘有效真图)
+  // 检查真图 (收集窗内所有 7 条对话对应的已落盘有效真图，并关联其对应 post 发言与上下文)
   const images = [];
+
+  // 辅助清洗该条消息文字作为图片说明
+  const getPostCaption = (msg) => {
+    if (!msg || !msg.content) return '无文字口播（纯图消息）';
+    const clean = msg.content.replace(/\[IMAGE:https?:\/\/[^\]]+\]/g, '').trim();
+    return clean || '无文字口播（纯图消息）';
+  };
 
   // 1. 如果种子显式指定了本地路径且存在
   if (seedMetadata.local_path && fs.existsSync(seedMetadata.local_path)) {
     const sha = getRealFileSha(seedMetadata.local_path);
     const stat = fs.statSync(seedMetadata.local_path);
+    const dt = new Date(Number(targetMsg.created_at)).toLocaleString('zh-CN', { timeZone: 'America/New_York' });
     images.push({
       post_id: targetMsg.id,
+      sender_name: targetMsg.sender_name,
+      time_et: dt,
+      post_caption: getPostCaption(targetMsg),
       local_path: seedMetadata.local_path.replace(/\\/g, '/'),
       image_sha: sha,
       size_bytes: stat.size
@@ -89,11 +100,16 @@ function buildWindow(targetMsg, seedMetadata = {}) {
   // 2. 遍历窗内全部 7 条消息，从本地全量图库匹配属于该消息 post_id 的真图
   for (const m of allMsgs) {
     const matchedFiles = ALL_LOCAL_MEDIA.filter(f => f.path.includes(m.id));
+    const dt = new Date(Number(m.created_at)).toLocaleString('zh-CN', { timeZone: 'America/New_York' });
+    const caption = getPostCaption(m);
     for (const mf of matchedFiles) {
       if (!images.some(img => img.local_path === mf.path)) {
         const sha = getRealFileSha(mf.path);
         images.push({
           post_id: m.id,
+          sender_name: m.sender_name,
+          time_et: dt,
+          post_caption: caption,
           local_path: mf.path,
           image_sha: sha,
           size_bytes: mf.size
