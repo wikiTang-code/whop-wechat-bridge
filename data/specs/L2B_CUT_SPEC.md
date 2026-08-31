@@ -13,6 +13,7 @@ L2b 的提取目标是赵哥的完整认知体系与战法纪律，因此全频�
 - **`forum_feed_1CTr7SqVMzFfuFiiRJLEHN`**（历史股票期权记录区）：长文战法、量化复盘、出货教案；
 - **`chat_feed_1CTr7QocNpDZ9FXZ6fvWe4`**（不用翻墙美股发布）：盘中实时宏观判断、突发事件应对；
 - **`chat_feed_1CTrCEx44dP13jW3RVkYiS`**（不用翻墙期权）：期权异动观察、对冲纪律；
+- **`chat_feed_1CU95KbtifP1JtuqTiVXZb`**（讨论区股票记录）：**核心配图金标专区（g_img_001~005 全部在此频道）**；
 - **`chat_feed_1CWLuNUVYVVYttro8gAvJ5`**（市值理论100跌50 公式记录）：反弹一半 `(高+低)/2` 公式专项 (共8条)；
 - **`chat_feed_1CTr5VAdNHtbZAFaTitvoT`**（不用翻墙美股讨论区）：赵哥在群内的答疑与战法解释。
 
@@ -104,17 +105,23 @@ L2b 切窗产物写入独立的 `data/runs/l2b_knowledge_*.jsonl`，每条记录
 
 ---
 
-## 四、金标真实映射基准表 (Ground Truth Seed Mapping)
+## 四、权威金标与真实配图种子映射表 (Ground Truth & Image Seeds)
 
-验收与测试必须严格对齐以下真实的 seed id 与 post_id 映射：
+> **严正声明**：本表完全复制自 [`data/samples/l2b_gold_seeds_5_strict.json`](../samples/l2b_gold_seeds_5_strict.json) 与 [`data/samples/l2b_real_image_seeds_5_proposed.json`](../samples/l2b_real_image_seeds_5_proposed.json)，严禁手工篡改或混淆 unlocated 状态。
 
-| 金标编号 | 真实名称 | 规范 kid | 真实所属 post_id / 数据源 | 归属频道 feed_id |
-|---|---|---|---|---|
-| **G4** | 二次握手 + 没利润垫不过财报 | `k_second_handshake` | `post_1CUmieqA3rqzHWzhDCDkrD` (2025-11-03) | `forum_feed_1CTr7SqVMzFfuFiiRJLEHN` |
-| **G5** | 4-28 被动减全文与缺口回买 | `k_passive_redeem_then_rebuy` | `post_1CaWLMfYvJsZHjS9ugtaPj` (2026-04-28) | `chat_feed_1CTrCEx44dP13jW3RVkYiS` |
-| **g_img_001** | 冲高失败回落均线形态图 | `k_wave_value_extremes` | `post_1CdnhV...` / `data/media/zhao/...` | 挂载真图与 SHA 校验 |
-| **g_img_002** | 尾盘强平 15:50 V反形态图 | `k_late_session_v_reversal` | `post_1Cea5Ur7y9T97pXk82ATp3` (2026-08-30) | 挂载真图与 SHA 校验 |
-| **公式区8条** | (高+低)/2 反弹一半测算 | `k_half_retrace_watch` | `post_1CWLuUbwbhS7EvhKs97CBG` 等 8 条 | `chat_feed_1CWLuNUVYVVYttro8gAvJ5` |
+| 种子编号 | 战法名称 | 规范 kid | 真实所属 post_id / 状态 | 归属频道 feed_id | 配图本地路径 (local_path) |
+|---|---|---|---|---|---|
+| **G1** | 波动值高抛底吸 | `k_wave_value_extremes` | `proposed_unlocated` | `unlocated` | `no_image` |
+| **G2** | 尾盘 15:50 V反 | `k_late_session_v_reversal` | `proposed_unlocated` | `unlocated` | `no_image` |
+| **G3** | 整数位急跌买回 (CRWV@86) | `k_dip_buy_round_number` | 2026-07-01 增量广播切窗 | `forum_feed_1CTr7SqVMzFfuFiiRJLEHN` | `no_image` |
+| **G4** | 二次握手 + 没利润垫不过财报 | `k_second_handshake` | **`post_1CUmieqA3rqzHWzhDCDkrD`** (2025-11-03) | `forum_feed_1CTr7SqVMzFfuFiiRJLEHN` | `no_image` |
+| **G5** | 4-28 被动减全文与缺口回买 | `k_passive_redeem_then_rebuy` | **`post_1CaWLMfYvJsZHjS9ugtaPj`** (2026-04-28) | `chat_feed_1CTrCEx44dP13jW3RVkYiS` | `no_image` |
+| **g_img_001** | 九转序列数学曲率图 | `k_nine_turn_sequence` | **`post_1CXYCpXPkLs5VVnU5aBkJe`** (2026-01-27) | `chat_feed_1CU95KbtifP1JtuqTiVXZb` | `data/media/zhao/2026-01-27/post_1CXYCpXPkLs5VVnU5aBkJe_0.jpg` |
+| **g_img_002** | 看转弯两次有效拐点图 | `k_focus_on_inflection_turn` | **`post_1CYDwHo9hVfbwciyfsR9sa`** (2026-02-17) | `chat_feed_1CU95KbtifP1JtuqTiVXZb` | `data/media/zhao/2026-02-17/post_1CYDwHo9hVfbwciyfsR9sa_0.jpg` |
+| **g_img_003** | 二次握手精确 SPX 指数图 | `k_second_handshake` | **`post_1CayBBJeexEDaiEveHEmGa`** (2026-05-12) | `chat_feed_1CU95KbtifP1JtuqTiVXZb` | `data/media/zhao/2026-05-12/post_1CayBBJeexEDaiEveHEmGa_0.jpg` |
+| **g_img_004** | 法案投票周期高低点图 | `k_event_cycle_extremes` | **`post_1Cb4TAuGNsh8zYEUCgnce7`** (2026-05-15) | `chat_feed_1CU95KbtifP1JtuqTiVXZb` | `data/media/zhao/2026-05-15/post_1Cb4TAuGNsh8zYEUCgnce7_0.jpg` |
+| **g_img_005** | IREN 跌补三缺口46整数底图 | `k_gap_fill_round_number_bottom` | **`post_1CbTUayc44sNzPweAjd3QW`** (2026-05-27) | `chat_feed_1CU95KbtifP1JtuqTiVXZb` | `data/media/zhao/2026-05-27/post_1CbTUayc44sNzPweAjd3QW_0.jpg` |
+| **公式区8条** | (高+低)/2 反弹一半测算 | `k_half_retrace_watch` | `post_1CWLuUbwbhS7EvhKs97CBG` 等 8 条 (2025-12~2026-03) | `chat_feed_1CWLuNUVYVVYttro8gAvJ5` | `no_image` |
 
 ---
 
@@ -124,8 +131,8 @@ L2b 切窗产物写入独立的 `data/runs/l2b_knowledge_*.jsonl`，每条记录
 
 ```text
 🏛️ L2b 知识切窗验收四步闭环
-├── Step 1. 规范审批（当前阶段：本规范 v1.1 审阅，队列严格保持 paused: 2064）
-├── Step 2. Dry-Cut 20 窗（先切 20 组典型战法窗，必须包含 G4、G5 及至少 2 条 g_img 配图窗）
+├── Step 1. 规范审批（当前阶段：本规范 v1.2 审阅，队列严格保持 paused: 2064）
+├── Step 2. Dry-Cut 20 窗（先切 20 组典型战法窗，必须点名 100% 切中 G4、G5、g_img_001、g_img_002 真实 post_id）
 ├── Step 3. 人工原文穿透盲审（逐字核对 evidence_span 连续子串、not[] 与无编造性）
 └── Step 4. 评审通过后，签署解冻决定，方可分批启动全量切窗流水线
 ```
