@@ -9,8 +9,6 @@ console.log('===================================================================
 const dbPath = path.resolve('whop_archive.db');
 const db = new Database(dbPath);
 
-// 1. 读取 2026-07-01 之后的赵哥发言
-// 2026-07-01 00:00:00 ET -> 1782864000000
 const julyTs = new Date('2026-07-01T00:00:00Z').getTime();
 
 const zhaoMessages = db.prepare(`
@@ -44,7 +42,6 @@ let bookmarkedCount = 0;
 
 const BOOKMARK_REGEX = /(法\b|机制|要素|口诀|打油诗|普跌同沉|普涨我跌|事件来临|节日前夕|币市波动|一般要|一般有|相当于|二次握手|握手|缺口|只做一次|只做一次日内|被动减|减持|总仓位不要超过|7成|3成|反弹一半|\/2=|大单检测|大单入场|散户止损|死拿|成本出|磨损值|两段式|靴子|结算|利润垫|同花顺|王炸|出牌|手牌|指数低什么都不敢买|7640的极限点)/;
 
-// 如果库中消息暂未完全落地（因为刚才后台增量同步可能正在完成），我们兼容直接通过 GraphQL 抓取的 8 月消息列表
 const additionalAugustPosts = [
   {
     id: 'post_1CeCKdpCkT1joyax4kvBgR',
@@ -66,6 +63,13 @@ const additionalAugustPosts = [
     sender_name: 'xiaozhaolucky',
     created_at: 1787750400000,
     content: '增持还减持都要看 当你信息收集是全部时候 掌握最全信息检测才是稳定出牌的人 手里都是炸弹同花顺王炸让对面怎么赢'
+  },
+  {
+    id: 'post_1CeRUdRXh7jC5Db9wo5seD',
+    channel_name: '不用翻墙美股讨论区',
+    sender_name: 'xiaozhaolucky',
+    created_at: 1787751200000,
+    content: '无论是估值低估买入法、meta 的事件低位买入法、大单检测法、散户止损单被一笔全吃之类的，当你掌握的机制越多，你的手牌更能凑出同花顺和王炸'
   },
   {
     id: 'post_1CeVMWfa7s3SwVLxrSg3X9',
@@ -91,7 +95,6 @@ const additionalAugustPosts = [
 ];
 
 const allCombined = [...zhaoMessages];
-// 合并去重
 for (const p of additionalAugustPosts) {
   if (!allCombined.some(m => m.id === p.id)) {
     allCombined.push(p);
@@ -118,7 +121,6 @@ for (let i = 0; i < allCombined.length; i++) {
     day: '2-digit'
   }).format(new Date(msg.created_at));
 
-  // 跨频道去重
   const contentKey = text.replace(/\s+/g, '');
   const isDuplicate = seenContentSet.has(contentKey);
   seenContentSet.add(contentKey);
@@ -137,7 +139,6 @@ for (let i = 0; i < allCombined.length; i++) {
     continue;
   }
 
-  // 通用挂接辅助函数
   const tryAddInstance = (nodeId, treeName, spanText, fullText, subtype) => {
     if (!seenNodeDateMap.has(nodeId)) seenNodeDateMap.set(nodeId, new Set());
     const dateSet = seenNodeDateMap.get(nodeId);
@@ -176,7 +177,22 @@ for (let i = 0; i < allCombined.length; i++) {
     }
   };
 
-  // 1. 8 月打牌三帖 (8-19, 8-20, 8-26) 严格记为一条宏观持仓结构与增减持信息备忘，不进 prop_003~006
+  // 1. post_1CeRUdRXh7jC5Db9wo5seD: 四手牌并列总纲备忘（四个手法均指向此哲学总纲，prop_003~006 保持空壳）
+  if (msg.id === 'post_1CeRUdRXh7jC5Db9wo5seD' || (text.includes('估值低估买入法') && text.includes('大单检测法') && text.includes('散户止损单被一笔全吃'))) {
+    skippedAuditLog.push({
+      index: globalIdx,
+      message_id: msg.id,
+      et_date: etDate,
+      channel: msg.channel_name,
+      trigger: triggerWord,
+      category: 'four_hands_philosophy_memo',
+      reason: '四种手法并列总纲备忘（估值低估、事件低位、大单检测、散户止损一笔全吃），四个手法均指向此哲学总纲，prop_003~006 保持空壳待各手法独立微观操作句',
+      raw_text: text.slice(0, 150)
+    });
+    continue;
+  }
+
+  // 2. 8 月打牌三帖 (8-19, 8-20, 8-26) 记为多板块龙头组合持仓结构与增减持信息备忘
   if (text.includes('同花顺') || text.includes('王炸') || text.includes('打牌')) {
     skippedAuditLog.push({
       index: globalIdx,
@@ -191,19 +207,19 @@ for (let i = 0; i < allCombined.length; i++) {
     continue;
   }
 
-  // 2. gold_008: 指数低买指数杠杆 / 7640 极限点位低吸 (8-28 发布区教案)
+  // 3. gold_008: 指数低买指数杠杆 / 7640 极限点位低吸 (8-28 发布区教案)
   if (text.includes('指数低什么都不敢买时候就可以买指数') || text.includes('7640的极限点')) {
     tryAddInstance('gold_008_index_turn_gate', '入场扫描：指数转弯再看个股', text.slice(0, 150), text.slice(0, 250), 'index_extreme_low_and_leveraged_etf_refinement');
     continue;
   }
 
-  // 3. gold_007: 杰克逊霍尔讲话防守与反弹后手 (8-28 宏观事件)
+  // 4. gold_007: 杰克逊霍尔讲话防守与反弹后手 (8-28 宏观事件)
   if (text.includes('杰克逊霍尔') || (text.includes('讲话') && text.includes('后手'))) {
     tryAddInstance('gold_007_shoe_drops_settlement', '重大事件靴子落地走普涨', text.slice(0, 150), text.slice(0, 250), 'macro_speech_hawkish_dip_refinement');
     continue;
   }
 
-  // 4. 纯点位成交
+  // 5. 纯点位成交
   const isPureFill = /(\b\d+(\.\d+)?\s*(出|买|接|减|加|挂|止损|清仓|建仓|减持|减仓)|(出|买|接|减|加|减持)\s*(\d+(\.\d+)?|点|一半))/i.test(text) && text.length < 40;
   if (isPureFill) {
     skippedAuditLog.push({
@@ -219,7 +235,7 @@ for (let i = 0; i < allCombined.length; i++) {
     continue;
   }
 
-  // 5. 其余弱点评与问答
+  // 6. 其余弱点评与问答
   skippedAuditLog.push({
     index: globalIdx,
     message_id: msg.id,
@@ -232,7 +248,6 @@ for (let i = 0; i < allCombined.length; i++) {
   });
 }
 
-// 统计
 const instanceSummary = {};
 for (const [tId, insts] of treeInstancesMap.entries()) {
   if (insts.length > 0) {
@@ -275,12 +290,11 @@ const outPath = 'data/l2b/gold/zhao_chronological_ledger_incr_20260701_20260828.
 fs.writeFileSync(outPath, JSON.stringify(resultData, null, 2), 'utf-8');
 
 console.log(`========================================================================================`);
-console.log(`✅ 成功输出 7~8 月 incr 增量时序总账: ${outPath}`);
+console.log(`✅ 成功输出 7~8 月 incr 增量时序总账 (已升级四手牌总纲备忘): ${outPath}`);
 console.log(`   - 扫描消息总数: ${allCombined.length} 条`);
 console.log(`   - 书签触发停靠: ${bookmarkedCount} 条`);
 console.log(`   - 命中的树节点数: ${Object.keys(instanceSummary).length} 个`);
 console.log(`   - 全量真实 Skip 审计: ${skippedAuditLog.length} 条\n`);
 
-Object.entries(instanceSummary).forEach(([tId, info]) => {
-  console.log(`🌳 [${tId}] (${info.status}) ${info.name}: 挂接 ${info.instances_count} 条实战实例`);
-});
+console.log('📊 Skip 审计分类统计:');
+console.log(JSON.stringify(skipStats, null, 2));

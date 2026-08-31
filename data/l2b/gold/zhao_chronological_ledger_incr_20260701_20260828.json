@@ -10,7 +10,8 @@
       "weak_commentary_or_single_event": 160,
       "duplicate_post": 56,
       "pure_fill_order": 12,
-      "macro_philosophy_memo": 7,
+      "macro_philosophy_memo": 6,
+      "four_hands_philosophy_memo": 1,
       "same_day_suffix": 1
     }
   },
@@ -2206,8 +2207,8 @@
       "et_date": "2026-08-26",
       "channel": "讨论区股票记录",
       "trigger": "大单检测",
-      "category": "macro_philosophy_memo",
-      "reason": "多板块龙头组合持仓结构 + 增减持信息收全再动打牌比喻，暂不占用 prop_003~006 四手牌空壳",
+      "category": "four_hands_philosophy_memo",
+      "reason": "四种手法并列总纲备忘（估值低估、事件低位、大单检测、散户止损一笔全吃），四个手法均指向此哲学总纲，prop_003~006 保持空壳待各手法独立微观操作句",
       "raw_text": "无论是估值低估买入法  meta的事件低位买入法  大单检测法  散户止损单被一笔全吃之类的 当你掌握的机制越多 你的手牌更能凑出同花顺和王炸"
     },
     {

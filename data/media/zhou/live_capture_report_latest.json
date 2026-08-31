@@ -1,0 +1,58 @@
+[
+  {
+    "post_id": "post_1CeZskZeTudbyBxxM5pxz9",
+    "attachment_index": 0,
+    "file_name": "post_1CeZskZeTudbyBxxM5pxz9_0.jpg",
+    "saved_path": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhou\\2026-08-30\\post_1CeZskZeTudbyBxxM5pxz9_0.jpg",
+    "byte_size": 214264,
+    "size_kb": "209.2",
+    "sha256_full": "a4ee5ba0cf04ac691d63bc11a370e38692fb58cd932d89aaed90d288a55336d8",
+    "sha256_short": "a4ee5ba0",
+    "gate_passed": true,
+    "fail_reason": null,
+    "created_at": 1788135930952,
+    "sender": "Mrzhoulucky"
+  },
+  {
+    "post_id": "post_1CeZqyZPfc3CYSB1bsF5yG",
+    "attachment_index": 0,
+    "file_name": "post_1CeZqyZPfc3CYSB1bsF5yG_0.jpg",
+    "saved_path": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\zhou\\2026-08-30\\post_1CeZqyZPfc3CYSB1bsF5yG_0.jpg",
+    "byte_size": 48638,
+    "size_kb": "47.5",
+    "sha256_full": "540ab294df88303edbc6097464fd9e1258586cbce852d60ce01cde9a76c7291d",
+    "sha256_short": "540ab294",
+    "gate_passed": true,
+    "fail_reason": null,
+    "created_at": 1788134533615,
+    "sender": "Mrzhoulucky"
+  },
+  {
+    "post_id": "post_1CeVjxh35qQF2UvGiNPLrg",
+    "attachment_index": 0,
+    "file_name": "post_1CeVjxh35qQF2UvGiNPLrg_0.jpg",
+    "saved_path": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\general\\2026-08-28\\post_1CeVjxh35qQF2UvGiNPLrg_0.jpg",
+    "byte_size": 12964,
+    "size_kb": "12.7",
+    "sha256_full": "52aacf5a0da256aff0d22215e1c98cf86f0470839ce662ac5620b1f60962dbb0",
+    "sha256_short": "52aacf5a",
+    "gate_passed": false,
+    "fail_reason": "文件过小 (12.7 KB <= 15KB)，判定为骨架屏或表情包",
+    "created_at": 1787947258305,
+    "sender": "yhhaaland123"
+  },
+  {
+    "post_id": "post_1CeVjxh35qQF2UvGiNPLrg",
+    "attachment_index": 1,
+    "file_name": "post_1CeVjxh35qQF2UvGiNPLrg_1.jpg",
+    "saved_path": "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\whop-wechat-bridge\\data\\media\\general\\2026-08-28\\post_1CeVjxh35qQF2UvGiNPLrg_1.jpg",
+    "byte_size": 11492,
+    "size_kb": "11.2",
+    "sha256_full": "ad75f2bb1c19a8165280025fbdf33e21e878cb203c8cc303496f574c5e64975f",
+    "sha256_short": "ad75f2bb",
+    "gate_passed": false,
+    "fail_reason": "文件过小 (11.2 KB <= 15KB)，判定为骨架屏或表情包",
+    "created_at": 1787947258305,
+    "sender": "yhhaaland123"
+  }
+]
