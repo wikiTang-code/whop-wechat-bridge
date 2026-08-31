@@ -1,16 +1,16 @@
 {
-  "chat_feed_1CTr7QocNpDZ9FXZ6fvWe4": {
-    "feed_id": "chat_feed_1CTr7QocNpDZ9FXZ6fvWe4",
-    "name": "不用翻墙美股发布",
-    "channel_class": "broadcast",
-    "purpose": "L2a 交易口播与发布核心区",
-    "is_l2a_primary": true
-  },
   "forum_feed_1CTr7SqVMzFfuFiiRJLEHN": {
     "feed_id": "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
     "name": "历史股票期权记录区",
     "channel_class": "record",
-    "purpose": "历史股票期权记录区 (原名)，独立产物与长文记录",
+    "purpose": "赵哥全量口播交易母库 + 战法长文（L2a/L2b 跟单与抽取主源）",
+    "is_l2a_primary": true
+  },
+  "chat_feed_1CTr7QocNpDZ9FXZ6fvWe4": {
+    "feed_id": "chat_feed_1CTr7QocNpDZ9FXZ6fvWe4",
+    "name": "不用翻墙美股发布",
+    "channel_class": "broadcast",
+    "purpose": "实时短发布频道，独立 feed",
     "is_l2a_primary": false
   },
   "chat_feed_1CTrCEx44dP13jW3RVkYiS": {
@@ -36,9 +36,9 @@
   },
   "chat_feed_1CWLuNUVYVVYttro8gAvJ5": {
     "feed_id": "chat_feed_1CWLuNUVYVVYttro8gAvJ5",
-    "name": "历史股票期权记录区(备份)",
-    "channel_class": "record_backup",
-    "purpose": "历史备份区",
+    "name": "市值理论100跌50 公式记录",
+    "channel_class": "formula",
+    "purpose": "反弹一半 (高+低)/2 公式推导专项记录",
     "is_l2a_primary": false
   },
   "chat_feed_1CabPvHkbHhMwHft19jd83": {
