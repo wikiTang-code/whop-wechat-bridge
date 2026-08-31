@@ -603,5 +603,48 @@ router.get('/l2b/drycut20', (req, res) => {
   }
 });
 
+/**
+ * 5. 个股时间轴接口: GET /api/ticker_timeline/:symbol
+ */
+router.get('/ticker_timeline/:symbol', (req, res) => {
+  const symbol = (req.params.symbol || 'TSLL').toUpperCase();
+  const filePath = `data/runs/ticker_timeline/merged/${symbol}.jsonl`;
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ success: false, error: `未找到标的 ${symbol} 的时间轴数据文件` });
+  }
+
+  try {
+    const lines = fs.readFileSync(filePath, 'utf-8').trim().split('\n').filter(Boolean);
+    const allEvents = lines.map(l => JSON.parse(l));
+    
+    // 只取 is_canonical 主事件，副本作为附带数据
+    const canonicalEvents = allEvents.filter(e => e.is_canonical);
+    const dupEvents = allEvents.filter(e => !e.is_canonical);
+
+    // 统计各类型数量
+    const stats = {
+      total: allEvents.length,
+      canonical_total: canonicalEvents.length,
+      cross_feed_dup: dupEvents.length,
+      qa_view: canonicalEvents.filter(e => e.kind === 'VIEW').length,
+      qa_level: canonicalEvents.filter(e => e.kind === 'LEVEL').length,
+      l2a_fill: canonicalEvents.filter(e => e.kind === 'FILL').length,
+      l2a_plan: canonicalEvents.filter(e => e.kind === 'PLAN').length,
+      playbook: canonicalEvents.filter(e => e.kind === 'PLAYBOOK').length,
+      chart: canonicalEvents.filter(e => e.kind === 'CHART').length
+    };
+
+    res.json({
+      success: true,
+      symbol,
+      family: symbol === 'TSLL' || symbol === 'TSLA' ? 'TSLA' : symbol,
+      stats,
+      events: canonicalEvents
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 export default router;
 

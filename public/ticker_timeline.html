@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个股时间轴演进透视 - Ticker Timeline</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel-bg: #161b22;
+      --card-bg: #21262d;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --text-bright: #f0f6fc;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --yellow: #d29922;
+      --orange: #db6d28;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 16px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .title-area h1 {
+      font-size: 20px;
+      color: var(--text-bright);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+    .family-nav {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn-toggle {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-toggle.active {
+      background: #1f6feb;
+      border-color: #388bfd;
+      color: #fff;
+      font-weight: bold;
+    }
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 2px;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .timeline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .month-header {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--accent);
+      padding: 6px 10px;
+      background: rgba(56, 139, 253, 0.1);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 4px 4px 0;
+      margin-top: 8px;
+    }
+    .event-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      position: relative;
+    }
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .kind-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .kind-FILL { background: rgba(63, 185, 80, 0.2); color: #3fb950; border: 1px solid #3fb950; }
+    .kind-PLAN { background: rgba(210, 153, 34, 0.2); color: #d29922; border: 1px solid #d29922; }
+    .kind-VIEW { background: rgba(88, 166, 255, 0.2); color: #58a6ff; border: 1px solid #388bfd; }
+    .kind-LEVEL { background: rgba(188, 140, 255, 0.2); color: #bc8cff; border: 1px solid #bc8cff; }
+    .kind-PLAYBOOK { background: rgba(219, 109, 40, 0.2); color: #db6d28; border: 1px solid #db6d28; }
+    .kind-CHART { background: rgba(46, 160, 67, 0.2); color: #2ea043; border: 1px solid #2ea043; }
+
+    .qa-box {
+      margin-bottom: 6px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .qa-prompt {
+      background: #12161c;
+      border-left: 3px solid #8b949e;
+      color: #8b949e;
+      margin-bottom: 6px;
+    }
+    .qa-answer {
+      color: var(--text-bright);
+      line-height: 1.4;
+      font-size: 13px;
+    }
+    .action-details {
+      display: inline-flex;
+      gap: 12px;
+      padding: 4px 8px;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .macro-note-badge {
+      display: inline-block;
+      font-size: 10px;
+      background: rgba(210, 153, 34, 0.15);
+      color: #d29922;
+      border: 1px solid #9e6a03;
+      padding: 1px 5px;
+      border-radius: 3px;
+      margin-left: 6px;
+    }
+    .raw-toggle {
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .raw-content {
+      margin-top: 6px;
+      padding: 6px;
+      background: #010409;
+      border: 1px solid #21262d;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: pre-wrap;
+      color: #8b949e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title-area">
+        <h1>📈 <span id="ticker-title">TSLL</span> 个股分析与操作演进轴</h1>
+        <span class="badge" style="background:#238636; color:#fff;" id="family-badge">特斯拉族</span>
+      </div>
+      <div class="family-nav">
+        <span style="font-size:12px; color:var(--text-muted);">同标的族切换:</span>
+        <a href="/ticker_timeline.html?symbol=TSLL" id="btn-tsll" class="btn-toggle">TSLL (2x杠杆)</a>
+        <a href="/ticker_timeline.html?symbol=TSLA" id="btn-tsla" class="btn-toggle">TSLA (正股)</a>
+        <a href="/review_workbench.html" class="btn-toggle" style="background:#21262d; color:#58a6ff;">← 返回工作台</a>
+      </div>
+    </header>
+
+    <!-- 核心统计概览卡片 -->
+    <div class="stats-bar" id="stats-container">
+      <div class="stat-card">
+        <div class="stat-label">主线独立事件</div>
+        <div class="stat-num" id="stat-canonical" style="color:var(--text-bright);">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">答疑看法 (VIEW)</div>
+        <div class="stat-num" id="stat-view" style="color:var(--accent);">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">价位/公式 (LEVEL)</div>
+        <div class="stat-num" id="stat-level" style="color:var(--purple);">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">跟单成交 (FILL)</div>
+        <div class="stat-num" id="stat-fill" style="color:var(--green);">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">计划挂单 (PLAN)</div>
+        <div class="stat-num" id="stat-plan" style="color:var(--yellow);">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">战法口诀 (PLAYBOOK)</div>
+        <div class="stat-num" id="stat-playbook" style="color:var(--orange);">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">跨频道折叠</div>
+        <div class="stat-num" id="stat-dup" style="color:var(--text-muted);">0</div>
+      </div>
+    </div>
+
+    <!-- 过滤器与说明 -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:12px; color:var(--text-muted); flex-wrap:wrap; gap:8px;">
+      <div>
+        <span>筛选事件: </span>
+        <label style="margin-right:8px; cursor:pointer;"><input type="checkbox" checked onchange="filterEvents('FILL')" id="f-fill"> <span style="color:var(--green)">成交(FILL)</span></label>
+        <label style="margin-right:8px; cursor:pointer;"><input type="checkbox" checked onchange="filterEvents('PLAN')" id="f-plan"> <span style="color:var(--yellow)">计划(PLAN)</span></label>
+        <label style="margin-right:8px; cursor:pointer;"><input type="checkbox" checked onchange="filterEvents('VIEW')" id="f-view"> <span style="color:var(--accent)">答疑看法(VIEW)</span></label>
+        <label style="margin-right:8px; cursor:pointer;"><input type="checkbox" checked onchange="filterEvents('LEVEL')" id="f-level"> <span style="color:var(--purple)">价位(LEVEL)</span></label>
+        <label style="margin-right:8px; cursor:pointer;"><input type="checkbox" checked onchange="filterEvents('PLAYBOOK')" id="f-playbook"> <span style="color:var(--orange)">口诀(PLAYBOOK)</span></label>
+      </div>
+      <div>
+        <span>按时间倒序展开</span>
+      </div>
+    </div>
+
+    <!-- 时间轴流容器 -->
+    <div class="timeline-list" id="timeline-container">
+      <div style="text-align:center; padding:40px; color:var(--text-muted);">正在加载时间轴数据...</div>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const CURRENT_SYMBOL = (urlParams.get('symbol') || 'TSLL').toUpperCase();
+
+    // 活跃导航高亮
+    if (CURRENT_SYMBOL === 'TSLA') {
+      document.getElementById('btn-tsla').classList.add('active');
+    } else {
+      document.getElementById('btn-tsll').classList.add('active');
+    }
+    document.getElementById('ticker-title').innerText = CURRENT_SYMBOL;
+
+    let globalEvents = [];
+    const activeFilters = { FILL: true, PLAN: true, VIEW: true, LEVEL: true, PLAYBOOK: true, CHART: true };
+
+    function filterEvents(kind) {
+      const chk = document.getElementById('f-' + kind.toLowerCase());
+      if (chk) activeFilters[kind] = chk.checked;
+      renderTimeline();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // 检查是否属于「问个股，答大盘/宏观」
+    function isMacroAnswer(ansText) {
+      if (!ansText) return false;
+      return /大盘|财政|被动减|板块|亚洲|周四|宏观|换汇|回流美国|冷门|普涨/.test(ansText) && !/TSLL|TSLA|特斯拉/i.test(ansText);
+    }
+
+    async function loadTimeline() {
+      try {
+        const res = await fetch('/api/ticker_timeline/' + CURRENT_SYMBOL);
+        const data = await res.json();
+        if (!data.success) {
+          document.getElementById('timeline-container').innerHTML = '<div style="color:var(--red); text-align:center; padding:40px;">' + data.error + '</div>';
+          return;
+        }
+
+        // 渲染统计
+        const stats = data.stats;
+        document.getElementById('stat-canonical').innerText = stats.canonical_total;
+        document.getElementById('stat-view').innerText = stats.qa_view;
+        document.getElementById('stat-level').innerText = stats.qa_level;
+        document.getElementById('stat-fill').innerText = stats.l2a_fill;
+        document.getElementById('stat-plan').innerText = stats.l2a_plan;
+        document.getElementById('stat-playbook').innerText = stats.playbook;
+        document.getElementById('stat-dup').innerText = stats.cross_feed_dup;
+
+        globalEvents = data.events.sort((a, b) => (b.et_date + b.et_time).localeCompare(a.et_date + a.et_time));
+        renderTimeline();
+      } catch (err) {
+        document.getElementById('timeline-container').innerHTML = '<div style="color:var(--red); text-align:center; padding:40px;">加载时间轴失败: ' + err.message + '</div>';
+      }
+    }
+
+    function renderTimeline() {
+      const container = document.getElementById('timeline-container');
+      container.innerHTML = '';
+
+      let currentMonth = '';
+      const filtered = globalEvents.filter(e => activeFilters[e.kind]);
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">当前筛选条件下无事件</div>';
+        return;
+      }
+
+      filtered.forEach(ev => {
+        const month = ev.et_date.slice(0, 7);
+        if (month !== currentMonth) {
+          currentMonth = month;
+          const monthHeader = document.createElement('div');
+          monthHeader.className = 'month-header';
+          monthHeader.innerText = '📅 ' + month + ' 交易月演进';
+          container.appendChild(monthHeader);
+        }
+
+        const card = document.createElement('div');
+        card.className = 'event-card';
+
+        const isMacro = (ev.ticker_origin === 'question') && isMacroAnswer(ev.evidence_span);
+        const macroBadge = isMacro ? '<span class="macro-note-badge">问 ' + CURRENT_SYMBOL + '，答大盘/资金机制</span>' : '';
+
+        // 动作卡片展示
+        let actionHtml = '';
+        if (ev.kind === 'FILL' || ev.kind === 'PLAN') {
+          const l2a = ev.l2a || {};
+          const actColor = l2a.action === 'BUY' ? 'var(--green)' : 'var(--red)';
+          actionHtml = `
+            <div class="action-details">
+              <span style="color:${actColor}">跟单动作: ${l2a.action || 'ACTION'}</span>
+              ${l2a.price ? `<span>价位: $${l2a.price}</span>` : ''}
+              ${l2a.quantity ? `<span>仓位/份数: ${l2a.quantity}</span>` : ''}
+              <span style="color:var(--text-muted)">状态: ${l2a.status || 'planned'}</span>
+            </div>
+          `;
+        }
+
+        // 口诀展示
+        let playbookHtml = '';
+        if (ev.kind === 'PLAYBOOK') {
+          playbookHtml = `
+            <div style="background:#12161c; border-left:3px solid var(--orange); padding:6px 8px; margin-bottom:6px; font-size:12px; color:#f0883e;">
+              <strong>战法口诀:</strong> ${escapeHtml(ev.statement || ev.evidence_span)}
+              ${ev.kid ? `<span style="font-size:10px; color:var(--text-muted); margin-left:8px;">[${escapeHtml(ev.kid)}]</span>` : ''}
+            </div>
+          `;
+        }
+
+        // 问答对展示
+        let qaHtml = '';
+        if (ev.prompt_span) {
+          qaHtml += `<div class="qa-box qa-prompt">❓ <strong>群友问句:</strong> ${escapeHtml(ev.prompt_span)}</div>`;
+        }
+        if (ev.evidence_span) {
+          qaHtml += `<div class="qa-box qa-answer">🗣️ <strong>赵哥发言:</strong> ${escapeHtml(ev.evidence_span)} ${macroBadge}</div>`;
+        }
+
+        card.innerHTML = `
+          <div class="event-header">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="kind-badge kind-${ev.kind}">${ev.kind}</span>
+              <strong style="color:var(--text-bright);">${ev.et_date} ${ev.et_time}</strong>
+              <span style="color:var(--text-muted); font-size:11px;">📡 ${escapeHtml(ev.channel_name || ev.feed_id)}</span>
+            </div>
+            <div style="color:var(--text-muted); font-size:10px;">
+              🔑 <code>${escapeHtml(ev.post_id)}</code>
+            </div>
+          </div>
+          ${actionHtml}
+          ${playbookHtml}
+          ${qaHtml}
+          <details class="raw-toggle">
+            <summary>展开查看消息原文证据</summary>
+            <div class="raw-content">${escapeHtml(ev.evidence_span || '')}</div>
+          </details>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    loadTimeline();
+  </script>
+</body>
+</html>
