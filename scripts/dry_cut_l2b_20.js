@@ -19,6 +19,25 @@ function getRealFileSha(filePath) {
   return crypto.createHash('sha256').update(buf).digest('hex').slice(0, 16);
 }
 
+// 递归查找目录下的所有图片
+function getAllLocalMediaFiles(dir, ext = '.jpg') {
+  let results = [];
+  if (!fs.existsSync(dir)) return results;
+  const list = fs.readdirSync(dir);
+  list.forEach(file => {
+    const fullPath = path.join(dir, file);
+    const stat = fs.statSync(fullPath);
+    if (stat && stat.isDirectory()) {
+      results = results.concat(getAllLocalMediaFiles(fullPath, ext));
+    } else if (file.endsWith(ext)) {
+      results.push({ path: fullPath.replace(/\\/g, '/'), size: stat.size });
+    }
+  });
+  return results;
+}
+
+const ALL_LOCAL_MEDIA = getAllLocalMediaFiles('data/media/zhao');
+
 // 2. 拼装单条战法窗
 function buildWindow(targetMsg, seedMetadata = {}) {
   const channelId = targetMsg.channel_id;
@@ -61,36 +80,25 @@ function buildWindow(targetMsg, seedMetadata = {}) {
     const stat = fs.statSync(seedMetadata.local_path);
     images.push({
       post_id: targetMsg.id,
-      local_path: seedMetadata.local_path,
+      local_path: seedMetadata.local_path.replace(/\\/g, '/'),
       image_sha: sha,
       size_bytes: stat.size
     });
   }
 
-  // 2. 遍历窗内全部 7 条消息，自动关联本地所有已下载真图
+  // 2. 遍历窗内全部 7 条消息，从本地全量图库匹配属于该消息 post_id 的真图
   for (const m of allMsgs) {
-    if (m.attachments) {
-      try {
-        const atts = typeof m.attachments === 'string' ? JSON.parse(m.attachments) : m.attachments;
-        if (Array.isArray(atts)) {
-          for (const att of atts) {
-            if (att.local_path && fs.existsSync(att.local_path)) {
-              const stat = fs.statSync(att.local_path);
-              if (stat.size > 5 * 1024) { // 有效图
-                const sha = getRealFileSha(att.local_path);
-                if (!images.some(img => img.local_path === att.local_path)) {
-                  images.push({
-                    post_id: m.id,
-                    local_path: att.local_path,
-                    image_sha: sha,
-                    size_bytes: stat.size
-                  });
-                }
-              }
-            }
-          }
-        }
-      } catch (e) {}
+    const matchedFiles = ALL_LOCAL_MEDIA.filter(f => f.path.includes(m.id));
+    for (const mf of matchedFiles) {
+      if (!images.some(img => img.local_path === mf.path)) {
+        const sha = getRealFileSha(mf.path);
+        images.push({
+          post_id: m.id,
+          local_path: mf.path,
+          image_sha: sha,
+          size_bytes: mf.size
+        });
+      }
     }
   }
 
