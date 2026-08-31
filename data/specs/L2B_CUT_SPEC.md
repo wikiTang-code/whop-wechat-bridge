@@ -114,7 +114,7 @@ L2b 切窗产物写入独立的 `data/runs/l2b_knowledge_*.jsonl`，每条记录
 | **G1** | 波动值高抛底吸 | `k_wave_value_extremes` | `proposed_unlocated` | `unlocated` | `no_image` |
 | **G2** | 尾盘 15:50 V反 | `k_late_session_v_reversal` | `proposed_unlocated` | `unlocated` | `no_image` |
 | **G3** | 整数位急跌买回 (CRWV@86) | `k_dip_buy_round_number` | 2026-07-01 增量广播切窗 | `forum_feed_1CTr7SqVMzFfuFiiRJLEHN` | `no_image` |
-| **G4** | 二次握手 + 没利润垫不过财报 | `k_second_handshake` | **`post_1CUmieqA3rqzHWzhDCDkrD`** (2025-11-03) | `forum_feed_1CTr7SqVMzFfuFiiRJLEHN` | `no_image` |
+| **G4** | 盘中二次握手博弈财报 (在二次握手吸) | `k_second_handshake` | **`post_1CUmhoAGUop4SppGjvML7p`** (2025-11-03) | `forum_feed_1CTr7SqVMzFfuFiiRJLEHN` | `no_image` |
 | **G5** | 4-28 被动减全文与缺口回买 | `k_passive_redeem_then_rebuy` | **`post_1CaWLMfYvJsZHjS9ugtaPj`** (2026-04-28) | `chat_feed_1CTrCEx44dP13jW3RVkYiS` | `no_image` |
 | **g_img_001** | 九转序列数学曲率图 | `k_nine_turn_sequence` | **`post_1CXYCpXPkLs5VVnU5aBkJe`** (2026-01-27) | `chat_feed_1CU95KbtifP1JtuqTiVXZb` | `data/media/zhao/2026-01-27/post_1CXYCpXPkLs5VVnU5aBkJe_0.jpg` |
 | **g_img_002** | 看转弯两次有效拐点图 | `k_focus_on_inflection_turn` | **`post_1CYDwHo9hVfbwciyfsR9sa`** (2026-02-17) | `chat_feed_1CU95KbtifP1JtuqTiVXZb` | `data/media/zhao/2026-02-17/post_1CYDwHo9hVfbwciyfsR9sa_0.jpg` |
