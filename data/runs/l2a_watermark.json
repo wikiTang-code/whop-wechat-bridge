@@ -1,8 +1,8 @@
 {
   "base_dataset": "l2a_broadcast_candidates_1195_cleaned.jsonl",
   "base_last_cu_id": "cu_incr_20260828_incr01_00246",
-  "last_watermark_iso": "2026-08-28T16:47:24.129Z",
-  "last_watermark_ts": 1787935644129,
-  "last_run_id": "20260828_incr01",
-  "updated_at": "2026-08-29T06:03:28.176Z"
+  "last_watermark_iso": "2026-08-31T03:58:14.825Z",
+  "last_watermark_ts": 1788148694825,
+  "last_run_id": "20260830_incr02",
+  "updated_at": "2026-08-31T05:00:13.237Z"
 }

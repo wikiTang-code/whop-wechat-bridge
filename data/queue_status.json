@@ -1,39 +1,39 @@
 {
-  "updated_at": "2026-08-31T01:22:57.139Z",
-  "badge_summary": "库至 08/30 20:44 · 图待下 0 · L2a 切窗已至 08-28",
+  "updated_at": "2026-08-31T05:00:23.219Z",
+  "badge_summary": "库至 08/30 23:58 · 图待下 0 · L2a 切窗已至 08/30 23:58",
   "database_overview": {
-    "total_messages": 75981,
-    "total_ingest_events": 10448
+    "total_messages": 76003,
+    "total_ingest_events": 10470
   },
   "watermarks": {
     "wm_raw": {
-      "last_ts": 1788137082900,
-      "last_date_et": "08/30 20:44",
-      "last_id": "post_1CeZuDUxdYtjckChAM4WGN",
-      "updated_at": "2026-08-31T01:19:29.560Z"
+      "last_ts": 1788148694825,
+      "last_date_et": "08/30 23:58",
+      "last_id": "post_1Cea9yRyVzKmAAdYEdBtGA",
+      "updated_at": "2026-08-31T04:59:39.187Z"
     },
     "wm_media": {
-      "last_ts": 1788135921000,
-      "last_date_et": "08/30 20:25",
-      "last_id": "post_1CeZskZeTudbyBxxM5pxz9",
-      "updated_at": "2026-08-31T01:22:56.989Z"
+      "last_ts": 1788145160495,
+      "last_date_et": "08/30 22:59",
+      "last_id": "post_1Cea5Ur7y9T97pXk82ATp3",
+      "updated_at": "2026-08-31T04:59:39.414Z"
     },
     "wm_l2a_cut": {
-      "last_ts": 1787961600000,
-      "last_date_et": "08/28 20:00",
-      "last_id": "post_1CeVzEvXP5LptWq4o78Uf5",
-      "updated_at": "2026-08-31T01:22:56.989Z"
+      "last_ts": 1788148694825,
+      "last_date_et": "08/30 23:58",
+      "last_id": "post_1Cea9yRyVzKmAAdYEdBtGA",
+      "updated_at": "2026-08-31T05:00:13.237Z"
     }
   },
   "queues": {
     "media": {
       "pending": 0,
       "running": 0,
-      "ok": 5,
+      "ok": 8,
       "skipped": 411,
       "paused": 0,
       "failed": 0,
-      "total": 416
+      "total": 419
     },
     "l2a_cut": {
       "pending": 0,

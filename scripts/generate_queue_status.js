@@ -71,9 +71,9 @@ export function generateQueueStatus() {
   // 生成人类可读状态徽章文案 (完整日期不截断)
   const rawDateStr = wmMap['wm_raw']?.last_date_et || '未同步';
   const mediaPending = queues['media']?.pending || 0;
-  const l2aDateStr = wmMap['wm_l2a_cut']?.last_date_et || '08-28';
+  const l2aDateStr = wmMap['wm_l2a_cut']?.last_date_et || '08-30';
   
-  const badgeSummary = `库至 ${rawDateStr} · 图待下 ${mediaPending} · L2a 切窗已至 08-28`;
+  const badgeSummary = `库至 ${rawDateStr} · 图待下 ${mediaPending} · L2a 切窗已至 ${l2aDateStr}`;
 
   const statusPayload = {
     updated_at: new Date().toISOString(),

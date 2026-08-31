@@ -69,22 +69,27 @@ function loadL2bData() {
         cachedL2bZhaoMap.get(item.cu_id).push(item);
       }
     }
-    // 2. W8: 增量批次战法命中合并 (例如 l2b_hits_20260828_incr01.jsonl 或指针指定文件)
+    // 2. W8: 增量批次战法命中合并 (遍历 pointer.runs 挂载的所有批次，或指定 latest_run_id)
     if (fs.existsSync(INCR_POINTER_PATH)) {
       try {
         const pointer = JSON.parse(fs.readFileSync(INCR_POINTER_PATH, 'utf-8'));
-        const runId = pointer.latest_run_id || '20260828_incr01';
-        const incrHitsPath = `data/runs/l2b_hits_${runId}.jsonl`;
-        if (fs.existsSync(incrHitsPath)) {
-          const incrLines = fs.readFileSync(incrHitsPath, 'utf-8').trim().split('\n').filter(Boolean);
-          for (const l of incrLines) {
-            const item = JSON.parse(l);
-            if (!cachedL2bZhaoMap.has(item.cu_id)) cachedL2bZhaoMap.set(item.cu_id, []);
-            cachedL2bZhaoMap.get(item.cu_id).push(item);
+        const runFiles = pointer.runs || [pointer.incremental_path || 'data/runs/l2a_cleaned_20260828_incr01.jsonl'];
+        
+        for (const runFile of runFiles) {
+          const runIdMatch = runFile.match(/l2a_cleaned_(.*?)\.jsonl/);
+          const rId = runIdMatch ? runIdMatch[1] : (pointer.latest_run_id || '20260828_incr01');
+          const incrHitsPath = `data/runs/l2b_hits_${rId}.jsonl`;
+          if (fs.existsSync(incrHitsPath)) {
+            const incrLines = fs.readFileSync(incrHitsPath, 'utf-8').trim().split('\n').filter(Boolean);
+            for (const l of incrLines) {
+              const item = JSON.parse(l);
+              if (!cachedL2bZhaoMap.has(item.cu_id)) cachedL2bZhaoMap.set(item.cu_id, []);
+              cachedL2bZhaoMap.get(item.cu_id).push(item);
+            }
           }
         }
       } catch (e) {
-        console.error("[L2Workbench] 读取增量 L2b hits 异常:", e);
+        console.error('[L2Workbench] 加载增量批次 L2b 战法失败:', e.message);
       }
     }
   }

@@ -150,7 +150,7 @@ export function dispatchIngestTopHalf(rawMsg) {
     insertMsgStmt.run(
       rawMsg.id,
       channelId,
-      channelName,
+      canonicalChannelName,
       senderId,
       senderName,
       text,
@@ -163,7 +163,7 @@ export function dispatchIngestTopHalf(rawMsg) {
       rawMsg.id,
       createdAt,
       channelId,
-      channelName,
+      canonicalChannelName,
       channelClass,
       speaker,
       JSON.stringify(flags),
