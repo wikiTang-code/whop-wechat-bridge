@@ -117,3 +117,26 @@ UI 严格按照**交易决策流**由上至下排列：
 1. **进程隔离**：`server.js` 仅处理在线轮询、Web UI 与交易跟单，研究批处理（如 1,195 组夜跑）运行在独立 Worker 进程中；
 2. **数据库锁保护**：离线研究任务禁止向 `orders`、`follow_decisions` 等实盘交易表写入任何虚拟数据；
 3. **风控参数属性**：`90s TTL` 与 `40bp 滑点拒单` 属于 `exec` 层的 **工程默认安全参数 (unverified_default)**，绝不混淆为大V原语。
+
+---
+
+## 五、资产读写权限矩阵与 exec 四重硬门禁（2026-08-30 权威基线）
+
+> 详见权威规范文档：[`data/specs/ASSET_USAGE_AND_NEXT_STEPS_20260830.md`](./ASSET_USAGE_AND_NEXT_STEPS_20260830.md) (Commit `573c77b`)
+
+### 1. 四类资产读写权限表
+
+| 资产 | 读 (Read) | 写 (Write) | 绝对禁止 (Prohibited) |
+|---|---|---|---|
+| **L2a 候选流 (1195+246)** | 工作台、抽检、人审 | 仅离线 pipeline 追加 incr；人审 append jsonl | 自动 place_order；改 1195/246 原文 |
+| **L2b 战法 (25 hits + 金标种子 + 周哥 hint_only)** | 工作台右列闸门、看盘 | 仅 proposed 增量；gold 需人审 | 当 BUY/SELL；写入 registry；混进 L2a actions |
+| **图** | 金标配图、人眼核 | 近窗活签 + size>15KB + SHA 去重 | 占位图训练；老帖硬打 S3 |
+| **人审 `l2a_human_verified_actions.jsonl`** | 工作台左/中列状态 | 仅 ack/dismiss append | 当成成交回写 L2a jsonl |
+
+### 2. exec 进口四重必要条件（缺一绝不可讨论下单）
+
+进入实盘执行队列（`exec`）必须同时满足以下四项条件，缺一不可：
+1. **L2a `human_verified`**（人工在工作台显式核准通过）；
+2. **Ticker 白名单**（标的必须在合规实盘交易白名单内）；
+3. **L2b 闸门未拒**（通过死区、叠仓与重大事件风控纪律拦截）；
+4. **券商 fills 对账不再 exit 2**（真实券商链路连通且流水对账一致）。
