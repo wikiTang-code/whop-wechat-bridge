@@ -172,10 +172,15 @@ ${msgsText}
 
 // Rate limiter for authentication attempts
 const authAttempts = new Map();
-const AUTH_RATE_LIMIT = 10; // max attempts per window
+// 提高限制，且对本地 IP (127.0.0.1) 与内部网段直接放行
+const AUTH_RATE_LIMIT = 1000; // max attempts per window (practically unlimited)
 const AUTH_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 
 function checkAuthRateLimit(ip) {
+  // 本地回环或内网直接放行
+  if (ip === '127.0.0.1' || ip.startsWith('10.') || ip.startsWith('192.168.') || ip.startsWith('172.16.')) {
+    return true;
+  }
   const now = Date.now();
   const record = authAttempts.get(ip);
   if (!record || now - record.windowStart > AUTH_WINDOW_MS) {
@@ -183,8 +188,10 @@ function checkAuthRateLimit(ip) {
     return true;
   }
   record.count++;
+  // 若已超过阈值，返回 false；否则 true
   return record.count <= AUTH_RATE_LIMIT;
 }
+
 
 // Timing-safe string comparison
 function safeCompare(a, b) {
@@ -2574,7 +2581,7 @@ process.on('SIGTERM', () => {
 });
 
 // Start Express server and background Poller
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`=================================================`);
   console.log(`Whop Webhook & Bridge Server running on port ${PORT}`);
   console.log(`Web Dashboard: http://localhost:${PORT}`);
