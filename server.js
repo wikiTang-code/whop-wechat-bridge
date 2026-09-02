@@ -92,3 +92,14 @@ let cachedVerbalExposure = {
 };
 
 const AUTH_RATE_LIMIT = 10; // max attempts per 15-minute window
+const AUTH_WINDOW_MS = 15 * 60 * 1000;
+function checkAuthRateLimit(ip) {
+  const now = Date.now();
+  const record = authAttempts.get(ip);
+  if (!record || now - record.windowStart > AUTH_WINDOW_MS) {
+    authAttempts.set(ip, { windowStart: now, count: 1 });
+    return true;
+  }
+  record.count++;
+  return record.count <= AUTH_RATE_LIMIT;
+}
