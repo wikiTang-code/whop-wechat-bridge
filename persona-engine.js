@@ -21,9 +21,9 @@ import {
 import {
   analyzeWithGeminiMultimodal,
   extractImageUrls,
-  analyzeWithGemini,
   analyzeWithLMStudio,
-  analyzeWithOllama
+  analyzeWithOllama,
+  analyzeWithFallback
 } from './monitor.js';
 import { addTask } from './task-queue.js';
 
@@ -172,55 +172,11 @@ async function callLocalAI(provider, prompt) {
  * 高质量任务 → Gemini API（Reduce 合成、最终白皮书生成）
  */
 export async function callCloudAI(prompt, preferredProvider = null) {
-  const provider = preferredProvider || process.env.AI_PROVIDER || 'gemini';
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  const tryGemini = async () => {
-    if (!apiKey) throw new Error('GEMINI_API_KEY is not set');
-    return await analyzeWithGemini(apiKey, prompt);
-  };
-
-  const tryLocal = async () => {
-    const localProvider = provider === 'ollama' ? 'ollama' : 'lm-studio';
-    return await callLocalAI(localProvider, prompt);
-  };
-
-  // 1. 如果首选为本地模型
-  if (provider === 'lm-studio' || provider === 'ollama') {
-    try {
-      console.log(`[AI Router] [Persona] 优先使用本地模型 (${provider}) 进行推理...`);
-      return await tryLocal();
-    } catch (err) {
-      console.warn(`[AI Router] [Persona] 本地模型推理失败 (${err.message})，自动容灾升级到云端 Gemini...`);
-      if (apiKey) {
-        try {
-          return await tryGemini();
-        } catch (geminiErr) {
-          console.error('[AI Router] [Persona] 容灾升级至云端 Gemini 也宣告失败:', geminiErr.message);
-        }
-      }
-      throw err;
-    }
-  }
-
-  // 2. 首选为云端 Gemini (默认)
-  try {
-    const model = process.env.GEMINI_MODEL || 'gemini-flash-latest';
-    console.log(`[AI Router] [Persona] 优先使用云端 Gemini (${model}) 进行推理...`);
-    return await tryGemini();
-  } catch (err) {
-    const isQuotaExceeded = err.message.includes('429') || err.message.includes('quota') || err.message.includes('RESOURCE_EXHAUSTED');
-    if (isQuotaExceeded) {
-      console.warn(`[AI Router] [Persona] 检测到云端 Gemini 配额限流超标 (${err.message})，自动自愈降级至本地大模型...`);
-      try {
-        return await tryLocal();
-      } catch (localErr) {
-        console.error('[AI Router] [Persona] 降级至本地模型也失败了:', localErr.message);
-        throw err; // 若都失败则抛出原限流错
-      }
-    }
-    throw err;
-  }
+  // Bulk persona text: local 14B first even if AI_PROVIDER=gemini. Vision stays on Gemini multimodal.
+  return await analyzeWithFallback(prompt, {
+    provider: preferredProvider || process.env.AI_PROVIDER || 'lm-studio',
+    tag: 'Persona'
+  });
 }
 
 // ============================================================
@@ -685,12 +641,12 @@ async function synthesizePlaybook(eventAnalyses, communityInsights, existingPlay
   if (eventAnalyses.length <= BATCH_SIZE) {
     intermediateSummaries.push(eventAnalyses.join('\n\n---\n\n'));
   } else {
-    // 中间摘要也走 Gemini（需要跨 chunk 综合理解能力）
+    // 中间摘要走统一路由器（本地 14B 优先）
     for (let i = 0; i < eventAnalyses.length; i += BATCH_SIZE) {
       const batch = eventAnalyses.slice(i, i + BATCH_SIZE);
       const batchIdx = Math.floor(i / BATCH_SIZE) + 1;
       const totalBatches = Math.ceil(eventAnalyses.length / BATCH_SIZE);
-      updateStatus('running', `正在合成中间摘要 (Gemini)... (${batchIdx}/${totalBatches})`, 75 + Math.round(15 * batchIdx / totalBatches));
+      updateStatus('running', `正在合成中间摘要 (本地 14B 优先)... (${batchIdx}/${totalBatches})`, 75 + Math.round(15 * batchIdx / totalBatches));
 
       const intermediatePrompt = `以下是对一位美股交易员多个时间段的行为分析结果。请合并这些分析，提炼出关键的交易模式、策略偏好和行为特征。以清晰的要点形式输出中间合成结果。\n\n` + batch.join('\n\n---\n\n');
       const summary = await callCloudAI(intermediatePrompt, provider);
@@ -698,8 +654,8 @@ async function synthesizePlaybook(eventAnalyses, communityInsights, existingPlay
     }
   }
 
-  // Final synthesis → Gemini
-  updateStatus('running', '正在生成最终画像白皮书 (Gemini)...', 90);
+  // Final synthesis → local 14B first
+  updateStatus('running', '正在生成最终画像白皮书 (本地 14B 优先)...', 90);
 
   const allSummaries = intermediateSummaries.join('\n\n===\n\n');
   const communitySection = JSON.stringify(communityInsights, null, 2);
@@ -994,7 +950,7 @@ export async function processPersonaTask(task) {
     const communityInsights = mergeCommunityInsights([focusInsight, generalInsight]);
 
     // 2. Reduce 合成阶段：首选 Gemini API，自动 fallback 降级到本地大模型
-    // synthesizePlaybook 内部通过 callCloudAI 实现 Gemini→本地 的完整容灾降级链
+    // synthesizePlaybook 内部通过 callCloudAI → 本地 14B 优先，Gemini 稀疏兜底
     let usedModel = 'Gemini-Flash';
     let playbook;
     try {

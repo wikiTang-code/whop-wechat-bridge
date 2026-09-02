@@ -14,7 +14,7 @@ async function classifyCampaignStrategy(openReason) {
   if (cleanReason.includes('防御') || cleanReason.includes('防守') || cleanReason.includes('弹性')) return '弹性股防御';
   if (cleanReason.includes('做t') || cleanReason.includes('t+0') || cleanReason.includes('日内') || cleanReason.includes('低吸')) return '做T';
 
-  // 2. 语义模糊时，使用云端 AI 降级判定
+    // 2. 语义模糊时，使用本地 14B 判定（Gemini 仅稀疏兜底）
   const prompt = `请分析以下美股大V的建仓/开仓理由，将其归类到大V的 7 大核心交易战法分类之一。
 大V交易战法分类选项：
 - 财报战法 (利用财报预期/结果进行短线博弈)
@@ -32,11 +32,8 @@ async function classifyCampaignStrategy(openReason) {
 
   try {
     // 动态引入防止与 monitor.js 循环依赖
-    const { analyzeWithGemini } = await import('./monitor.js');
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return '做T';
-    
-    const res = await analyzeWithGemini(apiKey, prompt, 10);
+    const { analyzeWithFallback } = await import('./monitor.js');
+    const res = await analyzeWithFallback(prompt, { tag: 'Campaign', priority: 10 });
     const cleanRes = res.trim();
     const validStrats = ['财报战法', '节日被动减', '单调减', '尾盘强平', '做T', '弹性股防御', '规律总结'];
     for (const v of validStrats) {

@@ -12,6 +12,16 @@ import { downloadAndPersistAttachments } from './scripts/media_downloader.js';
 import { dispatchIngestTopHalf } from './scripts/ingest_dispatcher.js';
 import { runMediaWorker } from './scripts/media_worker.js';
 import { generateQueueStatus } from './scripts/generate_queue_status.js';
+import {
+  isGeminiKeyProtectError,
+  isLmContextExceeded,
+  isLmModelUnloaded,
+  shouldRotateGeminiKeyOnError,
+  truncatePromptForLocal,
+  shouldSkipGeminiFallback,
+  LOCAL_LM_DEFAULT_MODEL,
+  LOCAL_LM_DEFAULT_BASE
+} from './ai-router-policy.js';
 
 dotenv.config();
 
@@ -335,14 +345,21 @@ async function executeSingleEngine(engine, prompt, apiKey) {
 
         if (!response.ok) {
           const errText = await response.text();
-          
-          // 如果是 429 限流且还有备用 Key，直接秒级无缝漂移到下一个 Key，绝不硬等！
-          if (response.status === 429 && kIdx < shuffledKeys.length - 1) {
-            console.warn(`[Gemini API] Key #${kIdx + 1} 触发 429，秒级无缝漂移至下一 Key #${kIdx + 2} 尝试...`);
+          const statusErr = new Error(`Gemini API failed with status ${response.status}: ${errText}`);
+
+          // 429/401/invalid: do NOT burn Key #2 in a tight loop. Upper layer fails over to local 14B.
+          if (isGeminiKeyProtectError(statusErr) || !shouldRotateGeminiKeyOnError(statusErr)) {
+            console.warn(`[Gemini API] Key #${kIdx + 1} 触发 ${response.status} (429/401/invalid) — 不轮询下一把 Key，交由上层降级本地 14B`);
+            throw statusErr;
+          }
+
+          if (kIdx < shuffledKeys.length - 1) {
+            console.warn(`[Gemini API] Key #${kIdx + 1} 失败 (${response.status})，尝试下一把 Key #${kIdx + 2}...`);
+            lastErr = statusErr;
             continue;
           }
 
-          throw new Error(`Gemini API failed with status ${response.status}: ${errText}`);
+          throw statusErr;
         }
 
         const result = await response.json();
@@ -351,10 +368,14 @@ async function executeSingleEngine(engine, prompt, apiKey) {
           throw new Error('Gemini API returned empty content or invalid structure.');
         }
 
+        console.log(`[AI Router] served_by=gemini model=${model} key_slot=#${kIdx + 1} (no extra keys consumed)`);
         return content;
       } catch (err) {
         lastErr = err;
-        if (err.message.includes('429') && kIdx < shuffledKeys.length - 1) {
+        if (isGeminiKeyProtectError(err) || !shouldRotateGeminiKeyOnError(err)) {
+          throw err;
+        }
+        if (kIdx < shuffledKeys.length - 1) {
           continue;
         }
         break;
@@ -714,6 +735,8 @@ export async function analyzeWithLMStudio(baseUrl, model, prompt) {
   global.isAiGenerating = true;
   let attempts = 0;
   const maxAttempts = 3;
+  let workingPrompt = String(prompt || '');
+  let truncatedOnce = false;
 
   while (attempts < maxAttempts) {
     attempts++;
@@ -725,11 +748,11 @@ export async function analyzeWithLMStudio(baseUrl, model, prompt) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: model || process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct',
+          model: model || process.env.LM_STUDIO_MODEL || LOCAL_LM_DEFAULT_MODEL,
           messages: [
             {
               role: 'user',
-              content: prompt
+              content: workingPrompt
             }
           ],
           temperature: 0.2
@@ -738,6 +761,17 @@ export async function analyzeWithLMStudio(baseUrl, model, prompt) {
 
       if (!response.ok) {
         const errText = await response.text();
+        if (isLmContextExceeded(errText) && !truncatedOnce && workingPrompt.length > 2000) {
+          truncatedOnce = true;
+          const before = workingPrompt.length;
+          workingPrompt = truncatePromptForLocal(workingPrompt);
+          console.warn(`[LM Studio Local] context-exceeded (${before} chars) — truncating to ${workingPrompt.length} and retrying locally (not Gemini)`);
+          attempts = Math.max(0, attempts - 1);
+          continue;
+        }
+        if (isLmContextExceeded(errText)) {
+          throw new Error(`LM_CONTEXT_EXCEEDED: ${errText}`);
+        }
         throw new Error(`LM Studio API failed with status ${response.status}: ${errText}`);
       }
 
@@ -754,8 +788,22 @@ export async function analyzeWithLMStudio(baseUrl, model, prompt) {
       text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
       global.isAiGenerating = false;
+      console.log(`[AI Router] served_by=lm-studio model=${model || process.env.LM_STUDIO_MODEL || LOCAL_LM_DEFAULT_MODEL}`);
       return text;
     } catch (err) {
+      if (isLmContextExceeded(err) && !truncatedOnce && workingPrompt.length > 2000) {
+        truncatedOnce = true;
+        const before = workingPrompt.length;
+        workingPrompt = truncatePromptForLocal(workingPrompt);
+        console.warn(`[LM Studio Local] context-exceeded (${before} chars) — truncating to ${workingPrompt.length} and retrying locally (not Gemini)`);
+        attempts = Math.max(0, attempts - 1);
+        continue;
+      }
+      if (isLmContextExceeded(err)) {
+        global.isAiGenerating = false;
+        throw err.message.startsWith('LM_CONTEXT_EXCEEDED') ? err : new Error(`LM_CONTEXT_EXCEEDED: ${err.message}`);
+      }
+
       const isSocketOrConnError = 
         err.message.includes('socket hang up') || 
         err.message.includes('ECONNRESET') || 
@@ -789,37 +837,67 @@ function isNetworkConnectionError(err) {
          msg.includes('request timeout');
 }
 
-// Unified LLM call with fallback: primary provider -> Gemini (No block for low priorities)
+// Unified LLM call: local 14B first for bulk text; Gemini only for cloudOnly / sparse fallback.
 export async function analyzeWithFallback(prompt, options = {}) {
-  const primaryProvider = options.provider || process.env.AI_PROVIDER || 'gemini';
+  const requestedProvider = options.provider || process.env.AI_PROVIDER || 'lm-studio';
   const priority = options.priority !== undefined ? options.priority : 1;
+  const cloudOnly = options.cloudOnly === true;
+  const tag = options.tag || 'text';
+  const apiKey = process.env.GEMINI_API_KEY;
+  const baseUrl = options.baseUrl || process.env.LM_STUDIO_BASE_URL || LOCAL_LM_DEFAULT_BASE;
+  const model = options.model || process.env.LM_STUDIO_MODEL || LOCAL_LM_DEFAULT_MODEL;
 
-  // 1. 如果主要服务直接就是 gemini，直接调用
-  if (primaryProvider === 'gemini') {
-    const apiKey = process.env.GEMINI_API_KEY;
+  const tryGemini = async (reason) => {
     if (!apiKey) throw new Error('GEMINI_API_KEY is not set.');
+    console.log(`[AI Router] [${tag}] served_by=gemini (reason=${reason})`);
     return await analyzeWithGemini(apiKey, prompt, priority);
+  };
+
+  const tryLocal = async () => {
+    if (requestedProvider === 'ollama') {
+      const ollamaBase = options.baseUrl || process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+      const ollamaModel = options.model || process.env.OLLAMA_MODEL || 'deepseek-r1';
+      console.log(`[AI Router] [${tag}] served_by=ollama model=${ollamaModel}`);
+      return await analyzeWithOllama(ollamaBase, ollamaModel, prompt);
+    }
+    console.log(`[AI Router] [${tag}] trying local 14B first (${baseUrl} / ${model})`);
+    return await analyzeWithLMStudio(baseUrl, model, prompt);
+  };
+
+  // Explicit cloud-only (vision callers should use analyzeWithGeminiMultimodal instead).
+  if (cloudOnly) {
+    try {
+      return await tryGemini('cloudOnly');
+    } catch (err) {
+      if (isGeminiKeyProtectError(err)) {
+        console.warn(`[AI Router] [${tag}] Gemini 429/401/invalid — fail over to local 14B, not next key`);
+        return await tryLocal();
+      }
+      throw err;
+    }
   }
 
-  // 2. 检查本地模型熔断冷却期
   const isLocalOffline = Date.now() < lmStudioOfflineUntil;
-  if (isLocalOffline) {
-    console.log(`[LLM 熔断保护] 本地大模型处于 ${Math.round((lmStudioOfflineUntil - Date.now()) / 1000)}s 冷却熔断中。自动自愈降级到云端...`);
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error('Primary LLM failed and GEMINI_API_KEY not set.');
-    return await analyzeWithGemini(apiKey, prompt, priority);
+  if (isLocalOffline && apiKey) {
+    console.log(`[AI Router] [${tag}] local 14B in ${Math.round((lmStudioOfflineUntil - Date.now()) / 1000)}s cooldown — sparse Gemini fallback`);
+    try {
+      return await tryGemini('local-circuit-open');
+    } catch (err) {
+      if (isGeminiKeyProtectError(err)) {
+        console.warn(`[AI Router] [${tag}] Gemini 429/401/invalid during sparse fallback — not burning next key`);
+      }
+      throw err;
+    }
   }
 
-  // 3. 正常尝试本地连接
   let acquiredLockLocally = false;
+  let localErr = null;
   try {
-    // 检查并等待 GPU 锁释放 (如果是被 openmontage 占用了锁)
     while (global.gpuLock && global.gpuLock.isLocked && global.gpuLock.owner !== 'wechat-bridge') {
       console.log(`[GPU Scheduler] GPU 当前被 ${global.gpuLock.owner} 占用，微信大模型分析任务排队等待中...`);
       await new Promise(resolve => setTimeout(resolve, 5000));
     }
 
-    // 尝试锁定 GPU，宣示微信网桥正在进行推理
     if (global.gpuLock && !global.gpuLock.isLocked) {
       global.gpuLock = {
         isLocked: true,
@@ -829,27 +907,10 @@ export async function analyzeWithFallback(prompt, options = {}) {
       acquiredLockLocally = true;
     }
 
-    if (primaryProvider === 'lm-studio') {
-      const baseUrl = options.baseUrl || process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
-      const model = options.model || process.env.LM_STUDIO_MODEL || 'qwen';
-      console.log('[LLM] Trying remote LM Studio: ' + baseUrl);
-      return await analyzeWithLMStudio(baseUrl, model, prompt);
-    } else if (primaryProvider === 'ollama') {
-      const baseUrl = options.baseUrl || process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-      const model = options.model || process.env.OLLAMA_MODEL || 'deepseek-r1';
-      console.log('[LLM] Trying Ollama: ' + baseUrl);
-      return await analyzeWithOllama(baseUrl, model, prompt);
-    }
+    return await tryLocal();
   } catch (e) {
-    console.warn('[LLM] ' + primaryProvider + ' failed: ' + e.message + '。自愈触发，降级到云端。');
-    
-    // 如果是网络连接异常，激活熔断器
-    if (isNetworkConnectionError(e)) {
-      lmStudioOfflineUntil = Date.now() + 5 * 60 * 1000; // 冷却 5 分钟
-      console.warn(`[LLM 熔断激活] 捕获到本地大模型网络连接失败。已激活 5 分钟 of 熔断器。`);
-    }
+    localErr = e;
   } finally {
-    // 释放微信网桥持有的锁
     if (acquiredLockLocally && global.gpuLock && global.gpuLock.owner === 'wechat-bridge') {
       global.gpuLock = {
         isLocked: false,
@@ -860,10 +921,32 @@ export async function analyzeWithFallback(prompt, options = {}) {
     }
   }
 
-  // 4. 云端自愈路由
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error('Primary LLM failed and GEMINI_API_KEY not set.');
-  return await analyzeWithGemini(apiKey, prompt, priority);
+  if (!localErr) return;
+
+  if (shouldSkipGeminiFallback(localErr)) {
+    console.warn(`[AI Router] [${tag}] 14B context-exceeded after truncate — skip job, do not dump onto Gemini`);
+    throw localErr;
+  }
+
+  const localDown = isNetworkConnectionError(localErr) || isLmModelUnloaded(localErr);
+  if (localDown) {
+    lmStudioOfflineUntil = Date.now() + 5 * 60 * 1000;
+    console.warn(`[AI Router] [${tag}] local 14B unreachable (${localErr.message}). 5min circuit. Sparse Gemini fallback if keyed.`);
+  } else {
+    console.warn(`[AI Router] [${tag}] local 14B failed: ${localErr.message}`);
+  }
+
+  if (apiKey && localDown) {
+    try {
+      return await tryGemini('local-down');
+    } catch (gErr) {
+      if (isGeminiKeyProtectError(gErr)) {
+        console.warn(`[AI Router] [${tag}] Gemini 429/401/invalid — not rotating Key #2`);
+      }
+      throw gErr;
+    }
+  }
+  throw localErr;
 }
 
 // Push report to Enterprise WeChat group robot
@@ -1522,7 +1605,7 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
     if (realTimeTradeMsgs.length > 0) {
       if (!skipTrades) {
         console.log(`[自动跟单] 发现 ${realTimeTradeMsgs.length} 条大V实时新发言，触发交易信号提取与执行...`);
-        const provider = process.env.AI_PROVIDER || 'gemini';
+        const provider = process.env.AI_PROVIDER || 'lm-studio';
         const primarySpeakerName = realTimeTradeMsgs[0].sender_name;
         try {
           tradeResults = await extractAndExecuteTrades(realTimeTradeMsgs, provider, primarySpeakerName);
@@ -1667,23 +1750,9 @@ ${messagesText}`;
   console.log(`[Background AI] Strategy report pushed to WeChat.`);
 }
 
-// Helper for AI calls within monitor.js
+// Helper for AI calls within monitor.js — bulk text always local-14B first
 async function callMonitorAI(provider, prompt) {
-  if (provider === 'gemini') {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment.');
-    return await analyzeWithGemini(apiKey, prompt);
-  } else if (provider === 'ollama') {
-    const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-    const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
-    return await analyzeWithOllama(baseUrl, model, prompt);
-  } else if (provider === 'lm-studio') {
-    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
-    const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
-    return await analyzeWithLMStudio(baseUrl, model, prompt);
-  } else {
-    throw new Error(`Unsupported AI provider: ${provider}`);
-  }
+  return await analyzeWithFallback(prompt, { provider, tag: 'monitor' });
 }
 
 // Extract tickers as array from message content
@@ -1700,7 +1769,7 @@ function getTickersFromMessages(messages) {
 }
 
 // Incremental Global AI Rolling Strategy briefing
-export async function generateGlobalRollingReport(provider = 'gemini') {
+export async function generateGlobalRollingReport(provider = 'lm-studio') {
   console.log('[Global Report] Starting incremental global rolling strategy briefing generation...');
   const conn = getDb();
   
@@ -1857,7 +1926,7 @@ ${newMessagesText}
 }
 
 // Generate K-line combined technical analysis report
-export async function generateKlineCombinedReport(provider = 'gemini') {
+export async function generateKlineCombinedReport(provider = 'lm-studio') {
   console.log('[Kline Report] Starting K-line combined technical analysis report generation...');
   const conn = getDb();
 

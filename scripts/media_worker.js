@@ -15,11 +15,13 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
+import { ensurePipelineTasksCompat } from './pipeline_tasks_compat.js';
 
 dotenv.config();
 
 const dbPath = path.resolve('whop_archive.db');
 const db = new Database(dbPath);
+ensurePipelineTasksCompat(db);
 
 const httpAgent = new http.Agent({ keepAlive: true });
 const httpsAgent = new https.Agent({ keepAlive: true });
@@ -41,9 +43,10 @@ export async function runMediaWorker(limit = 10) {
   console.log(`🖼️ [DPC Media Worker] 启动媒体下载与门禁工作者 (批次上限: ${limit})...`);
   console.log('========================================================================================\n');
 
-  // 获取待处理的任务
+  // Live schema may lack INTEGER PK task_id (composite PK only). Use rowid as stable id.
   const pendingTasks = db.prepare(`
-    SELECT pt.task_id, pt.message_id, pt.retry_count, m.attachments, m.sender_name, m.created_at, m.channel_name
+    SELECT COALESCE(pt.task_id, pt.rowid) AS task_id, pt.rowid AS rowid, pt.message_id,
+           COALESCE(pt.retry_count, 0) AS retry_count, m.attachments, m.sender_name, m.created_at, m.channel_name
     FROM pipeline_tasks pt
     JOIN messages m ON pt.message_id = m.id
     WHERE pt.queue_name = 'media' AND pt.status = 'pending'
@@ -64,7 +67,7 @@ export async function runMediaWorker(limit = 10) {
   const updateTaskStmt = db.prepare(`
     UPDATE pipeline_tasks
     SET status = ?, error_message = ?, result_payload = ?, updated_at = ?
-    WHERE task_id = ?
+    WHERE rowid = ?
   `);
 
   const updateMsgAttachmentsStmt = db.prepare(`
@@ -92,7 +95,7 @@ export async function runMediaWorker(limit = 10) {
     }
 
     if (attachments.length === 0) {
-      updateTaskStmt.run('done', null, JSON.stringify({ note: 'no attachments' }), nowTs, task.task_id);
+      updateTaskStmt.run('done', null, JSON.stringify({ note: 'no attachments' }), nowTs, task.rowid);
       continue;
     }
 
@@ -193,7 +196,7 @@ export async function runMediaWorker(limit = 10) {
       allAttachmentsPassed ? null : 'Some attachments failed gate or download',
       JSON.stringify(processedAttachments),
       nowTs,
-      task.task_id
+      task.rowid
     );
 
     // 推进水位线

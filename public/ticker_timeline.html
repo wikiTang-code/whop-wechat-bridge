@@ -168,6 +168,26 @@
       display: none;
     }
 
+
+    #chart-container { position: relative; overflow: hidden; }
+    #cluster-overlay {
+      position: absolute; inset: 0; pointer-events: none; z-index: 6;
+    }
+    .cluster-bubble {
+      position: absolute; pointer-events: auto; transform: translate(-50%, 0);
+      width: 46px; height: 46px; border: 0; padding: 0; cursor: pointer;
+      border-radius: 50%; box-shadow: 0 0 0 2px #0d1117;
+    }
+    .cluster-bubble.has-fill { box-shadow: 0 0 0 2px #0d1117, 0 0 0 4px #3fb950; }
+    .cluster-core {
+      position: absolute; inset: 7px; background: #0d1117; border-radius: 50%;
+      color: #f0f6fc; font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cluster-label {
+      position: absolute; top: 48px; left: 50%; transform: translateX(-50%);
+      color: #8b949e; font-size: 10px; white-space: nowrap; pointer-events: none;
+    }
     /* 时间轴列表容器 */
     .timeline-list {
       display: flex;
@@ -323,8 +343,8 @@
 
     <!-- 视图模式并列切换器 -->
     <div class="view-mode-tabs">
-      <button class="view-tab-btn active" id="tab-btn-chart" onclick="switchViewMode('chart')">📊 联合 K 线演进图表看板</button>
-      <button class="view-tab-btn" id="tab-btn-list" onclick="switchViewMode('list')">📑 时间轴全量流式清单</button>
+      <button class="view-tab-btn" id="tab-btn-chart" onclick="switchViewMode('chart')">📊 联合 K 线演进图表看板</button>
+      <button class="view-tab-btn active" id="tab-btn-list" onclick="switchViewMode('list')">📑 时间轴全量流式清单</button>
     </div>
 
     <!-- 核心统计概览卡片 -->
@@ -373,7 +393,7 @@
       </div>
       <div id="chart-container"></div>
       <div class="chart-hint">
-        <span>💡 提示：在图表上拖拽或双指缩放，点击 K 线附近的标记点即可在下方弹出当时的完整问答与操作明细</span>
+        <span>💡 远距按月/周聚合成气泡（绿环=有成交）；缩近后恢复日点。点气泡或 K 线看明细</span>
         <span id="kline-count-text">加载中...</span>
       </div>
 
@@ -443,6 +463,7 @@
         listPanel.style.display = 'none';
         if (chartInstance) {
           chartInstance.resize(document.getElementById('chart-container').clientWidth, 420);
+          applyLod();
         }
       } else {
         listBtn.classList.add('active');
@@ -459,8 +480,8 @@
     }
 
     // 异步拉取并展开 9 条完整真实上下文流
-    async function toggleContextStream(postId, btn) {
-      const box = document.getElementById('ctx-box-' + postId);
+    async function toggleContextStream(eventId, postId, btn) {
+      const box = document.getElementById('ctx-box-' + eventId);
       if (!box) return;
 
       if (box.style.display === 'block') {
@@ -514,33 +535,242 @@
       }
     }
 
-    // 初始化 TradingView Lightweight Charts
+
+    const KIND_COLOR = { FILL: '#3fb950', PLAN: '#d29922', VIEW: '#58a6ff', LEVEL: '#bc8cff', PLAYBOOK: '#db6d28', CHART: '#8b949e' };
+    const KIND_PRIO = { FILL: 0, PLAN: 1, PLAYBOOK: 2, LEVEL: 3, VIEW: 4, CHART: 5 };
+    let dateEventMap = {};
+    let clusterOverlay = null;
+    let lodTimer = null;
+
+    function chartEvents() {
+      return globalEvents.filter(e => e.is_canonical !== false);
+    }
+
+    function buildDateMap() {
+      dateEventMap = {};
+      chartEvents().forEach(ev => {
+        if (!ev.et_date) return;
+        if (!dateEventMap[ev.et_date]) dateEventMap[ev.et_date] = [];
+        dateEventMap[ev.et_date].push(ev);
+      });
+    }
+
+    function visibleBarCount() {
+      if (!chartInstance) return 999;
+      const r = chartInstance.timeScale().getVisibleLogicalRange();
+      if (!r) return globalKlines.length || 999;
+      return Math.max(1, r.to - r.from);
+    }
+
+    function lodLevel(n) {
+      if (n > 160) return 0;
+      if (n > 80) return 1;
+      if (n > 25) return 2;
+      return 3;
+    }
+
+    function isoWeekKey(etDate) {
+      const t = new Date(etDate + 'T00:00:00Z');
+      const dayNum = t.getUTCDay() || 7;
+      t.setUTCDate(t.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+      const week = Math.ceil((((t - yearStart) / 86400000) + 1) / 7);
+      return t.getUTCFullYear() + '-W' + String(week).padStart(2, '0');
+    }
+
+    function countsOf(evs) {
+      const c = { FILL: 0, PLAN: 0, VIEW: 0, LEVEL: 0, PLAYBOOK: 0, CHART: 0 };
+      evs.forEach(e => { if (c[e.kind] != null) c[e.kind]++; });
+      return c;
+    }
+
+    function conicOf(counts) {
+      const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
+      const order = ['FILL', 'PLAN', 'VIEW', 'LEVEL', 'PLAYBOOK'];
+      let acc = 0;
+      const parts = [];
+      order.forEach(k => {
+        const frac = (counts[k] / total) * 360;
+        if (frac <= 0) return;
+        parts.push(KIND_COLOR[k] + ' ' + acc + 'deg ' + (acc + frac) + 'deg');
+        acc += frac;
+      });
+      return 'conic-gradient(' + parts.join(',') + ')';
+    }
+
+    function dailyPrimary(evs) {
+      return evs.slice().sort((a, b) => (KIND_PRIO[a.kind] ?? 9) - (KIND_PRIO[b.kind] ?? 9))[0];
+    }
+
+    function dailyMarker(d, evs, withText) {
+      const primary = dailyPrimary(evs);
+      if (!primary) return null;
+      let shape = 'circle', pos = 'aboveBar', text = '';
+      const color = KIND_COLOR[primary.kind] || '#58a6ff';
+      if (primary.kind === 'FILL') {
+        shape = 'arrowDown'; pos = 'aboveBar';
+        text = withText ? ('成交 $' + (primary.l2a && primary.l2a.price ? primary.l2a.price : '')).trim() : '';
+      } else if (primary.kind === 'PLAN') {
+        shape = 'arrowUp'; pos = 'belowBar'; text = withText ? '计划' : '';
+      } else if (primary.kind === 'PLAYBOOK') {
+        shape = 'square'; pos = 'aboveBar'; text = withText ? '口诀' : '';
+      } else if (primary.kind === 'LEVEL') {
+        shape = 'circle'; pos = 'belowBar'; text = withText ? '点位' : '';
+      } else {
+        shape = 'circle'; pos = 'aboveBar'; text = withText ? ('答疑(' + evs.length + ')') : '';
+      }
+      if (withText && evs.length > 1 && primary.kind !== 'VIEW') text += '×' + evs.length;
+      const m = { time: d, position: pos, color: color, shape: shape, id: primary.event_id || d };
+      if (withText && text) m.text = text;
+      return m;
+    }
+
+    function groupBy(keyFn) {
+      const g = {};
+      Object.keys(dateEventMap).forEach(d => {
+        const k = keyFn(d);
+        if (!g[k]) g[k] = { key: k, dates: [], evs: [] };
+        g[k].dates.push(d);
+        g[k].evs.push.apply(g[k].evs, dateEventMap[d]);
+      });
+      return Object.keys(g).sort().map(k => g[k]);
+    }
+
+    function medianDate(dates) {
+      const s = dates.slice().sort();
+      return s[Math.floor(s.length / 2)];
+    }
+
+    function ctxButton(ev) {
+      const eid = escapeHtml(ev.event_id || ev.post_id);
+      const pid = escapeHtml(ev.post_id || '');
+      return '<button class="btn-ctx-toggle" onclick="toggleContextStream(\'' + eid + '\', \'' + pid + '\', this)">🔍 展开前后完整真实上下文 (9条)</button>' +
+        '<div id="ctx-box-' + eid + '" class="context-stream-box"></div>';
+    }
+
+    function eventCardHtml(ev) {
+      const isMacro = (ev.ticker_origin === 'question') && isMacroAnswer(ev.evidence_span);
+      const macroBadge = isMacro ? '<span class="macro-note-badge">问 ' + CURRENT_SYMBOL + '，答大盘/资金机制</span>' : '';
+      let actHtml = '';
+      if (ev.kind === 'FILL' || ev.kind === 'PLAN') {
+        const l2a = ev.l2a || {};
+        const actColor = l2a.action === 'BUY' ? 'var(--green)' : 'var(--red)';
+        actHtml = '<div class="action-details"><span style="color:' + actColor + '">动作: ' + escapeHtml(l2a.action) + '</span>' +
+          (l2a.price ? '<span>价格: $' + escapeHtml(l2a.price) + '</span>' : '') +
+          '<span>状态: ' + escapeHtml(l2a.status || 'planned') + '</span></div>';
+      }
+      return '<div style="background:#161b22; border:1px solid var(--border); border-radius:6px; padding:10px; margin-bottom:8px;">' +
+        '<div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:11px;">' +
+        '<span><span class="kind-badge kind-' + ev.kind + '">' + ev.kind + '</span> <strong>' + escapeHtml(ev.et_date + ' ' + (ev.et_time || '')) + '</strong> · ' + escapeHtml(ev.channel_name || ev.feed_id) + '</span>' +
+        '<code>' + escapeHtml(ev.post_id) + '</code></div>' +
+        actHtml +
+        (ev.prompt_span ? '<div class="qa-box qa-prompt">❓ <strong>群友问句:</strong> ' + escapeHtml(ev.prompt_span) + '</div>' : '') +
+        '<div class="qa-box qa-answer">🗣️ <strong>赵哥发言:</strong> ' + escapeHtml(ev.evidence_span) + ' ' + macroBadge + '</div>' +
+        ctxButton(ev) + '</div>';
+    }
+
+    function showEventCards(title, evs) {
+      const cardBox = document.getElementById('chart-active-event-card');
+      cardBox.style.display = 'block';
+      if (!evs || !evs.length) {
+        cardBox.innerHTML = '<div style="color:var(--text-muted); font-size:12px;">📅 ' + escapeHtml(title) + '：无事件</div>';
+        return;
+      }
+      let inner = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:6px;">' +
+        '<strong style="color:var(--accent); font-size:13px;">📅 ' + escapeHtml(title) + ' 命中的全部事件明细 (' + evs.length + ' 项)</strong>' +
+        '<button onclick="document.getElementById(\'chart-active-event-card\').style.display=\'none\'" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:14px;">✕</button></div>';
+      evs.slice().sort((a, b) => (a.et_date + (a.et_time || '')).localeCompare(b.et_date + (b.et_time || ''))).forEach(ev => {
+        inner += eventCardHtml(ev);
+      });
+      cardBox.innerHTML = inner;
+    }
+
+    function renderClusters(groups) {
+      if (!clusterOverlay || !chartInstance) return;
+      clusterOverlay.innerHTML = '';
+      groups.forEach(g => {
+        const mid = medianDate(g.dates);
+        const x = chartInstance.timeScale().timeToCoordinate(mid);
+        if (x == null || isNaN(x)) return;
+        const counts = countsOf(g.evs);
+        const el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'cluster-bubble' + (counts.FILL ? ' has-fill' : '');
+        el.style.left = x + 'px';
+        el.style.top = '10px';
+        el.style.background = conicOf(counts);
+        el.innerHTML = '<span class="cluster-core">' + g.evs.length + '</span><span class="cluster-label">' + escapeHtml(g.key.replace('20', '')) + '</span>';
+        el.title = g.key + ' · ' + g.evs.length + ' 条';
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showEventCards(g.key, g.evs);
+        });
+        clusterOverlay.appendChild(el);
+      });
+    }
+
+    function applyLod() {
+      if (!candlestickSeries || !chartInstance) return;
+      const n = visibleBarCount();
+      const lv = lodLevel(n);
+      clusterOverlay = document.getElementById('cluster-overlay');
+      if (lv <= 1) {
+        if (clusterOverlay) clusterOverlay.style.display = 'block';
+        if (lv === 0) {
+          candlestickSeries.setMarkers([]);
+          renderClusters(groupBy(d => d.slice(0, 7)));
+        } else {
+          const weeks = groupBy(isoWeekKey);
+          renderClusters(weeks);
+          const peeks = [];
+          weeks.forEach(g => {
+            const fill = g.evs.find(e => e.kind === 'FILL');
+            if (fill) peeks.push({ time: fill.et_date, position: 'aboveBar', color: '#3fb950', shape: 'arrowDown' });
+          });
+          candlestickSeries.setMarkers(peeks);
+        }
+      } else {
+        if (clusterOverlay) {
+          clusterOverlay.style.display = 'none';
+          clusterOverlay.innerHTML = '';
+        }
+        const withText = lv === 3;
+        const markers = [];
+        Object.keys(dateEventMap).forEach(d => {
+          const m = dailyMarker(d, dateEventMap[d], withText);
+          if (m) markers.push(m);
+        });
+        candlestickSeries.setMarkers(markers);
+      }
+    }
+
+    function scheduleLod() {
+      clearTimeout(lodTimer);
+      lodTimer = setTimeout(applyLod, 50);
+    }
+
     function initChart() {
       const container = document.getElementById('chart-container');
+      if (chartInstance) {
+        try { chartInstance.remove(); } catch (e) {}
+        chartInstance = null;
+      }
       container.innerHTML = '';
+      container.style.position = 'relative';
+
+      if (typeof LightweightCharts === 'undefined') {
+        container.innerHTML = '<div style="color:var(--text-muted); padding:40px; text-align:center;">K 线库未加载（CDN）。请用上方列表页查看时间轴。</div>';
+        return;
+      }
 
       chartInstance = LightweightCharts.createChart(container, {
         width: container.clientWidth,
         height: 420,
-        layout: {
-          background: { type: 'solid', color: '#161b22' },
-          textColor: '#8b949e',
-        },
-        grid: {
-          vertLines: { color: '#21262d' },
-          horzLines: { color: '#21262d' },
-        },
-        crosshair: {
-          mode: LightweightCharts.CrosshairMode.Normal,
-        },
-        timeScale: {
-          borderColor: '#30363d',
-          timeVisible: true,
-          secondsVisible: false,
-        },
-        rightPriceScale: {
-          borderColor: '#30363d',
-        }
+        layout: { background: { type: 'solid', color: '#161b22' }, textColor: '#8b949e' },
+        grid: { vertLines: { color: '#21262d' }, horzLines: { color: '#21262d' } },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+        timeScale: { borderColor: '#30363d', timeVisible: true, secondsVisible: false },
+        rightPriceScale: { borderColor: '#30363d' }
       });
 
       candlestickSeries = chartInstance.addCandlestickSeries({
@@ -550,132 +780,29 @@
         wickUpColor: '#3fb950',
         wickDownColor: '#f85149',
       });
-
       candlestickSeries.setData(globalKlines);
-      document.getElementById('kline-count-text').innerText = `已载入 ${globalKlines.length} 根日 K 线`;
+      document.getElementById('kline-count-text').innerText = '已载入 ' + globalKlines.length + ' 根日 K 线';
 
-      // 聚合标记点 (Markers)
-      const markers = [];
-      const dateEventMap = {};
+      clusterOverlay = document.createElement('div');
+      clusterOverlay.id = 'cluster-overlay';
+      container.appendChild(clusterOverlay);
 
-      globalEvents.forEach(ev => {
-        const d = ev.et_date;
-        if (!dateEventMap[d]) dateEventMap[d] = [];
-        dateEventMap[d].push(ev);
-      });
+      buildDateMap();
 
-      Object.keys(dateEventMap).forEach(d => {
-        const evs = dateEventMap[d];
-        // 优先显示 FILL / PLAN / LEVEL / PLAYBOOK
-        const fill = evs.find(e => e.kind === 'FILL');
-        const plan = evs.find(e => e.kind === 'PLAN');
-        const playbook = evs.find(e => e.kind === 'PLAYBOOK');
-        const level = evs.find(e => e.kind === 'LEVEL');
-        const view = evs.find(e => e.kind === 'VIEW');
-
-        const primary = fill || plan || playbook || level || view;
-        if (!primary) return;
-
-        let color = '#58a6ff';
-        let shape = 'circle';
-        let pos = 'aboveBar';
-        let text = primary.kind;
-
-        if (primary.kind === 'FILL') {
-          color = '#3fb950';
-          shape = 'arrowDown';
-          pos = 'aboveBar';
-          text = `成交 $${primary.l2a?.price || ''}`;
-        } else if (primary.kind === 'PLAN') {
-          color = '#d29922';
-          shape = 'arrowUp';
-          pos = 'belowBar';
-          text = '计划挂单';
-        } else if (primary.kind === 'PLAYBOOK') {
-          color = '#db6d28';
-          shape = 'square';
-          pos = 'aboveBar';
-          text = '战法口诀';
-        } else if (primary.kind === 'LEVEL') {
-          color = '#bc8cff';
-          shape = 'circle';
-          pos = 'belowBar';
-          text = '点位/公式';
-        } else if (primary.kind === 'VIEW') {
-          color = '#58a6ff';
-          shape = 'circle';
-          pos = 'aboveBar';
-          text = `答疑(${evs.length})`;
-        }
-
-        markers.push({
-          time: d,
-          position: pos,
-          color: color,
-          shape: shape,
-          text: text,
-          id: primary.post_id || primary.event_id
-        });
-      });
-
-      candlestickSeries.setMarkers(markers);
-
-      // 点击 K 线标记点联动下方展示卡片
       chartInstance.subscribeClick(param => {
         if (!param.time) return;
-        const clickedDate = typeof param.time === 'string' ? param.time : `${param.time.year}-${String(param.time.month).padStart(2,'0')}-${String(param.time.day).padStart(2,'0')}`;
-        const dayEvs = dateEventMap[clickedDate];
-        const cardBox = document.getElementById('chart-active-event-card');
-
-        if (!dayEvs || dayEvs.length === 0) {
-          cardBox.style.display = 'block';
-          cardBox.innerHTML = `<div style="color:var(--text-muted); font-size:12px;">📅 ${clickedDate}：当日无赵哥特定答疑/操作事件</div>`;
-          return;
-        }
-
-        cardBox.style.display = 'block';
-        let innerHtml = `
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid var(--border); padding-bottom:6px;">
-            <strong style="color:var(--accent); font-size:13px;">📅 ${clickedDate} 命中的全部事件明细 (${dayEvs.length} 项)</strong>
-            <button onclick="document.getElementById('chart-active-event-card').style.display='none'" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:14px;">✕</button>
-          </div>
-        `;
-
-        dayEvs.forEach((ev, idx) => {
-          const isMacro = (ev.ticker_origin === 'question') && isMacroAnswer(ev.evidence_span);
-          const macroBadge = isMacro ? '<span class="macro-note-badge">问 ' + CURRENT_SYMBOL + '，答大盘/资金机制</span>' : '';
-
-          let actHtml = '';
-          if (ev.kind === 'FILL' || ev.kind === 'PLAN') {
-            const l2a = ev.l2a || {};
-            const actColor = l2a.action === 'BUY' ? 'var(--green)' : 'var(--red)';
-            actHtml = `<div class="action-details"><span style="color:${actColor}">动作: ${l2a.action}</span>${l2a.price ? `<span>价格: $${l2a.price}</span>` : ''}<span>状态: ${l2a.status || 'planned'}</span></div>`;
-          }
-
-          innerHtml += `
-            <div style="background:#161b22; border:1px solid var(--border); border-radius:6px; padding:10px; margin-bottom:8px;">
-              <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:11px;">
-                <span><span class="kind-badge kind-${ev.kind}">${ev.kind}</span> <strong>${ev.et_time}</strong> · ${escapeHtml(ev.channel_name || ev.feed_id)}</span>
-                <code>${escapeHtml(ev.post_id)}</code>
-              </div>
-              ${actHtml}
-              ${ev.prompt_span ? `<div class="qa-box qa-prompt">❓ <strong>群友问句:</strong> ${escapeHtml(ev.prompt_span)}</div>` : ''}
-              <div class="qa-box qa-answer">🗣️ <strong>赵哥发言:</strong> ${escapeHtml(ev.evidence_span)} ${macroBadge}</div>
-              <button class="btn-ctx-toggle" onclick="toggleContextStream('${ev.post_id}', this)">🔍 展开前后完整真实上下文 (9条)</button>
-              <div id="ctx-box-${ev.post_id}" class="context-stream-box"></div>
-            </div>
-          `;
-        });
-
-        cardBox.innerHTML = innerHtml;
+        const clickedDate = typeof param.time === 'string' ? param.time : (param.time.year + '-' + String(param.time.month).padStart(2, '0') + '-' + String(param.time.day).padStart(2, '0'));
+        showEventCards(clickedDate, dateEventMap[clickedDate] || []);
       });
 
-      // 响应式自适应
+      chartInstance.timeScale().subscribeVisibleLogicalRangeChange(scheduleLod);
       window.addEventListener('resize', () => {
         if (chartInstance && document.getElementById('chart-container')) {
           chartInstance.resize(document.getElementById('chart-container').clientWidth, 420);
+          scheduleLod();
         }
       });
+      applyLod();
     }
 
     // 渲染流式时间轴清单
@@ -684,7 +811,7 @@
       container.innerHTML = '';
 
       let currentMonth = '';
-      const filtered = globalEvents.filter(e => activeFilters[e.kind]);
+      const filtered = globalEvents.filter(e => e.is_canonical !== false && activeFilters[e.kind]);
 
       if (filtered.length === 0) {
         container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">当前筛选条件下无事件</div>';
@@ -754,9 +881,9 @@
           ${playbookHtml}
           ${qaHtml}
           <div>
-            <button class="btn-ctx-toggle" onclick="toggleContextStream('${ev.post_id}', this)">🔍 展开前后完整真实上下文 (9条)</button>
+            <button class="btn-ctx-toggle" onclick="toggleContextStream('${escapeHtml(ev.event_id || ev.post_id)}', '${escapeHtml(ev.post_id)}', this)">🔍 展开前后完整真实上下文 (9条)</button>
           </div>
-          <div id="ctx-box-${ev.post_id}" class="context-stream-box"></div>
+          <div id="ctx-box-${escapeHtml(ev.event_id || ev.post_id)}" class="context-stream-box"></div>
         `;
 
         container.appendChild(card);
@@ -784,7 +911,7 @@
           document.getElementById('stat-playbook').innerText = stats.playbook;
           document.getElementById('stat-dup').innerText = stats.cross_feed_dup;
 
-          globalEvents = dataTl.events.sort((a, b) => (b.et_date + b.et_time).localeCompare(a.et_date + a.et_time));
+          globalEvents = (dataTl.events || []).filter(e => e.is_canonical !== false).sort((a, b) => (b.et_date + b.et_time).localeCompare(a.et_date + a.et_time));
         }
 
         if (dataKl.success && Array.isArray(dataKl.klines)) {
@@ -794,7 +921,7 @@
         // 初始化图表与列表
         initChart();
         renderTimeline();
-        switchViewMode('chart'); // 默认展示联合 K 线演进图表
+        switchViewMode('list'); // 默认列表；K 线 CDN 在国内常空白
       } catch (err) {
         const container = document.getElementById('timeline-container');
         container.innerHTML = `<div style="color:var(--red); text-align:center; padding:40px;">

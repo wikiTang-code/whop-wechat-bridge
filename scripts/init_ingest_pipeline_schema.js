@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import { ensurePipelineTasksCompat } from './pipeline_tasks_compat.js';
 
 console.log('========================================================================================');
 console.log('🏛️ 初始化 Top Half / Bottom Half (ISR / DPC) 中断分发数据库架构');
@@ -44,6 +45,8 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_pipeline_tasks_queue_status ON pipeline_tasks(queue_name, status);
 `);
+
+ensurePipelineTasksCompat(db);
 
 // 3. 创建 pipeline_watermarks 表 (各产线独立水位线)
 db.exec(`

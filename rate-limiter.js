@@ -1,4 +1,5 @@
 import { getDailyApiCount, incrementDailyApiCount, getDb } from './database.js';
+import { isGeminiKeyProtectError } from './ai-router-policy.js';
 
 // 极度保守与珍惜 API 额度配置：Gemini 限制为 4 RPM (平均 15 秒才允许放行 1 次 API 请求，全局极低频调用)
 const GEMINI_RPM_LIMIT = 4;
@@ -153,8 +154,8 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
       const isHardQuotaError = err.message.toLowerCase().includes('quota exceeded') || err.message.includes('RESOURCE_EXHAUSTED');
       
       // 若为配额用尽类错误，重试无用，直接抛出供上层自动降级至本地大模型
-      if (isHardQuotaError) {
-        console.warn(`[Rate Limiter] 检测到云端 API 配额已被用尽 (${err.message})，立即放弃等待重试，触发秒级自动降级至本地大模型...`);
+      if (isHardQuotaError || isGeminiKeyProtectError(err)) {
+        console.warn(`[Rate Limiter] Gemini 429/401/invalid 或配额耗尽 — 不重试、不轮询下一把 Key，交由上层降级本地 14B: ${err.message}`);
         throw err;
       }
 

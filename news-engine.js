@@ -5,9 +5,9 @@ import {
   getLatestPersonaPlaybook
 } from './database.js';
 import {
-  analyzeWithGemini,
   analyzeWithLMStudio,
-  analyzeWithOllama
+  analyzeWithOllama,
+  analyzeWithFallback
 } from './monitor.js';
 import { addTask } from './task-queue.js';
 
@@ -35,53 +35,11 @@ async function callLocalAI(provider, prompt) {
 }
 
 async function callCloudAI(prompt, preferredProvider = null) {
-  const provider = preferredProvider || process.env.AI_PROVIDER || 'gemini';
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  const tryGemini = async () => {
-    if (!apiKey) throw new Error('GEMINI_API_KEY is not set');
-    return await analyzeWithGemini(apiKey, prompt);
-  };
-
-  const tryLocal = async () => {
-    const localProvider = provider === 'ollama' ? 'ollama' : 'lm-studio';
-    return await callLocalAI(localProvider, prompt);
-  };
-
-  if (provider === 'lm-studio' || provider === 'ollama') {
-    try {
-      console.log(`[AI Router] [News] 优先使用本地模型 (${provider}) 进行推理...`);
-      return await tryLocal();
-    } catch (err) {
-      console.warn(`[AI Router] [News] 本地模型推理失败 (${err.message})，自动容灾升级到云端 Gemini...`);
-      if (apiKey) {
-        try {
-          return await tryGemini();
-        } catch (geminiErr) {
-          console.error('[AI Router] [News] 容灾升级至云端 Gemini 也宣告失败:', geminiErr.message);
-        }
-      }
-      throw err;
-    }
-  }
-
-  try {
-    const model = process.env.GEMINI_MODEL || 'gemini-flash-latest';
-    console.log(`[AI Router] [News] 优先使用云端 Gemini (${model}) 进行推理...`);
-    return await tryGemini();
-  } catch (err) {
-    const isQuotaExceeded = err.message.includes('429') || err.message.includes('quota') || err.message.includes('RESOURCE_EXHAUSTED');
-    if (isQuotaExceeded) {
-      console.warn(`[AI Router] [News] 检测到云端 Gemini 配额限流超标 (${err.message})，自动自愈降级至本地大模型...`);
-      try {
-        return await tryLocal();
-      } catch (localErr) {
-        console.error('[AI Router] [News] 降级至本地模型也失败了:', localErr.message);
-        throw err;
-      }
-    }
-    throw err;
-  }
+  // Bulk news text: local 14B first even if AI_PROVIDER=gemini. Gemini is sparse fallback only.
+  return await analyzeWithFallback(prompt, {
+    provider: preferredProvider || process.env.AI_PROVIDER || 'lm-studio',
+    tag: 'News'
+  });
 }
 
 // ============================================================
@@ -338,7 +296,7 @@ async function generateSingleNewsSummary(type, startTime, endTime, titleType, fo
   const communityText = formatMsgList(communityMessages);
 
   const batchId = `news_batch_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
-  const localProvider = process.env.AI_PROVIDER || 'lm-studio';
+  const localProvider = process.env.AI_PROVIDER === 'ollama' ? 'ollama' : 'lm-studio';
 
   // 提交 Map 任务
   addTask({
@@ -374,7 +332,7 @@ async function generateSingleNewsSummary(type, startTime, endTime, titleType, fo
       startTime,
       endTime,
       rawMessagesCount: speakerMessages.length + communityMessages.length,
-      provider: 'gemini'
+      provider: localProvider
     }
   });
 
@@ -456,7 +414,7 @@ ${messagesText}
 
   if (task.task_type === 'news_reduce') {
     const { summaryType, title, startTime, endTime, rawMessagesCount } = payload;
-    console.log(`[News Worker] 正在执行 Reduce 任务 #${task.id} (批次: ${batchId}, 使用 Gemini)...`);
+    console.log(`[News Worker] 正在执行 Reduce 任务 #${task.id} (批次: ${batchId}, 使用本地 14B 优先)...`);
 
     const db = getDb();
 
@@ -483,7 +441,7 @@ ${messagesText}
       } catch(e) {}
     }
 
-    // 2. 最终云端 Gemini 总结润色，并载入大V画像白皮书进行对齐度诊断
+    // 2. 最终总结润色（本地 14B 优先；Gemini 仅作稀疏兜底）
     const playbookReport = getLatestPersonaPlaybook();
     const playbookContent = playbookReport ? playbookReport.summary_content : '未检测到历史画像白皮书，暂按常规逻辑提取分析。';
 

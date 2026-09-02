@@ -46,9 +46,7 @@ import { generatePersonaPlaybook, getPersonaStatus, processPersonaTask, resumePe
 import { processNewsTask, generateNewsSummary, ensureCurrentWeekNews } from './news-engine.js';
 import {
   syncAndAnalyze,
-  analyzeWithGemini,
-  analyzeWithOllama,
-  analyzeWithLMStudio,
+  analyzeWithFallback,
   generateGlobalRollingReport,
   generateKlineCombinedReport
 } from './monitor.js';
@@ -136,10 +134,7 @@ ${msgsText}
 }
 `;
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return;
-
-    const jsonText = await analyzeWithGemini(apiKey, aiPrompt, 10);
+    const jsonText = await analyzeWithFallback(aiPrompt, { tag: 'ZhaoPositions', priority: 10 });
 
     const parseJSON = (text) => {
       try {
@@ -936,7 +931,7 @@ app.post('/api/sync/archive', requireCsrf, async (req, res) => {
 app.post('/api/reports/global-rolling', requireCsrf, async (req, res) => {
   try {
     console.log('Global rolling report generation triggered by Web UI');
-    const provider = process.env.AI_PROVIDER || 'gemini';
+    const provider = process.env.AI_PROVIDER || 'lm-studio';
     const result = await generateGlobalRollingReport(provider);
     res.json(result);
   } catch (error) {
@@ -948,7 +943,7 @@ app.post('/api/reports/global-rolling', requireCsrf, async (req, res) => {
 app.post('/api/reports/kline-combined', requireCsrf, async (req, res) => {
   try {
     console.log('Kline-combined report generation triggered by Web UI');
-    const provider = process.env.AI_PROVIDER || 'gemini';
+    const provider = process.env.AI_PROVIDER || 'lm-studio';
     const result = await generateKlineCombinedReport(provider);
     res.json(result);
   } catch (error) {
@@ -1153,11 +1148,11 @@ app.get('/api/system/monitor', async (req, res) => {
     const formattedTasks = activeTasks.map(t => {
       let desc = '未知系统任务';
       if (t.task_type === 'persona_reduce') {
-        desc = '☁️ Gemini API 云端 1.5万字极品白皮书合成中 (Gemini-Flash)';
+        desc = '🧠 本地 14B 白皮书合成 (Gemini 仅稀疏兜底)';
       } else if (t.task_type.startsWith('persona_')) {
-        desc = '🧠 大V行为画像分片分析 (Local GPU/Gemini)';
+        desc = '🧠 大V行为画像分片分析 (Local 14B)';
       } else if (t.task_type === 'news_reduce') {
-        desc = '☁️ Gemini API 云端社区资讯终极总结中';
+        desc = '📅 本地 14B 社区资讯终极总结 (Gemini 仅稀疏兜底)';
       } else if (t.task_type.startsWith('news_')) {
         const subType = t.task_type.split('_')[1] || '';
         const subMap = { briefing: '盘前速报', intraday: '盘中总结', closing: '收盘回顾', macro: '宏观周报', map: 'Map分片提取', reduce: 'Reduce终极合成' };
@@ -1642,21 +1637,7 @@ function updateEnvFile(newConfig) {
 
 // Helper for Map-Reduce AI calling
 async function callAI(provider, prompt) {
-  if (provider === 'gemini') {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error('GEMINI_API_KEY is not set in environment.');
-    return await runWithRateLimit(() => analyzeWithGemini(apiKey, prompt), { priority: 5 });
-  } else if (provider === 'ollama') {
-    const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-    const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
-    return await analyzeWithOllama(baseUrl, model, prompt);
-  } else if (provider === 'lm-studio') {
-    const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
-    const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
-    return await analyzeWithLMStudio(baseUrl, model, prompt);
-  } else {
-    throw new Error(`Unsupported AI provider: ${provider}`);
-  }
+  return await analyzeWithFallback(prompt, { provider, tag: 'MapReduce', priority: 5 });
 }
 
 // Generate the final reduce prompt based on whether it is from Map-Reduce or raw messages
@@ -1805,7 +1786,7 @@ app.get('/api/config', (req, res) => {
     success: true,
     data: {
       PORT: process.env.PORT || '3000',
-      AI_PROVIDER: process.env.AI_PROVIDER || 'gemini',
+      AI_PROVIDER: process.env.AI_PROVIDER || 'lm-studio',
       GEMINI_API_KEY_MASKED: mask(process.env.GEMINI_API_KEY),
       OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
       OLLAMA_MODEL: process.env.OLLAMA_MODEL || 'deepseek-r1',
@@ -2017,7 +1998,7 @@ app.post('/api/reports/dimensional-summary', requireCsrf, async (req, res) => {
     if (startDate || endDate) filterDesc.push(`时间:${startDate || '起'}至${endDate || '至今'}`);
     const filterStr = filterDesc.length > 0 ? filterDesc.join(', ') : '全维度历史';
 
-    const provider = process.env.AI_PROVIDER || 'gemini';
+    const provider = process.env.AI_PROVIDER || 'lm-studio';
 
     console.log(`[AI 维度复盘] 开始调用 AI (${provider})，采用分批合并机制生成维度总结报告...`);
     const startTimeAI = Date.now();
@@ -2136,7 +2117,7 @@ app.post('/api/strategies/analyze', requireCsrf, async (req, res) => {
     // 按时间先后顺序排列 (最早的消息排在最前面)
     const messages = [...data.messages].sort((a, b) => a.created_at - b.created_at);
 
-    const provider = process.env.AI_PROVIDER || 'gemini';
+    const provider = process.env.AI_PROVIDER || 'lm-studio';
 
     console.log(`[AI 战法分析] 开始调用 AI (${provider})，采用分批合并机制生成【${strategy}】专项研报...`);
     const startTimeAI = Date.now();
@@ -2271,7 +2252,13 @@ async function fetchEmbedding(text, priority = 1) {
   try {
     return await fetchLMStudioEmbedding(text);
   } catch (err) {
+    const localLooksUp = !/econnrefused|etimedout|enotfound|fetch failed|socket hang up|aborted/i.test(String(err.message || ''));
+    if (localLooksUp) {
+      console.warn('[RAG] Local embedding failed but LM Studio appears up — skip Gemini embedding to protect keys:', err.message);
+      return null;
+    }
     try {
+      console.log('[RAG] Local embedding unreachable — sparse Gemini embedding fallback');
       return await fetchGeminiEmbedding(text, priority);
     } catch (gErr) {
       console.warn('[RAG] Gemini Embedding 触发配额保护挂起，跳过当前消息向量化以保护系统吞吐:', gErr.message);
@@ -2455,27 +2442,12 @@ ${contextText}
 【用户问题】：
 ${question}`;
 
-    const provider = process.env.AI_PROVIDER || 'gemini';
+    const provider = process.env.AI_PROVIDER || 'lm-studio';
     let answer = '';
 
     console.log(`[RAG] Querying LLM (${provider}) for answer...`);
     const startTimeAI = Date.now();
-
-    if (provider === 'gemini') {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error('GEMINI_API_KEY is not set.');
-      answer = await runWithRateLimit(() => analyzeWithGemini(apiKey, aiPrompt), { priority: 10 });
-    } else if (provider === 'ollama') {
-      const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-      const model = process.env.OLLAMA_MODEL || 'deepseek-r1';
-      answer = await analyzeWithOllama(baseUrl, model, aiPrompt);
-    } else if (provider === 'lm-studio') {
-      const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
-      const model = process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct';
-      answer = await analyzeWithLMStudio(baseUrl, model, aiPrompt);
-    } else {
-      throw new Error(`Unsupported AI provider: ${provider}`);
-    }
+    answer = await analyzeWithFallback(aiPrompt, { provider, tag: 'RAG', priority: 10 });
 
     const durationAI = ((Date.now() - startTimeAI) / 1000).toFixed(1);
     console.log(`[RAG] Answer generated successfully in ${durationAI}s. Retrieval Mode: ${retrievalMode}`);
