@@ -1260,6 +1260,7 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
   }
 
   let allNormalizedMessages = [];
+  let allNewMessages = [];
   let newSpeakerMessages = [];
   let totalNewMessagesCount = 0;
 
@@ -1489,6 +1490,7 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       });
 
       allNormalizedMessages.push(...normalizedMessages);
+      allNewMessages.push(...actuallyNewMessages);
       totalNewMessagesCount += actuallyNewMessages.length;
     }
 
@@ -1503,9 +1505,20 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
     saveMessages(allNormalizedMessages);
 
     // 🏛️ 中断上半部 (Top Half / ISR): 全频道一视同仁快速打标分发 + 丢入下半部队列 (耗时 < 10ms，绝不调模型)
+    // 仅分发本轮真正的新消息 (allNewMessages)，而非全部抓取到的消息 (allNormalizedMessages)。
+    // 否则每轮会对已归档的历史消息重复 upsert，触发 messages 的 FTS5 同步触发器，
+    // 在近十万行的表上把事件循环占满数十秒~数分钟，导致 HTTP (8085) 无响应。
     try {
-      for (const msg of allNormalizedMessages) {
-        dispatchIngestTopHalf(msg);
+      const ISR_YIELD_BATCH = 200;
+      for (let i = 0; i < allNewMessages.length; i++) {
+        dispatchIngestTopHalf(allNewMessages[i]);
+        // 大批量新消息时定期让出事件循环，避免同步循环阻塞 HTTP 请求
+        if ((i + 1) % ISR_YIELD_BATCH === 0) {
+          await new Promise((resolve) => setImmediate(resolve));
+        }
+      }
+      if (allNewMessages.length > 0) {
+        console.log(`[ISR Top Half] 已分发 ${allNewMessages.length} 条新消息 (本轮抓取 ${allNormalizedMessages.length} 条)`);
       }
       generateQueueStatus();
     } catch (isrErr) {
