@@ -13,6 +13,9 @@ web_modules/
 .env
 .env.production
 .env.local
+.env.backup*
+.env.*.backup
+.env.bak
 
 # Logs and debugs
 logs

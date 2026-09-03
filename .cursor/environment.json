@@ -1,0 +1,17 @@
+{
+  "name": "whop-wechat-bridge",
+  "install": "npm install",
+  "terminals": [
+    {
+      "name": "server",
+      "command": "PORT=8085 npm start",
+      "description": "Whop WeChat Bridge Express server + Web Dashboard on port 8085"
+    }
+  ],
+  "ports": [
+    {
+      "name": "web dashboard",
+      "port": 8085
+    }
+  ]
+}
