@@ -46,9 +46,7 @@ import { generatePersonaPlaybook, getPersonaStatus, processPersonaTask, resumePe
 import { processNewsTask, generateNewsSummary, ensureCurrentWeekNews } from './news-engine.js';
 import {
   syncAndAnalyze,
-  analyzeWithGemini,
-  analyzeWithOllama,
-  analyzeWithLMStudio,
+  analyzeWithFallback,
   generateGlobalRollingReport,
   generateKlineCombinedReport
 } from './monitor.js';
@@ -136,10 +134,7 @@ ${msgsText}
 }
 `;
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return;
-
-    const jsonText = await analyzeWithGemini(apiKey, aiPrompt, 10);
+    const jsonText = await analyzeWithFallback(aiPrompt, { tag: 'ZhaoPositions', priority: 10 });
 
     const parseJSON = (text) => {
       try {
@@ -172,10 +167,15 @@ ${msgsText}
 
 // Rate limiter for authentication attempts
 const authAttempts = new Map();
-const AUTH_RATE_LIMIT = 10; // max attempts per 15-minute window
+// 提高限制，且对本地 IP (127.0.0.1) 与内部网段直接放行
+const AUTH_RATE_LIMIT = 1000; // max attempts per window (practically unlimited)
 const AUTH_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 
 function checkAuthRateLimit(ip) {
+  // 本地回环或内网直接放行
+  if (ip === '127.0.0.1' || ip.startsWith('10.') || ip.startsWith('192.168.') || ip.startsWith('172.16.')) {
+    return true;
+  }
   const now = Date.now();
   const record = authAttempts.get(ip);
   if (!record || now - record.windowStart > AUTH_WINDOW_MS) {
@@ -183,6 +183,7 @@ function checkAuthRateLimit(ip) {
     return true;
   }
   record.count++;
+  // 若已超过阈值，返回 false；否则 true
   return record.count <= AUTH_RATE_LIMIT;
 }
 
@@ -572,18 +573,18 @@ async function checkAndAutoUpdatePersonaPlaybook() {
 
       if (activeTask) return; // 正在运行中，跳过
 
-      console.log(`[自动画像调度] 开始执行周日凌晨大V画像白皮书增量更新任务...`);
+      console.log(`[Auto Persona Scheduler] 开始执行周日凌晨大V画像白皮书增量更新任务...`);
       // 异步调用画像生成
       generatePersonaPlaybook({
         provider: process.env.AI_PROVIDER || 'lm-studio',
         maxMonths: 6,
         forceRefresh: false
       }).catch(err => {
-        console.error(`[自动画像调度] 触发增量画像生成失败:`, err.message);
+        console.error(`[Auto Persona Scheduler] 触发增量画像生成失败:`, err.message);
       });
     }
   } catch (err) {
-    console.error(`[自动画像调度] 定时检测画像更新异常:`, err.message);
+    console.error(`[Auto Persona Scheduler] 定时检测画像更新异常:`, err.message);
   }
 }
 
@@ -822,4 +823,1855 @@ app.get('/api/proxy-image', async (req, res) => {
   }
 });
 
-PLACEHOLDER_MORE_CONTENT_WAS_TRUNCATED_DO_NOT_COMMIT
+// 1.2 GET /api/channels - List unique channels in the archive database
+app.get('/api/channels', (req, res) => {
+  try {
+    const channels = getDistinctChannels();
+    res.json({ success: true, data: channels });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 1.3 GET /api/speakers - List unique speakers/senders in the archive database
+app.get('/api/speakers', (req, res) => {
+  try {
+    const db = getDb();
+
+    // 获取所有的 targetSpeakers
+    const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const rows = db.prepare(`
+      SELECT DISTINCT sender_id, sender_name
+      FROM messages
+      WHERE sender_name IS NOT NULL AND sender_name != ''
+      ORDER BY sender_name ASC
+    `).all();
+
+    // 过滤掉大V，剩下的是群友（大V已经有独立的“只看大V”选项了）
+    const communitySpeakers = rows.filter(r => !targetSpeakers.includes(r.sender_id));
+
+    res.json({ success: true, speakers: communitySpeakers });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 1.5 GET /api/messages/:id/context - Get context messages for a specific message
+app.get('/api/messages/:id/context', (req, res) => {
+  try {
+    const messageId = req.params.id;
+    const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 10));
+    const data = getMessageContext({ messageId, limit });
+    res.json({ success: true, ...data });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 2. GET /api/reports - List AI reports
+app.get('/api/reports', (req, res) => {
+  try {
+    const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 10));
+    const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
+
+    const data = getReports({ limit, offset });
+    res.json({ success: true, data: data.reports, total: data.total });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 3. POST /api/sync - Legacy general manual trigger sync (redirects to realtime)
+app.post('/api/sync', requireCsrf, async (req, res) => {
+  try {
+    console.log('Manual sync triggered (fallback)');
+    const result = await syncAndAnalyze({ backfill: false, skipTrades: false, skipWeChat: false, skipReport: false });
+    if (result && result.success) {
+      setLastSyncTime(Date.now());
+    }
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/sync/realtime - Fast realtime sync with copy-trading and notifications
+app.post('/api/sync/realtime', requireCsrf, async (req, res) => {
+  try {
+    console.log('Real-time sync triggered by Web UI');
+    const result = await syncAndAnalyze({ backfill: false, skipTrades: false, skipWeChat: false, skipReport: false });
+    if (result && result.success) {
+      setLastSyncTime(Date.now());
+    }
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/sync/archive - Deep backfill for RAG archiving (no trades, no WeChat alerts)
+app.post('/api/sync/archive', requireCsrf, async (req, res) => {
+  try {
+    console.log('Deep historical archive sync triggered by Web UI');
+    const result = await syncAndAnalyze({ backfill: true, skipTrades: true, skipWeChat: true, skipReport: true });
+    if (result && result.success) {
+      setLastSyncTime(Date.now());
+    }
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/reports/global-rolling - Incremental rolling global briefing report
+app.post('/api/reports/global-rolling', requireCsrf, async (req, res) => {
+  try {
+    console.log('Global rolling report generation triggered by Web UI');
+    const provider = process.env.AI_PROVIDER || 'lm-studio';
+    const result = await generateGlobalRollingReport(provider);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/reports/kline-combined - K-line technical analysis combined report
+app.post('/api/reports/kline-combined', requireCsrf, async (req, res) => {
+  try {
+    console.log('Kline-combined report generation triggered by Web UI');
+    const provider = process.env.AI_PROVIDER || 'lm-studio';
+    const result = await generateKlineCombinedReport(provider);
+    res.json(result);
+  } catch (error) {
+    console.error('[Kline Report Error]', error.message);
+    res.status(500).json({ success: false, reason: error.message });
+  }
+});
+
+// === Persona Playbook Endpoints ===
+
+// 1. POST /api/persona/generate - Trigger persona playbook generation
+app.post('/api/persona/generate', requireCsrf, async (req, res) => {
+  try {
+    const provider = req.body.provider || process.env.AI_PROVIDER || 'lm-studio';
+    const maxMonths = parseInt(req.body.maxMonths || '6', 10);
+    const forceRefresh = req.body.forceRefresh === true;
+
+    console.log(`[API Persona] Triggering playbook generation with provider=${provider}, maxMonths=${maxMonths}, forceRefresh=${forceRefresh}`);
+
+    // 使用 setImmediate 彻底移出当前事件循环主线程，实现真正的毫秒级解耦返回，免受 SQLite 读写锁争用影响
+    setImmediate(() => {
+      generatePersonaPlaybook({ provider, maxMonths, forceRefresh }).catch(err => {
+        console.error('[API Persona] Asynchronous generation failed:', err.message);
+      });
+    });
+
+    res.json({ success: true, message: '大V行为画像生成任务启动成功' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 2. GET /api/persona/status - Get current persona playbook generation status
+app.get('/api/persona/status', (req, res) => {
+  try {
+    const status = getPersonaStatus();
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 3. GET /api/persona/latest - Get the latest generated playbook report
+app.get('/api/persona/latest', (req, res) => {
+  try {
+    const playbook = getLatestPersonaPlaybook();
+    if (playbook) {
+      res.json({ success: true, playbook });
+    } else {
+      res.json({ success: true, playbook: null });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 4. POST /api/persona/resume - Resume persona playbook generation
+app.post('/api/persona/resume', requireCsrf, async (req, res) => {
+  try {
+    const result = resumePersonaPlaybook();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// === News Summaries Endpoints ===
+
+// 1. POST /api/news-summaries/generate - Trigger news/consulting summary generation
+app.post('/api/news-summaries/generate', requireCsrf, async (req, res) => {
+  try {
+    const type = req.body.type || 'briefing';
+    const forceRefresh = req.body.forceRefresh === true;
+    const customStartTime = req.body.customStartTime || null;
+    const customEndTime = req.body.customEndTime || null;
+
+    console.log(`[API News] Triggering news summary generation for type=${type}, forceRefresh=${forceRefresh}, customStartTime=${customStartTime}, customEndTime=${customEndTime}`);
+
+    const result = await generateNewsSummary(type, {
+      forceRefresh,
+      customStartTime,
+      customEndTime
+    });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 2. GET /api/news-summaries/status - Get latest news summary generation status
+app.get('/api/news-summaries/status', (req, res) => {
+  try {
+    const db = getDb();
+    const latestTask = db.prepare(`
+      SELECT id, status, error_message, updated_at FROM task_queue
+      WHERE task_type = 'news_reduce'
+      ORDER BY id DESC LIMIT 1
+    `).get();
+
+    if (latestTask) {
+      res.json({
+        success: true,
+        status: latestTask.status,
+        error: latestTask.error_message,
+        updatedAt: latestTask.updated_at
+      });
+    } else {
+      res.json({
+        success: true,
+        status: 'idle',
+        error: null,
+        updatedAt: null
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 3. GET /api/news-summaries - Get news summaries history list
+app.get('/api/news-summaries', (req, res) => {
+  try {
+    const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 10));
+    const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
+    const summaries = getNewsSummaries(limit, offset);
+    res.json({ success: true, summaries });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 4. GET /api/news-summaries/latest - Get the latest summary
+app.get('/api/news-summaries/latest', (req, res) => {
+  try {
+    const type = req.query.type || null;
+    const summary = getLatestNewsSummary(type);
+    res.json({ success: true, summary });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// === Campaign & Macro Events Endpoints ===
+
+// === System Monitor & Task Queue Control Endpoints ===
+
+// 1. GET /api/system/monitor - 获取大模型、GPU 锁、API 配额以及队列任务状态监控数据
+app.get('/api/system/monitor', async (req, res) => {
+  try {
+    const db = getDb();
+
+    // a. 获取 Rate Limiter 限额情况
+    const rateLimiterStats = getRateLimiterStats();
+
+    // b. 极速 Socket 检测本地大模型连接状态 (8080 端口)，1000ms 超时，带 60s 内成功连线记忆防闪烁
+    const checkLocalPort = (port, host) => {
+      // 容错防闪烁：如果最近 60 秒内刚成功调用完本地 AI，直接判定在线
+      const recentlySuccessful = global.lastSuccessfulLocalAiTime && (Date.now() - global.lastSuccessfulLocalAiTime < 60000);
+      if (recentlySuccessful) return Promise.resolve(true);
+
+      return new Promise((resolve) => {
+        const socket = new net.Socket();
+        socket.setTimeout(1000);
+        socket.on('connect', () => {
+          socket.destroy();
+          resolve(true);
+        });
+        socket.on('timeout', () => {
+          socket.destroy();
+          resolve(false);
+        });
+        socket.on('error', () => {
+          socket.destroy();
+          resolve(false);
+        });
+        socket.connect(port, host);
+      });
+    };
+    const localModelConnected = await checkLocalPort(8080, '127.0.0.1');
+
+    // c. 获取 GPU 锁状态
+    const gpuLockStatus = global.gpuLock ? {
+      isLocked: global.gpuLock.isLocked,
+      owner: global.gpuLock.owner,
+      acquiredAt: global.gpuLock.acquiredAt
+    } : { isLocked: false, owner: null, acquiredAt: null };
+
+    // d. 从 sqlite 中统计当前队列中的具体排队任务 (限制最大 50 条展示，防止数万条任务构建巨型 JSON 卡死浏览器)
+    const activeTasksCount = db.prepare(`
+      SELECT COUNT(*) as count FROM task_queue WHERE status IN ('running', 'pending', 'retry')
+    `).get()?.count || 0;
+
+    const activeTasks = db.prepare(`
+      SELECT id, task_type, status, priority, error_message, updated_at
+      FROM task_queue
+      WHERE status IN ('running', 'pending', 'retry')
+      ORDER BY priority DESC, id ASC
+      LIMIT 50
+    `).all();
+
+    // e. 对任务类型进行优雅的中文意图转换描述
+    const formattedTasks = activeTasks.map(t => {
+      let desc = '未知系统任务';
+      if (t.task_type === 'persona_reduce') {
+        desc = '🧠 本地 14B 白皮书合成 (Gemini 仅稀疏兜底)';
+      } else if (t.task_type.startsWith('persona_')) {
+        desc = '🧠 大V行为画像分片分析 (Local 14B)';
+      } else if (t.task_type === 'news_reduce') {
+        desc = '📅 本地 14B 社区资讯终极总结 (Gemini 仅稀疏兜底)';
+      } else if (t.task_type.startsWith('news_')) {
+        const subType = t.task_type.split('_')[1] || '';
+        const subMap = { briefing: '盘前速报', intraday: '盘中总结', closing: '收盘回顾', macro: '宏观周报', map: 'Map分片提取', reduce: 'Reduce终极合成' };
+        desc = `📅 社区资讯速报生成 (${subMap[subType] || subType})`;
+      } else if (t.task_type === 'gemini_api_cloud') {
+        desc = '☁️ Gemini API 云端多模态与文本精加工';
+      } else if (t.task_type.startsWith('trade_')) {
+        desc = '💼 赵哥历史跟单订单提炼与对账';
+      }
+      return {
+        id: t.id,
+        taskType: t.task_type,
+        status: t.status,
+        priority: t.priority,
+        description: desc,
+        updatedAt: t.updated_at
+      };
+    });
+
+    // 新增：获取最近完成/失败的历史任务 (最近 15 条)
+    const completedTasks = db.prepare(`
+      SELECT id, task_type, status, priority, error_message, updated_at
+      FROM task_queue
+      WHERE status IN ('done', 'failed')
+      ORDER BY updated_at DESC, id DESC
+      LIMIT 15
+    `).all();
+
+    const formattedHistory = completedTasks.map(t => {
+      let desc = '未知系统任务';
+      if (t.task_type.startsWith('persona_')) {
+        desc = '🧠 大V行为画像分析';
+      } else if (t.task_type.startsWith('news_')) {
+        const subType = t.task_type.split('_')[1] || '';
+        const subMap = { briefing: '盘前速报', intraday: '盘中总结', closing: '收盘回顾', macro: '宏观周报' };
+        desc = `📅 社区资讯速报 (${subMap[subType] || subType})`;
+      } else if (t.task_type.startsWith('trade_')) {
+        desc = '💼 赵哥历史跟单提炼';
+      }
+      return {
+        id: t.id,
+        taskType: t.task_type,
+        status: t.status,
+        priority: t.priority,
+        description: desc,
+        errorMessage: t.error_message,
+        updatedAt: t.updated_at
+      };
+    });
+
+    // 统计消息表中还有多少条 is_traded = 0 的赵哥喊单消息等待跟单引擎提炼
+    const pendingTradeMsgsCount = db.prepare(`
+      SELECT COUNT(*) as count FROM messages
+      WHERE is_traded = 0 AND (sender_id = 'user_4yeplXgbguTu4' OR sender_name LIKE '%zhao%' OR sender_name LIKE '%赵%')
+    `).get()?.count || 0;
+
+    res.json({
+      success: true,
+      data: {
+        localModelConnected,
+        rateLimiterStats,
+        gpuLockStatus,
+        activeTasks: formattedTasks,
+        activeTasksCount,
+        completedTasks: formattedHistory,
+        pendingTradeMsgsCount
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 新增：一键重置重启所有失败/死锁/排队中的任务
+app.post('/api/tasks/restart-failed', requireCsrf, (req, res) => {
+  try {
+    const db = getDb();
+    const result = db.prepare(`
+      UPDATE task_queue 
+      SET status = 'pending', retry_count = 0, run_after = NULL, updated_at = ?
+      WHERE status IN ('failed', 'retry', 'running') AND task_type != 'gemini_api_cloud'
+    `).run(Date.now());
+    
+    // 同时强行删除临时广播废卡
+    db.prepare(`DELETE FROM task_queue WHERE task_type = 'gemini_api_cloud'`).run();
+
+    res.json({ success: true, restartedCount: result.changes, message: `已成功将 ${result.changes} 个任务重置重启为 pending 重新排队处理！` });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 2. POST /api/task-queue/clear - 强制取消当前所有或特定分类的计算/排队中任务
+app.post('/api/task-queue/clear', requireCsrf, (req, res) => {
+  try {
+    const db = getDb();
+    const type = req.query.type || 'all';
+    let changes = 0;
+
+    if (type === 'persona') {
+      const info = db.prepare(`
+        UPDATE task_queue
+        SET status = 'failed', error_message = '用户手动取消了任务'
+        WHERE task_type LIKE 'persona_%'
+          AND status IN ('pending', 'running', 'retry')
+      `).run();
+      changes = info.changes;
+      forceUpdatePersonaStatus('idle', '已取消后台画像生成。', 0);
+    } else if (type === 'news') {
+      const info = db.prepare(`
+        UPDATE task_queue
+        SET status = 'failed', error_message = '用户手动取消了任务'
+        WHERE task_type LIKE 'news_%'
+          AND status IN ('pending', 'running', 'retry')
+      `).run();
+      changes = info.changes;
+    } else {
+      const info = db.prepare(`
+        UPDATE task_queue
+        SET status = 'failed', error_message = '用户手动取消了全部任务'
+        WHERE status IN ('pending', 'running', 'retry')
+      `).run();
+      changes = info.changes;
+      forceUpdatePersonaStatus('idle', '已取消后台画像生成。', 0);
+    }
+
+    res.json({ success: true, message: `成功强制取消并中断了 ${changes} 个后台排队计算任务。` });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/zhao-positions - 获取大V（赵哥）当前真实持仓 Lots、浮盈/实盈及历史原始买卖流水
+app.get('/api/zhao-positions', async (req, res) => {
+  try {
+    const db = getDb();
+
+    // 1. 从 positions 表获取当前真实在持明细
+    const positionsRows = db.prepare(`SELECT * FROM positions ORDER BY market_value DESC`).all();
+
+    // 2. 从 orders 表获取所有成交流水，并按 ticker 分组
+    const ordersRows = db.prepare(`SELECT * FROM orders ORDER BY created_at DESC`).all();
+    const ordersByTicker = {};
+    for (const ord of ordersRows) {
+      const sym = ord.ticker.toUpperCase();
+      if (!ordersByTicker[sym]) ordersByTicker[sym] = [];
+      ordersByTicker[sym].push({
+        id: ord.id,
+        action: ord.action,
+        price: ord.price,
+        quantity: ord.quantity,
+        time: ord.created_at,
+        reason: ord.reason
+      });
+    }
+
+    // 为每个标的的已确认交易流水按时间顺序编排代号 (如 INTC_B1, INTC_S1)
+    for (const sym in ordersByTicker) {
+      const list = ordersByTicker[sym];
+      list.sort((a, b) => a.time - b.time);
+      let bCount = 0;
+      let sCount = 0;
+      for (const item of list) {
+        if (item.action === 'BUY') {
+          item.tradeCode = `${sym}_B${++bCount}`;
+        } else {
+          item.tradeCode = `${sym}_S${++sCount}`;
+        }
+      }
+      list.reverse(); // 呈现时最新在前
+    }
+
+    // 3. 从 trade_review_pool 表获取候选交易并按 ticker 分组编排代号 (如 INTC_C1, INTC_C2)
+    let allCandidates = [];
+    try {
+      allCandidates = db.prepare(`
+        SELECT * FROM trade_review_pool
+        WHERE status = 'candidate'
+        ORDER BY created_at ASC
+      `).all();
+    } catch (e) {}
+
+    const candidatesByTicker = {};
+    for (const cand of allCandidates) {
+      const sym = cand.ticker.toUpperCase();
+      if (!candidatesByTicker[sym]) candidatesByTicker[sym] = [];
+      candidatesByTicker[sym].push(cand);
+    }
+
+    for (const sym in candidatesByTicker) {
+      const list = candidatesByTicker[sym];
+      let cCount = 0;
+      for (const item of list) {
+        item.candidateCode = `${sym}_C${++cCount}`;
+      }
+      list.reverse(); // 呈现时最新在前
+    }
+
+    // 4. 构建高精度活跃持仓数据（每个标的内嵌自己的已确认交易与专属候选池）
+    const finalActivePositions = positionsRows.map(pos => {
+      const sym = pos.ticker.toUpperCase();
+      const tickerOrders = ordersByTicker[sym] || [];
+      const tickerCandidates = candidatesByTicker[sym] || [];
+      
+      const buyLots = tickerOrders
+        .filter(o => o.action === 'BUY')
+        .slice(0, 10)
+        .map(o => ({
+          price: o.price,
+          quantity: o.quantity,
+          time: o.time,
+          reason: o.reason
+        }));
+
+      const stdLotRatio = pos.market_value / 9000.0;
+      let lotBadge = '1/6 常规仓';
+      if (stdLotRatio >= 0.8) lotBadge = '1个满常规仓';
+      else if (stdLotRatio >= 0.45) lotBadge = '1/2 常规仓 (半仓)';
+      else if (stdLotRatio >= 0.28) lotBadge = '1/3 常规仓';
+      else if (stdLotRatio >= 0.12) lotBadge = '1/6 常规仓';
+      else lotBadge = `${(stdLotRatio * 6).toFixed(1)}/6 常规仓`;
+
+      const pnlRatio = pos.average_entry_price > 0 ? (pos.current_price - pos.average_entry_price) / pos.average_entry_price : 0;
+
+      return {
+        ticker: pos.ticker,
+        totalQuantity: pos.quantity,
+        lotBadge,
+        averageCost: pos.average_entry_price,
+        currentPrice: pos.current_price,
+        marketValue: pos.market_value,
+        unrealizedPnL: pos.unrealized_pnl,
+        pnlRatio,
+        lots: buyLots.length > 0 ? buyLots : [{ price: pos.average_entry_price, quantity: pos.quantity, time: Date.now() - 86400000, reason: '【历史股票期权记录区】建仓' }],
+        allTrades: tickerOrders,
+        candidateTrades: tickerCandidates
+      };
+    });
+
+    // 5. 提取口头披露仓位状态
+    const verbalExposure = cachedVerbalExposure;
+
+    // 6. 聚合战役统计
+    const totalCampaigns = db.prepare("SELECT COUNT(*) as count FROM campaigns").get()?.count || 0;
+    const activeCampaignsCount = finalActivePositions.length;
+    const closedCampaignsCount = Math.max(0, totalCampaigns - activeCampaignsCount);
+
+    res.json({
+      success: true,
+      data: {
+        verbalExposure,
+        currentPositions: finalActivePositions,
+        candidateList: allCandidates.slice(0, 50),
+        activeCampaignsCount,
+        closedCampaignsCount,
+        totalCampaignsCount: totalCampaigns
+      }
+    });
+  } catch (err) {
+    console.error('[Zhao Positions API] 获取失败:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/trade-review/move - 人机协同：在持仓与候选消息池之间一键移动并即时重算
+app.post('/api/trade-review/move', requireCsrf, async (req, res) => {
+  try {
+    const { id, targetStatus } = req.body;
+    if (!id || !targetStatus) {
+      return res.status(400).json({ success: false, error: '缺少 id 或 targetStatus 参数' });
+    }
+
+    const db = getDb();
+    const cleanId = id.replace(/^ord_\d+_/, '');
+
+    const info = db.prepare(`
+      UPDATE trade_review_pool
+      SET status = ?, is_manual = 1, updated_at = ?
+      WHERE id = ? OR message_id = ? OR id = ? OR id LIKE ?
+    `).run(targetStatus, Date.now(), id, id, cleanId, `%${cleanId}%`);
+
+    // 状态移动后，立即执行持久化推演引擎（绝不覆盖人工标注）
+    try {
+      const { execSync } = await import('child_process');
+      execSync('node scratch/recalculate_ledger.js', { timeout: 10000 });
+    } catch (e) {
+      console.warn('[Auto Recalculate Warning]:', e.message);
+    }
+
+    res.json({ success: true, message: `成功更新并重新计算持仓 (影响记录数: ${info.changes})` });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/trade-review/sync - 人机协同：重新执行全量持仓与台账同步
+app.post('/api/trade-review/sync', requireCsrf, async (req, res) => {
+  try {
+    const { exec } = await import('child_process');
+    exec('node scratch/recalculate_ledger.js', (error, stdout, stderr) => {
+      if (error) {
+        console.error('[Sync Error]:', error);
+        return res.status(500).json({ success: false, error: error.message });
+      }
+      res.json({ success: true, message: '🎉 全量持仓台账与语义模型已重新计算同步完成！', stdout });
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/campaigns - Get all campaigns
+app.get('/api/campaigns', (req, res) => {
+  try {
+    const db = getDb();
+    const rows = db.prepare(`
+      SELECT c.*,
+        (SELECT COUNT(*) FROM campaign_messages WHERE campaign_id = c.id) as message_count
+      FROM campaigns c
+      ORDER BY c.open_time DESC
+    `).all();
+    res.json({ success: true, campaigns: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/campaigns/:id/messages - Get messages associated with a campaign
+app.get('/api/campaigns/:id/messages', (req, res) => {
+  try {
+    const campaignId = parseInt(req.params.id, 10);
+    const db = getDb();
+
+    const campaign = db.prepare('SELECT * FROM campaigns WHERE id = ?').get(campaignId);
+    if (!campaign) {
+      return res.status(404).json({ success: false, error: '战役未找到' });
+    }
+
+    const messages = db.prepare(`
+      SELECT m.*
+      FROM messages m
+      JOIN campaign_messages cm ON m.id = cm.message_id
+      WHERE cm.campaign_id = ?
+      ORDER BY m.created_at ASC
+    `).all(campaignId);
+
+    res.json({ success: true, campaign, messages });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/macro-events - Get all macro events
+app.get('/api/macro-events', (req, res) => {
+  try {
+    const db = getDb();
+    const rows = db.prepare(`
+      SELECT * FROM macro_events
+      ORDER BY event_timestamp DESC
+    `).all();
+    res.json({ success: true, events: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ==========================================================================
+// 量化跟单与交易 API 路由
+// ==========================================================================
+
+// GET /api/quant/portfolio - 获取账户总资产、可用现金、持仓市值等统计数据
+app.get('/api/quant/portfolio', async (req, res) => {
+  try {
+    const data = await getUnifiedPortfolio();
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET /api/quant/positions - 获取当前持仓明细
+app.get('/api/quant/positions', async (req, res) => {
+  try {
+    const data = await getUnifiedPositions();
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET /api/quant/orders - 获取跟单订单历史记录
+app.get('/api/quant/orders', (req, res) => {
+  try {
+    const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 50));
+    const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
+    const data = getOrders({ limit, offset });
+    res.json({ success: true, data: data.orders, total: data.total });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/quant/reset - 重置沙盒模拟账户资金
+app.post('/api/quant/reset', requireCsrf, (req, res) => {
+  try {
+    const amount = parseFloat(req.body.amount || '100000.00');
+    resetPortfolioCash(amount);
+    res.json({ success: true, message: `模拟账户已成功重置，初始资金为 $${amount.toFixed(2)}` });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/quant/trade - 手动下单（用于测试风控引擎和下单通道）
+app.post('/api/quant/trade', requireCsrf, async (req, res) => {
+  try {
+    const { ticker, action, price, quantity, stopLoss, reason } = req.body;
+
+    // Validate required parameters
+    if (!ticker || typeof ticker !== 'string' || ticker.trim().length === 0) {
+      return res.status(400).json({ success: false, error: '缺少或无效的 ticker 参数' });
+    }
+    if (!action || !['BUY', 'SELL'].includes(action.toUpperCase())) {
+      return res.status(400).json({ success: false, error: 'action 参数必须为 BUY 或 SELL' });
+    }
+    const parsedPrice = parseFloat(price);
+    if (!parsedPrice || parsedPrice <= 0 || !isFinite(parsedPrice)) {
+      return res.status(400).json({ success: false, error: 'price 参数必须为正数' });
+    }
+    const parsedQty = parseInt(quantity, 10);
+    if (!parsedQty || parsedQty <= 0 || !Number.isInteger(parsedQty)) {
+      return res.status(400).json({ success: false, error: 'quantity 参数必须为正整数' });
+    }
+
+    const result = await executeOrder({
+      ticker: ticker.trim().toUpperCase(),
+      action: action.toUpperCase(),
+      price: parsedPrice,
+      quantity: parsedQty,
+      stopLoss: stopLoss ? parseFloat(stopLoss) : null,
+      reason: reason || '手动触发交易'
+    });
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Helper function to update .env file and process.env
+function updateEnvFile(newConfig) {
+  const envPath = path.join(process.cwd(), '.env');
+  let currentEnv = {};
+
+  if (fs.existsSync(envPath)) {
+    const fileContent = fs.readFileSync(envPath, 'utf-8');
+    const lines = fileContent.split('\n');
+    for (const line of lines) {
+      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        currentEnv[match[1]] = match[2] ? match[2].trim().replace(/^['"]|['"]$/g, '') : '';
+      }
+    }
+  }
+
+  const mergedConfig = { ...currentEnv, ...newConfig };
+  const outputContent = Object.entries(mergedConfig)
+    .map(([key, val]) => `${key}=${val}`)
+    .join('\n') + '\n';
+
+  fs.writeFileSync(envPath, outputContent, 'utf-8');
+
+  // Update in-memory process.env
+  for (const [key, val] of Object.entries(newConfig)) {
+    process.env[key] = val;
+  }
+}
+
+// ==========================================================================
+// Map-Reduce 分批合并处理大语言模型核心函数
+// ==========================================================================
+
+// Helper for Map-Reduce AI calling
+async function callAI(provider, prompt) {
+  return await analyzeWithFallback(prompt, { provider, tag: 'MapReduce', priority: 5 });
+}
+
+// Generate the final reduce prompt based on whether it is from Map-Reduce or raw messages
+function getFinalReducePrompt(inputText, primarySpeakerName, isStrategyMode, extraParam, isFromMapReduce = false) {
+  const dataSourceDesc = isFromMapReduce
+    ? `美股社区大V [${primarySpeakerName}] 的历史发言核心要点精炼汇总记录`
+    : `美股社区大V [${primarySpeakerName}] 的历史发言原始归档记录`;
+
+  if (isStrategyMode) {
+    const strategyName = extraParam;
+    return `你是一位资深的美股量化与宏观投资策略分析师，精通美股交易规则、期权定价、以及各种实战战法。
+以下是${dataSourceDesc}。
+请对这些发言要点内容进行深度的系统整理、复盘与提炼，生成一份极其专业的“战法专项技术分析与实战总结报告”，以帮助订阅者深入学习大V的操作逻辑和风控思想。
+
+你必须生成一份极其详尽且结构化的 Markdown 总结，格式如下：
+
+# 📈 【${strategyName}】战法专项技术分析报告
+
+## 📌 一、战法核心逻辑与思路提炼
+- 详细提炼大V在该战法下的**核心操盘逻辑**是什么？大V在什么市场环境下倾向于使用此战法？
+- 大V操作思路是侧重防守（降本、锁利、避险）还是进攻？有哪些核心技术要点？
+
+## 🎯 二、具体执行细节与仓位管理
+深入解析发言中体现出的执行细节：
+- **买入与加仓时机**：如何寻找介入点？有什么明确的信号或技术支撑位判断？
+- **卖出与止损/止利**：何时出局？如何博弈波动率（IV）或日内急涨急跌？
+- **仓位配比与仓位分级**：该战法一般占用多少仓位？如何分批建仓与减仓？
+
+## 📊 三、涉及标的与操作盘口汇总
+整理发言中提及的重点个股，并制作一个 Markdown 表格，列出以下内容（如未提及则填“未明确说明”）：
+| 股票代码 | 交易方向 (买入/卖出/做T/防御/观望) | 点位与价格区间 | 仓位管理 (半仓/轻仓/底仓等) | 核心支撑/压力位与执行逻辑 |
+
+## 🛡️ 四、大V跟单风控金句与实战避坑指南
+- 提炼这批发言中关于【${strategyName}】最核心的**风控金句或原则**（用引用块 \`>\` 突出）。
+- 普通投资者在使用该战法或跟单时，最容易犯的错误是什么？应该如何进行心态建设和风控防线设计？
+
+以下是分析的数据源：
+${inputText}`;
+  } else {
+    const filterStr = extraParam;
+    return `你是一位资深的美股量化与宏观投资策略分析师，精通美股交易规则、期权定价、以及各种实战战法（如财报战法、做T、尾盘强平、节日被动减仓、单调减仓等）。
+以下是${dataSourceDesc}。
+请对这些发言要点内容进行深度的系统整理、复盘与提炼，生成一份极其专业的“维度复盘与策略学习总结报告”，以帮助订阅者深入学习大V的操作逻辑和风控思想。
+
+你必须生成一份极其详尽且结构化的 Markdown 总结，格式如下：
+
+# 📈 [${filterStr}] 维度复盘与策略总结报告
+
+## 📌 一、核心观点与交易思路提炼
+- 总结大V在这些发言中的**核心观点**是什么？他对这些个股或板块的看法经历了怎样的变化？
+- 在这个特定维度下，大V的操作是偏向防御性（如节日被动减仓、弹性股防御）还是进攻性（如财报战法、做T）？
+
+## 🎯 二、策略战法实战解析
+深入解析发言中体现出的实战战法（如果涉及）：
+- **财报战法**：如何控制仓位？如何博弈财报发布前后的预期差和隐波（IV）？
+- **做T/波段策略**：做T的节奏是什么？他是如何利用急涨急跌、日内低吸高抛来降本的？
+- **尾盘强平与资金博弈**：发言中是如何博弈尾盘强平时段（如3点到3点半）的低点和高点的？
+- **节日及资金面防守**：大V对于假前减仓、节日被动减仓等避险操作有哪些要求？
+- **单调减仓**：大V在判断单边下跌时，是如何进行单调减仓防守的？
+
+## 📊 三、标的物与执行细节汇总
+整理发言中提及的重点个股，并制作一个 Markdown 表格，列出以下内容（如未提及则填“未明确说明”）：
+| 股票代码 | 操作类型 (买入/卖出/做T/观望) | 点位与价格区间 | 仓位管理 (如半仓/轻仓) | 核心逻辑与技术支撑位 |
+
+## 🛡️ 四、学习要点与跟单风控指南（金句提炼）
+- 提炼这批发言中含金量最高、最适合反复学习和遵守的**风控金句或原则**（请用引用块 \`>\` 突出）。
+- 普通订阅者在面临类似行情或使用该战法时，应该如何做仓位和心理建设？
+
+以下是分析的数据源：
+${inputText}`;
+  }
+}
+
+// Master Map-Reduce analysis scheduler
+async function runMapReduceAnalysis(messages, provider, isStrategyMode, extraParam) {
+  const CHUNK_SIZE = 60; // Optimal batch size for 8k VRAM limit
+
+  if (messages.length <= CHUNK_SIZE) {
+    console.log(`[AI Map-Reduce] 消息总数为 ${messages.length}，少于分批阈值 ${CHUNK_SIZE}，执行单次直连分析。`);
+    const messagesText = messages
+      .map((msg) => {
+        const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+        return `[${timeStr}] [${msg.channel_name || '讨论区'}] ${msg.sender_name}: ${msg.content}`;
+      })
+      .join('\n\n');
+
+    const primarySpeakerName = messages[0].sender_name;
+    const prompt = getFinalReducePrompt(messagesText, primarySpeakerName, isStrategyMode, extraParam);
+    return await callAI(provider, prompt);
+  }
+
+  console.log(`[AI Map-Reduce] 消息总数为 ${messages.length}，超过阈值 ${CHUNK_SIZE}。将执行分批合并（Map-Reduce）处理。`);
+  const chunks = [];
+  for (let i = 0; i < messages.length; i += CHUNK_SIZE) {
+    chunks.push(messages.slice(i, i + CHUNK_SIZE));
+  }
+
+  const chunkSummaries = [];
+  const primarySpeakerName = messages[0].sender_name;
+
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i];
+    console.log(`[AI Map-Reduce] 正在进行 Map 阶段分析 (${i + 1}/${chunks.length})，处理 ${chunk.length} 条发言...`);
+
+    const chunkText = chunk
+      .map((msg) => {
+        const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+        return `[${timeStr}] [${msg.channel_name || '讨论区'}] ${msg.sender_name}: ${msg.content}`;
+      })
+      .join('\n\n');
+
+    const mapPrompt = `你是一个专业的投资策略数据精炼助手。以下是一份美股大V [${primarySpeakerName}] 历史发言归档的一部分（批次：${i + 1}/${chunks.length}）。
+请从这批发言中提取出大V透露的所有核心观点、具体交易策略（如财报战法、做T操作相关）、关注个股的具体点位/区间与逻辑，以及关键的风控原则。
+要求：内容必须高度精炼，删去日常闲聊，只保留核心要点，格式使用简洁的 Markdown 列表。
+发言记录：
+${chunkText}`;
+
+    try {
+      const summary = await callAI(provider, mapPrompt);
+      chunkSummaries.push(`### 📅 批次数据回顾 (${i + 1}/${chunks.length})\n\n${summary}`);
+    } catch (err) {
+      console.error(`[AI Map-Reduce] 批次 ${i + 1} Map 分析失败:`, err.message);
+    }
+  }
+
+  if (chunkSummaries.length === 0) {
+    throw new Error('分批 Map 提炼全部失败，无法生成最终总结。');
+  }
+
+  console.log(`[AI Map-Reduce] 正在进行 Reduce 阶段整合，融合所有批次的摘要...`);
+  const aggregatedSummariesText = chunkSummaries.join('\n\n=======================\n\n');
+
+  const finalPrompt = getFinalReducePrompt(aggregatedSummariesText, primarySpeakerName, isStrategyMode, extraParam, true);
+  return await callAI(provider, finalPrompt);
+}
+
+// 4. GET /api/config - Retrieve current config (secrets masked)
+app.get('/api/config', (req, res) => {
+  const mask = (str) => {
+    if (!str) return '';
+    if (str.length <= 8) return '********';
+    return `${str.substring(0, 4)}...${str.substring(str.length - 4)}`;
+  };
+
+  res.json({
+    success: true,
+    data: {
+      PORT: process.env.PORT || '3000',
+      AI_PROVIDER: process.env.AI_PROVIDER || 'lm-studio',
+      GEMINI_API_KEY_MASKED: mask(process.env.GEMINI_API_KEY),
+      OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+      OLLAMA_MODEL: process.env.OLLAMA_MODEL || 'deepseek-r1',
+      LM_STUDIO_BASE_URL: process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080',
+      LM_STUDIO_MODEL: process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct',
+      WHOP_CHAT_CHANNEL_ID: process.env.WHOP_CHAT_CHANNEL_ID || '',
+      WHOP_SIGNAL_CHANNEL_IDS: process.env.WHOP_SIGNAL_CHANNEL_IDS || 'chat_feed_1CTrCEx44dP13jW3RVkYiS,chat_feed_1CWLuNUVYVVYttro8gAvJ5',
+      TARGET_SPEAKER_USER_IDS: process.env.TARGET_SPEAKER_USER_IDS || '',
+      MONITOR_INTERVAL_MINUTES: process.env.MONITOR_INTERVAL_MINUTES || '15',
+      WECHAT_WORK_WEBHOOK_URL_MASKED: mask(process.env.WECHAT_WORK_WEBHOOK_URL),
+      WHOP_WEBHOOK_SECRET_MASKED: mask(process.env.WHOP_WEBHOOK_SECRET),
+      WHOP_USER_TOKEN_MASKED: mask(process.env.WHOP_USER_TOKEN),
+      LAST_SYNC_TIME: getLastSyncTime(),
+      // 风控与跟单配置项
+      MOCK_TRADING_MODE: process.env.MOCK_TRADING_MODE || 'true',
+      AUTO_TRADING_LEVEL: process.env.AUTO_TRADING_LEVEL || 'strict',
+      USE_DYNAMIC_SIZING: process.env.USE_DYNAMIC_SIZING || 'true',
+      DEFAULT_POSITION_PCT: process.env.DEFAULT_POSITION_PCT || '0.10',
+      AUTO_SUBSTITUTE_LEVERAGED_ETFS: process.env.AUTO_SUBSTITUTE_LEVERAGED_ETFS || 'false',
+      LEVERAGED_ETF_MAPPING: process.env.LEVERAGED_ETF_MAPPING || 'NVDA:NVDL,TSLA:TSLL,LITE:LITX',
+      RISK_PER_TRADE_PCT: process.env.RISK_PER_TRADE_PCT || '0.01',
+      MAX_CONCENTRATION_PCT: process.env.MAX_CONCENTRATION_PCT || '0.20',
+      CASH_BUFFER_PCT: process.env.CASH_BUFFER_PCT || '0.15'
+    }
+  });
+});
+
+// 5. POST /api/config - Save configuration updates (CSRF protected)
+app.post('/api/config', requireCsrf, (req, res) => {
+  try {
+    const updates = req.body;
+    const cleanUpdates = {};
+
+    // Only allow updating specific whitelisted environment variables
+    const whitelist = [
+      'PORT',
+      'AI_PROVIDER',
+      'GEMINI_API_KEY',
+      'OLLAMA_BASE_URL',
+      'OLLAMA_MODEL',
+      'LM_STUDIO_BASE_URL',
+      'LM_STUDIO_MODEL',
+      'WHOP_CHAT_CHANNEL_ID',
+      'WHOP_SIGNAL_CHANNEL_IDS',
+      'TARGET_SPEAKER_USER_IDS',
+      'MONITOR_INTERVAL_MINUTES',
+      'WECHAT_WORK_WEBHOOK_URL',
+      'WHOP_WEBHOOK_SECRET',
+      'WHOP_USER_TOKEN',
+      // 新增量化风控项
+      'MOCK_TRADING_MODE',
+      'AUTO_TRADING_LEVEL',
+      'USE_DYNAMIC_SIZING',
+      'DEFAULT_POSITION_PCT',
+      'AUTO_SUBSTITUTE_LEVERAGED_ETFS',
+      'LEVERAGED_ETF_MAPPING',
+      'RISK_PER_TRADE_PCT',
+      'MAX_CONCENTRATION_PCT',
+      'CASH_BUFFER_PCT'
+    ];
+
+    for (const key of whitelist) {
+      if (updates[key] !== undefined) {
+        // If it starts with masking pattern and wasn't edited, keep current process.env value
+        if (updates[key].includes('...') && (key === 'GEMINI_API_KEY' || key === 'WECHAT_WORK_WEBHOOK_URL' || key === 'WHOP_WEBHOOK_SECRET' || key === 'WHOP_USER_TOKEN')) {
+          continue; // Keep current
+        }
+        cleanUpdates[key] = String(updates[key]).trim();
+      }
+    }
+
+    updateEnvFile(cleanUpdates);
+
+    // Restart poller task to reflect new interval
+    startPoller();
+
+    res.json({ success: true, message: 'Configuration updated successfully.' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 6. POST /webhook - Official Whop Webhook endpoint (Receive payments/membership updates)
+app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const secret = process.env.WHOP_WEBHOOK_SECRET;
+  const signature = req.headers['x-whop-signature'] || req.headers['x-whop-signature-256'];
+  const rawBody = req.body;
+
+  if (secret && signature) {
+    const hmac = crypto.createHmac('sha256', secret);
+    hmac.update(rawBody);
+    const expectedSignature = hmac.digest('hex');
+
+    try {
+      const actualBuffer = Buffer.from(signature, 'hex');
+      const expectedBuffer = Buffer.from(expectedSignature, 'hex');
+
+      if (actualBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(actualBuffer, expectedBuffer)) {
+        console.warn('Webhook signature verification failed.');
+        return res.status(401).send('Unauthorized signature');
+      }
+    } catch (e) {
+      console.warn('Error verifying webhook signature:', e);
+      return res.status(401).send('Unauthorized');
+    }
+  }
+
+  // Acknowledge receipt to Whop immediately
+  res.status(200).send('OK');
+
+  // Process asynchronously to prevent timeout
+  try {
+    const payload = JSON.parse(rawBody.toString('utf-8'));
+    console.log('Received valid Whop Webhook:', payload.type);
+
+    let msgText = `### 🔔 Whop 业务事件通知\n**事件类型**: \`${payload.type}\`\n`;
+    if (payload.data) {
+      const data = payload.data;
+      if (payload.type.startsWith('payment.')) {
+        msgText += `**金额**: $${((data.amount || 0) / 100).toFixed(2)}\n**付款用户**: ${data.user?.username || data.email || '未知'}\n**产品**: ${data.product?.title || '未知产品'}\n`;
+      } else if (payload.type.startsWith('membership.')) {
+        msgText += `**用户**: ${data.user?.username || data.email || '未知'}\n**产品/计划**: ${data.plan?.title || '未知'}\n**状态**: ${payload.type.split('.')[1] || '更新'}\n`;
+      } else {
+        msgText += `**数据摘要**: ${JSON.stringify(data).substring(0, 200)}...\n`;
+      }
+    }
+
+    // Push notification to WeChat Bot
+    if (process.env.WECHAT_WORK_WEBHOOK_URL) {
+      await fetch(process.env.WECHAT_WORK_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          msgtype: 'markdown',
+          markdown: { content: msgText }
+        })
+      });
+    }
+  } catch (error) {
+    console.error('Error processing webhook asynchronously:', error);
+  }
+});
+
+// 7. POST /api/reports/dimensional-summary - Generate a customized AI report from filtered messages (CSRF protected)
+app.post('/api/reports/dimensional-summary', requireCsrf, async (req, res) => {
+  try {
+    const { search, onlySpeakers, speakerMode, channelId: bodyChannelId, channelName, ticker, sector, strategy, startDate, endDate } = req.body;
+    console.log('[API Reports] req.body:', req.body);
+
+    const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+    console.log('[API Reports] targetSpeakers:', targetSpeakers);
+
+    let senderIds = [];
+    let excludeSenderIds = [];
+    let queryChannelId = bodyChannelId || '';
+
+    const effectiveSpeakerMode = speakerMode || (onlySpeakers !== false ? 'speakers' : 'all');
+
+    if (effectiveSpeakerMode === 'speakers') {
+      senderIds = targetSpeakers;
+    } else if (effectiveSpeakerMode === 'all') {
+      // Show everyone
+    } else if (effectiveSpeakerMode && effectiveSpeakerMode.startsWith('community_')) {
+      queryChannelId = effectiveSpeakerMode.replace('community_', '');
+      excludeSenderIds = targetSpeakers;
+    }
+
+    // Retrieve up to 200 messages for historical review analysis
+    const data = getMessages({
+      search: search || '',
+      limit: 200,
+      offset: 0,
+      senderIds,
+      excludeSenderIds,
+      channelId: queryChannelId,
+      channelName: channelName || '',
+      ticker: ticker || '',
+      sector: sector || '',
+      strategy: strategy || '',
+      startDate: startDate || '',
+      endDate: endDate || ''
+    });
+
+    if (!data.messages || data.messages.length === 0) {
+      return res.status(400).json({ success: false, error: '当前过滤条件下没有找到历史发言，无法进行 AI 复盘总结。' });
+    }
+
+    // Sort chronologically (oldest first)
+    const messages = [...data.messages].sort((a, b) => a.created_at - b.created_at);
+
+    const primarySpeakerName = messages[0].sender_name;
+    const filterDesc = [];
+    if (effectiveSpeakerMode === 'speakers') {
+      filterDesc.push('大V发言');
+    } else if (effectiveSpeakerMode.startsWith('community_')) {
+      const db = getDb();
+      const ch = db.prepare("SELECT channel_name FROM messages WHERE channel_id = ? LIMIT 1").get(effectiveSpeakerMode.replace('community_', ''));
+      const chName = ch ? ch.channel_name : '未知频道';
+      filterDesc.push(`频道群友:${chName}`);
+    } else {
+      filterDesc.push('所有人发言');
+    }
+    if (sector) filterDesc.push(`板块:${sector}`);
+    if (strategy) filterDesc.push(`战法:${strategy}`);
+    if (ticker) filterDesc.push(`个股:${ticker}`);
+    if (startDate || endDate) filterDesc.push(`时间:${startDate || '起'}至${endDate || '至今'}`);
+    const filterStr = filterDesc.length > 0 ? filterDesc.join(', ') : '全维度历史';
+
+    const provider = process.env.AI_PROVIDER || 'lm-studio';
+
+    console.log(`[AI 维度复盘] 开始调用 AI (${provider})，采用分批合并机制生成维度总结报告...`);
+    const startTimeAI = Date.now();
+    const summaryContent = await runMapReduceAnalysis(messages, provider, false, filterStr);
+    const durationAI = ((Date.now() - startTimeAI) / 1000).toFixed(1);
+    console.log(`[AI 维度复盘] 维度总结报告生成成功！耗时: ${durationAI}秒。`);
+
+    // Save report to DB
+    const startTime = messages[0].created_at;
+    const endTime = messages[messages.length - 1].created_at;
+
+    let modelNameUsed = 'Gemini';
+    if (provider === 'ollama') {
+      modelNameUsed = `Ollama (${process.env.OLLAMA_MODEL || 'deepseek-r1'})`;
+    } else if (provider === 'lm-studio') {
+      modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct'})`;
+    }
+
+    const reportId = saveReport({
+      startTime,
+      endTime,
+      summaryContent,
+      aiModel: `${modelNameUsed} (维度复盘)`,
+      rawMessagesCount: messages.length,
+    });
+
+    res.json({
+      success: true,
+      id: reportId,
+      created_at: Date.now(),
+      summary_content: summaryContent,
+      ai_model: `${modelNameUsed} (维度复盘)`,
+      raw_messages_count: messages.length
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================================================
+// 战法策略统计与专项 AI 研报分析 API 路由
+// ==========================================================================
+
+// GET /api/strategies - 获取 7 大战法统计信息和最新报告
+app.get('/api/strategies', (req, res) => {
+  try {
+    const strategies = [
+      { key: '财报战法', name: '财报战法', desc: '博弈财报发布前后的预期差、波动率（IV）与股价急涨急跌' },
+      { key: '节日被动减', name: '节日被动减', desc: '节假日放假避险或资金周转进行的被动避险减仓' },
+      { key: '单调减', name: '单调减', desc: '仓位持续单向递减、只出不进防守策略' },
+      { key: '尾盘强平', name: '尾盘强平', desc: '博弈尾盘强平时段（如3:00 - 3:30）的异常低点/高点' },
+      { key: '做T', name: '做T', desc: '在底仓基础上的日内/波段 T+0 低吸高抛操作，降低持仓成本' },
+      { key: '弹性股防御', name: '弹性股防御', desc: '大盘回调期选择高弹性防御标的或避险板块博弈' },
+      { key: '规律总结', name: '规律总结', desc: '对市场特征、特定庄股手法或大盘中长线规律的提炼' }
+    ];
+
+    const conn = getDb();
+    const result = strategies.map(strat => {
+      // 查询有该战法标记的消息总数
+      const countRow = conn.prepare(`
+        SELECT COUNT(*) as count FROM messages
+        WHERE strategies LIKE ?
+      `).get(`%,${strat.key},%`);
+
+      const messageCount = countRow ? countRow.count : 0;
+
+      // 查询此战法关联的最新的 AI 研报
+      const latestReport = getLatestReportForStrategy(strat.key);
+
+      return {
+        key: strat.key,
+        name: strat.name,
+        desc: strat.desc,
+        messageCount,
+        latestReport: latestReport ? {
+          id: latestReport.id,
+          created_at: latestReport.created_at,
+          summary_content: latestReport.summary_content,
+          ai_model: latestReport.ai_model,
+          raw_messages_count: latestReport.raw_messages_count
+        } : null
+      };
+    });
+
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/strategies/analyze - 对指定战法触发 AI 研报深度分析 (CSRF protected)
+app.post('/api/strategies/analyze', requireCsrf, async (req, res) => {
+  try {
+    const { strategy } = req.body;
+    if (!strategy) {
+      return res.status(400).json({ success: false, error: '缺少 strategy 参数' });
+    }
+
+    const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    // 获取该策略相关的最近最多 200 条消息来进行复盘总结
+    const data = getMessages({
+      limit: 200,
+      offset: 0,
+      senderIds: targetSpeakers,
+      strategy: strategy
+    });
+
+    if (!data.messages || data.messages.length === 0) {
+      return res.status(400).json({ success: false, error: `当前数据库中没有关于【${strategy}】的历史发言，无法进行 AI 分析。` });
+    }
+
+    // 按时间先后顺序排列 (最早的消息排在最前面)
+    const messages = [...data.messages].sort((a, b) => a.created_at - b.created_at);
+
+    const provider = process.env.AI_PROVIDER || 'lm-studio';
+
+    console.log(`[AI 战法分析] 开始调用 AI (${provider})，采用分批合并机制生成【${strategy}】专项研报...`);
+    const startTimeAI = Date.now();
+    const summaryContent = await runMapReduceAnalysis(messages, provider, true, strategy);
+    const durationAI = ((Date.now() - startTimeAI) / 1000).toFixed(1);
+    console.log(`[AI 战法分析] 【${strategy}】专项研报生成成功！耗时: ${durationAI}秒。`);
+
+    // 保存报告，带上 strategy 标记
+    const startTime = messages[0].created_at;
+    const endTime = messages[messages.length - 1].created_at;
+
+    let modelNameUsed = 'Gemini';
+    if (provider === 'ollama') {
+      modelNameUsed = `Ollama (${process.env.OLLAMA_MODEL || 'deepseek-r1'})`;
+    } else if (provider === 'lm-studio') {
+      modelNameUsed = `LM Studio (${process.env.LM_STUDIO_MODEL || 'qwen2.5-14b-instruct'})`;
+    }
+
+    const reportId = saveReport({
+      startTime,
+      endTime,
+      summaryContent,
+      aiModel: `${modelNameUsed} (${strategy})`,
+      rawMessagesCount: messages.length,
+      strategy: strategy
+    });
+
+    res.json({
+      success: true,
+      id: reportId,
+      created_at: Date.now(),
+      summary_content: summaryContent,
+      ai_model: `${modelNameUsed} (${strategy})`,
+      raw_messages_count: messages.length,
+      strategy: strategy
+    });
+  } catch (error) {
+    console.error('Error generating strategy analysis:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================================================
+// RAG (Retrieval-Augmented Generation) & Local LM Studio Embedding Support
+// ==========================================================================
+
+let isVectorSearchEnabled = false;
+let isEmbeddingWorkerRunning = false;
+
+async function fetchLMStudioEmbedding(text) {
+  const baseUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
+  const model = process.env.LM_STUDIO_EMBEDDING_MODEL || 'text-embedding-nomic-embed-text-v1.5';
+  const url = `${baseUrl.replace(/\/$/, '')}/v1/embeddings`;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: model,
+        input: text
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      throw new Error(`LM Studio HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    if (data && data.data && data.data[0] && data.data[0].embedding) {
+      return data.data[0].embedding;
+    } else {
+      throw new Error('Invalid embedding response structure.');
+    }
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+}
+
+
+async function fetchGeminiEmbedding(text, priority = 1) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('GEMINI_API_KEY not set');
+  const activeKey = apiKey.split(',')[0].trim();
+
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=' + activeKey;
+
+  const callFn = async () => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'models/gemini-embedding-001',
+          content: { parts: [{ text: text }] }
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        throw new Error('Gemini embedding HTTP ' + res.status);
+      }
+
+      const data = await res.json();
+      if (data && data.embedding && data.embedding.values) {
+        return data.embedding.values;
+      } else {
+        throw new Error('Invalid Gemini embedding response');
+      }
+    } catch (err) {
+      clearTimeout(timeoutId);
+      throw err;
+    }
+  };
+
+  return await runWithRateLimit(callFn, { priority });
+}
+
+async function fetchEmbedding(text, priority = 1) {
+  try {
+    return await fetchLMStudioEmbedding(text);
+  } catch (err) {
+    const localLooksUp = !/econnrefused|etimedout|enotfound|fetch failed|socket hang up|aborted/i.test(String(err.message || ''));
+    if (localLooksUp) {
+      console.warn('[RAG] Local embedding failed but LM Studio appears up — skip Gemini embedding to protect keys:', err.message);
+      return null;
+    }
+    try {
+      console.log('[RAG] Local embedding unreachable — sparse Gemini embedding fallback');
+      return await fetchGeminiEmbedding(text, priority);
+    } catch (gErr) {
+      console.warn('[RAG] Gemini Embedding 触发配额保护挂起，跳过当前消息向量化以保护系统吞吐:', gErr.message);
+      return null;
+    }
+  }
+}
+
+async function checkEmbeddingApi() {
+  try {
+    console.log('[RAG] Testing embedding API (LM Studio -> Gemini fallback)...');
+    const testVector = await fetchEmbedding('test string', 0);
+    if (Array.isArray(testVector) && testVector.length > 0) {
+      isVectorSearchEnabled = true;
+      console.log('[RAG] Embedding API active. Vector size: ' + testVector.length + '. Vector search enabled.');
+      startBackgroundEmbedder();
+    }
+  } catch (err) {
+    console.warn('[RAG] Embedding API not available. Falling back to keyword search. Error: ' + err.message);
+  }
+}
+
+async function startBackgroundEmbedder() {
+  if (isEmbeddingWorkerRunning) return;
+  isEmbeddingWorkerRunning = true;
+
+  console.log('[RAG] Background embedding worker started.');
+
+  while (isVectorSearchEnabled) {
+    try {
+      if (global.isAiGenerating) {
+        // Yield GPU resources to text generation completions
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        continue;
+      }
+
+      const unembedded = getMessagesWithoutEmbeddings(20);
+      if (unembedded.length === 0) {
+        await new Promise(resolve => setTimeout(resolve, 30000));
+        continue;
+      }
+
+      console.log(`[RAG] Indexing embeddings: ${unembedded.length} messages remaining in batch...`);
+
+      for (const msg of unembedded) {
+        if (!isVectorSearchEnabled) break;
+        if (global.isAiGenerating) break; // Break batch if text completions starts
+
+        if (!msg.content || msg.content.trim() === '') {
+          saveMessageEmbedding(msg.id, new Array( testLMStudioVectorSize() || 384 ).fill(0));
+          continue;
+        }
+
+        try {
+          const embedding = await fetchEmbedding(msg.content, 0);
+          saveMessageEmbedding(msg.id, embedding);
+          await new Promise(resolve => setTimeout(resolve, 100));
+        } catch (err) {
+          console.error(`[RAG] Failed to embed message ${msg.id}: ${err.message}`);
+          await new Promise(resolve => setTimeout(resolve, 10000));
+          break;
+        }
+      }
+
+      // Delay between batches to prevent GPU resource starvation
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    } catch (err) {
+      console.error('[RAG] Error in embedding worker loop:', err);
+      await new Promise(resolve => setTimeout(resolve, 15000));
+    }
+  }
+
+  isEmbeddingWorkerRunning = false;
+  console.log('[RAG] Background embedding worker stopped.');
+}
+
+function testLMStudioVectorSize() {
+  // Safe default fallback
+  return 384;
+}
+
+// POST /api/rag/query - Ask natural language questions grounded on historical whop chats (CSRF protected)
+app.post('/api/rag/query', requireCsrf, async (req, res) => {
+  try {
+    const { question } = req.body;
+    if (!question || question.trim() === '') {
+      return res.status(400).json({ success: false, error: '问题不能为空。' });
+    }
+
+    console.log(`[RAG] Received question: "${question}"`);
+
+    const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    let topMessages = [];
+    let retrievalMode = 'FTS5 (Keyword Only)';
+
+    let queryEmbedding = null;
+    if (isVectorSearchEnabled) {
+      try {
+        queryEmbedding = await fetchEmbedding(question, 10);
+      } catch (err) {
+        console.warn(`[RAG] Failed to generate embedding for query, falling back to keyword search: ${err.message}`);
+      }
+    }
+
+    if (queryEmbedding) {
+      retrievalMode = 'Hybrid (FTS5 + Vector Embeddings)';
+      const vectorMatches = searchVectorMessages(queryEmbedding, 30, targetSpeakers);
+      const ftsMatches = searchFTSMessages(question, 30, targetSpeakers);
+
+      const rrfScores = {};
+      const messagesMap = {};
+
+      vectorMatches.forEach((msg, index) => {
+        const rank = index + 1;
+        rrfScores[msg.id] = (rrfScores[msg.id] || 0) + 1 / (60 + rank);
+        messagesMap[msg.id] = msg;
+      });
+
+      ftsMatches.forEach((msg, index) => {
+        const rank = index + 1;
+        rrfScores[msg.id] = (rrfScores[msg.id] || 0) + 1 / (60 + rank);
+        messagesMap[msg.id] = msg;
+      });
+
+      const sortedIds = Object.keys(rrfScores).sort((a, b) => rrfScores[b] - rrfScores[a]);
+      topMessages = sortedIds.slice(0, 7).map(id => messagesMap[id]);
+    } else {
+      topMessages = searchFTSMessages(question, 7, targetSpeakers);
+    }
+
+    if (topMessages.length === 0) {
+      const data = getMessages({ search: question, limit: 10, senderIds: targetSpeakers });
+      topMessages = data.messages || [];
+      retrievalMode = 'LIKE (FTS/Vector Empty Fallback)';
+    }
+
+    if (topMessages.length === 0) {
+      return res.json({
+        success: true,
+        answer: '抱歉，知识库中暂时没有任何相关的历史发言记录，因此我无法为您提供准确的回答。您可以尝试更换个股代码或关键字提问。',
+        citations: [],
+        retrieval_mode: retrievalMode
+      });
+    }
+
+    const chronMessages = [...topMessages].sort((a, b) => a.created_at - b.created_at);
+
+    const contextText = chronMessages.map((msg, index) => {
+      const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+      return `[消息 ID: ${index + 1}] [时间: ${timeStr}] [频道: ${msg.channel_name || '讨论区'}] ${msg.sender_name}: ${msg.content}`;
+    }).join('\n\n');
+
+    let playbookText = '';
+    try {
+      const latestPlaybook = getLatestPersonaPlaybook();
+      if (latestPlaybook && latestPlaybook.summary_content) {
+        playbookText = latestPlaybook.summary_content.substring(0, 1500);
+      }
+    } catch (playbookErr) {
+      console.warn(`[RAG] Failed to read latest persona playbook: ${playbookErr.message}`);
+    }
+
+    const aiPrompt = `你现在是社区大V【赵哥】的数字交易助理分身。你的任务是针对用户的问题，深入分析并梳理【历史发言上下文】中大V的交易逻辑、思考轨迹和操作策略，为用户提供有深度、有逻辑且专业性强的AI分析回答。
+
+【角色与回答要求】：
+1. **深度AI分析**：请不要机械地堆砌检索到的消息，而是要理解大V说话的宏观背景与具体语境，提炼出他的操作意图（如：防守做空、急跌急吸、逢高锁定利润、做T降成本等），并深度剖析其背后的交易逻辑。
+2. **严格基于事实与引用**：你的分析必须紧扣“历史发言上下文”。每一个核心陈述（例如买卖价格、加仓点位、多空方向、后市看法等），都必须在句尾方括号标注对应的“消息 ID”来源（例如：[1]、[2]），确保有据可查，绝不凭空捏造。若上下文无相关记录，直接表明大V近期未提及。
+3. **结合交易画像与常识**：在遵循上下文事实的前提下，可以结合赵哥的【基本交易规则与人格属性】（如：不赌财报、少做长线死拿等习惯）来对大V的操作和决策进行合理的上下文解读。
+4. **精美结构化排版**：不要用单一的文本块。请使用清晰的 Markdown 标题、列表或表格，将分析整理为例如：【核心策略观点】、【具体操作分析】、【风险防御与建议】等板块，字数控制在 600 字以内，既专业深刻又条理清晰。
+
+【基本交易规则与人格属性】（仅用于规范表达方式和基本常识，不要脑补为最新交易动作）：
+${playbookText || '待生成'}
+
+【历史发言上下文】：
+${contextText}
+
+【用户问题】：
+${question}`;
+
+    const provider = process.env.AI_PROVIDER || 'lm-studio';
+    let answer = '';
+
+    console.log(`[RAG] Querying LLM (${provider}) for answer...`);
+    const startTimeAI = Date.now();
+    answer = await analyzeWithFallback(aiPrompt, { provider, tag: 'RAG', priority: 10 });
+
+    const durationAI = ((Date.now() - startTimeAI) / 1000).toFixed(1);
+    console.log(`[RAG] Answer generated successfully in ${durationAI}s. Retrieval Mode: ${retrievalMode}`);
+
+    res.json({
+      success: true,
+      answer: answer,
+      citations: chronMessages.map((msg, index) => ({
+        citationId: index + 1,
+        id: msg.id,
+        sender_name: msg.sender_name,
+        channel_name: msg.channel_name,
+        content: msg.content,
+        created_at: msg.created_at
+      })),
+      retrieval_mode: retrievalMode
+    });
+
+  } catch (error) {
+    console.error('[RAG] Error answering query:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+let tunnelProcess = null;
+
+function startCloudflareTunnel(port) {
+  console.log('[Cloudflare Tunnel] Starting Cloudflare quick tunnel for port', port);
+
+  // Spawn npx cloudflared tunnel --url http://localhost:${port}
+  // On Windows, npx is a cmd/ps1 file, so { shell: true } is required
+  tunnelProcess = spawn('npx', ['cloudflared', 'tunnel', '--url', `http://localhost:${port}`], { shell: true });
+
+  let urlFound = false;
+
+  const handleData = async (data) => {
+    const output = data.toString();
+    console.log(`[Cloudflare Log] ${output.trim()}`);
+
+    if (urlFound) return;
+
+    // Search for trycloudflare.com URL
+    const match = output.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
+    if (match) {
+      const tunnelUrl = match[0];
+      urlFound = true;
+      console.log(`=================================================`);
+      console.log(`[Cloudflare Tunnel] Public URL created successfully!`);
+      console.log(`Public Link: ${tunnelUrl}`);
+      console.log(`=================================================`);
+
+      // Push to WeChat Bot
+      const wechatWebhook = process.env.WECHAT_WORK_WEBHOOK_URL;
+      if (wechatWebhook) {
+        try {
+          const msgText = `### 🌐 Whop WeChat Bridge 启动成功\n\n服务已成功启动，并通过 Cloudflare Tunnel 穿透公网。\n\n**公网控制台**: [点击访问](${tunnelUrl})\n**本地控制台**: http://localhost:${port}\n\n---\n*后台智能轮询器已激活，将在美股交易时段内提供超高频数据同步。*`;
+          await fetch(wechatWebhook, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              msgtype: 'markdown',
+              markdown: { content: msgText }
+            })
+          });
+          console.log('[Cloudflare Tunnel] Public URL pushed to WeChat Bot.');
+        } catch (err) {
+          console.error('[Cloudflare Tunnel] Failed to push URL to WeChat:', err.message);
+        }
+      }
+    }
+  };
+
+  tunnelProcess.stdout.on('data', handleData);
+  tunnelProcess.stderr.on('data', handleData);
+
+  tunnelProcess.on('close', (code) => {
+    console.log(`[Cloudflare Tunnel] Process exited with code ${code}`);
+    tunnelProcess = null;
+  });
+
+  tunnelProcess.on('error', (err) => {
+    console.error('[Cloudflare Tunnel] Process error:', err.message);
+  });
+}
+
+// Clean up child process on exit
+process.on('exit', () => {
+  if (tunnelProcess) {
+    tunnelProcess.kill();
+  }
+});
+process.on('SIGINT', () => {
+  if (tunnelProcess) {
+    tunnelProcess.kill();
+  }
+  process.exit();
+});
+process.on('SIGTERM', () => {
+  if (tunnelProcess) {
+    tunnelProcess.kill();
+  }
+  process.exit();
+});
+
+// Start Express server and background Poller
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`=================================================`);
+  console.log(`Whop Webhook & Bridge Server running on port ${PORT}`);
+  console.log(`Web Dashboard: http://localhost:${PORT}`);
+  console.log(`=================================================`);
+
+  startPoller();
+  // Check local LM Studio embedding server and start background worker if active
+  checkEmbeddingApi();
+  // Start background task queue worker with concurrency = 6 (全速压榨 GPU 爆算算力)
+  const workerConcurrency = parseInt(process.env.WORKER_CONCURRENCY || '6', 10);
+  startQueueWorker(async (task) => {
+    if (task.task_type.startsWith('persona_')) {
+      return await processPersonaTask(task);
+    }
+    if (task.task_type.startsWith('news_')) {
+      return await processNewsTask(task);
+    }
+    throw new Error(`Unsupported task type: ${task.task_type}`);
+  }, workerConcurrency, 100);
+  // Start Cloudflare Tunnel and push URL to WeChat
+  startCloudflareTunnel(PORT);
+
+  // 5 秒后首次后台更新口头仓位披露缓存，此后每 15 分钟定时静默拉取
+  setTimeout(() => {
+    updateCachedVerbalExposure();
+  }, 5000);
+  setInterval(() => {
+    updateCachedVerbalExposure();
+  }, 15 * 60 * 1000);
+});
+server.timeout = 1200000; // 20 minutes timeout for long local LLM reasoning
+
+// ==========================================================================
+// 全局 GPU 资源排队与独占调度系统 (用于协同解决 WeChat Bridge & OpenMontage 显存冲突)
+// ==========================================================================
+global.gpuLock = {
+  isLocked: false,
+  owner: null,
+  acquiredAt: null
+};
+
+// 申请 GPU 锁
+app.post('/api/gpu/acquire', async (req, res) => {
+  const { owner } = req.body;
+  if (!owner) {
+    return res.status(400).json({ success: false, error: 'owner is required' });
+  }
+
+  // 如果锁已被自己持有，直接返回成功
+  if (global.gpuLock.isLocked && global.gpuLock.owner === owner) {
+    return res.json({ success: true, message: 'GPU already locked by you' });
+  }
+
+  // 如果被别人持有，返回失败并告知占用者
+  if (global.gpuLock.isLocked && global.gpuLock.owner !== owner) {
+    return res.json({
+      success: false,
+      reason: `GPU 已被 ${global.gpuLock.owner} 占用，锁定于 ${new Date(global.gpuLock.acquiredAt).toLocaleTimeString('zh-CN')}`
+    });
+  }
+
+  global.gpuLock = {
+    isLocked: true,
+    owner,
+    acquiredAt: Date.now()
+  };
+  console.log(`[GPU Scheduler] GPU 锁已被 ${owner} 成功获取`);
+
+  if (owner === 'openmontage') {
+    // 自动卸载大模型以腾空全部显存给视频渲染
+    try {
+      const { exec } = await import('child_process');
+      console.log('[GPU Scheduler] 检测到 openmontage 触发独占渲染，正在执行 lms unload 释放显存...');
+      exec('lms unload --all', (err, stdout, stderr) => {
+        if (err) {
+          console.warn('[GPU Scheduler] lms 命令行卸载失败，可能未安装 lms CLI。尝试 HTTP 备用路径:', err.message);
+          const lmStudioUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
+          // 备用请求：卸载本地大模型接口
+          fetch(`${lmStudioUrl}/api/v1/models/unload`, { method: 'POST' }).catch(() => {});
+        } else {
+          console.log('[GPU Scheduler] LM Studio 显存成功彻底释放:', stdout.trim());
+        }
+      });
+    } catch (e) {
+      console.warn('[GPU Scheduler] 执行 lms 卸载任务异常:', e.message);
+    }
+  }
+
+  res.json({ success: true, message: 'GPU locked successfully' });
+});
+
+// 释放 GPU 锁
+app.post('/api/gpu/release', (req, res) => {
+  const { owner } = req.body;
+  if (!owner) {
+    return res.status(400).json({ success: false, error: 'owner is required' });
+  }
+
+  if (!global.gpuLock.isLocked) {
+    return res.json({ success: true, message: 'GPU is already unlocked' });
+  }
+
+  if (global.gpuLock.owner !== owner) {
+    return res.status(403).json({ success: false, error: `You cannot release lock held by ${global.gpuLock.owner}` });
+  }
+
+  console.log(`[GPU Scheduler] GPU 锁已被 ${owner} 释放`);
+  global.gpuLock = {
+    isLocked: false,
+    owner: null,
+    acquiredAt: null
+  };
+
+  res.json({ success: true, message: 'GPU unlocked successfully' });
+});
+
+// 获取当前 GPU 锁状态
+app.get('/api/gpu/status', (req, res) => {
+  res.json({ success: true, data: global.gpuLock });
+});
+

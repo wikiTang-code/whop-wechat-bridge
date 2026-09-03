@@ -12,6 +12,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
+import { ensurePipelineTasksCompat } from './pipeline_tasks_compat.js';
 
 const dbPath = path.resolve('whop_archive.db');
 const db = new Database(dbPath);
@@ -35,6 +36,9 @@ db.exec(`
     message_id TEXT NOT NULL,
     event_id INTEGER,
     status TEXT NOT NULL DEFAULT 'pending',
+    retry_count INTEGER NOT NULL DEFAULT 0,
+    error_message TEXT,
+    result_payload TEXT,
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL,
     PRIMARY KEY (queue_name, message_id)
@@ -47,6 +51,9 @@ db.exec(`
     updated_at INTEGER NOT NULL
   );
 `);
+
+// Live DBs created before task_id existed: ALTER-add + backfill rowid (does not rewrite the table).
+ensurePipelineTasksCompat(db);
 
 let channelRegistryCache = null;
 function getChannelRegistry() {

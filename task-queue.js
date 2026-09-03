@@ -1,4 +1,5 @@
 import { getDb } from './database.js';
+import { isLmContextExceeded } from './ai-router-policy.js';
 
 /**
  * 向队列中新增一个任务
@@ -131,6 +132,8 @@ export function failTask(taskId, errorMessage, errorDetails = '') {
         errorMessage.includes('RESOURCE_EXHAUSTED') || 
         errorDetails.includes('RESOURCE_EXHAUSTED');
 
+      const isContextExceeded = isLmContextExceeded(errorMessage) || isLmContextExceeded(errorDetails);
+
       // 网络瞬时错误：ECONNREFUSED / ECONNRESET / socket hang up / ETIMEDOUT
       const isNetworkTransientError =
         errorMessage.includes('ECONNREFUSED') || errorDetails.includes('ECONNREFUSED') ||
@@ -146,6 +149,16 @@ export function failTask(taskId, errorMessage, errorDetails = '') {
           WHERE id = ?
         `).run(`[熔断:配额耗尽] ${errorMessage} | ${errorDetails}`, now, taskId);
         console.error(`[Task Queue] 任务 #${taskId} 配额耗尽熔断，彻底失败。`);
+        return;
+      }
+
+      if (isContextExceeded) {
+        db.prepare(`
+          UPDATE task_queue 
+          SET status = 'failed', error_message = ?, updated_at = ? 
+          WHERE id = ?
+        `).run(`[跳过:本地14B上下文超限] ${errorMessage} | ${errorDetails}`, now, taskId);
+        console.warn(`[Task Queue] 任务 #${taskId} 因 14B context-exceeded 跳过，不转抛 Gemini。`);
         return;
       }
 
