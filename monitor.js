@@ -25,6 +25,7 @@ import {
   LOCAL_LM_DEFAULT_BASE
 } from './ai-router-policy.js';
 import { isAiTunnelSuspended, notifyAiTunnelFailure } from './monitoring/ai-tunnel-circuit.js';
+import { shouldPauseSecondaryWorkers } from './monitoring/backpressure-controller.js';
 
 dotenv.config();
 
@@ -1553,12 +1554,16 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       console.error('[ISR Top Half] 分发写入异常:', isrErr.message);
     }
 
-    // 🏛️ 中断下半部 (Bottom Half / DPC): 异步非阻塞执行（不卡死轮询主线程）
-    setImmediate(() => {
-      runMediaWorker(10)
-        .then(() => generateQueueStatus())
-        .catch(err => console.error('[DPC Media Worker] 异步下半部异常:', err.message));
-    });
+    // 🏛️ 中断下半部 (Bottom Half / DPC): 异步非阻塞执行（受背压控制器保护）
+    if (!shouldPauseSecondaryWorkers()) {
+      setImmediate(() => {
+        runMediaWorker(10)
+          .then(() => generateQueueStatus())
+          .catch(err => console.error('[DPC Media Worker] 异步下半部异常:', err.message));
+      });
+    } else {
+      console.log('[DPC Media Worker] ⚠️ 系统处于背压降级状态，本轮跳过媒体下载以保全主线程');
+    }
 
     // Process campaigns for new speaker messages
     for (const msg of newSpeakerMessages) {

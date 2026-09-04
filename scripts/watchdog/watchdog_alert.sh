@@ -20,7 +20,7 @@ send_watchdog_alert() {
 
 ${detail}
 
-_$(date -u +"%Y-%m-%dT%H:%M:%SZ")_"
+_$(TZ='Asia/Shanghai' date +"%Y-%m-%d %H:%M:%S (北京时间)")_"
 
   if [[ "${WATCHDOG_DRY_RUN:-0}" == "1" ]]; then
     echo "[watchdog_alert] DRY_RUN level=${level} title=${title}"

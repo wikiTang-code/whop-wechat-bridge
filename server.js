@@ -18,6 +18,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import { getEffectivePollIntervalSec, getBackpressureStatus } from './monitoring/backpressure-controller.js';
 import l2WorkbenchRouter from './routes/l2_workbench_routes.js';
 import {
   initDb,
@@ -632,9 +633,15 @@ async function runAdaptivePoll() {
   const isTrading = isUSTradingHours();
 
   if (isTrading) {
-    // 美股交易时段（周一16:00 HKT → 周六08:00 HKT）：强制超高频同步 (25秒一次)
-    currentIntervalMs = 25 * 1000;
-    console.log(`[调度器] 当前处于美股交易时段，强制超高频同步 (25秒一次)...`);
+    // 美股交易时段：接入三级阶梯背压控制器，在事件循环延迟时自适应退避降频 (25s -> 60s -> 120s)
+    const bp = getBackpressureStatus();
+    const effectiveSec = getEffectivePollIntervalSec();
+    currentIntervalMs = effectiveSec * 1000;
+    if (bp.tier !== 'NORMAL') {
+      console.warn(`[调度器] ⚠️ 系统处于背压降级状态 (${bp.tier})，轮询间隔退避为 ${effectiveSec} 秒 (保护看板 8085 与主线程)...`);
+    } else {
+      console.log(`[调度器] 当前处于美股交易时段，超高频同步 (${effectiveSec}秒一次)...`);
+    }
     if (result && result.success) {
       setLastSyncTime(Date.now());
     }

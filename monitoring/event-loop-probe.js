@@ -3,7 +3,8 @@
  * Side-path only — read metrics; soft-degrade alerts; never process-restart (R5/R6).
  */
 import { monitorEventLoopDelay } from 'perf_hooks';
-import { sendAlert } from './alert-sink.js';
+import { sendAlert, formatBeijingTime } from './alert-sink.js';
+import { updateBackpressureMetrics } from './backpressure-controller.js';
 
 const WARN_NS = 1e9;      // 1s
 const CRITICAL_NS = 5e9;  // 5s
@@ -62,8 +63,14 @@ export function startEventLoopProbe({
         p99Ms: nsToMs(p99),
         level,
         thresholds: { warnMs, criticalMs },
-        checkedAt: new Date().toISOString(),
+        checkedAt: formatBeijingTime(),
       };
+
+      // Feed metrics into backpressure controller
+      updateBackpressureMetrics({
+        p99Ms: lastSnapshot.p99Ms,
+        httpOk: level !== 'critical',
+      });
 
       if (!enableAlerts) {
         lastLevel = level;

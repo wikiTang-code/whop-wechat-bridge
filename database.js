@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { trackSlowOp } from './monitoring/slow-log-tracker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -579,7 +580,9 @@ export function saveMessages(messages) {
   });
 
   try {
-    insertMany(messages);
+    trackSlowOp('database:saveMessages', messages.length, () => {
+      insertMany(messages);
+    });
   } catch (err) {
     console.error('[Database] saveMessages transaction failed:', err.message);
     throw err;
