@@ -4,6 +4,8 @@
  */
 import { getEventLoopSnapshot } from './event-loop-probe.js';
 import { getAlertSinkStats } from './alert-sink.js';
+import { getQueueSnapshot } from './queue-watermark-probe.js';
+import { getMonitoringDbStats } from './monitoring-db.js';
 
 let aiTunnelGetter = null;
 
@@ -16,6 +18,8 @@ export function buildHealthPayload() {
   const eventLoop = getEventLoopSnapshot();
   const aiTunnel = aiTunnelGetter ? aiTunnelGetter() : { enabled: false, status: 'unknown' };
   const alerts = getAlertSinkStats();
+  const queues = getQueueSnapshot();
+  const monDbStats = getMonitoringDbStats();
 
   const subsystems = {
     process: {
@@ -31,6 +35,14 @@ export function buildHealthPayload() {
     aiTunnel: {
       status: aiTunnel.status || aiTunnel.level || 'unknown',
       ...aiTunnel,
+    },
+    queues: {
+      status: queues.status || 'ok',
+      ...queues,
+    },
+    monitoringDb: {
+      status: monDbStats.status || 'ok',
+      ...monDbStats,
     },
     alerts: {
       status: 'ok',

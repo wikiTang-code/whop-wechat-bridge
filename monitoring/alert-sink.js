@@ -5,6 +5,7 @@
  */
 
 import { getRecentSlowOps } from './slow-log-tracker.js';
+import { recordAlertHistory } from './monitoring-db.js';
 
 const WECHAT_MAX_LENGTH = 4000;
 const CRITICAL_DEDUPE_MS = 10 * 60 * 1000;
@@ -143,6 +144,7 @@ async function emitNow(payload) {
   const webhookUrl = process.env.WECHAT_ALERT_WEBHOOK_URL || process.env.WECHAT_WORK_WEBHOOK_URL;
   const md = formatAlertMarkdown(payload);
   pushToRing({ ...payload, at: nowFn(), delivered: true });
+  recordAlertHistory(payload);
   try {
     await pushToWeChat(webhookUrl, md);
     return { sent: true };

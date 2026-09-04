@@ -60,6 +60,7 @@ import { rebuildHistoricalCampaigns } from './campaign-engine.js';
 import { startEventLoopProbe } from './monitoring/event-loop-probe.js';
 import { buildHealthPayload } from './monitoring/health.js';
 import { startAiTunnelCircuit } from './monitoring/ai-tunnel-circuit.js';
+import { startSupervisor } from './monitoring/supervisor.js';
 
 dotenv.config();
 
@@ -2634,6 +2635,8 @@ const server = app.listen(PORT, "0.0.0.0", () => {
   });
   // P0-4: local 14B tunnel probe + circuit (suspend queue when open; no Gemini dump)
   startAiTunnelCircuit();
+  // P1-7: unified supervisor (monitoring.db WAL, queue & watermark probe, periodic metrics)
+  startSupervisor({ intervalMs: 60_000 });
   // Check local LM Studio embedding server and start background worker if active
   checkEmbeddingApi();
   // Start background task queue worker with concurrency = 6 (全速压榨 GPU 爆算算力)
