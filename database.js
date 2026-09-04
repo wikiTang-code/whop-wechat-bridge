@@ -879,76 +879,78 @@ export function getOrders({ limit = 50, offset = 0 } = {}) {
   return { orders, total };
 }
 
+// Sector mapping (module level)
+const SECTOR_MAPPING = {
+  // 科技/AI芯片
+  'NVDA': '科技/AI芯片', 'NVDL': '科技/AI芯片', 'AMD': '科技/AI芯片', 'AVGO': '科技/AI芯片',
+  'TSM': '科技/AI芯片', 'ASML': '科技/AI芯片', 'ARM': '科技/AI芯片', 'MU': '科技/AI芯片',
+  'INTC': '科技/AI芯片', 'QCOM': '科技/AI芯片', 'MRVL': '科技/AI芯片', 'SMCI': '科技/AI芯片',
+  // 新能源汽车
+  'TSLA': '新能源汽车', 'TSLL': '新能源汽车', 'BYD': '新能源汽车', 'BYDDY': '新能源汽车',
+  'RIVN': '新能源汽车', 'LCID': '新能源汽车',
+  // 巨头/科技龙头
+  'AAPL': '巨头/科技龙头', 'MSFT': '巨头/科技龙头', 'GOOG': '巨头/科技龙头', 'GOOGL': '巨头/科技龙头',
+  'META': '巨头/科技龙头', 'AMZN': '巨头/科技龙头', 'NFLX': '巨头/科技龙头',
+  // 加密货币/区块链
+  'COIN': '加密货币/区块链', 'MSTR': '加密货币/区块链', 'MARA': '加密货币/区块链', 'RIOT': '加密货币/区块链',
+  'CLSK': '加密货币/区块链', 'BTC': '加密货币/区块链', 'ETH': '加密货币/区块链',
+  // 中概股
+  'BABA': '中概股', 'PDD': '中概股', 'JD': '中概股', 'BIDU': '中概股', 'FUTU': '中概股',
+  'YINN': '中概股', 'CQQQ': '中概股', 'YANG': '中概股',
+  // 大盘/债汇/指数
+  'SPY': '大盘/债汇/指数', 'QQQ': '大盘/债汇/指数', 'DIA': '大盘/债汇/指数', 'IWM': '大盘/债汇/指数',
+  'TLT': '大盘/债汇/指数', 'TMF': '大盘/债汇/指数', 'SQQQ': '大盘/债汇/指数', 'TQQQ': '大盘/债汇/指数',
+  'UUP': '大盘/债汇/指数', 'DXY': '大盘/债汇/指数',
+  // 光通信/其他
+  'LITE': '光通信/其他', 'COHR': '光通信/其他', 'LUNA': '光通信/其他'
+};
+
+const KNOWN_TICKERS_REGEX = new RegExp(`\\b\\$?(${Object.keys(SECTOR_MAPPING).join('|')})\\b`, 'gi');
+
+const STOP_WORDS = new Set([
+  'BUY', 'SELL', 'CALL', 'PUT', 'GET', 'POST', 'JSON', 'USD', 'CAD', 'EUR', 'GBP', 'CNY', 'HKD', 'ETF', 'ETFS', 'API', 
+  'REST', 'HTML', 'CSS', 'JS', 'AI', 'GPT', 'USA', 'SEC', 'FED', 'FOMC', 'GDP', 
+  'CPI', 'PPI', 'PMI', 'VIX', 'FOR', 'AND', 'THE', 'YOU', 'OUR', 'NOW', 'BUT',
+  'IPO', 'SPAC', 'IV', 'ITM', 'OTM', 'ATM', 'TA', 'DD', 'ATH', 'EOD', 'PM', 'AH',
+  'PNL', 'PL', 'NAV', 'CEO', 'CFO', 'COO', 'UTC', 'EST', 'EDT', 'MACD', 'RSI',
+  'EMA', 'SMA', 'PDF', 'PPT', 'DOC', 'URL', 'URI', 'AWS', 'SSL', 'TLS', 'DNS',
+  'IP', 'VPN', 'APP', 'WEB', 'PC', 'FAQ', 'VS', 'OK', 'FYI', 'DIY', 'NEW', 'OLD', 'NA',
+  'IMAGE', 'HMAC', 'SHA', 'SHA256', 'AMZ', 'CALLS', 'PUTS'
+]);
+
+const GENERIC_TICKER_REGEX = /\b\$?([A-Z]{2,5})\b/g;
+
 // Extract trading dimensions (tickers, sectors, strategies) from content
 export function extractTradingDimensions(content) {
   if (!content) return { tickers: '', sectors: '', strategies: '' };
   
-  // 0. Clean content: strip image tags [IMAGE:...] and standard URLs to avoid URL query params/paths being treated as tickers
+  // 0. Clean content: strip image tags [IMAGE:...] and standard URLs
   let cleanContent = content.replace(/\[IMAGE:[^\]]+\]/gi, '');
   cleanContent = cleanContent.replace(/https?:\/\/[^\s]+/gi, '');
   
-  // Sector mapping
-  const sectorMapping = {
-    // 科技/AI芯片
-    'NVDA': '科技/AI芯片', 'NVDL': '科技/AI芯片', 'AMD': '科技/AI芯片', 'AVGO': '科技/AI芯片',
-    'TSM': '科技/AI芯片', 'ASML': '科技/AI芯片', 'ARM': '科技/AI芯片', 'MU': '科技/AI芯片',
-    'INTC': '科技/AI芯片', 'QCOM': '科技/AI芯片', 'MRVL': '科技/AI芯片', 'SMCI': '科技/AI芯片',
-    // 新能源汽车
-    'TSLA': '新能源汽车', 'TSLL': '新能源汽车', 'BYD': '新能源汽车', 'BYDDY': '新能源汽车',
-    'RIVN': '新能源汽车', 'LCID': '新能源汽车',
-    // 巨头/科技龙头
-    'AAPL': '巨头/科技龙头', 'MSFT': '巨头/科技龙头', 'GOOG': '巨头/科技龙头', 'GOOGL': '巨头/科技龙头',
-    'META': '巨头/科技龙头', 'AMZN': '巨头/科技龙头', 'NFLX': '巨头/科技龙头',
-    // 加密货币/区块链
-    'COIN': '加密货币/区块链', 'MSTR': '加密货币/区块链', 'MARA': '加密货币/区块链', 'RIOT': '加密货币/区块链',
-    'CLSK': '加密货币/区块链', 'BTC': '加密货币/区块链', 'ETH': '加密货币/区块链',
-    // 中概股
-    'BABA': '中概股', 'PDD': '中概股', 'JD': '中概股', 'BIDU': '中概股', 'FUTU': '中概股',
-    'YINN': '中概股', 'CQQQ': '中概股', 'YANG': '中概股',
-    // 大盘/债汇/指数
-    'SPY': '大盘/债汇/指数', 'QQQ': '大盘/债汇/指数', 'DIA': '大盘/债汇/指数', 'IWM': '大盘/债汇/指数',
-    'TLT': '大盘/债汇/指数', 'TMF': '大盘/债汇/指数', 'SQQQ': '大盘/债汇/指数', 'TQQQ': '大盘/债汇/指数',
-    'UUP': '大盘/债汇/指数', 'DXY': '大盘/债汇/指数',
-    // 光通信/其他
-    'LITE': '光通信/其他', 'COHR': '光通信/其他', 'LUNA': '光通信/其他'
-  };
-
   const tickersFound = new Set();
 
-  // 1. Match known mapped tickers case-insensitively to capture lowercase inputs like 'lite', 'tsla'
-  const knownTickers = Object.keys(sectorMapping);
-  for (const ticker of knownTickers) {
-    const regex = new RegExp(`\\b\\$?${ticker}\\b`, 'i');
-    if (regex.test(cleanContent)) {
-      tickersFound.add(ticker);
-    }
+  // 1. Single-pass match for known mapped tickers case-insensitively
+  KNOWN_TICKERS_REGEX.lastIndex = 0;
+  let kMatch;
+  while ((kMatch = KNOWN_TICKERS_REGEX.exec(cleanContent)) !== null) {
+    tickersFound.add(kMatch[1].toUpperCase());
   }
 
   // 2. Fallback to match other uppercase words (e.g. unknown new tickers)
-  const stopWords = new Set([
-    'BUY', 'SELL', 'CALL', 'PUT', 'GET', 'POST', 'JSON', 'USD', 'CAD', 'EUR', 'GBP', 'CNY', 'HKD', 'ETF', 'ETFS', 'API', 
-    'REST', 'HTML', 'CSS', 'JS', 'AI', 'GPT', 'USA', 'SEC', 'FED', 'FOMC', 'GDP', 
-    'CPI', 'PPI', 'PMI', 'VIX', 'FOR', 'AND', 'THE', 'YOU', 'OUR', 'NOW', 'BUT',
-    'IPO', 'SPAC', 'IV', 'ITM', 'OTM', 'ATM', 'TA', 'DD', 'ATH', 'EOD', 'PM', 'AH',
-    'PNL', 'PL', 'NAV', 'CEO', 'CFO', 'COO', 'UTC', 'EST', 'EDT', 'MACD', 'RSI',
-    'EMA', 'SMA', 'PDF', 'PPT', 'DOC', 'URL', 'URI', 'AWS', 'SSL', 'TLS', 'DNS',
-    'IP', 'VPN', 'APP', 'WEB', 'PC', 'FAQ', 'VS', 'OK', 'FYI', 'DIY', 'NEW', 'OLD', 'NA',
-    'IMAGE', 'HMAC', 'SHA', 'SHA256', 'AMZ', 'CALLS', 'PUTS'
-  ]);
-  
-  const tickerRegex = /\b\$?([A-Z]{2,5})\b/g;
+  GENERIC_TICKER_REGEX.lastIndex = 0;
   let match;
-  while ((match = tickerRegex.exec(cleanContent)) !== null) {
+  while ((match = GENERIC_TICKER_REGEX.exec(cleanContent)) !== null) {
     const sym = match[1].toUpperCase();
-    if (!stopWords.has(sym)) {
+    if (!STOP_WORDS.has(sym)) {
       tickersFound.add(sym);
     }
   }
   
   const sectorsFound = new Set();
   tickersFound.forEach(t => {
-    if (sectorMapping[t]) {
-      sectorsFound.add(sectorMapping[t]);
+    if (SECTOR_MAPPING[t]) {
+      sectorsFound.add(SECTOR_MAPPING[t]);
     } else {
       sectorsFound.add('其他个股');
     }

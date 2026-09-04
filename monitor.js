@@ -967,7 +967,7 @@ export async function analyzeWithFallback(prompt, options = {}) {
 }
 
 // Push report to Enterprise WeChat group robot
-async function pushToWeChat(webhookUrl, markdownContent) {
+export async function pushToWeChat(webhookUrl, markdownContent) {
   if (!webhookUrl) {
     console.log('Skipping WeChat push: WECHAT_WORK_WEBHOOK_URL is not set.');
     return;
@@ -1524,11 +1524,13 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       return { success: true, newMessagesCount: 0, newSpeakerMessagesCount: 0 };
     }
 
-    // Sort chronologically (oldest first) before saving to database to ensure physical order
-    allNormalizedMessages.sort((a, b) => a.created_at - b.created_at);
-
-    // Save all synchronized messages to the database
-    saveMessages(allNormalizedMessages);
+    // 仅当本轮抓取到真正未入库的新消息时，才排序并写入数据库。
+    // 严禁对已归档历史消息 (allNormalizedMessages) 重复 upsert，否则将反复触发 FTS5 全文索引维护
+    // 导致 Node 事件循环卡死数十秒，引发看门狗与外部 HTTP 探测超时。
+    if (allNewMessages.length > 0) {
+      allNewMessages.sort((a, b) => a.created_at - b.created_at);
+      saveMessages(allNewMessages);
+    }
 
     // 🏛️ 中断上半部 (Top Half / ISR): 全频道一视同仁快速打标分发 + 丢入下半部队列 (耗时 < 10ms，绝不调模型)
     // 仅分发本轮真正的新消息 (allNewMessages)，而非全部抓取到的消息 (allNormalizedMessages)。
@@ -1684,7 +1686,7 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
 // --------------------------------------------------------------------------
 
 // Helper: Send native image message to WeChat Work robot (base64 + md5)
-async function pushImageToWeChat(webhookUrl, buffer) {
+export async function pushImageToWeChat(webhookUrl, buffer) {
   if (!webhookUrl || !buffer || buffer.length === 0) return false;
   try {
     if (buffer.length > 2 * 1024 * 1024) {
@@ -1723,7 +1725,7 @@ async function pushImageToWeChat(webhookUrl, buffer) {
 }
 
 // Push raw message from target speaker instantly to WeChat Work
-async function pushRawMessageToWeChat(msg) {
+export async function pushRawMessageToWeChat(msg) {
   const webhookUrl = process.env.WECHAT_WORK_WEBHOOK_URL;
   if (!webhookUrl) return;
 
