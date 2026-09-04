@@ -1540,7 +1540,7 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
     try {
       const ISR_YIELD_BATCH = 200;
       for (let i = 0; i < allNewMessages.length; i++) {
-        dispatchIngestTopHalf(allNewMessages[i]);
+        dispatchIngestTopHalf(allNewMessages[i], { skipMessageUpsert: true });
         // 大批量新消息时定期让出事件循环，避免同步循环阻塞 HTTP 请求
         if ((i + 1) % ISR_YIELD_BATCH === 0) {
           await new Promise((resolve) => setImmediate(resolve));

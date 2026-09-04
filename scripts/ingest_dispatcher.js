@@ -78,7 +78,7 @@ const FILL_TRIGGER_REGEX = /(\b\d+(\.\d+)?\s*(出|买|接|减|加|挂|止损|清
  * @param {Object} rawMsg 原始消息对象
  * @returns {Object} 处理结果与分发事件
  */
-export function dispatchIngestTopHalf(rawMsg) {
+export function dispatchIngestTopHalf(rawMsg, options = {}) {
   const startTs = Date.now();
   const text = rawMsg.content || rawMsg.title || '';
   const senderName = (rawMsg.sender_name || rawMsg.user?.name || rawMsg.user?.username || '').trim();
@@ -151,16 +151,13 @@ export function dispatchIngestTopHalf(rawMsg) {
     dispatchedQueues.push('timeline');
   }
 
-  // 6. 幂等持久化写入 SQLite (messages + ingest_events + pipeline_tasks)
+  // 6. 幂等持久化写入 SQLite (ingest_events + pipeline_tasks，避免对 messages 重复写触发 FTS 索引)
   const nowTs = Date.now();
-
   const senderId = rawMsg.sender_id || rawMsg.user?.id || 'user_unknown';
 
   const insertMsgStmt = db.prepare(`
-    INSERT INTO messages (id, channel_id, channel_name, sender_id, sender_name, content, created_at, attachments)
+    INSERT OR IGNORE INTO messages (id, channel_id, channel_name, sender_id, sender_name, content, created_at, attachments)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT(id) DO UPDATE SET
-      attachments = COALESCE(excluded.attachments, messages.attachments)
   `);
 
   const insertEventStmt = db.prepare(`
@@ -185,17 +182,19 @@ export function dispatchIngestTopHalf(rawMsg) {
   `);
 
   const tx = db.transaction(() => {
-    // 写入 messages
-    insertMsgStmt.run(
-      rawMsg.id,
-      channelId,
-      canonicalChannelName,
-      senderId,
-      senderName,
-      text,
-      createdAt,
-      attachments.length > 0 ? JSON.stringify(attachments) : null
-    );
+    // 仅在未由外部（如 saveMessages）入库时执行兜底轻量插入
+    if (!options.skipMessageUpsert) {
+      insertMsgStmt.run(
+        rawMsg.id,
+        channelId,
+        canonicalChannelName,
+        senderId,
+        senderName,
+        text,
+        createdAt,
+        attachments.length > 0 ? JSON.stringify(attachments) : null
+      );
+    }
 
     // 写入 ingest_events
     const eventRes = insertEventStmt.run(

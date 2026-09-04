@@ -1034,9 +1034,10 @@ export function saveMessageEmbedding(id, embeddingArray) {
 export function getMessagesWithoutEmbeddings(limit = 100) {
   const conn = getDb();
   return conn.prepare(`
-    SELECT id, content FROM messages
-    WHERE id NOT IN (SELECT id FROM message_embeddings)
-    ORDER BY created_at DESC
+    SELECT m.id, m.content FROM messages m
+    LEFT JOIN message_embeddings me ON m.id = me.id
+    WHERE me.id IS NULL
+    ORDER BY m.created_at DESC
     LIMIT ?
   `).all(limit);
 }

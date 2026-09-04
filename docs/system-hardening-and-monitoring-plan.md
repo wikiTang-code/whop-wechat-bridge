@@ -211,6 +211,8 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 | Commit `05d1937` | ✅ 已推远端 | 修复 888 条全量重复 upsert 致命缺陷（仅写新消息）+ 股票标的正则预编译 |
 | Commit `5d7d022` | ✅ 已推远端 | P0 加固：防震荡抑制 (Flapping) + 慢日志环形缓冲 (trackSlowOp) + 3级阶梯背压控制器 (25s/60s/120s) + 告警时区北京时间 |
 | Commit `09c5ed0` | ✅ 已推远端 | P1 减负：`saveMessages` 50 条切片分块 + `setImmediate` 让出事件循环 + Auto News 空数据 error.log 降噪 |
+| Commit `963bc47` | ✅ 已推远端 | 文档：方案文档 §10 实施快照与任务矩阵全量同步 |
+| 本次变更 | ✅ 本地就绪 | 预警指标滤波 (p99 作为 critical 主裁定，毛刺降为 warn) + 剔除 ISR 上半部 messages 重复写 + RAG LEFT JOIN 优化 |
 
 ### 10.2 生产 gcp-vm（实机核验摘要）
 | 项 | 结果 | 说明 |
@@ -237,8 +239,8 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 | P1-6 | rate-limiter 内存化与去污 | ✅ 完成 | 22,285 条 `gemini_api_cloud` 历史脏数据物理清除，改为纯内存 Map 限流，task_queue 零写入 |
 | P1-A | 入库 50 条分块切片减负 | ✅ 完成 | `saveMessages` 大批量入库按 50 条切片并在片间 `setImmediate`，主动交出主线程生命通道 |
 | P1-B | 调度器日志噪音治理 | ✅ 完成 | Auto News Scheduler 空数据时降级为 info 日志，彻底停止污染 `error.log` |
+| P1-C | 探针指标滤波与毛刺削峰 | ✅ 完成 | 重构 `classifyEventLoopLevel`：`p99 >= 5s` 作为 CRITICAL 核心裁定，孤立毛刺降级为 WARN；剔除 ISR 上半部重复写 |
 | P1-7 | `monitoring.db` 独立库 + 探针框架 | ⬜ 待做 | 遵循 R3 红线（监控数据绝不写入 `whop_archive.db`），建立专用的指标时序存储 |
 | P1-8/9 | 看板与 Ingest 物理多进程隔离 | ⬜ 待做 | Web 只读服务与 Ingest/Worker 拆分为独立 PM2 进程，通过 SQLite WAL 解耦 |
 | P1-10 | 推送与交易链路端到端监测 | ⬜ 待做 | 监控大V发言到企微推送的端到端时延（TTL），超过阈值主动报警 |
 | 运维 | 24小时内网静默观察 | 🟡 进行中 | 重点监控大批入库延迟、背压阶梯平滑回退、探针单点毛刺表现，确认零 pm2 restart 误触发 |
-| 待调优 | 探针毛刺判定优化 | ⬜ 建议 | 当前 `max >= 5s` 易受单次底层 Full GC 抖动触发；建议未来以 `p99 >= 5s` 为 critical 核心判定，避免孤立毛刺误报 |
