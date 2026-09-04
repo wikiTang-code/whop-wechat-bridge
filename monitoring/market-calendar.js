@@ -29,7 +29,7 @@ export function getEasternTimeParts(date = new Date()) {
     weekday: 'short',
     hour: 'numeric',
     minute: 'numeric',
-    hour12: false,
+    hourCycle: 'h23',
   });
 
   const parts = {};
@@ -38,8 +38,8 @@ export function getEasternTimeParts(date = new Date()) {
   }
 
   const etDateStr = `${parts.year}-${parts.month}-${parts.day}`;
-  const hour = parseInt(parts.hour, 10);
-  const minute = parseInt(parts.minute, 10);
+  const hour = (parseInt(parts.hour, 10) || 0) % 24;
+  const minute = parseInt(parts.minute, 10) || 0;
   const weekday = parts.weekday; // Sun, Mon, Tue, Wed, Thu, Fri, Sat
 
   return {
