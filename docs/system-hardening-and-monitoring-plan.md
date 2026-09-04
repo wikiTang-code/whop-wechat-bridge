@@ -241,6 +241,7 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 | P1-B | 调度器日志噪音治理 | ✅ 完成 | Auto News Scheduler 空数据时降级为 info 日志，彻底停止污染 `error.log` |
 | P1-C | 探针指标滤波与毛刺削峰 | ✅ 完成 | 重构 `classifyEventLoopLevel`：`p99 >= 5s` 作为 CRITICAL 核心裁定，孤立毛刺降级为 WARN；剔除 ISR 上半部重复写 |
 | P1-7 | `monitoring.db` 独立库 + 探针框架 | ✅ 完成 | 遵循 R3 红线：建立独立 WAL 监控时序库 (health_events/metric_samples/alert_history，7天自动轮转裁剪) + 队列与水位只读探针 + Supervisor 统一调度 |
-| P1-8/9 | 看板与 Ingest 物理多进程隔离 | ⬜ 待做 | Web 只读服务与 Ingest/Worker 拆分为独立 PM2 进程，通过 SQLite WAL 解耦 |
+| P1-8 | 队列消费者落实（离线脚本/cron，恪守 R4） | ✅ 完成 | 实现 `scripts/offline_queue_worker.js` 离线批处理与水位单调递增推进，恪守 R4 绝不侵占主服务内存 |
+| P1-9 | 看板与 Ingest 物理多进程隔离 | ⬜ 待做 | Web 只读服务与 Ingest/Worker 拆分为独立 PM2 进程，通过 SQLite WAL 解耦 |
 | P1-10 | 推送与交易链路端到端监测 | ⬜ 待做 | 监控大V发言到企微推送的端到端时延（TTL），超过阈值主动报警 |
 | 运维 | 24小时内网静默观察 | 🟡 进行中 | 重点监控大批入库延迟、背压阶梯平滑回退、探针单点毛刺表现，确认零 pm2 restart 误触发 |
