@@ -5,6 +5,7 @@ import {
   shouldRotateGeminiKeyOnError,
   truncatePromptForLocal,
   shouldSkipGeminiFallback,
+  shouldBlockGeminiForLocalDown,
   resolveTextRoute,
   LOCAL_PROMPT_SAFE_CHARS
 } from '../ai-router-policy.js';
@@ -22,7 +23,11 @@ assert(!shouldRotateGeminiKeyOnError('Key #1 触发 429'), 'must not rotate on 4
 assert(isLmContextExceeded('LM Studio API failed with status 400: Context size has been exceeded'), 'context exceeded');
 assert(isLmContextExceeded('LM_CONTEXT_EXCEEDED: n_ctx'), 'prefixed context error');
 assert(shouldSkipGeminiFallback('Context size has been exceeded'), 'context must not dump to Gemini');
-assert(!shouldSkipGeminiFallback('ECONNREFUSED 127.0.0.1:8080'), 'local-down may sparse-fallback');
+assert(!shouldSkipGeminiFallback('ECONNREFUSED 127.0.0.1:8080'), 'ECONNREFUSED alone is not context-skip');
+
+assert(shouldBlockGeminiForLocalDown({ circuitOpen: true, allowSparseGemini: false }), 'Q1: circuit blocks Gemini dump');
+assert(!shouldBlockGeminiForLocalDown({ circuitOpen: true, allowSparseGemini: true }), 'Q2: sparse allow for critical');
+assert(!shouldBlockGeminiForLocalDown({ circuitOpen: false }), 'closed circuit does not block');
 
 assert(isLmModelUnloaded('Model unloaded'), 'model unloaded');
 
@@ -34,7 +39,9 @@ assert(truncatePromptForLocal('short') === 'short', 'short prompts unchanged');
 
 assert(resolveTextRoute({ cloudOnly: false, localReachable: true, hasGeminiKey: true }) === 'lm-studio', 'bulk path prefers 14B');
 assert(resolveTextRoute({ cloudOnly: true, localReachable: true, hasGeminiKey: true }) === 'gemini', 'cloudOnly uses Gemini');
-assert(resolveTextRoute({ cloudOnly: false, localReachable: false, hasGeminiKey: true }) === 'gemini', 'local down sparse Gemini');
+assert(resolveTextRoute({ cloudOnly: false, localReachable: false, hasGeminiKey: true, circuitOpen: false }) === 'gemini', 'pre-circuit sparse Gemini');
+assert(resolveTextRoute({ cloudOnly: false, localReachable: false, hasGeminiKey: true, circuitOpen: true }) === 'none', 'Q1: circuit open suspends bulk');
+assert(resolveTextRoute({ cloudOnly: false, localReachable: false, hasGeminiKey: true, circuitOpen: true, allowSparseGemini: true }) === 'gemini', 'Q2: explicit sparse ok');
 assert(resolveTextRoute({ cloudOnly: false, localReachable: false, hasGeminiKey: false }) === 'none', 'no backends');
 
 console.log('test_ai_router_policy: PASS');

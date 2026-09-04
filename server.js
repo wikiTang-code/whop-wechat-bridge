@@ -56,6 +56,9 @@ import { runWithRateLimit, getRateLimiterStats } from './rate-limiter.js';
 import { startQueueWorker } from './task-queue.js';
 import { seed2026MacroEvents } from './market-data.js';
 import { rebuildHistoricalCampaigns } from './campaign-engine.js';
+import { startEventLoopProbe } from './monitoring/event-loop-probe.js';
+import { buildHealthPayload } from './monitoring/health.js';
+import { startAiTunnelCircuit } from './monitoring/ai-tunnel-circuit.js';
 
 dotenv.config();
 
@@ -202,8 +205,10 @@ function safeCompare(a, b) {
 // Basic Authentication Middleware with rate limiting
 app.use((req, res, next) => {
   // Exclude Whop official Webhook endpoint, review workbench, and ticker timeline from authentication
+  // /health is read-only subsystem status (no secrets) for external bash watchdog (P0-2/P0-3)
   if (
-    req.path === '/webhook' || 
+    req.path === '/webhook' ||
+    req.path === '/health' ||
     req.path.startsWith('/media/zhao') || 
     req.path === '/review_workbench.html' || 
     req.path.startsWith('/api/l2') || 
@@ -264,6 +269,17 @@ app.use('/media/zhao', express.static(path.join(__dirname, 'data/media/zhao')));
 app.use(express.json());
 
 app.use('/api', l2WorkbenchRouter);
+
+// P0-3: read-only health endpoint (side-path; no DB writes)
+app.get('/health', (req, res) => {
+  try {
+    const payload = buildHealthPayload();
+    const code = payload.status === 'critical' ? 503 : 200;
+    res.status(code).json(payload);
+  } catch (err) {
+    res.status(500).json({ ok: false, status: 'critical', error: err.message });
+  }
+});
 
 // CSRF token management for financial operations
 const csrfTokens = new Map();
@@ -2560,6 +2576,15 @@ const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`=================================================`);
 
   startPoller();
+  // P0-3: event-loop delay probe (warn >1s, critical >5s); alert-only soft degrade
+  startEventLoopProbe({
+    warnMs: 1000,
+    criticalMs: 5000,
+    intervalMs: 10_000,
+    enableAlerts: process.env.EVENT_LOOP_ALERTS !== '0',
+  });
+  // P0-4: local 14B tunnel probe + circuit (suspend queue when open; no Gemini dump)
+  startAiTunnelCircuit();
   // Check local LM Studio embedding server and start background worker if active
   checkEmbeddingApi();
   // Start background task queue worker with concurrency = 6 (全速压榨 GPU 爆算算力)

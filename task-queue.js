@@ -1,5 +1,6 @@
 import { getDb } from './database.js';
 import { isLmContextExceeded } from './ai-router-policy.js';
+import { isAiTunnelSuspended, notifyAiTunnelFailure } from './monitoring/ai-tunnel-circuit.js';
 
 /**
  * 向队列中新增一个任务
@@ -134,6 +135,9 @@ export function failTask(taskId, errorMessage, errorDetails = '') {
 
       const isContextExceeded = isLmContextExceeded(errorMessage) || isLmContextExceeded(errorDetails);
 
+      const isTunnelSuspendedError =
+        errorMessage.includes('AI_TUNNEL_SUSPENDED') || errorDetails.includes('AI_TUNNEL_SUSPENDED');
+
       // 网络瞬时错误：ECONNREFUSED / ECONNRESET / socket hang up / ETIMEDOUT
       const isNetworkTransientError =
         errorMessage.includes('ECONNREFUSED') || errorDetails.includes('ECONNREFUSED') ||
@@ -149,6 +153,23 @@ export function failTask(taskId, errorMessage, errorDetails = '') {
           WHERE id = ?
         `).run(`[熔断:配额耗尽] ${errorMessage} | ${errorDetails}`, now, taskId);
         console.error(`[Task Queue] 任务 #${taskId} 配额耗尽熔断，彻底失败。`);
+        return;
+      }
+
+      // P0-4: tunnel circuit open / ECONNREFUSED — park as pending, do NOT retry-storm
+      if (isTunnelSuspendedError || (isNetworkTransientError && isAiTunnelSuspended())) {
+        notifyAiTunnelFailure(errorMessage).catch(() => {});
+        db.prepare(`
+          UPDATE task_queue
+          SET status = 'pending', run_after = ?, error_message = ?, updated_at = ?
+          WHERE id = ?
+        `).run(
+          now + 30_000,
+          `[悬挂:AI隧道熔断] ${errorMessage} | ${errorDetails}`,
+          now,
+          taskId
+        );
+        console.warn(`[Task Queue] 任务 #${taskId} 因 AI 隧道熔断悬挂为 pending（不重试、不烧重试次数）`);
         return;
       }
 
@@ -261,6 +282,11 @@ export function startQueueWorker(workerFn, concurrency = 4, pollIntervalMs = 800
   }, 5 * 60 * 1000);
 
   function spawnWorkers() {
+    // P0-4: when local 14B tunnel circuit is open, suspend head consumption (Q1)
+    if (isAiTunnelSuspended()) {
+      return;
+    }
+
     while (activeWorkers < concurrency) {
       const task = claimNextPendingTask();
       if (!task) break;
