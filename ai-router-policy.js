@@ -69,11 +69,19 @@ export function shouldSkipGeminiFallback(errOrText) {
   return isLmContextExceeded(errOrText);
 }
 
-export function resolveTextRoute({ cloudOnly = false, localReachable = false, hasGeminiKey = false } = {}) {
+/** P0-4 / Q1: when local tunnel circuit is open, bulk jobs must not dump onto Gemini. */
+export function shouldBlockGeminiForLocalDown({ circuitOpen = false, allowSparseGemini = false } = {}) {
+  if (!circuitOpen) return false;
+  return !allowSparseGemini;
+}
+
+export function resolveTextRoute({ cloudOnly = false, localReachable = false, hasGeminiKey = false, circuitOpen = false, allowSparseGemini = false } = {}) {
   if (cloudOnly) {
     return hasGeminiKey ? 'gemini' : (localReachable ? 'lm-studio' : 'none');
   }
-  if (localReachable) return 'lm-studio';
+  if (localReachable && !circuitOpen) return 'lm-studio';
+  // Q1: tunnel down → suspend bulk (none), unless explicit sparse Gemini for critical online paths (Q2)
+  if (circuitOpen && !allowSparseGemini) return 'none';
   if (hasGeminiKey) return 'gemini';
   return 'none';
 }

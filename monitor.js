@@ -19,9 +19,11 @@ import {
   shouldRotateGeminiKeyOnError,
   truncatePromptForLocal,
   shouldSkipGeminiFallback,
+  shouldBlockGeminiForLocalDown,
   LOCAL_LM_DEFAULT_MODEL,
   LOCAL_LM_DEFAULT_BASE
 } from './ai-router-policy.js';
+import { isAiTunnelSuspended, notifyAiTunnelFailure } from './monitoring/ai-tunnel-circuit.js';
 
 dotenv.config();
 
@@ -877,17 +879,26 @@ export async function analyzeWithFallback(prompt, options = {}) {
     }
   }
 
-  const isLocalOffline = Date.now() < lmStudioOfflineUntil;
-  if (isLocalOffline && apiKey) {
-    console.log(`[AI Router] [${tag}] local 14B in ${Math.round((lmStudioOfflineUntil - Date.now()) / 1000)}s cooldown — sparse Gemini fallback`);
-    try {
-      return await tryGemini('local-circuit-open');
-    } catch (err) {
-      if (isGeminiKeyProtectError(err)) {
-        console.warn(`[AI Router] [${tag}] Gemini 429/401/invalid during sparse fallback — not burning next key`);
-      }
+  const isLocalOffline = Date.now() < lmStudioOfflineUntil || isAiTunnelSuspended();
+  const allowSparseGemini = options.allowSparseGeminiWhenLocalDown === true;
+  if (isLocalOffline) {
+    if (shouldBlockGeminiForLocalDown({ circuitOpen: true, allowSparseGemini })) {
+      const err = new Error('AI_TUNNEL_SUSPENDED: local 14B tunnel circuit open — queue/bulk suspended, not dumping onto Gemini');
+      console.warn(`[AI Router] [${tag}] ${err.message}`);
       throw err;
     }
+    if (apiKey) {
+      console.log(`[AI Router] [${tag}] local 14B circuit open — sparse Gemini fallback (explicit allow)`);
+      try {
+        return await tryGemini('local-circuit-open-sparse');
+      } catch (err) {
+        if (isGeminiKeyProtectError(err)) {
+          console.warn(`[AI Router] [${tag}] Gemini 429/401/invalid during sparse fallback — not burning next key`);
+        }
+        throw err;
+      }
+    }
+    throw new Error('AI_TUNNEL_SUSPENDED: local 14B down and no sparse Gemini allowed');
   }
 
   let acquiredLockLocally = false;
@@ -931,14 +942,19 @@ export async function analyzeWithFallback(prompt, options = {}) {
   const localDown = isNetworkConnectionError(localErr) || isLmModelUnloaded(localErr);
   if (localDown) {
     lmStudioOfflineUntil = Date.now() + 5 * 60 * 1000;
-    console.warn(`[AI Router] [${tag}] local 14B unreachable (${localErr.message}). 5min circuit. Sparse Gemini fallback if keyed.`);
+    notifyAiTunnelFailure(localErr).catch(() => {});
+    console.warn(`[AI Router] [${tag}] local 14B unreachable (${localErr.message}). Circuit + suspend bulk (Q1).`);
   } else {
     console.warn(`[AI Router] [${tag}] local 14B failed: ${localErr.message}`);
   }
 
-  if (apiKey && localDown) {
+  if (localDown && shouldBlockGeminiForLocalDown({ circuitOpen: true, allowSparseGemini })) {
+    throw new Error(`AI_TUNNEL_SUSPENDED: ${localErr.message}`);
+  }
+
+  if (apiKey && localDown && allowSparseGemini) {
     try {
-      return await tryGemini('local-down');
+      return await tryGemini('local-down-sparse');
     } catch (gErr) {
       if (isGeminiKeyProtectError(gErr)) {
         console.warn(`[AI Router] [${tag}] Gemini 429/401/invalid — not rotating Key #2`);

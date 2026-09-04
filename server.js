@@ -58,6 +58,7 @@ import { seed2026MacroEvents } from './market-data.js';
 import { rebuildHistoricalCampaigns } from './campaign-engine.js';
 import { startEventLoopProbe } from './monitoring/event-loop-probe.js';
 import { buildHealthPayload } from './monitoring/health.js';
+import { startAiTunnelCircuit } from './monitoring/ai-tunnel-circuit.js';
 
 dotenv.config();
 
@@ -2582,6 +2583,8 @@ const server = app.listen(PORT, "0.0.0.0", () => {
     intervalMs: 10_000,
     enableAlerts: process.env.EVENT_LOOP_ALERTS !== '0',
   });
+  // P0-4: local 14B tunnel probe + circuit (suspend queue when open; no Gemini dump)
+  startAiTunnelCircuit();
   // Check local LM Studio embedding server and start background worker if active
   checkEmbeddingApi();
   // Start background task queue worker with concurrency = 6 (全速压榨 GPU 爆算算力)

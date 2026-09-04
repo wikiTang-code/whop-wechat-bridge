@@ -40,7 +40,6 @@ scripts/*
 !scripts/watchdog/
 !scripts/watchdog/**
 scripts/watchdog/.watchdog_state
-scripts/watchdog/.watchdog_state
 
 
 # One-off debug/test scripts
