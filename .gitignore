@@ -37,6 +37,11 @@ Thumbs.db
 temp_chunks/
 scripts/*
 !scripts/discovery/
+!scripts/watchdog/
+!scripts/watchdog/**
+scripts/watchdog/.watchdog_state
+scripts/watchdog/.watchdog_state
+
 
 # One-off debug/test scripts
 test_*.js
