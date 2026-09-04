@@ -26,6 +26,7 @@ import {
 } from './ai-router-policy.js';
 import { isAiTunnelSuspended, notifyAiTunnelFailure } from './monitoring/ai-tunnel-circuit.js';
 import { shouldPauseSecondaryWorkers } from './monitoring/backpressure-controller.js';
+import { recordPushMetric } from './monitoring/push-latency-probe.js';
 
 dotenv.config();
 
@@ -1635,12 +1636,38 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       if (!skipWeChat) {
         console.log(`[实时通知] 发现 ${realTimePushMsgs.length} 条大V实时新发言，触发即时推送...`);
         for (const msg of realTimePushMsgs) {
-          await pushRawMessageToWeChat(msg).catch(err => console.error('[即时微信推送错误]:', err.message));
+          const pushStart = Date.now();
+          let pushErr = null;
+          try {
+            await pushRawMessageToWeChat(msg);
+          } catch (err) {
+            pushErr = err;
+            console.error('[即时微信推送错误]:', err.message);
+          }
+          const pushEnd = Date.now();
+          const createdAt = Number(msg.created_at) || pushStart;
+          recordPushMetric({
+            messageId: msg.id,
+            speakerName: msg.sender_name || 'unknown',
+            createdAt,
+            pushedAt: pushEnd,
+            ttlMs: Math.max(0, pushEnd - createdAt),
+            rttMs: pushEnd - pushStart,
+            success: !pushErr,
+            error: pushErr ? pushErr.message : null,
+          });
           markMessagePushed(msg.id, 1);
         }
       } else {
         console.log(`[实时通知] 发现 ${realTimePushMsgs.length} 条大V新发言。已忽略推送 (skipWeChat = true)。`);
         for (const msg of realTimePushMsgs) {
+          recordPushMetric({
+            messageId: msg.id,
+            speakerName: msg.sender_name || 'unknown',
+            createdAt: Number(msg.created_at) || Date.now(),
+            pushedAt: Date.now(),
+            skipped: true,
+          });
           markMessagePushed(msg.id, 1);
         }
       }
@@ -1799,7 +1826,7 @@ export async function pushRawMessageToWeChat(msg) {
 已同步处理量化跟单`;
 
   try {
-    await fetch(webhookUrl, {
+    const res = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1807,9 +1834,18 @@ export async function pushRawMessageToWeChat(msg) {
         markdown: { content: text }
       })
     });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status}: ${errText}`);
+    }
+    const resJson = await res.json().catch(() => ({}));
+    if (resJson.errcode && resJson.errcode !== 0) {
+      throw new Error(`WeCom API error: ${resJson.errcode} - ${resJson.errmsg}`);
+    }
     console.log(`[即时消息推送] 成功推送大V发言到微信: ${msg.id}`);
   } catch (err) {
     console.error(`[即时消息推送失败] 无法推送大V发言到微信:`, err.message);
+    throw err;
   }
 }
 

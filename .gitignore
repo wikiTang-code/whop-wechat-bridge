@@ -41,6 +41,7 @@ scripts/*
 !scripts/watchdog/**
 !scripts/cleanup_gemini_api_cloud.js
 !scripts/offline_queue_worker.js
+!scripts/run_offline_asset_sync.js
 scripts/watchdog/.watchdog_state
 
 

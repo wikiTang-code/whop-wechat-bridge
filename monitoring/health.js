@@ -7,6 +7,7 @@ import { getAlertSinkStats } from './alert-sink.js';
 import { getQueueSnapshot } from './queue-watermark-probe.js';
 import { getMonitoringDbStats } from './monitoring-db.js';
 import { getAssetFreshnessSnapshot } from './asset-freshness-probe.js';
+import { getPushPipelineSnapshot } from './push-latency-probe.js';
 
 let aiTunnelGetter = null;
 
@@ -22,6 +23,7 @@ export function buildHealthPayload() {
   const queues = getQueueSnapshot();
   const monDbStats = getMonitoringDbStats();
   const assets = getAssetFreshnessSnapshot();
+  const pushPipeline = getPushPipelineSnapshot();
 
   const subsystems = {
     process: {
@@ -50,6 +52,10 @@ export function buildHealthPayload() {
       status: monDbStats.status || 'ok',
       ...monDbStats,
     },
+    pushPipeline: {
+      status: pushPipeline.status || 'ok',
+      ...pushPipeline,
+    },
     alerts: {
       status: 'ok',
       ...alerts,
@@ -57,12 +63,19 @@ export function buildHealthPayload() {
   };
 
   // SRE 隔离原则：仅当核心运行时 (进程自身/事件循环) 严重异常时 HTTP 才返回 503 critical；
-  // 离线资产滞后或队列积压仅使整体降为 warn，绝不影响看板存活探测。
+  // 离线资产滞后、队列积压或推送延迟仅使整体降为 warn，绝不影响看板存活探测。
   const runtimeLevels = [subsystems.process.status, subsystems.eventLoop.status];
   let overall = 'ok';
   if (runtimeLevels.includes('critical') || runtimeLevels.includes('down')) {
     overall = 'critical';
-  } else if (runtimeLevels.includes('warn') || subsystems.queues.status === 'warn' || subsystems.assets.status === 'warn' || subsystems.assets.status === 'critical') {
+  } else if (
+    runtimeLevels.includes('warn') ||
+    subsystems.queues.status === 'warn' ||
+    subsystems.assets.status === 'warn' ||
+    subsystems.assets.status === 'critical' ||
+    subsystems.pushPipeline.status === 'warn' ||
+    subsystems.pushPipeline.status === 'critical'
+  ) {
     overall = 'warn';
   }
 
