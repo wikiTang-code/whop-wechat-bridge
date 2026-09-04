@@ -6,7 +6,7 @@ send_watchdog_alert() {
   local level="$1"
   local title="$2"
   local detail="$3"
-  local webhook="${WECHAT_WORK_WEBHOOK_URL:-}"
+  local webhook="${WECHAT_ALERT_WEBHOOK_URL:-${WECHAT_WORK_WEBHOOK_URL:-}}"
   local icon md
 
   case "${level}" in

@@ -52,7 +52,7 @@ import {
 } from './monitor.js';
 import { executeOrder, getUnifiedPortfolio, getUnifiedPositions } from './trading.js';
 import net from 'net';
-import { runWithRateLimit, getRateLimiterStats } from './rate-limiter.js';
+import { runWithRateLimit, getRateLimiterStats, getActiveApiCalls } from './rate-limiter.js';
 import { startQueueWorker } from './task-queue.js';
 import { seed2026MacroEvents } from './market-data.js';
 import { rebuildHistoricalCampaigns } from './campaign-engine.js';
@@ -758,13 +758,38 @@ app.get('/api/proxy-image', async (req, res) => {
       }
     } catch (e) {}
 
+    // 2.1 兜底：从 URL 或参数中提取 post_xxx，并在 data/media/ 中检索已落盘图片
+    try {
+      const postMatch = imageUrl.match(/(post_[A-Za-z0-9_-]+)/);
+      if (postMatch) {
+        const pid = postMatch[1];
+        const possibleDirs = ['data/media/zhao', 'data/media/zhou', 'data/media/general'];
+        for (const relDir of possibleDirs) {
+          const fullDir = path.resolve(__dirname, relDir);
+          if (fs.existsSync(fullDir)) {
+            const dateDirs = fs.readdirSync(fullDir);
+            for (const d of dateDirs) {
+              const candidate = path.join(fullDir, d, `${pid}_0.jpg`);
+              if (fs.existsSync(candidate)) {
+                res.setHeader('Content-Type', 'image/jpeg');
+                res.setHeader('Cache-Control', 'public, max-age=31536000');
+                return res.sendFile(candidate);
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {}
+
     if (!imageUrl.startsWith('https://img-v2-prod.whop.com') && !imageUrl.startsWith('https://assets-2-prod.whop.com')) {
       return res.status(403).send('Forbidden: Invalid image host');
     }
 
     const options = {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://whop.com/',
+        'Cookie': process.env.WHOP_COOKIE || ''
       }
     };
 
@@ -1188,6 +1213,17 @@ app.get('/api/system/monitor', async (req, res) => {
       };
     });
 
+    // 内存中追踪的活跃 API 调用 (零主库写)
+    const inMemoryApiTasks = getActiveApiCalls().map(t => ({
+      id: t.id,
+      taskType: t.task_type,
+      status: t.status,
+      priority: t.priority,
+      description: '☁️ Gemini API 云端多模态与文本精加工',
+      updatedAt: t.updated_at
+    }));
+    const combinedActiveTasks = [...inMemoryApiTasks, ...formattedTasks];
+
     // 新增：获取最近完成/失败的历史任务 (最近 15 条)
     const completedTasks = db.prepare(`
       SELECT id, task_type, status, priority, error_message, updated_at
@@ -1231,8 +1267,8 @@ app.get('/api/system/monitor', async (req, res) => {
         localModelConnected,
         rateLimiterStats,
         gpuLockStatus,
-        activeTasks: formattedTasks,
-        activeTasksCount,
+        activeTasks: combinedActiveTasks,
+        activeTasksCount: activeTasksCount + inMemoryApiTasks.length,
         completedTasks: formattedHistory,
         pendingTradeMsgsCount
       }
@@ -1813,6 +1849,7 @@ app.get('/api/config', (req, res) => {
       TARGET_SPEAKER_USER_IDS: process.env.TARGET_SPEAKER_USER_IDS || '',
       MONITOR_INTERVAL_MINUTES: process.env.MONITOR_INTERVAL_MINUTES || '15',
       WECHAT_WORK_WEBHOOK_URL_MASKED: mask(process.env.WECHAT_WORK_WEBHOOK_URL),
+      WECHAT_ALERT_WEBHOOK_URL_MASKED: mask(process.env.WECHAT_ALERT_WEBHOOK_URL),
       WHOP_WEBHOOK_SECRET_MASKED: mask(process.env.WHOP_WEBHOOK_SECRET),
       WHOP_USER_TOKEN_MASKED: mask(process.env.WHOP_USER_TOKEN),
       LAST_SYNC_TIME: getLastSyncTime(),
@@ -1850,6 +1887,7 @@ app.post('/api/config', requireCsrf, (req, res) => {
       'TARGET_SPEAKER_USER_IDS',
       'MONITOR_INTERVAL_MINUTES',
       'WECHAT_WORK_WEBHOOK_URL',
+      'WECHAT_ALERT_WEBHOOK_URL',
       'WHOP_WEBHOOK_SECRET',
       'WHOP_USER_TOKEN',
       // 新增量化风控项
@@ -1867,7 +1905,7 @@ app.post('/api/config', requireCsrf, (req, res) => {
     for (const key of whitelist) {
       if (updates[key] !== undefined) {
         // If it starts with masking pattern and wasn't edited, keep current process.env value
-        if (updates[key].includes('...') && (key === 'GEMINI_API_KEY' || key === 'WECHAT_WORK_WEBHOOK_URL' || key === 'WHOP_WEBHOOK_SECRET' || key === 'WHOP_USER_TOKEN')) {
+        if (updates[key].includes('...') && (key === 'GEMINI_API_KEY' || key === 'WECHAT_WORK_WEBHOOK_URL' || key === 'WECHAT_ALERT_WEBHOOK_URL' || key === 'WHOP_WEBHOOK_SECRET' || key === 'WHOP_USER_TOKEN')) {
           continue; // Keep current
         }
         cleanUpdates[key] = String(updates[key]).trim();
@@ -2596,7 +2634,12 @@ const server = app.listen(PORT, "0.0.0.0", () => {
     if (task.task_type.startsWith('news_')) {
       return await processNewsTask(task);
     }
-    throw new Error(`Unsupported task type: ${task.task_type}`);
+    if (task.task_type === 'gemini_api_cloud') {
+      console.warn(`[Task Worker] 忽略并丢弃历史残留的 API 可视化卡片 #${task.id}`);
+      return { skipped: true, reason: 'legacy_api_card_dropped' };
+    }
+    console.warn(`[Task Worker] 跳过未注册的未知任务 #${task.id} (类型: ${task.task_type})`);
+    return { skipped: true, reason: `Unsupported task type: ${task.task_type}` };
   }, workerConcurrency, 100);
   // Start Cloudflare Tunnel and push URL to WeChat
   startCloudflareTunnel(PORT);

@@ -39,11 +39,14 @@ scripts/*
 !scripts/discovery/
 !scripts/watchdog/
 !scripts/watchdog/**
+!scripts/cleanup_gemini_api_cloud.js
 scripts/watchdog/.watchdog_state
 
 
 # One-off debug/test scripts
-test_*.js
+/test_*.js
+!test/
+!test/**
 query_*.js
 search_*.js
 fetch_*.js

@@ -546,8 +546,10 @@ export function getDb() {
 export function saveMessages(messages) {
   const conn = getDb();
   const insert = conn.prepare(`
-    INSERT OR IGNORE INTO messages (id, channel_id, channel_name, sender_id, sender_name, content, created_at, tickers, sectors, strategies, attachments)
+    INSERT INTO messages (id, channel_id, channel_name, sender_id, sender_name, content, created_at, tickers, sectors, strategies, attachments)
     VALUES (@id, @channel_id, @channel_name, @sender_id, @sender_name, @content, @created_at, @tickers, @sectors, @strategies, @attachments)
+    ON CONFLICT(id) DO UPDATE SET
+      attachments = COALESCE(excluded.attachments, messages.attachments)
   `);
 
   const registry = getChannelRegistryMap();
@@ -581,6 +583,22 @@ export function saveMessages(messages) {
   } catch (err) {
     console.error('[Database] saveMessages transaction failed:', err.message);
     throw err;
+  }
+}
+
+// Explicitly update attachments for an existing message
+export function updateMessageAttachments(id, attachments) {
+  if (!id || !attachments) return;
+  const conn = getDb();
+  const attachJson = typeof attachments === 'string' ? attachments : JSON.stringify(attachments);
+  try {
+    conn.prepare(`
+      UPDATE messages
+      SET attachments = ?
+      WHERE id = ?
+    `).run(attachJson, id);
+  } catch (err) {
+    console.error(`[Database] updateMessageAttachments failed for message ${id}:`, err.message);
   }
 }
 

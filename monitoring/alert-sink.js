@@ -100,7 +100,10 @@ function formatAlertMarkdown({ level, subsystem, title, detail, evidence, sugges
   if (evidence && typeof evidence === 'object') {
     const bits = Object.entries(evidence)
       .slice(0, 8)
-      .map(([k, v]) => `- ${k}: \`${v}\``)
+      .map(([k, v]) => {
+        const valStr = typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
+        return `- ${k}: \`${valStr}\``;
+      })
       .join('\n');
     if (bits) lines.push('\n**证据**\n' + bits);
   }
@@ -110,7 +113,7 @@ function formatAlertMarkdown({ level, subsystem, title, detail, evidence, sugges
 }
 
 async function emitNow(payload) {
-  const webhookUrl = process.env.WECHAT_WORK_WEBHOOK_URL;
+  const webhookUrl = process.env.WECHAT_ALERT_WEBHOOK_URL || process.env.WECHAT_WORK_WEBHOOK_URL;
   const md = formatAlertMarkdown(payload);
   pushToRing({ ...payload, at: nowFn(), delivered: true });
   try {

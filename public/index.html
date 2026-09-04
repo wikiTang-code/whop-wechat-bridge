@@ -941,8 +941,12 @@
         <div class="form-section">
           <h4>📢 推送与轮询设置</h4>
           <div class="form-group">
-            <label for="wechat_work_webhook_url">企业微信群机器人 Webhook URL</label>
-            <input type="password" id="wechat_work_webhook_url" placeholder="已保存 Webhook 地址 (输入新地址以更新)">
+            <label for="wechat_work_webhook_url">业务群机器人 Webhook URL (大V消息/跟单/研报)</label>
+            <input type="password" id="wechat_work_webhook_url" placeholder="已保存业务群 Webhook 地址 (输入新地址以更新)">
+          </div>
+          <div class="form-group">
+            <label for="wechat_alert_webhook_url">运维告警群机器人 Webhook URL (监控/看门狗/AI熔断, 留空默认退回业务群)</label>
+            <input type="password" id="wechat_alert_webhook_url" placeholder="留空则与业务群共用 (输入独立告警机器人地址以分流)">
           </div>
           <div class="form-row">
             <div class="form-group">
