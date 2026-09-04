@@ -201,41 +201,44 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 - 每阶段坚持「旁路增量、只告警不硬重启、监测不入主库、离线隔离」红线。
 - **部署提醒**：在 GitHub `main` 与 VM 对齐前，VM 优先 **文件拷贝部署**，避免整树 `git pull` 踩到历史截断/`server.js` 事故。
 
-## 10. 实施状态快照（2026-09-04 Asia/Shanghai）
+## 10. 实施状态快照（2026-09-04 18:50 Asia/Shanghai 最新归档）
 
-### 10.1 仓库 / PR
-| 项 | 状态 |
-|---|---|
-| PR [#6](https://github.com/wikiTang-code/whop-wechat-bridge/pull/6) | 已因冲突关闭；计划全文现由本文件承载（源分支 `cursor/hardening-monitoring-plan-fd06`） |
-| PR [#7](https://github.com/wikiTang-code/whop-wechat-bridge/pull/7) | 已合入 `main`（squash `c5b57ae`）；P0 代码含 `monitoring/*` 与 `scripts/watchdog/run_from_env.sh` |
-| 推送方式 | 本机旧 PAT 已删导致 git remote 失效时，可用 GitHub 连接器 `push_files` |
-
-### 10.2 生产 gcp-vm（只读核验摘要）
-| 项 | 结果 |
-|---|---|
-| 服务 | pm2 `whop-wechat-bridge` online；`:8085` |
-| `/health` | 常态 200；eventLoop mean≈20ms；aiTunnel `closed` |
-| 看门狗 | crontab `* * * * * …/scripts/watchdog/run_from_env.sh`；日志 `logs/watchdog.log` |
-| 企微 webhook | 三次探测 HTTP 200 / errcode=0；RTT ≈ 0.63–0.76s |
-| 大V 实时推送 | `TARGET_SPEAKER_USER_IDS` 仅 1 人；VIP pending=0；该大V 最近发言约 10h+ 前 → 群内无新实时推送属预期 |
-| 队列积压 | `l2a_cut` ~295 pending；`timeline` ~53（离线消费，R4） |
-| 已知噪声 | Auto News 空窗约 30s 一次写 error.log；eventLoop 偶发 critical（看门狗已报过） |
-
-### 10.3 已做 / 待做清单
-| 优先级 | 项 | 状态 |
+### 10.1 仓库 / PR / 提交线
+| 项 | 状态 | 说明 |
 |---|---|---|
-| P0-1 | alert-sink | ✅ 完成 |
-| P0-2 | bash 看门狗 + crontab | ✅ 完成 |
-| P0-3 | `/health` + event-loop | ✅ 完成 |
-| P0-4 | AI 隧道熔断 | ✅ 完成 |
-| 运维 | 企微延迟排查 | ✅ 结论：webhook 正常；名单过滤 + 无新大V 发言 |
-| P1-5 | attachments 回填 | ⬜ 待做 |
-| P1-6 | rate-limiter 去污 | ⬜ 待做 |
-| P1-7 | monitoring.db + 探针框架 | ⬜ 待做 |
-| P1-8/9 | 离线队列消费者 / 资产 cron | ⬜ 待做（L2 侧协同） |
-| P1-10 | 推送/交易监测 | ⬜ 待做 |
-| P2 | 看板/新鲜度/一致性/RUM/软降级/DB 治理 | ⬜ 待做 |
-| 并行 | 15 窗 cleaned 三处核验后再进 GitHub | ⬜ 待做 |
-| 并行 | Auto News 空窗刷屏降噪 | ⬜ 建议 |
-| 并行 | eventLoop 偶发 critical 根因 | ⬜ 建议 |
-| 并行 | 删除/忽略空的 `data/whop_archive.db` | ⬜ 建议 |
+| 分支 `feat/p1-attachments-and-ratelimiter` | 正在开发与验证 | 承载 P1-5、P1-6 及 P0/P1 稳定性加固，已同步推送至 GitHub |
+| Commit `f092129` | ✅ 已推远端 | P1-5 attachments ON CONFLICT 回填 + P1-6 rate-limiter 纯内存去污 (清理 22,285 条历史脏数据) |
+| Commit `05d1937` | ✅ 已推远端 | 修复 888 条全量重复 upsert 致命缺陷（仅写新消息）+ 股票标的正则预编译 |
+| Commit `5d7d022` | ✅ 已推远端 | P0 加固：防震荡抑制 (Flapping) + 慢日志环形缓冲 (trackSlowOp) + 3级阶梯背压控制器 (25s/60s/120s) + 告警时区北京时间 |
+| Commit `09c5ed0` | ✅ 已推远端 | P1 减负：`saveMessages` 50 条切片分块 + `setImmediate` 让出事件循环 + Auto News 空数据 error.log 降噪 |
+
+### 10.2 生产 gcp-vm（实机核验摘要）
+| 项 | 结果 | 说明 |
+|---|---|---|
+| 服务 | pm2 `whop-wechat-bridge` online | PID 693693，当前 CPU 0%~2%，内存 ~126MB，0 异常重启 |
+| 代码一致性 | SHA256 100% 比对一致 | `database.js` / `monitor.js` / `server.js` 等 8 个核心模块与远端 commit 逐位匹配 |
+| `/health` | 常态 200 OK | 内网 `127.0.0.1:8085/health` 毫秒级返回，时区显示 `(北京时间)` |
+| 看门狗 | bash 探针运行正常 | `status=ok prev=ok detail=http=200`，静默无骚扰告警 |
+| 企微推送 | 双通道分流已就绪 | 业务群 (`WECHAT_WORK_WEBHOOK_URL`) 与 监控告警群 (`WECHAT_ALERT_WEBHOOK_URL`) 物理隔离 |
+| 赵哥图片推送 | 原生协议验证通过 | 原生 base64/md5 `msgtype: "image"` + markdown 伴随文本 + 剔除长乱码链接 |
+| 访问路径规范 | 严格采用内网与安全隧道 | 验活统一使用内网回环 `127.0.0.1:8085`，公网访问统一走 Cloudflare 加密隧道，废止公网裸 IP 验收话术 |
+
+### 10.3 全量任务清单对照（已做 / 待做）
+| 优先级 | 任务项 | 状态 | 落地内容 / 交付说明 |
+|---|---|---|---|
+| P0-1 | alert-sink 告警中心 | ✅ 完成 | 边缘触发 + critical 去重 + 10分钟 Flapping 震荡抑制（翻转>2次进震荡，单次 OK 静音） |
+| P0-2 | bash 看门狗 + crontab | ✅ 完成 | 外部 curl 探测（R1/R2 只告警不自动 pm2 restart）+ 失败 2 秒重试防抖 |
+| P0-3 | `/health` + event-loop 探针 | ✅ 完成 | 实时延迟度量 + 喂入背压控制器 + checkedAt 统一北京时间 |
+| P0-4 | AI 隧道熔断保护 | ✅ 完成 | 连续 3 次失败软降级挂起本地 14B 探针，避免刷屏 |
+| P0-5 | 告警时区本地化 | ✅ 完成 | 移除 `toISOString()` UTC 偏差，全面支持 Asia/Shanghai 北京时间 |
+| P0-6 | 慢操作打点归因 | ✅ 完成 | 舍弃重型 V8 Profiler，改用 `trackSlowOp` + 20 条内存环形缓冲，告警证据直出阻塞函数与 batch |
+| P0-7 | 固定三级阶梯背压 | ✅ 完成 | 25s $\to$ 60s $\to$ 120s 自动退避，暂停次要 media_worker；连续 3 周期健康平滑回退 |
+| P1-5 | attachments 回填与持久化 | ✅ 完成 | `messages.attachments` 库表结构就绪，实时下载活签落盘并在主库 ON CONFLICT 回填 |
+| P1-6 | rate-limiter 内存化与去污 | ✅ 完成 | 22,285 条 `gemini_api_cloud` 历史脏数据物理清除，改为纯内存 Map 限流，task_queue 零写入 |
+| P1-A | 入库 50 条分块切片减负 | ✅ 完成 | `saveMessages` 大批量入库按 50 条切片并在片间 `setImmediate`，主动交出主线程生命通道 |
+| P1-B | 调度器日志噪音治理 | ✅ 完成 | Auto News Scheduler 空数据时降级为 info 日志，彻底停止污染 `error.log` |
+| P1-7 | `monitoring.db` 独立库 + 探针框架 | ⬜ 待做 | 遵循 R3 红线（监控数据绝不写入 `whop_archive.db`），建立专用的指标时序存储 |
+| P1-8/9 | 看板与 Ingest 物理多进程隔离 | ⬜ 待做 | Web 只读服务与 Ingest/Worker 拆分为独立 PM2 进程，通过 SQLite WAL 解耦 |
+| P1-10 | 推送与交易链路端到端监测 | ⬜ 待做 | 监控大V发言到企微推送的端到端时延（TTL），超过阈值主动报警 |
+| 运维 | 24小时内网静默观察 | 🟡 进行中 | 重点监控大批入库延迟、背压阶梯平滑回退、探针单点毛刺表现，确认零 pm2 restart 误触发 |
+| 待调优 | 探针毛刺判定优化 | ⬜ 建议 | 当前 `max >= 5s` 易受单次底层 Full GC 抖动触发；建议未来以 `p99 >= 5s` 为 critical 核心判定，避免孤立毛刺误报 |
