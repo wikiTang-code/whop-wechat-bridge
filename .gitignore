@@ -40,6 +40,7 @@ scripts/*
 !scripts/watchdog/
 !scripts/watchdog/**
 !scripts/cleanup_gemini_api_cloud.js
+!scripts/offline_queue_worker.js
 scripts/watchdog/.watchdog_state
 
 
