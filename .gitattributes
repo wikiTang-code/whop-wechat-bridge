@@ -1,0 +1,3 @@
+# Force LF for shell scripts so Linux shebangs work after Windows checkout
+*.sh text eol=lf
+scripts/watchdog/* text eol=lf
