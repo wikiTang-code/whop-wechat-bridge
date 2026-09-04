@@ -1,10 +1,10 @@
-# 系统加固 + 监测机制 实施方案（P0 已定稿，可实施）
+# 系统加固 + 监测机制 实施方案（P0 已落地，P1/P2 待做）
 
 > 本文整合两部分内容并给出统一优先级与执行顺序：
 > 1. 对现有系统「整体检视」发现的**不合理之处及改法**；
 > 2. 用户要求的**中断响应式监测机制**（各子系统异常、抓取/推送/处理流程丢失或卡顿、前端渲染延迟等）。
 >
-> **状态**：已经过审核（含 Gemini 复核）。第 8 节 8 个决策点均已定稿；第 4 节新增小内存硬约束/避坑红线。除本文档外**未改动任何代码**；P0 阶段方案已锁定，待用户「开始」即按第 7 节顺序实施。
+> **状态（2026-09-04 更新）**：第 8 节决策点与第 4 节红线仍有效。**P0-1～P0-4 已实现并 SCP 上机**（代码见 PR #7 `p0-hardening`）；看门狗 crontab 已装；详见文末 **§10 实施状态快照**。本文仍是 P1/P2 的权威工作计划；与 PR #7 代码同步维护。
 
 ---
 
@@ -61,12 +61,14 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 - **AI 路由**：`ai-router-policy.js` 本地 14B 优先、Gemini 稀疏兜底、上下文超限不 cascade。
 - **在线/离线硬隔离**：L2a/L2b 大模型批处理在独立进程，Web 只读指针文件。
 
-### 2.3 运行现状
-- ✅ **消息实时抓取正常**：最新消息数分钟内入库，`wm_raw` 同步跟进；上次事件循环阻塞已修复、CPU 正常。
-- ⚠️ **AI 处理链路高失败**：本地 14B 隧道时断、Gemini 配额耗尽 → news/persona 大量失败。
-- ⚠️ **多条队列无消费者 / 资产滞后**：`l2a_cut`/`timeline` 积压；Persona/L2a 明显滞后。
-- ⚠️ **数据完整性缺口**：`messages.attachments` 未回填；`task_queue` 被 API 可视化记录污染。
-- ❌ **无监测/告警体系**：无 `/health`、无探针、无外部看门狗，故障不可自动发现。
+### 2.3 运行现状（2026-09-04 复核）
+- ✅ **消息实时抓取正常**：最新消息分钟级入库；真库路径为仓库根目录 `whop_archive.db`（约 870MB）。注意：`data/whop_archive.db` 曾出现 **0 字节空文件**，勿误用。
+- ✅ **P0 监测已上线**：`GET /health`、事件循环探针、企微 alert-sink、AI 隧道熔断、外部 bash 看门狗 + **每分钟 crontab**（`scripts/watchdog/run_from_env.sh`）。
+- ⚠️ **eventLoop 偶发尖刺**：看门狗已抓到一次 `/health` 503（eventLoop critical）并自动恢复；根因待查（同步 SQLite / 高频 sync / Auto News 空窗刷屏嫌疑）。
+- ⚠️ **企微「延迟感」多为业务过滤而非 webhook**：直连 webhook RTT ≈ 0.6–0.8s（ok）。`TARGET_SPEAKER_USER_IDS` 当前 **仅 1 个大V**；该大V 无新发言时群内无实时推送属预期。非名单发言者不会进企微。
+- ⚠️ **AI / 队列 / 资产**：本地 14B 隧道仍依赖本机；`l2a_cut` ~295 / `timeline` ~53 pending；L2a 水位仍停在 08-30 一带；Persona 滞后问题未消。
+- ⚠️ **数据完整性缺口仍在**：`messages.attachments` 回填、`task_queue` 脏数据清理 → P1。
+- ⚠️ **Auto News Scheduler** 约每 30s 对空窗报错刷 `error.log`（噪声大，建议尽快降噪）。
 
 ---
 
@@ -140,13 +142,13 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 
 > 复杂度用技术范围描述（不用日历时间）。P0 顺序已按审核建议微调为"先通告警 → 看门狗上哨 → 主进程体征 → AI 隧道熔断"。
 
-### 阶段 P0 — 止血与"出事能知道"（已定稿，按此顺序）
-| 序 | 项 | 对应 | 涉及模块 | 关键约束 | 验收标准 |
+### 阶段 P0 — 止血与"出事能知道"（✅ 2026-09-04 已完成并上机）
+| 序 | 项 | 状态 | 涉及模块 | 关键约束 | 验收/上机证据 |
 |---|---|---|---|---|---|
-| 1 | 企业微信告警出口 + 冷却抑制 | 全局 | 复用 `pushToWeChat`，封装告警路由 | 边沿触发；critical 10min 去抖、warn 聚合 | 任意模块可发分级告警且不刷屏 |
-| 2 | 超轻量外部看门狗 | M0-A | `bash+curl` + crontab/systemd | **R1 零 V8 / R2 只告警不重启** | 手动让 8085 卡住/挂起 → 收到企微告警；恢复后收到恢复通知 |
-| 3 | `/health` 端点 + 事件循环探针 | M0-B, A | `server.js` 只读端点 + perf_hooks | 只读、旁路 | `/health` 返回各子系统状态；lag 飙升可见 |
-| 4 | AI 隧道探活 + 断线熔断挂起 | I1,I2,D | `ai-router-policy`/`monitor`/`rate-limiter` | 断线**挂起队头消费**、不重试不转烧 Gemini | 隧道断时不再刷千次失败，改为熔断 + 一条告警 |
+| 1 | 企业微信告警出口 + 冷却抑制 | ✅ | `monitoring/alert-sink.js` | 边沿；critical 10min；warn 聚合 5min | 单元测试 PASS；`/health.subsystems.alerts` 可见 |
+| 2 | 超轻量外部看门狗 | ✅ | `scripts/watchdog/*` + crontab | **R1/R2** | crontab 每分钟跑 `run_from_env.sh`；已边沿告警 503→恢复 |
+| 3 | `/health` + 事件循环探针 | ✅ | `monitoring/health.js` + event-loop-probe | 只读旁路 | `/health` 200；meanMs≈20；尖刺时 503 |
+| 4 | AI 隧道探活 + 断线熔断挂起 | ✅ | ai-tunnel-circuit + router/queue 接线 | 挂起队头、不转烧 Gemini | `/health.aiTunnel` closed；8080 可达 |
 
 ### 阶段 P1 — 正确性、瘦身与处理链路监测
 | 序 | 项 | 对应 | 涉及模块 | 验收标准 |
@@ -193,8 +195,47 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 
 ## 9. 结论与下一步
 
-- 文档质量与方向经审核认可；8 个决策点已定稿、小内存硬约束（R1–R6）已固化；**P0 阶段方案锁定，准予实施**。
-- **实施顺序**：P0-1 告警出口 → P0-2 看门狗 → P0-3 `/health`+事件循环 → P0-4 AI 隧道熔断；每完成一项同步"已做/待做"清单并推送。
-- 每阶段坚持"旁路增量、只告警不硬重启、监测不入主库、离线隔离"的红线。
+- 本文（PR #6）仍是**完整工作计划权威稿**（红线 R1–R6、决策 Q1–Q8、P0/P1/P2 顺序）。
+- **P0 已落地**：代码在 PR #7（`p0-hardening`），已 SCP 部署 gcp-vm；看门狗 crontab 已装。合并建议：先合 #7（代码+本文同步稿），#6 可作文档轨或关闭并入 #7。
+- **下一步默认从 P1-5 起**：attachments 回填 → rate-limiter 去污 → `monitoring.db` 探针框架 → 离线队列消费者/cron → 推送链路监测；并行可处理运维噪声（Auto News 空窗刷屏、eventLoop 尖刺根因）。
+- 每阶段坚持「旁路增量、只告警不硬重启、监测不入主库、离线隔离」红线。
+- **部署提醒**：在 GitHub `main` 与 VM 对齐前，VM 优先 **文件拷贝部署**，避免整树 `git pull` 踩到历史截断/`server.js` 事故。
 
-> 待用户确认「开始 P0」后，即从第 7 节 P0-1 起逐项实施。
+## 10. 实施状态快照（2026-09-04 Asia/Shanghai）
+
+### 10.1 仓库 / PR
+| 项 | 状态 |
+|---|---|
+| PR [#6](https://github.com/wikiTang-code/whop-wechat-bridge/pull/6) | 计划文档轨（本文件）；分支 `cursor/hardening-monitoring-plan-fd06` |
+| PR [#7](https://github.com/wikiTang-code/whop-wechat-bridge/pull/7) | P0 代码实现；分支 `p0-hardening` tip ~`35fe3ff`+（含本文更新） |
+| 推送方式 | 本机旧 PAT 已删导致 git remote 失效时，可用 GitHub 连接器 `push_files` |
+
+### 10.2 生产 gcp-vm（只读核验摘要）
+| 项 | 结果 |
+|---|---|
+| 服务 | pm2 `whop-wechat-bridge` online；`:8085` |
+| `/health` | 常态 200；eventLoop mean≈20ms；aiTunnel `closed` |
+| 看门狗 | crontab `* * * * * …/scripts/watchdog/run_from_env.sh`；日志 `logs/watchdog.log` |
+| 企微 webhook | 三次探测 HTTP 200 / errcode=0；RTT ≈ 0.63–0.76s |
+| 大V 实时推送 | `TARGET_SPEAKER_USER_IDS` 仅 1 人；VIP pending=0；该大V 最近发言约 10h+ 前 → 群内无新实时推送属预期 |
+| 队列积压 | `l2a_cut` ~295 pending；`timeline` ~53（离线消费，R4） |
+| 已知噪声 | Auto News 空窗约 30s 一次写 error.log；eventLoop 偶发 critical（看门狗已报过） |
+
+### 10.3 已做 / 待做清单
+| 优先级 | 项 | 状态 |
+|---|---|---|
+| P0-1 | alert-sink | ✅ 完成 |
+| P0-2 | bash 看门狗 + crontab | ✅ 完成 |
+| P0-3 | `/health` + event-loop | ✅ 完成 |
+| P0-4 | AI 隧道熔断 | ✅ 完成 |
+| 运维 | 企微延迟排查 | ✅ 结论：webhook 正常；名单过滤 + 无新大V 发言 |
+| P1-5 | attachments 回填 | ⬜ 待做 |
+| P1-6 | rate-limiter 去污 | ⬜ 待做 |
+| P1-7 | monitoring.db + 探针框架 | ⬜ 待做 |
+| P1-8/9 | 离线队列消费者 / 资产 cron | ⬜ 待做（L2 侧协同） |
+| P1-10 | 推送/交易监测 | ⬜ 待做 |
+| P2 | 看板/新鲜度/一致性/RUM/软降级/DB 治理 | ⬜ 待做 |
+| 并行 | 15 窗 cleaned 三处核验后再进 GitHub | ⬜ 待做 |
+| 并行 | Auto News 空窗刷屏降噪 | ⬜ 建议 |
+| 并行 | eventLoop 偶发 critical 根因 | ⬜ 建议 |
+| 并行 | 删除/忽略空的 `data/whop_archive.db` | ⬜ 建议 |
