@@ -9,6 +9,10 @@ web_modules/
 *.db-wal
 *.db-shm
 
+# Runtime-generated data (derived from DB / media downloads; not source code)
+data/queue_status.json
+data/media/zhao/media_manifest.json
+
 # Sensitive environment variables
 .env
 .env.production
