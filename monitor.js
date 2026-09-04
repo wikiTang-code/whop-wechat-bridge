@@ -1530,7 +1530,7 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
     // 导致 Node 事件循环卡死数十秒，引发看门狗与外部 HTTP 探测超时。
     if (allNewMessages.length > 0) {
       allNewMessages.sort((a, b) => a.created_at - b.created_at);
-      saveMessages(allNewMessages);
+      await saveMessages(allNewMessages);
     }
 
     // 🏛️ 中断上半部 (Top Half / ISR): 全频道一视同仁快速打标分发 + 丢入下半部队列 (耗时 < 10ms，绝不调模型)

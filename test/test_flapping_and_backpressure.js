@@ -161,4 +161,34 @@ assert.strictEqual(getEffectivePollIntervalSec(), 25);
 assert.strictEqual(shouldPauseSecondaryWorkers(), false);
 console.log('   ✅ 三级阶梯背压控制器验证通过！');
 
+// ============================================================================
+// 5. 测试大批量消息分片写入与让出事件循环 (Chunked saveMessages)
+// ============================================================================
+console.log('5. 验证大批量入库 50 条分片写入...');
+const { saveMessages, getDb } = await import('../database.js');
+const mockMsgs = [];
+const testBatchId = `test_chunk_${Date.now()}`;
+for (let i = 0; i < 125; i++) {
+  mockMsgs.push({
+    id: `${testBatchId}_${i}`,
+    channel_id: 'test_chan',
+    channel_name: '测试频道',
+    sender_id: 'user_test',
+    sender_name: '测试用户',
+    content: `测试消息 ${i} $TSLA 买入突破`,
+    created_at: Date.now() + i,
+  });
+}
+
+const savedCount = await saveMessages(mockMsgs, { chunkSize: 50 });
+assert.strictEqual(savedCount, 125, '125 条消息应全部成功分片写入');
+
+const db = getDb();
+const checkCount = db.prepare('SELECT COUNT(*) as cnt FROM messages WHERE id LIKE ?').get(`${testBatchId}%`).cnt;
+assert.strictEqual(checkCount, 125, '数据库中查到的记录数应为 125');
+
+// 清理测试脏数据
+db.prepare('DELETE FROM messages WHERE id LIKE ?').run(`${testBatchId}%`);
+console.log('   ✅ 大批量分片写入与事件循环让出验证通过！');
+
 console.log('\n🎉 ALL TESTS PASSED: test_flapping_and_backpressure');

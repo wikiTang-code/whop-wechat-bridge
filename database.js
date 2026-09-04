@@ -543,8 +543,9 @@ export function getDb() {
   return db;
 }
 
-// Save messages to database
-export function saveMessages(messages) {
+// Save messages to database (chunked with event loop yielding)
+export async function saveMessages(messages, { chunkSize = 50, yieldEventLoop = true } = {}) {
+  if (!messages || messages.length === 0) return 0;
   const conn = getDb();
   const insert = conn.prepare(`
     INSERT INTO messages (id, channel_id, channel_name, sender_id, sender_name, content, created_at, tickers, sectors, strategies, attachments)
@@ -554,7 +555,7 @@ export function saveMessages(messages) {
   `);
 
   const registry = getChannelRegistryMap();
-  const insertMany = conn.transaction((msgs) => {
+  const insertChunk = conn.transaction((msgs) => {
     for (const msg of msgs) {
       const dims = extractTradingDimensions(msg.content);
       const regInfo = registry[msg.channel_id];
@@ -580,9 +581,25 @@ export function saveMessages(messages) {
   });
 
   try {
-    trackSlowOp('database:saveMessages', messages.length, () => {
-      insertMany(messages);
+    // 小批量数据 (<= chunkSize)：单次同步事务极速写入，零异步等待开销
+    if (messages.length <= chunkSize) {
+      trackSlowOp('database:saveMessages', messages.length, () => {
+        insertChunk(messages);
+      });
+      return messages.length;
+    }
+
+    // 大批量数据：按 chunkSize (50条) 分片入库，事务间主动释放事件循环保全 HTTP 看板
+    await trackSlowOp('database:saveMessages', messages.length, async () => {
+      for (let i = 0; i < messages.length; i += chunkSize) {
+        const chunk = messages.slice(i, i + chunkSize);
+        insertChunk(chunk);
+        if (yieldEventLoop && i + chunkSize < messages.length) {
+          await new Promise((resolve) => setImmediate(resolve));
+        }
+      }
     });
+    return messages.length;
   } catch (err) {
     console.error('[Database] saveMessages transaction failed:', err.message);
     throw err;
