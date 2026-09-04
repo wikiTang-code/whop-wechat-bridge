@@ -6,12 +6,14 @@
 
 import { initMonitoringDb, recordHealthEvent, recordMetricSample } from './monitoring-db.js';
 import { checkQueueHealth, getQueueSnapshot } from './queue-watermark-probe.js';
+import { checkAssetFreshness, getAssetFreshnessSnapshot } from './asset-freshness-probe.js';
 import { getEventLoopSnapshot } from './event-loop-probe.js';
 import { sendAlert } from './alert-sink.js';
 
 let supervisorRunning = false;
 let supervisorTimer = null;
 let lastQueueLevel = 'ok';
+let lastAssetLevel = 'ok';
 
 export function startSupervisor({ intervalMs = 60_000 } = {}) {
   if (supervisorRunning) {
@@ -77,6 +79,39 @@ export function startSupervisor({ intervalMs = 60_000 } = {}) {
           });
         }
         lastQueueLevel = currentLevel;
+      }
+
+      // 5. 离线资产新鲜度边沿判定
+      const assetSnap = checkAssetFreshness();
+      const currentAssetLevel = assetSnap.status || 'ok';
+      if (currentAssetLevel !== lastAssetLevel) {
+        recordHealthEvent({
+          subsystem: 'assets',
+          prevLevel: lastAssetLevel,
+          level: currentAssetLevel,
+          detail: assetSnap.summary,
+          evidence: assetSnap.assets,
+        });
+
+        if (currentAssetLevel === 'critical' || currentAssetLevel === 'warn') {
+          await sendAlert({
+            subsystem: 'assets',
+            level: currentAssetLevel,
+            title: currentAssetLevel === 'critical' ? '离线核心资产严重滞后' : '离线资产新鲜度预警',
+            detail: assetSnap.summary,
+            evidence: assetSnap.assets,
+            suggestion: '检查系统 cron 或离线资产生成脚本执行状态',
+          });
+        } else if (currentAssetLevel === 'ok' && lastAssetLevel !== 'ok') {
+          await sendAlert({
+            subsystem: 'assets',
+            level: 'ok',
+            title: '离线资产新鲜度',
+            detail: `已恢复正常: ${assetSnap.summary}`,
+            evidence: assetSnap.assets,
+          });
+        }
+        lastAssetLevel = currentAssetLevel;
       }
     } catch (err) {
       console.warn('[Supervisor] 巡检异常:', err.message);
