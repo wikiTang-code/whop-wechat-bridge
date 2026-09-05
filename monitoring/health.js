@@ -5,7 +5,7 @@
 import { getEventLoopSnapshot } from './event-loop-probe.js';
 import { getAlertSinkStats } from './alert-sink.js';
 import { getQueueSnapshot } from './queue-watermark-probe.js';
-import { getMonitoringDbStats } from './monitoring-db.js';
+import { getMonitoringDbStats, getIngestHeartbeat } from './monitoring-db.js';
 import { getAssetFreshnessSnapshot } from './asset-freshness-probe.js';
 import { getPushPipelineSnapshot } from './push-latency-probe.js';
 
@@ -14,6 +14,11 @@ let aiTunnelGetter = null;
 /** Optional injector from P0-4 circuit breaker */
 export function registerAiTunnelHealthGetter(fn) {
   aiTunnelGetter = typeof fn === 'function' ? fn : null;
+}
+
+function shouldExposeIngestHeartbeat() {
+  const role = process.env.ROLE || '';
+  return role === 'web_dashboard' || process.env.INGEST_HEARTBEAT_REQUIRED === '1';
 }
 
 export function buildHealthPayload() {
@@ -62,9 +67,19 @@ export function buildHealthPayload() {
     },
   };
 
-  // SRE 隔离原则：仅当核心运行时 (进程自身/事件循环) 严重异常时 HTTP 才返回 503 critical；
-  // 离线资产滞后、队列积压或推送延迟仅使整体降为 warn，绝不影响看板存活探测。
+  // 仅 web 拆分模式要求跨进程 ingest 心跳；单体部署不启用，避免无写心跳时误 503
+  if (shouldExposeIngestHeartbeat()) {
+    const hb = getIngestHeartbeat('primary');
+    subsystems.ingest = {
+      status: hb.status || 'critical',
+      ...hb,
+    };
+  }
+
+  // 运行时 critical：eventLoop / process；拆分模式下 ingest critical 也抬升为 critical（对外 503）
   const runtimeLevels = [subsystems.process.status, subsystems.eventLoop.status];
+  if (subsystems.ingest) runtimeLevels.push(subsystems.ingest.status);
+
   let overall = 'ok';
   if (runtimeLevels.includes('critical') || runtimeLevels.includes('down')) {
     overall = 'critical';

@@ -84,4 +84,8 @@ dry_*.js
 !scripts/run_offline_asset_sync.js
 !scripts/check_persona_queue_status.js
 !scripts/inspect_stuck_persona_task.js
+!scripts/ingest_runner.js
+!scripts/web_runner.js
+!scripts/offline_queue_worker.js
+!scripts/cleanup_gemini_api_cloud.js
 

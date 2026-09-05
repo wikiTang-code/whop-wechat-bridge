@@ -12,6 +12,7 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { formatBeijingTime } from './alert-sink.js';
+import { evaluateIngestLiveness } from './ingest-liveness.js';
 
 let monDb = null;
 
@@ -64,6 +65,15 @@ export function initMonitoringDb(dbPath = getMonitoringDbPath()) {
       evidence TEXT,
       sent_at INTEGER NOT NULL,
       sent_at_beijing TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS ingest_heartbeat (
+      worker_key TEXT PRIMARY KEY,
+      updated_at_ms INTEGER NOT NULL,
+      updated_at_beijing TEXT NOT NULL,
+      outcome TEXT NOT NULL,
+      poll_ms INTEGER,
+      detail_json TEXT
     );
 
     CREATE INDEX IF NOT EXISTS idx_health_events_subsystem_ts ON health_events(subsystem, created_at);
@@ -157,6 +167,95 @@ export function recordAlertHistory({ subsystem, level, title, detail = '', evide
     `).run(subsystem, level, title, detail, evJson, now, beijing);
   } catch (err) {
     console.warn('[MonitoringDB] recordAlertHistory error:', err.message);
+  }
+}
+
+/**
+ * P1-11: 记录 Ingest 进程心跳 (每轮 poll tick 结束调用)
+ * outcome 可取: 'ok' | 'error' | 'skipped'
+ */
+export function recordIngestHeartbeat({
+  workerKey = 'primary',
+  outcome = 'ok',
+  pollMs = null,
+  detail = {},
+  nowMs = Date.now(),
+} = {}) {
+  try {
+    const db = getMonitoringDb();
+    const beijing = formatBeijingTime(nowMs);
+    const detailJson = typeof detail === 'string' ? detail : JSON.stringify(detail);
+
+    db.prepare(`
+      INSERT INTO ingest_heartbeat (worker_key, updated_at_ms, updated_at_beijing, outcome, poll_ms, detail_json)
+      VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(worker_key) DO UPDATE SET
+        updated_at_ms = excluded.updated_at_ms,
+        updated_at_beijing = excluded.updated_at_beijing,
+        outcome = excluded.outcome,
+        poll_ms = excluded.poll_ms,
+        detail_json = excluded.detail_json
+    `).run(workerKey, nowMs, beijing, outcome, pollMs, detailJson);
+  } catch (err) {
+    console.warn('[MonitoringDB] recordIngestHeartbeat error:', err.message);
+  }
+}
+
+/**
+ * P1-11: 获取 Ingest 进程最新心跳 (供 Web /health 只读探测)
+ */
+export function getIngestHeartbeat(workerKey = 'primary', { dbInstance = null, nowMs = Date.now() } = {}) {
+  try {
+    const db = dbInstance || getMonitoringDb();
+    const row = db.prepare(`
+      SELECT worker_key, updated_at_ms, updated_at_beijing, outcome, poll_ms, detail_json
+      FROM ingest_heartbeat
+      WHERE worker_key = ?
+    `).get(workerKey);
+
+    if (!row) {
+      const live = evaluateIngestLiveness({ exists: false });
+      return {
+        exists: false,
+        workerKey,
+        delayMs: null,
+        ...live,
+        description: live.description,
+      };
+    }
+
+    const delayMs = Math.max(0, nowMs - row.updated_at_ms);
+    let detail = {};
+    try {
+      if (row.detail_json) detail = JSON.parse(row.detail_json);
+    } catch (_) {}
+
+    const live = evaluateIngestLiveness({ exists: true, delayMs });
+
+    return {
+      exists: true,
+      workerKey: row.worker_key,
+      updatedAtMs: row.updated_at_ms,
+      updatedAtBeijing: row.updated_at_beijing,
+      outcome: row.outcome,
+      pollMs: row.poll_ms,
+      detail,
+      delayMs,
+      delaySec: Math.round((delayMs / 1000) * 10) / 10,
+      status: live.status,
+      httpSuggest: live.httpSuggest,
+      description: live.description,
+      thresholds: live.thresholds,
+    };
+  } catch (err) {
+    const live = evaluateIngestLiveness({ exists: false });
+    return {
+      exists: false,
+      workerKey,
+      delayMs: null,
+      ...live,
+      error: err.message,
+    };
   }
 }
 
