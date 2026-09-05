@@ -51,6 +51,38 @@ export function getEasternTimeParts(date = new Date()) {
 }
 
 /**
+ * 获取当前北京时间 (Asia/Shanghai) 的年月日与时分信息
+ */
+export function getBeijingTimeParts(date = new Date()) {
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+    hour: 'numeric',
+    minute: 'numeric',
+    hourCycle: 'h23',
+  });
+
+  const parts = {};
+  for (const p of formatter.formatToParts(date)) {
+    parts[p.type] = p.value;
+  }
+
+  const hour = (parseInt(parts.hour, 10) || 0) % 24;
+  const minute = parseInt(parts.minute, 10) || 0;
+
+  return {
+    bjDateStr: `${parts.year}-${parts.month}-${parts.day}`,
+    weekday: parts.weekday, // Sun, Mon, ...
+    hour,
+    minute,
+    minutesOfDay: hour * 60 + minute,
+  };
+}
+
+/**
  * 判断当前是否处于周末或美股法定节假日休市时段
  */
 export function isWeekendOrHoliday(date = new Date()) {

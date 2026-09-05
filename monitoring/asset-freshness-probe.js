@@ -11,7 +11,7 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { formatBeijingTime } from './alert-sink.js';
-import { isWeekendOrHoliday } from './market-calendar.js';
+import { evaluateNewsFreshness } from './news-freshness.js';
 
 let readOnlyDb = null;
 let lastSnapshot = {
@@ -42,16 +42,12 @@ export function checkAssetFreshness({
   personaWarnHours = 48,
   personaCriticalDays = 7,
   l2aWarnDays = 3,
-  newsWarnHours = 12,
   nowMs = Date.now(),
-  /** 测试可注入；默认走美股周末/法定节假日日历 */
+  /** 测试可注入；默认走 News 专用休市空窗（含周六上午监控窗） */
   isMarketClosed = null,
 } = {}) {
   const db = getReadOnlyDb();
   const now = nowMs;
-  const marketClosed = typeof isMarketClosed === 'boolean'
-    ? isMarketClosed
-    : isWeekendOrHoliday(new Date(now));
 
   if (!db) {
     lastSnapshot = {
@@ -118,25 +114,15 @@ export function checkAssetFreshness({
       } catch (e) {}
     }
 
-    const newsLagHours = newsTs ? Math.round(((now - newsTs) / (1000 * 3600)) * 10) / 10 : null;
-    // 休市/节假日：News 免检为 ok（可观测仍写明空窗，不伪装“已生成”）
-    // 交易日：超时或从未生成才 warn
-    let newsLevel = 'ok';
-    let newsDescription;
-    if (marketClosed) {
-      newsLevel = 'ok';
-      newsDescription = newsTs
-        ? `已滞后 ${newsLagHours} 小时（休市空窗免检）`
-        : '休市空窗免检（未生成）';
-    } else if (!newsTs) {
-      newsLevel = 'warn';
-      newsDescription = '未生成（交易日缺失资讯报告）';
-    } else if (newsLagHours >= newsWarnHours) {
-      newsLevel = 'warn';
-      newsDescription = `已滞后 ${newsLagHours} 小时（超出期望窗口 ${newsWarnHours}h）`;
-    } else {
-      newsDescription = `已滞后 ${newsLagHours} 小时`;
-    }
+    const newsEval = evaluateNewsFreshness({
+      latestNewsTs: newsTs,
+      nowMs: now,
+      isMarketClosed,
+    });
+    const newsLevel = newsEval.status;
+    const newsDescription = newsEval.description;
+    const newsLagHours = newsEval.lagHours;
+    const marketClosed = newsEval.marketClosed;
 
     // 4. 汇总判定整体资产健康度
     const levels = [personaLevel, l2aLevel, newsLevel];
@@ -164,6 +150,7 @@ export function checkAssetFreshness({
         lagHours: newsLagHours,
         description: newsDescription,
         marketClosed,
+        maxAllowedLagHours: newsEval.maxAllowedLagHours,
       },
     };
 
