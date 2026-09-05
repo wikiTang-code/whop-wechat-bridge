@@ -29,6 +29,9 @@ monitoring 单写仍在 ingest；与单体能力对齐。
 
 对照 `server.js` 的 `/api/messages` 等 JSON 形状，避免看板白屏；缺字段补齐或做适配层。
 
+> **Cursor 已预审**：详见 [`docs/p1-11-t18-api-contract-gaps.md`](./p1-11-t18-api-contract-gaps.md)  
+> （channels/reports/news 键名错误、messages 过滤缺失、P0 路由未挂——按该文档验收清单改）
+
 ### T19 — Runbook / sample 联调检查清单（文档）
 
 确认：停单体 → 起 sample → 403 写 → 回滚；含 `pm2 save`；禁止并行双写（已写入修订 Runbook，请回归测试文档步骤）。
