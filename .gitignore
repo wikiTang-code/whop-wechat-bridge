@@ -80,6 +80,8 @@ dry_*.js
 *.txt
 
 # Override ignores for persistent ops scripts
+# NOTE: must come AFTER run_*.js / check_*.js / inspect_*.js or those globs win
+!scripts/run_offline_asset_sync.js
 !scripts/check_persona_queue_status.js
 !scripts/inspect_stuck_persona_task.js
 

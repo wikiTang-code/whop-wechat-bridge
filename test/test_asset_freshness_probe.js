@@ -34,6 +34,27 @@ async function run() {
   assert(snap2.status === snap.status, 'getAssetFreshnessSnapshot should match checkAssetFreshness');
   console.log('   ✅ 快照缓存读取通过！');
 
+  // 3. 休市空窗：News 未生成也不应拖成 warn
+  console.log('3. 验证周末/节假日 News 休市空窗免检...');
+  const closedSnap = checkAssetFreshness({ isMarketClosed: true });
+  assert(closedSnap.assets.news.status === 'ok', 'news should be ok when market closed');
+  assert(
+    String(closedSnap.assets.news.description).includes('休市空窗免检'),
+    'news description should declare holiday exemption'
+  );
+  assert(closedSnap.assets.news.marketClosed === true, 'news.marketClosed should be true');
+  console.log(`   ✅ 休市免检: ${closedSnap.assets.news.description}`);
+
+  // 4. 交易日：从未生成仍应 warn（可观测 ≠ 业务闭环）
+  console.log('4. 验证交易日 News 未生成仍报 warn...');
+  const openSnap = checkAssetFreshness({ isMarketClosed: false });
+  if (!openSnap.assets.news.lastUpdated) {
+    assert(openSnap.assets.news.status === 'warn', 'missing news on trading day should warn');
+    console.log('   ✅ 交易日未生成 → warn');
+  } else {
+    console.log(`   ⏭ 跳过（库内已有 News: ${openSnap.assets.news.description}）`);
+  }
+
   console.log('\n🎉 ALL P1-9 TESTS PASSED: test_asset_freshness_probe\n');
 }
 

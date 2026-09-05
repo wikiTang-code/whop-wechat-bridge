@@ -11,6 +11,7 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 import { formatBeijingTime } from './alert-sink.js';
+import { isWeekendOrHoliday } from './market-calendar.js';
 
 let readOnlyDb = null;
 let lastSnapshot = {
@@ -42,9 +43,15 @@ export function checkAssetFreshness({
   personaCriticalDays = 7,
   l2aWarnDays = 3,
   newsWarnHours = 12,
+  nowMs = Date.now(),
+  /** 测试可注入；默认走美股周末/法定节假日日历 */
+  isMarketClosed = null,
 } = {}) {
   const db = getReadOnlyDb();
-  const now = Date.now();
+  const now = nowMs;
+  const marketClosed = typeof isMarketClosed === 'boolean'
+    ? isMarketClosed
+    : isWeekendOrHoliday(new Date(now));
 
   if (!db) {
     lastSnapshot = {
@@ -97,9 +104,20 @@ export function checkAssetFreshness({
 
     const newsTs = newsRow ? Number(newsRow.created_at) : null;
     const newsLagHours = newsTs ? Math.round(((now - newsTs) / (1000 * 3600)) * 10) / 10 : null;
+    // 休市/节假日：News 免检为 ok（可观测仍写明空窗，不伪装“已生成”）
+    // 交易日：超时或从未生成才 warn
     let newsLevel = 'ok';
-    if (!newsTs || newsLagHours >= newsWarnHours) {
+    let newsDescription;
+    if (marketClosed) {
+      newsLevel = 'ok';
+      newsDescription = newsTs
+        ? `已滞后 ${newsLagHours} 小时（休市空窗免检）`
+        : '休市空窗免检（未生成）';
+    } else if (!newsTs || newsLagHours >= newsWarnHours) {
       newsLevel = 'warn';
+      newsDescription = newsTs ? `已滞后 ${newsLagHours} 小时` : '未生成';
+    } else {
+      newsDescription = `已滞后 ${newsLagHours} 小时`;
     }
 
     // 4. 汇总判定整体资产健康度
@@ -126,7 +144,8 @@ export function checkAssetFreshness({
         status: newsLevel,
         lastUpdated: newsTs ? new Date(newsTs).toISOString() : null,
         lagHours: newsLagHours,
-        description: newsTs ? `已滞后 ${newsLagHours} 小时` : '未生成',
+        description: newsDescription,
+        marketClosed,
       },
     };
 
