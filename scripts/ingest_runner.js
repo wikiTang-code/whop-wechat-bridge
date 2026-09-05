@@ -93,23 +93,72 @@ export async function executeIngestTick({ dryRun = false, syncFn = null } = {}) 
   }
 }
 
-/**
- * 启动自适应轮询主循环
- */
-export function startIngestLoop({ intervalMs = 25000 } = {}) {
-  console.log(`[IngestRunner] 启动 Ingest Worker 主轮询循环 (周期: ${intervalMs}ms)...`);
+import { getEffectivePollIntervalSec, getBackpressureStatus } from '../monitoring/backpressure-controller.js';
+import { isOffMarketHours } from '../monitoring/market-calendar.js';
 
-  const scheduleNext = (delayMs) => {
+/**
+ * 计算下一轮轮询自适应延迟 (对齐 server.js 既有策略)
+ * - 非交易时段/周末休市: 60s 温和轮询
+ * - 交易时段: 接入三级背压 (25s -> 60s -> 120s)
+ */
+export function computeNextPollDelayMs() {
+  if (isOffMarketHours()) {
+    return 60 * 1000;
+  }
+  const effectiveSec = getEffectivePollIntervalSec();
+  return effectiveSec * 1000;
+}
+
+/**
+ * 启动后台 task_queue worker (动态加载，保持入口轻量)
+ */
+export async function launchBackgroundWorkers() {
+  const workerConcurrency = parseInt(process.env.WORKER_CONCURRENCY || '6', 10);
+  try {
+    const { startQueueWorker } = await import('../task-queue.js');
+    const { processPersonaTask } = await import('../persona-engine.js');
+    const { processNewsTask } = await import('../news-engine.js');
+
+    startQueueWorker(async (task) => {
+      if (task.task_type && task.task_type.startsWith('persona_')) {
+        return await processPersonaTask(task);
+      }
+      if (task.task_type && task.task_type.startsWith('news_')) {
+        return await processNewsTask(task);
+      }
+      if (task.task_type === 'gemini_api_cloud') {
+        return { skipped: true, reason: 'legacy_api_card_dropped' };
+      }
+      return { skipped: true, reason: `Unsupported task type: ${task.task_type}` };
+    }, workerConcurrency, 100);
+
+    console.log(`[IngestRunner] task_queue worker 已启动 (concurrency=${workerConcurrency})`);
+  } catch (err) {
+    console.warn(`[IngestRunner] 启动 background worker 异常:`, err.message);
+  }
+}
+
+/**
+ * 启动自适应轮询主循环 (支持背压自适应周期退避)
+ */
+export function startIngestLoop() {
+  console.log(`[IngestRunner] 启动 Ingest Worker 自适应轮询主循环 (交易时段 25s/60s/120s 背压退避，休市 60s)...`);
+
+  const scheduleNext = () => {
     if (isShuttingDown) return;
+    const delayMs = computeNextPollDelayMs();
+    const bp = getBackpressureStatus();
+    console.log(`[IngestRunner] 下一轮调度将在 ${delayMs / 1000}s 后触发 (背压状态: ${bp.tier})`);
+
     pollTimer = setTimeout(async () => {
       await executeIngestTick();
-      scheduleNext(intervalMs);
+      scheduleNext();
     }, delayMs);
   };
 
-  // 立即触发首次 tick，之后按周期调度
+  // 立即触发首次 tick，之后按自适应周期调度
   executeIngestTick().then(() => {
-    scheduleNext(intervalMs);
+    scheduleNext();
   });
 }
 
@@ -155,6 +204,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve('scripts/i
     process.on('SIGINT', () => { stopIngestLoop(); process.exit(0); });
     process.on('SIGTERM', () => { stopIngestLoop(); process.exit(0); });
 
-    startIngestLoop();
+    launchBackgroundWorkers().then(() => {
+      startIngestLoop();
+    });
   }
 }

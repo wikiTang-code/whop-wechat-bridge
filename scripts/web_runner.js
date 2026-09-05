@@ -22,6 +22,7 @@ import { getIngestHeartbeat } from '../monitoring/monitoring-db.js';
 import { evaluateIngestStatus } from '../monitoring/ingest-health.js';
 import { buildHealthPayload, registerIngestHeartbeatDbGetter } from '../monitoring/health.js';
 import { handleDashboardApi } from '../monitoring/dashboard-api.js';
+import { readonlyRouter, readonlyWriteBlockerMiddleware } from '../monitoring/readonly-api-router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,6 +38,12 @@ const PORT = parseInt(process.env.PORT || '8085', 10);
 
 app.use(express.json());
 app.use(express.static(path.resolve('public')));
+
+// 全局写操作物理拦截中间件 (拦截非 GET/HEAD/OPTIONS 请求返回 403)
+app.use(readonlyWriteBlockerMiddleware);
+
+// 挂载只读路由集
+app.use(readonlyRouter);
 
 /**
  * GET /health

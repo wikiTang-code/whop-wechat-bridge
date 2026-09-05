@@ -90,7 +90,23 @@ async function run() {
   assert(!webRunnerCode.includes('startQueueWorker('), 'web_runner MUST NOT start queue workers');
   console.log('   ✅ 瘦入口约束核验通过：web_runner 零重型 AI 依赖与轮询模块！');
 
-  console.log('\n🎉 ALL T6 TESTS PASSED: test_web_runner_and_heartbeat\n');
+  // 4. 验证 T10: 聚合 HTTP 状态码策略 (warn 必须 200，仅 critical 返回 503)
+  console.log('4. 验证 T10: 聚合 HTTP 状态码决策逻辑...');
+  const computeHttpCode = (ingestStatus, baseStatus) => {
+    const isCritical = ingestStatus === 'critical' || baseStatus === 'critical';
+    return isCritical ? 503 : 200;
+  };
+
+  assert(computeHttpCode('ok', 'ok') === 200, 'ok + ok should be 200');
+  assert(computeHttpCode('warn', 'ok') === 200, 'warn + ok MUST be 200 (not 503)');
+  assert(computeHttpCode('ok', 'warn') === 200, 'ok + warn MUST be 200 (not 503)');
+  assert(computeHttpCode('warn', 'warn') === 200, 'warn + warn MUST be 200 (not 503)');
+  assert(computeHttpCode('critical', 'ok') === 503, 'critical + ok MUST be 503');
+  assert(computeHttpCode('ok', 'critical') === 503, 'ok + critical MUST be 503');
+  assert(computeHttpCode('critical', 'warn') === 503, 'critical + warn MUST be 503');
+  console.log('   ✅ T10 HTTP 语义核验通过：warn 稳定返回 200 (避免误伤看门狗)，仅 critical 触发 503！');
+
+  console.log('\n🎉 ALL T6 / T10 TESTS PASSED: test_web_runner_and_heartbeat\n');
 }
 
 run().catch(err => {

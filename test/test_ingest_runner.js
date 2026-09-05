@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { executeIngestTick } from '../scripts/ingest_runner.js';
+import { executeIngestTick, computeNextPollDelayMs } from '../scripts/ingest_runner.js';
 import {
   initMonitoringDb,
   getIngestHeartbeat,
@@ -53,6 +53,14 @@ async function run() {
   assert(hb2.outcome === 'error', 'heartbeat outcome must be error');
   assert(hb2.detail.error.includes('502 Bad Gateway'), 'heartbeat detail must contain error message');
   console.log(`   ✅ 异常 Tick 心跳验证通过: outcome=${hb2.outcome}, err=${hb2.detail.error}`);
+
+  // 3. 验证 T11: 背压自适应周期与调度器集成
+  console.log('3. 验证 T11: 背压与时段感知自适应延迟计算...');
+  const { computeNextPollDelayMs } = await import('../scripts/ingest_runner.js');
+  const delayMs = computeNextPollDelayMs();
+  assert(typeof delayMs === 'number', 'delayMs must be a number');
+  assert(delayMs >= 25000 && delayMs <= 120000, `delayMs should be within [25s, 120s], got ${delayMs}`);
+  console.log(`   ✅ 自适应周期验证通过: delay=${delayMs / 1000}s`);
 
   // 清理
   closeMonitoringDb();
