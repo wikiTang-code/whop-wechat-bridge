@@ -1,10 +1,10 @@
-# 系统加固 + 监测机制 实施方案（P0 已落地，P1/P2 待做）
+# 系统加固 + 监测机制 实施方案（P0/P1 主体已落地，P2 待做）
 
 > 本文整合两部分内容并给出统一优先级与执行顺序：
 > 1. 对现有系统「整体检视」发现的**不合理之处及改法**；
 > 2. 用户要求的**中断响应式监测机制**（各子系统异常、抓取/推送/处理流程丢失或卡顿、前端渲染延迟等）。
 >
-> **状态（2026-09-04 更新）**：第 8 节决策点与第 4 节红线仍有效。**P0-1～P0-4 已实现并 SCP 上机**（PR #7 已合入 `main`，squash `c5b57ae`）；看门狗 crontab 已装；详见文末 **§10 实施状态快照**。本文仍是 P1/P2 的权威工作计划；与 `main` 上的 P0 代码同步维护。
+> **状态（2026-09-05 更新）**：第 8 节决策点与第 4 节红线仍有效。**P0 已合入并上机**；**P1-5～P1-10 / A/B/C 已落地**（含周末 Persona cron 与 2026-09-05 刷新验收：`assets.persona=ok`）。**P1-11 与 P2 待做**。News 资产「未生成」仍为 warn，不阻塞 P1-9 Persona 闭环。详见文末 **§10 实施状态快照**。
 
 ---
 
@@ -201,7 +201,7 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 - 每阶段坚持「旁路增量、只告警不硬重启、监测不入主库、离线隔离」红线。
 - **部署提醒**：在 GitHub `main` 与 VM 对齐前，VM 优先 **文件拷贝部署**，避免整树 `git pull` 踩到历史截断/`server.js` 事故。
 
-## 10. 实施状态快照（2026-09-04 18:50 Asia/Shanghai 最新归档）
+## 10. 实施状态快照（2026-09-05 15:55 Asia/Shanghai 最新归档）
 
 ### 10.1 仓库 / PR / 提交线
 | 项 | 状态 | 说明 |
@@ -212,7 +212,7 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 | Commit `5d7d022` | ✅ 已推远端 | P0 加固：防震荡抑制 (Flapping) + 慢日志环形缓冲 (trackSlowOp) + 3级阶梯背压控制器 (25s/60s/120s) + 告警时区北京时间 |
 | Commit `09c5ed0` | ✅ 已推远端 | P1 减负：`saveMessages` 50 条切片分块 + `setImmediate` 让出事件循环 + Auto News 空数据 error.log 降噪 |
 | Commit `963bc47` | ✅ 已推远端 | 文档：方案文档 §10 实施快照与任务矩阵全量同步 |
-| 本次变更 | ✅ 本地就绪 | 预警指标滤波 (p99 作为 critical 主裁定，毛刺降为 warn) + 剔除 ISR 上半部 messages 重复写 + RAG LEFT JOIN 优化 |
+| 2026-09-05 运维闭环 | ✅ Persona 已刷新 | 回仓 `scripts/run_offline_asset_sync.js` + 队列探针脚本；gcp crontab 周末资产同步 `0 2 * * 0,6`（UTC=北京 10:00）；`--force` 后 Persona Playbook 落库，lagDays=0 |
 
 ### 10.2 生产 gcp-vm（实机核验摘要）
 | 项 | 结果 | 说明 |
@@ -242,7 +242,7 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 | P1-C | 探针指标滤波与毛刺削峰 | ✅ 完成 | 重构 `classifyEventLoopLevel`：`p99 >= 5s` 作为 CRITICAL 核心裁定，孤立毛刺降级为 WARN；剔除 ISR 上半部重复写 |
 | P1-7 | `monitoring.db` 独立库 + 探针框架 | ✅ 完成 | 遵循 R3 红线：建立独立 WAL 监控时序库 (health_events/metric_samples/alert_history，7天自动轮转裁剪) + 队列与水位只读探针 + Supervisor 统一调度 |
 | P1-8 | 队列消费者落实（离线脚本/cron，恪守 R4） | ✅ 完成 | 实现 `scripts/offline_queue_worker.js` 离线批处理与水位单调递增推进，恪守 R4 绝不侵占主服务内存 |
-| P1-9 | 离线资产可靠定时调度与滞后监测 | ✅ 完成 | 建立 `monitoring/asset-freshness-probe.js` 探针 (实时监测 Persona/L2a/News 滞后周期并接入 /health 与告警) + 离线 crontab 挂载 |
+| P1-9 | 离线资产可靠定时调度与滞后监测 | ✅ 探针+周末 cron 已闭环 | 探针已入 `/health`；`run_offline_asset_sync.js` 已回仓；crontab `0 2 * * 0,6`（UTC=北京周六日 10:00）；2026-09-05 `--force` 后 Persona 落库 `2026-09-05T08:01Z`（lagDays=0，assets.persona=ok）；整体 assets 仍 warn 因 News「未生成」（非 Persona 阻塞） |
 | P1-10 | 推送与交易链路端到端监测 | ✅ 完成 | 端到端 TTL（发帖至企微成功耗时）打点 + 企微 RTT 往返网络时延 + 大V未推送/未交易只读积压探测 + 连续失败与超时主动报警接入 Supervisor 与 /health |
 | P1-11 | 看板与 Ingest 物理多进程隔离 | ⬜ 待做 | Web 只读服务与 Ingest/Worker 拆分为独立 PM2 进程，通过 SQLite WAL 解耦 |
-| 运维 | 24小时内网静默观察 | 🟡 进行中 | 重点监控大批入库延迟、背压阶梯平滑回退、探针单点毛刺表现，确认零 pm2 restart 误触发 |
+| 运维 | 周末 Persona 刷新闭环 | ✅ 本次完成 | 2026-09-05 Reduce 落库成功（`Gemini-Flash+Vision`）；可用 `node scripts/check_persona_queue_status.js` 复查；News「未生成」仍为 warn，可另排 |

@@ -42,6 +42,8 @@ scripts/*
 !scripts/cleanup_gemini_api_cloud.js
 !scripts/offline_queue_worker.js
 !scripts/run_offline_asset_sync.js
+!scripts/check_persona_queue_status.js
+!scripts/inspect_stuck_persona_task.js
 scripts/watchdog/.watchdog_state
 
 
@@ -69,9 +71,15 @@ trigger_*.js
 scratch_*.js
 auto_refresh_*.js
 download_*.js
+scan_*.js
+dry_*.js
 
 # Temp HTML/TXT files
 *.html
 !public/index.html
 *.txt
+
+# Override ignores for persistent ops scripts
+!scripts/check_persona_queue_status.js
+!scripts/inspect_stuck_persona_task.js
 
