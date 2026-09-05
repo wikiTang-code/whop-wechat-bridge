@@ -2,7 +2,8 @@
 
 > 基线：`d7a3ba9`；对照 `server.js` + `public/app.js` vs `monitoring/readonly-api-router.js`。  
 > **用途**：给 Gemini T18 直接改；未对齐前切双进程会导致看板白屏/空列表。  
-> **R4 复核（`95994c1`）**：channels/reports/news 键名已兼备；**config / messages 过滤 / proxy-image / context / quant 仍未过** → 见 `docs/gemini-followup-task-split-r5.md`。
+> **R4 复核（`95994c1`）**：channels/reports/news 键名已兼备；**config / messages 过滤 / proxy-image / context / quant 仍未过** → 见 `docs/gemini-followup-task-split-r5.md`。  
+> **R5 复核（`ecac0a8`）**：上述形状已对齐；但路由改回 `getDb()` **破坏只读铁律** → 见 `docs/gemini-followup-task-split-r6.md`（T23）。
 
 ## 结论
 
