@@ -34,9 +34,12 @@ async function run() {
   assert(typeof payload.overall.memory.rssMb === 'number', 'rssMb must be number');
   assert(payload.overall.memory.budgetMb === 958.0, 'budgetMb must be 958.0');
 
-  // subsystems 节点
+  // subsystems 节点（统一键名 ingest，兼容旧 ingest_worker）
   assert(payload.subsystems, 'payload.subsystems must exist');
-  assert(payload.subsystems.ingest_worker, 'subsystems must include ingest_worker');
+  assert(
+    payload.subsystems.ingest || payload.subsystems.ingest_worker,
+    'subsystems must include ingest'
+  );
 
   // recentAlerts 与 sparklines
   assert(Array.isArray(payload.recentAlerts), 'recentAlerts must be an array');
