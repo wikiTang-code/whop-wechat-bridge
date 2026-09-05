@@ -14,6 +14,7 @@
  * - 绝不启动 startPoller / startQueueWorker / 推送链路
  */
 
+import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -25,6 +26,9 @@ import { handleDashboardApi } from '../monitoring/dashboard-api.js';
 import { readonlyRouter, readonlyWriteBlockerMiddleware } from '../monitoring/readonly-api-router.js';
 import { startCloudflareTunnel } from '../monitoring/tunnel-launcher.js';
 import { dashboardBasicAuthMiddleware } from '../monitoring/dashboard-basic-auth.js';
+
+// 必须早于鉴权/业务读取：PM2 sample 不注入 .env，与单体 server.js 对齐
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

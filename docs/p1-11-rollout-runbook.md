@@ -28,8 +28,9 @@ cp ecosystem.config.cjs "ecosystem.config.cjs.bak.$(date +%Y%m%d%H%M%S)"
 ```
 
 代码对齐：`git status` / 部署最新 `feat` 文件（含 `scripts/*_runner.js`、monitoring 心跳）。  
-公网确认：若看板依赖 Cloudflare Tunnel 公网访问，切灰前须显式配置 `ENABLE_TUNNEL=1`（或编辑 `docs/ecosystem.p1-11.sample.cjs` 置为 `'1'`）；若使用 SSH 隧道或仅内网访问则保持 `'0'`。  
-鉴权红线：必须确认环境已配置 `DASHBOARD_USERNAME` 与 `DASHBOARD_PASSWORD`；**严禁在未配置 Auth 的情况下开启 `ENABLE_TUNNEL=1` 暴露公网**！
+公网确认：若看板依赖 Cloudflare Tunnel 公网访问，切灰前须显式配置 `ENABLE_TUNNEL=1`（sample 默认已为 `'1'`，可用环境变量覆盖为 `'0'`）。  
+鉴权红线：必须确认环境已配置 `DASHBOARD_USERNAME` 与 `DASHBOARD_PASSWORD`；**严禁在未配置 Auth 的情况下开启 `ENABLE_TUNNEL=1` 暴露公网**！  
+环境变量：`scripts/*_runner.js` 启动时会 `dotenv.config()` 加载仓库根目录 `.env`（与单体一致）；勿依赖 PM2 ecosystem 手写全量密钥。
 
 ---
 

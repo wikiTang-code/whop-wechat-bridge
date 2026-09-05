@@ -13,6 +13,7 @@
  * - 严禁启动 Express 8085 或 Cloudflare Tunnel
  */
 
+import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import {
@@ -21,6 +22,9 @@ import {
   getIngestHeartbeat,
   getMonitoringDbPath
 } from '../monitoring/monitoring-db.js';
+
+// 必须早于动态加载 monitor/news：PM2 sample 不注入 .env，与单体 server.js 对齐
+dotenv.config();
 
 const ROLE = process.env.ROLE || 'ingest_worker';
 const IS_DRY_RUN = process.argv.includes('--dry-run') || process.env.DRY_RUN === '1';
