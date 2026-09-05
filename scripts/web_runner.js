@@ -24,6 +24,7 @@ import { buildHealthPayload, registerIngestHeartbeatDbGetter } from '../monitori
 import { handleDashboardApi } from '../monitoring/dashboard-api.js';
 import { readonlyRouter, readonlyWriteBlockerMiddleware } from '../monitoring/readonly-api-router.js';
 import { startCloudflareTunnel } from '../monitoring/tunnel-launcher.js';
+import { dashboardBasicAuthMiddleware } from '../monitoring/dashboard-basic-auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,6 +39,10 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '8085', 10);
 
 app.use(express.json());
+
+// 与现网 server.js 对齐：DASHBOARD_USERNAME/PASSWORD Basic Auth（未配置则放行）
+app.use(dashboardBasicAuthMiddleware);
+
 app.use(express.static(path.resolve('public')));
 
 // 全局写操作物理拦截中间件 (拦截非 GET/HEAD/OPTIONS 请求返回 403)

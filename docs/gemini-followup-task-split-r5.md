@@ -55,6 +55,11 @@ channels/reports/news 的 `data`/`summaries`/`total` 兼备键；403 写拦截�
 ## 建议给 Gemini（R5 最小集）
 
 **T20** — 按本表修 T18：config=`data` + LAST_SYNC_TIME；messages 复用/对齐 `getMessages`；挂 proxy-image + context；挂 quant 只读三路由；单测按 `app.js` 取值路径断言。  
+详见 [`docs/p1-11-t20-readonly-implementation-notes.md`](./p1-11-t20-readonly-implementation-notes.md)。
+
 **T21** — sample/Runbook：灰度检查清单强制确认 `ENABLE_TUNNEL`；修 §6；ingest 单测默认 mock auto schedulers。
 
-通过 T20 后再提灰度申请。
+**T22（Cursor 新发现，P0 安全）** — `web_runner` 必须挂与现网一致的 Basic Auth。  
+Cursor 已落地 `monitoring/dashboard-basic-auth.js` + web 挂载 + 单测；Gemini **保留并回归**，Tunnel=1 时无 Auth 禁止灰度。
+
+通过 **T20 + T22** 后再提灰度申请。
