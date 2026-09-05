@@ -6,12 +6,15 @@
  * 严格只读: 绝不触发任何写操作，只读读取 /health 状态快照与 monitoring.db 时序
  */
 
-import { buildHealthPayload } from './health.js';
+import { buildHealthPayload, registerIngestHeartbeatDbGetter } from './health.js';
 import { getEasternTimeParts, isWeekendOrHoliday } from './market-calendar.js';
 import { formatBeijingTime } from './alert-sink.js';
 import { getReadOnlyMonitoringDb } from './db-readonly.js';
 import { getIngestHeartbeat } from './monitoring-db.js';
 import { evaluateIngestStatus } from './ingest-health.js';
+
+// 看板聚合也强制只读读心跳
+registerIngestHeartbeatDbGetter(() => getReadOnlyMonitoringDb());
 
 export function getDashboardPayload({ nowMs = Date.now() } = {}) {
   const healthSnap = buildHealthPayload();
@@ -91,7 +94,7 @@ export function getDashboardPayload({ nowMs = Date.now() } = {}) {
     },
     subsystems: {
       ...(healthSnap.subsystems || {}),
-      ingest_worker: {
+      ingest: {
         status: ingestHealth.status,
         delaySec: ingestHealth.delaySec,
         description: ingestHealth.description,

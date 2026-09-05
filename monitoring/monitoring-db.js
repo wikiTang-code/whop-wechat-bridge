@@ -283,10 +283,25 @@ export function pruneOldMetrics(retentionDays = 7) {
  */
 export function getMonitoringDbStats() {
   try {
-    const db = getMonitoringDb();
+    let db = monDb;
+    let ephemeral = null;
+    if (!db && (process.env.READONLY_MODE === '1' || process.env.ROLE === 'web_dashboard')) {
+      const p = getMonitoringDbPath();
+      if (fs.existsSync(p)) {
+        ephemeral = new Database(p, { readonly: true, timeout: 2000 });
+        db = ephemeral;
+      }
+    }
+    if (!db) db = getMonitoringDb();
+
     const eventCount = db.prepare('SELECT count(*) as count FROM health_events').get()?.count || 0;
     const sampleCount = db.prepare('SELECT count(*) as count FROM metric_samples').get()?.count || 0;
     const alertCount = db.prepare('SELECT count(*) as count FROM alert_history').get()?.count || 0;
+
+    if (ephemeral) {
+      try { ephemeral.close(); } catch (_) {}
+    }
+
     return {
       status: 'ok',
       isolated: true,

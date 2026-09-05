@@ -20,7 +20,7 @@ import { fileURLToPath } from 'url';
 import { getReadOnlyArchiveDb, getReadOnlyMonitoringDb } from '../monitoring/db-readonly.js';
 import { getIngestHeartbeat } from '../monitoring/monitoring-db.js';
 import { evaluateIngestStatus } from '../monitoring/ingest-health.js';
-import { buildHealthPayload } from '../monitoring/health.js';
+import { buildHealthPayload, registerIngestHeartbeatDbGetter } from '../monitoring/health.js';
 import { handleDashboardApi } from '../monitoring/dashboard-api.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,6 +28,9 @@ const __dirname = path.dirname(__filename);
 
 process.env.ROLE = 'web_dashboard';
 process.env.READONLY_MODE = '1';
+
+// 强制 /health 聚合走只读 monitoring 句柄，避免误开写连接（R3 / 单写）
+registerIngestHeartbeatDbGetter(() => getReadOnlyMonitoringDb());
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '8085', 10);
@@ -49,37 +52,35 @@ app.get('/health', async (req, res) => {
     const heartbeat = getIngestHeartbeat('primary', { dbInstance: monDb });
     const ingestHealth = evaluateIngestStatus({ heartbeat });
 
-    // 3. 聚合判定
-    const isIngestDead = ingestHealth.status === 'critical';
-    const isBaseFailed = !baseHealth.ok;
+    // 3. 聚合判定：仅 critical 返回 503；warn 保持 200（可观测 ≠ 看板假死）
+    const isIngestCritical = ingestHealth.status === 'critical';
+    const isBaseCritical = baseHealth.status === 'critical';
 
-    let overallOk = !isIngestDead && !isBaseFailed;
     let overallStatus = 'ok';
-
-    if (isIngestDead || baseHealth.status === 'critical') {
+    if (isIngestCritical || isBaseCritical) {
       overallStatus = 'critical';
-      overallOk = false;
     } else if (ingestHealth.status === 'warn' || baseHealth.status === 'warn') {
       overallStatus = 'warn';
     }
 
     const payload = {
       ...baseHealth,
-      ok: overallOk,
+      ok: overallStatus === 'ok',
       status: overallStatus,
       subsystems: {
         ...(baseHealth.subsystems || {}),
-        ingest_worker: {
+        ingest: {
           status: ingestHealth.status,
           delaySec: ingestHealth.delaySec,
           description: ingestHealth.description,
           lastOutcome: heartbeat?.outcome || 'unknown',
           lastPollMs: heartbeat?.pollMs || null,
+          httpSuggest: ingestHealth.httpStatus,
         },
       },
     };
 
-    const httpCode = overallOk ? 200 : 503;
+    const httpCode = overallStatus === 'critical' ? 503 : 200;
     res.status(httpCode).json(payload);
   } catch (err) {
     res.status(503).json({

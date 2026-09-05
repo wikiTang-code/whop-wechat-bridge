@@ -10,10 +10,16 @@ import { getAssetFreshnessSnapshot } from './asset-freshness-probe.js';
 import { getPushPipelineSnapshot } from './push-latency-probe.js';
 
 let aiTunnelGetter = null;
+let ingestHeartbeatDbGetter = null;
 
 /** Optional injector from P0-4 circuit breaker */
 export function registerAiTunnelHealthGetter(fn) {
   aiTunnelGetter = typeof fn === 'function' ? fn : null;
+}
+
+/** Web 进程注入只读 monitoring.db，避免误开写连接 */
+export function registerIngestHeartbeatDbGetter(fn) {
+  ingestHeartbeatDbGetter = typeof fn === 'function' ? fn : null;
 }
 
 function shouldExposeIngestHeartbeat() {
@@ -67,16 +73,15 @@ export function buildHealthPayload() {
     },
   };
 
-  // 仅 web 拆分模式要求跨进程 ingest 心跳；单体部署不启用，避免无写心跳时误 503
   if (shouldExposeIngestHeartbeat()) {
-    const hb = getIngestHeartbeat('primary');
+    const dbInstance = ingestHeartbeatDbGetter ? ingestHeartbeatDbGetter() : null;
+    const hb = getIngestHeartbeat('primary', dbInstance ? { dbInstance } : {});
     subsystems.ingest = {
       status: hb.status || 'critical',
       ...hb,
     };
   }
 
-  // 运行时 critical：eventLoop / process；拆分模式下 ingest critical 也抬升为 critical（对外 503）
   const runtimeLevels = [subsystems.process.status, subsystems.eventLoop.status];
   if (subsystems.ingest) runtimeLevels.push(subsystems.ingest.status);
 
