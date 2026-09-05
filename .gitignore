@@ -81,6 +81,7 @@ dry_*.js
 # Temp HTML/TXT files
 *.html
 !public/index.html
+!public/monitoring.html
 *.txt
 
 # Override ignores for persistent ops scripts

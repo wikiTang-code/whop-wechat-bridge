@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whop Bridge · 健康看板</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/monitoring.css">
+</head>
+<body class="dash-ok">
+  <div id="fetch-error" class="fetch-error" hidden role="alert">
+    看板数据拉取失败，已保留上次快照。正在重试…
+  </div>
+
+  <header class="banner">
+    <div class="banner-row">
+      <h1 id="dash-title">WHOP-BRIDGE 生产监控看门狗看板</h1>
+      <div class="banner-meta">
+        <span id="market-et">美东: —</span>
+        <span class="sep">|</span>
+        <span id="market-bj">北京: —</span>
+        <span class="sep">|</span>
+        <span id="refresh-label">刷新: 5s</span>
+      </div>
+    </div>
+    <div class="banner-status">
+      <div id="global-status" data-level="unknown">
+        <span data-status-dot class="status-dot"></span>
+        <span data-role="label">GLOBAL: —</span>
+      </div>
+      <div id="mem-line" class="mem-line">
+        MEM RSS:
+        Web <span id="mem-web">—</span>MB
+        <span id="mem-ingest-wrap">
+          + Ingest <span id="mem-ingest">—</span>MB
+          = 合计 <span id="mem-combined">—</span>MB
+        </span>
+        / <span id="mem-budget">958</span>MB
+        (<span id="mem-percent">—</span>%)
+        <span id="mem-note" class="mem-note"></span>
+      </div>
+      <div class="uptime-line">
+        UPTIME: <span id="uptime">—</span> (Web 进程)
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel" aria-label="子系统矩阵">
+      <h2 class="panel-title">核心子系统健康状态矩阵</h2>
+      <div class="subsystem-grid">
+        <article class="cell" data-subsystem="ingest">
+          <h3 data-role="title">[1] Ingest 轮询引擎</h3>
+          <p data-role="status" data-level="unknown"><span class="status-dot"></span> —</p>
+          <div data-role="detail" class="cell-detail">等待数据…</div>
+        </article>
+        <article class="cell" data-subsystem="aiTunnel">
+          <h3 data-role="title">[2] 基础网络与 AI Tunnel</h3>
+          <p data-role="status" data-level="unknown"><span class="status-dot"></span> —</p>
+          <div data-role="detail" class="cell-detail">等待数据…</div>
+        </article>
+        <article class="cell" data-subsystem="eventLoop">
+          <h3 data-role="title">[3] 事件循环 (EventLoop)</h3>
+          <p data-role="status" data-level="unknown"><span class="status-dot"></span> —</p>
+          <div data-role="detail" class="cell-detail">等待数据…</div>
+        </article>
+        <article class="cell" data-subsystem="monitoringDb">
+          <h3 data-role="title">[4] 监控存储 (monitoring)</h3>
+          <p data-role="status" data-level="unknown"><span class="status-dot"></span> —</p>
+          <div data-role="detail" class="cell-detail">等待数据…</div>
+        </article>
+        <article class="cell" data-subsystem="queues">
+          <h3 data-role="title">[5] 任务队列与背压</h3>
+          <p data-role="status" data-level="unknown"><span class="status-dot"></span> —</p>
+          <div data-role="detail" class="cell-detail">等待数据…</div>
+        </article>
+        <article class="cell" data-subsystem="assets">
+          <h3 data-role="title">[6] 离线资产新鲜度</h3>
+          <p data-role="status" data-level="unknown"><span class="status-dot"></span> —</p>
+          <div data-role="detail" class="cell-detail">等待数据…</div>
+        </article>
+        <article class="cell cell-wide" data-subsystem="pushPipeline">
+          <h3 data-role="title">[7] 消息推送链路 (Push Pipeline)</h3>
+          <p data-role="status" data-level="unknown"><span class="status-dot"></span> —</p>
+          <div data-role="detail" class="cell-detail">等待数据…</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="bottom-split">
+      <div class="panel">
+        <h2 class="panel-title">最近 1 小时指标趋势</h2>
+        <p id="spark-memory-caption" class="caption">内存 RSS（来源见 API notes）</p>
+        <div id="spark-memory" class="spark-box" aria-label="内存趋势占位">
+          <span class="spark-placeholder">等待时序数据…</span>
+        </div>
+        <p class="caption">推送 P95 时序</p>
+        <div id="spark-push" class="spark-box spark-muted" aria-label="推送时序">
+          <span id="spark-push-empty" class="spark-placeholder">
+            时序库未持久化推送采样（not_sampled）。严禁假常数。
+          </span>
+        </div>
+      </div>
+      <div class="panel">
+        <h2 class="panel-title">实时告警事件流</h2>
+        <p id="alert-feed-empty" class="caption">暂无告警记录</p>
+        <ul id="alert-feed" class="alert-feed"></ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- P2-E: Gemini 实现轮询与填数；勿改上方 DOM id / data-* -->
+  <script src="/monitoring.js" defer></script>
+</body>
+</html>
