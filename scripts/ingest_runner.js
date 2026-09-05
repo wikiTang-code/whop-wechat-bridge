@@ -216,9 +216,11 @@ export function stopIngestLoop() {
   console.log('[IngestRunner] Ingest Worker 已平稳停止');
 }
 
-// 主入口运行判定（兼容 PM2 绝对路径）
+// 主入口运行判定（直接 node 或 PM2 pm_exec_path）
+const thisFile = path.resolve(fileURLToPath(import.meta.url));
 const isIngestMain = Boolean(
-  process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))
+  (process.argv[1] && path.resolve(process.argv[1]) === thisFile) ||
+  (process.env.pm_exec_path && path.resolve(process.env.pm_exec_path) === thisFile)
 );
 if (isIngestMain) {
   console.log('====================================================');

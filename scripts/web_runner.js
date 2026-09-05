@@ -130,9 +130,13 @@ export function startWebServer(port = PORT) {
 // 导出 app 供单测挂载
 export { app };
 
-// ESM 主入口判定：兼容 PM2 传入绝对路径（勿仅用相对 path.resolve）
+// ESM / PM2 主入口判定：
+// - 直接 node scripts/web_runner.js：argv[1] 即本文件
+// - PM2 fork：argv[1] 为 ProcessContainerFork.js，真实脚本在 pm_exec_path
+const thisFile = path.resolve(fileURLToPath(import.meta.url));
 const isWebMain = Boolean(
-  process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))
+  (process.argv[1] && path.resolve(process.argv[1]) === thisFile) ||
+  (process.env.pm_exec_path && path.resolve(process.env.pm_exec_path) === thisFile)
 );
 if (isWebMain) {
   console.log('====================================================');
