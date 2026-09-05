@@ -9,7 +9,8 @@
 ## 0. 关键防护与已补齐能力
 
 1. **绝对禁止**在单体 `whop-wechat-bridge` 仍在跑时启动 `whop-ingest-worker`（会双写 `whop_archive.db`、双轮询 Whop）。必须**先停单体，再启双进程 sample**。
-2. PM2 **统一使用 sample 配置**：`pm2 start docs/ecosystem.p1-11.sample.cjs`，确保环境变量正确加载。
+2. PM2 **统一使用根目录 ecosystem 配置名**：先 `cp docs/ecosystem.p1-11.sample.cjs ecosystem.p1-11.config.cjs`，再 `pm2 start ecosystem.p1-11.config.cjs`。  
+   注意：直接 `pm2 start docs/ecosystem.p1-11.sample.cjs` 可能被 PM2 当成普通脚本启动（进程名变成 `ecosystem.p1-11.sample`），切勿使用。
 3. **已闭环能力清单（Round 4 落地）**：
    - ✅ **T15 自动调度器**：Auto News 与 Auto Persona 已正式迁入 `ingest_runner.js` 同步成功路径。
    - ✅ **T16 公网 Tunnel**：Cloudflare Tunnel 已挂载于 `web_runner.js`，通过 `ENABLE_TUNNEL=1` 受控拉起。
@@ -51,13 +52,14 @@ ROLE=ingest_worker node scripts/ingest_runner.js --dry-run
 # A. 先停单体，释放写锁与 8085
 pm2 stop whop-wechat-bridge
 
-# B. 用 sample 拉起双进程（推荐，环境变量正确）
-pm2 start docs/ecosystem.p1-11.sample.cjs
+# B. 用根目录标准名拉起双进程（勿直接 start docs/*.sample.cjs）
+cp -a docs/ecosystem.p1-11.sample.cjs ecosystem.p1-11.config.cjs
+ENABLE_TUNNEL=1 pm2 start ecosystem.p1-11.config.cjs
 
 # 或分步：
-# pm2 start docs/ecosystem.p1-11.sample.cjs --only whop-ingest-worker
+# pm2 start ecosystem.p1-11.config.cjs --only whop-ingest-worker
 # sleep 5
-# pm2 start docs/ecosystem.p1-11.sample.cjs --only whop-web-dashboard
+# pm2 start ecosystem.p1-11.config.cjs --only whop-web-dashboard
 ```
 
 验收：

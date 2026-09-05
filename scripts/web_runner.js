@@ -130,7 +130,11 @@ export function startWebServer(port = PORT) {
 // 导出 app 供单测挂载
 export { app };
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve('scripts/web_runner.js')) {
+// ESM 主入口判定：兼容 PM2 传入绝对路径（勿仅用相对 path.resolve）
+const isWebMain = Boolean(
+  process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))
+);
+if (isWebMain) {
   console.log('====================================================');
   console.log(`[WebRunner] 启动独立看板服务 (ROLE=${process.env.ROLE})`);
   console.log('====================================================');

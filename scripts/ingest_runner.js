@@ -16,6 +16,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import {
   initMonitoringDb,
   recordIngestHeartbeat,
@@ -215,8 +216,11 @@ export function stopIngestLoop() {
   console.log('[IngestRunner] Ingest Worker 已平稳停止');
 }
 
-// 主入口运行判定
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve('scripts/ingest_runner.js')) {
+// 主入口运行判定（兼容 PM2 绝对路径）
+const isIngestMain = Boolean(
+  process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))
+);
+if (isIngestMain) {
   console.log('====================================================');
   console.log(`[IngestRunner] 进程启动: ROLE=${ROLE}, DRY_RUN=${IS_DRY_RUN}`);
   console.log(`[IngestRunner] Monitoring DB: ${getMonitoringDbPath()}`);
