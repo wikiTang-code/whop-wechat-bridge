@@ -50,12 +50,23 @@ async function run() {
   const openSnap = checkAssetFreshness({ isMarketClosed: false });
   if (!openSnap.assets.news.lastUpdated) {
     assert(openSnap.assets.news.status === 'warn', 'missing news on trading day should warn');
-    console.log('   ✅ 交易日未生成 → warn');
+    assert(String(openSnap.assets.news.description).includes('交易日缺失资讯报告'), 'should report missing on trading day');
+    console.log('   ✅ 交易日未生成 → warn (明确指明交易日缺失)');
   } else {
     console.log(`   ⏭ 跳过（库内已有 News: ${openSnap.assets.news.description}）`);
   }
 
-  console.log('\n🎉 ALL P1-9 TESTS PASSED: test_asset_freshness_probe\n');
+  // 5. 验证 T3 期望窗口时限判定（newsWarnHours 边界）
+  console.log('5. 验证 T3 期望窗口边界（超期 vs 正常）...');
+  const tightSnap = checkAssetFreshness({ isMarketClosed: false, newsWarnHours: 0 });
+  if (!tightSnap.assets.news.lastUpdated) {
+    assert(tightSnap.assets.news.status === 'warn', 'should warn when missing');
+  } else {
+    assert(tightSnap.assets.news.status === 'warn', 'should warn when newsLagHours >= 0');
+  }
+  console.log('   ✅ T3 期望窗口边界验证通过！');
+
+  console.log('\n🎉 ALL P1-9 / T3 TESTS PASSED: test_asset_freshness_probe\n');
 }
 
 run().catch(err => {

@@ -95,14 +95,29 @@ export function checkAssetFreshness({
       l2aLevel = 'warn';
     }
 
-    // 3. 检查 News 新闻分析
-    const newsRow = db.prepare(`
-      SELECT created_at FROM reports
-      WHERE strategy = 'MARKET_NEWS_ANALYSIS'
-      ORDER BY created_at DESC LIMIT 1
-    `).get();
+    // 3. 检查 News 新闻分析（优先 news_summaries 表，兼顾 reports 表）
+    let newsTs = null;
+    try {
+      const nsRow = db.prepare(`
+        SELECT created_at FROM news_summaries
+        ORDER BY created_at DESC LIMIT 1
+      `).get();
+      if (nsRow && nsRow.created_at) newsTs = Number(nsRow.created_at);
+    } catch (e) {
+      // 兼容表不存在的极端情况
+    }
 
-    const newsTs = newsRow ? Number(newsRow.created_at) : null;
+    if (!newsTs) {
+      try {
+        const repRow = db.prepare(`
+          SELECT created_at FROM reports
+          WHERE strategy = 'MARKET_NEWS_ANALYSIS'
+          ORDER BY created_at DESC LIMIT 1
+        `).get();
+        if (repRow && repRow.created_at) newsTs = Number(repRow.created_at);
+      } catch (e) {}
+    }
+
     const newsLagHours = newsTs ? Math.round(((now - newsTs) / (1000 * 3600)) * 10) / 10 : null;
     // 休市/节假日：News 免检为 ok（可观测仍写明空窗，不伪装“已生成”）
     // 交易日：超时或从未生成才 warn
@@ -113,9 +128,12 @@ export function checkAssetFreshness({
       newsDescription = newsTs
         ? `已滞后 ${newsLagHours} 小时（休市空窗免检）`
         : '休市空窗免检（未生成）';
-    } else if (!newsTs || newsLagHours >= newsWarnHours) {
+    } else if (!newsTs) {
       newsLevel = 'warn';
-      newsDescription = newsTs ? `已滞后 ${newsLagHours} 小时` : '未生成';
+      newsDescription = '未生成（交易日缺失资讯报告）';
+    } else if (newsLagHours >= newsWarnHours) {
+      newsLevel = 'warn';
+      newsDescription = `已滞后 ${newsLagHours} 小时（超出期望窗口 ${newsWarnHours}h）`;
     } else {
       newsDescription = `已滞后 ${newsLagHours} 小时`;
     }
