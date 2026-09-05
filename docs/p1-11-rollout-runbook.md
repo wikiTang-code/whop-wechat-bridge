@@ -1,135 +1,102 @@
 # P1-11 多进程拆分灰度上线与应急回滚 Runbook
 
 > 对应任务：`docs/gemini-followup-task-split-r3.md` 之 T14。  
-> 适用目标：GCP 生产环境从单体 `server.js` 平滑切换至双进程 (`whop-ingest-worker` + `whop-web-dashboard`)。  
-> **核心铁律**：**严禁使用 `pm2 delete all`**；**合计 RSS 严控 < 220MB**；**任何异常 30 秒回滚单体**。
+> **修订（Cursor 复核）**：禁止 Ingest 与单体并行写库；修正 PM2 环境变量写法。  
+> **铁律**：严禁 `pm2 delete all`；合计 RSS &lt; 220MB；异常 30 秒回滚单体。
 
 ---
 
-## 1. 灰度前置准备与检查
+## 0. 切勿踩的坑
 
-在执行任何变更前，登录 GCP VM 执行以下基线巡检：
+1. **禁止**在单体 `whop-wechat-bridge` 仍在跑时启动 `whop-ingest-worker`（会双写 `whop_archive.db`、双轮询 Whop）。  
+2. PM2 **不要**用 `--env ROLE=...`（那是 ecosystem 里 `env_production` 这类命名环境，不是设变量）。用 sample ecosystem 或 `ecosystem` + `env:`。  
+3. 当前 `web_runner` **尚未**拉起 Cloudflare Tunnel；灰度前需确认公网入口方案（临时保留 tunnel 在别处，或补代码后再切）。  
+4. 当前 ingest **未**内嵌 Auto News / Auto Persona 调度（与差异文档表述不一致）——灰度前须补齐或接受功能缺口。
+
+---
+
+## 1. 灰度前置
 
 ```bash
-# 1. 检查可用系统内存 (必须 >= 300MB free)
-free -m
-
-# 2. 检查当前 PM2 单体状态 (确认运行稳态)
+free -m                    # available 建议 >= 300MB
 pm2 list
-curl -s http://127.0.0.1:8085/health | jq .status
-
-# 3. 备份当前单体 ecosystem 配置
-cp ecosystem.config.cjs ecosystem.config.cjs.bak.$(date +%Y%m%d%H%M%S)
+curl -s http://127.0.0.1:8085/health | jq '{ok,status,rss:.subsystems.process.memoryRssMb}'
+cp ecosystem.config.cjs "ecosystem.config.cjs.bak.$(date +%Y%m%d%H%M%S)"
 ```
 
+代码对齐：`git status` / 部署最新 `feat` 文件（含 `scripts/*_runner.js`、monitoring 心跳）。
+
 ---
 
-## 2. 第一步：代码就绪与 Ingest Dry-Run 校验（零风险）
-
-在不触碰现有运行中进程的前提下，验证 Ingest 瘦入口与心跳写通路：
+## 2. Dry-Run（零切换风险）
 
 ```bash
-# 1. 本地代码 git pull 对齐最新 commit
-git status
-
-# 2. 执行 Ingest 瘦入口 dry-run 单次 tick 验证
+cd ~/whop-wechat-bridge
 ROLE=ingest_worker node scripts/ingest_runner.js --dry-run
 ```
 
-**验收标准**：
-- 控制台打印 `[Dry-Run] 执行 mock 数据拉取与分析 tick 完成`；
-- 控制台打印 `Tick 结束 [ok] -> 心跳已落盘`；
-- 打印的心跳回查 JSON 中 `status: "ok"`, `exists: true`；
-- 进程正常退出（Exit Code 0）。
+验收：Tick ok、心跳 `exists:true`、进程退出 0。
 
 ---
 
-## 3. 第二步：启动 Ingest 独立进程（单向写端）
-
-先拉起 Ingest 进程，使其开始建立心跳并独占写主库：
+## 3. 切换顺序（单写者）
 
 ```bash
-# 1. 启动独立 Ingest Worker
-pm2 start scripts/ingest_runner.js \
-  --name "whop-ingest-worker" \
-  --max-memory-restart 180M \
-  --time \
-  --env ROLE=ingest_worker
-
-# 2. 观察 Ingest 日志与首轮轮询
-pm2 logs whop-ingest-worker --lines 30 --nostream
-```
-
-**验收标准**：
-- `pm2 list` 中 `whop-ingest-worker` 处于 `online` 状态；
-- 初始内存 RSS 位于 `60MB ~ 90MB` 区间；
-- 能够正常输出 `Tick 结束 [ok] ... -> 心跳已落盘`。
-
----
-
-## 4. 第三步：平滑切换 Web 进程（端口迁移）
-
-停止旧单体并启动独立的只读 Web 看板服务（接管 `:8085` 端口与 Cloudflare Tunnel）：
-
-```bash
-# 1. 停止旧单体服务 (释放 8085 端口)
+# A. 先停单体，释放写锁与 8085
 pm2 stop whop-wechat-bridge
 
-# 2. 启动独立只读 Web 看板进程
-pm2 start scripts/web_runner.js \
-  --name "whop-web-dashboard" \
-  --max-memory-restart 130M \
-  --time \
-  --env ROLE=web_dashboard,READONLY_MODE=1,PORT=8085
+# B. 用 sample 拉起双进程（推荐，环境变量正确）
+pm2 start docs/ecosystem.p1-11.sample.cjs
 
-# 3. 立即核验健康接口
-curl -s http://127.0.0.1:8085/health | jq .
+# 或分步：
+# pm2 start docs/ecosystem.p1-11.sample.cjs --only whop-ingest-worker
+# sleep 5
+# pm2 start docs/ecosystem.p1-11.sample.cjs --only whop-web-dashboard
 ```
 
-**验收标准**：
-- `curl` 响应 HTTP 状态码为 **200**；
-- JSON 响应中 `subsystems.ingest.status` 为 `"ok"`；
-- `subsystems.ingest.delaySec` 小于 90 秒；
-- 尝试调用写接口被 403 拦截：
-  `curl -s -X POST http://127.0.0.1:8085/api/sync` 返回 `403 Forbidden`。
-
----
-
-## 5. 第四步：稳态体征复核与看门狗观察（15 分钟）
+验收：
 
 ```bash
-# 1. 检查双进程内存总和 (严禁超过 220MB)
 pm2 list
-
-# 2. 测试看板 API 聚合数据
-curl -s http://127.0.0.1:8085/api/monitoring/dashboard | jq .overall
-
-# 3. 观察外部每分钟 crontab 看门狗日志
-tail -n 20 logs/watchdog.log
+curl -s -o /tmp/h.json -w "%{http_code}" http://127.0.0.1:8085/health
+cat /tmp/h.json | jq '{ok,status,ingest:.subsystems.ingest}'
+curl -s -X POST http://127.0.0.1:8085/api/sync | jq .code   # 期望 ERR_READONLY_PROCESS / 403
 ```
 
-**通过标准**：
-- `whop-ingest-worker` RSS ≤ 120MB；
-- `whop-web-dashboard` RSS ≤ 80MB；
-- 合计 RSS ≤ 200MB（警戒线 220MB）；
-- 看门狗无任何报警推送。
+- HTTP **200**（warn 也可 200）；ingest `status=ok` 且 `delaySec&lt;90`  
+- 写接口 **403**  
+- 两进程 RSS 合计 **≤ 200MB**（警戒 220）
 
 ---
 
-## 6. 第五步：应急回滚预案（30 秒单命令，严禁 delete all）
-
-若在灰度过程中出现内存超标（>220MB）、心跳假死超时（503）或抓取异常，**执行以下单命令立即恢复单体**：
+## 4. 观察 15 分钟
 
 ```bash
-# 1. 停止并移除双进程 (严禁使用 pm2 delete all)
-pm2 stop whop-web-dashboard whop-ingest-worker && \
-pm2 delete whop-web-dashboard whop-ingest-worker && \
-pm2 start whop-wechat-bridge
+pm2 list
+curl -s http://127.0.0.1:8085/api/monitoring/dashboard | jq .overall
+tail -n 30 logs/watchdog.log
+pm2 logs whop-ingest-worker --lines 40 --nostream
+```
 
-# 2. 验证单体恢复
+看门狗无新 critical；推送链路用业务群抽查一条（若盘中）。
+
+---
+
+## 5. 回滚（禁止 delete all）
+
+```bash
+pm2 stop whop-web-dashboard whop-ingest-worker
+pm2 delete whop-web-dashboard whop-ingest-worker
+pm2 start whop-wechat-bridge
+# 若单体已从 PM2 列表消失：
+# pm2 start ecosystem.config.cjs
+pm2 save
 curl -s http://127.0.0.1:8085/health | jq .status
 ```
 
-**回滚说明**：
-- 此命令仅靶向启停对应进程名，绝不会清空历史 PM2 进程配置或误删系统其他应用；
-- 30 秒内恢复单体 `server.js` 稳态服务。
+---
+
+## 6. 灰度通过后
+
+`pm2 save`；保留 bak；记录 commit SHA 与 RSS 峰值。  
+正式长期运行前关闭清单：Tunnel、Auto News/Persona、Supervisor/event-loop 是否已迁入 ingest。
