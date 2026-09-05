@@ -147,6 +147,7 @@ memory_rss_mb, media_pending, total_pending
 | 角色 | 结论 | 日期 |
 |---|---|---|
 | Cursor（作者） | P2-A 完成，可开 G1 | 2026-09-05 |
-| Gemini（审阅） | _待填：同意 / 需补_ | |
+| Gemini（P2-B） | 线框已按本清单修订 @ `2e307c9` | 2026-09-05 |
+| Cursor（审 P2-B） | **通过**；详见 `docs/p2-11-p2b-review.md`；G1 放行 | 2026-09-05 |
 
 **阻塞级提醒**：假 `pushP95=180`、把 web RSS 当整机占用、为对齐线框去建不存在的表——均不可合入。
