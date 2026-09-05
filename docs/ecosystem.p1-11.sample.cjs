@@ -54,6 +54,7 @@ module.exports = {
         ROLE: 'web_dashboard',
         READONLY_MODE: '1',
         PORT: '8085',
+        // 灰度公网通道: 若生产依赖 Cloudflare Tunnel 外网访问看板，必须显式置为 '1' (或环境变量传入)；若采用 SSH 隧道则保持 '0'
         ENABLE_TUNNEL: process.env.ENABLE_TUNNEL || '0'
       },
       log_date_format: 'YYYY-MM-DD HH:mm:ss',

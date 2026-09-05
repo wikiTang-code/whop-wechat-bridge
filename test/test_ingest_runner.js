@@ -28,7 +28,8 @@ async function run() {
   // 1. 验证正常 mock 任务执行与 ok 心跳
   console.log('1. 验证正常 Tick 执行与 ok 心跳...');
   const res1 = await executeIngestTick({
-    syncFn: async () => ({ success: true, newMessagesCount: 5, newSpeakerMessagesCount: 1 })
+    syncFn: async () => ({ success: true, newMessagesCount: 5, newSpeakerMessagesCount: 1 }),
+    autoSchedulerFn: async () => {} // 默认 mock 避免单测副作用打到真实 news-engine
   });
 
   assert(res1.outcome === 'ok', 'outcome should be ok');

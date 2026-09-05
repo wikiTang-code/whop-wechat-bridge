@@ -27,7 +27,8 @@ curl -s http://127.0.0.1:8085/health | jq '{ok,status,rss:.subsystems.process.me
 cp ecosystem.config.cjs "ecosystem.config.cjs.bak.$(date +%Y%m%d%H%M%S)"
 ```
 
-代码对齐：`git status` / 部署最新 `feat` 文件（含 `scripts/*_runner.js`、monitoring 心跳）。
+代码对齐：`git status` / 部署最新 `feat` 文件（含 `scripts/*_runner.js`、monitoring 心跳）。  
+公网确认：若看板依赖 Cloudflare Tunnel 公网访问，切灰前须显式配置 `ENABLE_TUNNEL=1`（或编辑 `docs/ecosystem.p1-11.sample.cjs` 置为 `'1'`）；若使用 SSH 隧道或仅内网访问则保持 `'0'`。
 
 ---
 
@@ -101,5 +102,4 @@ curl -s http://127.0.0.1:8085/health | jq .status
 
 ## 6. 灰度通过后
 
-`pm2 save`；保留 bak；记录 commit SHA 与 RSS 峰值。  
-正式长期运行前关闭清单：Tunnel、Auto News/Persona、Supervisor/event-loop 是否已迁入 ingest。
+能力迁入确认：Auto News/Persona、Cloudflare Tunnel、Supervisor/event-loop 探针以及全套只读前端契约均已在 R4/R5 闭环入仓，无需再作为缺口挂起；切灰前仅需核验 `ENABLE_TUNNEL` 开关。
