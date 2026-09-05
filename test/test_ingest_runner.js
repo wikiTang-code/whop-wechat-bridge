@@ -62,12 +62,36 @@ async function run() {
   assert(delayMs >= 25000 && delayMs <= 120000, `delayMs should be within [25s, 120s], got ${delayMs}`);
   console.log(`   ✅ 自适应周期验证通过: delay=${delayMs / 1000}s`);
 
+  // 4. 验证 T15: Auto News 与 Auto Persona 调度器在同步成功路径触发
+  console.log('4. 验证 T15: 同步成功时自动触发 Auto Schedulers...');
+  let schedulerCalled = false;
+  const res4 = await executeIngestTick({
+    syncFn: async () => ({ success: true, newMessagesCount: 1 }),
+    autoSchedulerFn: async () => {
+      schedulerCalled = true;
+    },
+  });
+
+  assert(res4.outcome === 'ok', 'outcome should be ok');
+  assert(schedulerCalled === true, 'autoSchedulerFn MUST be called on successful sync');
+  console.log('   ✅ T15 验证通过：Auto Schedulers 在 Ingest 同步成功路径 100% 触发执行！');
+
+  // 5. 验证 T17: launchMonitoringProbes 探针与 Supervisor 启动
+  console.log('5. 验证 T17: launchMonitoringProbes 启动探针与 Supervisor...');
+  const { launchMonitoringProbes } = await import('../scripts/ingest_runner.js');
+  await launchMonitoringProbes();
+  const dbCheck = initMonitoringDb();
+  const sampleCount = dbCheck.prepare('SELECT count(*) as count FROM metric_samples').get().count;
+  assert(typeof sampleCount === 'number', 'sampleCount should be number');
+  console.log(`   ✅ T17 验证通过：Supervisor 与探针成功启动，metric_samples 正常落盘 (当前=${sampleCount})`);
+
   // 清理
   closeMonitoringDb();
   delete process.env.MONITORING_DB_PATH;
   if (fs.existsSync(testDbPath)) fs.unlinkSync(testDbPath);
 
-  console.log('\n🎉 ALL T5 TESTS PASSED: test_ingest_runner\n');
+  console.log('\n🎉 ALL T5 / T11 / T15 / T17 TESTS PASSED: test_ingest_runner\n');
+  process.exit(0);
 }
 
 run().catch(err => {

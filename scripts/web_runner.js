@@ -23,6 +23,7 @@ import { evaluateIngestStatus } from '../monitoring/ingest-health.js';
 import { buildHealthPayload, registerIngestHeartbeatDbGetter } from '../monitoring/health.js';
 import { handleDashboardApi } from '../monitoring/dashboard-api.js';
 import { readonlyRouter, readonlyWriteBlockerMiddleware } from '../monitoring/readonly-api-router.js';
+import { startCloudflareTunnel } from '../monitoring/tunnel-launcher.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -111,6 +112,7 @@ export function startWebServer(port = PORT) {
   return new Promise((resolve) => {
     const server = app.listen(port, '0.0.0.0', () => {
       console.log(`[WebRunner] whop-web-dashboard 已就绪，监听端口 :${port} (READONLY_MODE=1)`);
+      startCloudflareTunnel(port);
       resolve(server);
     });
   });

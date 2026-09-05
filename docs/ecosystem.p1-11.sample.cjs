@@ -53,7 +53,8 @@ module.exports = {
         NODE_ENV: 'production',
         ROLE: 'web_dashboard',
         READONLY_MODE: '1',
-        PORT: '8085'
+        PORT: '8085',
+        ENABLE_TUNNEL: process.env.ENABLE_TUNNEL || '0'
       },
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
       error_file: './logs/web-error.log',

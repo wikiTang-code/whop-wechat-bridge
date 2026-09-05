@@ -33,7 +33,7 @@ let isShuttingDown = false;
 /**
  * 单次轮询 Tick 执行体 (含严密心跳与异常捕获)
  */
-export async function executeIngestTick({ dryRun = false, syncFn = null } = {}) {
+export async function executeIngestTick({ dryRun = false, syncFn = null, autoSchedulerFn = null } = {}) {
   const tickStart = Date.now();
   const workerKey = process.env.INGEST_WORKER_KEY || 'primary';
 
@@ -70,6 +70,18 @@ export async function executeIngestTick({ dryRun = false, syncFn = null } = {}) 
         newMessagesCount: syncResult?.newMessagesCount ?? 0,
         newSpeakerMessagesCount: syncResult?.newSpeakerMessagesCount ?? 0,
       };
+
+      // T15: 对齐 server.js 生产链路，在同步成功路径触发 Auto News 与 Auto Persona 定时检测
+      if (syncResult?.success !== false) {
+        if (typeof autoSchedulerFn === 'function') {
+          await autoSchedulerFn();
+        } else {
+          const { runPeriodicAutoSchedulers } = await import('../monitoring/auto-schedulers.js');
+          await runPeriodicAutoSchedulers().catch(err => {
+            console.warn('[IngestRunner] 自动调度器执行警告:', err.message);
+          });
+        }
+      }
     }
   } catch (err) {
     outcome = 'error';
@@ -139,6 +151,31 @@ export async function launchBackgroundWorkers() {
 }
 
 /**
+ * T17: 启动 Ingest 侧监控探针与 Supervisor (单写职责对齐)
+ */
+export async function launchMonitoringProbes() {
+  try {
+    const { startEventLoopProbe } = await import('../monitoring/event-loop-probe.js');
+    startEventLoopProbe({
+      warnMs: 1000,
+      criticalMs: 5000,
+      intervalMs: 10_000,
+      enableAlerts: process.env.EVENT_LOOP_ALERTS !== '0',
+    });
+
+    const { startAiTunnelCircuit } = await import('../monitoring/ai-tunnel-circuit.js');
+    startAiTunnelCircuit();
+
+    const { startSupervisor } = await import('../monitoring/supervisor.js');
+    startSupervisor({ intervalMs: 60_000 });
+
+    console.log('[IngestRunner] EventLoop 探针、AI Tunnel 熔断器与 Supervisor (monitoring 独占写者) 已就绪');
+  } catch (err) {
+    console.warn('[IngestRunner] 启动监控探针警告:', err.message);
+  }
+}
+
+/**
  * 启动自适应轮询主循环 (支持背压自适应周期退避)
  */
 export function startIngestLoop() {
@@ -204,7 +241,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve('scripts/i
     process.on('SIGINT', () => { stopIngestLoop(); process.exit(0); });
     process.on('SIGTERM', () => { stopIngestLoop(); process.exit(0); });
 
-    launchBackgroundWorkers().then(() => {
+    Promise.all([launchBackgroundWorkers(), launchMonitoringProbes()]).then(() => {
       startIngestLoop();
     });
   }

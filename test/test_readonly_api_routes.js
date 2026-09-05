@@ -35,13 +35,36 @@ async function run() {
     assert(resChannels.status === 200, `GET /api/channels should return 200, got ${resChannels.status}`);
     const dataChannels = await resChannels.json();
     assert(dataChannels.success === true, 'dataChannels.success should be true');
-    console.log(`   ✅ GET /api/channels → 200 (返回 ${dataChannels.channels.length} 个频道)`);
+    assert(Array.isArray(dataChannels.data), 'frontend requires dataChannels.data array');
+    assert(Array.isArray(dataChannels.channels), 'dataChannels.channels should also be array');
+    console.log(`   ✅ GET /api/channels → 200 (兼备 data 与 channels 数组)`);
 
     const resSpeakers = await fetch(`${baseUrl}/api/speakers`);
     assert(resSpeakers.status === 200, `GET /api/speakers should return 200, got ${resSpeakers.status}`);
     const dataSpeakers = await resSpeakers.json();
     assert(dataSpeakers.success === true, 'dataSpeakers.success should be true');
-    console.log(`   ✅ GET /api/speakers → 200 (返回 ${dataSpeakers.speakers.length} 位发言人)`);
+    assert(Array.isArray(dataSpeakers.speakers), 'frontend requires dataSpeakers.speakers array');
+    console.log(`   ✅ GET /api/speakers → 200 (兼备 speakers 数组)`);
+
+    const resReports = await fetch(`${baseUrl}/api/reports`);
+    assert(resReports.status === 200, `GET /api/reports should return 200, got ${resReports.status}`);
+    const dataReports = await resReports.json();
+    assert(dataReports.success === true, 'dataReports.success should be true');
+    assert(Array.isArray(dataReports.data), 'frontend requires dataReports.data array');
+    assert(typeof dataReports.total === 'number', 'frontend requires dataReports.total number');
+    console.log(`   ✅ GET /api/reports → 200 (兼备 data 与 total 字段)`);
+
+    const resCsrf = await fetch(`${baseUrl}/api/csrf-token`);
+    assert(resCsrf.status === 200, 'csrf-token should be 200');
+    const dataCsrf = await resCsrf.json();
+    assert(typeof dataCsrf.csrfToken === 'string', 'csrfToken must be string');
+    console.log(`   ✅ GET /api/csrf-token → 200`);
+
+    const resPersonaStatus = await fetch(`${baseUrl}/api/persona/status`);
+    assert(resPersonaStatus.status === 200, 'persona/status should be 200');
+    const dataPStatus = await resPersonaStatus.json();
+    assert(typeof dataPStatus.status === 'string', 'persona status must be string');
+    console.log(`   ✅ GET /api/persona/status → 200`);
 
     const resGpu = await fetch(`${baseUrl}/api/gpu/status`);
     assert(resGpu.status === 200, `GET /api/gpu/status should return 200, got ${resGpu.status}`);

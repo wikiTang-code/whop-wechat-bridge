@@ -6,12 +6,15 @@
 
 ---
 
-## 0. 切勿踩的坑
+## 0. 关键防护与已补齐能力
 
-1. **禁止**在单体 `whop-wechat-bridge` 仍在跑时启动 `whop-ingest-worker`（会双写 `whop_archive.db`、双轮询 Whop）。  
-2. PM2 **不要**用 `--env ROLE=...`（那是 ecosystem 里 `env_production` 这类命名环境，不是设变量）。用 sample ecosystem 或 `ecosystem` + `env:`。  
-3. 当前 `web_runner` **尚未**拉起 Cloudflare Tunnel；灰度前需确认公网入口方案（临时保留 tunnel 在别处，或补代码后再切）。  
-4. 当前 ingest **未**内嵌 Auto News / Auto Persona 调度（与差异文档表述不一致）——灰度前须补齐或接受功能缺口。
+1. **绝对禁止**在单体 `whop-wechat-bridge` 仍在跑时启动 `whop-ingest-worker`（会双写 `whop_archive.db`、双轮询 Whop）。必须**先停单体，再启双进程 sample**。
+2. PM2 **统一使用 sample 配置**：`pm2 start docs/ecosystem.p1-11.sample.cjs`，确保环境变量正确加载。
+3. **已闭环能力清单（Round 4 落地）**：
+   - ✅ **T15 自动调度器**：Auto News 与 Auto Persona 已正式迁入 `ingest_runner.js` 同步成功路径。
+   - ✅ **T16 公网 Tunnel**：Cloudflare Tunnel 已挂载于 `web_runner.js`，通过 `ENABLE_TUNNEL=1` 受控拉起。
+   - ✅ **T17 监控单写探针**：Supervisor、EventLoop 延迟探针与 AI Tunnel 熔断器已迁入 Ingest 独占管理。
+   - ✅ **T18 前端契约对齐**：只读路由字段与 `public/app.js` 现网契约 100% 对齐，避免白屏。
 
 ---
 
