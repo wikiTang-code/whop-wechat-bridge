@@ -630,11 +630,11 @@ export function isMessageArchived(id) {
 }
 
 // Retrieve messages with optional search and pagination and speaker filtering
-export function getMessages({ search, limit = 50, offset = 0, senderIds = [], excludeSenderIds = [], channelId = '', channelName = '', ticker = '', sector = '', strategy = '', startDate = '', endDate = '', msgType = '' } = {}) {
+export function getMessages({ search, limit = 50, offset = 0, senderIds = [], excludeSenderIds = [], channelId = '', channelName = '', ticker = '', sector = '', strategy = '', startDate = '', endDate = '', msgType = '', dbInstance = null } = {}) {
   // Input validation: clamp limit and offset to safe ranges
   limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
   offset = Math.max(0, parseInt(offset, 10) || 0);
-  const conn = getDb();
+  const conn = dbInstance || getDb();
   let query = 'SELECT * FROM messages';
   let countQuery = 'SELECT COUNT(*) as count FROM messages';
   const params = [];
@@ -766,10 +766,10 @@ export function saveReport({ startTime, endTime, summaryContent, aiModel, rawMes
 }
 
 // Retrieve reports with pagination
-export function getReports({ limit = 10, offset = 0 } = {}) {
+export function getReports({ limit = 10, offset = 0, dbInstance = null } = {}) {
   limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 10));
   offset = Math.max(0, parseInt(offset, 10) || 0);
-  const conn = getDb();
+  const conn = dbInstance || getDb();
   const stmt = conn.prepare(`
     SELECT * FROM reports 
     ORDER BY created_at DESC LIMIT ? OFFSET ?
@@ -783,8 +783,8 @@ export function getReports({ limit = 10, offset = 0 } = {}) {
 }
 
 // Retrieve latest AI report for a specific strategy
-export function getLatestReportForStrategy(strategy) {
-  const conn = getDb();
+export function getLatestReportForStrategy(strategy, dbInstance = null) {
+  const conn = dbInstance || getDb();
   return conn.prepare(`
     SELECT * FROM reports 
     WHERE strategy = ? 
@@ -797,8 +797,8 @@ export function getLatestReportForStrategy(strategy) {
 // ==========================================================================
 
 // 获取账户资产信息
-export function getPortfolio() {
-  const conn = getDb();
+export function getPortfolio(dbInstance = null) {
+  const conn = dbInstance || getDb();
   const cash = conn.prepare('SELECT value FROM portfolio WHERE key = ?').get('cash')?.value || 0;
   const deposit = conn.prepare('SELECT value FROM portfolio WHERE key = ?').get('initial_deposit')?.value || 0;
   
@@ -841,16 +841,16 @@ export function setLastSyncTime(timestamp) {
 }
 
 // 获取上次同步时间
-export function getLastSyncTime() {
-  const conn = getDb();
+export function getLastSyncTime(dbInstance = null) {
+  const conn = dbInstance || getDb();
   const row = conn.prepare("SELECT value FROM portfolio WHERE key = 'last_sync_time'").get();
   return row ? row.value : null;
 }
 
 
 // 获取所有持仓
-export function getPositions() {
-  const conn = getDb();
+export function getPositions(dbInstance = null) {
+  const conn = dbInstance || getDb();
   return conn.prepare('SELECT * FROM positions WHERE quantity > 0').all();
 }
 
@@ -883,10 +883,10 @@ export function saveOrder(order) {
 }
 
 // 获取订单历史
-export function getOrders({ limit = 50, offset = 0 } = {}) {
+export function getOrders({ limit = 50, offset = 0, dbInstance = null } = {}) {
   limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
   offset = Math.max(0, parseInt(offset, 10) || 0);
-  const conn = getDb();
+  const conn = dbInstance || getDb();
   const stmt = conn.prepare(`
     SELECT * FROM orders 
     ORDER BY created_at DESC LIMIT ? OFFSET ?
@@ -1157,8 +1157,8 @@ export function searchVectorMessages(embeddingArray, limit = 30, senderIds = [])
 }
 
 // 获取指定消息的前后上下文消息
-export function getMessageContext({ messageId, limit = 10 }) {
-  const conn = getDb();
+export function getMessageContext({ messageId, limit = 10, dbInstance = null } = {}) {
+  const conn = dbInstance || getDb();
   
   // 1. 先查出目标消息的定位参数 (created_at, channel_id)
   const target = conn.prepare('SELECT created_at, channel_id FROM messages WHERE id = ?').get(messageId);
@@ -1413,8 +1413,8 @@ export function getAllSpeakerMessagesChronological(senderIds = [], { limit = 100
 /**
  * 获取最新的画像白皮书报告
  */
-export function getLatestPersonaPlaybook() {
-  return getLatestReportForStrategy('PERSONA_PLAYBOOK');
+export function getLatestPersonaPlaybook(dbInstance = null) {
+  return getLatestReportForStrategy('PERSONA_PLAYBOOK', dbInstance);
 }
 
 /**
@@ -1455,8 +1455,8 @@ export function getContextAroundMessages(messageIds, contextBefore = 3, contextA
  * 获取数据库中所有唯一的频道信息 (channel_id 和 channel_name)
  * 🏛️ 强制通过权威登记册收口为 1:1 规范名称
  */
-export function getDistinctChannels() {
-  const conn = getDb();
+export function getDistinctChannels(dbInstance = null) {
+  const conn = dbInstance || getDb();
   const rows = conn.prepare(`
     SELECT DISTINCT channel_id
     FROM messages 
@@ -1473,8 +1473,8 @@ export function getDistinctChannels() {
 /**
  * 获取当前每日 API 调用计数 (不递增)
  */
-export function getDailyApiCount() {
-  const db = getDb();
+export function getDailyApiCount(dbInstance = null) {
+  const db = dbInstance || getDb();
   // 使用北京时间本地日期 (sv-SE 格式化输出 YYYY-MM-DD)
   const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' });
   const row = db.prepare("SELECT value FROM portfolio WHERE key = ?").get(`gemini_requests_${todayStr}`);
@@ -1529,10 +1529,10 @@ export function saveNewsSummary(summary) {
 /**
  * 获取历史资讯总结列表
  */
-export function getNewsSummaries(limit = 10, offset = 0) {
+export function getNewsSummaries(limit = 10, offset = 0, dbInstance = null) {
   limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 10));
   offset = Math.max(0, parseInt(offset, 10) || 0);
-  const conn = getDb();
+  const conn = dbInstance || getDb();
   return conn.prepare(`
     SELECT * FROM news_summaries 
     ORDER BY created_at DESC 
@@ -1543,8 +1543,8 @@ export function getNewsSummaries(limit = 10, offset = 0) {
 /**
  * 获取最新一期资讯总结 (可按类型过滤)
  */
-export function getLatestNewsSummary(type = null) {
-  const conn = getDb();
+export function getLatestNewsSummary(type = null, dbInstance = null) {
+  const conn = dbInstance || getDb();
   if (type) {
     return conn.prepare(`
       SELECT * FROM news_summaries 

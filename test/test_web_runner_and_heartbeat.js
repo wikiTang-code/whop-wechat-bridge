@@ -88,7 +88,9 @@ async function run() {
   assert(!/(import|from)\s+['"][^'"]*startPoller/i.test(webRunnerCode), 'web_runner MUST NOT import startPoller');
   assert(!webRunnerCode.includes('startPoller('), 'web_runner MUST NOT invoke startPoller');
   assert(!webRunnerCode.includes('startQueueWorker('), 'web_runner MUST NOT start queue workers');
-  console.log('   ✅ 瘦入口约束核验通过：web_runner 零重型 AI 依赖与轮询模块！');
+  const routerCode = fs.readFileSync(path.resolve('monitoring/readonly-api-router.js'), 'utf8');
+  assert(!routerCode.includes('getDb(') && !routerCode.includes('getDb'), 'readonly-api-router MUST NOT call getDb');
+  console.log('   ✅ 瘦入口与只读铁律核验通过：web_runner 零重型 AI 依赖与轮询模块，readonly-api-router 零 getDb 依赖！');
 
   // 4. 验证 T10: 聚合 HTTP 状态码策略 (warn 必须 200，仅 critical 返回 503)
   console.log('4. 验证 T10: 聚合 HTTP 状态码决策逻辑...');

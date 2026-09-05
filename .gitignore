@@ -12,6 +12,10 @@ web_modules/
 # Runtime-generated data (derived from DB / media downloads; not source code)
 data/queue_status.json
 data/media/zhao/media_manifest.json
+data/gex/
+
+# Local Longbridge CLI binary (downloaded by the GEX sidecar)
+tools/gex-sidecar/bin/
 
 # Sensitive environment variables
 .env

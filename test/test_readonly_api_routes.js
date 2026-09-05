@@ -169,7 +169,28 @@ async function run() {
     assert(resDelete.status === 403, `DELETE /api/task-queue/clear MUST return 403, got ${resDelete.status}`);
     console.log('   ✅ DELETE /api/task-queue/clear → 403 Forbidden (拦截写操作)');
 
-    console.log('\n🎉 ALL T12 / T18 / T20 TESTS PASSED: test_readonly_api_routes\n');
+    // 4. 验证 T23 只读铁律 (静态零 getDb 依赖 + 动态 SQLITE_READONLY 拦截)
+    console.log('4. 验证 T23 只读铁律约束 (静态 + 动态)...');
+    const { default: fs } = await import('fs');
+    const routerCode = fs.readFileSync('monitoring/readonly-api-router.js', 'utf-8');
+    assert(!routerCode.includes('getDb(') && !routerCode.includes('getDb'), 'readonly-api-router.js MUST NOT call or reference getDb');
+    console.log('   ✅ 静态约束核验通过：readonly-api-router.js 100% 杜绝 getDb 引用');
+
+    const { getReadOnlyArchiveDb } = await import('../monitoring/db-readonly.js');
+    const roDb = getReadOnlyArchiveDb();
+    assert(roDb !== null, 'getReadOnlyArchiveDb must return active instance');
+    let writeBlocked = false;
+    try {
+      roDb.prepare("INSERT INTO portfolio (key, value) VALUES ('hack_readonly', 999)").run();
+    } catch (err) {
+      if (err.message.includes('readonly') || err.message.includes('SQLITE_READONLY') || err.code === 'SQLITE_READONLY') {
+        writeBlocked = true;
+      }
+    }
+    assert(writeBlocked === true, 'Underlying SQLite handle MUST strictly block write with readonly error');
+    console.log('   ✅ 动态只读约束核验通过：SQLite 句柄严格处于只读保护状态 (SQLITE_READONLY)');
+
+    console.log('\n🎉 ALL T12 / T18 / T20 / T23 TESTS PASSED: test_readonly_api_routes\n');
   } finally {
     server.close();
     process.exit(0);

@@ -1,10 +1,10 @@
 /**
  * @file monitoring/readonly-api-router.js
- * @description P1-11 / T18 / T20: Web 看板只读路由集合 (与现网 public/app.js 前端契约 100% 对齐)
+ * @description P1-11 / T18 / T20 / T23: Web 看板只读路由集合 (与现网 public/app.js 前端契约 100% 对齐)
  *
  * 铁律约束:
  * 1. 拦截所有非 GET/HEAD/OPTIONS 的写请求，统一返回 HTTP 403 Forbidden；
- * 2. 优先复用 database.js / trading.js 的只读查询与业务逻辑，杜绝手写简陋 SQL；
+ * 2. 【只读铁律 / T23 核心】绝不调用可写主库句柄，全量只读查询强制走 getReadOnlyArchiveDb()；
  * 3. 字段形状全面适配前端现网消费契约 (兼备 data 与专用键名)，杜绝白屏；
  * 4. 挂载看板运行所需的所有只读路由：config、messages 过滤、proxy-image、context、quant、gpu、monitor、speakers 等。
  */
@@ -16,7 +16,6 @@ import https from 'https';
 import net from 'net';
 import { fileURLToPath } from 'url';
 import {
-  getDb,
   getMessages,
   getMessageContext,
   getReports,
@@ -25,9 +24,11 @@ import {
   getLastSyncTime,
   getNewsSummaries,
   getLatestNewsSummary,
-  getLatestPersonaPlaybook
+  getLatestPersonaPlaybook,
+  getDailyApiCount
 } from '../database.js';
 import { getUnifiedPortfolio, getUnifiedPositions } from '../trading.js';
+import { getReadOnlyArchiveDb } from './db-readonly.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,7 +61,7 @@ function maskSecret(str) {
 }
 
 /**
- * 2. 现网前端契约对齐的只读 GET 路由
+ * 2. 现网前端契约对齐的只读 GET 路由 (全部强制注入只读连接)
  */
 
 // GET /api/csrf-token (前端页面初始化调用)
@@ -71,9 +72,10 @@ readonlyRouter.get('/api/csrf-token', (req, res) => {
 // GET /api/config (设置页与上次同步时间，app.js 强依赖 result.data)
 readonlyRouter.get('/api/config', (req, res) => {
   try {
+    const db = getReadOnlyArchiveDb();
     let lastSync = null;
     try {
-      lastSync = getLastSyncTime();
+      lastSync = getLastSyncTime(db);
     } catch (_) {}
 
     const configData = {
@@ -118,9 +120,12 @@ readonlyRouter.get('/api/config', (req, res) => {
   }
 });
 
-// GET /api/messages (完全复用 database.js getMessages，对齐所有前端过滤参数)
+// GET /api/messages (完全复用 database.js getMessages，注入只读数据库句柄)
 readonlyRouter.get('/api/messages', (req, res) => {
   try {
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.status(503).json({ success: false, error: 'Database unavailable' });
+
     const search = req.query.search || '';
     const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 50));
     const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
@@ -169,7 +174,8 @@ readonlyRouter.get('/api/messages', (req, res) => {
       strategy,
       startDate,
       endDate,
-      msgType
+      msgType,
+      dbInstance: db
     });
 
     res.json({
@@ -185,12 +191,15 @@ readonlyRouter.get('/api/messages', (req, res) => {
   }
 });
 
-// GET /api/messages/:id/context (消息上下文回溯)
+// GET /api/messages/:id/context (消息上下文回溯，注入只读句柄)
 readonlyRouter.get('/api/messages/:id/context', (req, res) => {
   try {
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.status(503).json({ success: false, error: 'Database unavailable' });
+
     const messageId = req.params.id;
     const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 10));
-    const data = getMessageContext({ messageId, limit });
+    const data = getMessageContext({ messageId, limit, dbInstance: db });
     res.json({ success: true, ...data });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -337,10 +346,13 @@ readonlyRouter.get('/api/proxy-image', async (req, res) => {
   }
 });
 
-// GET /api/channels (权威登记册补全 + 兼容 data 与 channels)
+// GET /api/channels (权威登记册补全 + 兼容 data 与 channels，注入只读句柄)
 readonlyRouter.get('/api/channels', (req, res) => {
   try {
-    const channels = getDistinctChannels();
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.status(503).json({ success: false, error: 'Database unavailable' });
+
+    const channels = getDistinctChannels(db);
     res.json({
       success: true,
       data: channels,
@@ -351,10 +363,12 @@ readonlyRouter.get('/api/channels', (req, res) => {
   }
 });
 
-// GET /api/speakers (过滤掉大V，剩下群友用于自动补全，兼容 data 与 speakers)
+// GET /api/speakers (只读连接直接读取，过滤大V，兼容 data 与 speakers)
 readonlyRouter.get('/api/speakers', (req, res) => {
   try {
-    const db = getDb();
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.status(503).json({ success: false, error: 'Database unavailable' });
+
     const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
       .split(',')
       .map(s => s.trim())
@@ -379,13 +393,16 @@ readonlyRouter.get('/api/speakers', (req, res) => {
   }
 });
 
-// GET /api/reports (兼容 data 与 reports，含完整 summary_content 正文)
+// GET /api/reports (兼容 data 与 reports，注入只读句柄)
 readonlyRouter.get('/api/reports', (req, res) => {
   try {
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.status(503).json({ success: false, error: 'Database unavailable' });
+
     const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 10));
     const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
 
-    const data = getReports({ limit, offset });
+    const data = getReports({ limit, offset, dbInstance: db });
     res.json({
       success: true,
       data: data.reports,
@@ -397,13 +414,16 @@ readonlyRouter.get('/api/reports', (req, res) => {
   }
 });
 
-// GET /api/news-summaries (兼容 data 与 summaries，含 summary_content 正文)
+// GET /api/news-summaries (兼容 data 与 summaries，注入只读句柄)
 readonlyRouter.get('/api/news-summaries', (req, res) => {
   try {
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.status(503).json({ success: false, error: 'Database unavailable' });
+
     const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 50));
     const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
 
-    const summaries = getNewsSummaries(limit, offset);
+    const summaries = getNewsSummaries(limit, offset, db);
     res.json({
       success: true,
       data: summaries,
@@ -415,11 +435,14 @@ readonlyRouter.get('/api/news-summaries', (req, res) => {
   }
 });
 
-// GET /api/news-summaries/latest
+// GET /api/news-summaries/latest (注入只读句柄)
 readonlyRouter.get('/api/news-summaries/latest', (req, res) => {
   try {
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.status(503).json({ success: false, error: 'Database unavailable' });
+
     const type = req.query.type || null;
-    const summary = getLatestNewsSummary(type);
+    const summary = getLatestNewsSummary(type, db);
     res.json({
       success: true,
       data: summary,
@@ -430,42 +453,49 @@ readonlyRouter.get('/api/news-summaries/latest', (req, res) => {
   }
 });
 
-// GET /api/news-summaries/status
+// GET /api/news-summaries/status (只读连接直接读取)
 readonlyRouter.get('/api/news-summaries/status', (req, res) => {
   try {
-    const db = getDb();
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.json({ success: true, status: 'idle' });
+
     const active = db.prepare(`
       SELECT id FROM task_queue
       WHERE task_type LIKE 'news_%' AND status IN ('pending', 'running')
       LIMIT 1
     `).get();
 
-    res.json({ status: active ? 'running' : 'idle' });
+    res.json({ success: true, status: active ? 'running' : 'idle' });
   } catch (_) {
-    res.json({ status: 'idle' });
+    res.json({ success: true, status: 'idle' });
   }
 });
 
-// GET /api/persona/status
+// GET /api/persona/status (只读连接直接读取)
 readonlyRouter.get('/api/persona/status', (req, res) => {
   try {
-    const db = getDb();
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.json({ success: true, status: 'idle' });
+
     const active = db.prepare(`
       SELECT id FROM task_queue
       WHERE task_type LIKE 'persona_%' AND status IN ('pending', 'running')
       LIMIT 1
     `).get();
 
-    res.json({ status: active ? 'running' : 'idle' });
+    res.json({ success: true, status: active ? 'running' : 'idle' });
   } catch (_) {
-    res.json({ status: 'idle' });
+    res.json({ success: true, status: 'idle' });
   }
 });
 
-// GET /api/persona/latest (前端首屏白皮书渲染)
+// GET /api/persona/latest (注入只读句柄)
 readonlyRouter.get('/api/persona/latest', (req, res) => {
   try {
-    const playbook = getLatestPersonaPlaybook();
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.json({ success: false, playbook: null, data: null });
+
+    const playbook = getLatestPersonaPlaybook(db);
     res.json({
       success: !!playbook,
       data: playbook || null,
@@ -477,13 +507,14 @@ readonlyRouter.get('/api/persona/latest', (req, res) => {
 });
 
 // ==========================================================================
-// 量化交易与资产状态只读路由 (挂载 /api/quant/*)
+// 量化交易与资产状态只读路由 (挂载 /api/quant/*，强制注入只读句柄)
 // ==========================================================================
 
 // GET /api/quant/portfolio (账户总资产、可用现金、持仓市值等)
 readonlyRouter.get('/api/quant/portfolio', async (req, res) => {
   try {
-    const data = await getUnifiedPortfolio();
+    const db = getReadOnlyArchiveDb();
+    const data = await getUnifiedPortfolio(db);
     res.json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -493,19 +524,23 @@ readonlyRouter.get('/api/quant/portfolio', async (req, res) => {
 // GET /api/quant/positions (当前持仓明细)
 readonlyRouter.get('/api/quant/positions', async (req, res) => {
   try {
-    const data = await getUnifiedPositions();
+    const db = getReadOnlyArchiveDb();
+    const data = await getUnifiedPositions(db);
     res.json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// GET /api/quant/orders (跟单订单历史记录，兼备 data 与 orders 键)
+// GET /api/quant/orders (跟单订单历史记录，注入只读句柄)
 readonlyRouter.get('/api/quant/orders', (req, res) => {
   try {
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.status(503).json({ success: false, error: 'Database unavailable' });
+
     const limit = Math.max(1, Math.min(500, parseInt(req.query.limit, 10) || 50));
     const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
-    const data = getOrders({ limit, offset });
+    const data = getOrders({ limit, offset, dbInstance: db });
     res.json({
       success: true,
       data: data.orders,
@@ -521,7 +556,7 @@ readonlyRouter.get('/api/quant/orders', (req, res) => {
 // 系统监控与状态路由
 // ==========================================================================
 
-// GET /api/gpu/status (与现网契约对齐，包装 data: global.gpuLock，兼备顶层字段)
+// GET /api/gpu/status (包装 data: global.gpuLock，兼备顶层字段)
 readonlyRouter.get('/api/gpu/status', (req, res) => {
   const isLocked = global.gpuLock?.isLocked || false;
   const owner = global.gpuLock?.owner || null;
@@ -536,26 +571,20 @@ readonlyRouter.get('/api/gpu/status', (req, res) => {
   });
 });
 
-// GET /api/system/monitor (对齐 server.js 现网形状，返回 activeTasks/completedTasks/rateLimiterStats 等完整丰富 JSON)
+// GET /api/system/monitor (纯只读句柄查询，对齐 server.js 现网形状)
 readonlyRouter.get('/api/system/monitor', async (req, res) => {
   try {
-    const db = getDb();
+    const db = getReadOnlyArchiveDb();
+    if (!db) return res.status(503).json({ success: false, error: 'Database unavailable' });
 
-    // a. Rate Limiter Stats
-    let rateLimiterStats = { totalActive: 0, waitingInQueue: 0, byType: {} };
-    let inMemoryApiTasks = [];
-    try {
-      const { getRateLimiterStats, getActiveApiCalls } = await import('../rate-limiter.js');
-      rateLimiterStats = getRateLimiterStats();
-      inMemoryApiTasks = (typeof getActiveApiCalls === 'function' ? getActiveApiCalls() : []).map(t => ({
-        id: t.id,
-        taskType: t.task_type,
-        status: t.status,
-        priority: t.priority,
-        description: '☁️ Gemini API 云端多模态与文本精加工',
-        updatedAt: t.updated_at
-      }));
-    } catch (_) {}
+    // a. Rate Limiter Stats (纯只读查询，无写库/无 DDL 依赖)
+    const dailyCount = getDailyApiCount(db);
+    const rpdLimit = parseInt(process.env.GEMINI_DAILY_LIMIT || '10000', 10);
+    const rateLimiterStats = {
+      limit: rpdLimit,
+      current: dailyCount
+    };
+    const inMemoryApiTasks = [];
 
     // b. 本地大模型连线检测 (1000ms 超时)
     const checkLocalPort = (port, host) => {
@@ -589,7 +618,7 @@ readonlyRouter.get('/api/system/monitor', async (req, res) => {
       acquiredAt: global.gpuLock.acquiredAt
     } : { isLocked: false, owner: null, acquiredAt: null };
 
-    // d. 活跃排队任务
+    // d. 活跃排队任务 (纯只读查询)
     const activeTasksCount = db.prepare(`
       SELECT COUNT(*) as count FROM task_queue WHERE status IN ('running', 'pending', 'retry')
     `).get()?.count || 0;
@@ -631,7 +660,7 @@ readonlyRouter.get('/api/system/monitor', async (req, res) => {
 
     const combinedActiveTasks = [...inMemoryApiTasks, ...formattedTasks];
 
-    // e. 最近历史任务
+    // e. 最近历史任务 (纯只读查询)
     const completedTasks = db.prepare(`
       SELECT id, task_type, status, priority, error_message, updated_at
       FROM task_queue
