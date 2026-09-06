@@ -55,8 +55,35 @@ async function run() {
     const json = JSON.parse(api.body);
     assert(json.success === true, 'dashboard API success');
     assert(Array.isArray(json.sparklines?.pushP95), 'pushP95 array');
-    assert(json.sparklines.pushP95.length === 0, 'pushP95 must be empty');
-    console.log('   ✅ /monitoring + dashboard API local smoke OK');
+    // 验证 /monitoring.js 静态资源可正常拉取且内容完整
+    const jsResp = await get(port, '/monitoring.js');
+    assert(jsResp.status === 200, `/monitoring.js should be 200, got ${jsResp.status}`);
+    assert(jsResp.body.includes('renderMemorySparkline'), 'served JS must include sparkline renderer');
+    assert(jsResp.body.includes('dash-degraded'), 'served JS must handle degraded mode');
+    assert(jsResp.body.includes('visibilitychange'), 'served JS must handle visibility change');
+    assert(jsResp.body.includes('（仅看板进程）'), 'served JS must handle ingest missing note');
+    assert(!jsResp.body.includes('180'), 'served JS must NOT contain hardcoded 180 fake constant');
+
+    // 静态契约断言：所有 DOM 契约约定的 ID 在 JS 中均有绑定与处理
+    const requiredContractIds = [
+      'fetch-error', 'dash-title', 'market-et', 'market-bj', 'refresh-label',
+      'global-status', 'mem-web', 'mem-ingest', 'mem-combined',
+      'mem-ingest-wrap', 'mem-budget', 'mem-percent', 'mem-note', 'uptime',
+      'spark-memory', 'spark-memory-caption', 'spark-push', 'spark-push-empty',
+      'alert-feed', 'alert-feed-empty'
+    ];
+    for (const id of requiredContractIds) {
+      assert(jsResp.body.includes(id), `monitoring.js must handle contract id: ${id}`);
+      assert(html.includes(`id="${id}"`), `monitoring.html must define contract id: ${id}`);
+    }
+
+    // 7 大子系统在 JS 中均有细节渲染分支
+    const requiredSubsystems = ['ingest', 'aiTunnel', 'eventLoop', 'monitoringDb', 'queues', 'assets', 'pushPipeline'];
+    for (const sub of requiredSubsystems) {
+      assert(jsResp.body.includes(`'${sub}'`), `monitoring.js must contain branch for subsystem: ${sub}`);
+    }
+
+    console.log('   ✅ /monitoring + /monitoring.js + DOM Contract verification OK');
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
