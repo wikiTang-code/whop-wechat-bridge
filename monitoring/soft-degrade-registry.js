@@ -6,6 +6,8 @@
  * 15D mounts getSoftDegradeSnapshot(); 15C wires record/clear from controllers.
  */
 import { getBackpressureStatus } from './backpressure-controller.js';
+import { getIngestHeartbeat } from './monitoring-db.js';
+import { isAiTunnelSuspended, getAiTunnelStatus } from './ai-tunnel-circuit.js';
 
 export const ALLOWED_ACTIONS = Object.freeze([
   'backpressure_throttle_poll',
@@ -23,13 +25,30 @@ export const FORBIDDEN_ACTIONS = Object.freeze([
 ]);
 
 const ACTIVE_ACTIONS_CAP = 8;
-const NOTES = 'safe_soft_degrade_only, zero_pm2_restart, process_local';
+const NOTES = 'safe_soft_degrade_only, zero_pm2_restart, process_local, cross_process_synced';
 
 /** @type {Map<string, { id: string, level: string, sinceMs: number, reason: string, detail?: string }>} */
 const activeActionsMap = new Map();
 
 /** @type {Array<() => Array<object>>} */
 const extraGetters = [];
+
+function registerDefaultGetters() {
+  // P2-15C: 双进程跨进程同步 — Web 侧自动从 Ingest 最新新鲜心跳合并降级动作
+  extraGetters.push(({ nowMs = Date.now() } = {}) => {
+    try {
+      const hb = getIngestHeartbeat('primary', { nowMs });
+      if (hb && hb.exists && hb.status !== 'critical' && hb.detail && Array.isArray(hb.detail.softDegradeActions)) {
+        return hb.detail.softDegradeActions.map((a) => ({
+          ...a,
+          detail: a.detail ? `[ingest] ${a.detail}` : '[ingest]',
+        }));
+      }
+    } catch (_) {}
+    return [];
+  });
+}
+registerDefaultGetters();
 
 /** Optional: 15C / process boot registers AI circuit / offline heal mirrors (avoid import cycles). */
 export function registerSoftDegradeExtraActionsGetter(fn) {
@@ -100,6 +119,24 @@ function deriveFromBackpressure(nowMs, seenIds) {
   return out;
 }
 
+function deriveFromAiCircuit(nowMs, seenIds) {
+  const out = [];
+  if (seenIds.has('ai_tunnel_suspend_probe')) return out;
+  try {
+    if (isAiTunnelSuspended()) {
+      const status = getAiTunnelStatus();
+      out.push({
+        id: 'ai_tunnel_suspend_probe',
+        level: 'warn',
+        sinceMs: nowMs,
+        reason: 'ai_tunnel_circuit_open',
+        detail: `Local 14B tunnel open/suspended (${status?.lastProbe?.detail || 'probe failed'})`,
+      });
+    }
+  } catch (_) {}
+  return out;
+}
+
 /**
  * Sync snapshot for buildHealthPayload (no async).
  * Iron rule: activeActions non-empty ⇒ status at least warn (no false green).
@@ -119,10 +156,15 @@ export function getSoftDegradeSnapshot({ nowMs = Date.now() } = {}) {
     merged.push(derived);
   }
 
+  for (const derived of deriveFromAiCircuit(nowMs, seen)) {
+    seen.add(derived.id);
+    merged.push(derived);
+  }
+
   for (const getter of extraGetters) {
     let extras = [];
     try {
-      extras = getter() || [];
+      extras = getter({ nowMs }) || [];
     } catch {
       extras = [];
     }
@@ -160,4 +202,5 @@ export function getSoftDegradeSnapshot({ nowMs = Date.now() } = {}) {
 export function _resetSoftDegradeForTests() {
   activeActionsMap.clear();
   extraGetters.length = 0;
+  registerDefaultGetters();
 }

@@ -13,6 +13,7 @@ import { sendAlert } from './alert-sink.js';
 import { isOffMarketHours, isWeekendOrHoliday } from './market-calendar.js';
 import { spawn } from 'child_process';
 import path from 'path';
+import { recordSoftDegradeAction, clearSoftDegradeAction } from './soft-degrade-registry.js';
 
 let supervisorRunning = false;
 let supervisorTimer = null;
@@ -48,6 +49,21 @@ export function tryTriggerOfflineAutoSync(reason = '') {
 
     lastAutoSyncAt = now;
     console.log(`[Supervisor] 🌟 已自动派生离线同步自愈任务 (PID=${child.pid}, 原因=${reason})`);
+
+    // P2-15C: 注册 softDegrade 软降级动作
+    recordSoftDegradeAction({
+      id: 'offline_sync_spawn_weekend',
+      level: 'warn',
+      nowMs: now,
+      reason: 'weekend_offline_healing',
+      detail: `Spawned offline sync child (PID=${child.pid}, reason=${reason})`,
+    });
+
+    if (typeof child.on === 'function') {
+      child.once('exit', () => {
+        clearSoftDegradeAction('offline_sync_spawn_weekend');
+      });
+    }
 
     recordHealthEvent({
       subsystem: 'assets',

@@ -44,7 +44,16 @@ export async function executeIngestTick({ dryRun = false, syncFn = null, autoSch
 
   // 1. 并发防重入处理：若上一轮正在处理，跳过并记录 skipped 心跳
   if (isSyncing) {
-    const skipDetail = { reason: 'isSyncing_overlap', skippedAt: tickStart };
+    let softDegradeActions = [];
+    try {
+      softDegradeActions = getSoftDegradeSnapshot({ nowMs: tickStart })?.activeActions || [];
+    } catch (_) {}
+
+    const skipDetail = {
+      reason: 'isSyncing_overlap',
+      skippedAt: tickStart,
+      softDegradeActions,
+    };
     recordIngestHeartbeat({
       workerKey,
       outcome: 'skipped',
@@ -96,6 +105,14 @@ export async function executeIngestTick({ dryRun = false, syncFn = null, autoSch
     isSyncing = false;
     const pollMs = Date.now() - tickStart;
 
+    // P2-15C: 将当前生效的软降级动作附加到心跳 detail，支持双进程跨进程可见性
+    try {
+      const softDegradeSnap = getSoftDegradeSnapshot({ nowMs: Date.now() });
+      if (softDegradeSnap?.activeActions?.length > 0) {
+        detail.softDegradeActions = softDegradeSnap.activeActions;
+      }
+    } catch (_) {}
+
     // 核心契约：无论 ok、error 还是 skipped，tick 结束必须原子更新心跳
     recordIngestHeartbeat({
       workerKey,
@@ -110,6 +127,7 @@ export async function executeIngestTick({ dryRun = false, syncFn = null, autoSch
   }
 }
 
+import { getSoftDegradeSnapshot } from '../monitoring/soft-degrade-registry.js';
 import { getEffectivePollIntervalSec, getBackpressureStatus } from '../monitoring/backpressure-controller.js';
 import { isOffMarketHours } from '../monitoring/market-calendar.js';
 

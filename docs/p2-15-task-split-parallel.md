@@ -34,9 +34,9 @@
 |---|---|---|---|---|---|
 | **P2-15A** | 软降级缺口清单（动作白名单 / 触发源 / 未接线处） | **Cursor** | G0 | Gemini | — |
 | **P2-15B** | 契约定稿：`subsystems.softDegrade` JSON 形状 + 允许动作枚举 | **Gemini** | G0 | Cursor | ✅ [`docs/p2-15-soft-degrade-contract.md`](./p2-15-soft-degrade-contract.md) |
-| **P2-15C** | 钩子实现 / 接线补齐 + 单测（按契约） | **Gemini** | G1 | Cursor | 15B + 15A；可复用 `monitoring/soft-degrade-registry.js` |
+| **P2-15C** | 钩子实现 / 接线补齐 + 单测（按契约） | **Gemini** | G1 | Cursor | ✅ 已完成（`test_soft_degrade_integration.js`） |
 | **P2-15D** | 挂入 `health.js` / dashboard + monitoring 小格（若契约要求） | **Cursor** | G1 | Gemini | ✅ 已挂载 `[11] softDegrade` |
-| **P2-15E** | 可选：清理类钩子（日志/tmp 受控清理）+ 单测 | **Gemini** | G2 | Cursor | 15B 白名单 |
+| **P2-15E** | 可选：清理类钩子（日志/tmp 受控清理）+ 单测 | **Gemini** | G2 | Cursor | ✅ 已完成（`cleanup-hooks.js`） |
 | **P2-15F** | 双方联调签字 | 双方 | G3 | 互签 | C+D 绿 |
 
 ```
