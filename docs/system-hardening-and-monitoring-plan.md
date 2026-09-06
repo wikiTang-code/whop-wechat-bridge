@@ -262,5 +262,5 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 | P2-12 | 双进程路由覆盖 + 自动检测 | ✅ 互签归档 | `4a4410d` / [`docs/p2-12-p2h-signoff.md`](./p2-12-p2h-signoff.md)；crontab `*/3` page_smoke **已挂** |
 | P2-13 | 数据一致性巡检 | ✅ 互签归档 | `32226ff` / [`docs/p2-13-p2f-signoff.md`](./p2-13-p2f-signoff.md)；crontab `*/5` consistency_smoke **已挂** |
 | P2-14 | 前端 `window.onerror` RUM | ⏸ 本轮跳过 | 计划最低优先级/可剔除；需要另开薄轨 |
-| P2-15 | 软降级钩子（R5） | 🚧 15A/B/D 已合；待 15C/F | 契约 `9daeea4`；15D 挂载见 `soft-degrade-registry` + monitoring `[11]` |
+| P2-15 | 软降级钩子（R5） | ✅ 互签归档 | `502a1c3` + F 签 [`docs/p2-15-p2f-signoff.md`](./p2-15-p2f-signoff.md)；monitoring `[11]` |
 | 运维 | 周末 Persona 刷新闭环 | ✅ 完成 | 2026-09-05 Reduce 落库成功（`Gemini-Flash+Vision`）；探针脚本全量回仓；线上 `/health` 达成全局 `ok: true` |

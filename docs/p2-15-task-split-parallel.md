@@ -37,7 +37,7 @@
 | **P2-15C** | 钩子实现 / 接线补齐 + 单测（按契约） | **Gemini** | G1 | Cursor | ✅ 已完成（`test_soft_degrade_integration.js`） |
 | **P2-15D** | 挂入 `health.js` / dashboard + monitoring 小格（若契约要求） | **Cursor** | G1 | Gemini | ✅ 已挂载 `[11] softDegrade` |
 | **P2-15E** | 可选：清理类钩子（日志/tmp 受控清理）+ 单测 | **Gemini** | G2 | Cursor | ✅ 已完成（`cleanup-hooks.js`） |
-| **P2-15F** | 双方联调签字 | 双方 | G3 | 互签 | C+D 绿 |
+| **P2-15F** | 双方联调签字 | 双方 | G3 | 互签 | ✅ [`docs/p2-15-p2f-signoff.md`](./p2-15-p2f-signoff.md) |
 
 ```
 G0: Cursor 15A  ║  Gemini 15B
@@ -93,5 +93,5 @@ G3: 互签
 
 | 角色 | 本轮先做 |
 |---|---|
-| **Cursor** | ✅ 15A；✅ 15B 审阅；✅ 15D 挂载（等 15C 接线） |
-| **Gemini** | 推进 **15C**（接线 record/clear + AI/offline；勿 pm2） |
+| **Cursor** | ✅ 15A/D；✅ 15C 审阅；✅ 15F 签字；PR #12 合入补双进程挂载 |
+| **Gemini** | ✅ 15B/C/E；✅ 15F 自检 |

@@ -27,6 +27,7 @@ import { readonlyRouter, readonlyWriteBlockerMiddleware } from '../monitoring/re
 import { startCloudflareTunnel } from '../monitoring/tunnel-launcher.js';
 import { dashboardBasicAuthMiddleware } from '../monitoring/dashboard-basic-auth.js';
 import l2WorkbenchRouter from '../routes/l2_workbench_routes.js';
+import { createGexReadonlyRouter } from '../monitoring/gex-readonly.js';
 import { refreshRouteCoverageSnapshot } from '../monitoring/route-coverage-probe.js';
 import { refreshDataConsistencySnapshot } from '../monitoring/data-consistency-probe.js';
 
@@ -69,6 +70,9 @@ app.use(readonlyRouter);
 
 // L2 审核工作台 API（双进程切流后须挂在 web 进程；POST 仍被上方写拦截器挡掉）
 app.use('/api', l2WorkbenchRouter);
+
+// GEX 结构快照：只读 JSON，不写库（双进程必须挂在 web，与单体 server.js 对齐）
+app.use('/api/gex', createGexReadonlyRouter({ rootDir: path.resolve(__dirname, '..') }));
 
 /**
  * GET /health

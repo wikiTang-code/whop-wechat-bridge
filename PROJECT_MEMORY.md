@@ -75,3 +75,14 @@ To avoid spamming requests and rate limits during US stock quiet hours, `server.
   - **任务协调分工**：充分利用任务状态（Task/PM 等机制）协调分工，避免重复劳动。
   - **提交精细审核**：提交与推送前必须执行 `git diff` 仔细确认变更范围，确保不覆盖其他 Agent 已经提交的成果。
   - **关键操作互斥**：在执行关键破坏性或独占性操作（如部署上线、数据库迁移、服务重启）前，应先通过进程/日志/状态确认没有其他 Agent 正在执行该操作。
+
+---
+
+## 8. GEX sidecar（本机，2026-09）
+- **位置**: `tools/gex-sidecar/`，产物 `data/gex/latest.json`。
+- **来源**: 长桥帖 [做末日的兄弟看过来](https://longbridge.com/zh-CN/topics/43511616?channel=OWNN00030)；开源 [heatseeker-lb](https://github.com/NineLooms/heatseeker-lb)、[gex-matrix-lb](https://github.com/NineLooms/gex-matrix-lb)。sidecar 移植，非 fork。
+- **v1 样例**: `data/gex/latest.json` 是 2026-09-05 富途 OpenD 成功快照（`source=futu-opend`，errors 空，SPY/QQQ/SPX 102/102）。长桥 OpenAPI OPRA 未开通，失败空 snapshot 未入库。
+- **数据**: 富途 OpenD（美股期权含指数链）+ 长桥 CLI 补 `.SPX.US` 现货。交易仍用 `brokers/longbridge.js`。
+- **权限**: Futu **API 商店** OPRA 实时，不是 App $2.99。OpenD `127.0.0.1:11111`。
+- **禁止**: 不要把拉链、OpenD、OPRA 放到 GCP。云端以后只同步 JSON。
+- **消费**: 尚未挂 dashboard/跟单。嵌入时读 `king` / `floor` / `regime` / `column_totals`，不要当自动下单信号。

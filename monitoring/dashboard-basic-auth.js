@@ -54,7 +54,8 @@ export function isDashboardAuthBypassPath(pathname) {
     pathname.startsWith('/api/review/') ||
     pathname === '/ticker_timeline.html' ||
     pathname.startsWith('/api/ticker_timeline') ||
-    pathname.startsWith('/api/ticker_kline')
+    pathname.startsWith('/api/ticker_kline') ||
+    pathname.startsWith('/api/gex')
   );
 }
 

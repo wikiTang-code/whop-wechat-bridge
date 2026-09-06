@@ -110,3 +110,23 @@ http://localhost:8085
 
 ### 🌐 公网访问（Cloudflare Tunnel）
 服务启动后会自动创建 Cloudflare 快速隧道，无需域名或端口转发即可从公网访问。隧道地址会在启动日志中输出，也可通过 `npm run pm2:logs` 查看。如需固定域名，建议使用 Cloudflare Named Tunnel 或 Nginx 反向代理。
+
+---
+
+## 📈 本机 GEX sidecar（不部署到 GCP）
+
+期权 NetGEX 拉链跑在 Windows：富途 OpenD 拉链 + 长桥 CLI 补指数现货，写出 `data/gex/latest.json`。交易仍走长桥 OpenAPI，不要把 OpenD 搬上云。
+
+思路来自长桥帖 [做末日的兄弟看过来！基于 longbridge CLI 实现 @LongbridgeAI](https://longbridge.com/zh-CN/topics/43511616?channel=OWNN00030)：[heatseeker-lb](https://github.com/NineLooms/heatseeker-lb)（SPY/QQQ 热图）、[gex-matrix-lb](https://github.com/NineLooms/gex-matrix-lb)（个股 GEX 矩阵）。
+
+v1 样例 `data/gex/latest.json` 已是富途 OpenD 成功拉链（`source=futu-opend`，`errors=[]`），不是长桥 OPRA 失败空壳。
+
+```powershell
+pip install -r tools/gex-sidecar/requirements.txt
+$env:PYTHONIOENCODING='utf-8'
+$env:LONGBRIDGE_REGION='global'
+python tools/gex-sidecar/collect_futu.py
+python tools/gex-sidecar/summarize.py
+```
+
+环境变量模板：`tools/gex-sidecar/env.example`。读图与 JSON 字段：`tools/gex-sidecar/README.md`。接入边界：`docs/gex-sidecar.md`。
