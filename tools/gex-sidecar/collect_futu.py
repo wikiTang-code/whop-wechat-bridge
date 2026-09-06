@@ -290,6 +290,14 @@ def main() -> int:
             "session": gex.session_label(),
             "source": "futu-opend",
             "disclaimer": "结构快照，不是预测，不构成投资建议。GEX 正负依赖做市商净卖期权的常见假设。",
+            "collection": {
+                "ok": False,
+                "script": "tools/gex-sidecar/collect_futu.py",
+                "futu_us_option": us_opt,
+                "futu_us_stock": str(info.get("us_qot_right") or ""),
+                "index_spot": "longbridge-cli",
+                "longbridge_openapi_opra": "not_used",
+            },
             "zero_dte": {},
             "matrix": {},
             "errors": [],
@@ -312,6 +320,15 @@ def main() -> int:
             except Exception as exc:
                 snapshot["errors"].append({"ticker": code, "kind": "matrix", "error": str(exc)})
                 print(f"  !! {code} matrix 失败: {exc}", file=sys.stderr)
+
+        snapshot["collection"]["ok"] = (
+            not snapshot["errors"]
+            and bool(snapshot["zero_dte"] or snapshot["matrix"])
+        )
+        snapshot["collection"]["note"] = (
+            "主路径是富途 OpenD。长桥 OpenAPI OPRA 未开通，collect.py 备选不可用；"
+            "不要把长桥失败的空 snapshot_* 当成现状。"
+        )
 
         gex.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         latest = gex.OUTPUT_DIR / "latest.json"

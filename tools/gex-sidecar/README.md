@@ -13,6 +13,10 @@ Windows 定时拉链，产出 `data/gex/latest.json` 与 HTML。**不要把拉�
 
 本仓库是 sidecar 移植，不是这两个仓库的 fork。默认拉链走富途 OpenD（含指数期权链）；长桥 CLI 只补指数现货，交易仍走长桥。
 
+## 采集状态（v1 已跑通）
+
+`data/gex/latest.json` 是 **2026-09-05 23:49 富途 OpenD 成功拉链**（`source=futu-opend`，`errors=[]`，SPY/QQQ/SPX 覆盖 102/102，TSLA 五到期日矩阵）。不要把同日更早、**未入库**的长桥 `collect.py` 空快照（OPRA OpenAPI 未开通）当成现状。
+
 ## 环境
 
 1. Python 3.11+，安装依赖：
