@@ -220,7 +220,8 @@ app.use((req, res, next) => {
     req.path === '/ticker_timeline.html' || 
     req.path.startsWith('/api/ticker_timeline') || 
     req.path.startsWith('/api/ticker_kline') ||
-    req.path.startsWith('/api/gex')
+    req.path.startsWith('/api/gex') ||
+    req.path === '/gex-summary.js'
   ) {
     return next();
   }

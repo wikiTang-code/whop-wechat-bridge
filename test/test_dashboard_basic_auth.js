@@ -15,6 +15,9 @@ async function run() {
   console.log('--- test_dashboard_basic_auth ---');
 
   assert(isDashboardAuthBypassPath('/health') === true, '/health must bypass');
+  assert(isDashboardAuthBypassPath('/api/gex/latest') === true, '/api/gex/latest must bypass');
+  assert(isDashboardAuthBypassPath('/gex-summary.js') === true, '/gex-summary.js must bypass (public timeline)');
+  assert(isDashboardAuthBypassPath('/ticker_timeline.html') === true, '/ticker_timeline.html must bypass');
   assert(isDashboardAuthBypassPath('/api/messages') === false, '/api/messages must not bypass');
 
   const prevUser = process.env.DASHBOARD_USERNAME;
@@ -26,6 +29,7 @@ async function run() {
   app.use(dashboardBasicAuthMiddleware);
   app.get('/health', (_req, res) => res.json({ ok: true }));
   app.get('/api/messages', (_req, res) => res.json({ success: true, data: [] }));
+  app.get('/gex-summary.js', (_req, res) => res.type('js').send('window.loadGexSummary=function(){}'));
 
   const server = http.createServer(app);
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -35,6 +39,9 @@ async function run() {
   try {
     const h = await fetch(`${base}/health`);
     assert(h.status === 200, `health should 200 without auth, got ${h.status}`);
+
+    const gexJs = await fetch(`${base}/gex-summary.js`);
+    assert(gexJs.status === 200, `gex-summary.js should 200 without auth, got ${gexJs.status}`);
 
     const noAuth = await fetch(`${base}/api/messages`);
     assert(noAuth.status === 401, `messages without auth should 401, got ${noAuth.status}`);

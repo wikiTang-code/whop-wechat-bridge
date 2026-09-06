@@ -851,12 +851,16 @@ async function fetchQuantData() {
       state.orders = ordResult.data;
       renderOrders(ordResult.data);
     }
+  } catch (error) {
+    console.error('Error fetching quantitative trading data:', error);
+  }
 
+  try {
     if (typeof loadGexSummary === 'function') {
       loadGexSummary('gex-structure-bar', 'TSLL');
     }
   } catch (error) {
-    console.error('Error fetching quantitative trading data:', error);
+    console.error('Error loading GEX structure strip:', error);
   }
 }
 
