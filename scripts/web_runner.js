@@ -56,6 +56,8 @@ app.use(dashboardBasicAuthMiddleware);
 app.use(express.static(path.resolve('public')));
 // L2 工作台真图穿透（与单体 server.js 对齐）
 app.use('/media/zhao', express.static(path.resolve('data/media/zhao')));
+// GEX HTML 热图只读（本机/同步产物，不写库）
+app.use('/gex-html', express.static(path.resolve('data/gex'), { index: false, fallthrough: true }));
 
 // P2-F: 规范化看板入口（静态文件仍可通过 /monitoring.html 访问）
 app.get('/monitoring', (_req, res) => {

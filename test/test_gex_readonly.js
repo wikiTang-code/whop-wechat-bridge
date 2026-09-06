@@ -13,6 +13,7 @@ import {
   summarizeMatrix,
   buildGexLatestPayload,
   createGexReadonlyRouter,
+  listGexHtmlReports,
   STALE_RTH_MS,
   STALE_CLOSED_MS,
   GEX_OI_AS_OF,
@@ -255,6 +256,13 @@ function request(port, method, urlPath) {
     assert(!JSON.stringify(data.matrix.TSLA).includes('"matrix"'), 'sample TSLA has no nested matrix');
     assert(data.oi_as_of === 'yesterday_close', 'sample oi_as_of');
     assert(data.index.SPY.kind === 'nearest', 'weekend sample is nearest not 0dte');
+  }
+
+  const reports = await listGexHtmlReports(process.cwd());
+  assert(Array.isArray(reports), 'listGexHtmlReports returns array');
+  if (fs.existsSync(path.join(process.cwd(), 'data', 'gex', 'heatseeker_gex.html'))) {
+    assert(reports.some((r) => r.id === 'heatseeker'), 'heatseeker report listed');
+    assert(reports.find((r) => r.id === 'heatseeker').href === '/gex-html/heatseeker_gex.html', 'heatseeker href');
   }
 }
 

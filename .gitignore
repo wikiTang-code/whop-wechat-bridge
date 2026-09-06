@@ -26,6 +26,9 @@ data/gex/*
 !data/gex/snapshot_20260905_235029.json
 tools/gex-sidecar/bin/
 tools/gex-sidecar/__pycache__/
+tools/gex-sidecar/open_session_config.json
+tools/gex-sidecar/_open_session_task.cmd
+data/gex/.skip_open_session
 
 # Sensitive environment variables
 .env

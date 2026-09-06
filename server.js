@@ -221,7 +221,8 @@ app.use((req, res, next) => {
     req.path.startsWith('/api/ticker_timeline') || 
     req.path.startsWith('/api/ticker_kline') ||
     req.path.startsWith('/api/gex') ||
-    req.path === '/gex-summary.js'
+    req.path === '/gex-summary.js' ||
+    req.path.startsWith('/gex-html')
   ) {
     return next();
   }
@@ -272,6 +273,8 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 // 静态托管已落盘的赵哥真图资源目录
 app.use('/media/zhao', express.static(path.join(__dirname, 'data/media/zhao')));
+// GEX HTML 热图只读
+app.use('/gex-html', express.static(path.join(__dirname, 'data/gex'), { index: false, fallthrough: true }));
 // Regular JSON body parser for APIs
 app.use(express.json());
 

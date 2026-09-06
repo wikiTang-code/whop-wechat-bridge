@@ -23,6 +23,7 @@
 | `tools/gex-sidecar/collect_futu.py` | 不要装 OpenD、不要买云上 OPRA |
 | 富途 OpenD `:11111` + 长桥 CLI 指数现货 | 交易仍用现有 `brokers/longbridge.js` |
 | 写出 `data/gex/latest.json` | 以后若要给云端看，同步 JSON，不搬拉链 |
+| `open_session_run.py` 开盘计划任务 | 云上不跑采集 |
 
 ## 给后续嵌入的契约
 
@@ -31,17 +32,37 @@
 Dashboard **已挂只读消费**（v1）：
 
 - `GET /api/gex/latest?symbol=TSLL|TSLA`：读文件、白名单裁剪后返回。`symbol` **只改 focus 映射**（TSLL → 看 TSLA 正股），不改指数/矩阵内容。
-- POST/PUT/DELETE `/api/gex*` 一律 **403**（只读，不写库、不入 L2a）。
-- 时间轴页未登录也可拉：`/api/gex` 与 `/ticker_timeline.html` 一样走 auth bypass。
-- UI：`ticker_timeline.html` 日级条 + 量化 Tab 结构条。**不**改顶栏系统风险色，**不** iframe HTML，**不**把 `ladder` / 全量 `matrix[]` 渲到页面。
-- `oi_as_of=yesterday_close`；`kind=nearest` 标成「非 0DTE」。过期：RTH >60 分钟，闭市/周末代理 >12 小时。空快照只显示「暂无」，不当成持有。
+- 响应含 `reports[]`（可用 HTML 热图链接，如 `/gex-html/heatseeker_gex.html`），**仍不含** `ladder` / 全量 `matrix[]`。
+- `GET /gex-html/*`：只读静态托管 `data/gex/*.html`（时间轴免登录可开）。
+- UI：结构条「**完整信息**」展开元数据 + 热图链接；量化 Tab 同组件。
+- POST/PUT/DELETE `/api/gex*` 一律 **403**。
+- `oi_as_of=yesterday_close`；`kind=nearest` 标成「非 0DTE」。过期：RTH >60 分钟，闭市/周末代理 >12 小时。
 
 建议消费方只依赖：
 
-- `ok` / `stale` / `age_minutes` / `collection` / `disclaimer` / `oi_as_of`
+- `ok` / `stale` / `age_minutes` / `collection` / `disclaimer` / `oi_as_of` / `reports`
 - 指数：`spot`、`spot_strike`、`kind`、`expiry`、`king`、`floor`、`regime`、`local_gex`
 - 矩阵 TSLA：`spot`、`king`、`floor`、`column_totals`
 
 不要把 GEX 当买卖指令。叠加赵哥点位时：墙对齐才加权；负 GEX 只表示波动放大。不要用 GEX 自动对齐或挡执行。
+
+## 开盘本机自动采集
+
+推荐时刻：**美东 09:40（开盘后约 10 分钟）周一至周五**。
+
+1. 复制配置：`tools/gex-sidecar/open_session_config.example.json` → `open_session_config.json`（已 gitignore）
+2. 改 `mode` / `zero_dte` / `matrix`（默认 SPY,QQQ,SPX + TSLA）
+3. 试跑：`python tools/gex-sidecar/open_session_run.py --dry-run`
+4. 安装计划任务：`powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1`
+
+`mode`：
+
+| 值 | 行为 |
+|---|---|
+| `auto` | 到点直接拉链，企微发结果 |
+| `notify_then_auto`（默认） | 企微预告 → 等待 `ask_wait_seconds` → 若存在 `data/gex/.skip_open_session` 则跳过，否则拉链 |
+| `ask_console` | 终端 Y/N（仅手动，勿给计划任务用） |
+
+企微 webhook 读仓库 `.env` 的 `WECHAT_WORK_WEBHOOK_URL`（或配置里的 `webhook_env`）。机器人无法可靠收「回复同意」，故用 **预告 + skip 文件**。
 
 环境与读图细节见 `tools/gex-sidecar/README.md`。第一版样例在 `data/gex/latest.json`（2026-09-05 周末快照）。

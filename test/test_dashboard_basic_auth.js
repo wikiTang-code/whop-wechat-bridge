@@ -17,6 +17,7 @@ async function run() {
   assert(isDashboardAuthBypassPath('/health') === true, '/health must bypass');
   assert(isDashboardAuthBypassPath('/api/gex/latest') === true, '/api/gex/latest must bypass');
   assert(isDashboardAuthBypassPath('/gex-summary.js') === true, '/gex-summary.js must bypass (public timeline)');
+  assert(isDashboardAuthBypassPath('/gex-html/heatseeker_gex.html') === true, '/gex-html must bypass');
   assert(isDashboardAuthBypassPath('/ticker_timeline.html') === true, '/ticker_timeline.html must bypass');
   assert(isDashboardAuthBypassPath('/api/messages') === false, '/api/messages must not bypass');
 

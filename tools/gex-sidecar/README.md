@@ -55,6 +55,23 @@ python tools/gex-sidecar/summarize.py
 python tools/gex-sidecar/collect.py
 ```
 
+## 开盘自动采集（本机）
+
+推荐：**美东 09:40 工作日**（开盘后约 10 分钟墙更稳）。
+
+```powershell
+copy tools\gex-sidecar\open_session_config.example.json tools\gex-sidecar\open_session_config.json
+# 编辑 mode / zero_dte / matrix
+python tools/gex-sidecar/open_session_run.py --dry-run
+powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1
+```
+
+- `notify_then_auto`：企微预告后等待；本机创建 `data/gex/.skip_open_session` 可跳过本次。
+- `auto`：直接跑。
+- `ask_console`：仅手动确认。
+
+看板「完整信息」按钮可打开 `/gex-html/heatseeker_gex.html` 与矩阵 HTML。
+
 ## 产物
 
 | 文件 | 用途 |

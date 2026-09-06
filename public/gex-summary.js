@@ -67,6 +67,53 @@
     );
   }
 
+  function detailBlock(ticker, item, isMatrix) {
+    if (!item) return '';
+    const lines = [];
+    lines.push('<div class="gex-detail-block">');
+    lines.push('<div class="gex-chip-title">' + escapeHtml(ticker) + (isMatrix ? ' 矩阵' : '') + '</div>');
+    if (item.spot != null) lines.push('<div>现货 ' + fmtStrike(item.spot) + '</div>');
+    if (item.spot_strike != null) lines.push('<div>价位档 ' + fmtStrike(item.spot_strike) + '</div>');
+    if (item.kind) lines.push('<div>类型 ' + escapeHtml(kindLabel(item.kind)) + '</div>');
+    if (item.expiry) lines.push('<div>到期 ' + escapeHtml(item.expiry) + '</div>');
+    if (item.local_gex != null) lines.push('<div>局部 GEX ' + fmtGex(item.local_gex) + '</div>');
+    if (item.regime) lines.push('<div>局部 gamma：' + escapeHtml(item.regime) + '</div>');
+    lines.push('<div>' + escapeHtml(wallLine('Floor', item.floor)) + '</div>');
+    lines.push('<div>' + escapeHtml(wallLine('King', item.king)) + '</div>');
+    if (item.column_totals) {
+      lines.push('<div class="gex-cols">列合计 ' + columnLine(item.column_totals) + '</div>');
+    }
+    lines.push('</div>');
+    return lines.join('');
+  }
+
+  function reportsHtml(reports) {
+    if (!Array.isArray(reports) || !reports.length) {
+      return '<div class="gex-muted">暂无 HTML 热图文件（本机采集后会出现）</div>';
+    }
+    return (
+      '<div class="gex-report-links">' +
+      reports.map((r) => (
+        '<a class="gex-report-link" href="' + escapeHtml(r.href) + '" target="_blank" rel="noopener noreferrer">' +
+          escapeHtml(r.title || r.id) +
+        '</a>'
+      )).join('') +
+      '</div>'
+    );
+  }
+
+  function bindToggle(el, data, symbol) {
+    const btn = el.querySelector('[data-role="gex-toggle"]');
+    const panel = el.querySelector('[data-role="gex-detail"]');
+    if (!btn || !panel) return;
+    btn.addEventListener('click', () => {
+      const open = panel.hidden;
+      panel.hidden = !open;
+      btn.textContent = open ? '收起' : '完整信息';
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
+
   function renderGexSummary(el, data, symbol) {
     if (!el) return;
     if (!data || data.missing) {
@@ -117,11 +164,28 @@
         '</div>';
     }
 
+    const detailBody =
+      '<div class="gex-detail-meta">' +
+        '<div>生成 ' + escapeHtml(data.generated_at || '—') + '</div>' +
+        '<div>session ' + escapeHtml(data.session || '—') + '</div>' +
+        '<div>source ' + escapeHtml(data.source || '—') + '</div>' +
+        '<div>年龄 ' + escapeHtml(age) + '</div>' +
+      '</div>' +
+      '<div class="gex-detail-grid">' +
+        detailBlock('TSLA', tsla, true) +
+        detailBlock('SPY', spy, false) +
+        detailBlock('QQQ', qqq, false) +
+        detailBlock('SPX', spx, false) +
+      '</div>' +
+      '<div class="gex-detail-reports"><strong>完整热图</strong>' + reportsHtml(data.reports) + '</div>' +
+      '<div class="gex-summary-foot">' + escapeHtml(data.disclaimer || '结构快照，不是预测，不构成投资建议。') + '</div>';
+
     el.innerHTML =
       '<div class="gex-summary-head">' +
         '<strong>GEX 结构提示</strong>' +
         '<span>' + escapeHtml(statusBits.join(' · ')) + '</span>' +
         '<span class="gex-muted">生成 ' + escapeHtml(data.generated_at || '—') + ' · 年龄 ' + escapeHtml(age) + '</span>' +
+        '<button type="button" class="gex-toggle-btn" data-role="gex-toggle" aria-expanded="false">完整信息</button>' +
       '</div>' +
       (focusNote ? '<div class="gex-focus">' + focusNote + '</div>' : '') +
       '<div class="gex-summary-grid">' +
@@ -130,7 +194,10 @@
         indexChip('QQQ', qqq) +
         indexChip('SPX', spx) +
       '</div>' +
+      '<div class="gex-detail" data-role="gex-detail" hidden>' + detailBody + '</div>' +
       '<div class="gex-summary-foot">' + escapeHtml(data.disclaimer || '结构快照，不是预测，不构成投资建议。') + '</div>';
+
+    bindToggle(el, data, symbol);
   }
 
   async function loadGexSummary(elOrId, symbol) {

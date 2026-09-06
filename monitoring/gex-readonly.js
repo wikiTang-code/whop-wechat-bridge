@@ -95,6 +95,42 @@ export function summarizeMatrix(item) {
   };
 }
 
+/**
+ * List available HTML reports under data/gex (no ladder payloads).
+ * @param {string} rootDir
+ * @returns {Promise<Array<{ id: string, title: string, href: string }>>}
+ */
+export async function listGexHtmlReports(rootDir) {
+  const dir = path.join(rootDir, 'data', 'gex');
+  const reports = [];
+  try {
+    await fs.access(path.join(dir, 'heatseeker_gex.html'));
+    reports.push({
+      id: 'heatseeker',
+      title: 'SPY/QQQ/SPX 阶梯图',
+      href: '/gex-html/heatseeker_gex.html',
+    });
+  } catch {
+    /* missing */
+  }
+  try {
+    const names = await fs.readdir(dir);
+    for (const name of names.sort()) {
+      const m = /^gex_matrix_([A-Za-z0-9]+)\.html$/i.exec(name);
+      if (!m) continue;
+      const ticker = m[1].toUpperCase();
+      reports.push({
+        id: `matrix_${ticker}`,
+        title: `${ticker} GEX 矩阵`,
+        href: `/gex-html/${name}`,
+      });
+    }
+  } catch {
+    /* missing dir */
+  }
+  return reports;
+}
+
 function hasAnySeries(raw) {
   const zd = raw?.zero_dte && typeof raw.zero_dte === 'object'
     ? Object.keys(raw.zero_dte).length
@@ -105,7 +141,7 @@ function hasAnySeries(raw) {
   return zd > 0 || mx > 0;
 }
 
-export function buildGexLatestPayload(raw, { now = Date.now(), symbol = 'TSLA' } = {}) {
+export function buildGexLatestPayload(raw, { now = Date.now(), symbol = 'TSLA', reports = [] } = {}) {
   const focus = mapGexUnderlying(symbol);
   const missing = !raw || typeof raw !== 'object';
   if (missing) {
@@ -123,6 +159,7 @@ export function buildGexLatestPayload(raw, { now = Date.now(), symbol = 'TSLA' }
       focus,
       index: {},
       matrix: {},
+      reports: [],
     };
   }
 
@@ -167,6 +204,7 @@ export function buildGexLatestPayload(raw, { now = Date.now(), symbol = 'TSLA' }
     focus,
     index,
     matrix,
+    reports: Array.isArray(reports) ? reports : [],
   };
 }
 
@@ -198,18 +236,19 @@ export function createGexReadonlyRouter({ rootDir, now = () => Date.now(), lates
   router.get('/latest', async (req, res) => {
     try {
       const symbol = req.query.symbol;
+      const reports = await listGexHtmlReports(rootDir);
       const { raw, missing, parseError } = await readGexLatestFile(rootDir, latestPath);
       if (parseError) {
         return res.json({
           success: true,
           data: {
-            ...buildGexLatestPayload(null, { now: now(), symbol }),
+            ...buildGexLatestPayload(null, { now: now(), symbol, reports }),
             ok: false,
             parse_error: true,
           },
         });
       }
-      const data = buildGexLatestPayload(missing ? null : raw, { now: now(), symbol });
+      const data = buildGexLatestPayload(missing ? null : raw, { now: now(), symbol, reports });
       return res.json({ success: true, data });
     } catch (err) {
       return res.status(500).json({ success: false, error: err.message || String(err) });

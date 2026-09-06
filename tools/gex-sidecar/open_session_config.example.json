@@ -1,0 +1,12 @@
+{
+  "mode": "notify_then_auto",
+  "zero_dte": ["SPY", "QQQ", "SPX"],
+  "matrix": ["TSLA"],
+  "skip_matrix": false,
+  "expiries": 5,
+  "run_after_open_minutes": 10,
+  "ask_wait_seconds": 300,
+  "skip_flag_path": "data/gex/.skip_open_session",
+  "webhook_env": "WECHAT_WORK_WEBHOOK_URL",
+  "note": "Copy to open_session_config.json (gitignored). Modes: auto | notify_then_auto | ask_console"
+}

@@ -888,6 +888,65 @@ input::placeholder {
 .gex-pos { color: #4ade80; }
 .gex-neg { color: #f87171; }
 .gex-cols { margin-top: 4px; }
+.gex-toggle-btn {
+  margin-left: auto;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  color: #e0f2fe;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.gex-toggle-btn:hover {
+  background: rgba(56, 189, 248, 0.28);
+}
+.gex-detail {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+.gex-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 8px;
+  color: #94a3b8;
+  font-size: 11px;
+}
+.gex-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.gex-detail-block {
+  background: rgba(2, 6, 23, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 8px;
+  padding: 8px;
+}
+.gex-detail-reports {
+  margin-top: 6px;
+}
+.gex-report-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.gex-report-link {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #7dd3fc;
+  text-decoration: none;
+  font-size: 12px;
+}
+.gex-report-link:hover {
+  background: rgba(56, 189, 248, 0.12);
+}
 
 /* ==========================================================================
    Quantitative Panel Layout & Widgets
