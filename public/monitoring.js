@@ -243,8 +243,9 @@
       }
       case 'aiTunnel': {
         const desc = sub.description || sub.detail || '—';
-        const state = sub.state || 'CLOSED';
-        return `AI 隧道熔断器: ${escapeHtml(state)}<br>状态: ${escapeHtml(desc)}<br>CF Tunnel: 运行中 (注1)`;
+        const state = sub.state || sub.status || 'unknown';
+        // 不硬编码「隧道运行中」——quick tunnel 状态需真实探针，见线框注1
+        return `AI 隧道状态: ${escapeHtml(state)}<br>说明: ${escapeHtml(desc)}<br>CF Tunnel: 见注1（重启可能换域）`;
       }
       case 'eventLoop': {
         const mean = sub.meanDelayMs != null ? `${sub.meanDelayMs}ms` : '—';
@@ -253,14 +254,17 @@
         return `平均延迟: ${escapeHtml(mean)}<br>P99 延迟: ${escapeHtml(p99)}<br>最大尖刺: ${escapeHtml(max)}`;
       }
       case 'monitoringDb': {
-        const readonlySafe = sub.readonlySafe ? '正常 (只读安全)' : '非只读模式';
-        const desc = sub.description || '连接活跃';
-        return `模式: ${escapeHtml(readonlySafe)}<br>状态: ${escapeHtml(desc)}<br>独立写者: Ingest 独占`;
+        const readonlySafe = sub.readonlySafe === true
+          ? '正常 (只读安全)'
+          : (sub.readonlySafe === false ? '非只读模式' : '未知');
+        const desc = sub.description || '—';
+        return `模式: ${escapeHtml(readonlySafe)}<br>状态: ${escapeHtml(desc)}`;
       }
       case 'queues': {
-        const media = sub.mediaPending != null ? sub.mediaPending : 0;
-        const offline = sub.offlinePending != null ? sub.offlinePending : 0;
-        return `Media 待下载: ${escapeHtml(media)}<br>离线任务积压: ${escapeHtml(offline)}<br>背压调度: 正常`;
+        const media = sub.mediaPending != null ? sub.mediaPending : '—';
+        const offline = sub.offlinePending != null ? sub.offlinePending : '—';
+        const bp = sub.backpressureLevel || sub.backpressure || sub.status || '—';
+        return `Media 待下载: ${escapeHtml(media)}<br>离线任务积压: ${escapeHtml(offline)}<br>背压: ${escapeHtml(bp)}`;
       }
       case 'assets': {
         const persona = sub.persona ? `${sub.persona.lagDays ?? 0}天 (${sub.persona.status})` : '—';
@@ -371,17 +375,21 @@
       if (els.refreshLabel) {
         els.refreshLabel.textContent = isVisible ? '刷新: 5s' : '刷新: 30s (休眠)';
       }
+      if (pollTimer) {
+        clearTimeout(pollTimer);
+        pollTimer = null;
+      }
       if (isVisible) {
-        // 唤醒切回前台时，立即拉取一次刷新状态
+        // 唤醒切回前台：清掉挂起定时器后立即拉取
         poll();
       } else {
-        // 切入后台时，调整下一次轮询为 30s
         scheduleNext(30000);
       }
     }
   });
 
   // 页面加载完成后立即启动初次拉取
+  if (els.refreshLabel) els.refreshLabel.textContent = '刷新: 5s';
   poll();
 })();
 

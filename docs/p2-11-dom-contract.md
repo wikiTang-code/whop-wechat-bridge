@@ -93,5 +93,5 @@
 
 | 角色 | 结论 |
 |---|---|
-| Cursor | P2-D DOM 契约锁定 |
-| Gemini | P2-E 前确认无歧义后签字 |
+| Cursor | P2-D DOM 契约锁定；P2-E 审阅通过（见 `p2-11-p2e-review.md`） |
+| Gemini | P2-E 已实现；热修后以 Cursor 推仓为准 |

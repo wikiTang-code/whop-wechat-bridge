@@ -55,6 +55,8 @@ async function run() {
     const json = JSON.parse(api.body);
     assert(json.success === true, 'dashboard API success');
     assert(Array.isArray(json.sparklines?.pushP95), 'pushP95 array');
+    assert(json.sparklines.pushP95.length === 0, 'pushP95 must be empty (not_sampled)');
+    assert(json.sparklines.notes?.pushP95 === 'not_sampled', 'notes.pushP95 must be not_sampled');
     // 验证 /monitoring.js 静态资源可正常拉取且内容完整
     const jsResp = await get(port, '/monitoring.js');
     assert(jsResp.status === 200, `/monitoring.js should be 200, got ${jsResp.status}`);
@@ -62,7 +64,8 @@ async function run() {
     assert(jsResp.body.includes('dash-degraded'), 'served JS must handle degraded mode');
     assert(jsResp.body.includes('visibilitychange'), 'served JS must handle visibility change');
     assert(jsResp.body.includes('（仅看板进程）'), 'served JS must handle ingest missing note');
-    assert(!jsResp.body.includes('180'), 'served JS must NOT contain hardcoded 180 fake constant');
+    assert(!jsResp.body.includes('map(() => 180)'), 'served JS must NOT contain fake 180 mapper');
+    assert(!jsResp.body.includes('CF Tunnel: 运行中'), 'must not hardcode CF Tunnel running');
 
     // 静态契约断言：所有 DOM 契约约定的 ID 在 JS 中均有绑定与处理
     const requiredContractIds = [
