@@ -27,6 +27,14 @@ EXAMPLE_CONFIG = HERE / "open_session_config.example.json"
 COLLECT = HERE / "collect_futu.py"
 
 
+def safe_print(*args, **kwargs) -> None:
+    try:
+        print(*args, **kwargs)
+    except UnicodeEncodeError:
+        text = " ".join(str(a) for a in args)
+        sys.stdout.buffer.write((text + "\n").encode(sys.stdout.encoding or "utf-8", errors="replace"))
+
+
 def load_config(path: Path) -> dict:
     if not path.is_file():
         if EXAMPLE_CONFIG.is_file() and path == DEFAULT_CONFIG:
@@ -171,7 +179,7 @@ def main() -> int:
             f"> 模式: notify_then_auto · 非买卖指令"
         )
         if args.dry_run:
-            print("[open_session] dry-run preview (no wecom):\n", preview)
+            safe_print("[open_session] dry-run preview (no wecom):\n", preview)
         else:
             send_wecom(webhook, preview)
         if wait_sec > 0 and not args.dry_run:
@@ -200,10 +208,10 @@ def main() -> int:
 
     rc = run_collect(cfg, dry_run=args.dry_run)
     summary = summarize_latest() if not args.dry_run else "(dry-run)"
-    icon = "🟢" if rc == 0 else "🔴"
-    result_msg = f"### {icon} GEX 开盘采集结束\n> exit={rc}\n> {summary}\n> 不是买卖指令"
+    status = "OK" if rc == 0 else "FAIL"
+    result_msg = f"### GEX 开盘采集结束 ({status})\n> exit={rc}\n> {summary}\n> 不是买卖指令"
     if args.dry_run:
-        print("[open_session] dry-run result (no wecom):\n", result_msg)
+        safe_print("[open_session] dry-run result (no wecom):\n", result_msg)
     else:
         send_wecom(webhook, result_msg)
     return rc
