@@ -49,6 +49,8 @@ scripts/*
 !scripts/check_persona_queue_status.js
 !scripts/inspect_stuck_persona_task.js
 scripts/watchdog/.watchdog_state
+scripts/watchdog/.*state*
+data/runtime/
 
 
 # One-off debug/test scripts

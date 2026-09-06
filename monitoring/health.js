@@ -9,6 +9,7 @@ import { getMonitoringDbStats, getIngestHeartbeat } from './monitoring-db.js';
 import { getAssetFreshnessSnapshot } from './asset-freshness-probe.js';
 import { getPushPipelineSnapshot } from './push-latency-probe.js';
 import { getRouteCoverageSnapshot } from './route-coverage-probe.js';
+import { getTunnelStatus } from './tunnel-launcher.js';
 
 let aiTunnelGetter = null;
 let ingestHeartbeatDbGetter = null;
@@ -78,6 +79,7 @@ export function buildHealthPayload() {
       status: 'ok',
       ...alerts,
     },
+    tunnel: getTunnelStatus(),
   };
 
   if (shouldExposeIngestHeartbeat()) {
@@ -107,7 +109,8 @@ export function buildHealthPayload() {
     subsystems.pushPipeline.status === 'warn' ||
     subsystems.pushPipeline.status === 'critical' ||
     subsystems.routeCoverage?.status === 'warn' ||
-    subsystems.routeCoverage?.status === 'critical'
+    subsystems.routeCoverage?.status === 'critical' ||
+    subsystems.tunnel?.status === 'warn'
   ) {
     // routeCoverage 只抬 overall 到 warn，不单独把 /health 打成 503（看门狗 page_smoke 负责硬告警）
     overall = 'warn';
