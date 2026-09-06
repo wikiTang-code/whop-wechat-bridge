@@ -294,6 +294,27 @@ function setupEventListeners() {
   // Close context messages modal
   document.getElementById('btn-close-context').addEventListener('click', closeContextModal);
   document.getElementById('btn-close-context-footer').addEventListener('click', closeContextModal);
+
+  // Message image lightbox (feed + context modal)
+  document.addEventListener('click', (e) => {
+    const img = e.target.closest('.message-image');
+    if (img && img.src) {
+      e.preventDefault();
+      e.stopPropagation();
+      openImageLightbox(img.src);
+      return;
+    }
+  });
+  document.getElementById('btn-close-lightbox')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeImageLightbox();
+  });
+  document.getElementById('image-lightbox')?.addEventListener('click', (e) => {
+    if (e.target.id === 'image-lightbox') closeImageLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeImageLightbox();
+  });
   
   // Tab switching logic
   const tabButtons = document.querySelectorAll('.tab-btn');
@@ -1561,6 +1582,22 @@ function closeReportModal() {
 
 function closeContextModal() {
   document.getElementById('context-modal').style.display = 'none';
+}
+
+function openImageLightbox(src) {
+  const overlay = document.getElementById('image-lightbox');
+  const img = document.getElementById('image-lightbox-img');
+  if (!overlay || !img || !src) return;
+  img.src = src;
+  overlay.style.display = 'flex';
+}
+
+function closeImageLightbox() {
+  const overlay = document.getElementById('image-lightbox');
+  const img = document.getElementById('image-lightbox-img');
+  if (!overlay) return;
+  overlay.style.display = 'none';
+  if (img) img.removeAttribute('src');
 }
 
 function copyReportToClipboard() {
