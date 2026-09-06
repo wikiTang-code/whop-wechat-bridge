@@ -11,8 +11,15 @@
 
 import { getDashboardPayload } from '../monitoring/dashboard-api.js';
 import { recordIngestHeartbeat, initMonitoringDb, closeMonitoringDb } from '../monitoring/monitoring-db.js';
+import { closeReadOnlyDbs } from '../monitoring/db-readonly.js';
 import path from 'path';
 import fs from 'fs';
+
+function unlinkQuiet(p) {
+  try {
+    if (fs.existsSync(p)) fs.unlinkSync(p);
+  } catch (_) {}
+}
 
 function assert(condition, msg) {
   if (!condition) throw new Error(`[AssertionFailed] ${msg}`);
@@ -91,12 +98,16 @@ async function run() {
   assert(payload.sparklines.notes.pushP95 === 'not_sampled', 'notes.pushP95 must be "not_sampled"');
   console.log('   ✅ 真实时序与 notes 校验通过: 无假常数 180, pushP95=[0], notes.pushP95="not_sampled"');
 
-  // 5. 动态注入测试：模拟 Ingest 心跳携带真实 rssMb
+  // 5. 动态注入：必须先关闭已打开的写/只读单例，否则会写进默认 monitoring.db
   console.log('5. 动态注入验证: 当 Ingest 心跳上报 rssMb 时 combinedRssMb 准确合计...');
   const testMonDbPath = path.resolve('data/test_dashboard_p2c.db');
-  if (fs.existsSync(testMonDbPath)) fs.unlinkSync(testMonDbPath);
+  unlinkQuiet(testMonDbPath);
+  unlinkQuiet(`${testMonDbPath}-wal`);
+  unlinkQuiet(`${testMonDbPath}-shm`);
 
   const prevEnv = process.env.MONITORING_DB_PATH;
+  closeMonitoringDb();
+  closeReadOnlyDbs();
   process.env.MONITORING_DB_PATH = testMonDbPath;
   initMonitoringDb(testMonDbPath);
 
@@ -118,7 +129,10 @@ async function run() {
     console.log(`   ✅ 动态双进程内存计算通过: Web=${dynamicPayload.overall.memory.webRssMb}MB + Ingest=52.4MB -> Combined=${expectedCombined}MB (${dynamicPayload.overall.memory.budgetPercent}%)`);
   } finally {
     closeMonitoringDb();
-    if (fs.existsSync(testMonDbPath)) fs.unlinkSync(testMonDbPath);
+    closeReadOnlyDbs();
+    unlinkQuiet(testMonDbPath);
+    unlinkQuiet(`${testMonDbPath}-wal`);
+    unlinkQuiet(`${testMonDbPath}-shm`);
     if (prevEnv) process.env.MONITORING_DB_PATH = prevEnv;
     else delete process.env.MONITORING_DB_PATH;
   }

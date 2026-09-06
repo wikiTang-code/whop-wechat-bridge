@@ -49,6 +49,11 @@ app.use(dashboardBasicAuthMiddleware);
 
 app.use(express.static(path.resolve('public')));
 
+// P2-F: 规范化看板入口（静态文件仍可通过 /monitoring.html 访问）
+app.get('/monitoring', (_req, res) => {
+  res.sendFile(path.resolve('public/monitoring.html'));
+});
+
 // 全局写操作物理拦截中间件 (拦截非 GET/HEAD/OPTIONS 请求返回 403)
 app.use(readonlyWriteBlockerMiddleware);
 
