@@ -103,6 +103,18 @@ export function getDashboardPayload({ nowMs = Date.now() } = {}) {
       consecutiveFailures: 0,
       circuitOpen: false,
     },
+    // P2-12g: 透传 /health 路由覆盖与 Tunnel（缺省 unknown，禁止假绿）
+    routeCoverage: baseSubsystems.routeCoverage || {
+      status: 'unknown',
+      failCount: 0,
+      paths: [],
+      description: 'routeCoverage 尚未探测',
+    },
+    tunnel: baseSubsystems.tunnel || {
+      status: 'unknown',
+      url: null,
+      description: 'tunnel 状态未知',
+    },
   };
 
   // 4. 最近告警历史与时序趋势（彻底消除假 P95）

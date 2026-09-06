@@ -205,10 +205,20 @@
   }
 
   /**
-   * 渲染 7 大核心子系统
+   * 渲染核心子系统（含 P2-12g routeCoverage / tunnel）
    */
   function renderSubsystems(subsystems) {
-    const keys = ['ingest', 'aiTunnel', 'eventLoop', 'monitoringDb', 'queues', 'assets', 'pushPipeline'];
+    const keys = [
+      'ingest',
+      'aiTunnel',
+      'eventLoop',
+      'monitoringDb',
+      'queues',
+      'assets',
+      'pushPipeline',
+      'routeCoverage',
+      'tunnel',
+    ];
 
     keys.forEach((key) => {
       const cell = document.querySelector(`[data-subsystem="${key}"]`);
@@ -277,6 +287,27 @@
         const failures = sub.consecutiveFailures != null ? `${sub.consecutiveFailures} 次` : '0 次';
         const circuit = sub.circuitOpen ? '熔断开启' : '闭合正常';
         return `实时 P95 TTL: ${escapeHtml(p95)} (环形缓冲)<br>连续失败: ${escapeHtml(failures)}<br>推送熔断器: ${escapeHtml(circuit)}`;
+      }
+      case 'routeCoverage': {
+        const fail = sub.failCount != null ? String(sub.failCount) : '—';
+        const desc = sub.description || '—';
+        const bad = Array.isArray(sub.paths)
+          ? sub.paths.filter((p) => p && p.ok === false).map((p) => p.path).slice(0, 3)
+          : [];
+        const badLine = bad.length
+          ? `异常: ${escapeHtml(bad.join(', '))}`
+          : '异常路径: 无';
+        return `失败数: ${escapeHtml(fail)}<br>${badLine}<br>说明: ${escapeHtml(desc)}`;
+      }
+      case 'tunnel': {
+        const enabled = sub.enabled === false ? '关闭' : (sub.enabled === true ? '开启' : '—');
+        const url = sub.url || '—';
+        const desc = sub.description || (sub.status === 'off' ? 'ENABLE_TUNNEL 未开启' : '—');
+        const note = '重启可能换域；以落盘时间为准';
+        const urlHtml = sub.url
+          ? `<a href="${escapeHtml(sub.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>`
+          : escapeHtml(url);
+        return `开关: ${escapeHtml(enabled)}<br>URL: ${urlHtml}<br>${escapeHtml(note)}<br>说明: ${escapeHtml(desc)}`;
       }
       default:
         return escapeHtml(sub.description || JSON.stringify(sub));

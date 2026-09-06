@@ -61,8 +61,8 @@ async function run() {
     assert(typeof mem.combinedRssMb === 'number', 'combinedRssMb must be number when ingest present');
   }
 
-  // 3. subsystems 节点（严格对齐 7 大核心子系统键名）
-  console.log('3. 验证 7 大核心子系统键名完整性与状态字段...');
+  // 3. subsystems 节点（7 核心 + P2-12g routeCoverage/tunnel）
+  console.log('3. 验证核心子系统键名完整性与状态字段...');
   assert(payload.subsystems, 'payload.subsystems must exist');
   const requiredSubsystems = [
     'ingest',
@@ -72,13 +72,15 @@ async function run() {
     'queues',
     'assets',
     'pushPipeline',
+    'routeCoverage',
+    'tunnel',
   ];
 
   for (const sub of requiredSubsystems) {
     assert(payload.subsystems[sub], `subsystems must contain key: ${sub}`);
     assert(typeof payload.subsystems[sub].status === 'string', `${sub}.status must be string`);
   }
-  console.log('   ✅ 7 大子系统键名对齐核验通过: ingest, aiTunnel, eventLoop, monitoringDb, queues, assets, pushPipeline');
+  console.log('   ✅ 子系统键名对齐核验通过（含 routeCoverage/tunnel）');
 
   // 4. recentAlerts 与 sparklines 真实性校验 (严禁假 P95)
   console.log('4. 验证 sparklines 时序真实性，彻底断言绝无 180 伪常数...');

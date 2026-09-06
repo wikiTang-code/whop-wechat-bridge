@@ -28,9 +28,9 @@
 |---|---|---|---|---|---|
 | **P2-12a/b** | L2 挂载 + page smoke（已合入） | Cursor | — | — | ✅ |
 | **P2-12c** | `routeCoverage` 探针模块 + 挂入 `/health` | **Cursor** | G0 | Gemini | 12b |
-| **P2-12d** | `scripts/watchdog/page_smoke.sh` + 告警文案 + README | **Gemini** | G0 | Cursor | 12c 契约草稿可并行 |
-| **P2-12e** | Tunnel URL 落盘 + health/dashboard 字段 | **Gemini** | G1 | Cursor | 可与 12d 并行 |
-| **P2-12g** | monitoring 页展示 routeCoverage 格（小改） | **Cursor** | G1 | Gemini | 12c 字段稳定 |
+| **P2-12d** | `scripts/watchdog/page_smoke.sh` + 告警文案 + README | **Gemini** | G0 | Cursor | ✅ `76f96bb` 审过 |
+| **P2-12e** | Tunnel URL 落盘 + health/dashboard 字段 | **Gemini** | G1 | Cursor | ✅ `76f96bb` 审过 |
+| **P2-12g** | monitoring 页展示 routeCoverage 格（小改） | **Cursor** | G1 | Gemini | ✅ 本提交 |
 | **P2-12h** | 联调清单 + 互签 | 双方 | G2 | 互签 | 12c/d/e/g |
 
 ```
