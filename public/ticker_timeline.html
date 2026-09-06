@@ -324,6 +324,44 @@
       align-items: center;
       gap: 4px;
     }
+    .gex-summary {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .gex-summary.is-stale { border-color: var(--yellow); }
+    .gex-summary.is-bad, .gex-summary.is-missing { border-color: var(--red); }
+    .gex-summary-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .gex-summary-head strong { color: var(--text-bright); font-size: 13px; }
+    .gex-focus { color: var(--accent); margin-bottom: 8px; }
+    .gex-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+    .gex-chip {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+    }
+    .gex-chip-focus { border-color: var(--accent); }
+    .gex-chip-title { font-weight: 700; color: var(--text-bright); margin-bottom: 4px; }
+    .gex-kind { font-weight: 600; font-size: 10px; color: var(--yellow); }
+    .gex-muted, .gex-summary-foot { color: var(--text-muted); margin-top: 8px; }
+    .gex-pos { color: var(--green); }
+    .gex-neg { color: var(--red); }
+    .gex-cols { margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -340,6 +378,8 @@
         <a href="/review_workbench.html" class="btn-toggle" style="background:#21262d; color:#58a6ff;">← 工作台</a>
       </div>
     </header>
+
+    <div id="gex-summary-bar" class="gex-summary" hidden>正在加载 GEX 结构…</div>
 
     <!-- 视图模式并列切换器 -->
     <div class="view-mode-tabs">
@@ -421,6 +461,7 @@
     </div>
   </div>
 
+  <script src="/gex-summary.js"></script>
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const CURRENT_SYMBOL = (urlParams.get('symbol') || 'TSLL').toUpperCase();
@@ -939,6 +980,7 @@
     }
 
     loadData();
+    loadGexSummary('gex-summary-bar', CURRENT_SYMBOL);
   </script>
 </body>
 </html>

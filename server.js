@@ -59,6 +59,7 @@ import { rebuildHistoricalCampaigns } from './campaign-engine.js';
 import { startEventLoopProbe } from './monitoring/event-loop-probe.js';
 import { buildHealthPayload } from './monitoring/health.js';
 import { startAiTunnelCircuit } from './monitoring/ai-tunnel-circuit.js';
+import { createGexReadonlyRouter } from './monitoring/gex-readonly.js';
 
 dotenv.config();
 
@@ -214,7 +215,8 @@ app.use((req, res, next) => {
     req.path.startsWith('/api/l2') || 
     req.path === '/ticker_timeline.html' || 
     req.path.startsWith('/api/ticker_timeline') || 
-    req.path.startsWith('/api/ticker_kline')
+    req.path.startsWith('/api/ticker_kline') ||
+    req.path.startsWith('/api/gex')
   ) {
     return next();
   }
@@ -269,6 +271,9 @@ app.use('/media/zhao', express.static(path.join(__dirname, 'data/media/zhao')));
 app.use(express.json());
 
 app.use('/api', l2WorkbenchRouter);
+
+// GEX structure snapshot: Windows sidecar JSON, read-only, no DB writes
+app.use('/api/gex', createGexReadonlyRouter({ rootDir: __dirname }));
 
 // P0-3: read-only health endpoint (side-path; no DB writes)
 app.get('/health', (req, res) => {

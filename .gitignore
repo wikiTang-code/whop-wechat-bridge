@@ -54,6 +54,8 @@ scripts/watchdog/.watchdog_state
 
 # One-off debug/test scripts
 test_*.js
+!test/
+!test/**
 query_*.js
 search_*.js
 fetch_*.js
