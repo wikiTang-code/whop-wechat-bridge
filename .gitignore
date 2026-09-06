@@ -13,6 +13,16 @@ web_modules/
 data/queue_status.json
 data/media/zhao/media_manifest.json
 
+# GEX sidecar: ignore timed snapshots and the CLI binary; keep v1 sample + charts
+data/gex/*
+!data/gex/README.md
+!data/gex/latest.json
+!data/gex/heatseeker_gex.html
+!data/gex/gex_matrix_*.html
+!data/gex/snapshot_20260905_235029.json
+tools/gex-sidecar/bin/
+tools/gex-sidecar/__pycache__/
+
 # Sensitive environment variables
 .env
 .env.production
@@ -68,5 +78,7 @@ download_*.js
 # Temp HTML/TXT files
 *.html
 !public/index.html
+!data/gex/*.html
 *.txt
+!tools/gex-sidecar/requirements.txt
 
