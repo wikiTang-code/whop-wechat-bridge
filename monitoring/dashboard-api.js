@@ -128,6 +128,15 @@ export function getDashboardPayload({ nowMs = Date.now() } = {}) {
       },
       description: 'dataConsistency 尚未探测',
     },
+    // P2-15D: 透传软降级钩子总览（缺省 unknown，禁止假绿）
+    softDegrade: baseSubsystems.softDegrade || {
+      status: 'unknown',
+      activeActions: [],
+      allowedActions: [],
+      forbidden: ['pm2_restart', 'pm2_stop', 'process_kill', 'db_destructive'],
+      description: 'softDegrade 尚未挂载',
+      notes: 'safe_soft_degrade_only, zero_pm2_restart',
+    },
   };
 
   // 4. 最近告警历史与时序趋势（彻底消除假 P95）

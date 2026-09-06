@@ -11,11 +11,13 @@ import { getPushPipelineSnapshot } from './push-latency-probe.js';
 import { getRouteCoverageSnapshot } from './route-coverage-probe.js';
 import { getTunnelStatus } from './tunnel-launcher.js';
 import { getCachedDataConsistencySnapshot } from './data-consistency-probe.js';
+import { getSoftDegradeSnapshot } from './soft-degrade-registry.js';
 
 let aiTunnelGetter = null;
 let ingestHeartbeatDbGetter = null;
 let routeCoverageEnabled = false;
 let dataConsistencyEnabled = false;
+let softDegradeEnabled = true;
 
 /** Optional injector from P0-4 circuit breaker */
 export function registerAiTunnelHealthGetter(fn) {
@@ -35,6 +37,11 @@ export function setRouteCoverageHealthEnabled(enabled) {
 /** 仅 web_dashboard 启用 dataConsistency（P2-13D） */
 export function setDataConsistencyHealthEnabled(enabled) {
   dataConsistencyEnabled = Boolean(enabled);
+}
+
+/** P2-15D：软降级子系统（默认开；测试可关） */
+export function setSoftDegradeHealthEnabled(enabled) {
+  softDegradeEnabled = Boolean(enabled);
 }
 
 function shouldExposeIngestHeartbeat() {
@@ -106,6 +113,10 @@ export function buildHealthPayload() {
     subsystems.dataConsistency = getCachedDataConsistencySnapshot();
   }
 
+  if (softDegradeEnabled) {
+    subsystems.softDegrade = getSoftDegradeSnapshot();
+  }
+
   const runtimeLevels = [subsystems.process.status, subsystems.eventLoop.status];
   if (subsystems.ingest) runtimeLevels.push(subsystems.ingest.status);
 
@@ -123,9 +134,10 @@ export function buildHealthPayload() {
     subsystems.routeCoverage?.status === 'critical' ||
     subsystems.tunnel?.status === 'warn' ||
     subsystems.dataConsistency?.status === 'warn' ||
-    subsystems.dataConsistency?.status === 'critical'
+    subsystems.dataConsistency?.status === 'critical' ||
+    subsystems.softDegrade?.status === 'warn'
   ) {
-    // routeCoverage / dataConsistency 只抬 overall 到 warn，不单独把 /health 打成 503
+    // routeCoverage / dataConsistency / softDegrade 只抬 overall 到 warn，不单独把 /health 打成 503
     overall = 'warn';
   }
 

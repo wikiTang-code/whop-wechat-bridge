@@ -219,6 +219,7 @@
       'routeCoverage',
       'tunnel',
       'dataConsistency',
+      'softDegrade',
     ];
 
     keys.forEach((key) => {
@@ -323,6 +324,16 @@
         return `抽样核验: ${escapeHtml(checked)} · 偏差: ${escapeHtml(mismatch)}<br>`
           + `C1缺文件:${escapeHtml(String(c1))} C2清单:${escapeHtml(String(c2))} C3坏JSON:${escapeHtml(String(c3))}<br>`
           + `跳过纯远程: ${escapeHtml(skip)}<br>说明: ${escapeHtml(desc)}<br><span class="cell-note">${escapeHtml(notes)}</span>`;
+      }
+      case 'softDegrade': {
+        const actions = Array.isArray(sub.activeActions) ? sub.activeActions : [];
+        const count = String(actions.length);
+        const ids = actions.slice(0, 4).map((a) => a?.id).filter(Boolean);
+        const idLine = ids.length ? ids.join(', ') : '无';
+        const desc = sub.description || '—';
+        const notes = sub.notes || 'safe_soft_degrade_only, zero_pm2_restart';
+        return `生效动作: ${escapeHtml(count)}<br>ID: ${escapeHtml(idLine)}<br>说明: ${escapeHtml(desc)}`
+          + `<br><span class="cell-note">${escapeHtml(notes)}</span>`;
       }
       default:
         return escapeHtml(sub.description || JSON.stringify(sub));

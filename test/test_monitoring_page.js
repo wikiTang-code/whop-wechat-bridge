@@ -35,6 +35,7 @@ async function run() {
   const html = fs.readFileSync(htmlPath, 'utf8');
   assert(html.includes('data-subsystem="routeCoverage"'), 'DOM must include routeCoverage cell');
   assert(html.includes('data-subsystem="dataConsistency"'), 'DOM must include dataConsistency cell');
+  assert(html.includes('data-subsystem="softDegrade"'), 'DOM must include softDegrade cell');
   assert(html.includes('id="mem-web"'), 'DOM must include mem-web');
   assert(html.includes('id="spark-push-empty"'), 'DOM must include spark-push-empty');
 
@@ -51,6 +52,7 @@ async function run() {
     assert(page.status === 200, `/monitoring should be 200, got ${page.status}`);
     assert(page.body.includes('data-subsystem="routeCoverage"'), 'served HTML should include routeCoverage cell');
     assert(page.body.includes('data-subsystem="dataConsistency"'), 'served HTML should include dataConsistency cell');
+    assert(page.body.includes('data-subsystem="softDegrade"'), 'served HTML should include softDegrade cell');
 
     const api = await get(port, '/api/monitoring/dashboard');
     assert(api.status === 200, 'dashboard API should be 200');
@@ -59,8 +61,11 @@ async function run() {
     assert(json.subsystems?.routeCoverage, 'dashboard must expose routeCoverage');
     assert(json.subsystems?.tunnel, 'dashboard must expose tunnel');
     assert(json.subsystems?.dataConsistency, 'dashboard must expose dataConsistency');
+    assert(json.subsystems?.softDegrade, 'dashboard must expose softDegrade');
     assert(['ok', 'warn', 'critical', 'unknown', 'off'].includes(json.subsystems.tunnel.status), 'tunnel status enum');
     assert(['ok', 'warn', 'critical', 'unknown'].includes(json.subsystems.dataConsistency.status), 'dataConsistency status enum');
+    assert(['ok', 'warn', 'unknown'].includes(json.subsystems.softDegrade.status), 'softDegrade status enum');
+    assert(Array.isArray(json.subsystems.softDegrade.activeActions), 'softDegrade.activeActions array');
     assert(Array.isArray(json.sparklines?.pushP95), 'pushP95 array');
     assert(json.sparklines.pushP95.length === 0, 'pushP95 must be empty (not_sampled)');
     assert(json.sparklines.notes?.pushP95 === 'not_sampled', 'notes.pushP95 must be not_sampled');
@@ -90,7 +95,7 @@ async function run() {
     // 9 子系统在 JS 中均有细节渲染分支（含 P2-12g）
     const requiredSubsystems = [
       'ingest', 'aiTunnel', 'eventLoop', 'monitoringDb', 'queues', 'assets', 'pushPipeline',
-      'routeCoverage', 'tunnel', 'dataConsistency',
+      'routeCoverage', 'tunnel', 'dataConsistency', 'softDegrade',
     ];
     for (const sub of requiredSubsystems) {
       assert(jsResp.body.includes(`'${sub}'`), `monitoring.js must contain branch for subsystem: ${sub}`);

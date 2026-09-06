@@ -75,13 +75,17 @@ async function run() {
     'routeCoverage',
     'tunnel',
     'dataConsistency',
+    'softDegrade',
   ];
 
   for (const sub of requiredSubsystems) {
     assert(payload.subsystems[sub], `subsystems must contain key: ${sub}`);
     assert(typeof payload.subsystems[sub].status === 'string', `${sub}.status must be string`);
   }
-  console.log('   ✅ 子系统键名对齐核验通过（含 routeCoverage/tunnel/dataConsistency）');
+  console.log('   ✅ 子系统键名对齐核验通过（含 routeCoverage/tunnel/dataConsistency/softDegrade）');
+  assert(Array.isArray(payload.subsystems.softDegrade.activeActions), 'softDegrade.activeActions must be array');
+  assert(Array.isArray(payload.subsystems.softDegrade.forbidden), 'softDegrade.forbidden must be array');
+  assert(payload.subsystems.softDegrade.forbidden.includes('pm2_restart'), 'forbidden must include pm2_restart');
 
   // 4. recentAlerts 与 sparklines 真实性校验 (严禁假 P95)
   console.log('4. 验证 sparklines 时序真实性，彻底断言绝无 180 伪常数...');
