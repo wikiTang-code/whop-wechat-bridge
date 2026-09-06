@@ -856,6 +856,37 @@ input::placeholder {
   color: #93c5fd;
   margin-bottom: 8px;
 }
+.gex-analysis {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 8px;
+  background: rgba(56, 189, 248, 0.06);
+}
+.gex-analysis-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+.gex-analysis-head strong { color: #f8fafc; }
+.gex-analysis-headline {
+  color: #e2e8f0;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.gex-analysis-bullets {
+  margin: 4px 0 0 18px;
+  padding: 0;
+  color: #cbd5e1;
+}
+.gex-analysis-bullets li { margin: 2px 0; }
+.gex-analysis-caveats {
+  margin-top: 6px;
+  color: #94a3b8;
+  font-size: 11px;
+}
 .gex-summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

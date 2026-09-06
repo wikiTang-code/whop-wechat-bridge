@@ -165,6 +165,127 @@ function hasAnySeries(raw) {
   return zd > 0 || mx > 0;
 }
 
+function fmtStrikeShort(n) {
+  if (n == null || !Number.isFinite(Number(n))) return '—';
+  const v = Number(n);
+  return Number.isInteger(v) ? String(v) : v.toFixed(v >= 1000 ? 0 : 2);
+}
+
+function wallVsSpot(spot, wall) {
+  if (spot == null || !wall || wall.strike == null) return null;
+  const s = Number(spot);
+  const k = Number(wall.strike);
+  if (!Number.isFinite(s) || !Number.isFinite(k)) return null;
+  if (Math.abs(s - k) < 0.51) return 'at';
+  return s > k ? 'above' : 'below';
+}
+
+function describeRegime(regime) {
+  if (regime === 'positive_gamma') {
+    return '局部正 gamma：做市商倾向对冲抑制波动（非方向预测）';
+  }
+  if (regime === 'negative_gamma') {
+    return '局部负 gamma：波动更容易被放大（不是做空指令）';
+  }
+  return regime ? `局部 gamma：${regime}` : null;
+}
+
+function columnBias(totals) {
+  if (!totals || typeof totals !== 'object') return null;
+  const vals = Object.values(totals).map(Number).filter(Number.isFinite);
+  if (!vals.length) return null;
+  const sum = vals.reduce((a, b) => a + b, 0);
+  const negDays = vals.filter((v) => v < 0).length;
+  return { sum, negDays, days: vals.length };
+}
+
+/**
+ * Deterministic structure reading for the day-level strip.
+ * Not an LLM call — safe for web_runner readonly path. Never a trade signal.
+ */
+export function buildGexAnalysis({ index = {}, matrix = {}, focus = {}, session, stale } = {}) {
+  const bullets = [];
+  const caveats = [
+    '结构解读（规则引擎），不是买卖指令，不自动对齐执行',
+    'OI 截至昨日收盘（T+1），墙位会随开盘后成交变化',
+  ];
+
+  const underlying = focus?.underlying || 'TSLA';
+  const tsla = matrix?.TSLA || null;
+  const spy = index?.SPY || null;
+  const qqq = index?.QQQ || null;
+  const spx = index?.SPX || null;
+
+  if (tsla) {
+    const spot = tsla.spot;
+    const vsFloor = wallVsSpot(spot, tsla.floor);
+    const vsKing = wallVsSpot(spot, tsla.king);
+    const bias = columnBias(tsla.column_totals);
+    let tslaLine = `TSLA 现货 ${fmtStrikeShort(spot)}`;
+    if (tsla.floor?.strike != null) {
+      tslaLine += `；Floor ${fmtStrikeShort(tsla.floor.strike)}`;
+      if (vsFloor === 'below') tslaLine += '（现价在正 GEX 墙下方）';
+      else if (vsFloor === 'above') tslaLine += '（现价在 Floor 上方）';
+      else if (vsFloor === 'at') tslaLine += '（贴着 Floor）';
+    }
+    if (tsla.king?.strike != null) {
+      tslaLine += `；King ${fmtStrikeShort(tsla.king.strike)}`;
+      if (vsKing === 'below') tslaLine += '（现价在 King 下方）';
+      else if (vsKing === 'above') tslaLine += '（现价已越过 King）';
+      else if (vsKing === 'at') tslaLine += '（贴着 King）';
+    }
+    bullets.push(tslaLine);
+    if (bias) {
+      const side = bias.sum < 0 ? '多到期日列合计偏负（净卖压墙更重）' : '多到期日列合计偏正（正 GEX 列更重）';
+      bullets.push(`TSLA 矩阵：${side}；负列 ${bias.negDays}/${bias.days} 个到期日`);
+    }
+  } else {
+    bullets.push(`${underlying} 矩阵暂无（本机采集后才会出现）`);
+  }
+
+  const indexParts = [];
+  for (const [ticker, item] of [['SPY', spy], ['QQQ', qqq], ['SPX', spx]]) {
+    if (!item) continue;
+    const reg = describeRegime(item.regime);
+    const vsFloor = wallVsSpot(item.spot, item.floor);
+    let bit = ticker;
+    if (item.kind === 'nearest') bit += '（非 0DTE）';
+    if (reg) bit += ` ${reg}`;
+    if (vsFloor === 'at' || vsFloor === 'above') bit += `；现货贴/高于 Floor ${fmtStrikeShort(item.floor?.strike)}`;
+    else if (vsFloor === 'below') bit += `；现货低于 Floor ${fmtStrikeShort(item.floor?.strike)}`;
+    indexParts.push(bit);
+  }
+  if (indexParts.length) bullets.push(`指数：${indexParts.join(' · ')}`);
+
+  const anyNearest = [spy, qqq, spx].some((x) => x && x.kind === 'nearest');
+  if (anyNearest || String(session || '').includes('weekend') || String(session || '').includes('proxy')) {
+    caveats.push('当前指数链多为最近到期代理，不要当成当日 0DTE 墙');
+  }
+  if (stale) caveats.push('快照已过期，结论仅供对照历史结构');
+
+  const focusNote = focus?.query && focus?.underlying && focus.query !== focus.underlying
+    ? `${focus.query} 事件对齐看 ${focus.underlying} 正股墙`
+    : null;
+  if (focusNote) bullets.unshift(focusNote);
+
+  let headline = '结构可对照墙位，但不足以单独定方向';
+  if (tsla && wallVsSpot(tsla.spot, tsla.king) === 'below' && wallVsSpot(tsla.spot, tsla.floor) === 'below') {
+    headline = 'TSLA 现价同时低于 King/Floor：先对照赵哥点位，再看墙是否形成承接';
+  } else if (spy?.regime === 'positive_gamma' && qqq?.regime === 'positive_gamma') {
+    headline = '指数局部多为正 gamma：波动或被抑制，仍需点位对齐才加权';
+  } else if (spy?.regime === 'negative_gamma' || qqq?.regime === 'negative_gamma') {
+    headline = '指数出现负 gamma：波动放大风险上升，不是自动做空';
+  }
+
+  return {
+    engine: 'rules_v1',
+    headline,
+    bullets,
+    caveats,
+    disclaimer: '规则引擎结构解读，不是预测，不构成投资建议。',
+  };
+}
+
 export function buildGexLatestPayload(raw, { now = Date.now(), symbol = 'TSLA', reports = [] } = {}) {
   const focus = mapGexUnderlying(symbol);
   const missing = !raw || typeof raw !== 'object';
@@ -184,6 +305,7 @@ export function buildGexLatestPayload(raw, { now = Date.now(), symbol = 'TSLA', 
       index: {},
       matrix: {},
       reports: [],
+      analysis: null,
     };
   }
 
@@ -216,6 +338,14 @@ export function buildGexLatestPayload(raw, { now = Date.now(), symbol = 'TSLA', 
   const tsla = summarizeMatrix(raw.matrix?.TSLA);
   if (tsla) matrix.TSLA = tsla;
 
+  const analysis = buildGexAnalysis({
+    index,
+    matrix,
+    focus,
+    session: raw.session,
+    stale,
+  });
+
   return {
     ok,
     missing: false,
@@ -231,6 +361,7 @@ export function buildGexLatestPayload(raw, { now = Date.now(), symbol = 'TSLA', 
     index,
     matrix,
     reports: Array.isArray(reports) ? reports : [],
+    analysis,
   };
 }
 

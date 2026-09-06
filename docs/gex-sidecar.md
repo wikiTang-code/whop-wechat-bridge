@@ -32,9 +32,8 @@
 Dashboard **已挂只读消费**（v1）：
 
 - `GET /api/gex/latest?symbol=TSLL|TSLA`：读文件、白名单裁剪后返回。`symbol` **只改 focus 映射**（TSLL → 看 TSLA 正股），不改指数/矩阵内容。
-- 响应含 `reports[]`（可用 HTML 热图链接，如 `/gex-html/heatseeker_gex.html`），**仍不含** `ladder` / 全量 `matrix[]`。
-- `GET /gex-html/*`：只读静态托管 `data/gex/*.html`（时间轴免登录可开）。
-- UI：结构条「**完整信息**」展开元数据 + 热图链接；量化 Tab 同组件。
+- 响应含 `reports[]` 与 `analysis`（规则引擎结构解读/结论，默认摘要条可见），**仍不含** `ladder` / 全量 `matrix[]`。
+- UI：摘要条直接展示「结构解读 / 结论」；「详情与热图」展开元数据 + HTML 链接。
 - POST/PUT/DELETE `/api/gex*` 一律 **403**。
 - `oi_as_of=yesterday_close`；`kind=nearest` 标成「非 0DTE」。过期：RTH >60 分钟，闭市/周末代理 >12 小时。
 

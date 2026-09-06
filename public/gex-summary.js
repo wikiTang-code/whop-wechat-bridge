@@ -130,6 +130,29 @@
     );
   }
 
+  function analysisHtml(analysis) {
+    if (!analysis || !analysis.headline) return '';
+    const bullets = Array.isArray(analysis.bullets) ? analysis.bullets : [];
+    const caveats = Array.isArray(analysis.caveats) ? analysis.caveats : [];
+    return (
+      '<div class="gex-analysis">' +
+        '<div class="gex-analysis-head">' +
+          '<strong>结构解读 / 结论</strong>' +
+          '<span class="gex-muted">规则引擎 · 非买卖指令</span>' +
+        '</div>' +
+        '<div class="gex-analysis-headline">' + escapeHtml(analysis.headline) + '</div>' +
+        (bullets.length
+          ? '<ul class="gex-analysis-bullets">' +
+            bullets.map((b) => '<li>' + escapeHtml(b) + '</li>').join('') +
+            '</ul>'
+          : '') +
+        (caveats.length
+          ? '<div class="gex-analysis-caveats">' + escapeHtml(caveats.join(' · ')) + '</div>'
+          : '') +
+      '</div>'
+    );
+  }
+
   function bindToggle(el) {
     const btn = el.querySelector('[data-role="gex-toggle"]');
     const panel = el.querySelector('[data-role="gex-detail"]');
@@ -229,6 +252,7 @@
         '<span class="gex-muted">生成 ' + escapeHtml(data.generated_at || '—') + ' · 年龄 ' + escapeHtml(age) + '</span>' +
       '</div>' +
       (focusNote ? '<div class="gex-focus">' + focusNote + '</div>' : '') +
+      analysisHtml(data.analysis) +
       '<div class="gex-summary-grid">' +
         tslaBlock +
         indexChip('SPY', spy) +

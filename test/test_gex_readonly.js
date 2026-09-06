@@ -14,6 +14,7 @@ import {
   buildGexLatestPayload,
   createGexReadonlyRouter,
   listGexHtmlReports,
+  buildGexAnalysis,
   STALE_RTH_MS,
   STALE_CLOSED_MS,
   GEX_OI_AS_OF,
@@ -156,6 +157,9 @@ const fixture = {
   assert(!Array.isArray(data.matrix.TSLA.matrix), 'no ladder matrix array');
   assert(!Object.prototype.hasOwnProperty.call(data.matrix.TSLA, 'matrix'), 'TSLA object has no nested matrix key');
   assert(!data.collection.secret_should_stay, 'collection is whitelisted');
+  assert(data.analysis && data.analysis.engine === 'rules_v1', 'analysis engine');
+  assert(data.analysis.headline && data.analysis.bullets.length > 0, 'analysis has headline/bullets');
+  assert(data.analysis.caveats.some((c) => c.includes('不是买卖')), 'analysis caveats');
 }
 
 {
