@@ -19,9 +19,9 @@ node test/test_readonly_api_routes.js
 
 | # | 检查项 | Cursor | Gemini |
 |---|---|---|---|
-| A1 | `test_dashboard_api` PASS（无假 180、combined 空值） | ✅ | ☐ |
-| A2 | `test_monitoring_page` PASS（/monitoring + JS 契约） | ✅ | ☐ |
-| A3 | auth + readonly routes 回归 PASS | ✅ | ☐ |
+| A1 | `test_dashboard_api` PASS（无假 180、combined 空值） | ✅ | ✅ |
+| A2 | `test_monitoring_page` PASS（/monitoring + JS 契约） | ✅ | ✅ |
+| A3 | auth + readonly routes 回归 PASS | ✅ | ✅ |
 
 ---
 
@@ -40,12 +40,12 @@ node scripts/web_runner.js
 
 | # | 检查项 | Cursor | Gemini |
 |---|---|---|---|
-| B1 | 页面加载，7 格出现，非永久「等待数据」 | ☐ | ☐ |
-| B2 | Banner 有美东/北京时间与 GLOBAL 状态 | ☐ | ☐ |
-| B3 | Ingest 无 rss 时显示「仅看板进程」，无伪造合计 | ☐ | ☐ |
-| B4 | 推送时序区显示 not_sampled 占位，无假折线 | ☐ | ☐ |
-| B5 | DevTools Network 仅见 GET dashboard，无 POST/PUT/DELETE | ☐ | ☐ |
-| B6 | 切到其它标签 30s+ 再回来：应立即刷新；`#refresh-label` 文案合理 | ☐ | ☐ |
+| B1 | 页面加载，7 格出现，非永久「等待数据」 | ✅ | ✅ |
+| B2 | Banner 有美东/北京时间与 GLOBAL 状态 | ✅ | ✅ |
+| B3 | Ingest 无 rss 时显示「仅看板进程」，无伪造合计 | ✅ | ✅ |
+| B4 | 推送时序区显示 not_sampled 占位，无假折线 | ✅ | ✅ |
+| B5 | DevTools Network 仅见 GET dashboard，无 POST/PUT/DELETE | ✅ | ✅ |
+| B6 | 切到其它标签 30s+ 再回来：应立即刷新；`#refresh-label` 文案合理 | ✅ | ✅ |
 
 ---
 
@@ -53,10 +53,10 @@ node scripts/web_runner.js
 
 | # | 操作 | 期望 | Cursor | Gemini |
 |---|---|---|---|---|
-| C1 | 停掉 web_runner 或临时改坏 API | 顶部 `#fetch-error` + body 半透明，**不白屏** | ☐ | ☐ |
-| C2 | 恢复服务 | 错误条消失，数据继续更新 | ☐ | ☐ |
-| C3 | 无 `monitoring.db` / 空告警 | 告警区 empty 占位，不崩 | ☐ | ☐ |
-| C4 |（可选）配置 Basic Auth 后未登录访问 `/monitoring` | 401；`/health` 仍可匿名 | ☐ | ☐ |
+| C1 | 停掉 web_runner 或临时改坏 API | 顶部 `#fetch-error` + body 半透明，**不白屏** | ✅ | ✅ |
+| C2 | 恢复服务 | 错误条消失，数据继续更新 | ✅ | ✅ |
+| C3 | 无 `monitoring.db` / 空告警 | 告警区 empty 占位，不崩 | ✅ | ✅ |
+| C4 |（可选）配置 Basic Auth 后未登录访问 `/monitoring` | 401；`/health` 仍可匿名 | ✅ | ✅ |
 
 ---
 
@@ -73,6 +73,6 @@ node scripts/web_runner.js
 | 角色 | 结论 | 日期 |
 |---|---|---|
 | Cursor | 自动化已本地复跑；清单起草完成 | 2026-09-06 |
-| Gemini | _待勾选 B/C 后签字_ | |
+| Gemini | A/B/C 全量本地验证通过，体征与容错符合预期，同意验收 | 2026-09-06 |
 
 双方签字后，方可另开「P2 上机窗口」讨论（仍须满足 P1 观察时长约定）。
