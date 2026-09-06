@@ -153,8 +153,8 @@ const fixture = {
   assert(data.matrix.TSLA.spot === 354.08, 'TSLA matrix present for TSLL query');
   assert(data.stale === true, 'weekend sample older than 12h at test now');
   assertForbiddenKeys(data, ['ladder', 'pillow'], 'payload');
-  assert(!('matrix' in data.matrix.TSLA) || !Array.isArray(data.matrix.TSLA.matrix), 'no ladder matrix array');
-  assert(JSON.stringify(data.matrix.TSLA).indexOf('"matrix"') === -1, 'TSLA object has no nested matrix key');
+  assert(!Array.isArray(data.matrix.TSLA.matrix), 'no ladder matrix array');
+  assert(!Object.prototype.hasOwnProperty.call(data.matrix.TSLA, 'matrix'), 'TSLA object has no nested matrix key');
   assert(!data.collection.secret_should_stay, 'collection is whitelisted');
 }
 
@@ -256,9 +256,11 @@ function request(port, method, urlPath) {
     assert(data.index.SPY && data.index.QQQ && data.index.SPX, 'sample has index trio');
     assert(data.matrix.TSLA && data.matrix.TSLA.column_totals, 'sample has TSLA column totals');
     assert(!JSON.stringify(data.index).includes('"ladder"'), 'sample index has no ladder');
-    assert(!JSON.stringify(data.matrix.TSLA).includes('"matrix"'), 'sample TSLA has no nested matrix');
+    assert(!Object.prototype.hasOwnProperty.call(data.matrix.TSLA, 'matrix'), 'sample TSLA has no nested matrix');
     assert(data.oi_as_of === 'yesterday_close', 'sample oi_as_of');
     assert(data.index.SPY.kind === 'nearest', 'weekend sample is nearest not 0dte');
+    assert(Array.isArray(data.matrix.TSLA.expiries) && data.matrix.TSLA.expiries.length > 0, 'sample exposes expiries');
+    assert(data.matrix.TSLA.change_pct != null, 'sample exposes change_pct');
   }
 
   const reports = await listGexHtmlReports(process.cwd());
