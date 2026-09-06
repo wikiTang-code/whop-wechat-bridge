@@ -2,6 +2,15 @@
   "generated_at": "2026-09-05T23:49:49",
   "session": "rth_or_weekend_proxy",
   "source": "futu-opend",
+  "collection": {
+    "ok": true,
+    "script": "tools/gex-sidecar/collect_futu.py",
+    "source": "futu-opend",
+    "futu_us_option": "LV1",
+    "index_spot": "longbridge-cli",
+    "longbridge_openapi_opra": "not_used",
+    "note": "主路径是富途 OpenD 成功拉链。长桥 OpenAPI OPRA 未开通，collect.py 备选失败空壳未入库，不要当成现状。"
+  },
   "disclaimer": "结构快照，不是预测，不构成投资建议。GEX 正负依赖做市商净卖期权的常见假设。",
   "zero_dte": {
     "SPY": {

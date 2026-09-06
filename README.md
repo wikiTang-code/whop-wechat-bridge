@@ -119,6 +119,8 @@ http://localhost:8085
 
 思路来自长桥帖 [做末日的兄弟看过来！基于 longbridge CLI 实现 @LongbridgeAI](https://longbridge.com/zh-CN/topics/43511616?channel=OWNN00030)：[heatseeker-lb](https://github.com/NineLooms/heatseeker-lb)（SPY/QQQ 热图）、[gex-matrix-lb](https://github.com/NineLooms/gex-matrix-lb)（个股 GEX 矩阵）。
 
+v1 样例 `data/gex/latest.json` 已是富途 OpenD 成功拉链（`source=futu-opend`，`errors=[]`），不是长桥 OPRA 失败空壳。
+
 ```powershell
 pip install -r tools/gex-sidecar/requirements.txt
 $env:PYTHONIOENCODING='utf-8'
