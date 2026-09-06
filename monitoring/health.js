@@ -8,9 +8,11 @@ import { getQueueSnapshot } from './queue-watermark-probe.js';
 import { getMonitoringDbStats, getIngestHeartbeat } from './monitoring-db.js';
 import { getAssetFreshnessSnapshot } from './asset-freshness-probe.js';
 import { getPushPipelineSnapshot } from './push-latency-probe.js';
+import { getRouteCoverageSnapshot } from './route-coverage-probe.js';
 
 let aiTunnelGetter = null;
 let ingestHeartbeatDbGetter = null;
+let routeCoverageEnabled = false;
 
 /** Optional injector from P0-4 circuit breaker */
 export function registerAiTunnelHealthGetter(fn) {
@@ -20,6 +22,11 @@ export function registerAiTunnelHealthGetter(fn) {
 /** Web 进程注入只读 monitoring.db，避免误开写连接 */
 export function registerIngestHeartbeatDbGetter(fn) {
   ingestHeartbeatDbGetter = typeof fn === 'function' ? fn : null;
+}
+
+/** 仅 web_dashboard 启用 routeCoverage 子系统（避免 ingest 误报） */
+export function setRouteCoverageHealthEnabled(enabled) {
+  routeCoverageEnabled = Boolean(enabled);
 }
 
 function shouldExposeIngestHeartbeat() {
@@ -82,6 +89,10 @@ export function buildHealthPayload() {
     };
   }
 
+  if (routeCoverageEnabled || process.env.ROLE === 'web_dashboard') {
+    subsystems.routeCoverage = getRouteCoverageSnapshot();
+  }
+
   const runtimeLevels = [subsystems.process.status, subsystems.eventLoop.status];
   if (subsystems.ingest) runtimeLevels.push(subsystems.ingest.status);
 
@@ -94,8 +105,11 @@ export function buildHealthPayload() {
     subsystems.assets.status === 'warn' ||
     subsystems.assets.status === 'critical' ||
     subsystems.pushPipeline.status === 'warn' ||
-    subsystems.pushPipeline.status === 'critical'
+    subsystems.pushPipeline.status === 'critical' ||
+    subsystems.routeCoverage?.status === 'warn' ||
+    subsystems.routeCoverage?.status === 'critical'
   ) {
+    // routeCoverage 只抬 overall 到 warn，不单独把 /health 打成 503（看门狗 page_smoke 负责硬告警）
     overall = 'warn';
   }
 

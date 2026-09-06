@@ -103,6 +103,7 @@
 ## 6. 验收
 
 - [x] GCP/本地：`/api/l2b/drycut20` → 200 且 count=20（有样本时）  
-- [ ] 单测：`test_web_runner_page_smoke.js` PASS  
+- [x] 单测：`test_web_runner_page_smoke.js` PASS  
 - [ ] 切流/发版检查单含「关键页 API 非 404」  
-- [ ] P2-11 看板可看到 routeCoverage（12c 完成后）
+- [ ] P2-11 看板可看到 routeCoverage（12c/12g 完成后）  
+- [ ] `/health.subsystems.routeCoverage` 有真实探测（P2-12c）
