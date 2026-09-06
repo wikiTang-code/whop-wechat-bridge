@@ -9,6 +9,7 @@ import Database from 'better-sqlite3';
 import {
   probeDataConsistency,
   getDataConsistencySnapshot,
+  getCachedDataConsistencySnapshot,
   refreshDataConsistencySnapshot,
   _resetDataConsistencyCacheForTest,
 } from '../monitoring/data-consistency-probe.js';
@@ -257,6 +258,18 @@ async function run() {
     );
     assert(realProbeResult.notes.includes('sampled_only'), 'notes must specify sampled_only');
     console.log(`   ✅ 场景 H 通过：真实环境抽样执行耗时极低，结果状态: ${realProbeResult.status} (checked=${realProbeResult.checked}, mismatches=${realProbeResult.mismatchCount})`);
+
+    // 11. 场景 I: sync 缓存读取（P2-13D buildHealthPayload）
+    console.log('11. 验证 getCachedDataConsistencySnapshot 同步读取...');
+    _resetDataConsistencyCacheForTest();
+    const unknownSnap = getCachedDataConsistencySnapshot({ nowMs: 1 });
+    assert(unknownSnap.status === 'unknown', 'empty cache must be unknown');
+    await getDataConsistencySnapshot({ nowMs: 3 });
+    const cached = getCachedDataConsistencySnapshot({ nowMs: 4 });
+    assert(cached && typeof cached.status === 'string', 'cache should populate after async probe');
+    assert(typeof cached.mismatchCount === 'number', 'cached mismatchCount must be number');
+    assert(cached.status !== 'unknown', 'populated cache should leave unknown');
+    console.log('   ✅ 场景 I 通过：sync 缓存 getter 可用');
 
   } finally {
     testDb.close();

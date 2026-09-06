@@ -34,9 +34,9 @@
 | **P2-13A** | 一致性缺口清单（采样规则、表/文件路径、误报边界） | **Cursor** | G0 | Gemini | — |
 | **P2-13B** | 线框/契约：`subsystems.dataConsistency` JSON 形状 | **Gemini** | G0 | Cursor | 可并行 |
 | **P2-13C** | `monitoring/data-consistency-probe.js` 只读实现 + 单测 | **Gemini** | G1 | Cursor | ✅ `37b431c` |
-| **P2-13D** | 挂入 `health.js` / dashboard-api + monitoring 小格 | **Cursor** | G1 | Gemini | ✅ 本提交 |
-| **P2-13E** | （可选）`scripts/watchdog/consistency_smoke.sh` | **Gemini** | G2 | Cursor | 13C |
-| **P2-13F** | 联调签字 | 双方 | G3 | 互签 | 13C/D |
+| **P2-13D** | 挂入 `health.js` / dashboard-api + monitoring 小格 | **Cursor** | G1 | Gemini | ✅ `91cf56d` |
+| **P2-13E** | （可选）`scripts/watchdog/consistency_smoke.sh` | **Gemini** | G2 | Cursor | 进行中 |
+| **P2-13F** | 联调签字 | 双方 | G3 | 互签 | 草稿 [`docs/p2-13-p2f-signoff.md`](./p2-13-p2f-signoff.md) |
 
 ```
 G0: Cursor 13A  ║  Gemini 13B
