@@ -21,13 +21,14 @@ import { fileURLToPath } from 'url';
 import { getReadOnlyArchiveDb, getReadOnlyMonitoringDb } from '../monitoring/db-readonly.js';
 import { getIngestHeartbeat } from '../monitoring/monitoring-db.js';
 import { evaluateIngestStatus } from '../monitoring/ingest-health.js';
-import { buildHealthPayload, registerIngestHeartbeatDbGetter, setRouteCoverageHealthEnabled } from '../monitoring/health.js';
+import { buildHealthPayload, registerIngestHeartbeatDbGetter, setRouteCoverageHealthEnabled, setDataConsistencyHealthEnabled } from '../monitoring/health.js';
 import { handleDashboardApi } from '../monitoring/dashboard-api.js';
 import { readonlyRouter, readonlyWriteBlockerMiddleware } from '../monitoring/readonly-api-router.js';
 import { startCloudflareTunnel } from '../monitoring/tunnel-launcher.js';
 import { dashboardBasicAuthMiddleware } from '../monitoring/dashboard-basic-auth.js';
 import l2WorkbenchRouter from '../routes/l2_workbench_routes.js';
 import { refreshRouteCoverageSnapshot } from '../monitoring/route-coverage-probe.js';
+import { refreshDataConsistencySnapshot } from '../monitoring/data-consistency-probe.js';
 
 // 必须早于鉴权/业务读取：PM2 sample 不注入 .env，与单体 server.js 对齐
 dotenv.config();
@@ -38,6 +39,7 @@ const __dirname = path.dirname(__filename);
 process.env.ROLE = 'web_dashboard';
 process.env.READONLY_MODE = '1';
 setRouteCoverageHealthEnabled(true);
+setDataConsistencyHealthEnabled(true);
 
 // 强制 /health 聚合走只读 monitoring 句柄，避免误开写连接（R3 / 单写）
 registerIngestHeartbeatDbGetter(() => getReadOnlyMonitoringDb());
@@ -79,8 +81,9 @@ app.get('/health', async (req, res) => {
     refreshRouteCoverageSnapshot({
       baseUrl: `http://127.0.0.1:${portForProbe}`,
     }).catch(() => {});
+    refreshDataConsistencySnapshot().catch(() => {});
 
-    // 1. 基础系统与探针体征（含 routeCoverage 缓存快照）
+    // 1. 基础系统与探针体征（含 routeCoverage / dataConsistency 缓存快照）
     const baseHealth = buildHealthPayload();
 
     // 2. Ingest 进程心跳与假死探测
@@ -143,6 +146,9 @@ export function startWebServer(port = PORT) {
       // 启动后立即探测一次路由覆盖（不等第一次 /health）
       refreshRouteCoverageSnapshot({ baseUrl: `http://127.0.0.1:${port}` }).catch((err) => {
         console.warn('[WebRunner] routeCoverage 首次探测失败:', err?.message || err);
+      });
+      refreshDataConsistencySnapshot().catch((err) => {
+        console.warn('[WebRunner] dataConsistency 首次探测失败:', err?.message || err);
       });
       startCloudflareTunnel(port);
       resolve(server);

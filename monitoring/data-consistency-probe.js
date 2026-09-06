@@ -234,6 +234,33 @@ export async function probeDataConsistency({
 }
 
 /**
+ * 同步读取缓存快照（供 sync `buildHealthPayload`；无缓存时返回 unknown）
+ */
+export function getCachedDataConsistencySnapshot({ nowMs = Date.now() } = {}) {
+  if (cachedSnapshot) {
+    return nowMs < cacheExpiresAtMs
+      ? cachedSnapshot
+      : { ...cachedSnapshot, stale: true };
+  }
+  return {
+    status: 'unknown',
+    checkedAtMs: nowMs,
+    sampleSize: 50,
+    checked: 0,
+    mismatchCount: 0,
+    categories: {
+      dbHasAttachMissingFile: 0,
+      manifestMissingFile: 0,
+      dbAttachParseError: 0,
+    },
+    skippedRemoteOnly: 0,
+    examples: [],
+    description: 'dataConsistency 尚未完成首次探测',
+    notes: 'sampled_only (pending first probe)',
+  };
+}
+
+/**
  * 获取数据一致性巡检快照 (带 TTL 缓存)
  * @param {object} [options]
  * @param {number} [options.nowMs]

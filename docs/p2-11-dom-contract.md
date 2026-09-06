@@ -38,7 +38,7 @@
 | `#mem-note` | 「仅看板进程」等 | `overall.memory.note` / 前端派生 |
 | `#uptime` | Web uptime | `overall.uptimeSeconds` |
 
-### 子系统网格（9 格，P2-12g 扩展）
+### 子系统网格（10 格，P2-13D 扩展）
 
 每格根节点：`[data-subsystem="<key>"]`  
 固定 key（与契约一致，顺序即展示序）：
@@ -52,6 +52,7 @@
 7. `pushPipeline`
 8. `routeCoverage`（P2-12g：关键页 API 挂载覆盖）
 9. `tunnel`（P2-12g：公网 Tunnel URL / off|warn|ok）
+10. `dataConsistency`（P2-13D：附件/manifest/磁盘一致性抽样）
 
 格内约定：
 

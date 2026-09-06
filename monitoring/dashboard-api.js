@@ -115,6 +115,19 @@ export function getDashboardPayload({ nowMs = Date.now() } = {}) {
       url: null,
       description: 'tunnel 状态未知',
     },
+    // P2-13D: 透传数据一致性巡检
+    dataConsistency: baseSubsystems.dataConsistency || {
+      status: 'unknown',
+      mismatchCount: 0,
+      checked: 0,
+      sampleSize: 50,
+      categories: {
+        dbHasAttachMissingFile: 0,
+        manifestMissingFile: 0,
+        dbAttachParseError: 0,
+      },
+      description: 'dataConsistency 尚未探测',
+    },
   };
 
   // 4. 最近告警历史与时序趋势（彻底消除假 P95）

@@ -33,8 +33,8 @@
 |---|---|---|---|---|---|
 | **P2-13A** | 一致性缺口清单（采样规则、表/文件路径、误报边界） | **Cursor** | G0 | Gemini | — |
 | **P2-13B** | 线框/契约：`subsystems.dataConsistency` JSON 形状 | **Gemini** | G0 | Cursor | 可并行 |
-| **P2-13C** | `monitoring/data-consistency-probe.js` 只读实现 + 单测 | **Gemini** | G1 | Cursor | 13A+13B |
-| **P2-13D** | 挂入 `health.js` / dashboard-api + monitoring 小格 | **Cursor** | G1 | Gemini | 13C 契约稳定 |
+| **P2-13C** | `monitoring/data-consistency-probe.js` 只读实现 + 单测 | **Gemini** | G1 | Cursor | ✅ `37b431c` |
+| **P2-13D** | 挂入 `health.js` / dashboard-api + monitoring 小格 | **Cursor** | G1 | Gemini | ✅ 本提交 |
 | **P2-13E** | （可选）`scripts/watchdog/consistency_smoke.sh` | **Gemini** | G2 | Cursor | 13C |
 | **P2-13F** | 联调签字 | 双方 | G3 | 互签 | 13C/D |
 
@@ -96,11 +96,11 @@ G3: 互签 → 再议上机
 
 ## 4. 验收
 
-- [ ] 缺口清单可指导实现，无需再猜路径  
-- [ ] 探针单测：人为制造缺文件 → warn/critical  
-- [ ] `/health.subsystems.dataConsistency` 有真实字段  
-- [ ] monitoring 页可见该格  
-- [ ] 无自动修复/无 pm2 restart  
+- [x] 缺口清单可指导实现，无需再猜路径  
+- [x] 探针单测：人为制造缺文件 → warn/critical  
+- [x] `/health.subsystems.dataConsistency` 有真实字段  
+- [x] monitoring 页可见该格  
+- [x] 无自动修复/无 pm2 restart  
 - [ ] 联调签字归档  
 
 ---

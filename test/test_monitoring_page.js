@@ -34,7 +34,7 @@ async function run() {
 
   const html = fs.readFileSync(htmlPath, 'utf8');
   assert(html.includes('data-subsystem="routeCoverage"'), 'DOM must include routeCoverage cell');
-  assert(html.includes('data-subsystem="tunnel"'), 'DOM must include tunnel cell');
+  assert(html.includes('data-subsystem="dataConsistency"'), 'DOM must include dataConsistency cell');
   assert(html.includes('id="mem-web"'), 'DOM must include mem-web');
   assert(html.includes('id="spark-push-empty"'), 'DOM must include spark-push-empty');
 
@@ -50,7 +50,7 @@ async function run() {
     const page = await get(port, '/monitoring');
     assert(page.status === 200, `/monitoring should be 200, got ${page.status}`);
     assert(page.body.includes('data-subsystem="routeCoverage"'), 'served HTML should include routeCoverage cell');
-    assert(page.body.includes('data-subsystem="tunnel"'), 'served HTML should include tunnel cell');
+    assert(page.body.includes('data-subsystem="dataConsistency"'), 'served HTML should include dataConsistency cell');
 
     const api = await get(port, '/api/monitoring/dashboard');
     assert(api.status === 200, 'dashboard API should be 200');
@@ -58,7 +58,9 @@ async function run() {
     assert(json.success === true, 'dashboard API success');
     assert(json.subsystems?.routeCoverage, 'dashboard must expose routeCoverage');
     assert(json.subsystems?.tunnel, 'dashboard must expose tunnel');
+    assert(json.subsystems?.dataConsistency, 'dashboard must expose dataConsistency');
     assert(['ok', 'warn', 'critical', 'unknown', 'off'].includes(json.subsystems.tunnel.status), 'tunnel status enum');
+    assert(['ok', 'warn', 'critical', 'unknown'].includes(json.subsystems.dataConsistency.status), 'dataConsistency status enum');
     assert(Array.isArray(json.sparklines?.pushP95), 'pushP95 array');
     assert(json.sparklines.pushP95.length === 0, 'pushP95 must be empty (not_sampled)');
     assert(json.sparklines.notes?.pushP95 === 'not_sampled', 'notes.pushP95 must be not_sampled');
@@ -88,7 +90,7 @@ async function run() {
     // 9 子系统在 JS 中均有细节渲染分支（含 P2-12g）
     const requiredSubsystems = [
       'ingest', 'aiTunnel', 'eventLoop', 'monitoringDb', 'queues', 'assets', 'pushPipeline',
-      'routeCoverage', 'tunnel',
+      'routeCoverage', 'tunnel', 'dataConsistency',
     ];
     for (const sub of requiredSubsystems) {
       assert(jsResp.body.includes(`'${sub}'`), `monitoring.js must contain branch for subsystem: ${sub}`);

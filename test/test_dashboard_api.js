@@ -74,13 +74,14 @@ async function run() {
     'pushPipeline',
     'routeCoverage',
     'tunnel',
+    'dataConsistency',
   ];
 
   for (const sub of requiredSubsystems) {
     assert(payload.subsystems[sub], `subsystems must contain key: ${sub}`);
     assert(typeof payload.subsystems[sub].status === 'string', `${sub}.status must be string`);
   }
-  console.log('   ✅ 子系统键名对齐核验通过（含 routeCoverage/tunnel）');
+  console.log('   ✅ 子系统键名对齐核验通过（含 routeCoverage/tunnel/dataConsistency）');
 
   // 4. recentAlerts 与 sparklines 真实性校验 (严禁假 P95)
   console.log('4. 验证 sparklines 时序真实性，彻底断言绝无 180 伪常数...');

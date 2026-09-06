@@ -218,6 +218,7 @@
       'pushPipeline',
       'routeCoverage',
       'tunnel',
+      'dataConsistency',
     ];
 
     keys.forEach((key) => {
@@ -308,6 +309,20 @@
           ? `<a href="${escapeHtml(sub.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>`
           : escapeHtml(url);
         return `开关: ${escapeHtml(enabled)}<br>URL: ${urlHtml}<br>${escapeHtml(note)}<br>说明: ${escapeHtml(desc)}`;
+      }
+      case 'dataConsistency': {
+        const checked = sub.checked != null ? String(sub.checked) : '—';
+        const mismatch = sub.mismatchCount != null ? String(sub.mismatchCount) : '—';
+        const cats = sub.categories || {};
+        const c1 = cats.dbHasAttachMissingFile ?? 0;
+        const c2 = cats.manifestMissingFile ?? 0;
+        const c3 = cats.dbAttachParseError ?? 0;
+        const skip = sub.skippedRemoteOnly != null ? String(sub.skippedRemoteOnly) : '0';
+        const desc = sub.description || '—';
+        const notes = sub.notes || 'sampled_only';
+        return `抽样核验: ${escapeHtml(checked)} · 偏差: ${escapeHtml(mismatch)}<br>`
+          + `C1缺文件:${escapeHtml(String(c1))} C2清单:${escapeHtml(String(c2))} C3坏JSON:${escapeHtml(String(c3))}<br>`
+          + `跳过纯远程: ${escapeHtml(skip)}<br>说明: ${escapeHtml(desc)}<br><span class="cell-note">${escapeHtml(notes)}</span>`;
       }
       default:
         return escapeHtml(sub.description || JSON.stringify(sub));

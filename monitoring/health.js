@@ -10,10 +10,12 @@ import { getAssetFreshnessSnapshot } from './asset-freshness-probe.js';
 import { getPushPipelineSnapshot } from './push-latency-probe.js';
 import { getRouteCoverageSnapshot } from './route-coverage-probe.js';
 import { getTunnelStatus } from './tunnel-launcher.js';
+import { getCachedDataConsistencySnapshot } from './data-consistency-probe.js';
 
 let aiTunnelGetter = null;
 let ingestHeartbeatDbGetter = null;
 let routeCoverageEnabled = false;
+let dataConsistencyEnabled = false;
 
 /** Optional injector from P0-4 circuit breaker */
 export function registerAiTunnelHealthGetter(fn) {
@@ -28,6 +30,11 @@ export function registerIngestHeartbeatDbGetter(fn) {
 /** 仅 web_dashboard 启用 routeCoverage 子系统（避免 ingest 误报） */
 export function setRouteCoverageHealthEnabled(enabled) {
   routeCoverageEnabled = Boolean(enabled);
+}
+
+/** 仅 web_dashboard 启用 dataConsistency（P2-13D） */
+export function setDataConsistencyHealthEnabled(enabled) {
+  dataConsistencyEnabled = Boolean(enabled);
 }
 
 function shouldExposeIngestHeartbeat() {
@@ -95,6 +102,10 @@ export function buildHealthPayload() {
     subsystems.routeCoverage = getRouteCoverageSnapshot();
   }
 
+  if (dataConsistencyEnabled || process.env.ROLE === 'web_dashboard') {
+    subsystems.dataConsistency = getCachedDataConsistencySnapshot();
+  }
+
   const runtimeLevels = [subsystems.process.status, subsystems.eventLoop.status];
   if (subsystems.ingest) runtimeLevels.push(subsystems.ingest.status);
 
@@ -110,9 +121,11 @@ export function buildHealthPayload() {
     subsystems.pushPipeline.status === 'critical' ||
     subsystems.routeCoverage?.status === 'warn' ||
     subsystems.routeCoverage?.status === 'critical' ||
-    subsystems.tunnel?.status === 'warn'
+    subsystems.tunnel?.status === 'warn' ||
+    subsystems.dataConsistency?.status === 'warn' ||
+    subsystems.dataConsistency?.status === 'critical'
   ) {
-    // routeCoverage 只抬 overall 到 warn，不单独把 /health 打成 503（看门狗 page_smoke 负责硬告警）
+    // routeCoverage / dataConsistency 只抬 overall 到 warn，不单独把 /health 打成 503
     overall = 'warn';
   }
 
