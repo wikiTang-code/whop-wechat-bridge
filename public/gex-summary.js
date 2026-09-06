@@ -185,7 +185,6 @@
         '<strong>GEX 结构提示</strong>' +
         '<span>' + escapeHtml(statusBits.join(' · ')) + '</span>' +
         '<span class="gex-muted">生成 ' + escapeHtml(data.generated_at || '—') + ' · 年龄 ' + escapeHtml(age) + '</span>' +
-        '<button type="button" class="gex-toggle-btn" data-role="gex-toggle" aria-expanded="false">完整信息</button>' +
       '</div>' +
       (focusNote ? '<div class="gex-focus">' + focusNote + '</div>' : '') +
       '<div class="gex-summary-grid">' +
@@ -193,6 +192,11 @@
         indexChip('SPY', spy) +
         indexChip('QQQ', qqq) +
         indexChip('SPX', spx) +
+      '</div>' +
+      '<div class="gex-actions">' +
+        '<button type="button" class="gex-toggle-btn" data-role="gex-toggle" aria-expanded="false">完整信息</button>' +
+        '<span class="gex-actions-label">热图</span>' +
+        reportsHtml(data.reports) +
       '</div>' +
       '<div class="gex-detail" data-role="gex-detail" hidden>' + detailBody + '</div>' +
       '<div class="gex-summary-foot">' + escapeHtml(data.disclaimer || '结构快照，不是预测，不构成投资建议。') + '</div>';

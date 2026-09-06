@@ -888,18 +888,31 @@ input::placeholder {
 .gex-pos { color: #4ade80; }
 .gex-neg { color: #f87171; }
 .gex-cols { margin-top: 4px; }
+.gex-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+.gex-actions-label {
+  color: #94a3b8;
+  font-size: 11px;
+}
 .gex-toggle-btn {
-  margin-left: auto;
-  background: rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.45);
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.55);
   color: #e0f2fe;
   border-radius: 6px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
 }
 .gex-toggle-btn:hover {
-  background: rgba(56, 189, 248, 0.28);
+  background: rgba(56, 189, 248, 0.32);
 }
 .gex-detail {
   margin-top: 10px;
