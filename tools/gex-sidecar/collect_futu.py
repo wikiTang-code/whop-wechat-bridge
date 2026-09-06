@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """GEX sidecar via Futu OpenD (option chain + greeks) on this Windows box.
 
+Chart language follows NineLooms/heatseeker-lb and NineLooms/gex-matrix-lb
+(https://longbridge.com/zh-CN/topics/43511616). Not a fork.
+
 Index spot (SPX/VIX/NDX) is not available from Futu OpenAPI; we take it from
 Longbridge CLI when present. Equity spots come from Futu snapshots.
 """

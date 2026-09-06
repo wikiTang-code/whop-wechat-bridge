@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Windows-local GEX sidecar for whop-wechat-bridge.
 
-Pulls Longbridge option-chain greeks via the official CLI, computes NetGEX,
-and writes a JSON snapshot plus standalone HTML charts under data/gex/.
+Pulls option-chain greeks, computes NetGEX, and writes JSON/HTML under data/gex/.
+Chart language follows NineLooms/heatseeker-lb and NineLooms/gex-matrix-lb
+(https://longbridge.com/zh-CN/topics/43511616). Not a fork.
 
 This process stays on the Windows box. GCP only consumes the JSON later.
 """
@@ -402,7 +403,7 @@ def render_zero_dte_html(items: list[dict]) -> str:
         )
     return _page(
         "Heatseeker — SPY/QQQ NetGEX",
-        "call+ / put− · OI T+1 · 本机 sidecar 快照",
+        "call+ / put− · OI T+1 · 本机 sidecar · 源自 heatseeker-lb",
         f'<div class="grid">{"".join(panels)}</div>',
     )
 
@@ -477,7 +478,7 @@ def render_matrix_html(item: dict) -> str:
     )
     return _page(
         f'{item["ticker"]} GEX Matrix · spot {item["spot"]:.2f}',
-        f'{len(expiries)} 个到期日 · OI T+1 · 颜色按全局 |max| 归一',
+        f'{len(expiries)} 个到期日 · OI T+1 · 颜色按全局 |max| 归一 · 源自 gex-matrix-lb',
         table + f'<div class="story">{story}</div>',
         stamp=item.get("rendered_at"),
     )
