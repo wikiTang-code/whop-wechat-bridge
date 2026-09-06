@@ -35,8 +35,8 @@
 | **P2-13B** | 线框/契约：`subsystems.dataConsistency` JSON 形状 | **Gemini** | G0 | Cursor | 可并行 |
 | **P2-13C** | `monitoring/data-consistency-probe.js` 只读实现 + 单测 | **Gemini** | G1 | Cursor | ✅ `37b431c` |
 | **P2-13D** | 挂入 `health.js` / dashboard-api + monitoring 小格 | **Cursor** | G1 | Gemini | ✅ `91cf56d` |
-| **P2-13E** | （可选）`scripts/watchdog/consistency_smoke.sh` | **Gemini** | G2 | Cursor | 进行中 |
-| **P2-13F** | 联调签字 | 双方 | G3 | 互签 | 草稿 [`docs/p2-13-p2f-signoff.md`](./p2-13-p2f-signoff.md) |
+| **P2-13E** | `scripts/watchdog/consistency_smoke.sh` + 单测 | **Gemini** | G2 | Cursor | ✅ 已完成 |
+| **P2-13F** | 联调签字 | 双方 | G3 | 互签 | ✅ [`docs/p2-13-p2f-signoff.md`](./p2-13-p2f-signoff.md) |
 
 ```
 G0: Cursor 13A  ║  Gemini 13B
@@ -101,7 +101,7 @@ G3: 互签 → 再议上机
 - [x] `/health.subsystems.dataConsistency` 有真实字段  
 - [x] monitoring 页可见该格  
 - [x] 无自动修复/无 pm2 restart  
-- [ ] 联调签字归档  
+- [x] 联调签字归档（`docs/p2-13-p2f-signoff.md`）  
 
 ---
 

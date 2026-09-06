@@ -12,9 +12,11 @@ Hard rules (R1/R2):
 |---|---|
 | `watchdog_probe.sh` | Probe `127.0.0.1:8085` `/health` (fallback `/`); edge-trigger alert + recovery |
 | `page_smoke.sh` | Probe critical Web routes & APIs (P2-12d); detect route missing / "green shell dead API"; edge-trigger alert |
+| `consistency_smoke.sh` | Probe media data consistency (P2-13E); detect attachments/manifest/disk mismatches; edge-trigger alert |
 | `watchdog_alert.sh` | WeCom markdown POST via curl |
 | `.watchdog_state` | Local edge-trigger state for `/health` (ok/down/bad_http) — runtime, not committed |
 | `.page_smoke_state` | Local edge-trigger state for `page_smoke` (ok/warn/critical) — runtime, not committed |
+| `.consistency_smoke_state` | Local edge-trigger state for `consistency_smoke` (ok/warn/critical) — runtime, not committed |
 
 ## Dry-run (safe, no webhook)
 
@@ -27,6 +29,9 @@ WATCHDOG_DRY_RUN=1 WECHAT_WORK_WEBHOOK_URL= ./scripts/watchdog/watchdog_probe.sh
 
 # 2. 关键页路由冒烟 dry-run (P2-12d)
 WATCHDOG_DRY_RUN=1 WECHAT_WORK_WEBHOOK_URL= ./scripts/watchdog/page_smoke.sh
+
+# 3. 媒体数据一致性冒烟 dry-run (P2-13E)
+WATCHDOG_DRY_RUN=1 WECHAT_WORK_WEBHOOK_URL= ./scripts/watchdog/consistency_smoke.sh
 ```
 
 ## One-shot live probe (sends WeCom on edge)
@@ -46,6 +51,9 @@ export WECHAT_WORK_WEBHOOK_URL='https://qyapi.weixin.qq.com/cgi-bin/webhook/send
 
 # 2. 关键页 API 路由冒烟 (建议每 2~5 分钟)
 */3 * * * * WECHAT_WORK_WEBHOOK_URL='https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY' /home/wikitang628/whop-wechat-bridge/scripts/watchdog/page_smoke.sh >> /home/wikitang628/whop-wechat-bridge/logs/watchdog_smoke.log 2>&1
+
+# 3. 媒体数据一致性巡检冒烟 (建议每 5~10 分钟)
+*/5 * * * * WECHAT_WORK_WEBHOOK_URL='https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY' /home/wikitang628/whop-wechat-bridge/scripts/watchdog/consistency_smoke.sh >> /home/wikitang628/whop-wechat-bridge/logs/watchdog_consistency.log 2>&1
 ```
 
 Create `logs/` if needed. Prefer loading the webhook from a root-only env file rather than putting the key in crontab world-readable copies.
