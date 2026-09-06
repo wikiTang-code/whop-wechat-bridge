@@ -18,6 +18,15 @@ Hard rules (R1/R2):
 | `.page_smoke_state` | Local edge-trigger state for `page_smoke` (ok/warn/critical) — runtime, not committed |
 | `.consistency_smoke_state` | Local edge-trigger state for `consistency_smoke` (ok/warn/critical) — runtime, not committed |
 
+## Install crontab (GCP)
+
+```bash
+chmod +x scripts/watchdog/*.sh
+./scripts/watchdog/install_crontab.sh   # 写入 */1 health、*/3 page_smoke、*/5 consistency_smoke + 既有 offline 任务
+```
+
+先 dry-run（见上），再装 crontab。密钥仍只来自仓库 `.env`，不写进 crontab。
+
 ## Dry-run (safe, no webhook)
 
 ```bash
@@ -43,20 +52,20 @@ export WECHAT_WORK_WEBHOOK_URL='https://qyapi.weixin.qq.com/cgi-bin/webhook/send
 ./scripts/watchdog/watchdog_probe.sh
 ```
 
-## crontab (every minute)
+## crontab（推荐：经 `run_from_env.sh` 读仓库 `.env`，密钥不进 crontab）
 
 ```cron
-# 1. 进程存活与 /health 探针
-* * * * * WECHAT_WORK_WEBHOOK_URL='https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY' /home/wikitang628/whop-wechat-bridge/scripts/watchdog/watchdog_probe.sh >> /home/wikitang628/whop-wechat-bridge/logs/watchdog.log 2>&1
+# 1. 进程存活与 /health 探针（每分钟）
+* * * * * /home/wikitang628/whop-wechat-bridge/scripts/watchdog/run_from_env.sh >> /home/wikitang628/whop-wechat-bridge/logs/watchdog.log 2>&1
 
-# 2. 关键页 API 路由冒烟 (建议每 2~5 分钟)
-*/3 * * * * WECHAT_WORK_WEBHOOK_URL='https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY' /home/wikitang628/whop-wechat-bridge/scripts/watchdog/page_smoke.sh >> /home/wikitang628/whop-wechat-bridge/logs/watchdog_smoke.log 2>&1
+# 2. 关键页 API 路由冒烟（每 3 分钟）
+*/3 * * * * /home/wikitang628/whop-wechat-bridge/scripts/watchdog/run_from_env.sh page_smoke.sh >> /home/wikitang628/whop-wechat-bridge/logs/watchdog_smoke.log 2>&1
 
-# 3. 媒体数据一致性巡检冒烟 (建议每 5~10 分钟)
-*/5 * * * * WECHAT_WORK_WEBHOOK_URL='https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY' /home/wikitang628/whop-wechat-bridge/scripts/watchdog/consistency_smoke.sh >> /home/wikitang628/whop-wechat-bridge/logs/watchdog_consistency.log 2>&1
+# 3. 媒体数据一致性巡检冒烟（每 5 分钟）
+*/5 * * * * /home/wikitang628/whop-wechat-bridge/scripts/watchdog/run_from_env.sh consistency_smoke.sh >> /home/wikitang628/whop-wechat-bridge/logs/watchdog_consistency.log 2>&1
 ```
 
-Create `logs/` if needed. Prefer loading the webhook from a root-only env file rather than putting the key in crontab world-readable copies.
+Create `logs/` if needed. `run_from_env.sh` 从仓库根 `.env` 导出 `WECHAT_ALERT_WEBHOOK_URL` / `WECHAT_WORK_WEBHOOK_URL`，避免密钥写进 crontab。
 
 ## systemd timer (alternative)
 

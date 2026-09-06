@@ -259,6 +259,8 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 | P1-10 | 推送与交易链路端到端监测 | ✅ 完成 | 端到端 TTL 打点 + 企微 RTT 往返时延 + 大V未推送/未交易只读积压探测 + 连续失败超时告警接入 Supervisor 与 `/health` |
 | P1-11 | 看板与 Ingest 物理多进程隔离 | ✅ 已灰度（GCP） | 双进程 online；观察结束；单体 stopped 留作回滚；详见 Runbook / `p1-11-t23-review-and-cutover-gate.md` |
 | P2-11 | 健康看板页 | ✅ 本地闭环 | 见 `p2-11-*`；生产 Tunnel 已可访问 `/monitoring` |
-| P2-12 | 双进程路由覆盖 + 自动检测 | ✅ 互签归档 | `4a4410d` / [`docs/p2-12-p2h-signoff.md`](./p2-12-p2h-signoff.md)；crontab 挂 page_smoke **可选** |
-| P2-13 | 数据一致性巡检 | ✅ 互签归档 | `32226ff` / [`docs/p2-13-p2f-signoff.md`](./p2-13-p2f-signoff.md)；crontab 挂 consistency_smoke **可选** |
+| P2-12 | 双进程路由覆盖 + 自动检测 | ✅ 互签归档 | `4a4410d` / [`docs/p2-12-p2h-signoff.md`](./p2-12-p2h-signoff.md)；crontab `*/3` page_smoke **已挂** |
+| P2-13 | 数据一致性巡检 | ✅ 互签归档 | `32226ff` / [`docs/p2-13-p2f-signoff.md`](./p2-13-p2f-signoff.md)；crontab `*/5` consistency_smoke **已挂** |
+| P2-14 | 前端 `window.onerror` RUM | ⏸ 本轮跳过 | 计划最低优先级/可剔除；需要另开薄轨 |
+| P2-15 | 软降级钩子（R5） | 🚧 G0 开轨 | 拆分 [`docs/p2-15-task-split-parallel.md`](./p2-15-task-split-parallel.md)；缺口 [`docs/p2-15-soft-degrade-gap-checklist.md`](./p2-15-soft-degrade-gap-checklist.md) |
 | 运维 | 周末 Persona 刷新闭环 | ✅ 完成 | 2026-09-05 Reduce 落库成功（`Gemini-Flash+Vision`）；探针脚本全量回仓；线上 `/health` 达成全局 `ok: true` |
