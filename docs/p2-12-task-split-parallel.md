@@ -31,7 +31,7 @@
 | **P2-12d** | `scripts/watchdog/page_smoke.sh` + 告警文案 + README | **Gemini** | G0 | Cursor | ✅ `76f96bb` 审过 |
 | **P2-12e** | Tunnel URL 落盘 + health/dashboard 字段 | **Gemini** | G1 | Cursor | ✅ `76f96bb` 审过 |
 | **P2-12g** | monitoring 页展示 routeCoverage 格（小改） | **Cursor** | G1 | Gemini | ✅ 本提交 |
-| **P2-12h** | 联调清单 + 互签 | 双方 | G2 | 互签 | 12c/d/e/g |
+| **P2-12h** | 联调清单 + 互签 | 双方 | G2 | 互签 | ✅ `docs/p2-12-p2h-signoff.md` |
 
 ```
 G0:  Cursor 12c  ║  Gemini 12d（按下方契约草稿写脚本）
@@ -100,12 +100,13 @@ G2:  交叉审阅 → 12h 签字 → 再议是否上机（本轮允许 GCP，但
 
 ## 4. 验收
 
-- [ ] `node test/test_route_coverage_probe.js` PASS  
-- [ ] 本地 `/health` 含 `subsystems.routeCoverage`  
-- [ ] 人为卸挂 L2 后 probe → warn/critical（单测 mock）  
-- [ ] `page_smoke.sh` dry-run 文档完整  
-- [ ] Tunnel URL 文件与 health 字段一致  
-- [ ] 交叉审阅两份 `docs/p2-12-*-review.md` 签字  
+- [x] `node test/test_route_coverage_probe.js` PASS  
+- [x] 本地 `/health` 含 `subsystems.routeCoverage`  
+- [x] 人为卸挂 L2 后 probe → warn/critical（单测 mock）  
+- [x] `page_smoke.sh` dry-run 文档完整  
+- [x] Tunnel URL 文件与 health 字段一致  
+- [x] 交叉审阅两份 `docs/p2-12-*-review.md` 签字  
+- [x] P2-12h 联调清单互签归档（`docs/p2-12-p2h-signoff.md`）  
 
 ---
 
