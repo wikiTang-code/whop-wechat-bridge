@@ -30,7 +30,7 @@ function getEtDate(timestamp) {
 /**
  * 下载二进制 Buffer (携带 Cookie 与标准浏览器头)
  */
-function downloadBuffer(url) {
+export function downloadBuffer(url) {
   return new Promise((resolve, reject) => {
     const client = url.startsWith('https') ? https : http;
     const cookie = process.env.WHOP_COOKIE || '';

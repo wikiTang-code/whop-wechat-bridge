@@ -91,6 +91,13 @@ write_state() {
 main() {
   local prev
   probe_bridge
+
+  # 首次失败时，进行二次重试确认，彻底消除瞬间网络或 GC 抖动误报
+  if [[ "${PROBE_STATUS}" != "ok" ]]; then
+    sleep 2
+    probe_bridge
+  fi
+
   prev="$(read_prev_state)"
 
   echo "[watchdog] status=${PROBE_STATUS} prev=${prev} detail=${PROBE_DETAIL}"

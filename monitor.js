@@ -3,12 +3,24 @@ import fs from 'fs';
 import path from 'path';
 import http from 'http';
 import https from 'https';
-import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions, getLatestPersonaPlaybook } from './database.js';
+import crypto from 'crypto';
+import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions, getLatestPersonaPlaybook, updateMessageAttachments } from './database.js';
 import { executeOrder, getUnifiedPortfolio } from './trading.js';
 import { getMarketContextForTickers } from './kline.js';
 import { runWithRateLimit } from './rate-limiter.js';
 import { processMessageForCampaigns, checkAndCloseStaleCampaigns } from './campaign-engine.js';
-import { downloadAndPersistAttachments } from './scripts/media_downloader.js';
+import { downloadAndPersistAttachments, downloadBuffer } from './scripts/media_downloader.js';
+import {
+  prepareWeChatImageBuffer,
+  readLocalImageBuffer,
+  WECHAT_IMAGE_MAX_BYTES,
+  WECHAT_FILE_MAX_BYTES,
+  canPushAsNativeImage,
+  canPushAsWebhookFile,
+  sniffFormat,
+  extensionForFormat,
+  extractWebhookKey,
+} from './monitoring/wechat-image-prepare.js';
 import { dispatchIngestTopHalf } from './scripts/ingest_dispatcher.js';
 import { runMediaWorker } from './scripts/media_worker.js';
 import { generateQueueStatus } from './scripts/generate_queue_status.js';
@@ -24,6 +36,8 @@ import {
   LOCAL_LM_DEFAULT_BASE
 } from './ai-router-policy.js';
 import { isAiTunnelSuspended, notifyAiTunnelFailure } from './monitoring/ai-tunnel-circuit.js';
+import { shouldPauseSecondaryWorkers } from './monitoring/backpressure-controller.js';
+import { recordPushMetric } from './monitoring/push-latency-probe.js';
 
 dotenv.config();
 
@@ -234,7 +248,13 @@ fragment ForumPostFragment on ForumPost {
 }`;
 
 // Helper to check and use global fetch or node-fetch
-const webFetch = typeof fetch !== 'undefined' ? fetch : global.fetch;
+async function webFetch(url, options) {
+  const f = globalThis.fetch;
+  if (typeof f !== 'function') {
+    throw new Error('globalThis.fetch is unavailable');
+  }
+  return f(url, options);
+}
 
 // Format messages into a string for the AI prompt
 function formatMessagesForAI(messages) {
@@ -966,7 +986,7 @@ export async function analyzeWithFallback(prompt, options = {}) {
 }
 
 // Push report to Enterprise WeChat group robot
-async function pushToWeChat(webhookUrl, markdownContent) {
+export async function pushToWeChat(webhookUrl, markdownContent) {
   if (!webhookUrl) {
     console.log('Skipping WeChat push: WECHAT_WORK_WEBHOOK_URL is not set.');
     return;
@@ -1378,7 +1398,9 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
                   id: post.userId,
                   username: userMap.get(post.userId) || post.customAuthor?.displayName || 'Unknown User'
                 },
-                created_at: new Date(timeMs).toISOString()
+                created_at: new Date(timeMs).toISOString(),
+                attachments: Array.isArray(post.attachments) ? post.attachments : null,
+                rawAttachments: Array.isArray(post.attachments) ? post.attachments : null
               };
             });
 
@@ -1441,7 +1463,9 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
             }
             return {
               ...msg,
-              content
+              content,
+              attachments: Array.isArray(msg.attachments) ? msg.attachments : null,
+              rawAttachments: Array.isArray(msg.attachments) ? msg.attachments : null
             };
           });
           rawMessages.push(...restMessages);
@@ -1480,7 +1504,9 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
           sender_id: senderId,
           sender_name: senderName,
           content,
-          created_at: typeof msg.created_at === 'number' ? msg.created_at : new Date(msg.created_at || Date.now()).getTime()
+          created_at: typeof msg.created_at === 'number' ? msg.created_at : new Date(msg.created_at || Date.now()).getTime(),
+          attachments: msg.attachments || null,
+          rawAttachments: msg.rawAttachments || msg.attachments || null
         };
       });
 
@@ -1493,6 +1519,9 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
           const persistedAttachments = await downloadAndPersistAttachments(msg);
           if (persistedAttachments) {
             msg.attachments = persistedAttachments;
+            try {
+              updateMessageAttachments(msg.id, persistedAttachments);
+            } catch (uErr) {}
           }
         } catch (e) {
           console.error(`[MediaDownloader] 同步下载附件异常 (${msg.id}):`, e.message);
@@ -1514,11 +1543,13 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       return { success: true, newMessagesCount: 0, newSpeakerMessagesCount: 0 };
     }
 
-    // Sort chronologically (oldest first) before saving to database to ensure physical order
-    allNormalizedMessages.sort((a, b) => a.created_at - b.created_at);
-
-    // Save all synchronized messages to the database
-    saveMessages(allNormalizedMessages);
+    // 仅当本轮抓取到真正未入库的新消息时，才排序并写入数据库。
+    // 严禁对已归档历史消息 (allNormalizedMessages) 重复 upsert，否则将反复触发 FTS5 全文索引维护
+    // 导致 Node 事件循环卡死数十秒，引发看门狗与外部 HTTP 探测超时。
+    if (allNewMessages.length > 0) {
+      allNewMessages.sort((a, b) => a.created_at - b.created_at);
+      await saveMessages(allNewMessages);
+    }
 
     // 🏛️ 中断上半部 (Top Half / ISR): 全频道一视同仁快速打标分发 + 丢入下半部队列 (耗时 < 10ms，绝不调模型)
     // 仅分发本轮真正的新消息 (allNewMessages)，而非全部抓取到的消息 (allNormalizedMessages)。
@@ -1527,7 +1558,7 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
     try {
       const ISR_YIELD_BATCH = 200;
       for (let i = 0; i < allNewMessages.length; i++) {
-        dispatchIngestTopHalf(allNewMessages[i]);
+        dispatchIngestTopHalf(allNewMessages[i], { skipMessageUpsert: true });
         // 大批量新消息时定期让出事件循环，避免同步循环阻塞 HTTP 请求
         if ((i + 1) % ISR_YIELD_BATCH === 0) {
           await new Promise((resolve) => setImmediate(resolve));
@@ -1541,12 +1572,16 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       console.error('[ISR Top Half] 分发写入异常:', isrErr.message);
     }
 
-    // 🏛️ 中断下半部 (Bottom Half / DPC): 异步非阻塞执行（不卡死轮询主线程）
-    setImmediate(() => {
-      runMediaWorker(10)
-        .then(() => generateQueueStatus())
-        .catch(err => console.error('[DPC Media Worker] 异步下半部异常:', err.message));
-    });
+    // 🏛️ 中断下半部 (Bottom Half / DPC): 异步非阻塞执行（受背压控制器保护）
+    if (!shouldPauseSecondaryWorkers()) {
+      setImmediate(() => {
+        runMediaWorker(10)
+          .then(() => generateQueueStatus())
+          .catch(err => console.error('[DPC Media Worker] 异步下半部异常:', err.message));
+      });
+    } else {
+      console.log('[DPC Media Worker] ⚠️ 系统处于背压降级状态，本轮跳过媒体下载以保全主线程');
+    }
 
     // Process campaigns for new speaker messages
     for (const msg of newSpeakerMessages) {
@@ -1618,12 +1653,38 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       if (!skipWeChat) {
         console.log(`[实时通知] 发现 ${realTimePushMsgs.length} 条大V实时新发言，触发即时推送...`);
         for (const msg of realTimePushMsgs) {
-          await pushRawMessageToWeChat(msg).catch(err => console.error('[即时微信推送错误]:', err.message));
+          const pushStart = Date.now();
+          let pushErr = null;
+          try {
+            await pushRawMessageToWeChat(msg);
+          } catch (err) {
+            pushErr = err;
+            console.error('[即时微信推送错误]:', err.message);
+          }
+          const pushEnd = Date.now();
+          const createdAt = Number(msg.created_at) || pushStart;
+          recordPushMetric({
+            messageId: msg.id,
+            speakerName: msg.sender_name || 'unknown',
+            createdAt,
+            pushedAt: pushEnd,
+            ttlMs: Math.max(0, pushEnd - createdAt),
+            rttMs: pushEnd - pushStart,
+            success: !pushErr,
+            error: pushErr ? pushErr.message : null,
+          });
           markMessagePushed(msg.id, 1);
         }
       } else {
         console.log(`[实时通知] 发现 ${realTimePushMsgs.length} 条大V新发言。已忽略推送 (skipWeChat = true)。`);
         for (const msg of realTimePushMsgs) {
+          recordPushMetric({
+            messageId: msg.id,
+            speakerName: msg.sender_name || 'unknown',
+            createdAt: Number(msg.created_at) || Date.now(),
+            pushedAt: Date.now(),
+            skipped: true,
+          });
           markMessagePushed(msg.id, 1);
         }
       }
@@ -1673,21 +1734,236 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
 // Helper Functions for Instant WeChat Push & Background AI Report
 // --------------------------------------------------------------------------
 
+// Helper: Send native image message to WeChat Work robot (base64 + md5)
+// 官方硬限制：≤2MB JPG/PNG。更大图请走 pushFileToWeChat（原文件 ≤20MB）。
+export async function pushImageToWeChat(webhookUrl, buffer) {
+  if (!webhookUrl || !buffer || buffer.length === 0) return false;
+  try {
+    if (!canPushAsNativeImage(buffer)) {
+      return false;
+    }
+    let out = buffer;
+    if (process.env.WECHAT_IMAGE_ALLOW_COMPRESS === '1' && buffer.length > WECHAT_IMAGE_MAX_BYTES) {
+      const prepared = await prepareWeChatImageBuffer(buffer);
+      if (!prepared.ok) return false;
+      out = prepared.buffer;
+    }
+    const base64 = out.toString('base64');
+    const md5 = crypto.createHash('md5').update(out).digest('hex');
+    const response = await webFetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        msgtype: 'image',
+        image: { base64, md5 },
+      }),
+    });
+    if (!response.ok) {
+      const err = await response.text().catch(() => '');
+      console.error(`[WeChat Image Push] HTTP ${response.status}: ${err}`);
+      return false;
+    }
+    const resJson = await response.json().catch(() => ({}));
+    if (resJson.errcode !== 0) {
+      console.error(`[WeChat Image Push] API errcode=${resJson.errcode}, errmsg=${resJson.errmsg}`);
+      return false;
+    }
+    console.log('[WeChat Image Push] ✅ 原生图片消息成功推送至企业微信');
+    return true;
+  } catch (err) {
+    console.error(`[WeChat Image Push] 发送图片异常:`, err.message);
+    return false;
+  }
+}
+
+/**
+ * 企微群机器人文件通道：upload_media + msgtype=file（单文件 ≤20MB，原字节无损）。
+ */
+export async function pushFileToWeChat(webhookUrl, buffer, filename = 'chart.bin') {
+  if (!webhookUrl || !buffer || buffer.length === 0) return false;
+  if (!canPushAsWebhookFile(buffer)) {
+    console.warn(
+      `[WeChat File Push] 文件大小 ${(buffer.length / 1024 / 1024).toFixed(2)}MB 超出企微 file 上限 ${WECHAT_FILE_MAX_BYTES / 1024 / 1024}MB，跳过`
+    );
+    return false;
+  }
+  try {
+    const key = extractWebhookKey(webhookUrl);
+    if (!key) {
+      console.error('[WeChat File Push] webhook URL 缺少 key');
+      return false;
+    }
+    const uploadUrl = `https://qyapi.weixin.qq.com/cgi-bin/webhook/upload_media?key=${encodeURIComponent(key)}&type=file`;
+
+    // 手动 multipart：Node 原生 FormData/File 在企微侧常报 empty media data (44001)
+    const safeName = String(filename || 'chart.bin').replace(/["\r\n]/g, '_');
+    const boundary = `----WhopWeChatBoundary${Date.now()}${Math.random().toString(16).slice(2)}`;
+    const preamble = Buffer.from(
+      `--${boundary}\r\n` +
+      `Content-Disposition: form-data; name="media"; filename="${safeName}"; filelength=${buffer.length}\r\n` +
+      `Content-Type: application/octet-stream\r\n\r\n`,
+      'utf8'
+    );
+    const epilogue = Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8');
+    const body = Buffer.concat([preamble, buffer, epilogue]);
+
+    const uploadRes = await webFetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${boundary}`,
+        'Content-Length': String(body.length),
+      },
+      body,
+    });
+    const uploadJson = await uploadRes.json().catch(() => ({}));
+    if (!uploadRes.ok || uploadJson.errcode !== 0 || !uploadJson.media_id) {
+      console.error(
+        `[WeChat File Push] upload_media 失败: HTTP ${uploadRes.status} errcode=${uploadJson.errcode} errmsg=${uploadJson.errmsg}`
+      );
+      return false;
+    }
+
+    const sendRes = await webFetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        msgtype: 'file',
+        file: { media_id: uploadJson.media_id },
+      }),
+    });
+    const sendJson = await sendRes.json().catch(() => ({}));
+    if (!sendRes.ok || sendJson.errcode !== 0) {
+      console.error(
+        `[WeChat File Push] 发送失败: HTTP ${sendRes.status} errcode=${sendJson.errcode} errmsg=${sendJson.errmsg}`
+      );
+      return false;
+    }
+    console.log(`[WeChat File Push] ✅ 原文件已推送 (${safeName}, ${(buffer.length / 1024).toFixed(1)} KB)`);
+    return true;
+  } catch (err) {
+    console.error(`[WeChat File Push] 异常:`, err.message);
+    return false;
+  }
+}
+
+/**
+ * 优先原生 image（≤2MB JPG/PNG）；否则原文件 file（≤20MB）。不对落盘原图做有损压缩。
+ * @returns {'image'|'file'|false}
+ */
+export async function pushMediaToWeChat(webhookUrl, buffer, { filenameHint = null } = {}) {
+  if (!webhookUrl || !buffer?.length) return false;
+  const fmt = sniffFormat(buffer);
+  const filename = filenameHint || `whop_chart_${Date.now()}.${extensionForFormat(fmt)}`;
+
+  if (canPushAsNativeImage(buffer)) {
+    const ok = await pushImageToWeChat(webhookUrl, buffer);
+    if (ok) return 'image';
+  }
+
+  if (canPushAsWebhookFile(buffer)) {
+    const ok = await pushFileToWeChat(webhookUrl, buffer, filename);
+    if (ok) return 'file';
+  }
+
+  console.warn(
+    `[WeChat Media Push] 无法投递: format=${fmt} size=${(buffer.length / 1024 / 1024).toFixed(2)}MB (image≤2MB / file≤20MB)`
+  );
+  return false;
+}
+
 // Push raw message from target speaker instantly to WeChat Work
-async function pushRawMessageToWeChat(msg) {
+export async function pushRawMessageToWeChat(msg) {
   const webhookUrl = process.env.WECHAT_WORK_WEBHOOK_URL;
   if (!webhookUrl) return;
 
   const timeStr = new Date(msg.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
   const channelStr = msg.channel_name ? `[${msg.channel_name}]` : '';
 
-  const text = `${msg.content}
+  // 1. 提取所有关联的图片 (支持已落盘 local_path 或 URL)
+  const imageUrls = [];
+  /** @type {{ buffer: Buffer, filename: string|null }[]} */
+  const mediaItems = [];
+
+  let attachments = msg.attachments;
+  if (typeof attachments === 'string') {
+    try { attachments = JSON.parse(attachments); } catch (e) { attachments = []; }
+  }
+  if (Array.isArray(attachments)) {
+    for (const att of attachments) {
+      if (att.status && att.status !== 'ok') continue;
+      const fromDisk = att.local_path ? readLocalImageBuffer(att.local_path) : null;
+      if (fromDisk && fromDisk.length > 0) {
+        const base = att.local_path ? path.basename(att.local_path) : null;
+        mediaItems.push({ buffer: fromDisk, filename: base });
+      } else if (att.raw_url || att.url) {
+        const u = att.raw_url || att.url;
+        if (!imageUrls.includes(u)) imageUrls.push(u);
+      }
+    }
+  }
+
+  // 从 content 中的 [IMAGE:...] 提取
+  const regex = /\[IMAGE:(https?:\/\/[^\]]+)\]/g;
+  let match;
+  while ((match = regex.exec(msg.content || '')) !== null) {
+    const u = match[1];
+    if (!imageUrls.includes(u)) {
+      imageUrls.push(u);
+    }
+  }
+
+  // 若本地尚无 buffer，通过 downloadBuffer 带鉴权拉取（原字节，不压缩）
+  for (const u of imageUrls) {
+    try {
+      const buf = await downloadBuffer(u);
+      if (buf && buf.length > 0) {
+        mediaItems.push({
+          buffer: buf,
+          filename: `whop_${msg.id || 'img'}_${mediaItems.length}.${extensionForFormat(sniffFormat(buf))}`,
+        });
+      }
+    } catch (e) {
+      console.warn(`[即时消息推送] 获取推送图片失败 (${u.slice(0, 60)}...):`, e.message);
+    }
+  }
+
+  // 2. 推送媒体：≤2MB 内联图；更大则原文件 file（≤20MB）。失败不得假装已发图。
+  let mediaPushed = 0;
+  let pushedAsFile = 0;
+  for (const item of mediaItems) {
+    const mode = await pushMediaToWeChat(webhookUrl, item.buffer, { filenameHint: item.filename });
+    if (mode) {
+      mediaPushed += 1;
+      if (mode === 'file') pushedAsFile += 1;
+    }
+  }
+
+  // 3. 清理正文中冗长丑陋的 [IMAGE:...] 原始链接，保留纯净分析文字
+  let cleanContent = (msg.content || '').replace(/\[IMAGE:(https?:\/\/[^\]]+)\]/g, '').trim();
+  const hadImageIntent = mediaItems.length > 0 || imageUrls.length > 0;
+  if (!cleanContent) {
+    if (mediaPushed > 0) {
+      cleanContent = pushedAsFile > 0
+        ? '📎 [大V盘面原图已以文件投递，可点开下载全分辨率]'
+        : '📷 [大V盘面图片分享]';
+    } else if (hadImageIntent) {
+      cleanContent = '⚠️ [盘面图片推送失败，请到 Web 看板查看原图]';
+    } else {
+      cleanContent = '（无文字内容）';
+    }
+  } else if (hadImageIntent && mediaPushed === 0) {
+    cleanContent = `${cleanContent}\n\n⚠️ [附图推送失败，请到 Web 看板查看原图]`;
+  } else if (pushedAsFile > 0) {
+    cleanContent = `${cleanContent}\n\n📎 [附图已按原文件投递（超过企微内联图 2MB 上限时走文件通道，无压缩）]`;
+  }
+
+  const text = `${cleanContent}
 
 💬 ${msg.sender_name}${channelStr} · ${timeStr}
 已同步处理量化跟单`;
 
   try {
-    await fetch(webhookUrl, {
+    const res = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1695,9 +1971,18 @@ async function pushRawMessageToWeChat(msg) {
         markdown: { content: text }
       })
     });
-    console.log(`[即时消息推送] 成功推送大V发言到微信: ${msg.id}`);
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status}: ${errText}`);
+    }
+    const resJson = await res.json().catch(() => ({}));
+    if (resJson.errcode && resJson.errcode !== 0) {
+      throw new Error(`WeCom API error: ${resJson.errcode} - ${resJson.errmsg}`);
+    }
+    console.log(`[即时消息推送] 成功推送大V发言到微信: ${msg.id} (媒体成功 ${mediaPushed}/${mediaItems.length}, file=${pushedAsFile})`);
   } catch (err) {
     console.error(`[即时消息推送失败] 无法推送大V发言到微信:`, err.message);
+    throw err;
   }
 }
 

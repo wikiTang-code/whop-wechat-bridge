@@ -294,6 +294,27 @@ function setupEventListeners() {
   // Close context messages modal
   document.getElementById('btn-close-context').addEventListener('click', closeContextModal);
   document.getElementById('btn-close-context-footer').addEventListener('click', closeContextModal);
+
+  // Message image lightbox (feed + context modal)
+  document.addEventListener('click', (e) => {
+    const img = e.target.closest('.message-image');
+    if (img && img.src) {
+      e.preventDefault();
+      e.stopPropagation();
+      openImageLightbox(img.src);
+      return;
+    }
+  });
+  document.getElementById('btn-close-lightbox')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeImageLightbox();
+  });
+  document.getElementById('image-lightbox')?.addEventListener('click', (e) => {
+    if (e.target.id === 'image-lightbox') closeImageLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeImageLightbox();
+  });
   
   // Tab switching logic
   const tabButtons = document.querySelectorAll('.tab-btn');
@@ -830,6 +851,10 @@ async function fetchQuantData() {
       state.orders = ordResult.data;
       renderOrders(ordResult.data);
     }
+
+    if (typeof loadGexSummary === 'function') {
+      loadGexSummary('gex-structure-bar', 'TSLL');
+    }
   } catch (error) {
     console.error('Error fetching quantitative trading data:', error);
   }
@@ -1025,6 +1050,9 @@ async function saveSettings(e) {
 
   const wechatUrl = document.getElementById('wechat_work_webhook_url').value.trim();
   if (wechatUrl) payload.WECHAT_WORK_WEBHOOK_URL = wechatUrl;
+
+  const wechatAlertUrl = document.getElementById('wechat_alert_webhook_url')?.value?.trim();
+  if (wechatAlertUrl) payload.WECHAT_ALERT_WEBHOOK_URL = wechatAlertUrl;
 
   const whopSecret = document.getElementById('whop_webhook_secret').value.trim();
   if (whopSecret) payload.WHOP_WEBHOOK_SECRET = whopSecret;
@@ -1519,7 +1547,11 @@ function populateSettingsForm(config) {
   // Set placeholders for masked secrets
   document.getElementById('whop_user_token').placeholder = config.WHOP_USER_TOKEN_MASKED ? '已保存加密 Token (输入新 Token 以更新)' : '未配置';
   document.getElementById('gemini_api_key').placeholder = config.GEMINI_API_KEY_MASKED ? '已保存 API 密钥 (输入新 Key 以更新)' : '未配置';
-  document.getElementById('wechat_work_webhook_url').placeholder = config.WECHAT_WORK_WEBHOOK_URL_MASKED ? '已保存 Webhook 地址 (输入新地址以更新)' : '未配置';
+  document.getElementById('wechat_work_webhook_url').placeholder = config.WECHAT_WORK_WEBHOOK_URL_MASKED ? '已保存业务群 Webhook 地址 (输入新地址以更新)' : '未配置';
+  const alertEl = document.getElementById('wechat_alert_webhook_url');
+  if (alertEl) {
+    alertEl.placeholder = config.WECHAT_ALERT_WEBHOOK_URL_MASKED ? '已保存告警群 Webhook 地址 (输入新地址以更新)' : '留空则与业务群共用 (输入独立告警地址以分流)';
+  }
   document.getElementById('whop_webhook_secret').placeholder = config.WHOP_WEBHOOK_SECRET_MASKED ? '已保存签名密钥 (输入新 Secret 以更新)' : '未配置';
   
   toggleAIFields();
@@ -1554,6 +1586,22 @@ function closeReportModal() {
 
 function closeContextModal() {
   document.getElementById('context-modal').style.display = 'none';
+}
+
+function openImageLightbox(src) {
+  const overlay = document.getElementById('image-lightbox');
+  const img = document.getElementById('image-lightbox-img');
+  if (!overlay || !img || !src) return;
+  img.src = src;
+  overlay.style.display = 'flex';
+}
+
+function closeImageLightbox() {
+  const overlay = document.getElementById('image-lightbox');
+  const img = document.getElementById('image-lightbox-img');
+  if (!overlay) return;
+  overlay.style.display = 'none';
+  if (img) img.removeAttribute('src');
 }
 
 function copyReportToClipboard() {

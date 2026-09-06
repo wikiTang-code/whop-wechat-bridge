@@ -27,9 +27,9 @@ const MOCK_TRADING_MODE = () => process.env.MOCK_TRADING_MODE !== 'false'; // �
 /**
  * 统一获取账户资产（根据模式自动路由到沙盒或实盘）
  */
-export async function getUnifiedPortfolio() {
+export async function getUnifiedPortfolio(dbInstance = null) {
   if (MOCK_TRADING_MODE()) {
-    return getPortfolio();
+    return getPortfolio(dbInstance);
   } else {
     try {
       const { cash } = await getAccountBalances();
@@ -49,7 +49,7 @@ export async function getUnifiedPortfolio() {
       // 容错：实盘API失败时降级到数据库沙盒快照，而非返回零值导致风控误判
       console.error('[实盘资产获取失败] 调用长桥 API 异常:', error.message);
       try {
-        const fallbackPortfolio = getPortfolio();
+        const fallbackPortfolio = getPortfolio(dbInstance);
         return { ...fallbackPortfolio, isError: true, errorMessage: error.message };
       } catch (fbErr) {
         return { cash: 0, initial_deposit: 0, positions_value: 0, total_equity: 0, unrealized_pnl: 0, isError: true, errorMessage: error.message };
@@ -61,16 +61,16 @@ export async function getUnifiedPortfolio() {
 /**
  * 统一获取持仓明细（根据模式自动路由到沙盒或实盘）
  */
-export async function getUnifiedPositions() {
+export async function getUnifiedPositions(dbInstance = null) {
   if (MOCK_TRADING_MODE()) {
-    return getPositions();
+    return getPositions(dbInstance);
   } else {
     try {
       return await getActivePositions();
     } catch (error) {
       console.error('[实盘持仓获取失败] 调用长桥 API 异常:', error.message);
       try {
-        return getPositions();
+        return getPositions(dbInstance);
       } catch (fbErr) {
         return [];
       }

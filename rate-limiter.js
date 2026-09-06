@@ -10,6 +10,20 @@ const requestTimestampsMap = {}; // 按 provider 隔离的时间戳 map
 // 全局 Gemini API 串行锁（保障同一时刻只有一个请求发往 Google 服务器，防止并发冲突）
 let geminiGlobalLock = Promise.resolve();
 
+// ⚡ 实时看板可视化：内存追踪正在进行的 API 调用 (恪守 R3 监测数据绝不写主库)
+let nextApiCallId = 1;
+const activeApiCalls = new Map();
+const recentApiCalls = []; // 环形缓冲，保留最近 50 条
+const MAX_RECENT_API_CALLS = 50;
+
+export function getActiveApiCalls() {
+  return Array.from(activeApiCalls.values());
+}
+
+export function getRecentApiCalls() {
+  return [...recentApiCalls];
+}
+
 /**
  * 导出当前 API 调用限额统计，供前台监控面板使用
  */
@@ -124,33 +138,34 @@ export async function runWithRateLimit(apiCallFn, options = {}) {
 
     const dailyCount = incrementDailyApiCount();
 
-    // ⚡ 实时看板可视化：向 task_queue 写入 Gemini API 调用的实时运行卡片
-    let taskId = null;
-    try {
-      const db = getDb();
-      const info = db.prepare(`
-        INSERT INTO task_queue (task_type, priority, payload, status, created_at, updated_at)
-        VALUES ('gemini_api_cloud', 0, ?, 'running', ?, ?)
-      `).run(JSON.stringify({ provider, attempt: attempt + 1, dailyCount }), Date.now(), Date.now());
-      taskId = info.lastInsertRowid;
-    } catch (e) { /* ignore ui broadcast error */ }
+    // ⚡ 实时看板可视化：内存追踪 Gemini API 运行状态 (绝不写主库 task_queue)
+    const callId = `api_${Date.now()}_${nextApiCallId++}`;
+    const startTime = Date.now();
+    activeApiCalls.set(callId, {
+      id: callId,
+      task_type: 'gemini_api_cloud',
+      priority: priority || 0,
+      status: 'running',
+      provider,
+      attempt: attempt + 1,
+      dailyCount,
+      created_at: startTime,
+      updated_at: startTime
+    });
 
     try {
       const result = await apiCallFn();
-      if (taskId) {
-        try {
-          const db = getDb();
-          db.prepare(`UPDATE task_queue SET status = 'done', updated_at = ? WHERE id = ?`).run(Date.now(), taskId);
-        } catch (e) {}
+      const entry = activeApiCalls.get(callId);
+      if (entry) {
+        entry.status = 'done';
+        entry.updated_at = Date.now();
+        recentApiCalls.unshift(entry);
+        if (recentApiCalls.length > MAX_RECENT_API_CALLS) recentApiCalls.pop();
       }
+      activeApiCalls.delete(callId);
       return result;
     } catch (err) {
-      if (taskId) {
-        try {
-          const db = getDb();
-          db.prepare(`DELETE FROM task_queue WHERE id = ?`).run(taskId);
-        } catch (e) {}
-      }
+      activeApiCalls.delete(callId);
       const isHardQuotaError = err.message.toLowerCase().includes('quota exceeded') || err.message.includes('RESOURCE_EXHAUSTED');
       
       // 若为配额用尽类错误，重试无用，直接抛出供上层自动降级至本地大模型

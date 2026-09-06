@@ -64,6 +64,7 @@ export function claimNextPendingTask() {
       const task = db.prepare(`
         SELECT * FROM task_queue 
         WHERE status IN ('pending', 'retry') AND (run_after IS NULL OR run_after <= ?)
+          AND task_type != 'gemini_api_cloud'
           AND (
             task_type != 'persona_reduce'
             OR NOT EXISTS (
@@ -238,9 +239,15 @@ export function resetRunningTasks() {
     const info = db.prepare(`
       UPDATE task_queue 
       SET status = 'pending', updated_at = ? 
-      WHERE status = 'running'
+      WHERE status = 'running' AND task_type != 'gemini_api_cloud'
     `).run(now);
     
+    // 3. 彻底删除任何残留的 gemini_api_cloud 记录 (已全面转为内存追踪)
+    const delInfo = db.prepare(`DELETE FROM task_queue WHERE task_type = 'gemini_api_cloud'`).run();
+    if (delInfo.changes > 0) {
+      console.log(`[Task Queue System] 启动自愈：成功清理历史残留 ${delInfo.changes} 个 gemini_api_cloud 脏记录。`);
+    }
+
     if (info.changes > 0) {
       console.log(`[Task Queue System] 启动自愈：成功重置了 ${info.changes} 个近期的运行中任务为 pending (断点续传已恢复)。`);
     }

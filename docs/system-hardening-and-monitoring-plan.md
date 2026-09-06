@@ -1,10 +1,14 @@
-# 系统加固 + 监测机制 实施方案（P0 已落地，P1/P2 待做）
+# 系统加固 + 监测机制 实施方案（P0/P1 主体已落地，P2 待做）
 
 > 本文整合两部分内容并给出统一优先级与执行顺序：
 > 1. 对现有系统「整体检视」发现的**不合理之处及改法**；
 > 2. 用户要求的**中断响应式监测机制**（各子系统异常、抓取/推送/处理流程丢失或卡顿、前端渲染延迟等）。
 >
-> **状态（2026-09-04 更新）**：第 8 节决策点与第 4 节红线仍有效。**P0-1～P0-4 已实现并 SCP 上机**（PR #7 已合入 `main`，squash `c5b57ae`）；看门狗 crontab 已装；详见文末 **§10 实施状态快照**。本文仍是 P1/P2 的权威工作计划；与 `main` 上的 P0 代码同步维护。
+> **状态（2026-09-05 更新）**：第 8 节决策点与第 4 节红线仍有效。**P0 已合入并上机**；**P1-5～P1-10 / A/B/C 已全量落地**：
+> - 资产端闭环：周末 Persona 定时 cron 就绪，`--force` 离线刷新完成（`lagDays=0`，`assets.persona=ok`）；
+> - 告警降噪闭环：落实 News 休市空窗免检机制（Commit `2075832`），线上 `/health` 达成全局 **`ok: true / status: ok`**；
+> - 恪守三条核心准则：**可观测 $\neq$ 业务闭环**、**PM2 重启客观归因（历史累计 vs 当前会话 14h+ 零崩溃）**、**本地与云端脚本严格双向对称**。
+> - **P1-11 与 P2 待做**（下一步优先推进 P1-11 物理多进程拆分设计）。详见文末 **§10 实施状态快照**。
 
 ---
 
@@ -165,6 +169,7 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 |---|---|---|---|---|
 | 11 | 健康看板页（红黄绿+趋势+最近告警） | 全局 | 新增前端页 + `/api/health` | 一页看清各子系统 |
 | 12 | 资产新鲜度巡检 | E | 探针 | 各层资产滞后可见告警 |
+| 12b | 双进程路由覆盖检测 / 软告警 | 切流债 | `web_runner` + watchdog + `/health` | 关键页 API 非 404；见 `p2-12-dual-process-gap-and-autofix.md` |
 | 13 | 数据一致性巡检（附件/manifest/磁盘/打标） | H | 探针 + 脚本 | 偏差可发现 |
 | 14 | 前端错误上报（仅 `window.onerror`，最低优先级/可剔除） | G | `public/app.js` | 前端异常可见（不做首屏/掉帧打点） |
 | 15 | 软降级钩子（受 R5 约束） | 全局 | Supervisor 钩子 | 仅软降级/清理，无进程重启 |
@@ -201,41 +206,61 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 - 每阶段坚持「旁路增量、只告警不硬重启、监测不入主库、离线隔离」红线。
 - **部署提醒**：在 GitHub `main` 与 VM 对齐前，VM 优先 **文件拷贝部署**，避免整树 `git pull` 踩到历史截断/`server.js` 事故。
 
-## 10. 实施状态快照（2026-09-04 Asia/Shanghai）
+## 10. 实施状态快照（2026-09-05 16:35 Asia/Shanghai 最新归档）
 
-### 10.1 仓库 / PR
-| 项 | 状态 |
-|---|---|
-| PR [#6](https://github.com/wikiTang-code/whop-wechat-bridge/pull/6) | 已因冲突关闭；计划全文现由本文件承载（源分支 `cursor/hardening-monitoring-plan-fd06`） |
-| PR [#7](https://github.com/wikiTang-code/whop-wechat-bridge/pull/7) | 已合入 `main`（squash `c5b57ae`）；P0 代码含 `monitoring/*` 与 `scripts/watchdog/run_from_env.sh` |
-| 推送方式 | 本机旧 PAT 已删导致 git remote 失效时，可用 GitHub 连接器 `push_files` |
+### 10.0 核心验收准则（后续工作铁律）
+1. **可观测 $\neq$ 业务闭环**：监控探针就绪且展示红黄绿，并不等同于下游业务数据已按期更新；必须拿到数据层事实（如落库时间戳、lagDays 归零、任务数清空）才可签署验收通过。
+2. **PM2 重启客观归因**：严格区分 PM2 自容器创建以来的累计历史重启次数与当前单会话稳定性指标（`unstable_restarts = 0`，uptime 持续递增）；不可将历史累计次数误判为当前会话频繁崩溃。
+3. **本地与云端脚本严格双向对称**：禁止只在线上热改脚本而在本地遗漏，所有新增运维排障脚本（如 `check_persona_queue_status.js`）必须同步纳入 `.gitignore` 白名单与 git 版本控制。
 
-### 10.2 生产 gcp-vm（只读核验摘要）
-| 项 | 结果 |
-|---|---|
-| 服务 | pm2 `whop-wechat-bridge` online；`:8085` |
-| `/health` | 常态 200；eventLoop mean≈20ms；aiTunnel `closed` |
-| 看门狗 | crontab `* * * * * …/scripts/watchdog/run_from_env.sh`；日志 `logs/watchdog.log` |
-| 企微 webhook | 三次探测 HTTP 200 / errcode=0；RTT ≈ 0.63–0.76s |
-| 大V 实时推送 | `TARGET_SPEAKER_USER_IDS` 仅 1 人；VIP pending=0；该大V 最近发言约 10h+ 前 → 群内无新实时推送属预期 |
-| 队列积压 | `l2a_cut` ~295 pending；`timeline` ~53（离线消费，R4） |
-| 已知噪声 | Auto News 空窗约 30s 一次写 error.log；eventLoop 偶发 critical（看门狗已报过） |
-
-### 10.3 已做 / 待做清单
-| 优先级 | 项 | 状态 |
+### 10.1 仓库 / PR / 提交线
+| 项 | 状态 | 说明 |
 |---|---|---|
-| P0-1 | alert-sink | ✅ 完成 |
-| P0-2 | bash 看门狗 + crontab | ✅ 完成 |
-| P0-3 | `/health` + event-loop | ✅ 完成 |
-| P0-4 | AI 隧道熔断 | ✅ 完成 |
-| 运维 | 企微延迟排查 | ✅ 结论：webhook 正常；名单过滤 + 无新大V 发言 |
-| P1-5 | attachments 回填 | ⬜ 待做 |
-| P1-6 | rate-limiter 去污 | ⬜ 待做 |
-| P1-7 | monitoring.db + 探针框架 | ⬜ 待做 |
-| P1-8/9 | 离线队列消费者 / 资产 cron | ⬜ 待做（L2 侧协同） |
-| P1-10 | 推送/交易监测 | ⬜ 待做 |
-| P2 | 看板/新鲜度/一致性/RUM/软降级/DB 治理 | ⬜ 待做 |
-| 并行 | 15 窗 cleaned 三处核验后再进 GitHub | ⬜ 待做 |
-| 并行 | Auto News 空窗刷屏降噪 | ⬜ 建议 |
-| 并行 | eventLoop 偶发 critical 根因 | ⬜ 建议 |
-| 并行 | 删除/忽略空的 `data/whop_archive.db` | ⬜ 建议 |
+| 分支 `feat/p1-attachments-and-ratelimiter` | 正在开发与验证 | 承载 P1 稳定性加固与监测闭环，已全量同步推送至 GitHub 远端 |
+| Commit `f092129` | ✅ 已推远端 | P1-5 attachments ON CONFLICT 回填 + P1-6 rate-limiter 纯内存去污 (清理 22,285 条历史脏数据) |
+| Commit `05d1937` | ✅ 已推远端 | 修复 888 条全量重复 upsert 致命缺陷（仅写新消息）+ 股票标的正则预编译 |
+| Commit `5d7d022` | ✅ 已推远端 | P0 加固：防震荡抑制 (Flapping) + 慢日志环形缓冲 (trackSlowOp) + 3级阶梯背压控制器 (25s/60s/120s) + 告警时区北京时间 |
+| Commit `09c5ed0` | ✅ 已推远端 | P1 减负：`saveMessages` 50 条切片分块 + `setImmediate` 让出事件循环 + Auto News 空数据 error.log 降噪 |
+| Commit `aac4932` | ✅ 已推远端 | P1-10 推送与交易链路端到端 TTL/RTT 探针 + P1-9 休市自动同步门禁 |
+| Commit `bdff9a5` | ✅ 已推远端 | 修复 Intl.DateTimeFormat 0 点返回 hour=24 误判休市 Bug，废除 4 小时激进休眠 |
+| Commit `c108db4` | ✅ 已推远端 | P1-9 Persona 刷新闭环与运维脚本（`check_persona_queue_status.js`）入仓白名单 |
+| Commit `2075832` | ✅ 已推远端 | News 休市空窗免检（`marketClosed=true` 降级为 ok）+ `run_offline_asset_sync.js` 回仓 |
+| Commit `7607e69` | ✅ 已推远端 | 后续任务 T1-T4 拆分规范文档（设计先行，先 T1/T2 后实施） |
+
+### 10.2 生产 gcp-vm（实机核验摘要）
+| 项 | 结果 | 说明 |
+|---|---|---|
+| 服务 | pm2 `whop-wechat-bridge` online | PID 712177，连续平稳在线 **14h+**（51,000s+），CPU 0%，内存稳态 **76MB~96MB**，当前会话 0 崩溃 |
+| 代码一致性 | SHA256 100% 比对一致 | `database.js` / `monitor.js` / `server.js` / `push-latency-probe.js` 等核心模块逐位匹配 |
+| `/health` | **全局纯绿灯 200 OK (`ok: true, status: ok`)** | 消除 News 周末空窗误报后，各子系统全面健康；时区统一显示 `(北京时间)` |
+| 资产状态 | Persona: `ok` / L2a: `ok` / News: `ok (免检)` | Persona Playbook 最新落库时间 `2026-09-05T08:01:18Z`，**lagDays=0**；News 周末休市免检 |
+| 定时任务 | Crontab 三重守护正常 | 1) 每分钟看门狗；2) 每 15 分钟离线队列 Worker；3) 周六日 UTC 02:00 (北京 10:00) 离线资产同步 |
+| 看门狗 | bash 探针运行正常 | `status=ok prev=ok detail=http=200`，静默无骚扰告警 |
+| 企微推送 | 双通道分流已就绪 | 业务群与监控告警群物理隔离；大V发言（如 01:17/03:55）端到端 TTL ~33s，RTT 652ms，100% 成功送达 |
+
+### 10.3 全量任务清单对照（已做 / 待做）
+| 优先级 | 任务项 | 状态 | 落地内容 / 交付说明 |
+|---|---|---|---|
+| P0-1 | alert-sink 告警中心 | ✅ 完成 | 边缘触发 + critical 去重 + 10分钟 Flapping 震荡抑制（翻转>2次进震荡，单次 OK 静音） |
+| P0-2 | bash 看门狗 + crontab | ✅ 完成 | 外部 curl 探测（R1/R2 只告警不自动 pm2 restart）+ 失败 2 秒重试防抖 |
+| P0-3 | `/health` + event-loop 探针 | ✅ 完成 | 实时延迟度量 + 喂入背压控制器 + checkedAt 统一北京时间 |
+| P0-4 | AI 隧道熔断保护 | ✅ 完成 | 连续 3 次失败软降级挂起本地 14B 探针，避免刷屏 |
+| P0-5 | 告警时区本地化 | ✅ 完成 | 移除 `toISOString()` UTC 偏差，全面支持 Asia/Shanghai 北京时间 |
+| P0-6 | 慢操作打点归因 | ✅ 完成 | 舍弃重型 V8 Profiler，改用 `trackSlowOp` + 20 条内存环形缓冲，告警证据直出阻塞函数与 batch |
+| P0-7 | 固定三级阶梯背压 | ✅ 完成 | 25s $\to$ 60s $\to$ 120s 自动退避，暂停次要 media_worker；连续 3 周期健康平滑回退 |
+| P1-5 | attachments 回填与持久化 | ✅ 完成 | `messages.attachments` 库表结构就绪，实时下载活签落盘并在主库 ON CONFLICT 回填 |
+| P1-6 | rate-limiter 内存化与去污 | ✅ 完成 | 22,285 条 `gemini_api_cloud` 历史脏数据物理清除，改为纯内存 Map 限流，task_queue 零写入 |
+| P1-A | 入库 50 条分块切片减负 | ✅ 完成 | `saveMessages` 大批量入库按 50 条切片并在片间 `setImmediate`，主动交出主线程生命通道 |
+| P1-B | 调度器日志噪音治理 | ✅ 完成 | Auto News Scheduler 空数据时降级为 info 日志，彻底停止污染 `error.log` |
+| P1-C | 探针指标滤波与毛刺削峰 | ✅ 完成 | 重构 `classifyEventLoopLevel`：`p99 >= 5s` 作为 CRITICAL 核心裁定，孤立毛刺降级为 WARN；剔除 ISR 上半部重复写 |
+| P1-7 | `monitoring.db` 独立库 + 探针框架 | ✅ 完成 | 遵循 R3 红线：建立独立 WAL 监控时序库 (health_events/metric_samples/alert_history，7天自动轮转裁剪) + 队列与水位只读探针 + Supervisor 统一调度 |
+| P1-8 | 队列消费者落实（离线脚本/cron，恪守 R4） | ✅ 完成 | 实现 `scripts/offline_queue_worker.js` 离线批处理与水位单调递增推进，恪守 R4 绝不侵占主服务内存 |
+| P1-9 | 离线资产可靠定时调度与滞后监测 | ✅ **验收通过** | 探针入 `/health`；`run_offline_asset_sync.js` 回仓；Crontab `0 2 * * 0,6` (北京 10:00)；`--force` 验证完成（Persona `lagDays=0`，`assets.persona=ok`）；落实 News 周末免检（`/health` 纯绿灯） |
+| P1-10 | 推送与交易链路端到端监测 | ✅ 完成 | 端到端 TTL 打点 + 企微 RTT 往返时延 + 大V未推送/未交易只读积压探测 + 连续失败超时告警接入 Supervisor 与 `/health` |
+| P1-11 | 看板与 Ingest 物理多进程隔离 | ✅ 已灰度（GCP） | 双进程 online；观察结束；单体 stopped 留作回滚；详见 Runbook / `p1-11-t23-review-and-cutover-gate.md` |
+| P2-11 | 健康看板页 | ✅ 本地闭环 | 见 `p2-11-*`；生产 Tunnel 已可访问 `/monitoring` |
+| P2-12 | 双进程路由覆盖 + 自动检测 | ✅ 互签归档 | `4a4410d` / [`docs/p2-12-p2h-signoff.md`](./p2-12-p2h-signoff.md)；crontab `*/3` page_smoke **已挂** |
+| P2-13 | 数据一致性巡检 | ✅ 互签归档 | `32226ff` / [`docs/p2-13-p2f-signoff.md`](./p2-13-p2f-signoff.md)；crontab `*/5` consistency_smoke **已挂** |
+| P2-14 | 前端 `window.onerror` RUM | ⏸ 本轮跳过 | 计划最低优先级/可剔除；需要另开薄轨 |
+| P2-15 | 软降级钩子（R5） | ✅ 互签归档 | `502a1c3` + F 签 [`docs/p2-15-p2f-signoff.md`](./p2-15-p2f-signoff.md)；monitoring `[11]` |
+| 运维 | 周末 Persona 刷新闭环 | ✅ 完成 | 2026-09-05 Reduce 落库成功（`Gemini-Flash+Vision`）；探针脚本全量回仓；线上 `/health` 达成全局 `ok: true` |

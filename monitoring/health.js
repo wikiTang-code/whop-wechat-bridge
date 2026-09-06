@@ -4,18 +4,59 @@
  */
 import { getEventLoopSnapshot } from './event-loop-probe.js';
 import { getAlertSinkStats } from './alert-sink.js';
+import { getQueueSnapshot } from './queue-watermark-probe.js';
+import { getMonitoringDbStats, getIngestHeartbeat } from './monitoring-db.js';
+import { getAssetFreshnessSnapshot } from './asset-freshness-probe.js';
+import { getPushPipelineSnapshot } from './push-latency-probe.js';
+import { getRouteCoverageSnapshot } from './route-coverage-probe.js';
+import { getTunnelStatus } from './tunnel-launcher.js';
+import { getCachedDataConsistencySnapshot } from './data-consistency-probe.js';
+import { getSoftDegradeSnapshot } from './soft-degrade-registry.js';
 
 let aiTunnelGetter = null;
+let ingestHeartbeatDbGetter = null;
+let routeCoverageEnabled = false;
+let dataConsistencyEnabled = false;
+let softDegradeEnabled = true;
 
 /** Optional injector from P0-4 circuit breaker */
 export function registerAiTunnelHealthGetter(fn) {
   aiTunnelGetter = typeof fn === 'function' ? fn : null;
 }
 
+/** Web 进程注入只读 monitoring.db，避免误开写连接 */
+export function registerIngestHeartbeatDbGetter(fn) {
+  ingestHeartbeatDbGetter = typeof fn === 'function' ? fn : null;
+}
+
+/** 仅 web_dashboard 启用 routeCoverage 子系统（避免 ingest 误报） */
+export function setRouteCoverageHealthEnabled(enabled) {
+  routeCoverageEnabled = Boolean(enabled);
+}
+
+/** 仅 web_dashboard 启用 dataConsistency（P2-13D） */
+export function setDataConsistencyHealthEnabled(enabled) {
+  dataConsistencyEnabled = Boolean(enabled);
+}
+
+/** P2-15D：软降级子系统（默认开；测试可关） */
+export function setSoftDegradeHealthEnabled(enabled) {
+  softDegradeEnabled = Boolean(enabled);
+}
+
+function shouldExposeIngestHeartbeat() {
+  const role = process.env.ROLE || '';
+  return role === 'web_dashboard' || process.env.INGEST_HEARTBEAT_REQUIRED === '1';
+}
+
 export function buildHealthPayload() {
   const eventLoop = getEventLoopSnapshot();
   const aiTunnel = aiTunnelGetter ? aiTunnelGetter() : { enabled: false, status: 'unknown' };
   const alerts = getAlertSinkStats();
+  const queues = getQueueSnapshot();
+  const monDbStats = getMonitoringDbStats();
+  const assets = getAssetFreshnessSnapshot();
+  const pushPipeline = getPushPipelineSnapshot();
 
   const subsystems = {
     process: {
@@ -32,17 +73,71 @@ export function buildHealthPayload() {
       status: aiTunnel.status || aiTunnel.level || 'unknown',
       ...aiTunnel,
     },
+    queues: {
+      status: queues.status || 'ok',
+      ...queues,
+    },
+    assets: {
+      status: assets.status || 'ok',
+      ...assets,
+    },
+    monitoringDb: {
+      status: monDbStats.status || 'ok',
+      ...monDbStats,
+    },
+    pushPipeline: {
+      status: pushPipeline.status || 'ok',
+      ...pushPipeline,
+    },
     alerts: {
       status: 'ok',
       ...alerts,
     },
+    tunnel: getTunnelStatus(),
   };
 
-  const levels = Object.values(subsystems).map((s) => s.status);
+  if (shouldExposeIngestHeartbeat()) {
+    const dbInstance = ingestHeartbeatDbGetter ? ingestHeartbeatDbGetter() : null;
+    const hb = getIngestHeartbeat('primary', dbInstance ? { dbInstance } : {});
+    subsystems.ingest = {
+      status: hb.status || 'critical',
+      ...hb,
+    };
+  }
+
+  if (routeCoverageEnabled || process.env.ROLE === 'web_dashboard') {
+    subsystems.routeCoverage = getRouteCoverageSnapshot();
+  }
+
+  if (dataConsistencyEnabled || process.env.ROLE === 'web_dashboard') {
+    subsystems.dataConsistency = getCachedDataConsistencySnapshot();
+  }
+
+  if (softDegradeEnabled) {
+    subsystems.softDegrade = getSoftDegradeSnapshot();
+  }
+
+  const runtimeLevels = [subsystems.process.status, subsystems.eventLoop.status];
+  if (subsystems.ingest) runtimeLevels.push(subsystems.ingest.status);
+
   let overall = 'ok';
-  if (levels.includes('critical') || levels.includes('open') || levels.includes('down')) {
+  if (runtimeLevels.includes('critical') || runtimeLevels.includes('down')) {
     overall = 'critical';
-  } else if (levels.includes('warn') || levels.includes('half-open')) {
+  } else if (
+    runtimeLevels.includes('warn') ||
+    subsystems.queues.status === 'warn' ||
+    subsystems.assets.status === 'warn' ||
+    subsystems.assets.status === 'critical' ||
+    subsystems.pushPipeline.status === 'warn' ||
+    subsystems.pushPipeline.status === 'critical' ||
+    subsystems.routeCoverage?.status === 'warn' ||
+    subsystems.routeCoverage?.status === 'critical' ||
+    subsystems.tunnel?.status === 'warn' ||
+    subsystems.dataConsistency?.status === 'warn' ||
+    subsystems.dataConsistency?.status === 'critical' ||
+    subsystems.softDegrade?.status === 'warn'
+  ) {
+    // routeCoverage / dataConsistency / softDegrade 只抬 overall 到 warn，不单独把 /health 打成 503
     overall = 'warn';
   }
 

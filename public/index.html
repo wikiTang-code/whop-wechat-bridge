@@ -485,6 +485,8 @@
               沙盒模拟模式
             </div>
           </div>
+
+          <div id="gex-structure-bar" class="gex-summary">正在加载 GEX 结构…</div>
           
           <div class="portfolio-container">
             <!-- Asset Cards -->
@@ -941,8 +943,12 @@
         <div class="form-section">
           <h4>📢 推送与轮询设置</h4>
           <div class="form-group">
-            <label for="wechat_work_webhook_url">企业微信群机器人 Webhook URL</label>
-            <input type="password" id="wechat_work_webhook_url" placeholder="已保存 Webhook 地址 (输入新地址以更新)">
+            <label for="wechat_work_webhook_url">业务群机器人 Webhook URL (大V消息/跟单/研报)</label>
+            <input type="password" id="wechat_work_webhook_url" placeholder="已保存业务群 Webhook 地址 (输入新地址以更新)">
+          </div>
+          <div class="form-group">
+            <label for="wechat_alert_webhook_url">运维告警群机器人 Webhook URL (监控/看门狗/AI熔断, 留空默认退回业务群)</label>
+            <input type="password" id="wechat_alert_webhook_url" placeholder="留空则与业务群共用 (输入独立告警机器人地址以分流)">
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -1001,6 +1007,12 @@
         <button class="btn btn-primary" id="btn-close-context-footer">关闭</button>
       </div>
     </div>
+  </div>
+
+  <!-- Message image lightbox (主列表 / 上下文弹窗共用) -->
+  <div class="image-lightbox" id="image-lightbox" style="display: none;" role="dialog" aria-modal="true" aria-label="图片预览">
+    <button type="button" class="image-lightbox-close" id="btn-close-lightbox" aria-label="关闭">✕</button>
+    <img id="image-lightbox-img" class="image-lightbox-img" alt="预览图片">
   </div>
 
   <!-- AI Monitor Modal -->
@@ -1149,6 +1161,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=20260720_v6"></script>
+  <script src="gex-summary.js?v=20260906_gex1"></script>
+  <script src="app.js?v=20260906_gex1"></script>
 </body>
 </html>

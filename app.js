@@ -990,6 +990,9 @@ async function saveSettings(e) {
   const wechatUrl = document.getElementById('wechat_work_webhook_url').value.trim();
   if (wechatUrl) payload.WECHAT_WORK_WEBHOOK_URL = wechatUrl;
 
+  const wechatAlertUrl = document.getElementById('wechat_alert_webhook_url')?.value?.trim();
+  if (wechatAlertUrl) payload.WECHAT_ALERT_WEBHOOK_URL = wechatAlertUrl;
+
   const whopSecret = document.getElementById('whop_webhook_secret').value.trim();
   if (whopSecret) payload.WHOP_WEBHOOK_SECRET = whopSecret;
 
@@ -1473,7 +1476,11 @@ function populateSettingsForm(config) {
   // Set placeholders for masked secrets
   document.getElementById('whop_user_token').placeholder = config.WHOP_USER_TOKEN_MASKED ? '已保存加密 Token (输入新 Token 以更新)' : '未配置';
   document.getElementById('gemini_api_key').placeholder = config.GEMINI_API_KEY_MASKED ? '已保存 API 密钥 (输入新 Key 以更新)' : '未配置';
-  document.getElementById('wechat_work_webhook_url').placeholder = config.WECHAT_WORK_WEBHOOK_URL_MASKED ? '已保存 Webhook 地址 (输入新地址以更新)' : '未配置';
+  document.getElementById('wechat_work_webhook_url').placeholder = config.WECHAT_WORK_WEBHOOK_URL_MASKED ? '已保存业务群 Webhook 地址 (输入新地址以更新)' : '未配置';
+  const alertEl = document.getElementById('wechat_alert_webhook_url');
+  if (alertEl) {
+    alertEl.placeholder = config.WECHAT_ALERT_WEBHOOK_URL_MASKED ? '已保存告警群 Webhook 地址 (输入新地址以更新)' : '留空则与业务群共用 (输入独立告警地址以分流)';
+  }
   document.getElementById('whop_webhook_secret').placeholder = config.WHOP_WEBHOOK_SECRET_MASKED ? '已保存签名密钥 (输入新 Secret 以更新)' : '未配置';
   
   toggleAIFields();

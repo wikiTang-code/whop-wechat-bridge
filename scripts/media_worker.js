@@ -46,7 +46,7 @@ export async function runMediaWorker(limit = 10) {
   // Live schema may lack INTEGER PK task_id (composite PK only). Use rowid as stable id.
   const pendingTasks = db.prepare(`
     SELECT COALESCE(pt.task_id, pt.rowid) AS task_id, pt.rowid AS rowid, pt.message_id,
-           COALESCE(pt.retry_count, 0) AS retry_count, m.attachments, m.sender_name, m.created_at, m.channel_name
+           COALESCE(pt.retry_count, 0) AS retry_count, m.attachments, m.content, m.sender_name, m.created_at, m.channel_name
     FROM pipeline_tasks pt
     JOIN messages m ON pt.message_id = m.id
     WHERE pt.queue_name = 'media' AND pt.status = 'pending'
@@ -92,6 +92,15 @@ export async function runMediaWorker(limit = 10) {
       attachments = JSON.parse(task.attachments || '[]');
     } catch (e) {
       attachments = [];
+    }
+
+    // 兜底：若 attachments 解析为空，尝试从 content 的 [IMAGE:url] 中提取
+    if (attachments.length === 0 && task.content) {
+      const regex = /\[IMAGE:(https?:\/\/[^\]]+)\]/g;
+      let match;
+      while ((match = regex.exec(task.content)) !== null) {
+        attachments.push({ url: match[1], contentType: 'image/jpeg' });
+      }
     }
 
     if (attachments.length === 0) {

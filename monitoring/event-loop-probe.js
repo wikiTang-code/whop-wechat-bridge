@@ -3,7 +3,8 @@
  * Side-path only — read metrics; soft-degrade alerts; never process-restart (R5/R6).
  */
 import { monitorEventLoopDelay } from 'perf_hooks';
-import { sendAlert } from './alert-sink.js';
+import { sendAlert, formatBeijingTime } from './alert-sink.js';
+import { updateBackpressureMetrics } from './backpressure-controller.js';
 
 const WARN_NS = 1e9;      // 1s
 const CRITICAL_NS = 5e9;  // 5s
@@ -29,6 +30,16 @@ export function getEventLoopSnapshot() {
   return { ...lastSnapshot };
 }
 
+export function classifyEventLoopLevel(p99Ns, maxNs, warnNs, criticalNs) {
+  // 1. 真实系统大面积挂起：99% 的 tick 全部超标
+  if (p99Ns >= criticalNs) return 'critical';
+  // 2. 持续性显著延迟且伴随极端毛刺
+  if (p99Ns >= warnNs && maxNs >= criticalNs) return 'critical';
+  // 3. 轻度延迟或单点毛刺（如 p99 仍正常但仅单次 GC 产生瞬时 max）
+  if (p99Ns >= warnNs || maxNs >= warnNs) return 'warn';
+  return 'ok';
+}
+
 export function startEventLoopProbe({
   warnMs = 1000,
   criticalMs = 5000,
@@ -51,9 +62,7 @@ export function startEventLoopProbe({
       const p99 = histogram.percentile(99);
       histogram.reset();
 
-      let level = 'ok';
-      if (max >= criticalNs || p99 >= criticalNs) level = 'critical';
-      else if (max >= warnNs || p99 >= warnNs) level = 'warn';
+      const level = classifyEventLoopLevel(p99, max, warnNs, criticalNs);
 
       lastSnapshot = {
         enabled: true,
@@ -62,8 +71,14 @@ export function startEventLoopProbe({
         p99Ms: nsToMs(p99),
         level,
         thresholds: { warnMs, criticalMs },
-        checkedAt: new Date().toISOString(),
+        checkedAt: formatBeijingTime(),
       };
+
+      // Feed metrics into backpressure controller
+      updateBackpressureMetrics({
+        p99Ms: lastSnapshot.p99Ms,
+        httpOk: level !== 'critical',
+      });
 
       if (!enableAlerts) {
         lastLevel = level;

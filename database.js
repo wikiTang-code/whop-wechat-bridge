@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { trackSlowOp } from './monitoring/slow-log-tracker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -542,16 +543,19 @@ export function getDb() {
   return db;
 }
 
-// Save messages to database
-export function saveMessages(messages) {
+// Save messages to database (chunked with event loop yielding)
+export async function saveMessages(messages, { chunkSize = 50, yieldEventLoop = true } = {}) {
+  if (!messages || messages.length === 0) return 0;
   const conn = getDb();
   const insert = conn.prepare(`
-    INSERT OR IGNORE INTO messages (id, channel_id, channel_name, sender_id, sender_name, content, created_at, tickers, sectors, strategies, attachments)
+    INSERT INTO messages (id, channel_id, channel_name, sender_id, sender_name, content, created_at, tickers, sectors, strategies, attachments)
     VALUES (@id, @channel_id, @channel_name, @sender_id, @sender_name, @content, @created_at, @tickers, @sectors, @strategies, @attachments)
+    ON CONFLICT(id) DO UPDATE SET
+      attachments = COALESCE(excluded.attachments, messages.attachments)
   `);
 
   const registry = getChannelRegistryMap();
-  const insertMany = conn.transaction((msgs) => {
+  const insertChunk = conn.transaction((msgs) => {
     for (const msg of msgs) {
       const dims = extractTradingDimensions(msg.content);
       const regInfo = registry[msg.channel_id];
@@ -577,10 +581,44 @@ export function saveMessages(messages) {
   });
 
   try {
-    insertMany(messages);
+    // 小批量数据 (<= chunkSize)：单次同步事务极速写入，零异步等待开销
+    if (messages.length <= chunkSize) {
+      trackSlowOp('database:saveMessages', messages.length, () => {
+        insertChunk(messages);
+      });
+      return messages.length;
+    }
+
+    // 大批量数据：按 chunkSize (50条) 分片入库，事务间主动释放事件循环保全 HTTP 看板
+    await trackSlowOp('database:saveMessages', messages.length, async () => {
+      for (let i = 0; i < messages.length; i += chunkSize) {
+        const chunk = messages.slice(i, i + chunkSize);
+        insertChunk(chunk);
+        if (yieldEventLoop && i + chunkSize < messages.length) {
+          await new Promise((resolve) => setImmediate(resolve));
+        }
+      }
+    });
+    return messages.length;
   } catch (err) {
     console.error('[Database] saveMessages transaction failed:', err.message);
     throw err;
+  }
+}
+
+// Explicitly update attachments for an existing message
+export function updateMessageAttachments(id, attachments) {
+  if (!id || !attachments) return;
+  const conn = getDb();
+  const attachJson = typeof attachments === 'string' ? attachments : JSON.stringify(attachments);
+  try {
+    conn.prepare(`
+      UPDATE messages
+      SET attachments = ?
+      WHERE id = ?
+    `).run(attachJson, id);
+  } catch (err) {
+    console.error(`[Database] updateMessageAttachments failed for message ${id}:`, err.message);
   }
 }
 
@@ -592,11 +630,11 @@ export function isMessageArchived(id) {
 }
 
 // Retrieve messages with optional search and pagination and speaker filtering
-export function getMessages({ search, limit = 50, offset = 0, senderIds = [], excludeSenderIds = [], channelId = '', channelName = '', ticker = '', sector = '', strategy = '', startDate = '', endDate = '', msgType = '' } = {}) {
+export function getMessages({ search, limit = 50, offset = 0, senderIds = [], excludeSenderIds = [], channelId = '', channelName = '', ticker = '', sector = '', strategy = '', startDate = '', endDate = '', msgType = '', dbInstance = null } = {}) {
   // Input validation: clamp limit and offset to safe ranges
   limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
   offset = Math.max(0, parseInt(offset, 10) || 0);
-  const conn = getDb();
+  const conn = dbInstance || getDb();
   let query = 'SELECT * FROM messages';
   let countQuery = 'SELECT COUNT(*) as count FROM messages';
   const params = [];
@@ -728,10 +766,10 @@ export function saveReport({ startTime, endTime, summaryContent, aiModel, rawMes
 }
 
 // Retrieve reports with pagination
-export function getReports({ limit = 10, offset = 0 } = {}) {
+export function getReports({ limit = 10, offset = 0, dbInstance = null } = {}) {
   limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 10));
   offset = Math.max(0, parseInt(offset, 10) || 0);
-  const conn = getDb();
+  const conn = dbInstance || getDb();
   const stmt = conn.prepare(`
     SELECT * FROM reports 
     ORDER BY created_at DESC LIMIT ? OFFSET ?
@@ -745,8 +783,8 @@ export function getReports({ limit = 10, offset = 0 } = {}) {
 }
 
 // Retrieve latest AI report for a specific strategy
-export function getLatestReportForStrategy(strategy) {
-  const conn = getDb();
+export function getLatestReportForStrategy(strategy, dbInstance = null) {
+  const conn = dbInstance || getDb();
   return conn.prepare(`
     SELECT * FROM reports 
     WHERE strategy = ? 
@@ -759,8 +797,8 @@ export function getLatestReportForStrategy(strategy) {
 // ==========================================================================
 
 // 获取账户资产信息
-export function getPortfolio() {
-  const conn = getDb();
+export function getPortfolio(dbInstance = null) {
+  const conn = dbInstance || getDb();
   const cash = conn.prepare('SELECT value FROM portfolio WHERE key = ?').get('cash')?.value || 0;
   const deposit = conn.prepare('SELECT value FROM portfolio WHERE key = ?').get('initial_deposit')?.value || 0;
   
@@ -803,16 +841,16 @@ export function setLastSyncTime(timestamp) {
 }
 
 // 获取上次同步时间
-export function getLastSyncTime() {
-  const conn = getDb();
+export function getLastSyncTime(dbInstance = null) {
+  const conn = dbInstance || getDb();
   const row = conn.prepare("SELECT value FROM portfolio WHERE key = 'last_sync_time'").get();
   return row ? row.value : null;
 }
 
 
 // 获取所有持仓
-export function getPositions() {
-  const conn = getDb();
+export function getPositions(dbInstance = null) {
+  const conn = dbInstance || getDb();
   return conn.prepare('SELECT * FROM positions WHERE quantity > 0').all();
 }
 
@@ -845,10 +883,10 @@ export function saveOrder(order) {
 }
 
 // 获取订单历史
-export function getOrders({ limit = 50, offset = 0 } = {}) {
+export function getOrders({ limit = 50, offset = 0, dbInstance = null } = {}) {
   limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
   offset = Math.max(0, parseInt(offset, 10) || 0);
-  const conn = getDb();
+  const conn = dbInstance || getDb();
   const stmt = conn.prepare(`
     SELECT * FROM orders 
     ORDER BY created_at DESC LIMIT ? OFFSET ?
@@ -861,76 +899,78 @@ export function getOrders({ limit = 50, offset = 0 } = {}) {
   return { orders, total };
 }
 
+// Sector mapping (module level)
+const SECTOR_MAPPING = {
+  // 科技/AI芯片
+  'NVDA': '科技/AI芯片', 'NVDL': '科技/AI芯片', 'AMD': '科技/AI芯片', 'AVGO': '科技/AI芯片',
+  'TSM': '科技/AI芯片', 'ASML': '科技/AI芯片', 'ARM': '科技/AI芯片', 'MU': '科技/AI芯片',
+  'INTC': '科技/AI芯片', 'QCOM': '科技/AI芯片', 'MRVL': '科技/AI芯片', 'SMCI': '科技/AI芯片',
+  // 新能源汽车
+  'TSLA': '新能源汽车', 'TSLL': '新能源汽车', 'BYD': '新能源汽车', 'BYDDY': '新能源汽车',
+  'RIVN': '新能源汽车', 'LCID': '新能源汽车',
+  // 巨头/科技龙头
+  'AAPL': '巨头/科技龙头', 'MSFT': '巨头/科技龙头', 'GOOG': '巨头/科技龙头', 'GOOGL': '巨头/科技龙头',
+  'META': '巨头/科技龙头', 'AMZN': '巨头/科技龙头', 'NFLX': '巨头/科技龙头',
+  // 加密货币/区块链
+  'COIN': '加密货币/区块链', 'MSTR': '加密货币/区块链', 'MARA': '加密货币/区块链', 'RIOT': '加密货币/区块链',
+  'CLSK': '加密货币/区块链', 'BTC': '加密货币/区块链', 'ETH': '加密货币/区块链',
+  // 中概股
+  'BABA': '中概股', 'PDD': '中概股', 'JD': '中概股', 'BIDU': '中概股', 'FUTU': '中概股',
+  'YINN': '中概股', 'CQQQ': '中概股', 'YANG': '中概股',
+  // 大盘/债汇/指数
+  'SPY': '大盘/债汇/指数', 'QQQ': '大盘/债汇/指数', 'DIA': '大盘/债汇/指数', 'IWM': '大盘/债汇/指数',
+  'TLT': '大盘/债汇/指数', 'TMF': '大盘/债汇/指数', 'SQQQ': '大盘/债汇/指数', 'TQQQ': '大盘/债汇/指数',
+  'UUP': '大盘/债汇/指数', 'DXY': '大盘/债汇/指数',
+  // 光通信/其他
+  'LITE': '光通信/其他', 'COHR': '光通信/其他', 'LUNA': '光通信/其他'
+};
+
+const KNOWN_TICKERS_REGEX = new RegExp(`\\b\\$?(${Object.keys(SECTOR_MAPPING).join('|')})\\b`, 'gi');
+
+const STOP_WORDS = new Set([
+  'BUY', 'SELL', 'CALL', 'PUT', 'GET', 'POST', 'JSON', 'USD', 'CAD', 'EUR', 'GBP', 'CNY', 'HKD', 'ETF', 'ETFS', 'API', 
+  'REST', 'HTML', 'CSS', 'JS', 'AI', 'GPT', 'USA', 'SEC', 'FED', 'FOMC', 'GDP', 
+  'CPI', 'PPI', 'PMI', 'VIX', 'FOR', 'AND', 'THE', 'YOU', 'OUR', 'NOW', 'BUT',
+  'IPO', 'SPAC', 'IV', 'ITM', 'OTM', 'ATM', 'TA', 'DD', 'ATH', 'EOD', 'PM', 'AH',
+  'PNL', 'PL', 'NAV', 'CEO', 'CFO', 'COO', 'UTC', 'EST', 'EDT', 'MACD', 'RSI',
+  'EMA', 'SMA', 'PDF', 'PPT', 'DOC', 'URL', 'URI', 'AWS', 'SSL', 'TLS', 'DNS',
+  'IP', 'VPN', 'APP', 'WEB', 'PC', 'FAQ', 'VS', 'OK', 'FYI', 'DIY', 'NEW', 'OLD', 'NA',
+  'IMAGE', 'HMAC', 'SHA', 'SHA256', 'AMZ', 'CALLS', 'PUTS'
+]);
+
+const GENERIC_TICKER_REGEX = /\b\$?([A-Z]{2,5})\b/g;
+
 // Extract trading dimensions (tickers, sectors, strategies) from content
 export function extractTradingDimensions(content) {
   if (!content) return { tickers: '', sectors: '', strategies: '' };
   
-  // 0. Clean content: strip image tags [IMAGE:...] and standard URLs to avoid URL query params/paths being treated as tickers
+  // 0. Clean content: strip image tags [IMAGE:...] and standard URLs
   let cleanContent = content.replace(/\[IMAGE:[^\]]+\]/gi, '');
   cleanContent = cleanContent.replace(/https?:\/\/[^\s]+/gi, '');
   
-  // Sector mapping
-  const sectorMapping = {
-    // 科技/AI芯片
-    'NVDA': '科技/AI芯片', 'NVDL': '科技/AI芯片', 'AMD': '科技/AI芯片', 'AVGO': '科技/AI芯片',
-    'TSM': '科技/AI芯片', 'ASML': '科技/AI芯片', 'ARM': '科技/AI芯片', 'MU': '科技/AI芯片',
-    'INTC': '科技/AI芯片', 'QCOM': '科技/AI芯片', 'MRVL': '科技/AI芯片', 'SMCI': '科技/AI芯片',
-    // 新能源汽车
-    'TSLA': '新能源汽车', 'TSLL': '新能源汽车', 'BYD': '新能源汽车', 'BYDDY': '新能源汽车',
-    'RIVN': '新能源汽车', 'LCID': '新能源汽车',
-    // 巨头/科技龙头
-    'AAPL': '巨头/科技龙头', 'MSFT': '巨头/科技龙头', 'GOOG': '巨头/科技龙头', 'GOOGL': '巨头/科技龙头',
-    'META': '巨头/科技龙头', 'AMZN': '巨头/科技龙头', 'NFLX': '巨头/科技龙头',
-    // 加密货币/区块链
-    'COIN': '加密货币/区块链', 'MSTR': '加密货币/区块链', 'MARA': '加密货币/区块链', 'RIOT': '加密货币/区块链',
-    'CLSK': '加密货币/区块链', 'BTC': '加密货币/区块链', 'ETH': '加密货币/区块链',
-    // 中概股
-    'BABA': '中概股', 'PDD': '中概股', 'JD': '中概股', 'BIDU': '中概股', 'FUTU': '中概股',
-    'YINN': '中概股', 'CQQQ': '中概股', 'YANG': '中概股',
-    // 大盘/债汇/指数
-    'SPY': '大盘/债汇/指数', 'QQQ': '大盘/债汇/指数', 'DIA': '大盘/债汇/指数', 'IWM': '大盘/债汇/指数',
-    'TLT': '大盘/债汇/指数', 'TMF': '大盘/债汇/指数', 'SQQQ': '大盘/债汇/指数', 'TQQQ': '大盘/债汇/指数',
-    'UUP': '大盘/债汇/指数', 'DXY': '大盘/债汇/指数',
-    // 光通信/其他
-    'LITE': '光通信/其他', 'COHR': '光通信/其他', 'LUNA': '光通信/其他'
-  };
-
   const tickersFound = new Set();
 
-  // 1. Match known mapped tickers case-insensitively to capture lowercase inputs like 'lite', 'tsla'
-  const knownTickers = Object.keys(sectorMapping);
-  for (const ticker of knownTickers) {
-    const regex = new RegExp(`\\b\\$?${ticker}\\b`, 'i');
-    if (regex.test(cleanContent)) {
-      tickersFound.add(ticker);
-    }
+  // 1. Single-pass match for known mapped tickers case-insensitively
+  KNOWN_TICKERS_REGEX.lastIndex = 0;
+  let kMatch;
+  while ((kMatch = KNOWN_TICKERS_REGEX.exec(cleanContent)) !== null) {
+    tickersFound.add(kMatch[1].toUpperCase());
   }
 
   // 2. Fallback to match other uppercase words (e.g. unknown new tickers)
-  const stopWords = new Set([
-    'BUY', 'SELL', 'CALL', 'PUT', 'GET', 'POST', 'JSON', 'USD', 'CAD', 'EUR', 'GBP', 'CNY', 'HKD', 'ETF', 'ETFS', 'API', 
-    'REST', 'HTML', 'CSS', 'JS', 'AI', 'GPT', 'USA', 'SEC', 'FED', 'FOMC', 'GDP', 
-    'CPI', 'PPI', 'PMI', 'VIX', 'FOR', 'AND', 'THE', 'YOU', 'OUR', 'NOW', 'BUT',
-    'IPO', 'SPAC', 'IV', 'ITM', 'OTM', 'ATM', 'TA', 'DD', 'ATH', 'EOD', 'PM', 'AH',
-    'PNL', 'PL', 'NAV', 'CEO', 'CFO', 'COO', 'UTC', 'EST', 'EDT', 'MACD', 'RSI',
-    'EMA', 'SMA', 'PDF', 'PPT', 'DOC', 'URL', 'URI', 'AWS', 'SSL', 'TLS', 'DNS',
-    'IP', 'VPN', 'APP', 'WEB', 'PC', 'FAQ', 'VS', 'OK', 'FYI', 'DIY', 'NEW', 'OLD', 'NA',
-    'IMAGE', 'HMAC', 'SHA', 'SHA256', 'AMZ', 'CALLS', 'PUTS'
-  ]);
-  
-  const tickerRegex = /\b\$?([A-Z]{2,5})\b/g;
+  GENERIC_TICKER_REGEX.lastIndex = 0;
   let match;
-  while ((match = tickerRegex.exec(cleanContent)) !== null) {
+  while ((match = GENERIC_TICKER_REGEX.exec(cleanContent)) !== null) {
     const sym = match[1].toUpperCase();
-    if (!stopWords.has(sym)) {
+    if (!STOP_WORDS.has(sym)) {
       tickersFound.add(sym);
     }
   }
   
   const sectorsFound = new Set();
   tickersFound.forEach(t => {
-    if (sectorMapping[t]) {
-      sectorsFound.add(sectorMapping[t]);
+    if (SECTOR_MAPPING[t]) {
+      sectorsFound.add(SECTOR_MAPPING[t]);
     } else {
       sectorsFound.add('其他个股');
     }
@@ -994,9 +1034,10 @@ export function saveMessageEmbedding(id, embeddingArray) {
 export function getMessagesWithoutEmbeddings(limit = 100) {
   const conn = getDb();
   return conn.prepare(`
-    SELECT id, content FROM messages
-    WHERE id NOT IN (SELECT id FROM message_embeddings)
-    ORDER BY created_at DESC
+    SELECT m.id, m.content FROM messages m
+    LEFT JOIN message_embeddings me ON m.id = me.id
+    WHERE me.id IS NULL
+    ORDER BY m.created_at DESC
     LIMIT ?
   `).all(limit);
 }
@@ -1116,8 +1157,8 @@ export function searchVectorMessages(embeddingArray, limit = 30, senderIds = [])
 }
 
 // 获取指定消息的前后上下文消息
-export function getMessageContext({ messageId, limit = 10 }) {
-  const conn = getDb();
+export function getMessageContext({ messageId, limit = 10, dbInstance = null } = {}) {
+  const conn = dbInstance || getDb();
   
   // 1. 先查出目标消息的定位参数 (created_at, channel_id)
   const target = conn.prepare('SELECT created_at, channel_id FROM messages WHERE id = ?').get(messageId);
@@ -1372,8 +1413,8 @@ export function getAllSpeakerMessagesChronological(senderIds = [], { limit = 100
 /**
  * 获取最新的画像白皮书报告
  */
-export function getLatestPersonaPlaybook() {
-  return getLatestReportForStrategy('PERSONA_PLAYBOOK');
+export function getLatestPersonaPlaybook(dbInstance = null) {
+  return getLatestReportForStrategy('PERSONA_PLAYBOOK', dbInstance);
 }
 
 /**
@@ -1414,8 +1455,8 @@ export function getContextAroundMessages(messageIds, contextBefore = 3, contextA
  * 获取数据库中所有唯一的频道信息 (channel_id 和 channel_name)
  * 🏛️ 强制通过权威登记册收口为 1:1 规范名称
  */
-export function getDistinctChannels() {
-  const conn = getDb();
+export function getDistinctChannels(dbInstance = null) {
+  const conn = dbInstance || getDb();
   const rows = conn.prepare(`
     SELECT DISTINCT channel_id
     FROM messages 
@@ -1432,8 +1473,8 @@ export function getDistinctChannels() {
 /**
  * 获取当前每日 API 调用计数 (不递增)
  */
-export function getDailyApiCount() {
-  const db = getDb();
+export function getDailyApiCount(dbInstance = null) {
+  const db = dbInstance || getDb();
   // 使用北京时间本地日期 (sv-SE 格式化输出 YYYY-MM-DD)
   const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' });
   const row = db.prepare("SELECT value FROM portfolio WHERE key = ?").get(`gemini_requests_${todayStr}`);
@@ -1488,10 +1529,10 @@ export function saveNewsSummary(summary) {
 /**
  * 获取历史资讯总结列表
  */
-export function getNewsSummaries(limit = 10, offset = 0) {
+export function getNewsSummaries(limit = 10, offset = 0, dbInstance = null) {
   limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 10));
   offset = Math.max(0, parseInt(offset, 10) || 0);
-  const conn = getDb();
+  const conn = dbInstance || getDb();
   return conn.prepare(`
     SELECT * FROM news_summaries 
     ORDER BY created_at DESC 
@@ -1502,8 +1543,8 @@ export function getNewsSummaries(limit = 10, offset = 0) {
 /**
  * 获取最新一期资讯总结 (可按类型过滤)
  */
-export function getLatestNewsSummary(type = null) {
-  const conn = getDb();
+export function getLatestNewsSummary(type = null, dbInstance = null) {
+  const conn = dbInstance || getDb();
   if (type) {
     return conn.prepare(`
       SELECT * FROM news_summaries 

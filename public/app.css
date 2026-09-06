@@ -823,6 +823,72 @@ input::placeholder {
   display: grid;
 }
 
+/* Day-level GEX structure strip (quant tab only; not header risk color) */
+.gex-summary {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+.gex-summary.is-stale {
+  border-color: rgba(234, 179, 8, 0.55);
+}
+.gex-summary.is-bad,
+.gex-summary.is-missing {
+  border-color: rgba(248, 81, 73, 0.45);
+}
+.gex-summary-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.gex-summary-head strong {
+  color: #f8fafc;
+  font-size: 13px;
+}
+.gex-focus {
+  color: #93c5fd;
+  margin-bottom: 8px;
+}
+.gex-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+}
+.gex-chip {
+  background: rgba(2, 6, 23, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 8px;
+  padding: 8px;
+}
+.gex-chip-focus {
+  border-color: rgba(56, 189, 248, 0.4);
+}
+.gex-chip-title {
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 4px;
+}
+.gex-kind {
+  font-weight: 600;
+  font-size: 10px;
+  color: #fbbf24;
+}
+.gex-muted,
+.gex-summary-foot {
+  color: #94a3b8;
+  margin-top: 8px;
+}
+.gex-pos { color: #4ade80; }
+.gex-neg { color: #f87171; }
+.gex-cols { margin-top: 4px; }
+
 /* ==========================================================================
    Quantitative Panel Layout & Widgets
    ========================================================================== */
@@ -1060,6 +1126,47 @@ input::placeholder {
 .message-image:hover {
   transform: scale(1.02);
   filter: brightness(1.1);
+}
+
+/* Fullscreen image lightbox */
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.88);
+  padding: 1.5rem;
+  cursor: zoom-out;
+}
+.image-lightbox-img {
+  max-width: min(96vw, 1400px);
+  max-height: 92vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  cursor: default;
+  background: #fff;
+}
+.image-lightbox-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.image-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 /* Channel Tag Badge */

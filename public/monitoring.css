@@ -1,0 +1,275 @@
+/* P2-11 health dashboard — Vanilla CSS, no build step.
+   Visual: ops slate + teal status; avoid purple glow / heavy glass.
+   DOM contract: docs/p2-11-dom-contract.md
+*/
+
+:root {
+  --bg: #12161c;
+  --bg-elevated: #1a212b;
+  --border: #2a3441;
+  --text: #e8eef4;
+  --text-muted: #8b9aab;
+  --accent: #2dd4bf;
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --critical: #f87171;
+  --unknown: #64748b;
+  --font: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 15px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  color: var(--text);
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(45, 212, 191, 0.08), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(56, 189, 248, 0.06), transparent 50%),
+    var(--bg);
+  padding: 1rem 1.25rem 2rem;
+  transition: opacity 0.2s ease;
+}
+
+body.dash-degraded {
+  opacity: 0.72;
+}
+
+.fetch-error {
+  background: #3f1d1d;
+  border: 1px solid var(--critical);
+  color: #fecaca;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.banner {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.1rem;
+}
+
+.banner-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+}
+
+#dash-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.banner-meta {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.banner-meta .sep {
+  margin: 0 0.35rem;
+  opacity: 0.5;
+}
+
+.banner-status {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+
+#global-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--unknown);
+  flex-shrink: 0;
+}
+
+[data-level="ok"] .status-dot,
+[data-level="ok"].status-dot {
+  background: var(--ok);
+}
+
+[data-level="warn"] .status-dot,
+[data-level="warn"].status-dot {
+  background: var(--warn);
+}
+
+[data-level="critical"] .status-dot,
+[data-level="critical"].status-dot {
+  background: var(--critical);
+}
+
+.mem-line,
+.uptime-line {
+  color: var(--text-muted);
+}
+
+.mem-line span:not(.mem-note) {
+  color: var(--text);
+}
+
+.mem-note {
+  margin-left: 0.5rem;
+  color: var(--warn);
+}
+
+.panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 0.85rem 1rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.panel-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.subsystem-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.cell {
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.18);
+  padding: 0.7rem 0.75rem;
+  min-height: 7.5rem;
+}
+
+.cell-wide {
+  grid-column: 1 / -1;
+  min-height: auto;
+}
+
+.cell h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.cell [data-role="status"] {
+  margin: 0 0 0.45rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+.cell-detail {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+}
+
+.bottom-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.caption {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.spark-box {
+  min-height: 7rem;
+  border: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.spark-muted {
+  opacity: 0.65;
+}
+
+.spark-placeholder {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 0.75rem;
+  max-width: 22rem;
+}
+
+.alert-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 18rem;
+  overflow-y: auto;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+
+.alert-feed li {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.alert-feed li[data-level="warn"] {
+  color: var(--warn);
+}
+
+.alert-feed li[data-level="critical"] {
+  color: var(--critical);
+}
+
+.alert-feed li[data-level="ok"],
+.alert-feed li[data-level="info"] {
+  color: var(--ok);
+}
+
+@media (max-width: 900px) {
+  .subsystem-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cell-wide {
+    grid-column: auto;
+  }
+
+  .bottom-split {
+    grid-template-columns: 1fr;
+  }
+}

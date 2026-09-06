@@ -6,7 +6,7 @@ send_watchdog_alert() {
   local level="$1"
   local title="$2"
   local detail="$3"
-  local webhook="${WECHAT_WORK_WEBHOOK_URL:-}"
+  local webhook="${WECHAT_ALERT_WEBHOOK_URL:-${WECHAT_WORK_WEBHOOK_URL:-}}"
   local icon md
 
   case "${level}" in
@@ -20,7 +20,7 @@ send_watchdog_alert() {
 
 ${detail}
 
-_$(date -u +"%Y-%m-%dT%H:%M:%SZ")_"
+_$(TZ='Asia/Shanghai' date +"%Y-%m-%d %H:%M:%S (北京时间)")_"
 
   if [[ "${WATCHDOG_DRY_RUN:-0}" == "1" ]]; then
     echo "[watchdog_alert] DRY_RUN level=${level} title=${title}"

@@ -12,6 +12,10 @@ web_modules/
 # Runtime-generated data (derived from DB / media downloads; not source code)
 data/queue_status.json
 data/media/zhao/media_manifest.json
+data/gex/
+
+# Local Longbridge CLI binary (downloaded by the GEX sidecar)
+tools/gex-sidecar/bin/
 
 # GEX sidecar: ignore timed snapshots and the CLI binary; keep v1 sample + charts
 data/gex/*
@@ -49,11 +53,20 @@ scripts/*
 !scripts/discovery/
 !scripts/watchdog/
 !scripts/watchdog/**
+!scripts/cleanup_gemini_api_cloud.js
+!scripts/offline_queue_worker.js
+!scripts/run_offline_asset_sync.js
+!scripts/check_persona_queue_status.js
+!scripts/inspect_stuck_persona_task.js
 scripts/watchdog/.watchdog_state
+scripts/watchdog/.*state*
+data/runtime/
 
 
 # One-off debug/test scripts
-test_*.js
+/test_*.js
+!test/
+!test/**
 query_*.js
 search_*.js
 fetch_*.js
@@ -74,11 +87,24 @@ trigger_*.js
 scratch_*.js
 auto_refresh_*.js
 download_*.js
+scan_*.js
+dry_*.js
 
 # Temp HTML/TXT files
 *.html
 !public/index.html
+!public/monitoring.html
 !data/gex/*.html
 *.txt
 !tools/gex-sidecar/requirements.txt
+
+# Override ignores for persistent ops scripts
+# NOTE: must come AFTER run_*.js / check_*.js / inspect_*.js or those globs win
+!scripts/run_offline_asset_sync.js
+!scripts/check_persona_queue_status.js
+!scripts/inspect_stuck_persona_task.js
+!scripts/ingest_runner.js
+!scripts/web_runner.js
+!scripts/offline_queue_worker.js
+!scripts/cleanup_gemini_api_cloud.js
 
