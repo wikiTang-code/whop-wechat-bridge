@@ -1,6 +1,7 @@
 /**
  * Day-level GEX structure strip (hint only). Shared by ticker timeline + quant tab.
  * Does not auto-align, does not write, does not change header risk color.
+ * Default strip = walls/regime; expand = delta metadata + heatmap entry (no ladder dump).
  */
 (function (global) {
   function escapeHtml(str) {
@@ -27,9 +28,17 @@
     return Number.isInteger(v) ? String(v) : v.toFixed(v >= 1000 ? 0 : 2);
   }
 
+  function fmtPct(n) {
+    if (n == null || !Number.isFinite(Number(n))) return '';
+    const v = Number(n);
+    const sign = v > 0 ? '+' : '';
+    return sign + v.toFixed(2) + '%';
+  }
+
   function kindLabel(kind) {
     if (kind === 'nearest') return '最近到期（非 0DTE）';
     if (kind === '0dte' || kind === '0DTE') return '0DTE';
+    if (kind === 'matrix') return '多到期日矩阵';
     return kind || '';
   }
 
@@ -50,6 +59,11 @@
     }).join(' · ');
   }
 
+  function coverageLine(cov) {
+    if (!cov || cov.got == null || cov.total == null) return '';
+    return '期权覆盖 ' + cov.got + '/' + cov.total;
+  }
+
   function indexChip(ticker, item) {
     if (!item) return '';
     const kind = kindLabel(item.kind);
@@ -67,32 +81,46 @@
     );
   }
 
-  function detailBlock(ticker, item, isMatrix) {
+  /** Expand panel: only fields NOT already on the default chip. */
+  function detailExtras(ticker, item, isMatrix) {
     if (!item) return '';
     const lines = [];
     lines.push('<div class="gex-detail-block">');
-    lines.push('<div class="gex-chip-title">' + escapeHtml(ticker) + (isMatrix ? ' 矩阵' : '') + '</div>');
-    if (item.spot != null) lines.push('<div>现货 ' + fmtStrike(item.spot) + '</div>');
-    if (item.spot_strike != null) lines.push('<div>价位档 ' + fmtStrike(item.spot_strike) + '</div>');
+    lines.push('<div class="gex-chip-title">' + escapeHtml(ticker) + (isMatrix ? ' 矩阵详情' : ' 详情') + '</div>');
+
     if (item.kind) lines.push('<div>类型 ' + escapeHtml(kindLabel(item.kind)) + '</div>');
     if (item.expiry) lines.push('<div>到期 ' + escapeHtml(item.expiry) + '</div>');
+    if (item.expiries && item.expiries.length) {
+      lines.push('<div>到期日列 ' + escapeHtml(item.expiries.join(' · ')) + '</div>');
+    }
+    if (item.spot_strike != null && isMatrix) {
+      lines.push('<div>价位档 ' + fmtStrike(item.spot_strike) + '</div>');
+    }
+    if (item.change_pct != null) {
+      const pct = fmtPct(item.change_pct);
+      const cls = Number(item.change_pct) < 0 ? 'gex-neg' : Number(item.change_pct) > 0 ? 'gex-pos' : '';
+      lines.push('<div>现货涨跌 <span class="' + cls + '">' + escapeHtml(pct) + '</span></div>');
+    }
     if (item.local_gex != null) lines.push('<div>局部 GEX ' + fmtGex(item.local_gex) + '</div>');
-    if (item.regime) lines.push('<div>局部 gamma：' + escapeHtml(item.regime) + '</div>');
-    lines.push('<div>' + escapeHtml(wallLine('Floor', item.floor)) + '</div>');
-    lines.push('<div>' + escapeHtml(wallLine('King', item.king)) + '</div>');
+    const cov = coverageLine(item.coverage);
+    if (cov) lines.push('<div>' + escapeHtml(cov) + '</div>');
     if (item.column_totals) {
-      lines.push('<div class="gex-cols">列合计 ' + columnLine(item.column_totals) + '</div>');
+      lines.push('<div class="gex-cols"><strong>各到期日列合计</strong><br>' + columnLine(item.column_totals) + '</div>');
+    }
+    if (item.note) lines.push('<div class="gex-muted">' + escapeHtml(item.note) + '</div>');
+    if (lines.length <= 2) {
+      lines.push('<div class="gex-muted">墙位见上方摘要；价位阶梯请打开热图。</div>');
     }
     lines.push('</div>');
     return lines.join('');
   }
 
-  function reportsHtml(reports) {
+  function reportsHtml(reports, prominent) {
     if (!Array.isArray(reports) || !reports.length) {
       return '<div class="gex-muted">暂无 HTML 热图文件（本机采集后会出现）</div>';
     }
     return (
-      '<div class="gex-report-links">' +
+      '<div class="gex-report-links' + (prominent ? ' gex-report-links-lg' : '') + '">' +
       reports.map((r) => (
         '<a class="gex-report-link" href="' + escapeHtml(r.href) + '" target="_blank" rel="noopener noreferrer">' +
           escapeHtml(r.title || r.id) +
@@ -102,14 +130,14 @@
     );
   }
 
-  function bindToggle(el, data, symbol) {
+  function bindToggle(el) {
     const btn = el.querySelector('[data-role="gex-toggle"]');
     const panel = el.querySelector('[data-role="gex-detail"]');
     if (!btn || !panel) return;
     btn.addEventListener('click', () => {
       const open = panel.hidden;
       panel.hidden = !open;
-      btn.textContent = open ? '收起' : '完整信息';
+      btn.textContent = open ? '收起详情' : '详情与热图';
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
   }
@@ -142,6 +170,7 @@
     const spy = data.index && data.index.SPY ? data.index.SPY : null;
     const qqq = data.index && data.index.QQQ ? data.index.QQQ : null;
     const spx = data.index && data.index.SPX ? data.index.SPX : null;
+    const col = data.collection || {};
 
     const age = data.age_minutes == null ? '—' : String(data.age_minutes) + ' 分钟';
     const statusBits = [];
@@ -158,26 +187,39 @@
           '<div>现货 ' + fmtStrike(tsla.spot) + '</div>' +
           '<div>' + escapeHtml(wallLine('Floor', tsla.floor)) + '</div>' +
           '<div>' + escapeHtml(wallLine('King', tsla.king)) + '</div>' +
-          (tsla.column_totals
-            ? '<div class="gex-cols">列合计 ' + columnLine(tsla.column_totals) + '</div>'
-            : '') +
+          '<div class="gex-muted">列合计 / 到期日见「详情与热图」</div>' +
         '</div>';
     }
 
     const detailBody =
+      '<div class="gex-detail-lead">' +
+        '<strong>详情里多看什么</strong>' +
+        '<ul>' +
+          '<li>到期类型、局部 GEX、期权覆盖、涨跌幅、各到期日列合计（上方摘要只保留墙位）</li>' +
+          '<li><strong>完整价位阶梯 / 矩阵色块在 HTML 热图</strong>，本条 API 故意不灌 ladder</li>' +
+          '<li>周末/代理常为「最近到期（非 0DTE）」；OI 是昨日收盘，不是实时持仓</li>' +
+        '</ul>' +
+      '</div>' +
       '<div class="gex-detail-meta">' +
         '<div>生成 ' + escapeHtml(data.generated_at || '—') + '</div>' +
         '<div>session ' + escapeHtml(data.session || '—') + '</div>' +
         '<div>source ' + escapeHtml(data.source || '—') + '</div>' +
+        '<div>oi_as_of ' + escapeHtml(data.oi_as_of || 'yesterday_close') + '</div>' +
         '<div>年龄 ' + escapeHtml(age) + '</div>' +
+        (col.futu_us_option ? '<div>futu_us_option ' + escapeHtml(String(col.futu_us_option)) + '</div>' : '') +
+        (col.index_spot ? '<div>index_spot ' + escapeHtml(String(col.index_spot)) + '</div>' : '') +
       '</div>' +
+      (col.note ? '<div class="gex-detail-note">' + escapeHtml(col.note) + '</div>' : '') +
       '<div class="gex-detail-grid">' +
-        detailBlock('TSLA', tsla, true) +
-        detailBlock('SPY', spy, false) +
-        detailBlock('QQQ', qqq, false) +
-        detailBlock('SPX', spx, false) +
+        detailExtras('TSLA', tsla, true) +
+        detailExtras('SPY', spy, false) +
+        detailExtras('QQQ', qqq, false) +
+        detailExtras('SPX', spx, false) +
       '</div>' +
-      '<div class="gex-detail-reports"><strong>完整热图</strong>' + reportsHtml(data.reports) + '</div>' +
+      '<div class="gex-detail-reports">' +
+        '<strong>打开完整热图（新标签）</strong>' +
+        reportsHtml(data.reports, true) +
+      '</div>' +
       '<div class="gex-summary-foot">' + escapeHtml(data.disclaimer || '结构快照，不是预测，不构成投资建议。') + '</div>';
 
     el.innerHTML =
@@ -194,14 +236,14 @@
         indexChip('SPX', spx) +
       '</div>' +
       '<div class="gex-actions">' +
-        '<button type="button" class="gex-toggle-btn" data-role="gex-toggle" aria-expanded="false">完整信息</button>' +
-        '<span class="gex-actions-label">热图</span>' +
-        reportsHtml(data.reports) +
+        '<button type="button" class="gex-toggle-btn" data-role="gex-toggle" aria-expanded="false">详情与热图</button>' +
+        '<span class="gex-actions-label">快捷</span>' +
+        reportsHtml(data.reports, false) +
       '</div>' +
       '<div class="gex-detail" data-role="gex-detail" hidden>' + detailBody + '</div>' +
       '<div class="gex-summary-foot">' + escapeHtml(data.disclaimer || '结构快照，不是预测，不构成投资建议。') + '</div>';
 
-    bindToggle(el, data, symbol);
+    bindToggle(el);
   }
 
   async function loadGexSummary(elOrId, symbol) {

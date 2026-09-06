@@ -130,15 +130,18 @@ const fixture = {
   const idx = summarizeIndex(fixture.zero_dte.SPY);
   assert(idx.spot === 770.19 && idx.kind === 'nearest', 'index keeps spot/kind');
   assert(idx.king.strike === 771 && idx.floor.strike === 770, 'index king/floor');
+  assert(idx.change_pct === -0.38, 'index change_pct');
+  assert(idx.coverage && idx.coverage.got === 102, 'index coverage summary');
   assert(!('ladder' in idx), 'index summary has no ladder');
-  assert(!('coverage' in idx), 'index summary has no coverage');
+  assert(!('pillow' in idx), 'index summary has no pillow');
 
   const mx = summarizeMatrix(fixture.matrix.TSLA);
   assert(mx.spot === 354.08, 'matrix spot');
   assert(mx.king.expiry === '2026-09-09', 'matrix king expiry');
   assert(mx.column_totals['2026-09-09'] < 0, 'column totals copied');
+  assert(mx.change_pct === -5.9, 'matrix change_pct');
+  assert(Array.isArray(mx.expiries) && mx.expiries[0] === '2026-09-09', 'matrix expiries kept');
   assert(!('matrix' in mx), 'matrix summary strips inner matrix[]');
-  assert(!('expiries' in mx), 'matrix summary strips expiries');
 }
 
 {
@@ -149,7 +152,7 @@ const fixture = {
   assert(data.index.SPY.kind === 'nearest', 'SPY present');
   assert(data.matrix.TSLA.spot === 354.08, 'TSLA matrix present for TSLL query');
   assert(data.stale === true, 'weekend sample older than 12h at test now');
-  assertForbiddenKeys(data, ['ladder', 'pillow', 'coverage', 'change_pct'], 'payload');
+  assertForbiddenKeys(data, ['ladder', 'pillow'], 'payload');
   assert(!('matrix' in data.matrix.TSLA) || !Array.isArray(data.matrix.TSLA.matrix), 'no ladder matrix array');
   assert(JSON.stringify(data.matrix.TSLA).indexOf('"matrix"') === -1, 'TSLA object has no nested matrix key');
   assert(!data.collection.secret_should_stay, 'collection is whitelisted');

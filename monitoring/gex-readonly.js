@@ -70,15 +70,24 @@ function pickKingFloor(obj) {
 
 export function summarizeIndex(item) {
   if (!item || typeof item !== 'object') return null;
+  const coverage = item.coverage && typeof item.coverage === 'object'
+    ? {
+        got: item.coverage.got ?? null,
+        total: item.coverage.total ?? null,
+      }
+    : null;
   return {
     spot: item.spot ?? null,
     spot_strike: item.spot_strike ?? null,
     kind: item.kind ?? null,
     expiry: item.expiry ?? null,
+    change_pct: item.change_pct ?? null,
+    coverage,
     king: pickKingFloor(item.king),
     floor: pickKingFloor(item.floor),
     regime: item.regime ?? null,
     local_gex: item.local_gex ?? null,
+    note: typeof item.note === 'string' ? item.note : null,
   };
 }
 
@@ -87,11 +96,26 @@ export function summarizeMatrix(item) {
   const totals = item.column_totals && typeof item.column_totals === 'object'
     ? { ...item.column_totals }
     : null;
+  const coverage = item.coverage && typeof item.coverage === 'object'
+    ? {
+        got: item.coverage.got ?? null,
+        total: item.coverage.total ?? null,
+      }
+    : null;
+  const expiries = Array.isArray(item.expiries)
+    ? item.expiries.filter((d) => typeof d === 'string').slice(0, 12)
+    : null;
   return {
     spot: item.spot ?? null,
+    spot_strike: item.spot_strike ?? null,
+    kind: item.kind ?? null,
+    change_pct: item.change_pct ?? null,
+    expiries,
+    coverage,
     king: pickKingFloor(item.king),
     floor: pickKingFloor(item.floor),
     column_totals: totals,
+    note: typeof item.note === 'string' ? item.note : null,
   };
 }
 
@@ -169,6 +193,8 @@ export function buildGexLatestPayload(raw, { now = Date.now(), symbol = 'TSLA', 
         ok: raw.collection.ok === true,
         script: raw.collection.script ?? null,
         source: raw.collection.source ?? null,
+        futu_us_option: raw.collection.futu_us_option ?? null,
+        index_spot: raw.collection.index_spot ?? null,
         note: raw.collection.note ?? null,
       }
     : null;
