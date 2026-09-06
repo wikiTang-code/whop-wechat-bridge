@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import { getReadOnlyArchiveDb } from '../monitoring/db-readonly.js';
 
 const router = express.Router();
 
@@ -673,6 +674,10 @@ router.get('/ticker_kline/:symbol', (req, res) => {
 router.get('/ticker_timeline/context/:post_id', (req, res) => {
   const postId = req.params.post_id;
   try {
+    const db = getReadOnlyArchiveDb();
+    if (!db) {
+      return res.status(503).json({ success: false, error: '归档数据库不可用或未初始化' });
+    }
     const targetMsg = db.prepare('SELECT id, channel_id, sender_name, created_at, content FROM messages WHERE id = ?').get(postId);
     if (!targetMsg) {
       return res.status(404).json({ success: false, error: '未找到该消息原始记录' });

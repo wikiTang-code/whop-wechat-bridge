@@ -58,6 +58,19 @@ async function run() {
     assert(Array.isArray(dataContext.messages), 'dataContext.messages must be array');
     console.log(`   ✅ GET /api/messages/:id/context → 200 (返回上下文消息列表)`);
 
+    // c2. GET /api/ticker_timeline/context/:post_id (时间轴工作台前后 9 条真实上下文流 - 防 db is not defined 回归)
+    const resTimelineNotFound = await fetch(`${baseUrl}/api/ticker_timeline/context/non_existent_post_id`, { headers });
+    assert(resTimelineNotFound.status === 404, `GET /api/ticker_timeline/context/non_existent should return 404, got ${resTimelineNotFound.status}`);
+    const resTimelineFound = await fetch(`${baseUrl}/api/ticker_timeline/context/post_1CbfgXB4xzHcHqi1nuiB7e`, { headers });
+    assert(resTimelineFound.status === 200, `GET /api/ticker_timeline/context/:post_id should return 200, got ${resTimelineFound.status}`);
+    const dataTimeline = await resTimelineFound.json();
+    assert(dataTimeline.success === true, 'dataTimeline.success should be true');
+    assert(Array.isArray(dataTimeline.messages), 'dataTimeline.messages must be array');
+    assert(dataTimeline.messages.length > 0, 'dataTimeline.messages should have context items');
+    assert(dataTimeline.messages.some(m => m.is_target === true), 'dataTimeline.messages must include target message');
+    console.log(`   ✅ GET /api/ticker_timeline/context/:post_id → 200 (成功回溯前后 9 条真实上下文流，防 db is not defined 破损)`);
+
+
     // d. GET /api/proxy-image (图片代理)
     const resProxyNoParam = await fetch(`${baseUrl}/api/proxy-image`, { headers });
     assert(resProxyNoParam.status === 400, `GET /api/proxy-image without param should return 400, got ${resProxyNoParam.status}`);
