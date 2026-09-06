@@ -117,6 +117,8 @@ http://localhost:8085
 
 期权 NetGEX 拉链跑在 Windows：富途 OpenD 拉链 + 长桥 CLI 补指数现货，写出 `data/gex/latest.json`。交易仍走长桥 OpenAPI，不要把 OpenD 搬上云。
 
+思路来自长桥帖 [做末日的兄弟看过来！基于 longbridge CLI 实现 @LongbridgeAI](https://longbridge.com/zh-CN/topics/43511616?channel=OWNN00030)：[heatseeker-lb](https://github.com/NineLooms/heatseeker-lb)（SPY/QQQ 热图）、[gex-matrix-lb](https://github.com/NineLooms/gex-matrix-lb)（个股 GEX 矩阵）。
+
 ```powershell
 pip install -r tools/gex-sidecar/requirements.txt
 $env:PYTHONIOENCODING='utf-8'

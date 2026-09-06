@@ -80,6 +80,7 @@ To avoid spamming requests and rate limits during US stock quiet hours, `server.
 
 ## 8. GEX sidecar（本机，2026-09）
 - **位置**: `tools/gex-sidecar/`，产物 `data/gex/latest.json`。
+- **来源**: 长桥帖 [做末日的兄弟看过来](https://longbridge.com/zh-CN/topics/43511616?channel=OWNN00030)；开源 [heatseeker-lb](https://github.com/NineLooms/heatseeker-lb)、[gex-matrix-lb](https://github.com/NineLooms/gex-matrix-lb)。sidecar 移植，非 fork。
 - **数据**: 富途 OpenD（美股期权含指数链）+ 长桥 CLI 补 `.SPX.US` 现货。交易仍用 `brokers/longbridge.js`。
 - **权限**: Futu **API 商店** OPRA 实时，不是 App $2.99。OpenD `127.0.0.1:11111`。
 - **禁止**: 不要把拉链、OpenD、OPRA 放到 GCP。云端以后只同步 JSON。

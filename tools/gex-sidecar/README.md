@@ -4,6 +4,15 @@ Windows 定时拉链，产出 `data/gex/latest.json` 与 HTML。**不要把拉�
 
 当前推荐数据源是 **富途 OpenD**（美股期权含 SPX/VIX 链）。指数现货 OpenAPI 没有，采集时用长桥 CLI `quote .SPX.US` 补现价。
 
+## 来源
+
+图示与 KING/FLOOR 读法来自长桥帖 [做末日的兄弟看过来！基于 longbridge CLI 实现 @LongbridgeAI](https://longbridge.com/zh-CN/topics/43511616?channel=OWNN00030)：
+
+- [NineLooms/heatseeker-lb](https://github.com/NineLooms/heatseeker-lb) — SPY/QQQ 0DTE NetGEX 热图
+- [NineLooms/gex-matrix-lb](https://github.com/NineLooms/gex-matrix-lb) — 个股 GEX 矩阵（多到期日）
+
+本仓库是 sidecar 移植，不是这两个仓库的 fork。默认拉链走富途 OpenD（含指数期权链）；长桥 CLI 只补指数现货，交易仍走长桥。
+
 ## 环境
 
 1. Python 3.11+，安装依赖：

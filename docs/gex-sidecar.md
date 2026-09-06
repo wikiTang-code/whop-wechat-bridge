@@ -2,6 +2,8 @@
 
 本机 Windows 拉链，GCP 只消费产物。这一版只落地采集 + JSON/HTML + 读法，**尚未挂到 dashboard / 跟单 / 微信推送**。
 
+图示来自长桥帖 [做末日的兄弟看过来！基于 longbridge CLI 实现 @LongbridgeAI](https://longbridge.com/zh-CN/topics/43511616?channel=OWNN00030)，对应开源 [heatseeker-lb](https://github.com/NineLooms/heatseeker-lb)（SPY/QQQ 热图）与 [gex-matrix-lb](https://github.com/NineLooms/gex-matrix-lb)（个股多到期日矩阵）。本 sidecar 对齐其公式与读法，拉链默认用富途 OpenD。
+
 ## 边界
 
 | 在 Windows | 不在 GCP |
