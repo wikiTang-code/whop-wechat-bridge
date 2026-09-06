@@ -26,6 +26,7 @@ import { handleDashboardApi } from '../monitoring/dashboard-api.js';
 import { readonlyRouter, readonlyWriteBlockerMiddleware } from '../monitoring/readonly-api-router.js';
 import { startCloudflareTunnel } from '../monitoring/tunnel-launcher.js';
 import { dashboardBasicAuthMiddleware } from '../monitoring/dashboard-basic-auth.js';
+import l2WorkbenchRouter from '../routes/l2_workbench_routes.js';
 
 // 必须早于鉴权/业务读取：PM2 sample 不注入 .env，与单体 server.js 对齐
 dotenv.config();
@@ -48,6 +49,8 @@ app.use(express.json());
 app.use(dashboardBasicAuthMiddleware);
 
 app.use(express.static(path.resolve('public')));
+// L2 工作台真图穿透（与单体 server.js 对齐）
+app.use('/media/zhao', express.static(path.resolve('data/media/zhao')));
 
 // P2-F: 规范化看板入口（静态文件仍可通过 /monitoring.html 访问）
 app.get('/monitoring', (_req, res) => {
@@ -59,6 +62,9 @@ app.use(readonlyWriteBlockerMiddleware);
 
 // 挂载只读路由集
 app.use(readonlyRouter);
+
+// L2 审核工作台 API（双进程切流后须挂在 web 进程；POST 仍被上方写拦截器挡掉）
+app.use('/api', l2WorkbenchRouter);
 
 /**
  * GET /health

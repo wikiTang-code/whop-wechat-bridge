@@ -50,6 +50,8 @@ export function isDashboardAuthBypassPath(pathname) {
     pathname.startsWith('/media/zhao') ||
     pathname === '/review_workbench.html' ||
     pathname.startsWith('/api/l2') ||
+    pathname.startsWith('/api/pipeline/') ||
+    pathname.startsWith('/api/review/') ||
     pathname === '/ticker_timeline.html' ||
     pathname.startsWith('/api/ticker_timeline') ||
     pathname.startsWith('/api/ticker_kline')

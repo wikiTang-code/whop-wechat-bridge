@@ -213,7 +213,9 @@ app.use((req, res, next) => {
     req.path === '/health' ||
     req.path.startsWith('/media/zhao') || 
     req.path === '/review_workbench.html' || 
-    req.path.startsWith('/api/l2') || 
+    req.path.startsWith('/api/l2') ||
+    req.path.startsWith('/api/pipeline/') ||
+    req.path.startsWith('/api/review/') ||
     req.path === '/ticker_timeline.html' || 
     req.path.startsWith('/api/ticker_timeline') || 
     req.path.startsWith('/api/ticker_kline')

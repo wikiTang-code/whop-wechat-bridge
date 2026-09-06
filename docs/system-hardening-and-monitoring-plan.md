@@ -169,6 +169,7 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 |---|---|---|---|---|
 | 11 | 健康看板页（红黄绿+趋势+最近告警） | 全局 | 新增前端页 + `/api/health` | 一页看清各子系统 |
 | 12 | 资产新鲜度巡检 | E | 探针 | 各层资产滞后可见告警 |
+| 12b | 双进程路由覆盖检测 / 软告警 | 切流债 | `web_runner` + watchdog + `/health` | 关键页 API 非 404；见 `p2-12-dual-process-gap-and-autofix.md` |
 | 13 | 数据一致性巡检（附件/manifest/磁盘/打标） | H | 探针 + 脚本 | 偏差可发现 |
 | 14 | 前端错误上报（仅 `window.onerror`，最低优先级/可剔除） | G | `public/app.js` | 前端异常可见（不做首屏/掉帧打点） |
 | 15 | 软降级钩子（受 R5 约束） | 全局 | Supervisor 钩子 | 仅软降级/清理，无进程重启 |
@@ -256,6 +257,7 @@ Whop GraphQL ──(轮询 syncAndAnalyze，交易时段 25s/次)──▶ messa
 | P1-8 | 队列消费者落实（离线脚本/cron，恪守 R4） | ✅ 完成 | 实现 `scripts/offline_queue_worker.js` 离线批处理与水位单调递增推进，恪守 R4 绝不侵占主服务内存 |
 | P1-9 | 离线资产可靠定时调度与滞后监测 | ✅ **验收通过** | 探针入 `/health`；`run_offline_asset_sync.js` 回仓；Crontab `0 2 * * 0,6` (北京 10:00)；`--force` 验证完成（Persona `lagDays=0`，`assets.persona=ok`）；落实 News 周末免检（`/health` 纯绿灯） |
 | P1-10 | 推送与交易链路端到端监测 | ✅ 完成 | 端到端 TTL 打点 + 企微 RTT 往返时延 + 大V未推送/未交易只读积压探测 + 连续失败超时告警接入 Supervisor 与 `/health` |
-| P1-11 | 看板与 Ingest 物理多进程隔离 | ✅ 已灰度（GCP） | 双进程 online；观察中；详见 Runbook / `p1-11-t23-review-and-cutover-gate.md` |
+| P1-11 | 看板与 Ingest 物理多进程隔离 | ✅ 已灰度（GCP） | 双进程 online；观察结束；单体 stopped 留作回滚；详见 Runbook / `p1-11-t23-review-and-cutover-gate.md` |
 | P2-11 | 健康看板页 | 🚧 本地启动 | 任务拆分见 [`docs/p2-11-task-split-parallel.md`](./p2-11-task-split-parallel.md)；**本轮不上 GCP** |
+| P2-12 | 双进程路由覆盖 + 自动检测 | 🚧 启动 | L2 漏挂已修；风险与探针见 [`docs/p2-12-dual-process-gap-and-autofix.md`](./p2-12-dual-process-gap-and-autofix.md)；page smoke 单测入仓 |
 | 运维 | 周末 Persona 刷新闭环 | ✅ 完成 | 2026-09-05 Reduce 落库成功（`Gemini-Flash+Vision`）；探针脚本全量回仓；线上 `/health` 达成全局 `ok: true` |
