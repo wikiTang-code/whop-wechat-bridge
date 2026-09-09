@@ -24,6 +24,16 @@ export function sniffFormat(buf) {
     return 'webp';
   }
   if (buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46) return 'gif';
+  // ISOBMFF 容器: 第 4-7 字节为 'ftyp'
+  if (buf[4] === 0x66 && buf[5] === 0x74 && buf[6] === 0x79 && buf[7] === 0x70) {
+    const brand = buf.slice(8, 12).toString('ascii');
+    if (brand === 'avif' || brand === 'avis') return 'avif';
+    if (brand === 'heic' || brand === 'heix' || brand === 'mif1' || brand === 'msf1') {
+      const compatible = buf.slice(16, 32).toString('ascii');
+      if (compatible.includes('avif')) return 'avif';
+      return 'heic';
+    }
+  }
   return 'unknown';
 }
 
@@ -33,6 +43,8 @@ export function extensionForFormat(fmt) {
     case 'png': return 'png';
     case 'webp': return 'webp';
     case 'gif': return 'gif';
+    case 'avif': return 'avif';
+    case 'heic': return 'heic';
     default: return 'bin';
   }
 }

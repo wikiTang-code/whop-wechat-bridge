@@ -9,9 +9,12 @@ import path from 'path';
 import {
   canPushAsNativeImage,
   canPushAsWebhookFile,
+  sniffFormat,
+  extensionForFormat,
   WECHAT_IMAGE_MAX_BYTES,
   WECHAT_FILE_MAX_BYTES,
 } from '../monitoring/wechat-image-prepare.js';
+import { extractRawMediaUrl } from '../scripts/media_downloader.js';
 
 function makeJpegStub(bytes) {
   const buf = Buffer.alloc(bytes, 0x00);
@@ -22,8 +25,29 @@ function makeJpegStub(bytes) {
   return buf;
 }
 
+function makeAvifStub() {
+  const buf = Buffer.alloc(32, 0x00);
+  buf.writeUInt32BE(28, 0);
+  buf.write('ftyp', 4, 'ascii');
+  buf.write('avif', 8, 'ascii');
+  return buf;
+}
+
 async function run() {
   console.log('--- test_wechat_image_prepare ---');
+
+  // 0. AVIF / HEIC 格式嗅探与扩展名映射测试
+  const avifBuf = makeAvifStub();
+  assert.equal(sniffFormat(avifBuf), 'avif', 'avif should be sniffed properly');
+  assert.equal(extensionForFormat('avif'), 'avif', 'avif extension must be avif, not bin');
+  console.log('   ✅ sniffFormat: avif properly recognized and mapped to .avif');
+
+  // 0.1 验证 extractRawMediaUrl 正确从 imgproxy 中解出 S3 原图地址
+  const wrappedUrl = 'https://img-v2-prod.whop.com/sig123/plain/https%3A%2F%2Fassets-2-prod.whop.com%2Ftest.png%3Ftoken%3Dabc';
+  const extracted = extractRawMediaUrl(wrappedUrl);
+  assert.equal(extracted, 'https://assets-2-prod.whop.com/test.png?token=abc');
+  assert.equal(extractRawMediaUrl('https://example.com/raw.png'), 'https://example.com/raw.png');
+  console.log('   ✅ extractRawMediaUrl: S3 raw url correctly unwrapped from imgproxy');
 
   const small = makeJpegStub(12 * 1024);
   assert.equal(canPushAsNativeImage(small), true);

@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import https from 'https';
 import http from 'http';
 import dotenv from 'dotenv';
+import { sniffFormat, extensionForFormat } from '../monitoring/wechat-image-prepare.js';
 
 dotenv.config();
 
@@ -28,24 +29,41 @@ function getEtDate(timestamp) {
 }
 
 /**
- * 下载二进制 Buffer (携带 Cookie 与标准浏览器头)
+ * 尝试从 imgproxy 包装中还原 S3 原始图片直连地址
+ * 例如: https://img-v2-prod.whop.com/.../plain/https%3A%2F%2Fassets-2-prod.whop.com%2F...
  */
-export function downloadBuffer(url) {
+export function extractRawMediaUrl(url) {
+  if (!url || typeof url !== 'string') return url;
+  const match = url.match(/https?:\/\/[^\/]+\/[^\/]+\/plain\/(https?%3A%2F%2F.+)$/i);
+  if (match && match[1]) {
+    try {
+      return decodeURIComponent(match[1]);
+    } catch (e) {
+      return url;
+    }
+  }
+  return url;
+}
+
+/**
+ * 底层 HTTP/HTTPS 下载 Buffer
+ */
+function fetchHttpBuffer(targetUrl) {
   return new Promise((resolve, reject) => {
-    const client = url.startsWith('https') ? https : http;
+    const client = targetUrl.startsWith('https') ? https : http;
     const cookie = process.env.WHOP_COOKIE || '';
 
-    const req = client.get(url, {
+    const req = client.get(targetUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+        'Accept': 'image/png,image/jpeg;q=0.9,image/*;q=0.8',
         'Referer': 'https://whop.com/',
         'Cookie': cookie
       },
       timeout: 12000
     }, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return downloadBuffer(res.headers.location).then(resolve).catch(reject);
+        return fetchHttpBuffer(res.headers.location).then(resolve).catch(reject);
       }
       if (res.statusCode !== 200) {
         return reject(new Error(`HTTP ${res.statusCode}`));
@@ -60,6 +78,24 @@ export function downloadBuffer(url) {
       reject(new Error('Download timeout (12s)'));
     });
   });
+}
+
+/**
+ * 下载二进制 Buffer (优先直连 S3 原始高清 PNG/JPG，杜绝 CDN 默认转 AVIF 导致企微无法内联)
+ */
+export async function downloadBuffer(url) {
+  const rawUrl = extractRawMediaUrl(url);
+  if (rawUrl && rawUrl !== url) {
+    try {
+      const rawBuf = await fetchHttpBuffer(rawUrl);
+      if (rawBuf && rawBuf.length > 0) {
+        return rawBuf;
+      }
+    } catch (err) {
+      console.warn(`[MediaDownloader] 直连原始图片失败 (${err.message})，回退至代理网关:`, url.slice(0, 80));
+    }
+  }
+  return fetchHttpBuffer(url);
 }
 
 /**
@@ -139,7 +175,8 @@ export async function downloadAndPersistAttachments(msg) {
 
       if (buf.length > 15 * 1024 && !isBlacklist) {
         fs.mkdirSync(dirPath, { recursive: true });
-        const fileName = `${msg.id}_${i}.jpg`;
+        const ext = extensionForFormat(sniffFormat(buf));
+        const fileName = `${msg.id}_${i}.${ext}`;
         const localPath = path.join(dirPath, fileName).replace(/\\/g, '/');
         fs.writeFileSync(localPath, buf);
 
