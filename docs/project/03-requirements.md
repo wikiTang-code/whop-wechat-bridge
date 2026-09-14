@@ -40,7 +40,7 @@
 | REQ-016 | P0 | L0/L2 | `in_progress` | 事故响应 + 回滚 Runbook | Owner=`agent:gemini`；骨架 `runbooks/incident-rollback.md` |
 | REQ-017 | P0 | L0/L4 | `accepted` | **密钥与企微运维变更控制**（`WECOM_OPS_*`、userid、推送 IP、隧道）；轮换与泄露应急（不写密文） | |
 | REQ-018 | P1 | L4 | `done` | 企微能力面冻结清单 | `docs/project/wecom-freeze.md` · `38662c4` |
-| REQ-019 | P1 | L4/L1 | `accepted` | **发布 go/no-go + 重启判据**（ff-only vs 必须 restart ingest/web；漏重启如何发现） | |
+| REQ-019 | P1 | L4/L1 | `done` | 发布 go/no-go + 重启判据 | `runbooks/deploy-restart.md` |
 | REQ-020 | P1 | L4 | `accepted` | **C2 审计与看板闭环**（actor/channel/userid/sha/result ↔ 05 Ops 行） | |
 | REQ-021 | P2 | L1 | `accepted` | **L1 跟单变更沙盒/实盘检查表** + human 门禁 | |
 | REQ-022 | P2 | L3 | `accepted` | **REQ-004 安全专节**：只读产物同步、禁 OpenD、禁密钥随快照 | |

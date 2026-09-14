@@ -18,7 +18,7 @@
 | REQ-002 | L4 | 生产 ff 对齐 | `human` | Todo | 依赖 push；判据见 REQ-019 |
 | REQ-023 | L0 | 进度文档并发协议写入 06 | `agent:cursor` | Done | 见 06 §3 |
 | REQ-024 | L3/L0 | data/gex 提交硬规则 | `agent:cursor` | Done | 见 04 §1 / 06 §4 |
-| REQ-019 | L4 | 发布 go/no-go + 重启判据 | `agent:cursor` | Todo | 下一棒；与 gemini runbook 衔接 |
+| REQ-019 | L4 | 发布 go/no-go + 重启判据 | `agent:cursor` | Done | `runbooks/deploy-restart.md` |
 | REQ-026 | L0 | 多端统一 Agent 治理规则 | `agent:cursor` | Done | `AGENTS.md` + 指针 |
 | REQ-003 | L3 | 开盘 GEX 计划任务 | — | Todo | 可抢 |
 
