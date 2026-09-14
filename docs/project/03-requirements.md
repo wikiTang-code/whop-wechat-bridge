@@ -27,7 +27,7 @@
 |----|:------:|------|:----:|------|-----------|
 | REQ-001 | P0 | L4 | `done` | Push 本地 commits → `origin/main` | `de872b0..1352705` |
 | REQ-002 | P0 | L4 | `accepted` | 生产 gcp-vm ff 对齐 | 勿无必要 restart；判据见 REQ-019 |
-| REQ-003 | P1 | L3 | `accepted` | 挂载开盘前 GEX 计划任务 | 队列 0.B 候选开工；`install_open_session_task.ps1` |
+| REQ-003 | P1 | L3 | `in_progress` | 挂载开盘前 GEX 计划任务 | 队列 0.A · Owner=`agent:cursor` · `install_open_session_task.ps1` |
 | REQ-004 | P1 | L3 | `proposed` | `latest.json` → GCP 看板同步约定 | 安全约束见 REQ-022；禁 GCP 跑 OpenD |
 | REQ-005 | P2 | L5 | `accepted` | P5 券商只读 MCP | 无下单；建议 CI grep 门禁 |
 | REQ-006 | P2 | L6 | `accepted` | P6 本机运维页 `:18789` | 仅 localhost |
@@ -48,7 +48,7 @@
 | REQ-024 | P1 | L3/L0 | `done` | `data/gex` 提交硬规则 | 见 04/06；human 已拍板 |
 | REQ-026 | P0 | L0 | `done` | 多端统一 Agent 治理：`AGENTS.md` 精炼版 + `CLAUDE.md` 指针 + `.cursor/rules/agent-governance.mdc` | 2026-09-14 |
 | REQ-027 | P1 | L1 | `done` | **三账本隔离**：赵哥 signal ≠ 跟单 decision ≠ fill；看板分源 | Owner=`agent:gemini`；`zhao_positions`/`follow_decisions` 物理隔离，`recalculate_ledger` 保护跟单仓 |
-| REQ-028 | P1 | L1 | `accepted` | **落地 Paper 状态机**（TTL/滑点）；停解析后直连实盘 | 对齐 `follow_execution_spec.md`；热点 `trading.js`/`monitor.js`；待 027 后接续 |
+| REQ-028 | P1 | L1 | `done` | **落地 Paper 状态机**（TTL/滑点）；停解析后直连实盘 | 对齐 `follow_execution_spec.md`；五大状态机闭环落库，实盘安全红线阻断 |
 | REQ-029 | P1 | L1/L4 | `accepted` | **移动端跟单确认卡片**（执行/放弃/解析错误）+ 90s 超时 | 依赖 CHG-009；非 `/ops` |
 | REQ-030 | P1 | L1 | `done` | **大V即时推送实事求是**：剥离「已同步处理量化跟单」硬编码；发言通知与交易通知正交 | 热点 `monitor.js`；Owner=`agent:gemini` |
 

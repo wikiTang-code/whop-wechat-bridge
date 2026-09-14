@@ -45,15 +45,13 @@ if not defined LONGBRIDGE_REGION set LONGBRIDGE_REGION=global
 "@
 Set-Content -Path $Wrapper -Value $WrapperBody -Encoding ASCII
 
-schtasks.exe /Delete /F /TN $TaskName 2>$null | Out-Null
-schtasks.exe /Create /F `
-  /TN $TaskName `
-  /SC WEEKLY `
-  /D MON,TUE,WED,THU,FRI `
-  /ST 09:40 `
-  /TZ "Eastern Standard Time" `
-  /TR "`"$Wrapper`"" `
-  /RL LIMITED | Out-Host
+# Delete may fail if task absent; ignore without aborting ($ErrorActionPreference=Stop).
+cmd.exe /c "schtasks /Delete /F /TN `"$TaskName`" >nul 2>&1" | Out-Null
+$create = cmd.exe /c "schtasks /Create /F /TN `"$TaskName`" /SC WEEKLY /D MON,TUE,WED,THU,FRI /ST 09:40 /TZ `"Eastern Standard Time`" /TR `"\`"$Wrapper\`"`" /RL LIMITED"
+if ($LASTEXITCODE -ne 0) {
+  throw "schtasks /Create failed with exit $LASTEXITCODE : $create"
+}
+Write-Host $create
 
 Write-Host ""
 Write-Host "Installed task: $TaskName"

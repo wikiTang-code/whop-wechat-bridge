@@ -5,7 +5,7 @@ import http from 'http';
 import https from 'https';
 import crypto from 'crypto';
 import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions, getLatestPersonaPlaybook, updateMessageAttachments } from './database.js';
-import { executeOrder, getUnifiedPortfolio } from './trading.js';
+import { executeOrder, getUnifiedPortfolio, processFollowDecision } from './trading.js';
 import { getMarketContextForTickers } from './kline.js';
 import { runWithRateLimit } from './rate-limiter.js';
 import { processMessageForCampaigns, checkAndCloseStaleCampaigns } from './campaign-engine.js';
@@ -1224,22 +1224,34 @@ ${messagesText}`;
         }
       }
 
-      console.log(`[自动跟单执行] 触发交易: ${action} ${ticker} ${finalQuantity}股 @ $${price}`);
+      console.log(`[跟单状态机评估] 触发风控评估: ${action} ${ticker} 拟定 ${finalQuantity}股 @ 喊单价 $${price}`);
       
-      const result = await executeOrder({
-        ticker,
-        action,
-        price,
-        quantity: finalQuantity,
-        stopLoss,
-        reason: `[AI 自动跟单] ${reason}`
+      const latestMsgTime = filteredMessages[filteredMessages.length - 1]?.created_at || Date.now();
+      const latestMsgId = filteredMessages[filteredMessages.length - 1]?.id || '';
+
+      const decisionOutcome = await processFollowDecision({
+        signal: {
+          ticker,
+          action,
+          price,
+          quantity: finalQuantity,
+          stopLoss,
+          reason,
+          signal_id: signal.id || `sig_${ticker}_${Date.now()}`,
+          message_id: signal.message_id || latestMsgId
+        },
+        arrivalPrice: price, // 收到信号时的盘口价格
+        msgCreatedAt: latestMsgTime,
+        accountType: 'paper', // Phase B 模式：走 Paper 状态机闭环
+        dryRun: false
       });
 
       executionResults.push({
         ticker,
         action,
-        success: result.success,
-        reason: result.reason || '执行成功'
+        decisionState: decisionOutcome.decision?.decision_state,
+        success: decisionOutcome.executed,
+        reason: decisionOutcome.decision?.reason || '执行成功'
       });
     }
 

@@ -12,11 +12,19 @@ import {
 } from './brokers/longbridge.js';
 import dotenv from 'dotenv';
 
-dotenv.config();
+import {
+  calculateSlipBps,
+  evaluateFollowDecision,
+  processFollowDecision,
+  FOLLOW_SPEC
+} from './follow-decision-engine.js';
 
-/**
- * 风控与交易引擎 (Risk & Trade Execution Engine)
- */
+export {
+  calculateSlipBps,
+  evaluateFollowDecision,
+  processFollowDecision,
+  FOLLOW_SPEC
+};
 
 // 从环境变量读取风控配置（提供默认安全阀值）
 const RISK_PER_TRADE_PCT = parseFloat(process.env.RISK_PER_TRADE_PCT || '0.01'); // 单笔风险控制 1%
@@ -178,9 +186,18 @@ export async function validateRiskLimits({ ticker, action, price, requestedQuant
  * 执行跟单指令
  * 支持沙盒模拟(Paper Trading)和实盘接口对接(Live Trading)
  */
-export async function executeOrder({ ticker, action, price, quantity, stopLoss, reason = '' }) {
+export async function executeOrder({
+  ticker,
+  action,
+  price,
+  quantity,
+  stopLoss,
+  reason = '',
+  account_type = 'paper',
+  isApprovedReal = false
+}) {
   const orderId = `ord_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-  console.log(`[交易引擎] 收到跟单信号: [${action}] ${ticker} | 价格: $${price} | 股数: ${quantity}`);
+  console.log(`[交易引擎] 收到跟单信号: [${action}] ${ticker} | 价格: $${price} | 股数: ${quantity} | 账户: ${account_type}`);
 
   // 1. 进行风控与合规校验
   const riskResult = await validateRiskLimits({ ticker, action, price, requestedQuantity: quantity, stopLoss });
@@ -196,6 +213,7 @@ export async function executeOrder({ ticker, action, price, quantity, stopLoss, 
       price,
       quantity,
       status: 'REJECTED',
+      account_type,
       created_at: Date.now(),
       reason: riskResult.reason
     });
@@ -217,7 +235,98 @@ export async function executeOrder({ ticker, action, price, quantity, stopLoss, 
   // 使用风控引擎修正后的股数
   const finalQty = riskResult.quantity !== undefined ? riskResult.quantity : quantity;
 
-  if (MOCK_TRADING_MODE()) {
+  if (account_type === 'real') {
+    // ==========================================
+    // 模式 B: 券商实盘接口对接 (Longbridge 实盘)
+    // ==========================================
+    // 资金红线：实盘严禁全自动调用，必须经由移动端交互卡片人工授权确认 (Phase C)
+    if (!isApprovedReal) {
+      const blockMsg = '资金安全红线拦截：实盘跟单禁止全自动直连，必须等待移动端交互卡片人工确认授权 (isApprovedReal=true)';
+      console.error(`[实盘交易拦截] ${blockMsg}`);
+      saveOrder({
+        id: orderId,
+        ticker,
+        action,
+        price,
+        quantity: finalQty,
+        status: 'REJECTED',
+        account_type: 'real',
+        created_at: Date.now(),
+        reason: blockMsg
+      });
+      return { success: false, reason: blockMsg, mode: 'BLOCKED_BY_SAFETY_LINE' };
+    }
+
+    if (MOCK_TRADING_MODE()) {
+      console.log(`[实盘模拟] 收到已授权指令，当前处于 MOCK 模式，记录实盘模拟挂单...`);
+      saveOrder({
+        id: orderId,
+        ticker,
+        action,
+        price,
+        quantity: finalQty,
+        status: 'PENDING',
+        account_type: 'real',
+        created_at: Date.now(),
+        reason: `【已授权实盘模拟】${reason}`
+      });
+      return { success: true, orderId, mode: 'LIVE_MOCK' };
+    }
+
+    try {
+      console.log(`[实盘交易] 收到人工确认指令，正在调用长桥证券 API 执行实盘订单...`);
+
+      const order = await placeLongbridgeOrder({
+        ticker,
+        action,
+        quantity: finalQty,
+        price
+      });
+
+      // 保存实盘挂单状态到本地 SQLite 订单表中归档
+      saveOrder({
+        id: order.orderId,
+        ticker,
+        action,
+        price,
+        quantity: finalQty,
+        status: 'PENDING',
+        account_type: 'real',
+        created_at: Date.now(),
+        reason: '实盘委托已成功提交柜台'
+      });
+
+      // 发送提交成功通知
+      await pushTradeAlertToWeChat({
+        orderId: order.orderId,
+        ticker,
+        action,
+        price,
+        quantity: finalQty,
+        status: 'PENDING',
+        reason: `长桥实盘委托已提交。原因: ${reason}`
+      });
+
+      return { success: true, orderId: order.orderId, mode: 'LIVE' };
+    } catch (apiError) {
+      console.error('[实盘交易失败] 券商接口返回错误:', apiError);
+
+      saveOrder({
+        id: orderId,
+        ticker,
+        action,
+        price,
+        quantity: finalQty,
+        status: 'REJECTED',
+        account_type: 'real',
+        created_at: Date.now(),
+        reason: `长桥 API 报错: ${apiError.message}`
+      });
+
+      return { success: false, reason: apiError.message, mode: 'LIVE_FAILED' };
+    }
+
+  } else {
     // ==========================================
     // 模式 A: 沙盒模拟交易 (Paper Trading Sandbox)
     // ==========================================
@@ -250,20 +359,20 @@ export async function executeOrder({ ticker, action, price, quantity, stopLoss, 
       updatePortfolioCash(portfolio.cash + revenue);
 
       // 扣减/清除持仓
-      const newQty = existingPos.quantity - finalQty;
-      const avgPrice = existingPos.average_entry_price;
+      const newQty = existingPos ? existingPos.quantity - finalQty : 0;
+      const avgPrice = existingPos ? existingPos.average_entry_price : price;
 
       savePosition({
         ticker,
-        quantity: newQty,
+        quantity: Math.max(0, newQty),
         average_entry_price: avgPrice,
         current_price: price,
-        market_value: newQty * price,
-        unrealized_pnl: (price - avgPrice) * newQty
+        market_value: Math.max(0, newQty) * price,
+        unrealized_pnl: (price - avgPrice) * Math.max(0, newQty)
       });
     }
 
-    // 保存成交订单到数据库
+    // 保存成交订单到数据库 (带 account_type = 'paper')
     saveOrder({
       id: orderId,
       ticker,
@@ -271,8 +380,9 @@ export async function executeOrder({ ticker, action, price, quantity, stopLoss, 
       price,
       quantity: finalQty,
       status: 'FILLED',
+      account_type: 'paper',
       created_at: Date.now(),
-      reason: '沙盒模拟即时成交'
+      reason: reason || '沙盒模拟即时成交'
     });
 
     console.log(`[交易成功] 沙盒订单成交: ${action} ${ticker} ${finalQty}股 @ $${price}`);
@@ -289,72 +399,6 @@ export async function executeOrder({ ticker, action, price, quantity, stopLoss, 
     });
 
     return { success: true, orderId, mode: 'SANDBOX' };
-
-  } else {
-    // ==========================================
-    // 模式 B: 券商实盘接口对接 (Longbridge 实盘)
-    // ==========================================
-    try {
-      console.log(`[实盘交易] 正在调用长桥证券 API 执行订单...`);
-
-      const order = await placeLongbridgeOrder({
-        ticker,
-        action,
-        quantity: finalQty,
-        price
-      });
-
-      // 保存实盘挂单状态到本地 SQLite 订单表中归档
-      saveOrder({
-        id: order.orderId,
-        ticker,
-        action,
-        price,
-        quantity: finalQty,
-        status: 'PENDING',
-        created_at: Date.now(),
-        reason: '实盘委托已成功提交柜台'
-      });
-
-      // 发送提交成功通知
-      await pushTradeAlertToWeChat({
-        orderId: order.orderId,
-        ticker,
-        action,
-        price,
-        quantity: finalQty,
-        status: 'PENDING',
-        reason: `长桥实盘委托已提交。原因: ${reason}`
-      });
-
-      return { success: true, orderId: order.orderId, mode: 'LIVE' };
-    } catch (apiError) {
-      console.error('[实盘交易失败] 券商接口返回错误:', apiError);
-
-      saveOrder({
-        id: orderId,
-        ticker,
-        action,
-        price,
-        quantity: finalQty,
-        status: 'REJECTED',
-        created_at: Date.now(),
-        reason: `长桥 API 报错: ${apiError.message}`
-      });
-
-      // 推送实盘交易失败报警
-      await pushTradeAlertToWeChat({
-        orderId,
-        ticker,
-        action,
-        price,
-        quantity: finalQty,
-        status: 'REJECTED',
-        reason: `长桥实盘下单失败: ${apiError.message}`
-      });
-
-      return { success: false, reason: apiError.message };
-    }
   }
 }
 

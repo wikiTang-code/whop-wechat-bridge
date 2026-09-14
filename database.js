@@ -961,26 +961,39 @@ export function savePosition(position) {
 export function saveOrder(order) {
   const conn = getDb();
   conn.prepare(`
-    INSERT INTO orders (id, ticker, action, price, quantity, status, created_at, reason)
-    VALUES (@id, @ticker, @action, @price, @quantity, @status, @created_at, @reason)
-  `).run(order);
+    INSERT INTO orders (id, ticker, action, price, quantity, status, account_type, created_at, reason)
+    VALUES (@id, @ticker, @action, @price, @quantity, @status, @account_type, @created_at, @reason)
+  `).run({
+    account_type: order.account_type || 'paper',
+    ...order
+  });
 }
 
 // 获取订单历史
-export function getOrders({ limit = 50, offset = 0, dbInstance = null } = {}) {
+export function getOrders({ limit = 50, offset = 0, account_type = null, dbInstance = null } = {}) {
   limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
   offset = Math.max(0, parseInt(offset, 10) || 0);
   const conn = dbInstance || getDb();
-  const stmt = conn.prepare(`
-    SELECT * FROM orders 
-    ORDER BY created_at DESC LIMIT ? OFFSET ?
-  `);
-  const countStmt = conn.prepare('SELECT COUNT(*) as count FROM orders');
-  
-  const orders = stmt.all(limit, offset);
-  const total = countStmt.get()?.count || 0;
-  
-  return { orders, total };
+  if (account_type) {
+    const stmt = conn.prepare(`
+      SELECT * FROM orders 
+      WHERE account_type = ?
+      ORDER BY created_at DESC LIMIT ? OFFSET ?
+    `);
+    const countStmt = conn.prepare('SELECT COUNT(*) as count FROM orders WHERE account_type = ?');
+    const orders = stmt.all(account_type, limit, offset);
+    const total = countStmt.get(account_type)?.count || 0;
+    return { orders, total };
+  } else {
+    const stmt = conn.prepare(`
+      SELECT * FROM orders 
+      ORDER BY created_at DESC LIMIT ? OFFSET ?
+    `);
+    const countStmt = conn.prepare('SELECT COUNT(*) as count FROM orders');
+    const orders = stmt.all(limit, offset);
+    const total = countStmt.get()?.count || 0;
+    return { orders, total };
+  }
 }
 
 // ==========================================================================
