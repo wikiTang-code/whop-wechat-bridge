@@ -1,7 +1,8 @@
 # 07 — 审阅意见台（Review inbox）
 
 > 上级：[`README.md`](./README.md) · 落地必须变成 [`03-requirements.md`](./03-requirements.md) 的 REQ/CHG/REJ（文件尚未定稿前，先以本页建议表为准）。  
-> 规则：聊天里的审阅**不算数**；签字结论写这里。
+> 规则：聊天里的审阅**不算数**；签字结论写这里。  
+> **交叉审修批次调度**：见 [`05-wip-board.md`](./05-wip-board.md) §0.R（`CHG-012`）；本页只收意见正文。
 
 ---
 
