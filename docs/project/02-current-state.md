@@ -79,7 +79,7 @@
 | 项 | 值 |
 |----|-----|
 | 分支 | `main` |
-| vs origin | **ahead 1**（`6099c6d`） |
+| HEAD / vs origin | push 后应与 `origin/main` 同步（见 `git status -sb`） |
 | 本机 OpenD `11111` | 联调日已通（会随用户启停变化） |
 | 本机 `ops:http` `18789` + ssh -R | 联调日已通；靠自启任务保活 |
 | 企微可信 IP | 应以 **GCP 公网** 为准 |

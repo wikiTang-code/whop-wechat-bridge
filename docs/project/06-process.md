@@ -156,3 +156,5 @@ feat(local-ops): REQ-018 wecom freeze table
 ```
 
 独立文档 commit：**不夹带** GEX HTML、`.env`、`scratch` 草稿（除非明确 REQ）。
+
+**默认收工 Git（人已授权为长期自动任务）**：REQ/CHG 落地且自检通过 → 回写 `docs/project/` → commit → `git push origin HEAD`。勿等用户再催；生产 ff / C2 HITL 除外。

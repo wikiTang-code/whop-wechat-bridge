@@ -6,7 +6,7 @@
 | 字段 | 值 |
 |------|-----|
 | 最后审阅 | 2026-09-14 |
-| 审阅基准 HEAD | 见 `git log -1`（文档治理后请刷新） |
+| 审阅基准 HEAD | CHG-008 文档树刷新（含 CHG-006 / REQ-015～020）；以 `git log -1` 为准 |
 | Agent 治理真相源 | 根目录 [`AGENTS.md`](../../AGENTS.md)（Claude→`CLAUDE.md` 指针；Cursor→`.cursor/rules/agent-governance.mdc`） |
 | 权威方案 | [`../local-ops-mcp-skill-plan.md`](../local-ops-mcp-skill-plan.md) · [`../system-hardening-and-monitoring-plan.md`](../system-hardening-and-monitoring-plan.md) · [`../gex-sidecar.md`](../gex-sidecar.md) |
 
@@ -56,7 +56,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | L1 核心业务 Whop→AI→微信→跟单 | ✅ | 双进程生产闭环 |
 | L2 加固与监测 P0–P2 | ✅ | 主体收官；P2-16 待做 |
 | L3 GEX 结构传感器 | ✅ | v1 可用；09-14 本机拉链通 |
-| L4 Local-Ops / 企微回控 | ✅ 联调 | 待 push `6099c6d` + 生产 ff |
+| L4 Local-Ops / 企微回控 | ✅ 联调 | 已 push；生产 ff 待 human（REQ-002） |
 | L5 券商只读 P5 | ⏳ | 未开始 |
 | L6 本机运维页 P6 | ⏳ | 未开始 |
 | L7 NL Copilot | ⏸ | 暂缓（只读参谋构想） |
@@ -64,9 +64,9 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 **三层能力面**：① 业务守护流水线 ② 本机 Local-Ops catalog ③ 企微极窄 `/ops`（C0 + `gex.collect`）。详见 [`01`](./01-background-vision.md) / [`02`](./02-current-state.md)。
 
 **当前最高优先**：见 [`05-wip-board.md`](./05-wip-board.md)  
-- `agent:cursor`：CHG-006（06 §6 HITL 清单）已落地；可抢 REQ-003 / REQ-004 等  
-- `agent:gemini`：REQ-015/016/017/020 四项安全治理与 Runbook 均已 Done  
 - `human`：REQ-002 生产 ff  
+- 可抢：REQ-003（GEX 开盘任务）/ REQ-004 / REQ-021（L1 跟单沙盒表）等  
+- 已收官本轮：CHG-006、REQ-015～020（HITL/回滚/密钥/审计）  
 
 **审阅建议编号**：已合并进 [`03`](./03-requirements.md)（REQ-015～025）。
 
