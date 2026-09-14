@@ -404,6 +404,11 @@ export async function executeOrder({
 
 // 交易消息推送通知
 async function pushTradeAlertToWeChat({ orderId, ticker, action, price, quantity, status, reason }) {
+  // 单测与离线测试环境下严格静默，禁止外发真实企微推送打扰用户
+  if (process.env.NODE_ENV === 'test' || process.env.SKIP_TRADE_NOTIFY === 'true') {
+    return;
+  }
+
   const webhookUrl = process.env.WECHAT_WORK_WEBHOOK_URL;
   if (!webhookUrl) return;
 

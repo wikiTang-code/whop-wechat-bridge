@@ -69,11 +69,11 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **REQ-003** 开盘 GEX 计划任务 | Doing |
-| **§0.B `agent:gemini`** | **REQ-022** REQ-004 GEX→GCP 只读同步安全专节 | 候选就绪（待问 Human 入队） |
+| **§0.B `agent:gemini`** | **REQ-005** P5 券商只读 MCP（只读无下单） | 候选就绪（待问 Human 入队） |
 | **§0.H `human`** | REQ-002 生产 ff | 等待 |
 | **§0.R-A** | **PKG-FOLLOW-FULL**（follow-HITL 全组关闭移交） | Queued（cursor 审 Gemini） |
 
-近期已闭环：`REQ-008` 主库增长治理、`follow-HITL` 专题包（`REQ-027`、`REQ-028`、`REQ-029`、`REQ-021`）。  
+近期已闭环：`REQ-022` GEX安全同步、`REQ-008` 主库增长治理、`follow-HITL` 专题包（`REQ-027`、`REQ-028`、`REQ-029`、`REQ-021`）。  
 **交叉审修**：累计出队 ≥5 或专题包关闭 → 对方 §0.R（`CHG-012` / 06 §1.2）。
 
 **审阅建议编号**：已合并进 [`03`](./03-requirements.md)（REQ-015～025）。

@@ -43,7 +43,7 @@
 | REQ-019 | P1 | L4/L1 | `done` | 发布 go/no-go + 重启判据 | `runbooks/deploy-restart.md` |
 | REQ-020 | P1 | L4 | `done` | **C2 审计与看板闭环**（actor/channel/userid/sha/result ↔ 05 Ops 行） | Owner=`agent:gemini`；`runbooks/c2-audit-loop.md` |
 | REQ-021 | P2 | L1 | `done` | **L1 跟单变更沙盒/实盘检查表** + human 门禁 | `runbooks/follow-sandbox-to-live-gate.md`；Owner=`agent:gemini` |
-| REQ-022 | P2 | L3 | `accepted` | **REQ-004 安全专节**：只读产物同步、禁 OpenD、禁密钥随快照 | |
+| REQ-022 | P2 | L3 | `done` | **REQ-004 安全专节**：只读产物同步、禁 OpenD、禁密钥随快照 | Owner=`agent:gemini` · `gex-sync-validator.js` · `runbooks/gex-gcp-sync-security.md` |
 | REQ-023 | P0 | L0 | `done` | 进度文档并发协议 | 见 `06-process.md` §3 |
 | REQ-024 | P1 | L3/L0 | `done` | `data/gex` 提交硬规则 | 见 04/06；human 已拍板 |
 | REQ-026 | P0 | L0 | `done` | 多端统一 Agent 治理：`AGENTS.md` 精炼版 + `CLAUDE.md` 指针 + `.cursor/rules/agent-governance.mdc` | 2026-09-14 |
