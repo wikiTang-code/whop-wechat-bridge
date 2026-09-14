@@ -64,11 +64,11 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 **三层能力面**：① 业务守护流水线 ② 本机 Local-Ops catalog ③ 企微极窄 `/ops`（C0 + `gex.collect`）。详见 [`01`](./01-background-vision.md) / [`02`](./02-current-state.md)。
 
-**当前最高优先**：见 [`05-wip-board.md`](./05-wip-board.md)  
-- `human`：REQ-002 生产 ff  
-- `agent:gemini`：REQ-030（推送文案实事求是 · `monitor.js`）已 Done；L1 跟单已与 `follow-hitl-plan.md` 对齐  
-- L1 方案已 accepted：REQ-027～029 / CHG-009；按 Phase A→B→C 认领，勿并行抢同一热点  
-- 可抢：REQ-003 / REQ-004  
+**当前高优执行队列**：以 [`05-wip-board.md`](./05-wip-board.md) §0 队列为唯一准绳  
+1. **REQ-027**（L1）：三账本隔离+看板分源（Phase A 首位核心，待确认开工）  
+2. **REQ-028**（L1）：Paper 状态机（TTL/滑点撮合，待 027）  
+3. **REQ-002**（L4）：生产 GCP-VM ff 对齐发布（待 human）  
+- **主动接续机制**：队列内任务 Done 出队后，Agent 自动从队列外候选（如 REQ-029/REQ-003）拉入高优队列，并主动向用户请示是否继续开发。
 
 **审阅建议编号**：已合并进 [`03`](./03-requirements.md)（REQ-015～025）。
 
