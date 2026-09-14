@@ -1,8 +1,8 @@
 # L1 跟单：信号 / 确认 / 模拟仓 对齐方案
 
-> 状态：`accepted`（2026-09-14）· Q-005 已决企微业务卡片 · 待 05 认领后开工  
+> 状态：`accepted`（2026-09-14）· Q-005 已决企微业务卡片 · **Phase A = REQ-027 由 `agent:cursor` Doing（队列 0.A）**  
 > 依据：用户目标（模拟仓迭代 + 移动端确认 + 赵哥看板与个人跟单分仓）· 现网事实（[Explore L1 trade follow path](1acf7743-67e8-406e-aee7-aee21e6e9a70)）· 既有规格 [`data/specs/follow_execution_spec.md`](../../data/specs/follow_execution_spec.md)  
-> 账本：`REQ-027`～`REQ-030` · `CHG-009`/`CHG-010` · 关联 `REQ-021`
+> 账本：`REQ-027`～`REQ-030` · `CHG-009`/`CHG-010` · 关联 `REQ-021` · 队列机制 `CHG-011`
 
 ---
 

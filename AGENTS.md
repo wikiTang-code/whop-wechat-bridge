@@ -49,11 +49,13 @@
 
 | 时机 | 动作 |
 |------|------|
-| 开工 | 读 `docs/project/05-wip-board.md`；认领 Owner；冲突热点见 `06-process.md` |
+| 开工 | 读 `docs/project/05-wip-board.md` §0 **本 Agent 队列**；认领 Owner；互斥热点见 `06-process.md` |
 | 新需求/变更 | 先写 `03-requirements.md` |
 | 审阅结论 | 写 `07-review-inbox.md`，落地必须进 `03` |
-| 收工 | 更新 `05`；完成则 `03=done`；必要时刷新 `02`/`04`/`README` 快照 |
+| 收工 | 更新 `05`（本队列出队）；完成则 `03=done`；必要时刷新 `02`/`04`/`README` 快照；**主动接续**本队列下一项（问 Human） |
 
 **落地后 Git（长期默认，勿等用户再催）**：REQ/CHG 代码或文档落地且自检通过后，Agent **自动**（1）回写 `docs/project/`（2）独立 commit（带 REQ/CHG 号；禁夹带 `.env` / GEX HTML / `scratch`）（3）`git push origin HEAD`。生产 ff / C2 仍须 human（REQ-002 / HITL）。
+
+**双队列**：§0.A=`agent:cursor` · §0.B=`agent:gemini`；同一 REQ/热点互斥（`CHG-011`）。
 
 详细流程与冻结清单：`docs/project/06-process.md` · `docs/project/wecom-freeze.md`

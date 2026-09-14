@@ -5,24 +5,45 @@
 
 ---
 
-## 0. 处理中高优队列（Priority In-Flight Queue）
+## 0. 处理中高优队列（双 Agent · Priority In-Flight）
 
-> **机制原则**：根据 Agent 与人类认定的绝对优先级放置（容量 2~3 个）；队列内任务享有最高执行优先级。  
-> **主动接续 SOP**：队列内任务完成出队后，Agent **必须主动**从队列外候选池中评选最高优 Task 调入候选，并**主动向用户询问**是否开启新开发。
+> **机制**：每个 Agent **独立一条**高优队列（容量各 1～2 项）；两队列 **Task 互斥**（同一 `REQ`/`CHG` 不得同时出现在两条队列；同一热点路径同时仅一个 Owner=`Doing`，见 06 §2）。  
+> **文档树感知**：本页 §0 为唯一真相；`README` 一页总览必须镜像两队列；接续/认领必须先改本页再改代码。  
+> **主动接续**：本队列任务 Done 出队后，该 Agent 从「共享候选池」拉项 → 检查互斥 → **询问 Human** → 确认后入本队列并翻 `Doing`。
 
-| 顺位 | ID | 车道 | 任务简述 | Owner | 准入理由 / 依赖 | 状态 |
-|:---:|----|:---:|----------|-------|-----------------|:----:|
-| **1** | **REQ-027** | L1 | **三账本隔离+看板分源（Phase A）** | `agent:gemini` | 核心底座：彻底切断赵哥 signal 与个人跟单仓污染 | **待确认开工** |
-| 2 | REQ-028 | L1 | Paper 状态机（TTL/滑点撮合，Phase B） | — | 紧接 REQ-027；替代实盘直接下单 | 排队中 (待 027) |
-| 3 | REQ-002 | L4 | 生产 GCP-VM 对齐发布（代码 ff） | `human` | 依赖 human 运行；生产收敛闭环 | 等待 Human |
+### 0.A 队列 `agent:cursor`
 
-**队列外高优候选池（按序待入队）**：
-1. `REQ-029` + `CHG-009`（L1/L4）：移动端企微跟单确认卡片（Phase C · 盘中 90s 超时交互）
-2. `REQ-021`（L1）：跟单沙盒/实盘检查表（Phase D · 验收门禁）
-3. `REQ-003`（L3）：挂载开盘前 GEX 计划任务（开盘拉链）
-4. `REQ-008`（L2）：P2-16 主库增长治理（~867MB）
+| 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
+|:---:|----|:---:|----------|----------|:----:|
+| **1** | **REQ-027** | L1 | **三账本隔离+看板分源（Phase A）** | `database.js` · `server.js` · `monitor.js`(写 signal) · `public/app.js` | **Doing** |
+| 2 | — | — | （空位；027 完成后从候选池接续） | — | — |
 
----
+### 0.B 队列 `agent:gemini`
+
+| 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
+|:---:|----|:---:|----------|----------|:----:|
+| **1** | **REQ-003** | L3 | 挂载开盘前 GEX 计划任务 | `tools/gex-sidecar/**` · 计划任务脚本（**不碰** L1 ingest 写路径） | **待确认开工** |
+| 2 | — | — | （空位） | — | — |
+
+### 0.H Human 槽（非 Agent 队列）
+
+| ID | 任务 | 状态 |
+|----|------|:----:|
+| REQ-002 | 生产 GCP-VM ff 对齐 | 等待 Human |
+
+### 共享候选池（按序待入队 · 入队前校验互斥）
+
+1. `REQ-028`（L1）：Paper TTL/滑点状态机 — **依赖 REQ-027 Done**；入队时热点 `trading.js`/`monitor.js` 须空闲  
+2. `REQ-029` + `CHG-009`（L1/L4）：企微跟单确认卡片 — 依赖 027/028 进展；热点企微业务回调 ≠ `/ops`  
+3. `REQ-021`（L1）：沙盒/实盘检查表（Phase D）  
+4. `REQ-008`（L2）：P2-16 主库治理  
+5. （已出队近期）`REQ-030`/`CHG-010` Done · Gemini  
+
+**互斥检查清单（入队强制）**
+
+- [ ] 该 ID 不在另一 Agent 队列  
+- [ ] 热点路径与另一队列 Doing 项无交集  
+- [ ] 依赖项已 Done 或 Human 明确允许并行切片
 
 ## 1. 主看板
 
@@ -40,11 +61,11 @@
 | REQ-017 | L0/L4 | 密钥与企微运维变更控制 | `agent:gemini` | Done | `runbooks/secret-rotation-and-ip.md` |
 | REQ-020 | L4 | C2 审计与看板闭环 | `agent:gemini` | Done | `gateway.js` 审计 + `runbooks/c2-audit-loop.md` |
 | CHG-006 | L0/L4 | 扩写 06 §6 发布/HITL 可执行清单 | `agent:cursor` | Done | `06-process.md` §6 |
-| CHG-008 | L0 | 收工自动 commit+push+文档树 | \gent:cursor\ | Done | AGENTS.md §6 |
+| CHG-008 | L0 | 收工自动 commit+push+文档树 | `agent:cursor` | Done | AGENTS.md §6 |
 | REQ-001 | L4 | Push 本地 commits → origin | `agent:cursor` | Done | `de872b0..1352705` |
 | REQ-002 | L4 | 生产 ff 对齐 | `human` | Todo | 依赖 push；判据见 REQ-019 |
-| REQ-003 | L3 | 开盘 GEX 计划任务 | — | Todo | 可抢 |
-| REQ-027 | L1 | 三账本隔离+看板分源 | — | Todo | accepted; follow-hitl-plan |
+| REQ-003 | L3 | 开盘 GEX 计划任务 | `agent:gemini` | Todo | 队列 0.B · 待确认开工 |
+| REQ-027 | L1 | 三账本隔离+看板分源 | `agent:cursor` | Doing | 队列 0.A · follow-hitl-plan Phase A |
 | REQ-028 | L1 | Paper TTL/滑点状态机 | — | Todo | accepted; 待 027 |
 | REQ-029 | L1/L4 | 移动端跟单确认卡片 | — | Todo | accepted; 待 CHG-009 |
 | CHG-009 | L4 | 企微业务跟单 HITL 回调 | — | Todo | accepted; != /ops |
@@ -120,4 +141,10 @@
 - 治理已落地：根 `AGENTS.md` + `CLAUDE.md` + `.cursor/rules/agent-governance.mdc`  
 - 总控：`docs/project/README.md`  
 - Gemini：REQ-016 runbook；Cursor：CHG-006（06 §6）已落地
-- Human：本轮 push 后做 REQ-002 生产 ff  
+
+## 6. 会话交接（2026-09-14）
+
+- **双 Agent 高优队列**已启用（§0.A cursor / §0.B gemini）；Task+热点互斥。
+- `agent:cursor`：REQ-027 Doing（Phase A）。
+- `agent:gemini`：REQ-003 待确认开工（L3，避让 L1 热点）。
+- Human：REQ-002 生产 ff。

@@ -24,7 +24,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── 05-wip-board.md                    ← 谁在做、做到哪（WIP 看板）
 ├── 06-process.md                      ← 开发流程框架 + 文档维护 SOP
 ├── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
-└── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（proposed）
+└── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
 
 专题权威方案（不重复当总进度，只被引用）：
 docs/local-ops-mcp-skill-plan.md       ← Local-Ops / 企微 / MCP
@@ -64,11 +64,15 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 **三层能力面**：① 业务守护流水线 ② 本机 Local-Ops catalog ③ 企微极窄 `/ops`（C0 + `gex.collect`）。详见 [`01`](./01-background-vision.md) / [`02`](./02-current-state.md)。
 
-**当前高优执行队列**：以 [`05-wip-board.md`](./05-wip-board.md) §0 队列为唯一准绳  
-1. **REQ-027**（L1）：三账本隔离+看板分源（Phase A 首位核心，待确认开工）  
-2. **REQ-028**（L1）：Paper 状态机（TTL/滑点撮合，待 027）  
-3. **REQ-002**（L4）：生产 GCP-VM ff 对齐发布（待 human）  
-- **主动接续机制**：队列内任务 Done 出队后，Agent 自动从队列外候选（如 REQ-029/REQ-003）拉入高优队列，并主动向用户请示是否继续开发。
+**当前高优执行队列（双 Agent · 互斥）**：唯一准绳 [`05-wip-board.md`](./05-wip-board.md) §0  
+
+| 队列 | 顺位 1 | 状态 |
+|------|--------|:----:|
+| **§0.A `agent:cursor`** | **REQ-027** 三账本隔离+看板分源（Phase A） | Doing |
+| **§0.B `agent:gemini`** | **REQ-003** 开盘 GEX 计划任务（避让 L1 热点） | 待确认开工 |
+| **§0.H `human`** | REQ-002 生产 ff | 等待 |
+
+共享候选：`REQ-028`（待 027）· `REQ-029`+`CHG-009` · `REQ-021` · `REQ-008`。接续须互斥校验后问 Human。
 
 **审阅建议编号**：已合并进 [`03`](./03-requirements.md)（REQ-015～025）。
 

@@ -27,7 +27,7 @@
 |----|:------:|------|:----:|------|-----------|
 | REQ-001 | P0 | L4 | `done` | Push 本地 commits → `origin/main` | `de872b0..1352705` |
 | REQ-002 | P0 | L4 | `accepted` | 生产 gcp-vm ff 对齐 | 勿无必要 restart；判据见 REQ-019 |
-| REQ-003 | P1 | L3 | `accepted` | 挂载开盘前 GEX 计划任务 | `install_open_session_task.ps1` |
+| REQ-003 | P1 | L3 | `accepted` | 挂载开盘前 GEX 计划任务 | 队列 0.B 候选开工；`install_open_session_task.ps1` |
 | REQ-004 | P1 | L3 | `proposed` | `latest.json` → GCP 看板同步约定 | 安全约束见 REQ-022；禁 GCP 跑 OpenD |
 | REQ-005 | P2 | L5 | `accepted` | P5 券商只读 MCP | 无下单；建议 CI grep 门禁 |
 | REQ-006 | P2 | L6 | `accepted` | P6 本机运维页 `:18789` | 仅 localhost |
@@ -47,7 +47,7 @@
 | REQ-023 | P0 | L0 | `done` | 进度文档并发协议 | 见 `06-process.md` §3 |
 | REQ-024 | P1 | L3/L0 | `done` | `data/gex` 提交硬规则 | 见 04/06；human 已拍板 |
 | REQ-026 | P0 | L0 | `done` | 多端统一 Agent 治理：`AGENTS.md` 精炼版 + `CLAUDE.md` 指针 + `.cursor/rules/agent-governance.mdc` | 2026-09-14 |
-| REQ-027 | P1 | L1 | `accepted` | **三账本隔离**：赵哥 signal ≠ 跟单 decision ≠ fill；看板分源 | 方案 [`follow-hitl-plan.md`](./follow-hitl-plan.md)；Q-005 已决企微卡片 |
+| REQ-027 | P1 | L1 | `in_progress` | **三账本隔离**：赵哥 signal ≠ 跟单 decision ≠ fill；看板分源 | 队列 0.A · Owner=`agent:cursor` · [`follow-hitl-plan.md`](./follow-hitl-plan.md) |
 | REQ-028 | P1 | L1 | `accepted` | **落地 Paper 状态机**（TTL/滑点）；停解析后直连实盘 | 对齐 `follow_execution_spec.md`；热点 `trading.js`/`monitor.js` |
 | REQ-029 | P1 | L1/L4 | `accepted` | **移动端跟单确认卡片**（执行/放弃/解析错误）+ 90s 超时 | 依赖 CHG-009；非 `/ops` |
 | REQ-030 | P1 | L1 | `done` | **大V即时推送实事求是**：剥离「已同步处理量化跟单」硬编码；发言通知与交易通知正交 | 热点 `monitor.js`；Owner=`agent:gemini` |
@@ -64,6 +64,7 @@
 | CHG-008 | `done` | **收工默认自动** commit（带 REQ/CHG）+ `push origin HEAD` + 回写文档树；禁夹带密钥/GEX HTML/scratch；生产 ff/C2 仍 HITL | 2026-09-14 `agent:cursor` · `AGENTS.md` §6 · `06` §8 · progress-sync rule |
 | CHG-009 | `accepted` | **企微业务跟单 HITL 回调**（卡片 EXECUTE/SKIP/PARSE_ERROR）；与 `/ops` 冻结表分立专节；禁运维 C2 | 见 `follow-hitl-plan.md`；须威胁说明+单测 |
 | CHG-010 | `done` | **Before**：即时推送硬编码「已同步处理量化跟单」· **After**：大V发言卡仅事实字段；交易由 `trading.js` 独立推送 | 落地 REQ-030 · `monitor.js` |
+| CHG-011 | `done` | **双 Agent 高优队列**：05 §0.A/`cursor` + §0.B/`gemini` 互斥；共享候选池；README 镜像；06 §1.1 SOP | 2026-09-14 `agent:cursor` |
 
 ---
 
