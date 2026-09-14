@@ -69,10 +69,10 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **REQ-035** 回放纠错与 signal 底册联动 | **Doing** |
+| **§0.A `agent:cursor`** | （空 · REQ-034 Done；035 等 033 热点） | — |
 | **§0.B `agent:gemini`** | **REQ-033** 历史回放+企微纠错 | Doing |
 | **§0.H `human`** | REQ-002 / Q-001 | 等待 |
-| **§0.R-B** | PKG-CURSOR-WAVE（含 005/006） | **Done** |
+| **§0.R-B** | PKG-CURSOR-WAVE | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 

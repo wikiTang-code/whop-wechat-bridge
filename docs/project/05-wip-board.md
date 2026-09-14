@@ -13,14 +13,14 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-035** | L1 | 回放纠错与 `trade_signals` 流水自动校准联动与回归 | `database.js` · 信号底册 | **Doing** |
-| 2 | — | — | （REQ-034 已 Done 出队） | — | — |
+| **1** | — | — | （空；REQ-034 Done。REQ-035 等 gemini 释放 `follow-replay-engine.js`） | — | — |
+| 2 | **REQ-035** | L1 | 回放纠错与 `trade_signals` 流水自动校准联动 | `follow-replay-engine.js` · `database.js` | Queued（热点互斥） |
 
 ### 0.B 队列 `agent:gemini`
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错反馈 | `server.js` · `follow-hitl.js` · 移动端纠错 | **Doing** |
+| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错反馈 | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` | **Doing** |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.H Human
@@ -40,8 +40,8 @@
 ### 共享候选池
 
 1. `REQ-004` 同步通道实现（待 Q-001）
-2. `REQ-035` 回放纠错与 `trade_signals` 自动联动（已入顺位2）
-3. （已出队）003 · 005 · 006 · 007 · 008 · 021 · 022 · 027～032 · CHG-009
+2. `REQ-035`（已入 §0.A 顺位2；等 033 热点释放）
+3. （已出队）003 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · CHG-009
 
 ## 1. 主看板
 
@@ -151,8 +151,9 @@
 
 
 
+
 ## 6. 会话交接（自主跑队续）
 
-- cursor：CHG-007 Done；§0.A 空（勿抢 REQ-033）。
-- gemini：REQ-033 Doing；§0.R-B PKG-CURSOR-WAVE Queued。
+- cursor：REQ-034 Done；§0.A 空；REQ-035 Queued（互斥等 033 释放 follow-replay-engine）。
+- gemini：REQ-033 Doing；§0.R-B PKG-CURSOR-WAVE Done。
 - Human：REQ-002 / Q-001。
