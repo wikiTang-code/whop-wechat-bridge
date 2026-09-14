@@ -25,7 +25,7 @@
 
 | ID | 优先级 | 车道 | 状态 | 摘要 | 热点/备注 |
 |----|:------:|------|:----:|------|-----------|
-| REQ-001 | P0 | L4 | `in_progress` | Push 本地 commits → `origin/main` | local-ops + docs + latest.json |
+| REQ-001 | P0 | L4 | `done` | Push 本地 commits → `origin/main` | `de872b0..1352705` |
 | REQ-002 | P0 | L4 | `accepted` | 生产 gcp-vm ff 对齐 | 勿无必要 restart；判据见 REQ-019 |
 | REQ-003 | P1 | L3 | `accepted` | 挂载开盘前 GEX 计划任务 | `install_open_session_task.ps1` |
 | REQ-004 | P1 | L3 | `proposed` | `latest.json` → GCP 看板同步约定 | 安全约束见 REQ-022；禁 GCP 跑 OpenD |

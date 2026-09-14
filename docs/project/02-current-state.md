@@ -67,7 +67,7 @@
 | C2 本机 confirm_token / 生产 HITL | ✅ |
 | GCP 借道推送 `35.212.142.173` | ✅ 已验证 |
 | 开机自启 `whop-local-ops-wecom` | ✅ 已注册 |
-| 提交 push / 生产 ff | ⏳ push 进行中 |
+| 提交 push / 生产 ff | ✅ 已 push；ff 待 human（REQ-002） |
 
 企微命令面：`tools/local-ops/wecom/commands.js`（非 catalog 全集）。
 

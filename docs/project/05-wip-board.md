@@ -18,7 +18,7 @@
 | REQ-024 | L3/L0 | data/gex 提交硬规则 | `agent:cursor` | Done | 见 04 §1 / 06 §4 |
 | REQ-015 | L0/L4 | 生产 C2 HITL Runbook | `agent:gemini` | Doing | 骨架：`runbooks/hitl-c2.md` |
 | REQ-016 | L0/L2 | 事故响应+回滚 Runbook | `agent:gemini` | Doing | 骨架：`runbooks/incident-rollback.md` |
-| REQ-001 | L4 | Push 本地 commits → origin | `human`→pushing | Doing | 含 6099c6d + docs + gex latest |
+| REQ-001 | L4 | Push 本地 commits → origin | `agent:cursor` | Done | `de872b0..1352705` |
 | REQ-002 | L4 | 生产 ff 对齐 | `human` | Todo | 依赖 push；判据见 REQ-019 |
 | REQ-003 | L3 | 开盘 GEX 计划任务 | — | Todo | 可抢 |
 
