@@ -28,7 +28,7 @@
 | REQ-001 | P0 | L4 | `done` | Push 本地 commits → `origin/main` | `de872b0..1352705` |
 | REQ-002 | P0 | L4 | `accepted` | 生产 gcp-vm ff 对齐 | 勿无必要 restart；判据见 REQ-019 |
 | REQ-003 | P1 | L3 | `done` | 挂载开盘前 GEX 计划任务 | Owner=`agent:cursor`；Task=`WhopGexOpenSession0940ET` Ready；ET→本地墙钟安装器 |
-| REQ-004 | P1 | L3 | `proposed` | `latest.json` → GCP 看板同步约定 | 安全约束见 REQ-022；禁 GCP 跑 OpenD |
+| REQ-004 | P1 | L3 | `done` | `latest.json` → GCP 看板同步（默认 SCP） | Owner=`agent:cursor`；`sync_latest_to_gcp.js`；Q-001 interim=SCP；`test_gex_sync_scp_req004.js` |
 | REQ-005 | P2 | L5 | `done` | P5 券商只读 MCP | Owner=`agent:cursor`；broker.lb.* + futu.opend_probe；catalog 无 place_order；test_broker_readonly_req005 |
 | REQ-006 | P2 | L6 | `done` | P6 本机运维页 `:18789` | Owner=`agent:cursor`；GET /ui + POST /api/ops/invoke；test_ops_ui_req006 |
 | REQ-007 | P3 | L7 | `deferred` | NL 只读 Copilot | `/ops` 仍直达 |

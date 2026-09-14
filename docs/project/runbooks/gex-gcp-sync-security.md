@@ -18,19 +18,31 @@
 3. 同步脚本不得嵌入 API Key；使用本机已有 SSH/SCP 配方或制品仓。  
 4. Git：`latest.json` **仅里程碑**入库；盘中拉链结果勿例行 commit（`REQ-024`）。
 
-## 3. 推荐同步形态（Q-001 仍可由 Human 最终点名）
+## 3. 推荐同步形态（Q-001）
 
-默认建议：**本机定时 SCP** `latest.json` → gcp-vm 约定路径（如 `data/gex/latest.json`），dashboard 只读 API 已存在则直接消费。
+**已决（interim）**：本机 **SCP** `data/gex/latest.json` → gcp-vm 约定路径（Human 仍可改制品通道）。
+
+```powershell
+# 仅校验
+node tools/gex-sidecar/sync_latest_to_gcp.js --dry-run
+
+# 真实 SCP（需本机已配置 ssh Host gcp-vm）
+node tools/gex-sidecar/sync_latest_to_gcp.js
+# 或
+npm run gex:sync-gcp
+```
+
+环境变量（可选）：`GEX_SYNC_SSH_HOST`（默认 `gcp-vm`）、`GEX_SYNC_REMOTE_PATH`。
 
 备选：CI 制品上传（仍禁止 HTML/大快照）。
 
 ## 4. 验收清单
 
-- [ ] 同步包内无 `.env` / 密钥 / HTML / snapshot_*  
-- [ ] GCP 侧无 OpenD 进程与 futu 依赖安装  
-- [ ] 看板能读到新鲜 `as_of` / 时间戳字段  
-- [ ] 失败时仅告警，不触发生产 C2 / 跟单  
+- [x] 同步前 `validateGexPayload`（REQ-022）  
+- [x] 仅允许 basename=`latest.json`；禁 HTML / snapshot_*  
+- [ ] 联调：看板读到新鲜 `generated_at`（人工一次）  
+- [x] 失败仅返回错误，不触发生产 C2 / 跟单  
 
 ## 5. 与 REQ-004 关系
 
-本专节满足 **REQ-022** 安全约束；REQ-004 的具体通道选型（SCP vs 制品）在 Q-001 Human 拍板后另开实现任务。
+本专节 + `sync_latest_to_gcp.js` 落地 **REQ-004** 默认 SCP 通道；安全约束仍以 REQ-022 为准。

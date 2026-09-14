@@ -31,3 +31,16 @@ Phone:
 `collect`/`gex run` ack immediately (WeCom 5s limit). Restart/deploy still CLI-only + human-approve for prod C2.
 
 Deferred: cutover / rollback / env_set. Forbidden: place_order, pm2 delete/kill.
+
+## P5 / P6 / REQ-034
+
+- P5：`broker.lb.*` / `broker.futu.opend_probe`（只读；catalog 永不出现 `place_order`）
+- P6：浏览器打开 `http://127.0.0.1:18789/ui`
+- REQ-034：`/api/ops/invoke` 需回环 Host +（浏览器 CSRF 或 CLI `X-Local-Ops: 1`）
+
+## GEX → GCP（REQ-004）
+
+```powershell
+npm run gex:sync-gcp:dry
+npm run gex:sync-gcp
+```
