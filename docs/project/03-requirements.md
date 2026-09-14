@@ -35,11 +35,11 @@
 | REQ-008 | P2 | L2 | `accepted` | P2-16 主库增长治理 | ~867MB |
 | REQ-009 | P3 | L1 | `deferred` | uSMART 接入 | 远期 |
 | REQ-010 | P3 | L1 | `deferred` | Python 回测引擎 | 远期 |
-| REQ-014 | P0 | L0 | `in_progress` | 文档树 + 协同框架入库 | `docs/project/**` |
+| REQ-014 | P0 | L0 | `done` | 文档树 + 协同框架入库 | `0dc31ea` |
 | REQ-015 | P0 | L0/L4 | `in_progress` | 生产 C2 HITL Runbook | Owner=`agent:gemini`；骨架 `runbooks/hitl-c2.md` |
 | REQ-016 | P0 | L0/L2 | `in_progress` | 事故响应 + 回滚 Runbook | Owner=`agent:gemini`；骨架 `runbooks/incident-rollback.md` |
 | REQ-017 | P0 | L0/L4 | `accepted` | **密钥与企微运维变更控制**（`WECOM_OPS_*`、userid、推送 IP、隧道）；轮换与泄露应急（不写密文） | |
-| REQ-018 | P1 | L4 | `accepted` | **企微能力面冻结清单** = `commands.js` 的 C0_MAP + WECOM_C1_IDS；扩面须 CHG+单测+威胁说明 | |
+| REQ-018 | P1 | L4 | `done` | 企微能力面冻结清单 | `docs/project/wecom-freeze.md` · `38662c4` |
 | REQ-019 | P1 | L4/L1 | `accepted` | **发布 go/no-go + 重启判据**（ff-only vs 必须 restart ingest/web；漏重启如何发现） | |
 | REQ-020 | P1 | L4 | `accepted` | **C2 审计与看板闭环**（actor/channel/userid/sha/result ↔ 05 Ops 行） | |
 | REQ-021 | P2 | L1 | `accepted` | **L1 跟单变更沙盒/实盘检查表** + human 门禁 | |
