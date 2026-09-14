@@ -204,35 +204,16 @@ for (const r of existingRecords) {
   }
 }
 
-// 4. 重建 orders 表与 positions 表
-db.prepare('DELETE FROM positions').run();
-db.prepare('DELETE FROM orders').run();
+// 4. 重建大V推演专属持仓表 zhao_positions（彻底与个人跟单仓 positions/orders 隔离）
+db.prepare('DELETE FROM zhao_positions').run();
 
-const insertOrderStmt = db.prepare(`
-  INSERT INTO orders (id, ticker, action, price, quantity, status, created_at, reason)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-`);
-
-for (const t of confirmedTrades) {
-  const evolutionDesc = `【操作前: ${t.before_qty}股 ($${t.before_avg_cost}) ➔ ${t.action === 'BUY' ? '🟢买入' : '🔴卖出'} ${t.trade_qty}股 @ $${t.price} ➔ 操作后: ${t.after_qty}股 ($${t.after_avg_cost})】| 信息源: ${t.raw_content}`;
-  insertOrderStmt.run(
-    t.id,
-    t.ticker,
-    t.action,
-    t.price,
-    t.trade_qty,
-    'FILLED',
-    t.created_at,
-    evolutionDesc
-  );
-}
-
-const insertPosStmt = db.prepare(`
-  INSERT INTO positions (ticker, quantity, average_entry_price, current_price, market_value, unrealized_pnl)
-  VALUES (?, ?, ?, ?, ?, ?)
+const insertZhaoPosStmt = db.prepare(`
+  INSERT INTO zhao_positions (ticker, quantity, average_entry_price, current_price, market_value, unrealized_pnl, updated_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?)
 `);
 
 let activePositionsCount = 0;
+const now = Date.now();
 for (const sym in portfolio) {
   const p = portfolio[sym];
   const holdingQty = p.lots.reduce((sum, l) => sum + l.quantity, 0);
@@ -242,18 +223,20 @@ for (const sym in portfolio) {
     const mktVal = +(holdingQty * p.lastPrice).toFixed(2);
     const unrealizedPnL = +(mktVal - totalCost).toFixed(2);
 
-    insertPosStmt.run(
+    insertZhaoPosStmt.run(
       sym,
       holdingQty,
       avgPrice,
       p.lastPrice,
       mktVal,
-      unrealizedPnL
+      unrealizedPnL,
+      now
     );
     activePositionsCount++;
   }
 }
 
-console.log(`🎉 持久化状态机计算完成！当前活跃持仓标的: ${activePositionsCount} 个，订单流水: ${confirmedTrades.length} 笔！`);
-const currentPositions = db.prepare('SELECT * FROM positions ORDER BY market_value DESC').all();
+console.log(`🎉 大V持久化状态机计算完成！当前在持标的: ${activePositionsCount} 个，确认交易流水: ${confirmedTrades.length} 笔！`);
+console.log('✅ 大V持仓已存入专属表 zhao_positions，用户个人跟单仓 (positions/orders) 保持纯净未受破坏。');
+const currentPositions = db.prepare('SELECT * FROM zhao_positions ORDER BY market_value DESC').all();
 console.table(currentPositions);

@@ -11,12 +11,12 @@
 > **文档树感知**：本页 §0 为唯一真相；`README` 一页总览必须镜像两队列；接续/认领必须先改本页再改代码。  
 > **主动接续**：本队列任务 Done 出队后，该 Agent 从「共享候选池」拉项 → 检查互斥 → **询问 Human** → 确认后入本队列并翻 `Doing`。
 
-### 0.A 队列 `agent:cursor`
+### 0.A 队列 `agent:cursor` / `agent:gemini` 协同执行
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-027** | L1 | **三账本隔离+看板分源（Phase A）** | `database.js` · `server.js` · `monitor.js`(写 signal) · `public/app.js` | **Doing** |
-| 2 | — | — | （空位；027 完成后从候选池接续） | — | — |
+| **1** | **REQ-028** | L1 | **落地 Paper 状态机**（TTL/滑点） | `trading.js` · `monitor.js` | **待确认开工（接续）** |
+| 2 | REQ-029 | L1/L4 | 移动端跟单确认卡片 | `server.js` (HITL 回调) · 企微消息模板 | 候选就绪 |
 
 ### 0.B 队列 `agent:gemini`
 
@@ -94,8 +94,8 @@
 | REQ-001 | L4 | Push 本地 commits → origin | `agent:cursor` | Done | `de872b0..1352705` |
 | REQ-002 | L4 | 生产 ff 对齐 | `human` | Todo | 依赖 push；判据见 REQ-019 |
 | REQ-003 | L3 | 开盘 GEX 计划任务 | `agent:gemini` | Todo | 队列 0.B · 待确认开工 |
-| REQ-027 | L1 | 三账本隔离+看板分源 | `agent:cursor` | Doing | 队列 0.A · follow-hitl-plan Phase A |
-| REQ-028 | L1 | Paper TTL/滑点状态机 | — | Todo | accepted; 待 027 |
+| REQ-027 | L1 | 三账本隔离+看板分源 | `agent:gemini` | Done | `zhao_positions`/`follow_decisions` 物理隔离，保护跟单仓 |
+| REQ-028 | L1 | Paper TTL/滑点状态机 | `agent:gemini` | Todo | 待开工接续；热点 `trading.js`/`monitor.js` |
 | REQ-029 | L1/L4 | 移动端跟单确认卡片 | — | Todo | accepted; 待 CHG-009 |
 | CHG-009 | L4 | 企微业务跟单 HITL 回调 | — | Todo | accepted; != /ops |
 | REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | `agent:gemini` | Done | monitor.js · CHG-010 |

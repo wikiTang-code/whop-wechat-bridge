@@ -47,8 +47,8 @@
 | REQ-023 | P0 | L0 | `done` | 进度文档并发协议 | 见 `06-process.md` §3 |
 | REQ-024 | P1 | L3/L0 | `done` | `data/gex` 提交硬规则 | 见 04/06；human 已拍板 |
 | REQ-026 | P0 | L0 | `done` | 多端统一 Agent 治理：`AGENTS.md` 精炼版 + `CLAUDE.md` 指针 + `.cursor/rules/agent-governance.mdc` | 2026-09-14 |
-| REQ-027 | P1 | L1 | `in_progress` | **三账本隔离**：赵哥 signal ≠ 跟单 decision ≠ fill；看板分源 | 队列 0.A · Owner=`agent:cursor` · [`follow-hitl-plan.md`](./follow-hitl-plan.md) |
-| REQ-028 | P1 | L1 | `accepted` | **落地 Paper 状态机**（TTL/滑点）；停解析后直连实盘 | 对齐 `follow_execution_spec.md`；热点 `trading.js`/`monitor.js` |
+| REQ-027 | P1 | L1 | `done` | **三账本隔离**：赵哥 signal ≠ 跟单 decision ≠ fill；看板分源 | Owner=`agent:gemini`；`zhao_positions`/`follow_decisions` 物理隔离，`recalculate_ledger` 保护跟单仓 |
+| REQ-028 | P1 | L1 | `accepted` | **落地 Paper 状态机**（TTL/滑点）；停解析后直连实盘 | 对齐 `follow_execution_spec.md`；热点 `trading.js`/`monitor.js`；待 027 后接续 |
 | REQ-029 | P1 | L1/L4 | `accepted` | **移动端跟单确认卡片**（执行/放弃/解析错误）+ 90s 超时 | 依赖 CHG-009；非 `/ops` |
 | REQ-030 | P1 | L1 | `done` | **大V即时推送实事求是**：剥离「已同步处理量化跟单」硬编码；发言通知与交易通知正交 | 热点 `monitor.js`；Owner=`agent:gemini` |
 

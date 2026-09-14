@@ -270,5 +270,8 @@ for (const r of allParsedRecords) {
   );
 }
 
-// 5. 执行持仓状态机计算
-const calcScript = await import('./recalculate_ledger.js');
+// 5. 执行持仓状态机计算（仅在直接作为主脚本执行时触发，避免与 recalculate_ledger 循环 import）
+if (process.argv[1] && process.argv[1].includes('rebuild_with_confidence_and_ledger.js')) {
+  const { execSync } = await import('child_process');
+  execSync('node scratch/recalculate_ledger.js', { stdio: 'inherit' });
+}

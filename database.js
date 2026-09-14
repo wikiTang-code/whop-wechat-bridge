@@ -69,6 +69,45 @@ export function initDb() {
     try {
       db.prepare("ALTER TABLE messages ADD COLUMN attachments TEXT").run();
     } catch (e) {}
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS zhao_positions (
+        ticker TEXT PRIMARY KEY,
+        quantity INTEGER NOT NULL,
+        average_entry_price REAL NOT NULL,
+        current_price REAL NOT NULL,
+        market_value REAL NOT NULL,
+        unrealized_pnl REAL NOT NULL,
+        updated_at INTEGER NOT NULL
+      )
+    `).run();
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS follow_decisions (
+        decision_id TEXT PRIMARY KEY,
+        signal_id TEXT,
+        message_id TEXT,
+        account_type TEXT NOT NULL,
+        decision_state TEXT NOT NULL,
+        ticker TEXT NOT NULL,
+        side TEXT NOT NULL,
+        call_price REAL,
+        arrival_price REAL,
+        slip_bps REAL,
+        ttl_remaining_sec REAL,
+        executed_qty INTEGER,
+        reason TEXT,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      )
+    `).run();
+    try { db.prepare("ALTER TABLE follow_decisions ADD COLUMN signal_id TEXT").run(); } catch (_) {}
+    try { db.prepare("ALTER TABLE follow_decisions ADD COLUMN message_id TEXT").run(); } catch (_) {}
+    try { db.prepare("ALTER TABLE follow_decisions ADD COLUMN reason TEXT").run(); } catch (_) {}
+    try { db.prepare("ALTER TABLE follow_decisions ADD COLUMN updated_at INTEGER").run(); } catch (_) {}
+    try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_follow_signal ON follow_decisions (signal_id)`).run(); } catch (_) {}
+    try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_follow_state ON follow_decisions (decision_state)`).run(); } catch (_) {}
+    try {
+      db.prepare("ALTER TABLE orders ADD COLUMN account_type TEXT DEFAULT 'paper'").run();
+    } catch (_) {}
     console.log('[initDb] Database already initialized and ready (0ms).');
     return;
   }
@@ -205,6 +244,51 @@ export function initDb() {
       updated_at INTEGER NOT NULL
     )
   `).run();
+
+  // 量化模块表 5: 大V（赵哥）推演持仓表 (zhao_positions) - 彻底与个人跟单仓隔离 (REQ-027)
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS zhao_positions (
+      ticker TEXT PRIMARY KEY,
+      quantity INTEGER NOT NULL,
+      average_entry_price REAL NOT NULL,
+      current_price REAL NOT NULL,
+      market_value REAL NOT NULL,
+      unrealized_pnl REAL NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `).run();
+
+  // 量化模块表 6: 智能跟单决策意图表 (follow_decisions) - 对齐 follow_execution_spec.md
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS follow_decisions (
+      decision_id TEXT PRIMARY KEY,
+      signal_id TEXT,
+      message_id TEXT,
+      account_type TEXT NOT NULL,
+      decision_state TEXT NOT NULL,
+      ticker TEXT NOT NULL,
+      side TEXT NOT NULL,
+      call_price REAL,
+      arrival_price REAL,
+      slip_bps REAL,
+      ttl_remaining_sec REAL,
+      executed_qty INTEGER,
+      reason TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `).run();
+  try { db.prepare("ALTER TABLE follow_decisions ADD COLUMN signal_id TEXT").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE follow_decisions ADD COLUMN message_id TEXT").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE follow_decisions ADD COLUMN reason TEXT").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE follow_decisions ADD COLUMN updated_at INTEGER").run(); } catch (_) {}
+  try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_follow_signal ON follow_decisions (signal_id)`).run(); } catch (_) {}
+  try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_follow_state ON follow_decisions (decision_state)`).run(); } catch (_) {}
+
+  // 确保 orders 表支持 account_type 字段区分个人 paper 与 real 订单
+  try {
+    db.prepare("ALTER TABLE orders ADD COLUMN account_type TEXT DEFAULT 'paper'").run();
+  } catch (_) {}
 
   // 初始化虚拟资金 (如账户不存在，默认存入 100,000 美元沙盒资金)
   const cashCheck = db.prepare('SELECT value FROM portfolio WHERE key = ?').get('cash');
@@ -897,6 +981,95 @@ export function getOrders({ limit = 50, offset = 0, dbInstance = null } = {}) {
   const total = countStmt.get()?.count || 0;
   
   return { orders, total };
+}
+
+// ==========================================================================
+// 大V（赵哥）专属推演持仓与三账本隔离操作 API (REQ-027)
+// ==========================================================================
+
+// 获取赵哥推演持仓列表
+export function getZhaoPositions(dbInstance = null) {
+  const conn = dbInstance || getDb();
+  return conn.prepare('SELECT * FROM zhao_positions WHERE quantity > 0 ORDER BY market_value DESC').all();
+}
+
+// 保存赵哥单标的持仓
+export function saveZhaoPosition(position, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  if (position.quantity <= 0) {
+    conn.prepare('DELETE FROM zhao_positions WHERE ticker = ?').run(position.ticker);
+  } else {
+    conn.prepare(`
+      INSERT INTO zhao_positions (ticker, quantity, average_entry_price, current_price, market_value, unrealized_pnl, updated_at)
+      VALUES (@ticker, @quantity, @average_entry_price, @current_price, @market_value, @unrealized_pnl, @updated_at)
+      ON CONFLICT(ticker) DO UPDATE SET
+        quantity = excluded.quantity,
+        average_entry_price = excluded.average_entry_price,
+        current_price = excluded.current_price,
+        market_value = excluded.market_value,
+        unrealized_pnl = excluded.unrealized_pnl,
+        updated_at = excluded.updated_at
+    `).run({
+      ...position,
+      updated_at: position.updated_at || Date.now()
+    });
+  }
+}
+
+// 清空赵哥推演持仓（仅推演引擎专用，绝不影响个人 positions 表）
+export function clearZhaoPositions(dbInstance = null) {
+  const conn = dbInstance || getDb();
+  conn.prepare('DELETE FROM zhao_positions').run();
+}
+
+// 保存跟单意图决策
+export function saveFollowDecision(decision, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  conn.prepare(`
+    INSERT INTO follow_decisions (
+      decision_id, action_id, cu_id, signal_id, message_id, account_type, decision_state,
+      ticker, side, call_price, arrival_price, slip_bps,
+      ttl_remaining_sec, executed_qty, reason, created_at, updated_at
+    ) VALUES (
+      @decision_id, @action_id, @cu_id, @signal_id, @message_id, @account_type, @decision_state,
+      @ticker, @side, @call_price, @arrival_price, @slip_bps,
+      @ttl_remaining_sec, @executed_qty, @reason, @created_at, @updated_at
+    )
+    ON CONFLICT(decision_id) DO UPDATE SET
+      decision_state = excluded.decision_state,
+      executed_qty = excluded.executed_qty,
+      reason = excluded.reason,
+      updated_at = excluded.updated_at
+  `).run({
+    action_id: decision.action_id || decision.signal_id || decision.decision_id || 'act_default',
+    cu_id: decision.cu_id || 'cu_system',
+    ...decision,
+    created_at: decision.created_at || Date.now(),
+    updated_at: decision.updated_at || Date.now()
+  });
+}
+
+// 查询跟单意图决策列表
+export function getFollowDecisions({ limit = 50, offset = 0, accountType = null, dbInstance = null } = {}) {
+  limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
+  offset = Math.max(0, parseInt(offset, 10) || 0);
+  const conn = dbInstance || getDb();
+  if (accountType) {
+    const list = conn.prepare(`
+      SELECT * FROM follow_decisions
+      WHERE account_type = ?
+      ORDER BY created_at DESC LIMIT ? OFFSET ?
+    `).all(accountType, limit, offset);
+    const count = conn.prepare('SELECT COUNT(*) as c FROM follow_decisions WHERE account_type = ?').get(accountType)?.c || 0;
+    return { decisions: list, total: count };
+  } else {
+    const list = conn.prepare(`
+      SELECT * FROM follow_decisions
+      ORDER BY created_at DESC LIMIT ? OFFSET ?
+    `).all(limit, offset);
+    const count = conn.prepare('SELECT COUNT(*) as c FROM follow_decisions').get()?.c || 0;
+    return { decisions: list, total: count };
+  }
 }
 
 // Sector mapping (module level)

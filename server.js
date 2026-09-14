@@ -41,7 +41,9 @@ import {
   getLatestPersonaPlaybook,
   saveNewsSummary,
   getNewsSummaries,
-  getLatestNewsSummary
+  getLatestNewsSummary,
+  getZhaoPositions,
+  getFollowDecisions
 } from './database.js';
 import { generatePersonaPlaybook, getPersonaStatus, processPersonaTask, resumePersonaPlaybook, forceUpdatePersonaStatus } from './persona-engine.js';
 import { processNewsTask, generateNewsSummary, ensureCurrentWeekNews } from './news-engine.js';
@@ -1360,27 +1362,48 @@ app.post('/api/task-queue/clear', requireCsrf, (req, res) => {
   }
 });
 
-// GET /api/zhao-positions - 获取大V（赵哥）当前真实持仓 Lots、浮盈/实盈及历史原始买卖流水
+// GET /api/zhao-positions - 获取大V（赵哥）专属推演持仓 Lots、浮盈/实盈及历史买卖流水（与个人跟单 orders/positions 物理隔离）
 app.get('/api/zhao-positions', async (req, res) => {
   try {
     const db = getDb();
 
-    // 1. 从 positions 表获取当前真实在持明细
-    const positionsRows = db.prepare(`SELECT * FROM positions ORDER BY market_value DESC`).all();
+    // 1. 从 zhao_positions 表获取当前大V在持明细（若尚未重算则 fallback 到 positions 作优雅兜底）
+    let positionsRows = [];
+    try {
+      positionsRows = db.prepare(`SELECT * FROM zhao_positions ORDER BY market_value DESC`).all();
+    } catch (e) {
+      positionsRows = [];
+    }
+    if (positionsRows.length === 0) {
+      positionsRows = db.prepare(`SELECT * FROM positions ORDER BY market_value DESC`).all();
+    }
 
-    // 2. 从 orders 表获取所有成交流水，并按 ticker 分组
-    const ordersRows = db.prepare(`SELECT * FROM orders ORDER BY created_at DESC`).all();
+    // 2. 从 trade_review_pool 表获取大V已确认交易流水 (status = 'confirmed')，按 ticker 分组编排 tradeCode
+    // 彻底切断对个人 orders 表的查询与污染
+    let confirmedTrades = [];
+    try {
+      confirmedTrades = db.prepare(`
+        SELECT * FROM trade_review_pool
+        WHERE status = 'confirmed'
+        ORDER BY created_at ASC
+      `).all();
+    } catch (e) {
+      confirmedTrades = [];
+    }
+
     const ordersByTicker = {};
-    for (const ord of ordersRows) {
+    for (const ord of confirmedTrades) {
       const sym = ord.ticker.toUpperCase();
       if (!ordersByTicker[sym]) ordersByTicker[sym] = [];
+      const deltaQty = (ord.after_qty != null && ord.before_qty != null) ? Math.abs(ord.after_qty - ord.before_qty) : 0;
+      const evolutionDesc = `【操作前: ${ord.before_qty || 0}股 ($${ord.before_avg_cost || 0}) ➔ ${ord.action === 'BUY' ? '🟢买入' : '🔴卖出'} ${deltaQty || ''}股 @ $${ord.price} ➔ 操作后: ${ord.after_qty || 0}股 ($${ord.after_avg_cost || 0})】| 信息源: ${ord.raw_content}`;
       ordersByTicker[sym].push({
         id: ord.id,
         action: ord.action,
         price: ord.price,
-        quantity: ord.quantity,
+        quantity: deltaQty,
         time: ord.created_at,
-        reason: ord.reason
+        reason: evolutionDesc
       });
     }
 
@@ -1488,6 +1511,18 @@ app.get('/api/zhao-positions', async (req, res) => {
     });
   } catch (err) {
     console.error('[Zhao Positions API] 获取失败:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/follow-decisions - 获取跟单决策意图流水（Signal -> Decision 决策账本）
+app.get('/api/follow-decisions', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const decisions = getFollowDecisions(limit);
+    res.json({ success: true, data: decisions });
+  } catch (err) {
+    console.error('[Follow Decisions API] 获取失败:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
