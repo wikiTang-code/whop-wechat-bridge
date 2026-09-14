@@ -30,6 +30,7 @@
 | `docs/project/05*.md` | L0 | 高频；只追加/改自己的行 |
 | `docs/project/07*.md` | L0 | 审阅专用；与 05 解耦 |
 | `docs/project/03*.md` | L0 | 追加新行优先；少改历史行 |
+| **`test/**`** | 各车道 | **测试隔离**：新特性优先新建独立文件（如 `test/test_local_ops_p5.js`）；**严禁**两 Agent 同时改同一公共大单测（如 `test_readonly_api_routes.js`） |
 | 生产 HITL / `.env` | human | Agent 不得代行 approve（REJ-007） |
 
 ---
@@ -46,13 +47,17 @@
 
 ## 4. `data/gex` 提交 SOP（`REQ-024`）
 
-- 允许：`data/gex/latest.json`  
+- 允许入库：`data/gex/latest.json`（**仅里程碑**，见下）  
 - 禁止：`*.html`、`snapshot_*.json`、其它大快照  
-- **每次提交前**：
+- **严禁盘中/定时拉链每次 commit**（污染历史）；日常产物留本地，上云走同步配方（REQ-004）  
+- **可 commit 的时机**：基准打桩、发版验证、重大结构/schema 变动  
+
+**每次提交前**：
 
 ```text
 git status
 # 确认无 data/gex/*.html
+# 确认本次若含 latest.json，属于里程碑而非例行采集
 # 禁止习惯性 git commit -a
 ```
 

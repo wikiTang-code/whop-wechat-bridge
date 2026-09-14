@@ -30,5 +30,5 @@ alwaysApply: true
 
 - 企微仅 C0 + `gex.collect`；C2 须 human HITL（禁止 Agent 代跑 `human-approve`）。  
 - 不注册 `place_order`；告警不得调 C2；GEX 不在 GCP 拉链。  
-- **禁止提交** `data/gex/*.html` / 大快照；仅允许 `data/gex/latest.json`。  
+- **禁止提交** `data/gex/*.html` / 大快照；`latest.json` **仅里程碑式**提交（禁盘中例行 commit）。  
 - `catalog.yaml` 变更须独立 REQ/CHG。

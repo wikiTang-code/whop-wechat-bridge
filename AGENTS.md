@@ -41,7 +41,7 @@
 3. **资金隔离**：禁止 `place_order` 及任何实盘下单能力进入 catalog/实现。
 4. **数据库**：除 ingest 写路径外，查询走 SQLite **只读**句柄，避免写锁争用。
 5. **企微窄面**：手机 `/ops` 仅 C0 + `gex.collect`；禁止扩面未走 `CHG`（`REJ-001`/`REJ-008`）。
-6. **GEX / Git**：禁止提交 `data/gex/*.html` 与大快照；仅允许 `data/gex/latest.json`。
+6. **GEX / Git**：禁止提交 `data/gex/*.html` 与大快照；`latest.json` **仅里程碑式**入库（禁盘中例行 commit）。
 7. **协同基准**：进度/需求/WIP 只走 `docs/project/`；禁止私建平行总进度文档。
 8. **`catalog.yaml`**：变更须独立 `REQ`/`CHG`，并在 `05` 登记占用。
 

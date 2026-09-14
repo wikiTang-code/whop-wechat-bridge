@@ -21,7 +21,7 @@
 - 你建议本会话认领哪 1 个 REQ（并说明不与他人热点冲突）
 等我确认后再改代码。
 
-协同只走 docs/project/；企微仅 C0+gex.collect；生产 C2 须 HITL；禁 place_order；禁提交 data/gex/*.html。
+协同只走 docs/project/；企微仅 C0+gex.collect；生产 C2 须 HITL；禁 place_order；禁提交 data/gex/*.html；latest.json 仅里程碑 commit（禁盘中例行）。
 ```
 
 ---
