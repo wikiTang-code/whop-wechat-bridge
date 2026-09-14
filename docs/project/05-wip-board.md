@@ -13,15 +13,15 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；005/006 已闭环，等 gemini 审修） | — | — |
+| **1** | — | — | （空；CHG-007 已闭环。待 gemini 审修/033；人侧 Q-001） | — | — |
 | 2 | — | — | — | — | — |
 
 ### 0.B 队列 `agent:gemini`
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **PKG-CURSOR-WAVE** | L0/L5/L6 | 审修：003/022/031/032 + **REQ-005/006** + zhao fallback | 只读审 + 07 | **Queued**（§0.R-B） |
-| 2 | — | — | 候选：REQ-004（待 Q-001） | — | 候选 |
+| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错反馈 | `server.js` · `follow-hitl.js` · 移动端纠错 | **Doing** |
+| 2 | — | — | （空位） | — | — |
 
 ### 0.H Human
 
@@ -35,12 +35,12 @@
 | 审修方 | 批次 | 状态 |
 |--------|------|:----:|
 | §0.R-A cursor | PKG-FOLLOW-FULL | **Done** |
-| §0.R-B gemini | PKG-CURSOR-WAVE（含 005/006） | **Queued** |
+| §0.R-B gemini | PKG-CURSOR-WAVE（003/022/031/032/005/006） | **Queued** |
 
 ### 共享候选池
 
 1. `REQ-004` 同步通道实现（待 Q-001）
-2. （已出队）003 · 005 · 006 · 008 · 021 · 022 · 027～032 · CHG-009
+2. （已出队）003 · 005 · 006 · 007 · 008 · 021 · 022 · 027～032 · CHG-009
 
 ## 1. 主看板
 
@@ -71,6 +71,7 @@
 | REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | `agent:gemini` | Done | monitor.js · CHG-010 |
 | REQ-031 | L1 | 解析即写 signal 流水 | `agent:cursor` | Done | trade_signals · test_trade_signals_req031 |
 | REQ-032 | L1 | arrivalPrice 真实盘口 | `agent:cursor` | Done | fetchTickerKlineData |
+| REQ-033 | L1/L4 | 历史回放+企微纠错 | `agent:gemini` | Doing | replay-review-runner |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
@@ -147,8 +148,10 @@
 
 
 
+
+
 ## 6. 会话交接（自主跑队续）
 
-- cursor：REQ-005/006 Done；§0.A 空。
-- gemini：§0.R-B PKG-CURSOR-WAVE（扩至 005/006）Queued。
+- cursor：CHG-007 Done；§0.A 空（勿抢 REQ-033）。
+- gemini：REQ-033 Doing；§0.R-B PKG-CURSOR-WAVE Queued。
 - Human：REQ-002 / Q-001。

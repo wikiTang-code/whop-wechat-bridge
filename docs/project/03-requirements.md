@@ -63,7 +63,7 @@
 | CHG-004 | `done` | `/ops gex status` → `gex.summarize` |
 | CHG-005 | `done` | **修订** `local-ops-mcp-skill-plan.md`：作废「企微消耗 confirm_token / 企微点 C2」；P3/§10 对齐 REJ-001 | 2026-09-14 `agent:cursor` |
 | CHG-006 | `done` | **扩写** `06-process` §6 发布/HITL 可执行清单（对齐→验证→具名 restart→记录） | 2026-09-14 `agent:cursor` · 热点 `docs/project/06-process.md` |
-| CHG-007 | `accepted` | 统一开工必读：rule / AGENTS / README 均指向 `docs/project/` 全树 |
+| CHG-007 | `done` | 统一开工必读：rule / AGENTS / README / BOOTSTRAP 均指向 `docs/project/` 全树；BOOTSTRAP 对齐 CHG-014 自主跑队 | 2026-09-14 `agent:cursor` |
 | CHG-008 | `done` | **收工默认自动** commit（带 REQ/CHG）+ `push origin HEAD` + 回写文档树；禁夹带密钥/GEX HTML/scratch；生产 ff/C2 仍 HITL | 2026-09-14 `agent:cursor` · `AGENTS.md` §6 · `06` §8 · progress-sync rule |
 | CHG-009 | `done` | **企微业务跟单 HITL 回调**（卡片 EXECUTE/SKIP/PARSE_ERROR）；与 `/ops` 冻结表分立专节；禁运维 C2 | 见 `follow-hitl-plan.md`；须威胁说明+单测 |
 | CHG-010 | `done` | **Before**：即时推送硬编码「已同步处理量化跟单」· **After**：大V发言卡仅事实字段；交易由 `trading.js` 独立推送 | 落地 REQ-030 · `monitor.js` |

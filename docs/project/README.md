@@ -17,6 +17,7 @@
 ```
 docs/project/                          ← 你在这里（总索引）
 ├── README.md                          ← 本文件：导航 + 一页总览
+├── BOOTSTRAP.md                       ← 新会话启动词（CHG-007）
 ├── 01-background-vision.md            ← 背景 / 目标 / 展想 / 非目标
 ├── 02-current-state.md                ← 现状：四主线与能力面事实
 ├── 03-requirements.md                 ← 需求与变更账本 REQ/CHG/REJ
@@ -68,10 +69,10 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | （空 · 005/006 已闭环） | — |
-| **§0.B / §0.R-B `agent:gemini`** | **PKG-CURSOR-WAVE**（含 REQ-005/006） | Queued |
+| **§0.A `agent:cursor`** | （空 · CHG-007 Done） | — |
+| **§0.B `agent:gemini`** | **REQ-033** 历史回放+企微纠错 | Doing |
 | **§0.H `human`** | REQ-002 / Q-001 | 等待 |
-| **§0.R-A** | PKG-FOLLOW-FULL | Done |
+| **§0.R-B** | PKG-CURSOR-WAVE（含 005/006） | Queued |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 

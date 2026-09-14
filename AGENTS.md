@@ -1,7 +1,8 @@
 # Agent 通用治理与执行规范（Global Instructions）
 
 > **单一真相源**：本文件。Claude / Cursor 仅通过指针接入，勿复制第二份全文。  
-> **项目协同总入口**：[`docs/project/README.md`](docs/project/README.md)
+> **项目协同总入口**：[`docs/project/README.md`](docs/project/README.md)  
+> **新会话启动词**：[`docs/project/BOOTSTRAP.md`](docs/project/BOOTSTRAP.md)
 
 ---
 

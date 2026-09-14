@@ -15,4 +15,5 @@ alwaysApply: true
 - 协同只走 `docs/project/`；`catalog.yaml` 变更须独立 REQ/CHG  
 
 项目入口：[`docs/project/README.md`](../../docs/project/README.md)  
+启动词：[`docs/project/BOOTSTRAP.md`](../../docs/project/BOOTSTRAP.md)  
 进度认领：[`docs/project/05-wip-board.md`](../../docs/project/05-wip-board.md)
