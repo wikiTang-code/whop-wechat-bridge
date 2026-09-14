@@ -44,6 +44,11 @@ export function initReplayTable(db = getDb()) {
       after_avg_cost REAL DEFAULT 0,
       user_qty INTEGER DEFAULT 0,
       user_avg_cost REAL DEFAULT 0,
+      zhao_before_pct REAL DEFAULT 0,
+      zhao_after_pct REAL DEFAULT 0,
+      zhao_total_exp_pct REAL DEFAULT 0,
+      user_ticker_pct REAL DEFAULT 0,
+      user_total_exp_pct REAL DEFAULT 0,
       status TEXT NOT NULL DEFAULT 'pending',
       corrected_json TEXT,
       reviewed_at INTEGER,
@@ -59,6 +64,11 @@ export function initReplayTable(db = getDb()) {
   try { db.prepare("ALTER TABLE follow_replay_queue ADD COLUMN after_avg_cost REAL DEFAULT 0").run(); } catch (_) {}
   try { db.prepare("ALTER TABLE follow_replay_queue ADD COLUMN user_qty INTEGER DEFAULT 0").run(); } catch (_) {}
   try { db.prepare("ALTER TABLE follow_replay_queue ADD COLUMN user_avg_cost REAL DEFAULT 0").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE follow_replay_queue ADD COLUMN zhao_before_pct REAL DEFAULT 0").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE follow_replay_queue ADD COLUMN zhao_after_pct REAL DEFAULT 0").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE follow_replay_queue ADD COLUMN zhao_total_exp_pct REAL DEFAULT 0").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE follow_replay_queue ADD COLUMN user_ticker_pct REAL DEFAULT 0").run(); } catch (_) {}
+  try { db.prepare("ALTER TABLE follow_replay_queue ADD COLUMN user_total_exp_pct REAL DEFAULT 0").run(); } catch (_) {}
 
   db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_replay_status ON follow_replay_queue(status, seq_no ASC)
@@ -136,38 +146,89 @@ export function loadReplayCandidates(db = getDb(), startTs = TRUMP_VISIT_START_T
 
   const insertStmt = db.prepare(`
     INSERT INTO follow_replay_queue 
-    (id, pool_id, message_id, created_at, raw_content, parsed_ticker, parsed_action, parsed_price, parsed_qty, fraction_desc, fraction_ratio, before_qty, before_avg_cost, after_qty, after_avg_cost, user_qty, user_avg_cost, status, seq_no)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+    (id, pool_id, message_id, created_at, raw_content, parsed_ticker, parsed_action, parsed_price, parsed_qty, fraction_desc, fraction_ratio, before_qty, before_avg_cost, after_qty, after_avg_cost, zhao_before_pct, zhao_after_pct, zhao_total_exp_pct, user_qty, user_avg_cost, user_ticker_pct, user_total_exp_pct, status, seq_no)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
   `);
+
+  // 从 2026-05-15 起零基线推演赵哥账本
+  const zhaoSimPositions = {}; // ticker -> { qty, avgCost, lastPrice }
 
   const runBatch = db.transaction((rows) => {
     let seq = 1;
     for (const r of rows) {
       const replayId = `rpl_${r.id}`;
       const tickerClean = (r.ticker || '').toUpperCase();
+      const action = (r.action || 'BUY').toUpperCase();
+      const price = Number(r.price || 0);
 
-      // 计算本笔交易变动股数 (而非持仓基数)
-      let deltaQty = Math.abs((r.after_qty || 0) - (r.before_qty || 0));
-      if (deltaQty === 0) {
-        if (r.fraction_ratio && r.price > 0) {
-          deltaQty = Math.round((100000 * 0.1 * r.fraction_ratio) / r.price) || 100;
+      // 赵哥变动前持仓 (从 0 开始累计)
+      const curPos = zhaoSimPositions[tickerClean] || { qty: 0, avgCost: 0, lastPrice: price };
+      const beforeQty = curPos.qty;
+      const beforeAvgCost = curPos.avgCost;
+
+      // 仓位表述提炼
+      const fractionDesc = formatFractionDesc(r.fraction_name, r.fraction_ratio, r.raw_content);
+
+      // 计算本单目标比例 (标准常规仓按 10% 算，0.5 笔常规仓按 5%)
+      let targetFractionPct = 0.05;
+      const raw = r.raw_content || '';
+      if (raw.includes('常规仓的一半') || raw.includes('一半常规仓') || raw.includes('一半做日内')) {
+        targetFractionPct = 0.05;
+      } else if (raw.includes('三分之一') || raw.includes('1/3')) {
+        targetFractionPct = 0.0333;
+      } else if (raw.includes('半仓') || raw.includes('出一半')) {
+        targetFractionPct = 0.05;
+      } else if (r.fraction_ratio) {
+        targetFractionPct = r.fraction_ratio * 0.1;
+      }
+
+      let deltaQty = 0;
+      if (action === 'BUY') {
+        deltaQty = price > 0 ? Math.max(1, Math.round((100000 * targetFractionPct) / price)) : 100;
+      } else {
+        // SELL
+        if (raw.includes('清仓') || raw.includes('出完') || raw.includes('平出') || raw.includes('全出')) {
+          deltaQty = beforeQty;
+        } else if (raw.includes('出一半') || raw.includes('半仓')) {
+          deltaQty = Math.ceil(beforeQty / 2);
         } else {
-          deltaQty = 100;
+          deltaQty = beforeQty > 0 ? Math.min(beforeQty, Math.max(1, Math.round((100000 * targetFractionPct) / price))) : 0;
         }
       }
 
-      const fractionDesc = formatFractionDesc(r.fraction_name, r.fraction_ratio, r.raw_content);
+      let afterQty = beforeQty;
+      let afterAvgCost = beforeAvgCost;
 
-      // 查询个人模拟账户 (positions 表) 的当前实际持仓
-      let uQty = 0;
-      let uCost = 0;
-      try {
-        const userPos = db.prepare("SELECT quantity, average_entry_price FROM positions WHERE ticker = ?").get(tickerClean);
-        if (userPos) {
-          uQty = userPos.quantity || 0;
-          uCost = userPos.average_entry_price || 0;
-        }
-      } catch (_) {}
+      if (action === 'BUY') {
+        afterQty = beforeQty + deltaQty;
+        afterAvgCost = afterQty > 0 ? Number(((beforeQty * beforeAvgCost + deltaQty * price) / afterQty).toFixed(2)) : price;
+      } else {
+        afterQty = Math.max(0, beforeQty - deltaQty);
+        afterAvgCost = afterQty > 0 ? beforeAvgCost : 0;
+      }
+
+      // 更新赵哥推演持仓
+      zhaoSimPositions[tickerClean] = {
+        qty: afterQty,
+        avgCost: afterAvgCost,
+        lastPrice: price
+      };
+
+      // 计算单票权重与全盘总仓位 (基于标准 $100,000 规模)
+      const zhaoBeforePct = Number(((beforeQty * price / 100000) * 100).toFixed(1));
+      const zhaoAfterPct = Number(((afterQty * price / 100000) * 100).toFixed(1));
+
+      let totalZhaoVal = 0;
+      for (const s in zhaoSimPositions) {
+        totalZhaoVal += zhaoSimPositions[s].qty * zhaoSimPositions[s].lastPrice;
+      }
+      const zhaoTotalExpPct = Number(((totalZhaoVal / 100000) * 100).toFixed(1));
+
+      // 个人模拟账户 (零基准模式)
+      const uQty = 0;
+      const uCost = 0;
+      const uTickerPct = 0.0;
+      const uTotalExpPct = 0.0;
 
       insertStmt.run(
         replayId,
@@ -176,17 +237,22 @@ export function loadReplayCandidates(db = getDb(), startTs = TRUMP_VISIT_START_T
         r.created_at,
         r.raw_content || '',
         tickerClean,
-        (r.action || 'BUY').toUpperCase(),
-        Number(r.price || 0),
+        action,
+        price,
         deltaQty,
         fractionDesc,
         r.fraction_ratio || null,
-        r.before_qty || 0,
-        r.before_avg_cost || 0,
-        r.after_qty || 0,
-        r.after_avg_cost || 0,
+        beforeQty,
+        beforeAvgCost,
+        afterQty,
+        afterAvgCost,
+        zhaoBeforePct,
+        zhaoAfterPct,
+        zhaoTotalExpPct,
         uQty,
         uCost,
+        uTickerPct,
+        uTotalExpPct,
         seq++
       );
     }
@@ -231,23 +297,13 @@ export function getNextPendingReplayItem(db = getDb()) {
  * 计算双账本的持股占比与全盘总仓位状态 (跟单参考核心依据)
  */
 export function calculateExposureStats(item, db = getDb()) {
-  const zhaoBaseEquity = 100000;
-  const price = item.parsed_price || 1;
   const isBuy = item.parsed_action === 'BUY';
   const beforeQ = item.before_qty || 0;
   const afterQ = item.after_qty || (isBuy ? beforeQ + item.parsed_qty : Math.max(0, beforeQ - item.parsed_qty));
 
-  const zhaoBeforePct = ((beforeQ * price / zhaoBaseEquity) * 100).toFixed(1);
-  const zhaoAfterPct = ((afterQ * price / zhaoBaseEquity) * 100).toFixed(1);
-
-  let zhaoTotalExposurePct = '68.5';
-  try {
-    const zhaoPositions = db.prepare("SELECT * FROM zhao_positions").all();
-    if (zhaoPositions.length > 0) {
-      const totalZhaoVal = zhaoPositions.reduce((sum, p) => sum + (p.market_value || (p.quantity * (p.current_price || p.average_entry_price || price))), 0);
-      zhaoTotalExposurePct = Math.min(95, Math.max(25, (totalZhaoVal / zhaoBaseEquity) * 100)).toFixed(1);
-    }
-  } catch (_) {}
+  const zhaoBeforePct = item.zhao_before_pct != null ? Number(item.zhao_before_pct).toFixed(1) : '0.0';
+  const zhaoAfterPct = item.zhao_after_pct != null ? Number(item.zhao_after_pct).toFixed(1) : '0.0';
+  const zhaoTotalExposurePct = item.zhao_total_exp_pct != null ? Number(item.zhao_total_exp_pct).toFixed(1) : '0.0';
 
   let userCash = 100000;
   try {
@@ -263,7 +319,7 @@ export function calculateExposureStats(item, db = getDb()) {
   try {
     const userPositions = db.prepare("SELECT * FROM positions").all();
     for (const p of userPositions) {
-      const val = (p.quantity || 0) * (p.current_price || p.average_entry_price || price);
+      const val = (p.quantity || 0) * (p.current_price || p.average_entry_price || item.parsed_price || 0);
       userTotalPosValue += val;
       if (p.ticker === item.parsed_ticker) {
         userTargetQty = p.quantity;
@@ -281,8 +337,8 @@ export function calculateExposureStats(item, db = getDb()) {
     zhao: {
       beforeQ,
       afterQ,
-      beforeCostStr: item.before_avg_cost > 0 ? `$${item.before_avg_cost.toFixed(2)}` : '成本未计',
-      afterCostStr: item.after_avg_cost > 0 ? `$${item.after_avg_cost.toFixed(2)}` : '成本未计',
+      beforeCostStr: item.before_avg_cost > 0 ? `$${item.before_avg_cost.toFixed(2)}` : '$0.00',
+      afterCostStr: item.after_avg_cost > 0 ? `$${item.after_avg_cost.toFixed(2)}` : `$${item.parsed_price.toFixed(2)}`,
       beforePct: zhaoBeforePct,
       afterPct: zhaoAfterPct,
       totalExposurePct: zhaoTotalExposurePct
@@ -336,15 +392,16 @@ export function buildReplayWeComMessage(item, stats, db = getDb()) {
 - **仓位维度 (大V表述)**: **${fractionDesc}**
 - **参考委托股数**: \`${item.parsed_qty} 股\` *(参考金额: $${totalAmount})*
 ---
-📊 **双账本持仓与总仓位占比 (跟单决策核心依据)**：
+📊 **双账本持仓与总仓位状态 (基于【总资产】基准)**：
+> 💡 *注：单票权重与全盘总仓位均以【总资产 (现金+股票市值)】为分母，非仅基于股票。*
 - **赵哥推演账本**:
   - **个股持仓**: \`${exp.zhao.beforeQ} 股\` (${exp.zhao.beforeCostStr}) ➔ \`${exp.zhao.afterQ} 股\` (${exp.zhao.afterCostStr})
   - **单票权重**: **${exp.zhao.beforePct}%** ➔ **${exp.zhao.afterPct}%** *(占总资产)*
-  - **全盘总仓位**: 约 **${exp.zhao.totalExposurePct}%** *(多头敞口)*
+  - **全盘总仓位**: 约 **${exp.zhao.totalExposurePct}%** *(持股占总资产)*
 - **个人模拟账户**:
   - **个股持仓**: \`${userStockDesc}\`
-  - **单票权重**: **${exp.user.targetPct}%** *(市值 $${exp.user.posVal})*
-  - **全盘总仓位**: **${exp.user.totalExposurePct}%** *(总资产 $${exp.user.totalEquity} / 现金 $${exp.user.cash})*
+  - **单票权重**: **${exp.user.targetPct}%** *(占总资产 / 市值 $${exp.user.posVal})*
+  - **全盘总仓位**: **${exp.user.totalExposurePct}%** *(持股占总资产 / 总资产 $${exp.user.totalEquity} / 现金 $${exp.user.cash})*
 ---
 👉 **请对照原始发言进行确认**：
 1. **[✅ 确认解析正确 (跳过交易)](${confirmSkipUrl})**  

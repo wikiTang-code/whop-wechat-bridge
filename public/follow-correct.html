@@ -59,16 +59,17 @@
       <div class="quote-box" id="rawContent"></div>
 
       <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:16px; font-size:0.85rem;">
-        <div style="font-weight:600; color:var(--text); margin-bottom:8px;">📊 双账本持仓与总仓位状态 (跟单决策参考)：</div>
+        <div style="font-weight:600; color:var(--text); margin-bottom:4px;">📊 双账本持仓与总仓位状态：</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">💡 注：单票权重与全盘总仓位均以【总资产 (现金+股票市值)】为 100% 基准计算，非仅基于持仓股票。</div>
         
         <div style="padding:6px 0; border-bottom:1px dashed var(--border);">
           <div style="color:var(--primary); font-weight:600; margin-bottom:3px;">🔹 赵哥推演账本：</div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-            <span style="color:var(--text-muted);">单票持股与占比:</span>
+            <span style="color:var(--text-muted);">单票持股与权重 (占总资产):</span>
             <span id="zhaoPosText" style="font-weight:600; color:var(--text);">加载中...</span>
           </div>
           <div style="display:flex; justify-content:space-between;">
-            <span style="color:var(--text-muted);">全盘推演总仓位:</span>
+            <span style="color:var(--text-muted);">全盘总仓位 (持股占总资产):</span>
             <span id="zhaoTotalExpText" style="font-weight:600; color:var(--text);">加载中...</span>
           </div>
         </div>
@@ -76,11 +77,11 @@
         <div style="padding-top:6px;">
           <div style="color:#10b981; font-weight:600; margin-bottom:3px;">🔹 个人模拟账户：</div>
           <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
-            <span style="color:var(--text-muted);">单票持股与占比:</span>
+            <span style="color:var(--text-muted);">单票持股与权重 (占总资产):</span>
             <span id="userPosText" style="font-weight:600; color:var(--text);">加载中...</span>
           </div>
           <div style="display:flex; justify-content:space-between;">
-            <span style="color:var(--text-muted);">全盘实际总仓位:</span>
+            <span style="color:var(--text-muted);">全盘总仓位 (持股占总资产):</span>
             <span id="userTotalExpText" style="font-weight:600; color:var(--text);">加载中...</span>
           </div>
         </div>
@@ -198,12 +199,12 @@
         if (item.exposure) {
           const z = item.exposure.zhao;
           const u = item.exposure.user;
-          document.getElementById('zhaoPosText').innerText = `${z.beforeQ} 股 (${z.beforeCostStr}) ➔ ${z.afterQ} 股 (${z.afterCostStr}) [权重: ${z.beforePct}% ➔ ${z.afterPct}%]`;
-          document.getElementById('zhaoTotalExpText').innerText = `约 ${z.totalExposurePct}% (多头敞口推演)`;
+          document.getElementById('zhaoPosText').innerText = `${z.beforeQ} 股 (${z.beforeCostStr}) ➔ ${z.afterQ} 股 (${z.afterCostStr}) [占总资产: ${z.beforePct}% ➔ ${z.afterPct}%]`;
+          document.getElementById('zhaoTotalExpText').innerText = `约 ${z.totalExposurePct}% (持股占总资产)`;
 
-          const uStockDesc = u.qty > 0 ? `${u.qty} 股 (成本 ${u.costStr}) [权重: ${u.targetPct}% / 市值 $${u.posVal}]` : '0 股 (当前未持仓)';
+          const uStockDesc = u.qty > 0 ? `${u.qty} 股 (成本 ${u.costStr}) [占总资产: ${u.targetPct}% / 市值 $${u.posVal}]` : '0 股 (当前未持仓)';
           document.getElementById('userPosText').innerText = uStockDesc;
-          document.getElementById('userTotalExpText').innerText = `${u.totalExposurePct}% (总资产 $${u.totalEquity} / 现金 $${u.cash})`;
+          document.getElementById('userTotalExpText').innerText = `${u.totalExposurePct}% (持股占总资产 / 现金 $${u.cash} / 总权益 $${u.totalEquity})`;
         } else {
           const beforeCostStr = item.before_avg_cost > 0 ? '$' + Number(item.before_avg_cost).toFixed(2) : '成本未计';
           const afterCostStr = item.after_avg_cost > 0 ? '$' + Number(item.after_avg_cost).toFixed(2) : '成本未计';
