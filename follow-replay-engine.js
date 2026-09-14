@@ -357,23 +357,39 @@ export function getTickerLotsAndHistory(targetSeqNo, ticker, db = getDb()) {
         targetPrice = parseFloat(priceMatches[1]);
       }
 
+      // 如果有指明价格，优先扣减该价格附近的 lot
       if (targetPrice) {
         for (const lot of lots) {
           if (Math.abs(lot.price - targetPrice) < 0.5 && lot.qty > 0) {
-            const deduct = Math.min(lot.qty, rem);
-            lot.qty -= deduct;
-            rem -= deduct;
-            if (rem <= 0) break;
+            // 若卖出股数与该批次股数相差 <= 2 股，说明大V本意全出该批次，直接出清归零
+            if (Math.abs(lot.qty - rem) <= 2) {
+              rem = Math.max(0, rem - lot.qty);
+              lot.qty = 0;
+              break;
+            } else {
+              const deduct = Math.min(lot.qty, rem);
+              lot.qty -= deduct;
+              rem -= deduct;
+              if (lot.qty <= 2) lot.qty = 0; // 尾差碎股清零
+              if (rem <= 0) break;
+            }
           }
         }
       }
 
+      // 剩余未核销部分按 FIFO 扣减
       if (rem > 0) {
         for (const lot of lots) {
           if (lot.qty > 0) {
+            if (Math.abs(lot.qty - rem) <= 2) {
+              rem = Math.max(0, rem - lot.qty);
+              lot.qty = 0;
+              break;
+            }
             const deduct = Math.min(lot.qty, rem);
             lot.qty -= deduct;
             rem -= deduct;
+            if (lot.qty <= 2) lot.qty = 0; // 尾差碎股清零
             if (rem <= 0) break;
           }
         }
