@@ -276,3 +276,97 @@ export async function processFollowDecision({
     executed: !!(executionResult && executionResult.success)
   };
 }
+
+/**
+ * 统计并评估跟单质量指标（对齐 REQ-021 / Phase D 准入门禁）
+ * @param {Object} [options]
+ * @param {number} [options.days=20] - 考察统计窗口（默认连续 20 个交易日）
+ * @param {Object} [options.dbInstance=null]
+ * @returns {Object} 门禁审计结果与详细指标报告
+ */
+export function calculateFollowQualityMetrics({ days = 20, dbInstance = null } = {}) {
+  const db = dbInstance || getDb();
+  const startTime = Date.now() - days * 24 * 60 * 60 * 1000;
+
+  const decisions = db.prepare(`
+    SELECT * FROM follow_decisions
+    WHERE created_at >= ?
+    ORDER BY created_at ASC
+  `).all(startTime);
+
+  const total = decisions.length;
+  if (total === 0) {
+    return {
+      qualified: false,
+      reason: '样本量不足：过去 ' + days + ' 天内无跟单决策记录',
+      metrics: {
+        total: 0,
+        fireCount: 0,
+        sizeDownCount: 0,
+        slipRejectCount: 0,
+        expiredCount: 0,
+        parseErrorCount: 0,
+        parseErrorRate: 0,
+        executionRate: 0
+      },
+      gateChecklist: {
+        minDaysMet: false,
+        sampleSizeMet: false,
+        accuracyMet: false,
+        lowErrorMet: false
+      }
+    };
+  }
+
+  let fireCount = 0;
+  let sizeDownCount = 0;
+  let slipRejectCount = 0;
+  let expiredCount = 0;
+  let parseErrorCount = 0;
+  let timeoutCount = 0;
+
+  for (const d of decisions) {
+    const s = d.decision_state;
+    if (s === 'FIRE') fireCount++;
+    else if (s === 'SIZE_DOWN') sizeDownCount++;
+    else if (s === 'SLIP_REJECT') slipRejectCount++;
+    else if (s === 'EXPIRED') expiredCount++;
+    else if (s === 'PARSE_ERROR_REPORTED') parseErrorCount++;
+    else if (s === 'SKIP_MANUAL_TIMEOUT') timeoutCount++;
+  }
+
+  const executedCount = fireCount + sizeDownCount;
+  const parseErrorRate = +(parseErrorCount / total).toFixed(4);
+  const executionRate = +(executedCount / total).toFixed(4);
+  const accuracyRate = +(1 - parseErrorRate).toFixed(4);
+
+  // 准入门禁判据（规格：代码/方向抽取准确率 >= 97%，运行样本充分）
+  const sampleSizeMet = total >= 15;
+  const accuracyMet = accuracyRate >= 0.97;
+  const lowErrorMet = parseErrorRate <= 0.03;
+
+  const qualified = sampleSizeMet && accuracyMet && lowErrorMet;
+
+  return {
+    qualified,
+    reason: qualified ? 'Paper 模拟仓指标达标，允许开启实盘确认通道' : 'Paper 模拟指标未达标，严禁开启实盘',
+    metrics: {
+      total,
+      fireCount,
+      sizeDownCount,
+      slipRejectCount,
+      expiredCount,
+      parseErrorCount,
+      timeoutCount,
+      accuracyRate,
+      parseErrorRate,
+      executionRate
+    },
+    gateChecklist: {
+      sampleSizeMet,
+      accuracyMet,
+      lowErrorMet
+    }
+  };
+}
+

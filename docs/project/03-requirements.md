@@ -32,7 +32,7 @@
 | REQ-005 | P2 | L5 | `accepted` | P5 券商只读 MCP | 无下单；建议 CI grep 门禁 |
 | REQ-006 | P2 | L6 | `accepted` | P6 本机运维页 `:18789` | 仅 localhost |
 | REQ-007 | P3 | L7 | `deferred` | NL 只读 Copilot | `/ops` 仍直达 |
-| REQ-008 | P2 | L2 | `accepted` | P2-16 主库增长治理 | ~867MB |
+| REQ-008 | P2 | L2 | `in_progress` | P2-16 主库增长治理 | 队列 0.B · Owner=`agent:gemini` · ~867MB/VACUUM/清理策略 |
 | REQ-009 | P3 | L1 | `deferred` | uSMART 接入 | 远期 |
 | REQ-010 | P3 | L1 | `deferred` | Python 回测引擎 | 远期 |
 | REQ-014 | P0 | L0 | `done` | 文档树 + 协同框架入库 | `0dc31ea` |
@@ -42,14 +42,14 @@
 | REQ-018 | P1 | L4 | `done` | 企微能力面冻结清单 | `docs/project/wecom-freeze.md` · `38662c4` |
 | REQ-019 | P1 | L4/L1 | `done` | 发布 go/no-go + 重启判据 | `runbooks/deploy-restart.md` |
 | REQ-020 | P1 | L4 | `done` | **C2 审计与看板闭环**（actor/channel/userid/sha/result ↔ 05 Ops 行） | Owner=`agent:gemini`；`runbooks/c2-audit-loop.md` |
-| REQ-021 | P2 | L1 | `accepted` | **L1 跟单变更沙盒/实盘检查表** + human 门禁 | 收口见 `follow-hitl-plan.md` Phase D |
+| REQ-021 | P2 | L1 | `done` | **L1 跟单变更沙盒/实盘检查表** + human 门禁 | `runbooks/follow-sandbox-to-live-gate.md`；Owner=`agent:gemini` |
 | REQ-022 | P2 | L3 | `accepted` | **REQ-004 安全专节**：只读产物同步、禁 OpenD、禁密钥随快照 | |
 | REQ-023 | P0 | L0 | `done` | 进度文档并发协议 | 见 `06-process.md` §3 |
 | REQ-024 | P1 | L3/L0 | `done` | `data/gex` 提交硬规则 | 见 04/06；human 已拍板 |
 | REQ-026 | P0 | L0 | `done` | 多端统一 Agent 治理：`AGENTS.md` 精炼版 + `CLAUDE.md` 指针 + `.cursor/rules/agent-governance.mdc` | 2026-09-14 |
 | REQ-027 | P1 | L1 | `done` | **三账本隔离**：赵哥 signal ≠ 跟单 decision ≠ fill；看板分源 | Owner=`agent:gemini`；`zhao_positions`/`follow_decisions` 物理隔离，`recalculate_ledger` 保护跟单仓 |
 | REQ-028 | P1 | L1 | `done` | **落地 Paper 状态机**（TTL/滑点）；停解析后直连实盘 | 对齐 `follow_execution_spec.md`；五大状态机闭环落库，实盘安全红线阻断 |
-| REQ-029 | P1 | L1/L4 | `in_progress` | **移动端跟单确认卡片**（执行/放弃/解析错误）+ 90s 超时 | 队列 0.B · Owner=`agent:gemini` · 热点 `server.js`；依赖 CHG-009 |
+| REQ-029 | P1 | L1/L4 | `done` | **移动端跟单确认卡片**（执行/放弃/解析错误）+ 90s 超时 | `follow-hitl.js` + `/api/follow/hitl-callback` 独立通道；Owner=`agent:gemini` |
 | REQ-030 | P1 | L1 | `done` | **大V即时推送实事求是**：剥离「已同步处理量化跟单」硬编码；发言通知与交易通知正交 | 热点 `monitor.js`；Owner=`agent:gemini` |
 
 | ID | 状态 | 摘要 |

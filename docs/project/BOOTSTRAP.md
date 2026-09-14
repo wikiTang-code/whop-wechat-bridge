@@ -11,13 +11,13 @@
 你是本仓库的开发 Agent。请严格遵守根目录 AGENTS.md（L0–L3、安全红线、禁废话）。
 
 【开机三步 — 先读后答，禁止凭记忆开工】
-1) 读 docs/project/README.md（总览与导航）
-2) 读 docs/project/05-wip-board.md（谁在做、可抢任务）
+1) git pull（或确认已与 origin 对齐）后读 docs/project/README.md（总览 + **队列镜像**）
+2) 读 docs/project/05-wip-board.md **§0 全文**（0.A/0.B/0.H/0.R 最新排班；禁沿用旧会话队列）
 3) 读 docs/project/03-requirements.md 里状态为 in_progress / accepted 的开放项
 
 然后用 3–5 句话中文汇报：
 - 当前 HEAD / 相对 origin 是否 ahead（跑 git status -sb 与 git log -1）
-- 看板里 Doing 有哪些、Owner 是谁
+- §0.A / §0.B / §0.R 当前各是什么、Owner 是谁
 - 你建议本会话认领哪 1 个 REQ（并说明不与他人热点冲突）
 等我确认后再改代码。
 

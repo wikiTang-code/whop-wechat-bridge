@@ -23,8 +23,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-021** | L1 | **L1 跟单沙盒/实盘检查表+门禁**（Phase D 收口） | `docs/project/runbooks/**` | **Doing** |
-| 2 | REQ-008 | L2 | P2-16 主库增长治理（~867MB） | SQLite WAL / 清理脚本 | 候选就绪 |
+| **1** | **REQ-008** | L2 | **P2-16 主库增长治理**（~867MB/VACUUM/清理策略） | `whop_archive.db` · 清理维护脚本 | **Doing** |
+| 2 | REQ-022 | L3 | REQ-004 GEX→GCP 只读同步安全专节 | `docs/project/**` | 候选就绪 |
 
 ### 0.H Human 槽（非 Agent 队列）
 
@@ -41,13 +41,13 @@
 | 作者 Agent | 累计 Done（未移交） | 阈值阈值 | 最近专题包 | 下一触发预估 |
 |------------|:------------------:|:--------:|------------|--------------|
 | `agent:cursor` | 0 | 5 | — | 满 5 |
-| `agent:gemini` | 3（REQ-027, REQ-028, REQ-029） | 5 | follow-HITL Phase A～C | 专题切片移交 §0.R-A |
+| `agent:gemini` | 0（follow-HITL 全包关闭移交） | 5 | **follow-HITL 全组关闭** (Phase A～D) | 专题包整组关闭触发移交 §0.R-A |
 
 #### §0.R-A · `agent:cursor` 审修队列（审 Gemini 产物）
 
 | 批次 | 来源包 / IDs | 状态 | 备注 |
 |------|--------------|:----:|------|
-| F-027-029 | `REQ-027`, `REQ-028`, `REQ-029` + `CHG-009`（跟单账本+状态机+移动端卡片） | `Queued` | 专题切片闭环移交；审修不抢主链路热点 |
+| **PKG-FOLLOW-FULL** | `REQ-027`, `REQ-028`, `REQ-029`, `REQ-021` + `CHG-009`（跟单三账本+状态机+移动端卡片+门禁） | `Queued` | **专题包整组闭环移交**；审修重点：账本隔离、滑点边界、90s 超时防重放 |
 
 #### §0.R-B · `agent:gemini` 审修队列（审 Cursor 产物）
 
@@ -93,7 +93,8 @@
 | REQ-028 | L1 | Paper TTL/滑点状态机 | `agent:gemini` | Done | 五大状态机闭环落库，实盘安全红线阻断 |
 | REQ-029 | L1/L4 | 移动端跟单确认卡片 | `agent:gemini` | Done | `follow-hitl.js` + `/api/follow/hitl-callback` 独立通道 |
 | CHG-009 | L4 | 企微业务跟单 HITL 回调 | `agent:gemini` | Done | 独立于 /ops；单测 test_follow_hitl_req029.js |
-| REQ-021 | L1 | L1 跟单沙盒/实盘检查表+门禁 | `agent:gemini` | Doing | 队列 0.B · Phase D 门禁 Runbook |
+| REQ-021 | L1 | L1 跟单沙盒/实盘检查表+门禁 | `agent:gemini` | Done | `runbooks/follow-sandbox-to-live-gate.md` · 专题包关闭 |
+| REQ-008 | L2 | P2-16 主库增长治理（~867MB） | `agent:gemini` | Doing | 队列 0.B · SQLite 清理策略与治理 |
 | REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | `agent:gemini` | Done | monitor.js · CHG-010 |
 | CHG-010 | L1 | 发言推送与交易推送解耦 | `agent:gemini` | Done | 随 REQ-030 |
 
