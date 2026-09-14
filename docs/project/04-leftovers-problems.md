@@ -31,7 +31,7 @@
 | DEBT-001 | **生产 gcp-vm 尚未 `git merge --ff-only` 对齐**（push 已完成） | REQ-002 | P0 |
 | DEBT-002 | GEX 开盘计划任务未确认挂载 | REQ-003 | P1 |
 | DEBT-003 | latest→GCP 同步通道未定 | REQ-004/022 | P1 |
-| DEBT-004 | P5/P6/P2-16 未开工 | REQ-005/006/008 | P2 |
+| DEBT-004 | P5/P6/P2-16 | REQ-005/006/008 | closed（005/006/008 Done） |
 | DEBT-009 | L1 跟单无可验收沙盒表 | REQ-021 → done | — |
 | DEBT-012 | 解析未写独立 signal 流水；arrivalPrice 用喊单价 | REQ-031/032 | P1 |
 | DEBT-011 | 实时跟单无 HITL；赵哥仓与个人仓数据缠绕；规格未接线 | REQ-027～029 · [`follow-hitl-plan.md`](./follow-hitl-plan.md) | P1 |
@@ -58,7 +58,7 @@
 | Q-001 | GEX→GCP：SCP / 制品 / 其它？ | human | open |
 | Q-002 | 漏重启用何信号发现？ | human+L4 | open |
 | Q-003 | 每次拉链是否 commit `latest.json`？ | — | **已决：否；仅里程碑**（§1.1） |
-| Q-004 | P5 是否加 CI `place_order` grep？ | L5 | open（建议做） |
+| Q-004 | P5 是否加 CI `place_order` grep？ | L5 | decided：单测+load-catalog 硬拒；catalog 文本禁 place_order |
 | Q-005 | 跟单确认通道：企微业务卡片 vs Dashboard 移动页？ | human | **已决：企微业务确认卡片**（盘中 90s 时效；≠ `/ops`） |
 
 ---

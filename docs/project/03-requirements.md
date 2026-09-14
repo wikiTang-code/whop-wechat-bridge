@@ -29,8 +29,8 @@
 | REQ-002 | P0 | L4 | `accepted` | 生产 gcp-vm ff 对齐 | 勿无必要 restart；判据见 REQ-019 |
 | REQ-003 | P1 | L3 | `done` | 挂载开盘前 GEX 计划任务 | Owner=`agent:cursor`；Task=`WhopGexOpenSession0940ET` Ready；ET→本地墙钟安装器 |
 | REQ-004 | P1 | L3 | `proposed` | `latest.json` → GCP 看板同步约定 | 安全约束见 REQ-022；禁 GCP 跑 OpenD |
-| REQ-005 | P2 | L5 | `accepted` | P5 券商只读 MCP | 无下单；建议 CI grep 门禁 |
-| REQ-006 | P2 | L6 | `accepted` | P6 本机运维页 `:18789` | 仅 localhost |
+| REQ-005 | P2 | L5 | `done` | P5 券商只读 MCP | Owner=`agent:cursor`；broker.lb.* + futu.opend_probe；catalog 无 place_order；test_broker_readonly_req005 |
+| REQ-006 | P2 | L6 | `done` | P6 本机运维页 `:18789` | Owner=`agent:cursor`；GET /ui + POST /api/ops/invoke；test_ops_ui_req006 |
 | REQ-007 | P3 | L7 | `deferred` | NL 只读 Copilot | `/ops` 仍直达 |
 | REQ-008 | P2 | L2 | `done` | P2-16 主库增长治理 | Owner=`agent:gemini` · `db-maintenance.js` · `runbooks/db-maintenance-p2-16.md` |
 | REQ-009 | P3 | L1 | `deferred` | uSMART 接入 | 远期 |

@@ -58,8 +58,8 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | L2 加固与监测 P0–P2 | ✅ | 主体收官；P2-16 待做 |
 | L3 GEX 结构传感器 | ✅ | v1 可用；09-14 本机拉链通 |
 | L4 Local-Ops / 企微回控 | ✅ 联调 | 已 push；生产 ff 待 human（REQ-002） |
-| L5 券商只读 P5 | ⏳ | 未开始 |
-| L6 本机运维页 P6 | ⏳ | 未开始 |
+| L5 券商只读 P5 | ✅ | REQ-005 Done |
+| L6 本机运维页 P6 | ✅ | REQ-006 Done · http://127.0.0.1:18789/ui |
 | L7 NL Copilot | ⏸ | 暂缓（只读参谋构想） |
 
 **三层能力面**：① 业务守护流水线 ② 本机 Local-Ops catalog ③ 企微极窄 `/ops`（C0 + `gex.collect`）。详见 [`01`](./01-background-vision.md) / [`02`](./02-current-state.md)。
@@ -68,8 +68,8 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | （空 · 本波已闭环） | — |
-| **§0.B `agent:gemini`** | **REQ-033** 历史大V交易单回放与企微纠错反馈 | Doing |
+| **§0.A `agent:cursor`** | （空 · 005/006 已闭环） | — |
+| **§0.B / §0.R-B `agent:gemini`** | **PKG-CURSOR-WAVE**（含 REQ-005/006） | Queued |
 | **§0.H `human`** | REQ-002 / Q-001 | 等待 |
 | **§0.R-A** | PKG-FOLLOW-FULL | Done |
 
