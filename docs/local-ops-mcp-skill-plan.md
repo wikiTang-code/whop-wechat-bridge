@@ -93,7 +93,9 @@ Skill **不是**第四执行层。Skill 告诉模型：该调哪条能力、GEX 
 | **C3** | 资金/破坏 | Agent **默认拒绝**；Skill 写明「只许人口述后走现有 Dashboard/跟单」 | 长桥/富途下单、转账、`pm2 delete all`、DROP/删库、关停 GCE |
 | **C4** | 秘密 | 永远不返回原文 | `.env`、webhook key、券商 token、SSH 私钥 |
 
-`confirm_token`：网关对 C2 先返回摘要 + 一次性 token（60s TTL）；第二次带 token 才执行。企微用「引用回复 / 确认」消耗同一 token。IDE Agent 由 Cursor Hook `beforeMCPExecution` 再挡一层。
+`confirm_token`：网关对 C2 先返回摘要 + 一次性 token（60s TTL）；第二次带 token 才执行。  
+**企微不参与 C2 确认**（P4.1 现实与 `REJ-001`）：手机 `/ops` 仅 C0 + `gex.collect`；生产 C2 必须本机 CLI `human-approve`（仅 human），**禁止**用企微「引用回复/确认」消耗 token（旧设想已作废，见 `docs/project` CHG-005）。  
+IDE Agent 由 Cursor Hook `beforeMCPExecution` 再挡一层；Agent **不得**代跑 `human-approve`（`REJ-007`）。
 
 ---
 
@@ -333,7 +335,7 @@ docs/local-ops-mcp-skill-plan.md   # 本文
 | **P0** | 只读 catalog + gateway + MCP stdio；C0 观察面 | 见 §8.1；**不含** C2 / 企微 / 部署 |
 | **P1** | C1 `gex.collect`、开看板；SSH C0 日志/资源/冒烟 | 开盘可口头「跑 GEX / 看生产灯」 |
 | **P2** | 本地 C2：LM load/unload + 托管 `ssh -R` | Hook + `confirm_token`；circuit 与网关一致 |
-| **P3** | 生产 C2：具名 restart、SHA deploy；切灰/回滚推迟到人肉演练后 | **必须人在 UI/企微点**；IDE token 不够 |
+| **P3** | 生产 C2：具名 restart、SHA deploy；切灰/回滚推迟到人肉演练后 | **必须 human 本机 CLI `human-approve`（非企微、非 Agent）**；IDE token 不够 |
 | **P4** | 企微入站 **仅 C0**；`gex.collect` 放 P4.1 + userid 白名单 | 群 webhook 不当入站 |
 | **P5** | 券商只读 MCP | **目录永不出现** `place_order` |
 | **P6** | Dashboard 本机运维页 | 人不用记命令 |
@@ -439,7 +441,7 @@ P4.1 Done =
 | # | 议题 | 锁定 |
 |---|---|---|
 | 1 | invoke vs 展开 tool | `ops.invoke` + **最多 6 个** C0 别名：`ops_catalog` `gcp_health` `gcp_pm2_status` `gex_status` `gex_summarize` `lm_status` |
-| 2 | IDE 能否单独过 C2 | **分层**：本地 C2（`lm.*`）可用 Hook + token；**生产 C2**（`pm2_restart` / `deploy_align` / cutover / rollback）必须人在 UI 或企微点，IDE 单独 token 不够 |
+| 2 | IDE 能否单独过 C2 | **分层**：本地 C2（`lm.*`）可用 Hook + token；**生产 C2**（`pm2_restart` / `deploy_align` / cutover / rollback）必须 **human CLI `human-approve`**（**非企微**；见 REJ-001 / CHG-005），IDE 单独 token 不够 |
 | 3 | deploy_align | 有条件允许（P3）：40 位小写 hex SHA；`merge-base --is-ancestor` 证明已在 `origin`；**不自动 restart**；全局互斥锁；禁止分支名/tag |
 | 4 | 企微 v1 | P4 **只 C0**；collect 放 P4.1 + userid 白名单 |
 | 5 | 长桥只读 | P5；**catalog 删除一切 `place_order`（含 disabled 占位）** |
