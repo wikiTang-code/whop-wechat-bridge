@@ -13,8 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；CHG-007 已闭环。待 gemini 审修/033；人侧 Q-001） | — | — |
-| 2 | — | — | — | — | — |
+| **1** | **REQ-034** | L6 | Localhost Ops 端口 `:18789` CSRF/Origin 与 DNS Rebinding 阻断 | `tools/local-ops/http-server.js` | **Doing** |
+| 2 | **REQ-035** | L1 | 回放纠错与 `trade_signals` 流水自动校准联动 | `follow-replay-engine.js` · `database.js` | Queued |
 
 ### 0.B 队列 `agent:gemini`
 
@@ -35,12 +35,13 @@
 | 审修方 | 批次 | 状态 |
 |--------|------|:----:|
 | §0.R-A cursor | PKG-FOLLOW-FULL | **Done** |
-| §0.R-B gemini | PKG-CURSOR-WAVE（003/022/031/032/005/006） | **Queued** |
+| §0.R-B gemini | PKG-CURSOR-WAVE（003/022/031/032/005/006） | **Done** |
 
 ### 共享候选池
 
 1. `REQ-004` 同步通道实现（待 Q-001）
-2. （已出队）003 · 005 · 006 · 007 · 008 · 021 · 022 · 027～032 · CHG-009
+2. `REQ-035` 回放纠错与 `trade_signals` 自动联动（已入顺位2）
+3. （已出队）003 · 005 · 006 · 007 · 008 · 021 · 022 · 027～032 · CHG-009
 
 ## 1. 主看板
 

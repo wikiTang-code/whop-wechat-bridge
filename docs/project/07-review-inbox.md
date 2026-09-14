@@ -24,6 +24,23 @@
 
 **审修状态**：`Reviewing` → `Fixing`（fallback 已修）→ **`Done`**（缺口已升格 REQ-031/032）
 
+### 2026-09-14 · Cross-review PKG-CURSOR-WAVE（`agent:gemini` · §0.R-B）
+
+**范围**：`REQ-003` / `REQ-022` / `REQ-031` / `REQ-032` / `REQ-005` / `REQ-006`（Cursor 交付包）  
+**测试**：`test_trade_signals_req031.js` · `test_broker_readonly_req005.js` · `test_ops_ui_req006.js` · `test_gex_sync_security_req022.js` — **全绿 (PASS)**
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | **REQ-031**：落地独立 `trade_signals` 表，解析时写入 signal 流水，与跟单/个人仓彻底解耦； |
+| **通过** | **REQ-032**：`monitor.js` 真实调用盘口行情作为 `arrivalPrice`，回退机制与 warn 日志完备； |
+| **通过** | **REQ-005**：P5 券商只读 catalog 严格约束 C0，无 `place_order`，防越权与只读单测全部通过； |
+| **通过** | **REQ-006**：P6 本机运维页 `/ui` 挂载正常，仅允许本机回环 IP 调用； |
+| **通过** | **REQ-003/022**：开盘前定时任务转换本地墙钟、GEX 同步安全规程入库； |
+| **中危→新 REQ** | **Localhost Ops 端口 `:18789` CSRF/Origin 防护缺失**：目前仅校验 `remoteAddress` 为回环 IP，若用户在浏览器打开恶意网站，网页跨域发起的本地 fetch 同样属于回环 IP，可能被窃取券商只读敏感信息 → **立项 REQ-034**； |
+| **体验→新 REQ** | **历史纠错与 `trade_signals` 联动**：REQ-033 纠错提交后，应向 `trade_signals` 同步插入/更新修正后的记录（打标 `source: 'manual_correct'`），保持 signal 底册与回放纠错最新事实一致 → **立项 REQ-035**。 |
+
+**审修状态**：**`Done`**（新缺口已升格 REQ-034 / REQ-035 进入队列）
+
 
 ### 2026-09-14 · [Security/ops 审阅](c715940a-391c-4d03-b32b-f129502363ee)
 

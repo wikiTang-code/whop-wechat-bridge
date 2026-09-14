@@ -53,7 +53,9 @@
 | REQ-030 | P1 | L1 | `done` | **大V即时推送实事求是**：剥离「已同步处理量化跟单」硬编码；发言通知与交易通知正交 | 热点 `monitor.js`；Owner=`agent:gemini` |
 | REQ-031 | P1 | L1 | `done` | **解析即写 signal 流水**（独立于 follow/decision）；盘中赵哥账本不依赖事后 recalculate | Owner=`agent:cursor`；`trade_signals` + `saveTradeSignal`；`test_trade_signals_req031.js` |
 | REQ-032 | P1 | L1 | `done` | **arrivalPrice 取真实盘口**（禁用喊单价冒充现价）；滑点状态机才可信 | Owner=`agent:cursor`；`fetchTickerKlineData` → processFollowDecision |
-| REQ-033 | P1 | L1/L4 | `in_progress` | **历史大V交易单回放与企微移动端纠错反馈**（特朗普访华至今；一键确认跳过+移动端表单要素修改回写） | 队列 0.B · Owner=`agent:gemini` · `replay-review-runner.js` + 纠错表单 |
+| REQ-033 | P1 | L1/L4 | `in_progress` | **历史大V交易单回放与企微移动端纠错反馈**（特朗普访华至今；一键确认跳过+移动端表单要素修改回写） | 队列 0.B · Owner=`agent:gemini` · `follow-replay-engine.js` + 纠错表单 |
+| REQ-034 | P2 | L6 | `accepted` | **Localhost Ops 端口 `:18789` CSRF/Origin 与 DNS Rebinding 阻断**（仅允许回环 Origin 或本地自发 Header） | 队列 0.A 顺位 1 · 指派 `agent:cursor` · `tools/local-ops/http-server.js` |
+| REQ-035 | P1 | L1 | `accepted` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后写入一条 `source=manual_correct` 的 signal） | 共享候选池 · `follow-replay-engine.js` · `database.js` |
 
 | ID | 状态 | 摘要 |
 |----|:----:|------|
