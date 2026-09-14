@@ -1635,9 +1635,26 @@ app.post('/api/follow/correct-submit', async (req, res) => {
 app.get('/api/follow/replay-callback', async (req, res) => {
   try {
     const { action, id, token } = req.query;
+    console.log(`[Follow Replay Callback] 收到回放请求: action=${action}, id=${id}, clientIp=${req.ip}`);
     if (action === 'CONFIRM_SKIP') {
       const result = await handleReplayConfirmSkip(id, token, req.headers['x-wecom-userid'] || 'human');
       if (!result.success) {
+        if (result.code === 409) {
+          return res.send(`
+            <!DOCTYPE html>
+            <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>无需重复确认</title>
+            <style>body{font-family:sans-serif;text-align:center;padding:40px 20px;background:#f8fafc;color:#0f172a;}
+            .card{background:#fff;border-radius:16px;padding:30px;box-shadow:0 4px 12px rgba(0,0,0,0.06);max-width:400px;margin:0 auto;}
+            </style></head><body>
+            <div class="card">
+              <div style="font-size:3rem;margin-bottom:12px;">ℹ️</div>
+              <h2>该单据此前已确认处理</h2>
+              <p style="color:#64748b;margin-top:10px;">${result.error}</p>
+              <p style="margin-top:20px;font-size:0.9rem;color:#94a3b8;">系统采用【单据 UUID 强绑定机制】，每条链接仅对绑定的具体单据生效，无需重复点击。请返回微信查看当前最新推送的单据。</p>
+            </div>
+            </body></html>
+          `);
+        }
         return res.status(result.code || 400).send(`<h2 style="color:red">操作失败: ${result.error}</h2>`);
       }
       return res.send(`
@@ -2742,6 +2759,9 @@ function startCloudflareTunnel(port) {
       const tunnelUrl = match[0];
       urlFound = true;
       process.env.TUNNEL_URL = tunnelUrl;
+      try {
+        fs.writeFileSync(path.join(__dirname, 'data', 'tunnel_url.txt'), tunnelUrl, 'utf8');
+      } catch (_) {}
       console.log(`=================================================`);
       console.log(`[Cloudflare Tunnel] Public URL created successfully!`);
       console.log(`Public Link: ${tunnelUrl}`);

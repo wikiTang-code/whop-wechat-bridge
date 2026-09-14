@@ -10,13 +10,28 @@
  */
 
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { getDb } from './database.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export function getBaseUrl() {
-  return process.env.PUBLIC_URL || process.env.TUNNEL_URL || `http://${process.env.HOST_IP || '192.168.1.18'}:${process.env.PORT || 3000}`;
+  if (process.env.PUBLIC_URL) return process.env.PUBLIC_URL;
+  if (process.env.TUNNEL_URL) return process.env.TUNNEL_URL;
+  try {
+    const tunnelFile = path.join(__dirname, 'data', 'tunnel_url.txt');
+    if (fs.existsSync(tunnelFile)) {
+      const u = fs.readFileSync(tunnelFile, 'utf8').trim();
+      if (u.startsWith('http')) return u;
+    }
+  } catch (_) {}
+  return `http://${process.env.HOST_IP || '192.168.1.18'}:${process.env.PORT || 8085}`;
 }
 const REPLAY_SECRET = process.env.WECOM_HITL_SECRET || 'follow_replay_secret_key_2026';
 const TRUMP_VISIT_START_TS = 1778803200000; // 2026-05-15 00:00:00 UTC
@@ -378,7 +393,7 @@ export function buildReplayWeComMessage(item, stats, db = getDb()) {
     ? `${exp.user.qty} 股 (成本 ${exp.user.costStr})` 
     : '0 股 *(当前未持仓)*';
 
-  const text = `### 📋 历史大V交易单回放校验 (#${item.seq_no}/${stats.total})
+  const text = `### 📋 历史大V交易单回放校验【第 #${item.seq_no} 笔 / 共 ${stats.total} 笔】
 > **进度**: 已审 **${stats.processed}/${stats.total}** (${stats.progressPct}%) ｜ 确认正确: ${stats.confirmed} ｜ 已修正: ${stats.corrected}
 
 **原始大V发言**:
@@ -403,11 +418,11 @@ export function buildReplayWeComMessage(item, stats, db = getDb()) {
   - **单票权重**: **${exp.user.targetPct}%** *(占总资产 / 市值 $${exp.user.posVal})*
   - **全盘总仓位**: **${exp.user.totalExposurePct}%** *(持股占总资产 / 总资产 $${exp.user.totalEquity} / 现金 $${exp.user.cash})*
 ---
-👉 **请对照原始发言进行确认**：
-1. **[✅ 确认解析正确 (跳过交易)](${confirmSkipUrl})**  
-*(一键点击，判定解析准确并自动推送下一条)*
-2. **[✏️ 存在解析错误 (在表单中修改)](${correctFormUrl})**  
-*(微信内打开表单，修改时间/标的/方向/价格/数量/仓位表述后提交)*`;
+👉 **请对照原始发言对本单 (#${item.seq_no}) 进行确认**：
+1. **[✅ 确认 #${item.seq_no} ${item.parsed_ticker} 正确 (跳过交易)](${confirmSkipUrl})**  
+*(点击仅对本单 #${item.seq_no} 生效，处理后自动推送下一条)*
+2. **[✏️ 修正 #${item.seq_no} ${item.parsed_ticker} 错误 (在表单中修改)](${correctFormUrl})**  
+*(微信内打开表单，仅修改本单 #${item.seq_no} 的要素)*`;
 
   return { text, confirmSkipUrl, correctFormUrl };
 }
