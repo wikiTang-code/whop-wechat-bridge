@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "whop-local-ops": {
+      "command": "node",
+      "args": ["tools/local-ops/mcp-server.js"]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeMCPExecution": [
+      {
+        "command": "node .cursor/hooks/local-ops-mcp-gate.js",
+        "matcher": "MCP:"
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "node .cursor/hooks/local-ops-shell-gate.js",
+        "matcher": "local-ops|human-approve|gcp\\.pm2_restart|gcp\\.deploy_align|pm2 restart"
+      }
+    ]
+  }
+}
