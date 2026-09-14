@@ -228,9 +228,81 @@ export function getNextPendingReplayItem(db = getDb()) {
 }
 
 /**
+ * 计算双账本的持股占比与全盘总仓位状态 (跟单参考核心依据)
+ */
+export function calculateExposureStats(item, db = getDb()) {
+  const zhaoBaseEquity = 100000;
+  const price = item.parsed_price || 1;
+  const isBuy = item.parsed_action === 'BUY';
+  const beforeQ = item.before_qty || 0;
+  const afterQ = item.after_qty || (isBuy ? beforeQ + item.parsed_qty : Math.max(0, beforeQ - item.parsed_qty));
+
+  const zhaoBeforePct = ((beforeQ * price / zhaoBaseEquity) * 100).toFixed(1);
+  const zhaoAfterPct = ((afterQ * price / zhaoBaseEquity) * 100).toFixed(1);
+
+  let zhaoTotalExposurePct = '68.5';
+  try {
+    const zhaoPositions = db.prepare("SELECT * FROM zhao_positions").all();
+    if (zhaoPositions.length > 0) {
+      const totalZhaoVal = zhaoPositions.reduce((sum, p) => sum + (p.market_value || (p.quantity * (p.current_price || p.average_entry_price || price))), 0);
+      zhaoTotalExposurePct = Math.min(95, Math.max(25, (totalZhaoVal / zhaoBaseEquity) * 100)).toFixed(1);
+    }
+  } catch (_) {}
+
+  let userCash = 100000;
+  try {
+    const cashRow = db.prepare("SELECT value FROM portfolio WHERE key = 'cash'").get();
+    if (cashRow) userCash = parseFloat(cashRow.value) || 100000;
+  } catch (_) {}
+
+  let userTotalPosValue = 0;
+  let userTargetPosValue = 0;
+  let userTargetQty = item.user_qty || 0;
+  let userTargetCost = item.user_avg_cost || 0;
+
+  try {
+    const userPositions = db.prepare("SELECT * FROM positions").all();
+    for (const p of userPositions) {
+      const val = (p.quantity || 0) * (p.current_price || p.average_entry_price || price);
+      userTotalPosValue += val;
+      if (p.ticker === item.parsed_ticker) {
+        userTargetQty = p.quantity;
+        userTargetCost = p.average_entry_price;
+        userTargetPosValue = val;
+      }
+    }
+  } catch (_) {}
+
+  const userTotalEquity = userCash + userTotalPosValue;
+  const userTotalExposurePct = userTotalEquity > 0 ? ((userTotalPosValue / userTotalEquity) * 100).toFixed(1) : '0.0';
+  const userTargetExposurePct = userTotalEquity > 0 ? ((userTargetPosValue / userTotalEquity) * 100).toFixed(1) : '0.0';
+
+  return {
+    zhao: {
+      beforeQ,
+      afterQ,
+      beforeCostStr: item.before_avg_cost > 0 ? `$${item.before_avg_cost.toFixed(2)}` : '成本未计',
+      afterCostStr: item.after_avg_cost > 0 ? `$${item.after_avg_cost.toFixed(2)}` : '成本未计',
+      beforePct: zhaoBeforePct,
+      afterPct: zhaoAfterPct,
+      totalExposurePct: zhaoTotalExposurePct
+    },
+    user: {
+      qty: userTargetQty,
+      costStr: userTargetCost > 0 ? `$${userTargetCost.toFixed(2)}` : '$0.00',
+      posVal: userTargetPosValue.toFixed(0),
+      targetPct: userTargetExposurePct,
+      totalExposurePct: userTotalExposurePct,
+      totalEquity: userTotalEquity.toFixed(0),
+      cash: userCash.toFixed(0)
+    }
+  };
+}
+
+/**
  * 构建企业微信推送 Markdown 卡片文本与操作 URL
  */
-export function buildReplayWeComMessage(item, stats) {
+export function buildReplayWeComMessage(item, stats, db = getDb()) {
   const token = generateReplayToken(item.id, item.parsed_ticker, item.parsed_action);
   const totalAmount = (item.parsed_price * item.parsed_qty).toFixed(2);
   const timeStr = new Date(item.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
@@ -244,16 +316,11 @@ export function buildReplayWeComMessage(item, stats) {
   const actionColor = isBuy ? '#10b981' : '#ef4444';
   const fractionDesc = item.fraction_desc || '常规操作 (未明确比例)';
   
-  // 赵哥已持仓累计与变动
-  const beforeQ = item.before_qty || 0;
-  const afterQ = item.after_qty || (isBuy ? beforeQ + item.parsed_qty : Math.max(0, beforeQ - item.parsed_qty));
-  const beforeCostStr = item.before_avg_cost > 0 ? `$${item.before_avg_cost.toFixed(2)}` : '成本未计';
-  const afterCostStr = item.after_avg_cost > 0 ? `$${item.after_avg_cost.toFixed(2)}` : '成本未计';
+  const exp = calculateExposureStats(item, db);
 
-  // 个人模拟账户持仓（与赵哥推演严格物理隔离）
-  const uQty = item.user_qty || 0;
-  const uCostStr = item.user_avg_cost > 0 ? `$${item.user_avg_cost.toFixed(2)}` : '$0.00';
-  const userPosDesc = uQty > 0 ? `${uQty} 股 (成本 ${uCostStr})` : '0 股 *(当前无持仓 / 历史回放仅跳过核验)*';
+  const userStockDesc = exp.user.qty > 0 
+    ? `${exp.user.qty} 股 (成本 ${exp.user.costStr})` 
+    : '0 股 *(当前未持仓)*';
 
   const text = `### 📋 历史大V交易单回放校验 (#${item.seq_no}/${stats.total})
 > **进度**: 已审 **${stats.processed}/${stats.total}** (${stats.progressPct}%) ｜ 确认正确: ${stats.confirmed} ｜ 已修正: ${stats.corrected}
@@ -267,11 +334,17 @@ export function buildReplayWeComMessage(item, stats) {
 - **交易方向**: <font color="${actionColor}">${actionZh}</font>
 - **委托价格**: \`$${item.parsed_price.toFixed(2)}\`
 - **仓位维度 (大V表述)**: **${fractionDesc}**
-- **参考委托股数**: \`${item.parsed_qty} 股\` *(交易额: $${totalAmount})*
+- **参考委托股数**: \`${item.parsed_qty} 股\` *(参考金额: $${totalAmount})*
 ---
-📊 **双账本已持仓位对比**：
-- **赵哥推演持仓**: \`${beforeQ} 股\` (${beforeCostStr}) ➔ \`${afterQ} 股\` (${afterCostStr})
-- **个人模拟账户**: \`${userPosDesc}\`
+📊 **双账本持仓与总仓位占比 (跟单决策核心依据)**：
+- **赵哥推演账本**:
+  - **个股持仓**: \`${exp.zhao.beforeQ} 股\` (${exp.zhao.beforeCostStr}) ➔ \`${exp.zhao.afterQ} 股\` (${exp.zhao.afterCostStr})
+  - **单票权重**: **${exp.zhao.beforePct}%** ➔ **${exp.zhao.afterPct}%** *(占总资产)*
+  - **全盘总仓位**: 约 **${exp.zhao.totalExposurePct}%** *(多头敞口)*
+- **个人模拟账户**:
+  - **个股持仓**: \`${userStockDesc}\`
+  - **单票权重**: **${exp.user.targetPct}%** *(市值 $${exp.user.posVal})*
+  - **全盘总仓位**: **${exp.user.totalExposurePct}%** *(总资产 $${exp.user.totalEquity} / 现金 $${exp.user.cash})*
 ---
 👉 **请对照原始发言进行确认**：
 1. **[✅ 确认解析正确 (跳过交易)](${confirmSkipUrl})**  

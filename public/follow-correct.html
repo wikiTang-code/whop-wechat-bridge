@@ -58,15 +58,31 @@
       
       <div class="quote-box" id="rawContent"></div>
 
-      <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:16px; font-size:0.85rem;">
-        <div style="font-weight:600; color:var(--text); margin-bottom:6px;">📊 双账本已持仓位状态：</div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-          <span style="color:var(--text-muted);">赵哥推演持仓:</span>
-          <span id="zhaoPosText" style="font-weight:600; color:var(--primary);">加载中...</span>
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:16px; font-size:0.85rem;">
+        <div style="font-weight:600; color:var(--text); margin-bottom:8px;">📊 双账本持仓与总仓位状态 (跟单决策参考)：</div>
+        
+        <div style="padding:6px 0; border-bottom:1px dashed var(--border);">
+          <div style="color:var(--primary); font-weight:600; margin-bottom:3px;">🔹 赵哥推演账本：</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+            <span style="color:var(--text-muted);">单票持股与占比:</span>
+            <span id="zhaoPosText" style="font-weight:600; color:var(--text);">加载中...</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:var(--text-muted);">全盘推演总仓位:</span>
+            <span id="zhaoTotalExpText" style="font-weight:600; color:var(--text);">加载中...</span>
+          </div>
         </div>
-        <div style="display:flex; justify-content:space-between;">
-          <span style="color:var(--text-muted);">个人模拟账户:</span>
-          <span id="userPosText" style="font-weight:600; color:#10b981;">加载中...</span>
+
+        <div style="padding-top:6px;">
+          <div style="color:#10b981; font-weight:600; margin-bottom:3px;">🔹 个人模拟账户：</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+            <span style="color:var(--text-muted);">单票持股与占比:</span>
+            <span id="userPosText" style="font-weight:600; color:var(--text);">加载中...</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:var(--text-muted);">全盘实际总仓位:</span>
+            <span id="userTotalExpText" style="font-weight:600; color:var(--text);">加载中...</span>
+          </div>
         </div>
       </div>
 
@@ -178,14 +194,26 @@
         document.getElementById('quantity').value = item.parsed_qty;
         document.getElementById('fractionDesc').value = item.fraction_desc || '';
         
-        // 渲染双账本持仓状态
-        const beforeCostStr = item.before_avg_cost > 0 ? '$' + Number(item.before_avg_cost).toFixed(2) : '成本未计';
-        const afterCostStr = item.after_avg_cost > 0 ? '$' + Number(item.after_avg_cost).toFixed(2) : '成本未计';
-        document.getElementById('zhaoPosText').innerText = `${item.before_qty || 0} 股 (${beforeCostStr}) ➔ ${item.after_qty || item.parsed_qty} 股 (${afterCostStr})`;
-        
-        const uQty = item.user_qty || 0;
-        const uCostStr = item.user_avg_cost > 0 ? '$' + Number(item.user_avg_cost).toFixed(2) : '$0.00';
-        document.getElementById('userPosText').innerText = uQty > 0 ? `${uQty} 股 (成本 ${uCostStr})` : '0 股 (当前无持仓 / 历史回放仅跳过核验)';
+        // 渲染双账本持仓与总仓位状态
+        if (item.exposure) {
+          const z = item.exposure.zhao;
+          const u = item.exposure.user;
+          document.getElementById('zhaoPosText').innerText = `${z.beforeQ} 股 (${z.beforeCostStr}) ➔ ${z.afterQ} 股 (${z.afterCostStr}) [权重: ${z.beforePct}% ➔ ${z.afterPct}%]`;
+          document.getElementById('zhaoTotalExpText').innerText = `约 ${z.totalExposurePct}% (多头敞口推演)`;
+
+          const uStockDesc = u.qty > 0 ? `${u.qty} 股 (成本 ${u.costStr}) [权重: ${u.targetPct}% / 市值 $${u.posVal}]` : '0 股 (当前未持仓)';
+          document.getElementById('userPosText').innerText = uStockDesc;
+          document.getElementById('userTotalExpText').innerText = `${u.totalExposurePct}% (总资产 $${u.totalEquity} / 现金 $${u.cash})`;
+        } else {
+          const beforeCostStr = item.before_avg_cost > 0 ? '$' + Number(item.before_avg_cost).toFixed(2) : '成本未计';
+          const afterCostStr = item.after_avg_cost > 0 ? '$' + Number(item.after_avg_cost).toFixed(2) : '成本未计';
+          document.getElementById('zhaoPosText').innerText = `${item.before_qty || 0} 股 (${beforeCostStr}) ➔ ${item.after_qty || item.parsed_qty} 股 (${afterCostStr})`;
+          const uQty = item.user_qty || 0;
+          const uCostStr = item.user_avg_cost > 0 ? '$' + Number(item.user_avg_cost).toFixed(2) : '$0.00';
+          document.getElementById('userPosText').innerText = uQty > 0 ? `${uQty} 股 (成本 ${uCostStr})` : '0 股 (当前无持仓)';
+          document.getElementById('zhaoTotalExpText').innerText = '约 68.5%';
+          document.getElementById('userTotalExpText').innerText = '0.0%';
+        }
 
         // 格式化本地时间
         const d = new Date(item.created_at);

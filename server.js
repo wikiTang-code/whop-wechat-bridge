@@ -71,7 +71,8 @@ import {
   verifyReplayToken,
   getNextPendingReplayItem,
   pushCurrentReplayCard,
-  loadReplayCandidates
+  loadReplayCandidates,
+  calculateExposureStats
 } from './follow-replay-engine.js';
 
 dotenv.config();
@@ -1610,7 +1611,8 @@ app.get('/api/follow/replay-item', (req, res) => {
     if (!verifyReplayToken(row.id, row.parsed_ticker, row.parsed_action, token)) {
       return res.status(403).json({ success: false, error: 'Token 验签失败' });
     }
-    res.json({ success: true, item: row });
+    const exp = calculateExposureStats(row, db);
+    res.json({ success: true, item: { ...row, exposure: exp } });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
