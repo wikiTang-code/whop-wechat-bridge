@@ -131,15 +131,18 @@
           <input type="datetime-local" id="tradeTime">
         </div>
 
-        <button type="submit" class="submit-btn" id="btnSubmit">🚀 确认提交修正并推送下一条</button>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+          <button type="submit" class="submit-btn" id="btnSubmit">🚀 确认提交修正 (真实交易单)</button>
+          <button type="button" class="submit-btn" id="btnReject" onclick="rejectAsStrategy()" style="background:#f59e0b; box-shadow:0 4px 12px rgba(245, 158, 11, 0.3);">💡 本条为策略分析/预判 (转存为大V策略资产)</button>
+        </div>
       </form>
     </div>
   </div>
 
   <div id="successView" class="card success-card" style="display:none;">
     <div class="success-icon">✅</div>
-    <h2 style="margin-bottom:8px;">修正提交成功！</h2>
-    <p style="color:var(--text-muted); margin-bottom:20px;">系统已更新大V真实账本，并已向企业微信自动推送下一条待审单据。</p>
+    <h2 id="successTitle" style="margin-bottom:8px;">提交成功！</h2>
+    <p id="successDesc" style="color:var(--text-muted); margin-bottom:20px;">系统已更新大V真实账本，并已向企业微信自动推送下一条待审单据。</p>
     <button class="submit-btn" onclick="window.close()" style="background:var(--border); color:var(--text);">关闭本页面 (返回微信)</button>
   </div>
 
@@ -265,9 +268,38 @@
       } catch (err) {
         alert('网络错误: ' + err.message);
         btn.disabled = false;
-        btn.innerText = '🚀 确认提交修正并推送下一条';
+        btn.innerText = '🚀 确认提交修正 (真实交易单)';
       }
     });
+
+    async function rejectAsStrategy() {
+      if (!confirm('确定将本条发言标记为「大V策略预判/条件单」吗？\n系统将把它作为宝贵的策略知识资产转存归档，不计入交易持仓，并自动推送下一条。')) return;
+      const btn = document.getElementById('btnReject');
+      btn.disabled = true;
+      btn.innerText = '正在转存策略资产...';
+      try {
+        const res = await fetch('/api/follow/replay-reject', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, token, reason: 'strategy_plan' })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          alert('转存失败: ' + (data.error || '未知错误'));
+          btn.disabled = false;
+          btn.innerText = '💡 本条为策略分析/预判 (转存为大V策略资产)';
+          return;
+        }
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('successView').style.display = 'block';
+        document.getElementById('successTitle').innerText = '策略资产转存成功！';
+        document.getElementById('successDesc').innerText = '已将大V策略预判安全沉淀入策略规则与盯盘资产库，已自动向企业微信推送下一条。';
+      } catch (err) {
+        alert('网络异常: ' + err.message);
+        btn.disabled = false;
+        btn.innerText = '💡 本条为策略分析/预判 (转存为大V策略资产)';
+      }
+    }
 
     loadItem();
   </script>

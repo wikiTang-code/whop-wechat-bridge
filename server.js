@@ -68,6 +68,7 @@ import { handleFollowHitlCallback, generateFollowCardPayload } from './follow-hi
 import {
   handleReplayConfirmSkip,
   handleReplayCorrectionSubmit,
+  handleReplayRejectNonTrade,
   verifyReplayToken,
   getNextPendingReplayItem,
   pushCurrentReplayCard,
@@ -1673,9 +1674,61 @@ app.get('/api/follow/replay-callback', async (req, res) => {
         </body></html>
       `);
     }
+
+    if (action === 'REJECT_NON_TRADE' || action === 'CLASSIFY_STRATEGY') {
+      const result = await handleReplayRejectNonTrade(id, token, 'strategy_plan', req.headers['x-wecom-userid'] || 'human');
+      if (!result.success) {
+        if (result.code === 409) {
+          return res.send(`
+            <!DOCTYPE html>
+            <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>无需重复确认</title>
+            <style>body{font-family:sans-serif;text-align:center;padding:40px 20px;background:#f8fafc;color:#0f172a;}
+            .card{background:#fff;border-radius:16px;padding:30px;box-shadow:0 4px 12px rgba(0,0,0,0.06);max-width:400px;margin:0 auto;}
+            </style></head><body>
+            <div class="card">
+              <div style="font-size:3rem;margin-bottom:12px;">ℹ️</div>
+              <h2>该单据此前已处理</h2>
+              <p style="color:#64748b;margin-top:10px;">${result.error}</p>
+              <p style="margin-top:20px;font-size:0.9rem;color:#94a3b8;">系统采用【单据 UUID 强绑定机制】，每条链接仅对绑定的具体单据生效。请返回微信查看当前最新推送的单据。</p>
+            </div>
+            </body></html>
+          `);
+        }
+        return res.status(result.code || 400).send(`<h2 style="color:red">操作失败: ${result.error}</h2>`);
+      }
+      return res.send(`
+        <!DOCTYPE html>
+        <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>策略资产沉淀成功</title>
+        <style>body{font-family:sans-serif;text-align:center;padding:40px 20px;background:#f8fafc;color:#0f172a;}
+        .card{background:#fff;border-radius:16px;padding:30px;box-shadow:0 4px 12px rgba(0,0,0,0.06);max-width:400px;margin:0 auto;}
+        </style></head><body>
+        <div class="card">
+          <div style="font-size:3rem;margin-bottom:12px;">💡</div>
+          <h2>已成功沉淀为【大V策略资产】！</h2>
+          <p style="color:#64748b;margin-top:10px;">${result.message}</p>
+          <p style="margin-top:20px;font-size:0.9rem;color:#94a3b8;">已安全归档至策略规则与盯盘资产库（不影响即时交易持仓），系统已自动向企业微信推送下一条。</p>
+        </div>
+        </body></html>
+      `);
+    }
+
     res.status(400).send('未知动作');
   } catch (err) {
     res.status(500).send(`服务端异常: ${err.message}`);
+  }
+});
+
+// POST /api/follow/replay-reject - 移动端一键转存为策略资产
+app.post('/api/follow/replay-reject', async (req, res) => {
+  try {
+    const { id, token, reason } = req.body || {};
+    const result = await handleReplayRejectNonTrade(id, token, reason || 'strategy_plan', req.headers['x-wecom-userid'] || 'human');
+    if (!result.success) {
+      return res.status(result.code || 400).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 

@@ -88,6 +88,22 @@ export function initReplayTable(db = getDb()) {
   db.prepare(`
     CREATE INDEX IF NOT EXISTS idx_replay_status ON follow_replay_queue(status, seq_no ASC)
   `).run();
+
+  // 大V策略与条件单资产库 (REQ-033: 将非即时交易单的分析/预判/计划沉淀为永久资产)
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS strategy_assets (
+      id TEXT PRIMARY KEY,
+      replay_id TEXT,
+      message_id TEXT,
+      ticker TEXT NOT NULL,
+      raw_content TEXT NOT NULL,
+      plan_type TEXT DEFAULT 'condition_plan',
+      trigger_condition TEXT,
+      created_at INTEGER NOT NULL,
+      saved_at INTEGER NOT NULL,
+      status TEXT DEFAULT 'active'
+    )
+  `).run();
 }
 
 /**
@@ -294,6 +310,7 @@ export function getNextPendingReplayItem(db = getDb()) {
   const processed = db.prepare("SELECT count(*) as c FROM follow_replay_queue WHERE status != 'pending'").get().c;
   const confirmed = db.prepare("SELECT count(*) as c FROM follow_replay_queue WHERE status = 'confirmed_skip'").get().c;
   const corrected = db.prepare("SELECT count(*) as c FROM follow_replay_queue WHERE status = 'corrected'").get().c;
+  const strategy = db.prepare("SELECT count(*) as c FROM follow_replay_queue WHERE status IN ('rejected_non_trade', 'classified_strategy')").get().c;
 
   return {
     item: current || null,
@@ -303,6 +320,7 @@ export function getNextPendingReplayItem(db = getDb()) {
       pending: total - processed,
       confirmed,
       corrected,
+      strategy,
       progressPct: total > 0 ? ((processed / total) * 100).toFixed(1) : '100.0'
     }
   };
@@ -381,6 +399,7 @@ export function buildReplayWeComMessage(item, stats, db = getDb()) {
   const baseUrl = getBaseUrl();
   const confirmSkipUrl = `${baseUrl}/api/follow/replay-callback?action=CONFIRM_SKIP&id=${item.id}&token=${token}`;
   const correctFormUrl = `${baseUrl}/follow/correct?id=${item.id}&token=${token}`;
+  const rejectUrl = `${baseUrl}/api/follow/replay-callback?action=REJECT_NON_TRADE&id=${item.id}&token=${token}`;
 
   const isBuy = item.parsed_action === 'BUY';
   const actionZh = isBuy ? '🟢 买入 (BUY)' : '🔴 卖出 (SELL)';
@@ -393,8 +412,9 @@ export function buildReplayWeComMessage(item, stats, db = getDb()) {
     ? `${exp.user.qty} 股 (成本 ${exp.user.costStr})` 
     : '0 股 *(当前未持仓)*';
 
+  const strategyCount = stats.strategy || 0;
   const text = `### 📋 历史大V交易单回放校验【第 #${item.seq_no} 笔 / 共 ${stats.total} 笔】
-> **进度**: 已审 **${stats.processed}/${stats.total}** (${stats.progressPct}%) ｜ 确认正确: ${stats.confirmed} ｜ 已修正: ${stats.corrected}
+> **进度**: 已审 **${stats.processed}/${stats.total}** (${stats.progressPct}%) ｜ 正确: ${stats.confirmed} ｜ 修正: ${stats.corrected} ｜ 策略资产: ${strategyCount}
 
 **原始大V发言**:
 > 「*${item.raw_content}*」
@@ -420,11 +440,13 @@ export function buildReplayWeComMessage(item, stats, db = getDb()) {
 ---
 👉 **请对照原始发言对本单 (#${item.seq_no}) 进行确认**：
 1. **[✅ 确认 #${item.seq_no} ${item.parsed_ticker} 正确 (跳过交易)](${confirmSkipUrl})**  
-*(点击仅对本单 #${item.seq_no} 生效，处理后自动推送下一条)*
+*(判定为真实交易且要素正确，计入账本并推下一条)*
 2. **[✏️ 修正 #${item.seq_no} ${item.parsed_ticker} 错误 (在表单中修改)](${correctFormUrl})**  
-*(微信内打开表单，仅修改本单 #${item.seq_no} 的要素)*`;
+*(打开表单修改买卖方向、单价、股数或仓位后提交)*
+3. **[💡 判定 #${item.seq_no} 为策略预判 (转存为大V策略资产)](${rejectUrl})**  
+*(若发言仅为走势预判、条件单说明或观点讨论，点击转存为策略资产并不计入交易持仓)*`;
 
-  return { text, confirmSkipUrl, correctFormUrl };
+  return { text, confirmSkipUrl, correctFormUrl, rejectUrl };
 }
 
 /**
@@ -508,6 +530,97 @@ export async function handleReplayConfirmSkip(id, token, userid = 'human', db = 
   return {
     success: true,
     message: `已确认单据 #${row.seq_no} (${row.parsed_ticker}) 解析正确，正在推送下一条...`
+  };
+}
+
+/**
+ * 处理用户判定单据为「非即时交易 / 纯策略分析 / 条件单预判」 (REQ-033: 转存为大V策略资产)
+ */
+export async function handleReplayRejectNonTrade(id, token, reason = 'strategy_plan', userid = 'human', db = getDb()) {
+  initReplayTable(db);
+
+  const row = db.prepare("SELECT * FROM follow_replay_queue WHERE id = ?").get(id);
+  if (!row) {
+    return { success: false, code: 404, error: '单据不存在' };
+  }
+  if (!verifyReplayToken(row.id, row.parsed_ticker, row.parsed_action, token)) {
+    return { success: false, code: 400, error: 'Token 验签失败或已失效' };
+  }
+  if (row.status !== 'pending') {
+    return { success: false, code: 409, error: `该单据已处理 (状态: ${row.status})` };
+  }
+
+  const now = Date.now();
+
+  // 1. 转存为大V策略与条件单资产库 (永久保留，不浪费策略知识)
+  try {
+    db.prepare(`
+      INSERT OR REPLACE INTO strategy_assets 
+      (id, replay_id, message_id, ticker, raw_content, plan_type, trigger_condition, created_at, saved_at, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
+    `).run(
+      `strat_${row.id}`,
+      row.id,
+      row.message_id || '',
+      row.parsed_ticker || 'UNKNOWN',
+      row.raw_content,
+      'condition_strategy',
+      row.raw_content,
+      row.created_at,
+      now
+    );
+  } catch (err) {
+    console.error('[Strategy Assets] 转存策略资产异常:', err.message);
+  }
+
+  // 2. 沉淀一条到 trade_signals 底册 (标记为 strategy_plan，用于复盘和模型挖掘)
+  try {
+    db.prepare(`
+      INSERT OR REPLACE INTO trade_signals 
+      (signal_id, message_id, ticker, action, price, quantity, stop_loss, reason, parse_status, source, created_at)
+      VALUES (?, ?, ?, ?, ?, 0, ?, ?, 'strategy_plan', 'zhao_strategy', ?)
+    `).run(
+      `sig_strat_${row.id}`,
+      row.message_id || '',
+      row.parsed_ticker || 'UNKNOWN',
+      row.parsed_action || 'OBSERVE',
+      row.parsed_price || 0,
+      row.parsed_price || 0,
+      row.raw_content,
+      row.created_at
+    );
+  } catch (err) {
+    console.error('[Trade Signals] 写入策略流水异常:', err.message);
+  }
+
+  // 3. 更新回放队列状态为 classified_strategy
+  db.prepare(`
+    UPDATE follow_replay_queue
+    SET status = 'classified_strategy', reviewed_at = ?, corrected_json = ?
+    WHERE id = ?
+  `).run(now, JSON.stringify({ reject_reason: reason, asset_id: `strat_${row.id}`, operator: userid }), id);
+
+  // 4. 关联的候选池标记为 strategy
+  if (row.pool_id) {
+    try {
+      db.prepare(`
+        UPDATE trade_review_pool 
+        SET status = 'strategy', updated_at = ? 
+        WHERE id = ?
+      `).run(now, row.pool_id);
+    } catch (_) {}
+  }
+
+  // 5. 异步触发推送下一条 (若非测试模式)
+  if (process.env.NODE_ENV !== 'test') {
+    setImmediate(() => {
+      pushCurrentReplayCard(db).catch(err => console.error('[Follow Replay] 推进下一条异常:', err.message));
+    });
+  }
+
+  return {
+    success: true,
+    message: `已成功将单据 #${row.seq_no} (${row.parsed_ticker}) 转存为【大V策略计划资产】！不计入即时交易持仓，正在推送下一条...`
   };
 }
 
