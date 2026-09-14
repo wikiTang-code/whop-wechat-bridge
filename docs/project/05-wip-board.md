@@ -11,16 +11,15 @@
 |----|------|----------|-------|:----:|-----------|
 | REQ-014 | L0 | 文档树+协同框架入库 | `agent:cursor` | Done | `0dc31ea` |
 | CHG-005 | L0/L4 | 作废方案中「企微点 C2」旧表述 | `agent:cursor` | Done | local-ops 计划已改 |
-| REQ-018 | L4 | 企微冻结清单文档化 | `agent:cursor` | Doing | `wecom-freeze.md` |
+| REQ-018 | L4 | 企微冻结清单文档化 | `agent:cursor` | Done | `wecom-freeze.md` · `38662c4` |
 | REQ-015 | L0/L4 | 生产 C2 HITL Runbook | `agent:gemini` | Doing | 骨架：`runbooks/hitl-c2.md` |
 | REQ-016 | L0/L2 | 事故响应+回滚 Runbook | `agent:gemini` | Doing | 骨架：`runbooks/incident-rollback.md` |
-| REQ-001 | L4 | Push `6099c6d` | `human` | Todo | 需人授权；agent 可准备说明 |
-| REQ-002 | L4 | 生产 ff 对齐 | `human` | Todo | 依赖 REQ-001；判据见 REQ-019 |
+| REQ-001 | L4 | Push `6099c6d`（及后续 docs commits） | `human` | Todo | 本地 ahead 多 commits；需人授权 |
+| REQ-002 | L4 | 生产 ff 对齐 | `human` | Todo | 依赖 push；判据见 REQ-019 |
 | REQ-023 | L0 | 进度文档并发协议写入 06 | `agent:cursor` | Done | 见 06 §3 |
 | REQ-024 | L3/L0 | data/gex 提交硬规则 | `agent:cursor` | Done | 见 04 §1 / 06 §4 |
+| REQ-019 | L4 | 发布 go/no-go + 重启判据 | `agent:cursor` | Todo | 下一棒；与 gemini runbook 衔接 |
 | REQ-003 | L3 | 开盘 GEX 计划任务 | — | Todo | 可抢 |
-| REQ-018 | L4 | 企微冻结清单文档化 | `agent:cursor` | Doing | `wecom-freeze.md` |
-| REQ-019 | L4 | 发布 go/no-go + 重启判据 | — | Todo | 与 gemini runbook 衔接 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 
@@ -32,10 +31,10 @@
 
 - [x] 01/02/07 + README 草案
 - [x] 03 需求账本（含审阅合并编号）
-- [ ] 04/05/06 定稿
-- [ ] `project-progress.md` 跳转页
-- [ ] AGENTS + rule 指向 `docs/project/`
-- [ ] 独立 docs commit（无 GEX HTML）
+- [x] 04/05/06 定稿
+- [x] `project-progress.md` 跳转页
+- [x] AGENTS + rule 指向 `docs/project/`
+- [x] 独立 docs commit（无 GEX HTML）→ `0dc31ea`
 
 ### REQ-015（Gemini）建议大纲
 
