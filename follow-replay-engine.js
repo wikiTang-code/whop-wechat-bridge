@@ -327,6 +327,77 @@ export function getNextPendingReplayItem(db = getDb()) {
 }
 
 /**
+ * 提取指定标的的历史成交明细与在持批次 (REQ-033: 分批成本对账)
+ */
+export function getTickerLotsAndHistory(targetSeqNo, ticker, db = getDb()) {
+  const cleanTicker = (ticker || '').toUpperCase();
+  const rows = db.prepare(`
+    SELECT seq_no, parsed_ticker, parsed_action, parsed_price, parsed_qty, raw_content, fraction_desc, created_at, status
+    FROM follow_replay_queue
+    WHERE seq_no < ? AND parsed_ticker = ? AND status NOT IN ('rejected_non_trade', 'classified_strategy')
+    ORDER BY seq_no ASC
+  `).all(targetSeqNo, cleanTicker);
+
+  const lots = [];
+
+  for (const r of rows) {
+    if (r.parsed_action === 'BUY') {
+      lots.push({
+        seqNo: r.seq_no,
+        qty: r.parsed_qty,
+        origQty: r.parsed_qty,
+        price: r.parsed_price
+      });
+    } else if (r.parsed_action === 'SELL') {
+      let rem = r.parsed_qty;
+      // 提取针对特定价格的卖出 (如 "出98.7的")
+      const priceMatches = r.raw_content.match(/出.*?(\d+(\.\d+)?)/) || r.raw_content.match(/(\d+(\.\d+)?)的/);
+      let targetPrice = null;
+      if (priceMatches) {
+        targetPrice = parseFloat(priceMatches[1]);
+      }
+
+      if (targetPrice) {
+        for (const lot of lots) {
+          if (Math.abs(lot.price - targetPrice) < 0.5 && lot.qty > 0) {
+            const deduct = Math.min(lot.qty, rem);
+            lot.qty -= deduct;
+            rem -= deduct;
+            if (rem <= 0) break;
+          }
+        }
+      }
+
+      if (rem > 0) {
+        for (const lot of lots) {
+          if (lot.qty > 0) {
+            const deduct = Math.min(lot.qty, rem);
+            lot.qty -= deduct;
+            rem -= deduct;
+            if (rem <= 0) break;
+          }
+        }
+      }
+    }
+  }
+
+  const activeLots = lots.filter(l => l.qty > 0);
+  
+  // 近期历史明细 (取最近 4 笔)
+  const recentTrades = rows.slice(-4).map(r => {
+    const actIcon = r.parsed_action === 'BUY' ? '🟢买' : '🔴卖';
+    const cleanRaw = (r.raw_content || '').replace(/\n+/g, ' ').trim();
+    const shortRaw = cleanRaw.length > 25 ? cleanRaw.substring(0, 25) + '...' : cleanRaw;
+    return `    • #${r.seq_no} ${actIcon} ${r.parsed_qty}股 @ $${r.parsed_price.toFixed(2)} 「${shortRaw}」`;
+  });
+
+  return {
+    activeLots,
+    recentTrades
+  };
+}
+
+/**
  * 计算双账本的持股占比与全盘总仓位状态 (跟单参考核心依据)
  */
 export function calculateExposureStats(item, db = getDb()) {
@@ -337,6 +408,8 @@ export function calculateExposureStats(item, db = getDb()) {
   const zhaoBeforePct = item.zhao_before_pct != null ? Number(item.zhao_before_pct).toFixed(1) : '0.0';
   const zhaoAfterPct = item.zhao_after_pct != null ? Number(item.zhao_after_pct).toFixed(1) : '0.0';
   const zhaoTotalExposurePct = item.zhao_total_exp_pct != null ? Number(item.zhao_total_exp_pct).toFixed(1) : '0.0';
+
+  const lotInfo = getTickerLotsAndHistory(item.seq_no, item.parsed_ticker, db);
 
   let userCash = 100000;
   try {
@@ -366,6 +439,10 @@ export function calculateExposureStats(item, db = getDb()) {
   const userTotalExposurePct = userTotalEquity > 0 ? ((userTotalPosValue / userTotalEquity) * 100).toFixed(1) : '0.0';
   const userTargetExposurePct = userTotalEquity > 0 ? ((userTargetPosValue / userTotalEquity) * 100).toFixed(1) : '0.0';
 
+  const lotsStr = lotInfo.activeLots.length > 0
+    ? lotInfo.activeLots.map((l, idx) => `批次#${idx + 1} (#${l.seqNo}): ${l.qty}股 @ $${l.price.toFixed(2)}`).join(' ｜ ')
+    : '无历史在持 (从 0 开仓)';
+
   return {
     zhao: {
       beforeQ,
@@ -374,7 +451,10 @@ export function calculateExposureStats(item, db = getDb()) {
       afterCostStr: item.after_avg_cost > 0 ? `$${item.after_avg_cost.toFixed(2)}` : `$${item.parsed_price.toFixed(2)}`,
       beforePct: zhaoBeforePct,
       afterPct: zhaoAfterPct,
-      totalExposurePct: zhaoTotalExposurePct
+      totalExposurePct: zhaoTotalExposurePct,
+      activeLots: lotInfo.activeLots,
+      recentTrades: lotInfo.recentTrades,
+      lotsStr
     },
     user: {
       qty: userTargetQty,
@@ -413,6 +493,18 @@ export function buildReplayWeComMessage(item, stats, db = getDb()) {
     : '0 股 *(当前未持仓)*';
 
   const strategyCount = stats.strategy || 0;
+
+  // 格式化批次行与历史操作行
+  let lotsLines = '    - *暂无历史在持批次*';
+  if (exp.zhao.activeLots && exp.zhao.activeLots.length > 0) {
+    lotsLines = exp.zhao.activeLots.map((l, i) => `    - 批次#${i + 1} (#${l.seqNo}): \`${l.qty} 股\` @ \`$${l.price.toFixed(2)}\``).join('\n');
+  }
+
+  let historyLines = '';
+  if (exp.zhao.recentTrades && exp.zhao.recentTrades.length > 0) {
+    historyLines = `\n  - **近期操作明细 (历史对账)**:\n${exp.zhao.recentTrades.join('\n')}`;
+  }
+
   const text = `### 📋 历史大V交易单回放校验【第 #${item.seq_no} 笔 / 共 ${stats.total} 笔】
 > **进度**: 已审 **${stats.processed}/${stats.total}** (${stats.progressPct}%) ｜ 正确: ${stats.confirmed} ｜ 修正: ${stats.corrected} ｜ 策略资产: ${strategyCount}
 
@@ -432,6 +524,9 @@ export function buildReplayWeComMessage(item, stats, db = getDb()) {
 - **赵哥推演账本**:
   - **个股持仓**: \`${exp.zhao.beforeQ} 股\` (${exp.zhao.beforeCostStr}) ➔ \`${exp.zhao.afterQ} 股\` (${exp.zhao.afterCostStr})
   - **单票权重**: **${exp.zhao.beforePct}%** ➔ **${exp.zhao.afterPct}%** *(占总资产)*
+  - **当前持有批次明细**:
+${lotsLines}
+${historyLines}
   - **全盘总仓位**: 约 **${exp.zhao.totalExposurePct}%** *(持股占总资产)*
 - **个人模拟账户**:
   - **个股持仓**: \`${userStockDesc}\`

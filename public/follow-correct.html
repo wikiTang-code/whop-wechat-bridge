@@ -68,6 +68,14 @@
             <span style="color:var(--text-muted);">单票持股与权重 (占总资产):</span>
             <span id="zhaoPosText" style="font-weight:600; color:var(--text);">加载中...</span>
           </div>
+          <div style="margin-bottom:4px;">
+            <span style="color:var(--text-muted); display:block; font-size:0.8rem;">在持历史批次明细:</span>
+            <div id="zhaoLotsText" style="font-size:0.8rem; color:#2563eb; background:rgba(37,99,235,0.06); padding:4px 8px; border-radius:6px; margin-top:2px;">加载中...</div>
+          </div>
+          <div style="margin-bottom:4px;">
+            <span style="color:var(--text-muted); display:block; font-size:0.8rem;">近期历史操作明细 (历史对账):</span>
+            <div id="zhaoHistoryText" style="font-size:0.75rem; color:var(--text-muted); background:rgba(0,0,0,0.03); padding:4px 8px; border-radius:6px; margin-top:2px; line-height:1.4;">加载中...</div>
+          </div>
           <div style="display:flex; justify-content:space-between;">
             <span style="color:var(--text-muted);">全盘总仓位 (持股占总资产):</span>
             <span id="zhaoTotalExpText" style="font-weight:600; color:var(--text);">加载中...</span>
@@ -204,6 +212,13 @@
           const u = item.exposure.user;
           document.getElementById('zhaoPosText').innerText = `${z.beforeQ} 股 (${z.beforeCostStr}) ➔ ${z.afterQ} 股 (${z.afterCostStr}) [占总资产: ${z.beforePct}% ➔ ${z.afterPct}%]`;
           document.getElementById('zhaoTotalExpText').innerText = `约 ${z.totalExposurePct}% (持股占总资产)`;
+
+          document.getElementById('zhaoLotsText').innerText = z.lotsStr || '无历史在持批次';
+          if (z.recentTrades && z.recentTrades.length > 0) {
+            document.getElementById('zhaoHistoryText').innerHTML = z.recentTrades.map(t => `<div style="margin-bottom:2px;">${t.trim()}</div>`).join('');
+          } else {
+            document.getElementById('zhaoHistoryText').innerText = '此前暂无该标的历史交易记录';
+          }
 
           const uStockDesc = u.qty > 0 ? `${u.qty} 股 (成本 ${u.costStr}) [占总资产: ${u.targetPct}% / 市值 $${u.posVal}]` : '0 股 (当前未持仓)';
           document.getElementById('userPosText').innerText = uStockDesc;
