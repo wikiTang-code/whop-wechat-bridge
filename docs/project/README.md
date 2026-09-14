@@ -23,7 +23,8 @@ docs/project/                          ← 你在这里（总索引）
 ├── 04-leftovers-problems.md           ← 遗留 / 开放问题 / 风险 / 已知债
 ├── 05-wip-board.md                    ← 谁在做、做到哪（WIP 看板）
 ├── 06-process.md                      ← 开发流程框架 + 文档维护 SOP
-└── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
+├── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
+└── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（proposed）
 
 专题权威方案（不重复当总进度，只被引用）：
 docs/local-ops-mcp-skill-plan.md       ← Local-Ops / 企微 / MCP
@@ -64,9 +65,9 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 **三层能力面**：① 业务守护流水线 ② 本机 Local-Ops catalog ③ 企微极窄 `/ops`（C0 + `gex.collect`）。详见 [`01`](./01-background-vision.md) / [`02`](./02-current-state.md)。
 
 **当前最高优先**：见 [`05-wip-board.md`](./05-wip-board.md)  
-- `human`：REQ-002 生产 ff  
-- 可抢：REQ-003（GEX 开盘任务）/ REQ-004 / REQ-021（L1 跟单沙盒表）等  
-- 已收官本轮：CHG-006、REQ-015～020（HITL/回滚/密钥/审计）  
+- `human`：REQ-002 生产 ff；**拍板** [`follow-hitl-plan.md`](./follow-hitl-plan.md)（Q-005 企微卡片 vs Dashboard）  
+- 可抢：REQ-003 / REQ-004；L1 方案未 accepted 前勿开工 REQ-027～029  
+- 已收官本轮：CHG-006/008、REQ-015～020  
 
 **审阅建议编号**：已合并进 [`03`](./03-requirements.md)（REQ-015～025）。
 

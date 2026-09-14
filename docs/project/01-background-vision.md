@@ -41,7 +41,8 @@
 4. **主库治理**（`REQ-008`）：FTS/归档，控制 SQLite 体积。  
 5. **NL 只读 Copilot**（`REQ-007`）：仅无 `/` 的闲聊走模型调 C0；`/ops` 仍秒级直达。  
 6. **远期业务**：uSMART、Python 回测（`REQ-009`/`REQ-010`）。  
-7. **更完整的事故手册**：回滚判据、密钥轮换、企微 IP 变更（见遗留 [`04`](./04-leftovers-problems.md)）。
+7. **L1 跟单 HITL + 三账本 + Paper 状态机**（`REQ-027`～`029`）——方案见 [`follow-hitl-plan.md`](./follow-hitl-plan.md)；对齐既有 `follow_execution_spec.md`。  
+8. **更完整的事故手册**：回滚判据、密钥轮换、企微 IP 变更（见遗留 [`04`](./04-leftovers-problems.md)）。
 
 ---
 

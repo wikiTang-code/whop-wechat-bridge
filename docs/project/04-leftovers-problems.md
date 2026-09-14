@@ -33,6 +33,7 @@
 | DEBT-003 | latest→GCP 同步通道未定 | REQ-004/022 | P1 |
 | DEBT-004 | P5/P6/P2-16 未开工 | REQ-005/006/008 | P2 |
 | DEBT-009 | L1 跟单无可验收沙盒表 | REQ-021 | P2 |
+| DEBT-011 | 实时跟单无 HITL；赵哥仓与个人仓数据缠绕；规格未接线 | REQ-027～029 · [`follow-hitl-plan.md`](./follow-hitl-plan.md) | P1 |
 
 ### 2.1 已闭环（勿再当开放债）
 
@@ -55,6 +56,7 @@
 | Q-002 | 漏重启用何信号发现？ | human+L4 | open |
 | Q-003 | 每次拉链是否 commit `latest.json`？ | — | **已决：否；仅里程碑**（§1.1） |
 | Q-004 | P5 是否加 CI `place_order` grep？ | L5 | open（建议做） |
+| Q-005 | 跟单确认通道：企微业务卡片（默认）vs Dashboard 移动页？ | human | open（方案默认企微；见 follow-hitl-plan §7） |
 
 ---
 
@@ -67,4 +69,4 @@
 | Agent 纸面 HITL | REJ-007 + REQ-015/020 + CHG-006 | **已缓解**（runbook+清单） |
 | 多 Agent 改总控撞车 | 05/07 拆分 + REQ-023 | 部分缓解 |
 | GEX HTML / 盘中 json 刷爆历史 | REQ-024 + 里程碑策略 | 已拍板 |
-| 旧方案重开企微 C2 | CHG-005 | **已缓解** |
+| 赵哥仓/跟单仓数据缠绕 + 无盘中确认 | REQ-027～029 + follow-hitl-plan | open |
