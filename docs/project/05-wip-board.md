@@ -23,8 +23,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-029** | L1/L4 | **移动端跟单确认卡片**（回调/超时/风控） | `server.js` (HITL 回调) · 企微消息模板 | **Doing** |
-| 2 | REQ-021 | L1 | 沙盒/实盘检查表（Phase D） | `docs/project/runbooks/**` | 候选就绪 |
+| **1** | **REQ-021** | L1 | **L1 跟单沙盒/实盘检查表+门禁**（Phase D 收口） | `docs/project/runbooks/**` | **Doing** |
+| 2 | REQ-008 | L2 | P2-16 主库增长治理（~867MB） | SQLite WAL / 清理脚本 | 候选就绪 |
 
 ### 0.H Human 槽（非 Agent 队列）
 
@@ -41,19 +41,19 @@
 | 作者 Agent | 累计 Done（未移交） | 阈值阈值 | 最近专题包 | 下一触发预估 |
 |------------|:------------------:|:--------:|------------|--------------|
 | `agent:cursor` | 0 | 5 | — | 满 5 |
-| `agent:gemini` | 2（REQ-027, REQ-028） | 5 | follow-HITL Phase A+B | 专题切片移交 §0.R-A |
+| `agent:gemini` | 3（REQ-027, REQ-028, REQ-029） | 5 | follow-HITL Phase A～C | 专题切片移交 §0.R-A |
 
 #### §0.R-A · `agent:cursor` 审修队列（审 Gemini 产物）
 
 | 批次 | 来源包 / IDs | 状态 | 备注 |
 |------|--------------|:----:|------|
-| F-027-028 | `REQ-027`, `REQ-028`（三账本隔离 + Paper 状态机闭环） | `Queued` | 专题切片闭环移交；审修不抢 `server.js` 回调热点 |
+| F-027-029 | `REQ-027`, `REQ-028`, `REQ-029` + `CHG-009`（跟单账本+状态机+移动端卡片） | `Queued` | 专题切片闭环移交；审修不抢主链路热点 |
 
 #### §0.R-B · `agent:gemini` 审修队列（审 Cursor 产物）
 
 | 批次 | 来源包 / IDs | 状态 | 备注 |
 |------|--------------|:----:|------|
-| — | （空） | — | — |
+| — | （空） | — | 等待 Cursor REQ-003 完成后移交 |
 
 ### 共享候选池（按序待入队 · 入队前校验互斥）
 
@@ -91,8 +91,9 @@
 | REQ-003 | L3 | 开盘 GEX 计划任务 | `agent:cursor` | Doing | 队列 0.A · install_open_session_task.ps1 |
 | REQ-027 | L1 | 三账本隔离+看板分源 | `agent:gemini` | Done | `9d06fef` · 入 §0.R-A Queued |
 | REQ-028 | L1 | Paper TTL/滑点状态机 | `agent:gemini` | Done | 五大状态机闭环落库，实盘安全红线阻断 |
-| REQ-029 | L1/L4 | 移动端跟单确认卡片 | `agent:gemini` | Doing | 队列 0.B · 移动端交互卡片与回调 |
-| CHG-009 | L4 | 企微业务跟单 HITL 回调 | `agent:gemini` | Doing | 随 REQ-029 · != /ops |
+| REQ-029 | L1/L4 | 移动端跟单确认卡片 | `agent:gemini` | Done | `follow-hitl.js` + `/api/follow/hitl-callback` 独立通道 |
+| CHG-009 | L4 | 企微业务跟单 HITL 回调 | `agent:gemini` | Done | 独立于 /ops；单测 test_follow_hitl_req029.js |
+| REQ-021 | L1 | L1 跟单沙盒/实盘检查表+门禁 | `agent:gemini` | Doing | 队列 0.B · Phase D 门禁 Runbook |
 | REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | `agent:gemini` | Done | monitor.js · CHG-010 |
 | CHG-010 | L1 | 发言推送与交易推送解耦 | `agent:gemini` | Done | 随 REQ-030 |
 
@@ -171,5 +172,7 @@
 
 - §0.A=`agent:cursor`：**REQ-003** Doing（GEX 开盘任务）。
 - §0.B=`agent:gemini`：**REQ-028** Doing（Paper 状态机；Human 已确认）。
-- §0.R-A：批次 F-027（REQ-027）Queued，待 cursor 审修。
+- §0.R-A：批次 F-027-028 Queued，待 cursor 审修（不抢 server.js）。
 - Human：REQ-002 生产 ff。
+
+- CHG-013：每次同步文档树必须重读并镜像最新 §0 队列。

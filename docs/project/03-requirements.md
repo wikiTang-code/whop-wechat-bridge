@@ -49,7 +49,7 @@
 | REQ-026 | P0 | L0 | `done` | 多端统一 Agent 治理：`AGENTS.md` 精炼版 + `CLAUDE.md` 指针 + `.cursor/rules/agent-governance.mdc` | 2026-09-14 |
 | REQ-027 | P1 | L1 | `done` | **三账本隔离**：赵哥 signal ≠ 跟单 decision ≠ fill；看板分源 | Owner=`agent:gemini`；`zhao_positions`/`follow_decisions` 物理隔离，`recalculate_ledger` 保护跟单仓 |
 | REQ-028 | P1 | L1 | `done` | **落地 Paper 状态机**（TTL/滑点）；停解析后直连实盘 | 对齐 `follow_execution_spec.md`；五大状态机闭环落库，实盘安全红线阻断 |
-| REQ-029 | P1 | L1/L4 | `accepted` | **移动端跟单确认卡片**（执行/放弃/解析错误）+ 90s 超时 | 依赖 CHG-009；非 `/ops` |
+| REQ-029 | P1 | L1/L4 | `in_progress` | **移动端跟单确认卡片**（执行/放弃/解析错误）+ 90s 超时 | 队列 0.B · Owner=`agent:gemini` · 热点 `server.js`；依赖 CHG-009 |
 | REQ-030 | P1 | L1 | `done` | **大V即时推送实事求是**：剥离「已同步处理量化跟单」硬编码；发言通知与交易通知正交 | 热点 `monitor.js`；Owner=`agent:gemini` |
 
 | ID | 状态 | 摘要 |
@@ -66,6 +66,7 @@
 | CHG-010 | `done` | **Before**：即时推送硬编码「已同步处理量化跟单」· **After**：大V发言卡仅事实字段；交易由 `trading.js` 独立推送 | 落地 REQ-030 · `monitor.js` |
 | CHG-011 | `done` | **双 Agent 高优队列**：05 §0.A/`cursor` + §0.B/`gemini` 互斥；共享候选池；README 镜像；06 §1.1 SOP | 2026-09-14 `agent:cursor` |
 | CHG-012 | `done` | **交叉 Review+修复队列**：累计 Done≥5 或专题包关闭 → 移交对方 §0.R；07 收意见；06 §1.2 | 2026-09-14 `agent:cursor` |
+| CHG-013 | `done` | **每次同步文档树必须重读并镜像最新 §0 队列**（禁会话记忆排班；README↔05 同提交一致） | 2026-09-14 `agent:cursor` · AGENTS/06/rules |
 
 ---
 

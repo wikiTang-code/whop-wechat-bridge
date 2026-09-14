@@ -9,10 +9,11 @@ alwaysApply: true
 
 ## 开工前
 
-1. 读 `docs/project/README.md` 一页总览（含双队列镜像）。  
-2. 查 [`03-requirements.md`](docs/project/03-requirements.md) 与 [`05-wip-board.md`](docs/project/05-wip-board.md) **§0 本 Agent 队列**。  
-3. 认领：仅写入 **本队列**（§0.A cursor / §0.B gemini）；校验与另一队列 **REQ+热点互斥**；主看板 Owner=`agent:<slug>` · `Doing`；03 → `in_progress`。  
-4. 勿抢同一热点路径（见 [`06-process.md`](docs/project/06-process.md)）。
+1. `git pull`（或确认已与 `origin` 对齐）。  
+2. **重读** `docs/project/README.md` 队列镜像 + [`05-wip-board.md`](docs/project/05-wip-board.md) **§0 全文**（0.A/0.B/0.H/0.R）——**禁止**沿用会话记忆中的旧排班（`CHG-013`）。  
+3. 查 [`03-requirements.md`](docs/project/03-requirements.md)。  
+4. 认领：仅写入 **本队列**（§0.A cursor / §0.B gemini）；校验与另一队列 **REQ+热点互斥**；主看板 Owner=`agent:<slug>` · `Doing`；03 → `in_progress`。  
+5. 同一提交内保持 `README` ↔ §0 镜像一致。
 
 ## 需求与变更
 

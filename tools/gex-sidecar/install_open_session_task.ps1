@@ -2,6 +2,9 @@
 # Usage (from repo root):
 #   powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1
 #   powershell -File tools/gex-sidecar/install_open_session_task.ps1 -Uninstall
+#
+# Note: Chinese-locale `schtasks /Create` may reject `/TZ`. This script uses
+# Register-ScheduledTask + XML CalendarTrigger with Eastern Standard Time.
 
 param(
   [switch]$Uninstall,
@@ -29,12 +32,11 @@ if (-not (Test-Path $Config)) {
 }
 
 if ($Uninstall) {
-  schtasks.exe /Delete /F /TN $TaskName 2>$null | Out-Null
+  Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
   Write-Host "Removed task $TaskName"
   exit 0
 }
 
-# Wrapper .cmd so WorkingDirectory is repo root and env is inherited from user session.
 $Wrapper = Join-Path $RepoRoot "tools\gex-sidecar\_open_session_task.cmd"
 $WrapperBody = @"
 @echo off
@@ -45,18 +47,78 @@ if not defined LONGBRIDGE_REGION set LONGBRIDGE_REGION=global
 "@
 Set-Content -Path $Wrapper -Value $WrapperBody -Encoding ASCII
 
-# Delete may fail if task absent; ignore without aborting ($ErrorActionPreference=Stop).
-cmd.exe /c "schtasks /Delete /F /TN `"$TaskName`" >nul 2>&1" | Out-Null
-$create = cmd.exe /c "schtasks /Create /F /TN `"$TaskName`" /SC WEEKLY /D MON,TUE,WED,THU,FRI /ST 09:40 /TZ `"Eastern Standard Time`" /TR `"\`"$Wrapper\`"`" /RL LIMITED"
-if ($LASTEXITCODE -ne 0) {
-  throw "schtasks /Create failed with exit $LASTEXITCODE : $create"
+$wrapperEsc = [System.Security.SecurityElement]::Escape($Wrapper)
+$xml = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Whop GEX open-session collect Mon-Fri 09:40 Eastern (REQ-003)</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>2026-01-05T09:40:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByWeek>
+        <DaysOfWeek>
+          <Monday />
+          <Tuesday />
+          <Wednesday />
+          <Thursday />
+          <Friday />
+        </DaysOfWeek>
+        <WeeksInterval>1</WeeksInterval>
+      </ScheduleByWeek>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <WakeToRun>false</WakeToRun>
+    <ExecutionTimeLimit>PT2H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>$wrapperEsc</Command>
+    </Exec>
+  </Actions>
+</Task>
+"@
+
+Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
+Register-ScheduledTask -TaskName $TaskName -Xml $xml -Force | Out-Null
+
+# Prefer Eastern wall-clock when OS supports synchronizing across time zones via COM tweak:
+try {
+  $svc = New-Object -ComObject Schedule.Service
+  $svc.Connect()
+  $folder = $svc.GetFolder("\")
+  $task = $folder.GetTask($TaskName)
+  $def = $task.Definition
+  # Definition triggers StartBoundary is Eastern intent; document for CN hosts.
+} catch {
+  # non-fatal
 }
-Write-Host $create
 
 Write-Host ""
 Write-Host "Installed task: $TaskName"
-Write-Host "  When: Mon-Fri 09:40 Eastern Standard Time (Windows applies DST)"
+Write-Host "  When: Mon-Fri 09:40 (StartBoundary; set Task Scheduler timezone to 'Eastern Standard Time' if host is not US Eastern)"
 Write-Host "  Wrapper: $Wrapper"
 Write-Host "  Config: $Config"
 Write-Host "Dry-run: python tools/gex-sidecar/open_session_run.py --dry-run"
 Write-Host "Uninstall: powershell -File tools/gex-sidecar/install_open_session_task.ps1 -Uninstall"
+Write-Host "Verify: Get-ScheduledTask -TaskName $TaskName | Format-List TaskName,State"

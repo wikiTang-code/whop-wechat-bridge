@@ -49,14 +49,15 @@
 
 | 时机 | 动作 |
 |------|------|
-| 开工 | 读 `docs/project/05-wip-board.md` §0 **本 Agent 队列**；认领 Owner；互斥热点见 `06-process.md` |
+| 开工 | `git pull` 后重读 `05` **§0 全文**与 `README` 队列镜像；只认领**本 Agent 队列**；互斥见 `06` |
 | 新需求/变更 | 先写 `03-requirements.md` |
 | 审阅结论 | 写 `07-review-inbox.md`，落地必须进 `03` |
-| 收工 | 更新 `05`（本队列出队）；完成则 `03=done`；必要时刷新 `02`/`04`/`README` 快照；**主动接续**本队列下一项（问 Human） |
+| 收工 | 更新 `05`（本队列出队）并**同步刷新 README 队列表**；03=`done`；接续前再次重读 §0 |
 
-**落地后 Git（长期默认，勿等用户再催）**：REQ/CHG 代码或文档落地且自检通过后，Agent **自动**（1）回写 `docs/project/`（2）独立 commit（带 REQ/CHG 号；禁夹带 `.env` / GEX HTML / `scratch`）（3）`git push origin HEAD`。生产 ff / C2 仍须 human（REQ-002 / HITL）。
+**落地后 Git（长期默认，勿等用户再催）**：REQ/CHG 代码或文档落地且自检通过后，Agent **自动**（1）回写 `docs/project/`（含最新队列镜像）（2）独立 commit（带 REQ/CHG 号；禁夹带 `.env` / GEX HTML / `scratch`）（3）`git push origin HEAD`。生产 ff / C2 仍须 human（REQ-002 / HITL）。
 
 **双队列**：§0.A=`agent:cursor` · §0.B=`agent:gemini`；同一 REQ/热点互斥（`CHG-011`）。  
-**交叉审修**：出队满阈值或专题包关闭 → 对方 §0.R（`CHG-012`）；结论进 07，修复进 03。
+**交叉审修**：出队满阈值或专题包关闭 → 对方 §0.R（`CHG-012`）；结论进 07，修复进 03。  
+**每次同步必感知队列**：禁止凭记忆排班（`CHG-013`）。
 
 详细流程与冻结清单：`docs/project/06-process.md` · `docs/project/wecom-freeze.md`

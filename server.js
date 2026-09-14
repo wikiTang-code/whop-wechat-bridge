@@ -61,9 +61,9 @@ import { seed2026MacroEvents } from './market-data.js';
 import { rebuildHistoricalCampaigns } from './campaign-engine.js';
 import { startEventLoopProbe } from './monitoring/event-loop-probe.js';
 import { buildHealthPayload } from './monitoring/health.js';
-import { startAiTunnelCircuit } from './monitoring/ai-tunnel-circuit.js';
 import { startSupervisor } from './monitoring/supervisor.js';
 import { createGexReadonlyRouter } from './monitoring/gex-readonly.js';
+import { handleFollowHitlCallback, generateFollowCardPayload } from './follow-hitl.js';
 
 dotenv.config();
 
@@ -1523,6 +1523,53 @@ app.get('/api/follow-decisions', async (req, res) => {
     res.json({ success: true, data: decisions });
   } catch (err) {
     console.error('[Follow Decisions API] 获取失败:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/follow/hitl-callback - 移动端跟单卡片确认回调（REQ-029 / CHG-009 业务跟单 HITL 独立通道）
+app.post('/api/follow/hitl-callback', async (req, res) => {
+  try {
+    const { decision_id, action, userid, token } = req.body || {};
+    if (!decision_id || !action || !token) {
+      return res.status(400).json({ success: false, error: '缺少 decision_id, action 或 token 参数' });
+    }
+
+    const result = await handleFollowHitlCallback({
+      decision_id,
+      action,
+      userid: userid || req.headers['x-wecom-userid'] || 'system_operator',
+      token
+    });
+
+    if (!result.success) {
+      return res.status(result.code || 400).json(result);
+    }
+
+    res.json(result);
+  } catch (err) {
+    console.error('[Follow HITL Callback Error]:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/follow/pending-cards - 获取待确认跟单卡片列表（有效期 90s 内）
+app.get('/api/follow/pending-cards', async (req, res) => {
+  try {
+    const db = getDb();
+    const now = Date.now();
+    const threshold = now - 90 * 1000;
+    const rows = db.prepare(`
+      SELECT * FROM follow_decisions
+      WHERE account_type = 'real' AND decision_state IN ('WAIT_MANUAL_CONFIRM', 'FIRE', 'SIZE_DOWN')
+        AND created_at >= ?
+      ORDER BY created_at DESC
+    `).all(threshold);
+
+    const cards = rows.map(r => generateFollowCardPayload(r));
+    res.json({ success: true, data: cards });
+  } catch (err) {
+    console.error('[Pending Cards Error]:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });

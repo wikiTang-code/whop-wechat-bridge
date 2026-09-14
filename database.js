@@ -1056,6 +1056,14 @@ export function saveFollowDecision(decision, dbInstance = null) {
   `).run({
     action_id: decision.action_id || decision.signal_id || decision.decision_id || 'act_default',
     cu_id: decision.cu_id || 'cu_system',
+    signal_id: decision.signal_id || decision.action_id || null,
+    message_id: decision.message_id || null,
+    call_price: decision.call_price != null ? decision.call_price : null,
+    arrival_price: decision.arrival_price != null ? decision.arrival_price : null,
+    slip_bps: decision.slip_bps != null ? decision.slip_bps : null,
+    ttl_remaining_sec: decision.ttl_remaining_sec != null ? decision.ttl_remaining_sec : null,
+    executed_qty: decision.executed_qty != null ? decision.executed_qty : 0,
+    reason: decision.reason || null,
     ...decision,
     created_at: decision.created_at || Date.now(),
     updated_at: decision.updated_at || Date.now()

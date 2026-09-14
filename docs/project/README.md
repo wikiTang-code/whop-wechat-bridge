@@ -6,7 +6,7 @@
 | 字段 | 值 |
 |------|-----|
 | 最后审阅 | 2026-09-14 |
-| 审阅基准 HEAD | CHG-008 文档树刷新（含 CHG-006 / REQ-015～020）；以 `git log -1` 为准 |
+| 审阅基准 HEAD | 以 `git log -1` 为准；**每次同步必重读 §0 队列**（`CHG-013`） |
 | Agent 治理真相源 | 根目录 [`AGENTS.md`](../../AGENTS.md)（Claude→`CLAUDE.md` 指针；Cursor→`.cursor/rules/agent-governance.mdc`） |
 | 权威方案 | [`../local-ops-mcp-skill-plan.md`](../local-ops-mcp-skill-plan.md) · [`../system-hardening-and-monitoring-plan.md`](../system-hardening-and-monitoring-plan.md) · [`../gex-sidecar.md`](../gex-sidecar.md) |
 
@@ -69,11 +69,11 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **REQ-003** 开盘 GEX 计划任务 | Doing |
-| **§0.B `agent:gemini`** | **REQ-029** 移动端跟单确认卡片与回调 | Doing |
+| **§0.B `agent:gemini`** | **REQ-021** L1 跟单沙盒/实盘检查表+门禁 | Doing |
 | **§0.H `human`** | REQ-002 生产 ff | 等待 |
-| **§0.R-A** | 批次 F-027-028（REQ-027/028） | Queued（cursor 审 Gemini） |
+| **§0.R-A** | 批次 F-027-029（REQ-027/028/029） | Queued（cursor 审 Gemini） |
 
-共享候选：`REQ-021`（沙盒检查表 Phase D）· `REQ-008`（主库治理）；近期已完成：`REQ-027`、`REQ-028`。  
+共享候选：`REQ-008`（主库治理）· `REQ-022`；近期已完成：`REQ-027`、`REQ-028`、`REQ-029`。  
 **交叉审修**：累计出队 ≥5 或专题包关闭 → 对方 §0.R（`CHG-012` / 06 §1.2）。
 
 **审阅建议编号**：已合并进 [`03`](./03-requirements.md)（REQ-015～025）。
