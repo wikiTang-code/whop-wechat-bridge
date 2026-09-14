@@ -7,67 +7,41 @@
 
 ## 0. 处理中高优队列（双 Agent · Priority In-Flight）
 
-> **机制**：每个 Agent **独立一条**高优队列（容量各 1～2 项）；两队列 **Task 互斥**（同一 `REQ`/`CHG` 不得同时出现在两条队列；同一热点路径同时仅一个 Owner=`Doing`，见 06 §2）。  
-> **文档树感知**：本页 §0 为唯一真相；`README` 必须镜像。  
-> **主动接续**：本队列 Done 出队 → 共享候选池 → 互斥校验 → **问 Human** → 入队 `Doing`。  
-> **交叉审修**：累计出队≥5 或专题包关闭 → 对方 §0.R（`CHG-012`）。
+> 人令跑完后自主接续（`CHG-014`）。每次同步重读本页（`CHG-013`）。
 
 ### 0.A 队列 `agent:cursor`
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-003** | L3 | **挂载开盘前 GEX 计划任务** | `tools/gex-sidecar/**` · Task Scheduler（**不碰** L1） | **Doing** |
-| 2 | — | — | （空位） | — | — |
+| **1** | — | — | （空；本波 003/022/031/032/审修已闭环） | — | — |
+| 2 | — | — | — | — | — |
 
 ### 0.B 队列 `agent:gemini`
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-005** | L5 | **P5 券商只读 MCP**（无下单/只读资产持仓/CI grep门禁） | `tools/broker-mcp/**` | **候选就绪（待问 Human 入队）** |
-| 2 | REQ-006 | L6 | P6 本机运维页 `:18789`（仅 localhost） | `tools/dashboard/**` | 候补 |
+| **1** | **PKG-CURSOR-WAVE** | L0/L1/L3 | 审修 cursor 本波：003/022/031/032 + zhao fallback 修复 | 只读审 + 07；勿与空闲冲突 | **Queued**（§0.R-B） |
+| 2 | — | — | 或接续 `REQ-005`/`REQ-006`（互斥校验后） | — | 候选 |
 
-### 0.H Human 槽（非 Agent 队列）
+### 0.H Human
 
 | ID | 任务 | 状态 |
 |----|------|:----:|
-| REQ-002 | 生产 GCP-VM ff 对齐 | 等待 Human |
+| REQ-002 | 生产 ff | 等待 |
+| Q-001 | GEX→GCP 通道选型 | open（安全专节已有） |
 
-### 0.R 交叉 Review+修复队列（Peer Review / Fix）
+### 0.R
 
-> **触发**：累计 Done≥5 或专题包关闭。意见进 07；修复进 03。
+| 审修方 | 批次 | 状态 |
+|--------|------|:----:|
+| §0.R-A cursor | PKG-FOLLOW-FULL | **Done** |
+| §0.R-B gemini | PKG-CURSOR-WAVE（003/022/031/032） | **Queued** |
 
-#### 移交计数（自上次交叉 Review 起）
+### 共享候选池
 
-| 作者 Agent | 累计 Done（未移交） | 阈值阈值 | 最近专题包 | 下一触发预估 |
-|------------|:------------------:|:--------:|------------|--------------|
-| `agent:cursor` | 0 | 5 | — | 满 5 |
-| `agent:gemini` | 2（REQ-008, REQ-022） | 5 | **follow-HITL 全组关闭** (Phase A～D) | 累计还差 3 个或下个专题包 |
-
-#### §0.R-A · `agent:cursor` 审修队列（审 Gemini 产物）
-
-| 批次 | 来源包 / IDs | 状态 | 备注 |
-|------|--------------|:----:|------|
-| **PKG-FOLLOW-FULL** | `REQ-027`, `REQ-028`, `REQ-029`, `REQ-021` + `CHG-009`（跟单三账本+状态机+移动端卡片+门禁） | `Queued` | **专题包整组闭环移交**；审修重点：账本隔离、滑点边界、90s 超时防重放 |
-
-#### §0.R-B · `agent:gemini` 审修队列（审 Cursor 产物）
-
-| 批次 | 来源包 / IDs | 状态 | 备注 |
-|------|--------------|:----:|------|
-| — | （空） | — | 等待 Cursor REQ-003 完成后移交 |
-
-### 共享候选池（按序待入队 · 入队前校验互斥）
-
-1. `REQ-021`（L1）：沙盒/实盘检查表（Phase D）— 勿与 §0.B 的 `server.js` 冲突  
-2. `REQ-008`（L2）：P2-16 主库治理  
-3. （已出队）`REQ-027`/`REQ-028` Done · Gemini · §0.R-A 批次 F-027-028 Queued  
-4. （开发中）`REQ-029`+`CHG-009` · Gemini · §0.B  
-5. （已出队）`REQ-030`/`CHG-010` Done · Gemini  
-
-**互斥检查清单（入队强制）**
-
-- [ ] 该 ID 不在另一 Agent 开发队列  
-- [ ] 热点路径与另一队列 Doing 项无交集  
-- [ ] 依赖项已 Done 或 Human 允许并行切片
+1. `REQ-005` P5 券商只读 · `REQ-006` P6 运维页  
+2. `REQ-004` 同步通道实现（待 Q-001）  
+3. （已出队本波）003 · 008 · 021 · 022 · 027～032 · CHG-009
 
 ## 1. 主看板
 
@@ -88,15 +62,17 @@
 | CHG-008 | L0 | 收工自动 commit+push+文档树 | `agent:cursor` | Done | AGENTS.md §6 |
 | REQ-001 | L4 | Push 本地 commits → origin | `agent:cursor` | Done | `de872b0..1352705` |
 | REQ-002 | L4 | 生产 ff 对齐 | `human` | Todo | 依赖 push；判据见 REQ-019 |
-| REQ-003 | L3 | 开盘 GEX 计划任务 | `agent:cursor` | Doing | 队列 0.A · install_open_session_task.ps1 |
+| REQ-003 | L3 | 开盘 GEX 计划任务 | `agent:cursor` | Done | WhopGexOpenSession0940ET Ready |
 | REQ-027 | L1 | 三账本隔离+看板分源 | `agent:gemini` | Done | `9d06fef` · 入 §0.R-A Queued |
 | REQ-028 | L1 | Paper TTL/滑点状态机 | `agent:gemini` | Done | 五大状态机闭环落库，实盘安全红线阻断 |
-| REQ-029 | L1/L4 | 移动端跟单确认卡片 | `agent:gemini` | Done | `follow-hitl.js` + `/api/follow/hitl-callback` 独立通道 |
-| CHG-009 | L4 | 企微业务跟单 HITL 回调 | `agent:gemini` | Done | 独立于 /ops；单测 test_follow_hitl_req029.js |
+| REQ-029 | L1/L4 | 移动端跟单确认卡片 | `agent:gemini` | Done | follow-hitl.js |
+| CHG-009 | L4 | 企微业务跟单 HITL 回调 | `agent:gemini` | Done | 随 REQ-029；wecom-freeze 专节 |
 | REQ-021 | L1 | L1 跟单沙盒/实盘检查表+门禁 | `agent:gemini` | Done | `runbooks/follow-sandbox-to-live-gate.md` · 专题包关闭 |
 | REQ-008 | L2 | P2-16 主库增长治理（~867MB） | `agent:gemini` | Done | `db-maintenance.js` · 保留策略与清理脚本 |
 | REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | `agent:gemini` | Done | monitor.js · CHG-010 |
-| REQ-022 | L3 | REQ-004 GEX→GCP 只读同步安全专节 | `agent:gemini` | Done | `gex-sync-validator.js` · `runbooks/gex-gcp-sync-security.md` |
+| REQ-031 | L1 | 解析即写 signal 流水 | `agent:cursor` | Done | trade_signals · test_trade_signals_req031 |
+| REQ-032 | L1 | arrivalPrice 真实盘口 | `agent:cursor` | Done | fetchTickerKlineData |
+| REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 
@@ -169,11 +145,10 @@
 - Gemini：REQ-016 runbook；Cursor：CHG-006（06 §6）已落地
 
 
-## 6. 会话交接（2026-09-14 双队列校正）
 
-- §0.A=`agent:cursor`：**REQ-003** Doing（GEX 开盘任务）。
-- §0.B=`agent:gemini`：**REQ-028** Doing（Paper 状态机；Human 已确认）。
-- §0.R-A：批次 F-027-028 Queued，待 cursor 审修（不抢 server.js）。
-- Human：REQ-002 生产 ff。
 
-- CHG-013：每次同步文档树必须重读并镜像最新 §0 队列。
+## 6. 会话交接（自主跑队续）
+
+- cursor 本波已闭环：REQ-003/022/031/032 + PKG-FOLLOW 审修；§0.A 空。
+- gemini：§0.R-B 批次 PKG-CURSOR-WAVE Queued；开发队列可拉 REQ-005/006。
+- Human：REQ-002 / Q-001。

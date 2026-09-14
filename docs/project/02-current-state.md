@@ -51,7 +51,7 @@
 | OpenD 采集 | ✅ | **最新快照 `2026-09-14T18:49:27`**；futu-opend；**SPY 102/102**（同批 QQQ/SPX + matrix TSLA） |
 | `/api/gex/latest` | ✅ | PR #12；无 ladder |
 | UI 摘要 + 规则引擎 | ✅ | King/Floor/Regime |
-| 开盘计划任务脚本 | ✅ 在仓 | **任务是否已挂载：见遗留 DEBT-002** |
+| 开盘计划任务脚本 | ✅ | **已挂载** `WhopGexOpenSession0940ET`（美东09:40→本地墙钟；DST 后重装） |
 | Git 中的 json | 📌 | 仅里程碑提交（Q-003）；盘中勿例行 commit |
 | 铁律 | 🔒 | 不在 GCP 拉链；不用于自动下单 |
 

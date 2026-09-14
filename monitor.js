@@ -4,9 +4,10 @@ import path from 'path';
 import http from 'http';
 import https from 'https';
 import crypto from 'crypto';
-import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions, getLatestPersonaPlaybook, updateMessageAttachments } from './database.js';
+import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions, getLatestPersonaPlaybook, updateMessageAttachments, saveTradeSignal } from './database.js';
+
 import { executeOrder, getUnifiedPortfolio, processFollowDecision } from './trading.js';
-import { getMarketContextForTickers } from './kline.js';
+import { getMarketContextForTickers, fetchTickerKlineData } from './kline.js';
 import { runWithRateLimit } from './rate-limiter.js';
 import { processMessageForCampaigns, checkAndCloseStaleCampaigns } from './campaign-engine.js';
 import { downloadAndPersistAttachments, downloadBuffer } from './scripts/media_downloader.js';
@@ -1226,8 +1227,43 @@ ${messagesText}`;
 
       console.log(`[跟单状态机评估] 触发风控评估: ${action} ${ticker} 拟定 ${finalQuantity}股 @ 喊单价 $${price}`);
       
-      const latestMsgTime = filteredMessages[filteredMessages.length - 1]?.created_at || Date.now();
-      const latestMsgId = filteredMessages[filteredMessages.length - 1]?.id || '';
+      const latestMsg = filteredMessages[filteredMessages.length - 1] || {};
+      const latestMsgTime = latestMsg.created_at || Date.now();
+      const latestMsgId = latestMsg.id || '';
+      const signalId = signal.id || `sig_${ticker}_${Date.now()}`;
+
+      // REQ-031: 解析正确即落 signal 账本（与是否跟单无关）
+      try {
+        saveTradeSignal({
+          signal_id: signalId,
+          message_id: signal.message_id || latestMsgId,
+          channel_id: latestMsg.channel_id || null,
+          speaker_id: latestMsg.sender_id || null,
+          speaker_name: primarySpeakerName || latestMsg.sender_name || null,
+          ticker,
+          action,
+          price,
+          quantity: finalQuantity,
+          stop_loss: stopLoss,
+          reason,
+          parse_status: 'ok',
+          source: 'ai_extract',
+          created_at: latestMsgTime
+        });
+      } catch (sigErr) {
+        console.error('[REQ-031] 写入 trade_signals 失败:', sigErr.message);
+      }
+
+      let arrivalPrice = price;
+      try {
+        const quote = await fetchTickerKlineData(ticker);
+        if (quote?.success && quote.currentPrice && quote.currentPrice !== 'N/A') {
+          const q = parseFloat(quote.currentPrice);
+          if (Number.isFinite(q) && q > 0) arrivalPrice = q;
+        }
+      } catch (quoteErr) {
+        console.warn(`[REQ-032] 获取 ${ticker} 盘口失败，回退喊单价:`, quoteErr.message);
+      }
 
       const decisionOutcome = await processFollowDecision({
         signal: {
@@ -1237,10 +1273,10 @@ ${messagesText}`;
           quantity: finalQuantity,
           stopLoss,
           reason,
-          signal_id: signal.id || `sig_${ticker}_${Date.now()}`,
+          signal_id: signalId,
           message_id: signal.message_id || latestMsgId
         },
-        arrivalPrice: price, // 收到信号时的盘口价格
+        arrivalPrice,
         msgCreatedAt: latestMsgTime,
         accountType: 'paper', // Phase B 模式：走 Paper 状态机闭环
         dryRun: false

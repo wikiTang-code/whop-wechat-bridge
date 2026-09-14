@@ -27,7 +27,7 @@
 |----|:------:|------|:----:|------|-----------|
 | REQ-001 | P0 | L4 | `done` | Push 本地 commits → `origin/main` | `de872b0..1352705` |
 | REQ-002 | P0 | L4 | `accepted` | 生产 gcp-vm ff 对齐 | 勿无必要 restart；判据见 REQ-019 |
-| REQ-003 | P1 | L3 | `in_progress` | 挂载开盘前 GEX 计划任务 | 队列 0.A · Owner=`agent:cursor` · `install_open_session_task.ps1` |
+| REQ-003 | P1 | L3 | `done` | 挂载开盘前 GEX 计划任务 | Owner=`agent:cursor`；Task=`WhopGexOpenSession0940ET` Ready；ET→本地墙钟安装器 |
 | REQ-004 | P1 | L3 | `proposed` | `latest.json` → GCP 看板同步约定 | 安全约束见 REQ-022；禁 GCP 跑 OpenD |
 | REQ-005 | P2 | L5 | `accepted` | P5 券商只读 MCP | 无下单；建议 CI grep 门禁 |
 | REQ-006 | P2 | L6 | `accepted` | P6 本机运维页 `:18789` | 仅 localhost |
@@ -51,6 +51,8 @@
 | REQ-028 | P1 | L1 | `done` | **落地 Paper 状态机**（TTL/滑点）；停解析后直连实盘 | 对齐 `follow_execution_spec.md`；五大状态机闭环落库，实盘安全红线阻断 |
 | REQ-029 | P1 | L1/L4 | `done` | **移动端跟单确认卡片**（执行/放弃/解析错误）+ 90s 超时 | `follow-hitl.js` + `/api/follow/hitl-callback` 独立通道；Owner=`agent:gemini` |
 | REQ-030 | P1 | L1 | `done` | **大V即时推送实事求是**：剥离「已同步处理量化跟单」硬编码；发言通知与交易通知正交 | 热点 `monitor.js`；Owner=`agent:gemini` |
+| REQ-031 | P1 | L1 | `done` | **解析即写 signal 流水**（独立于 follow/decision）；盘中赵哥账本不依赖事后 recalculate | Owner=`agent:cursor`；`trade_signals` + `saveTradeSignal`；`test_trade_signals_req031.js` |
+| REQ-032 | P1 | L1 | `done` | **arrivalPrice 取真实盘口**（禁用喊单价冒充现价）；滑点状态机才可信 | Owner=`agent:cursor`；`fetchTickerKlineData` → processFollowDecision |
 
 | ID | 状态 | 摘要 |
 |----|:----:|------|
@@ -62,10 +64,11 @@
 | CHG-006 | `done` | **扩写** `06-process` §6 发布/HITL 可执行清单（对齐→验证→具名 restart→记录） | 2026-09-14 `agent:cursor` · 热点 `docs/project/06-process.md` |
 | CHG-007 | `accepted` | 统一开工必读：rule / AGENTS / README 均指向 `docs/project/` 全树 |
 | CHG-008 | `done` | **收工默认自动** commit（带 REQ/CHG）+ `push origin HEAD` + 回写文档树；禁夹带密钥/GEX HTML/scratch；生产 ff/C2 仍 HITL | 2026-09-14 `agent:cursor` · `AGENTS.md` §6 · `06` §8 · progress-sync rule |
-| CHG-009 | `accepted` | **企微业务跟单 HITL 回调**（卡片 EXECUTE/SKIP/PARSE_ERROR）；与 `/ops` 冻结表分立专节；禁运维 C2 | 见 `follow-hitl-plan.md`；须威胁说明+单测 |
+| CHG-009 | `done` | **企微业务跟单 HITL 回调**（卡片 EXECUTE/SKIP/PARSE_ERROR）；与 `/ops` 冻结表分立专节；禁运维 C2 | 见 `follow-hitl-plan.md`；须威胁说明+单测 |
 | CHG-010 | `done` | **Before**：即时推送硬编码「已同步处理量化跟单」· **After**：大V发言卡仅事实字段；交易由 `trading.js` 独立推送 | 落地 REQ-030 · `monitor.js` |
 | CHG-011 | `done` | **双 Agent 高优队列**：05 §0.A/`cursor` + §0.B/`gemini` 互斥；共享候选池；README 镜像；06 §1.1 SOP | 2026-09-14 `agent:cursor` |
 | CHG-012 | `done` | **交叉 Review+修复队列**：累计 Done≥5 或专题包关闭 → 移交对方 §0.R；07 收意见；06 §1.2 | 2026-09-14 `agent:cursor` |
+| CHG-014 | `done` | **人令「跑完队列」后双 Agent 自主开发↔审修闭环**，中间勿打断确认（仍守互斥/HITL/红线） | 2026-09-14 |
 | CHG-013 | `done` | **每次同步文档树必须重读并镜像最新 §0 队列**（禁会话记忆排班；README↔05 同提交一致） | 2026-09-14 `agent:cursor` · AGENTS/06/rules |
 
 ---

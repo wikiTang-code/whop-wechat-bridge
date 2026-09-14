@@ -108,6 +108,26 @@ export function initDb() {
     try {
       db.prepare("ALTER TABLE orders ADD COLUMN account_type TEXT DEFAULT 'paper'").run();
     } catch (_) {}
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS trade_signals (
+        signal_id TEXT PRIMARY KEY,
+        message_id TEXT,
+        channel_id TEXT,
+        speaker_id TEXT,
+        speaker_name TEXT,
+        ticker TEXT NOT NULL,
+        action TEXT NOT NULL,
+        price REAL NOT NULL,
+        quantity INTEGER,
+        stop_loss REAL,
+        reason TEXT,
+        parse_status TEXT NOT NULL DEFAULT 'ok',
+        source TEXT NOT NULL DEFAULT 'ai_extract',
+        created_at INTEGER NOT NULL
+      )
+    `).run();
+    try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_created ON trade_signals (created_at DESC)`).run(); } catch (_) {}
+    try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_ticker ON trade_signals (ticker)`).run(); } catch (_) {}
     console.log('[initDb] Database already initialized and ready (0ms).');
     return;
   }
@@ -289,6 +309,28 @@ export function initDb() {
   try {
     db.prepare("ALTER TABLE orders ADD COLUMN account_type TEXT DEFAULT 'paper'").run();
   } catch (_) {}
+
+  // REQ-031: 大V解析信号流水（独立于 follow_decisions / 个人仓）
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS trade_signals (
+      signal_id TEXT PRIMARY KEY,
+      message_id TEXT,
+      channel_id TEXT,
+      speaker_id TEXT,
+      speaker_name TEXT,
+      ticker TEXT NOT NULL,
+      action TEXT NOT NULL,
+      price REAL NOT NULL,
+      quantity INTEGER,
+      stop_loss REAL,
+      reason TEXT,
+      parse_status TEXT NOT NULL DEFAULT 'ok',
+      source TEXT NOT NULL DEFAULT 'ai_extract',
+      created_at INTEGER NOT NULL
+    )
+  `).run();
+  try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_created ON trade_signals (created_at DESC)`).run(); } catch (_) {}
+  try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_ticker ON trade_signals (ticker)`).run(); } catch (_) {}
 
   // 初始化虚拟资金 (如账户不存在，默认存入 100,000 美元沙盒资金)
   const cashCheck = db.prepare('SELECT value FROM portfolio WHERE key = ?').get('cash');
@@ -1091,6 +1133,62 @@ export function getFollowDecisions({ limit = 50, offset = 0, accountType = null,
     const count = conn.prepare('SELECT COUNT(*) as c FROM follow_decisions').get()?.c || 0;
     return { decisions: list, total: count };
   }
+}
+
+/** REQ-031: 大V解析信号流水（与 follow_decisions / 个人仓正交） */
+export function saveTradeSignal(signal, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  const signalId = signal.signal_id || `sig_${signal.ticker}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  conn.prepare(`
+    INSERT INTO trade_signals (
+      signal_id, message_id, channel_id, speaker_id, speaker_name,
+      ticker, action, price, quantity, stop_loss, reason,
+      parse_status, source, created_at
+    ) VALUES (
+      @signal_id, @message_id, @channel_id, @speaker_id, @speaker_name,
+      @ticker, @action, @price, @quantity, @stop_loss, @reason,
+      @parse_status, @source, @created_at
+    )
+    ON CONFLICT(signal_id) DO UPDATE SET
+      parse_status = excluded.parse_status,
+      reason = excluded.reason,
+      price = excluded.price,
+      quantity = excluded.quantity
+  `).run({
+    signal_id: signalId,
+    message_id: signal.message_id || null,
+    channel_id: signal.channel_id || null,
+    speaker_id: signal.speaker_id || null,
+    speaker_name: signal.speaker_name || null,
+    ticker: String(signal.ticker || '').toUpperCase(),
+    action: String(signal.action || '').toUpperCase(),
+    price: parseFloat(signal.price) || 0,
+    quantity: signal.quantity != null ? parseInt(signal.quantity, 10) : null,
+    stop_loss: signal.stop_loss != null ? parseFloat(signal.stop_loss) : null,
+    reason: signal.reason || null,
+    parse_status: signal.parse_status || 'ok',
+    source: signal.source || 'ai_extract',
+    created_at: signal.created_at || Date.now()
+  });
+  return signalId;
+}
+
+export function getTradeSignals({ limit = 50, offset = 0, ticker = null, dbInstance = null } = {}) {
+  limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
+  offset = Math.max(0, parseInt(offset, 10) || 0);
+  const conn = dbInstance || getDb();
+  if (ticker) {
+    const list = conn.prepare(`
+      SELECT * FROM trade_signals WHERE ticker = ? ORDER BY created_at DESC LIMIT ? OFFSET ?
+    `).all(String(ticker).toUpperCase(), limit, offset);
+    const count = conn.prepare('SELECT COUNT(*) as c FROM trade_signals WHERE ticker = ?').get(String(ticker).toUpperCase())?.c || 0;
+    return { signals: list, total: count };
+  }
+  const list = conn.prepare(`
+    SELECT * FROM trade_signals ORDER BY created_at DESC LIMIT ? OFFSET ?
+  `).all(limit, offset);
+  const count = conn.prepare('SELECT COUNT(*) as c FROM trade_signals').get()?.c || 0;
+  return { signals: list, total: count };
 }
 
 // Sector mapping (module level)

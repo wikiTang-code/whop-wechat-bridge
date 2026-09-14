@@ -8,6 +8,23 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-14 · Cross-review PKG-FOLLOW-FULL（`agent:cursor` · §0.R-A）
+
+**范围**：`REQ-027` / `REQ-028` / `REQ-029`+`CHG-009` / `REQ-021`（Gemini 专题包）  
+**测试**：`test_ledger_isolation_req027.js` · `test_follow_state_machine_req028.js` · `test_follow_hitl_req029.js` · `test_follow_gate_req021.js` — **全绿**
+
+| 级别 | 结论 |
+|------|------|
+| 通过 | 三账本物理表隔离、Paper 五大状态机、实盘禁自动、HITL 卡片签名/超时/防重放/白名单、沙盒准入门禁 |
+| 通过 | `wecom-freeze.md` 已分立「业务跟单 HITL」≠ `/ops` |
+| 已修 | `/api/zhao-positions` 去掉对个人 `positions` 的空表 fallback（防再缠绕） |
+| 中危→新 REQ | 解析路径仍未落独立 **signal 流水表**；赵哥仓依赖 `recalculate_ledger`/`trade_review_pool`，盘中即时 signal 账本不完整 → **REQ-031** |
+| 中危→新 REQ | `monitor.js` 调用 `processFollowDecision` 时 `arrivalPrice: price`（喊单价当现价）→ 滑点常为 0 → **REQ-032** |
+| 低 | GEX 计划任务已装；CN 主机用美东→本地墙钟；DST 后须重装安装器 |
+
+**审修状态**：`Reviewing` → `Fixing`（fallback 已修）→ **`Done`**（缺口已升格 REQ-031/032）
+
+
 ### 2026-09-14 · [Security/ops 审阅](c715940a-391c-4d03-b32b-f129502363ee)
 
 **总评**：三层能力面与 REJ 方向正确；HITL/回滚/密钥·IP 变更/C2 审计仍是流程空洞；权威方案仍暗示「企微可确认 C2」，与 `REJ-001` 漂移。

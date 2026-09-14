@@ -1367,15 +1367,12 @@ app.get('/api/zhao-positions', async (req, res) => {
   try {
     const db = getDb();
 
-    // 1. 从 zhao_positions 表获取当前大V在持明细（若尚未重算则 fallback 到 positions 作优雅兜底）
+    // 1. 仅读 zhao_positions（REQ-027 隔离；禁止 fallback 到个人 positions）
     let positionsRows = [];
     try {
       positionsRows = db.prepare(`SELECT * FROM zhao_positions ORDER BY market_value DESC`).all();
     } catch (e) {
       positionsRows = [];
-    }
-    if (positionsRows.length === 0) {
-      positionsRows = db.prepare(`SELECT * FROM positions ORDER BY market_value DESC`).all();
     }
 
     // 2. 从 trade_review_pool 表获取大V已确认交易流水 (status = 'confirmed')，按 ticker 分组编排 tradeCode

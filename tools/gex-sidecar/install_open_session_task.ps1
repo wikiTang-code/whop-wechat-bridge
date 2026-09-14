@@ -3,8 +3,8 @@
 #   powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1
 #   powershell -File tools/gex-sidecar/install_open_session_task.ps1 -Uninstall
 #
-# Note: Chinese-locale `schtasks /Create` may reject `/TZ`. This script uses
-# Register-ScheduledTask + XML CalendarTrigger with Eastern Standard Time.
+# Hosts not on US Eastern: trigger StartBoundary is converted to *current* local wall-clock
+# equivalent of Eastern 09:40 (re-run this script after DST transitions).
 
 param(
   [switch]$Uninstall,
@@ -47,16 +47,39 @@ if not defined LONGBRIDGE_REGION set LONGBRIDGE_REGION=global
 "@
 Set-Content -Path $Wrapper -Value $WrapperBody -Encoding ASCII
 
+# Convert next Eastern 09:40 to local wall-clock for CalendarTrigger (CN-safe).
+$et = [System.TimeZoneInfo]::FindSystemTimeZoneById("Eastern Standard Time")
+$localTz = [System.TimeZoneInfo]::Local
+$utcNow = [DateTime]::UtcNow
+$candidates = @()
+for ($d = 0; $d -lt 14; $d++) {
+  $etNow = [System.TimeZoneInfo]::ConvertTimeFromUtc($utcNow.AddDays($d), $et)
+  $etDay = $etNow.Date
+  if ($etDay.DayOfWeek -eq [DayOfWeek]::Saturday -or $etDay.DayOfWeek -eq [DayOfWeek]::Sunday) { continue }
+  $etTarget = $etDay.AddHours(9).AddMinutes(40)
+  # Interpret etTarget as Eastern wall time -> UTC -> local
+  $etAsUnspec = [DateTime]::SpecifyKind($etTarget, [DateTimeKind]::Unspecified)
+  $utcTarget = [System.TimeZoneInfo]::ConvertTimeToUtc($etAsUnspec, $et)
+  $localTarget = [System.TimeZoneInfo]::ConvertTimeFromUtc($utcTarget, $localTz)
+  if ($localTarget -gt (Get-Date)) { $candidates += $localTarget }
+}
+if ($candidates.Count -eq 0) {
+  throw "Could not compute next Eastern 09:40 local wall-clock"
+}
+$nextLocal = $candidates[0]
+$localHHmm = $nextLocal.ToString("HH:mm")
+$startBoundary = $nextLocal.ToString("yyyy-MM-ddTHH:mm:00")
+
 $wrapperEsc = [System.Security.SecurityElement]::Escape($Wrapper)
 $xml = @"
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>Whop GEX open-session collect Mon-Fri 09:40 Eastern (REQ-003)</Description>
+    <Description>Whop GEX open-session collect Mon-Fri ~09:40 Eastern (REQ-003). Local wall=$localHHmm at install; re-run after DST.</Description>
   </RegistrationInfo>
   <Triggers>
     <CalendarTrigger>
-      <StartBoundary>2026-01-05T09:40:00</StartBoundary>
+      <StartBoundary>$startBoundary</StartBoundary>
       <Enabled>true</Enabled>
       <ScheduleByWeek>
         <DaysOfWeek>
@@ -102,23 +125,12 @@ $xml = @"
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 Register-ScheduledTask -TaskName $TaskName -Xml $xml -Force | Out-Null
 
-# Prefer Eastern wall-clock when OS supports synchronizing across time zones via COM tweak:
-try {
-  $svc = New-Object -ComObject Schedule.Service
-  $svc.Connect()
-  $folder = $svc.GetFolder("\")
-  $task = $folder.GetTask($TaskName)
-  $def = $task.Definition
-  # Definition triggers StartBoundary is Eastern intent; document for CN hosts.
-} catch {
-  # non-fatal
-}
-
 Write-Host ""
 Write-Host "Installed task: $TaskName"
-Write-Host "  When: Mon-Fri 09:40 (StartBoundary; set Task Scheduler timezone to 'Eastern Standard Time' if host is not US Eastern)"
+Write-Host "  Target: Mon-Fri Eastern 09:40 -> local wall-clock $localHHmm (host TZ=$($localTz.Id))"
+Write-Host "  StartBoundary: $startBoundary"
 Write-Host "  Wrapper: $Wrapper"
 Write-Host "  Config: $Config"
+Write-Host "  Re-run this installer after US DST changes."
 Write-Host "Dry-run: python tools/gex-sidecar/open_session_run.py --dry-run"
 Write-Host "Uninstall: powershell -File tools/gex-sidecar/install_open_session_task.ps1 -Uninstall"
-Write-Host "Verify: Get-ScheduledTask -TaskName $TaskName | Format-List TaskName,State"

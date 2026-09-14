@@ -32,7 +32,8 @@
 | DEBT-002 | GEX 开盘计划任务未确认挂载 | REQ-003 | P1 |
 | DEBT-003 | latest→GCP 同步通道未定 | REQ-004/022 | P1 |
 | DEBT-004 | P5/P6/P2-16 未开工 | REQ-005/006/008 | P2 |
-| DEBT-009 | L1 跟单无可验收沙盒表 | REQ-021 | P2 |
+| DEBT-009 | L1 跟单无可验收沙盒表 | REQ-021 → done | — |
+| DEBT-012 | 解析未写独立 signal 流水；arrivalPrice 用喊单价 | REQ-031/032 | P1 |
 | DEBT-011 | 实时跟单无 HITL；赵哥仓与个人仓数据缠绕；规格未接线 | REQ-027～029 · [`follow-hitl-plan.md`](./follow-hitl-plan.md) | P1 |
 
 ### 2.1 已闭环（勿再当开放债）
@@ -45,6 +46,8 @@
 | DEBT-007 | REQ-018 Done；见 `wecom-freeze.md` |
 | DEBT-008 | REQ-020 Done；gateway 审计 + `runbooks/c2-audit-loop.md` |
 | DEBT-010 | REQ-023 Done；见 06 §3 |
+| DEBT-002 | REQ-003 Done；本机 Task `WhopGexOpenSession0940ET` Ready（DST 后重装安装器） |
+| DEBT-011 | follow-HITL 包已落地；剩余 REQ-031/032 |
 
 ---
 
@@ -69,4 +72,5 @@
 | Agent 纸面 HITL | REJ-007 + REQ-015/020 + CHG-006 | **已缓解**（runbook+清单） |
 | 多 Agent 改总控撞车 | 05/07 拆分 + REQ-023 | 部分缓解 |
 | GEX HTML / 盘中 json 刷爆历史 | REQ-024 + 里程碑策略 | 已拍板 |
-| 赵哥仓/跟单仓数据缠绕 + 无盘中确认 | REQ-027～029 + follow-hitl-plan | open |
+| 赵哥仓/跟单仓数据缠绕 + 无盘中确认 | REQ-027～029 | **已缓解**；余 REQ-031/032 |
+| GEX 开盘任务 DST 漂移 | 重跑 install_open_session_task.ps1 | 残留 |

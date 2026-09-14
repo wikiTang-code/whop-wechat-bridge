@@ -52,7 +52,10 @@ Dashboard **已挂只读消费**（v1）：
 1. 复制配置：`tools/gex-sidecar/open_session_config.example.json` → `open_session_config.json`（已 gitignore）
 2. 改 `mode` / `zero_dte` / `matrix`（默认 SPY,QQQ,SPX + TSLA）
 3. 试跑：`python tools/gex-sidecar/open_session_run.py --dry-run`
-4. 安装计划任务：`powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1`
+4. 安装计划任务：`powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1`  
+   - 安装器把 **美东 09:40** 换算成**本机墙钟**（如中国夏令对应 21:40）写入触发器。  
+   - **每次美国 DST 切换后请重跑安装器**。  
+   - 验证：`Get-ScheduledTask -TaskName WhopGexOpenSession0940ET | Format-List TaskName,State`
 
 `mode`：
 
