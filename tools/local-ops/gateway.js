@@ -9,6 +9,7 @@ import { createGexAdapter } from './adapters/gex.js';
 import { createLmAdapter } from './adapters/lm.js';
 import { createSshAdapter } from './adapters/ssh.js';
 import { createDashAdapter } from './adapters/dash.js';
+import { createBrokerAdapter } from './adapters/broker.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_ROOT = path.resolve(here, '../..');
@@ -75,6 +76,20 @@ export function createGateway(options = {}) {
       host: catalog.ssh_host,
       remoteRoot: catalog.remote_root,
       ...(options.ssh || {}),
+    }),
+    broker: options.broker || createBrokerAdapter(options.brokerApi || {
+      async getAccountBalances() {
+        const lb = await import(path.join(rootDir, 'brokers', 'longbridge.js'));
+        return lb.getAccountBalances();
+      },
+      async getActivePositions() {
+        const lb = await import(path.join(rootDir, 'brokers', 'longbridge.js'));
+        return lb.getActivePositions();
+      },
+      async getTodayOrders() {
+        const lb = await import(path.join(rootDir, 'brokers', 'longbridge.js'));
+        return lb.getTodayOrders();
+      },
     }),
   };
 

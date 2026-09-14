@@ -82,6 +82,27 @@ export async function getActivePositions() {
 }
 
 /**
+ * 当日委托只读（不下单）
+ * @returns {Promise<Array<{ order_id: string, ticker: string, side: string, quantity: number, price: number, status: string }>>}
+ */
+export async function getTodayOrders() {
+  const ctx = await getContext();
+  const orders = await ctx.todayOrders();
+  if (!Array.isArray(orders)) return [];
+  return orders.map((o) => {
+    const ticker = String(o.symbol || '').split('.')[0] || '';
+    return {
+      order_id: String(o.order_id || o.id || ''),
+      ticker,
+      side: String(o.side || ''),
+      quantity: parseInt(o.quantity || '0', 10),
+      price: parseFloat(o.price || o.submitted_price || '0'),
+      status: String(o.status || ''),
+    };
+  });
+}
+
+/**
  * 向长桥柜台提交交易订单
  * @returns {Promise<{ success: boolean, orderId: string, status: string, raw: any }>}
  */

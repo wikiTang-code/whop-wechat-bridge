@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const catalog = loadCatalog(path.join(here, '../tools/local-ops/catalog.yaml'));
-assert.strictEqual(catalog.phase, 'P4.1');
+assert.strictEqual(catalog.phase, 'P5');
 
 const keyBuf = Buffer.alloc(32, 7);
 const encodingAesKey = keyBuf.toString('base64').replace(/=+$/, '');
@@ -217,7 +217,7 @@ assert.ok(!sample.trim().startsWith('{'));
 }
 
 const realGw = createGateway();
-assert.strictEqual(realGw.catalog.phase, 'P4.1');
+assert.strictEqual(realGw.catalog.phase, 'P5');
 
 const { createLocalOpsHttpServer } = await import('../tools/local-ops/http-server.js');
 const { server } = createLocalOpsHttpServer({

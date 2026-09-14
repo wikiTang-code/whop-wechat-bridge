@@ -25,7 +25,7 @@ function assert(cond, msg) {
 }
 
 const catalog = loadCatalog(path.join(opsDir, 'catalog.yaml'));
-assert(['P3', 'P4', 'P4.1'].includes(catalog.phase), `phase P3+ (got ${catalog.phase})`);
+assert(['P3', 'P4', 'P4.1', 'P5'].includes(catalog.phase), `phase P3+ (got ${catalog.phase})`);
 assert(catalog.capabilities.some((c) => c.id === 'gcp.pm2_restart'), 'pm2_restart registered');
 assert(catalog.capabilities.some((c) => c.id === 'gcp.deploy_align'), 'deploy_align registered');
 assert(!catalog.capabilities.some((c) => c.id === 'gcp.cutover_dual'), 'no cutover');

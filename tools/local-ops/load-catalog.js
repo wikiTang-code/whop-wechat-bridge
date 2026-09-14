@@ -7,7 +7,7 @@ import fs from 'fs';
 const ID_RE = /^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*)+$/;
 const CLASS_RE = /^C[0-4]$/;
 const WHERE_RE = /^(local|ssh|gateway)$/;
-const ADAPTER_RE = /^(gex|lm|ssh|gateway|dash)$/;
+const ADAPTER_RE = /^(gex|lm|ssh|gateway|dash|broker)$/;
 const RECIPE_RE = /^[a-z][a-z0-9_]*$/;
 const HOST_RE = /^[A-Za-z0-9._-]+$/;
 const ROOT_RE = /^\/[A-Za-z0-9/._-]+$/;

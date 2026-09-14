@@ -11,6 +11,7 @@ import dotenv from 'dotenv';
 import { createGateway } from './gateway.js';
 import { createWecomHandler } from './wecom/callback.js';
 import { createWecomPusher } from './wecom/push.js';
+import { renderOpsUiHtml } from './ui/ops-console.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '../..');
@@ -74,7 +75,7 @@ export function createLocalOpsHttpServer(options = {}) {
   }
 
   const host = options.host || env.LOCAL_OPS_HTTP_HOST || HOST;
-  const port = options.port || Number(env.LOCAL_OPS_HTTP_PORT || PORT);
+  const port = options.port != null ? Number(options.port) : Number(env.LOCAL_OPS_HTTP_PORT || PORT);
 
   const server = http.createServer(async (req, res) => {
     const started = Date.now();
@@ -95,8 +96,49 @@ export function createLocalOpsHttpServer(options = {}) {
           wecom_push_via: pusher?.via || null,
           missing_env: missing,
           bind: `${host}:${port}`,
+          ui: '/ui',
         }));
         logLine(200);
+        return;
+      }
+
+      if (req.method === 'GET' && (url.pathname === '/ui' || url.pathname === '/ui/')) {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(renderOpsUiHtml());
+        logLine(200, 'ui');
+        return;
+      }
+
+      if (req.method === 'POST' && url.pathname === '/api/ops/invoke') {
+        const remote = String(req.socket.remoteAddress || '');
+        const loopback = remote === '127.0.0.1' || remote === '::1' || remote === '::ffff:127.0.0.1';
+        if (!loopback) {
+          res.writeHead(403, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: false, denied: true, code: 'localhost_only' }));
+          logLine(403, 'not_loopback');
+          return;
+        }
+        const body = await readBody(req, 64 * 1024);
+        let payload = {};
+        try {
+          payload = body ? JSON.parse(body) : {};
+        } catch {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: false, code: 'bad_json' }));
+          logLine(400, 'bad_json');
+          return;
+        }
+        const id = String(payload.id || '').trim();
+        if (!id || id.includes('place_order') || id === 'human-approve') {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: false, denied: true, code: 'bad_id' }));
+          logLine(400, 'bad_id');
+          return;
+        }
+        const result = await gateway.invoke(id, payload.args || {});
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result));
+        logLine(200, id);
         return;
       }
 

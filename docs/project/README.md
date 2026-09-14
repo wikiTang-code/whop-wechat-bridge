@@ -69,7 +69,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | （空 · 本波已闭环） | — |
-| **§0.B / §0.R-B `agent:gemini`** | **PKG-CURSOR-WAVE** 审修 003/022/031/032 | Queued |
+| **§0.B `agent:gemini`** | **REQ-033** 历史大V交易单回放与企微纠错反馈 | Doing |
 | **§0.H `human`** | REQ-002 / Q-001 | 等待 |
 | **§0.R-A** | PKG-FOLLOW-FULL | Done |
 

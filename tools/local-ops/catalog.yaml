@@ -1,11 +1,31 @@
-# P4.1 catalog — WeCom may invoke allowlisted C1 gex.collect (async ack).
-# cutover/rollback/env_set/place_order remain unregistered.
+# P5 catalog — broker read-only + WeCom C0/C1-collect.
+# cutover/rollback/env_set/trading remain unregistered (never even as disabled stubs).
 version: 1
-phase: P4.1
+phase: P5
 max_class: C2
 ssh_host: gcp-vm
 remote_root: /home/wikitang628/whop-wechat-bridge
 capabilities:
+  - id: broker.lb.account
+    class: C0
+    where: local
+    adapter: broker
+    description: Longbridge USD cash/power read-only. Never live order placement.
+  - id: broker.lb.positions
+    class: C0
+    where: local
+    adapter: broker
+    description: Longbridge stock positions read-only
+  - id: broker.lb.orders
+    class: C0
+    where: local
+    adapter: broker
+    description: Longbridge todayOrders read-only
+  - id: broker.futu.opend_probe
+    class: C0
+    where: local
+    adapter: broker
+    description: Probe local Futu OpenD port only (no quotes/orders)
   - id: ops.whoami
     class: C0
     where: gateway
