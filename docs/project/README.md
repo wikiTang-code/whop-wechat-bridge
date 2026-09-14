@@ -38,6 +38,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 你想… | 去读 |
 |------|------|
+| **新开对话快速切入** | [`BOOTSTRAP.md`](./BOOTSTRAP.md)（复制通用提示词） |
 | 理解为什么做、做到哪一步愿景 | [`01-background-vision.md`](./01-background-vision.md) |
 | 知道现在系统实际跑成什么样 | [`02-current-state.md`](./02-current-state.md) |
 | 登记/查找需求与变更 | [`03-requirements.md`](./03-requirements.md) |
