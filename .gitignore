@@ -101,6 +101,7 @@ dry_*.js
 *.html
 !public/index.html
 !public/monitoring.html
+!public/follow-correct.html
 !data/gex/*.html
 *.txt
 !tools/gex-sidecar/requirements.txt

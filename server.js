@@ -64,6 +64,14 @@ import { buildHealthPayload } from './monitoring/health.js';
 import { startSupervisor } from './monitoring/supervisor.js';
 import { createGexReadonlyRouter } from './monitoring/gex-readonly.js';
 import { handleFollowHitlCallback, generateFollowCardPayload } from './follow-hitl.js';
+import {
+  handleReplayConfirmSkip,
+  handleReplayCorrectionSubmit,
+  verifyReplayToken,
+  getNextPendingReplayItem,
+  pushCurrentReplayCard,
+  loadReplayCandidates
+} from './follow-replay-engine.js';
 
 dotenv.config();
 
@@ -1568,6 +1576,84 @@ app.get('/api/follow/pending-cards', async (req, res) => {
   } catch (err) {
     console.error('[Pending Cards Error]:', err);
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ==========================================================================
+// 历史大V单回放校验与移动端纠错反馈路由 (REQ-033)
+// ==========================================================================
+
+// GET /follow/correct - 移动端极简纠错页面
+app.get('/follow/correct', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'follow-correct.html');
+  if (fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  }
+  res.status(404).send('页面未找到');
+});
+
+// GET /api/follow/replay-item - 获取当前待审/待纠错单据详情
+app.get('/api/follow/replay-item', (req, res) => {
+  try {
+    const { id, token } = req.query;
+    if (!id || !token) {
+      return res.status(400).json({ success: false, error: '缺少 id 或 token' });
+    }
+    const db = getDb();
+    const row = db.prepare('SELECT * FROM follow_replay_queue WHERE id = ?').get(id);
+    if (!row) {
+      return res.status(404).json({ success: false, error: '单据不存在' });
+    }
+    if (!verifyReplayToken(row.id, row.parsed_ticker, row.parsed_action, token)) {
+      return res.status(403).json({ success: false, error: 'Token 验签失败' });
+    }
+    res.json({ success: true, item: row });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/follow/correct-submit - 提交移动端纠错表单
+app.post('/api/follow/correct-submit', async (req, res) => {
+  try {
+    const result = await handleReplayCorrectionSubmit(req.body || {}, req.headers['x-wecom-userid'] || 'human');
+    if (!result.success) {
+      return res.status(result.code || 400).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/follow/replay-callback - 微信内一键点击确认跳过回调
+app.get('/api/follow/replay-callback', async (req, res) => {
+  try {
+    const { action, id, token } = req.query;
+    if (action === 'CONFIRM_SKIP') {
+      const result = await handleReplayConfirmSkip(id, token, req.headers['x-wecom-userid'] || 'human');
+      if (!result.success) {
+        return res.status(result.code || 400).send(`<h2 style="color:red">操作失败: ${result.error}</h2>`);
+      }
+      return res.send(`
+        <!DOCTYPE html>
+        <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>确认成功</title>
+        <style>body{font-family:sans-serif;text-align:center;padding:40px 20px;background:#f8fafc;color:#0f172a;}
+        .card{background:#fff;border-radius:16px;padding:30px;box-shadow:0 4px 12px rgba(0,0,0,0.06);max-width:400px;margin:0 auto;}
+        .btn{display:inline-block;margin-top:20px;padding:12px 24px;border-radius:10px;background:#2563eb;color:#fff;text-decoration:none;font-weight:bold;}
+        </style></head><body>
+        <div class="card">
+          <div style="font-size:3rem;margin-bottom:12px;">✅</div>
+          <h2>已确认解析正确！</h2>
+          <p style="color:#64748b;margin-top:10px;">${result.message}</p>
+          <p style="margin-top:20px;font-size:0.9rem;color:#94a3b8;">已自动推送下一条到企业微信，请返回微信查看。</p>
+        </div>
+        </body></html>
+      `);
+    }
+    res.status(400).send('未知动作');
+  } catch (err) {
+    res.status(500).send(`服务端异常: ${err.message}`);
   }
 });
 
