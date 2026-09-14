@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import net from 'net';
 import { spawn } from 'child_process';
 import {
   buildGexLatestPayload,
@@ -37,6 +38,23 @@ function parseTickerList(value, allow, fallback) {
   return out;
 }
 
+function probeTcp(host, port, timeoutMs = 1500) {
+  return new Promise((resolve) => {
+    const socket = net.connect({ host, port });
+    let done = false;
+    const finish = (ok) => {
+      if (done) return;
+      done = true;
+      try { socket.destroy(); } catch { /* ignore */ }
+      resolve(ok);
+    };
+    socket.setTimeout(timeoutMs);
+    socket.on('connect', () => finish(true));
+    socket.on('timeout', () => finish(false));
+    socket.on('error', () => finish(false));
+  });
+}
+
 function defaultOpen(target, spawnImpl) {
   return new Promise((resolve, reject) => {
     let child;
@@ -68,6 +86,22 @@ export function createGexAdapter({
   const opener = openImpl || ((target) => defaultOpen(target, spawnImpl));
 
   async function runCollect(args = {}) {
+    const host = process.env.FUTU_OPEND_HOST || '127.0.0.1';
+    const port = Number(process.env.FUTU_OPEND_PORT || 11111);
+    const reachable = await probeTcp(host, port);
+    if (!reachable) {
+      return {
+        ok: false,
+        exit_code: 1,
+        error: 'opend_unreachable',
+        opend: { host, port, reachable: false },
+        zero_dte: [],
+        matrix: [],
+        stderr_tail: `Futu OpenD 未监听 ${host}:${port}。请先启动并登录 OpenD（美股期权 API 权限），再 /ops collect。`,
+        do_not_use_as_order: true,
+      };
+    }
+
     const zero = parseTickerList(args.zero_dte, ZERO_DTE_ALLOW, ['SPY', 'QQQ', 'SPX']);
     const skipMatrix = args.skip_matrix === true;
     const matrix = skipMatrix

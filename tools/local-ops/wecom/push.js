@@ -1,16 +1,22 @@
 /**
  * WeCom proactive app messages (message/send).
  * Needs WECOM_OPS_CORP_ID + WECOM_OPS_SECRET + WECOM_OPS_AGENT_ID.
+ * Optional WECOM_OPS_PUSH_VIA=gcp|direct (default gcp) for stable egress IP.
  */
+import { createGcpSshFetch } from './gcp-fetch.js';
+
 export function createWecomPusher({
   corpId,
   secret,
   agentId,
-  fetchImpl = fetch,
+  pushVia = process.env.WECOM_OPS_PUSH_VIA || 'gcp',
+  fetchImpl,
   nowFn = () => Date.now(),
 } = {}) {
   const agent = Number(agentId);
   const enabled = Boolean(corpId && secret && Number.isFinite(agent) && agent > 0);
+  const via = String(pushVia || 'gcp').toLowerCase() === 'direct' ? 'direct' : 'gcp';
+  const fetchFn = fetchImpl || (via === 'gcp' ? createGcpSshFetch() : fetch);
 
   let cachedToken = '';
   let tokenExpiresAt = 0;
@@ -19,10 +25,11 @@ export function createWecomPusher({
     if (!enabled) throw new Error('wecom push not configured');
     if (cachedToken && nowFn() < tokenExpiresAt - 60_000) return cachedToken;
     const url = `https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=${encodeURIComponent(corpId)}&corpsecret=${encodeURIComponent(secret)}`;
-    const res = await fetchImpl(url);
+    const res = await fetchFn(url);
     const data = await res.json();
     if (!data.access_token) {
-      throw new Error(`gettoken failed: ${data.errcode || res.status} ${data.errmsg || ''}`.trim());
+      const code = data.errcode != null ? data.errcode : res.status;
+      throw new Error(`gettoken failed: ${code} ${data.errmsg || ''}`.trim());
     }
     cachedToken = data.access_token;
     const ttlSec = Number(data.expires_in) || 7200;
@@ -39,34 +46,40 @@ export function createWecomPusher({
     if (!to) return { ok: false, error: 'userid required' };
     if (!text) return { ok: false, error: 'content required' };
 
-    const token = await getAccessToken();
-    const url = `https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${encodeURIComponent(token)}`;
-    const body = {
-      touser: to,
-      msgtype: 'text',
-      agentid: agent,
-      text: { content: text },
-      safe: 0,
-    };
-    const res = await fetchImpl(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (data.errcode !== 0) {
-      return {
-        ok: false,
-        error: `send failed: ${data.errcode} ${data.errmsg || ''}`.trim(),
-        data,
+    try {
+      const token = await getAccessToken();
+      const url = `https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${encodeURIComponent(token)}`;
+      const body = {
+        touser: to,
+        msgtype: 'text',
+        agentid: agent,
+        text: { content: text },
+        safe: 0,
       };
+      const res = await fetchFn(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.errcode !== 0) {
+        return {
+          ok: false,
+          error: `send failed: ${data.errcode} ${data.errmsg || ''}`.trim(),
+          data,
+          via,
+        };
+      }
+      return { ok: true, msgid: data.msgid, data, via };
+    } catch (err) {
+      return { ok: false, error: err.message, via };
     }
-    return { ok: true, msgid: data.msgid, data };
   }
 
   return {
     enabled,
     agentId: enabled ? agent : null,
+    via,
     getAccessToken,
     sendText,
   };

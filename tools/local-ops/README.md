@@ -10,14 +10,15 @@ node tools/local-ops/cli.js catalog
 node tools/local-ops/cli.js invoke gex.status
 ```
 
-## WeCom
-
-Keep both running:
+## WeCom stack（常驻）
 
 ```powershell
-npm run ops:http
-ssh -N -R 127.0.0.1:18789:127.0.0.1:18789 gcp-vm
+npm run ops:wecom:start      # ops:http + ssh -R 18789
+npm run ops:wecom:stop
+npm run ops:wecom:autostart  # 注册当前用户登录自启（一次性）
 ```
+
+企微可信 IP 请加 **GCP 公网** `35.212.142.173`（主动推送默认经 `ssh gcp-vm` 出站，避免家宽 IP 漂移）。仅调试可设 `WECOM_OPS_PUSH_VIA=direct`。
 
 Phone:
 

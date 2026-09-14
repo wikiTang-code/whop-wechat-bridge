@@ -56,6 +56,7 @@ export function createLocalOpsHttpServer(options = {}) {
       corpId: env.WECOM_OPS_CORP_ID,
       secret: env.WECOM_OPS_SECRET,
       agentId: env.WECOM_OPS_AGENT_ID,
+      pushVia: env.WECOM_OPS_PUSH_VIA || 'gcp',
     });
     wecom = createWecomHandler({
       token: env.WECOM_OPS_TOKEN,
@@ -68,7 +69,7 @@ export function createLocalOpsHttpServer(options = {}) {
     if (!pusher.enabled) {
       process.stderr.write('[local-ops-http] wecom push OFF (set WECOM_OPS_SECRET + WECOM_OPS_AGENT_ID for async notify)\n');
     } else {
-      process.stderr.write(`[local-ops-http] wecom push ON agent=${pusher.agentId}\n`);
+      process.stderr.write(`[local-ops-http] wecom push ON agent=${pusher.agentId} via=${pusher.via}\n`);
     }
   }
 
@@ -91,6 +92,7 @@ export function createLocalOpsHttpServer(options = {}) {
           ok: true,
           wecom_enabled: wecomEnabled,
           wecom_push_enabled: Boolean(pusher?.enabled),
+          wecom_push_via: pusher?.via || null,
           missing_env: missing,
           bind: `${host}:${port}`,
         }));

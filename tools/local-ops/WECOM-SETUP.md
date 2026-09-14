@@ -45,7 +45,19 @@ cloudflared tunnel --url http://127.0.0.1:18789
 
 - **AgentId** → `.env` `WECOM_OPS_AGENT_ID`
 - **Secret** → `.env` `WECOM_OPS_SECRET`
+- 可选：`WECOM_OPS_PUSH_VIA=gcp`（默认）或 `direct`
 
-然后重启 `npm run ops:http`。`/healthz` 应出现 `wecom_push_enabled: true`。
+**可信 IP**：默认经 GCP 出站，企微后台加入 `35.212.142.173`。  
+（`direct` 则用本机出口 IP，家宽会变。）
 
-同步命令仍走回调被动回复；`/ops collect` 等异步任务完成后会再推一条应用到本会话。
+然后：
+
+```powershell
+npm run ops:wecom:start
+# 或登录自启：
+npm run ops:wecom:autostart
+```
+
+`/healthz` 应出现 `wecom_push_enabled: true`、`wecom_push_via: "gcp"`。
+
+同步命令走回调被动回复；`/ops collect` 等异步任务完成后会再推一条。OpenD 未开时 collect 会立刻失败并说明原因。

@@ -6,6 +6,7 @@ import { createWecomCrypt, xmlTag } from '../tools/local-ops/wecom/crypto.js';
 import { parseOpsCommand } from '../tools/local-ops/wecom/commands.js';
 import { createWecomHandler, resetWecomCollectLock } from '../tools/local-ops/wecom/callback.js';
 import { createWecomPusher } from '../tools/local-ops/wecom/push.js';
+import { buildRemoteCurlScript, shSingleQuote } from '../tools/local-ops/wecom/gcp-fetch.js';
 import { formatWecomReply } from '../tools/local-ops/wecom/format.js';
 import { createGateway } from '../tools/local-ops/gateway.js';
 import { loadCatalog } from '../tools/local-ops/load-catalog.js';
@@ -203,6 +204,17 @@ const sample = formatWecomReply('gex.summarize', {
 assert.ok(sample.includes('指数墙'));
 assert.ok(sample.includes('SPY'));
 assert.ok(!sample.trim().startsWith('{'));
+
+// gcp-fetch: URL with & must be base64-wrapped, not raw in remote shell
+{
+  const u = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=ww&corpsecret=sec';
+  const script = buildRemoteCurlScript(u, { method: 'GET' });
+  assert.ok(script.includes('base64 -d'), 'url via base64');
+  assert.ok(!script.includes('corpsecret=sec'), 'secret not plaintext in script');
+  assert.ok(shSingleQuote("a'b").includes(`'\\''`), 'single-quote escape');
+  const post = buildRemoteCurlScript(u, { method: 'POST' });
+  assert.ok(post.includes('--data-binary @-'));
+}
 
 const realGw = createGateway();
 assert.strictEqual(realGw.catalog.phase, 'P4.1');

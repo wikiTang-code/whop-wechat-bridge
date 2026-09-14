@@ -103,6 +103,11 @@ function formatGexCollect(data) {
     `matrix=${(d.matrix || []).join(',') || '-'} expiries=${d.expiries ?? '-'}`,
     `generated_at=${d.generated_at || '-'} errors=${d.error_count ?? '-'}`,
   ];
+  if (d.error === 'opend_unreachable') {
+    lines.push('');
+    lines.push(d.stderr_tail || 'OpenD 未启动。');
+    return clip(lines);
+  }
   if (d.stderr_tail) {
     lines.push('');
     lines.push('stderr 尾：');
