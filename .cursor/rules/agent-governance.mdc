@@ -1,0 +1,18 @@
+---
+description: 通用 Agent 治理（L0–L3、防幻觉、量化红线）；全文见根目录 AGENTS.md
+alwaysApply: true
+---
+
+# Agent 治理（指针）
+
+**全文唯一真相源**：仓库根目录 [`AGENTS.md`](../../AGENTS.md)。本 rule 只强制提醒，勿在此复制第二套全文。
+
+执行时必须遵守 `AGENTS.md` 中的：
+
+- L0–L3 输出长度与禁废话 / 禁擅自注释重构  
+- 改代码前先读事实；不确定就说不确定；进展回写 `docs/project/`  
+- 生产 C2 HITL；禁 `place_order`；DB 只读铁律；企微窄面；禁提交 GEX HTML  
+- 协同只走 `docs/project/`；`catalog.yaml` 变更须独立 REQ/CHG  
+
+项目入口：[`docs/project/README.md`](../../docs/project/README.md)  
+进度认领：[`docs/project/05-wip-board.md`](../../docs/project/05-wip-board.md)

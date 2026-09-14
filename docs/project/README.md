@@ -3,7 +3,12 @@
 > **多 Agent / 人机协同的文档根。** 进度、需求、WIP、流程都以本树为准；禁止另起平行「总进度」。  
 > Cursor 规则：`.cursor/rules/project-progress-sync.mdc` · 仓库入口：[`AGENTS.md`](../../AGENTS.md)
 
-**最后审阅**：2026-09-14 · **基准 HEAD**：`6099c6d`（本地 `main` ahead 1 vs `origin/main`）
+| 字段 | 值 |
+|------|-----|
+| 最后审阅 | 2026-09-14 |
+| 审阅基准 HEAD | 见 `git log -1`（文档治理后请刷新） |
+| Agent 治理真相源 | 根目录 [`AGENTS.md`](../../AGENTS.md)（Claude→`CLAUDE.md` 指针；Cursor→`.cursor/rules/agent-governance.mdc`） |
+| 权威方案 | [`../local-ops-mcp-skill-plan.md`](../local-ops-mcp-skill-plan.md) · [`../system-hardening-and-monitoring-plan.md`](../system-hardening-and-monitoring-plan.md) · [`../gex-sidecar.md`](../gex-sidecar.md) |
 
 ---
 

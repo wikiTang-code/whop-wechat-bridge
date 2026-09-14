@@ -1,14 +1,57 @@
-# Agent 须知
+# Agent 通用治理与执行规范（Global Instructions）
 
-多 Agent / 人机协同的**唯一总入口**：[`docs/project/README.md`](docs/project/README.md)
+> **单一真相源**：本文件。Claude / Cursor 仅通过指针接入，勿复制第二份全文。  
+> **项目协同总入口**：[`docs/project/README.md`](docs/project/README.md)
 
-| 先读 | 用途 |
+---
+
+## 1. 语言与沟通
+
+- 与用户沟通使用**中文**；代码标识符与专业技术术语保持英文。
+- 严禁空洞寒暄、重复复述任务、堆砌套话。
+
+## 2. 任务分流与 Token 节约（L0–L3）
+
+| 级别 | 适用场景 | 执行策略 | 输出长度 |
+|------|----------|----------|----------|
+| **L0 直击** | 单一状态查询、简要解释、查配置 | 零废话，查完直出结论 | **1–2 句** |
+| **L1 局部** | 1–2 步小修、单文件查漏 | 定位 → 改 → 验证 | **3–5 句** |
+| **L2 标准** | 常规功能、多步骤联调 | 短 Plan（≤3 步）→ 执行 → 闭环 | **简短分点** |
+| **L3 工程** | 跨模块重构、架构、深层排障 | 提案 → 人拍板 → 落地 → **回写 `docs/project/`** | 按需详尽，禁套话 |
+
+**代码修改红线**：除非用户明确要求，禁止主动加多余注释、装饰性格式化、未经授权的「顺手重构」。
+
+## 3. 防幻觉与上下文保持
+
+- **拒绝脑补**：改/引代码前必须先 read/grep 确认当前事实，禁止凭会话记忆假设。
+- **不确定性坦白**：缺依据时说「不确定」并给选项，禁止盲猜。
+- **事实外化**：长会话的重要决策与阶段进展写入 `docs/project/`（尤其 `03`/`05`），不依赖聊天记忆。
+
+## 4. 工具使用守则
+
+- **搜索**：结构/符号用精确查找；文本用 Grep；禁止无目的全库漫游。
+- **修改**：能局部替换则不整文件重写；相关改动后跑对应测试（如 `npm run test:local-ops`）。
+- **执行**：命令设合理超时；禁止无退出条件的死循环轮询。
+- **多任务**：可用 Subagent/后台任务；**禁止**臆造本环境不存在的 MCP/斜杠命令/私有 Actor。
+
+## 5. 核心安全红线（不可侵犯）
+
+1. **破坏性命令**：禁止 `rm -rf`、未指定目标的 `git reset --hard`、`DROP TABLE` 等不可逆操作（除非用户明确给出目标）。
+2. **生产 C2 HITL**：`pm2 restart` / `deploy_align` / 切灰回滚等须 human；禁止 Agent 代跑 `human-approve` 或自治闭环（见 `REJ-002`/`REJ-007`）。
+3. **资金隔离**：禁止 `place_order` 及任何实盘下单能力进入 catalog/实现。
+4. **数据库**：除 ingest 写路径外，查询走 SQLite **只读**句柄，避免写锁争用。
+5. **企微窄面**：手机 `/ops` 仅 C0 + `gex.collect`；禁止扩面未走 `CHG`（`REJ-001`/`REJ-008`）。
+6. **GEX / Git**：禁止提交 `data/gex/*.html` 与大快照；仅允许 `data/gex/latest.json`。
+7. **协同基准**：进度/需求/WIP 只走 `docs/project/`；禁止私建平行总进度文档。
+8. **`catalog.yaml`**：变更须独立 `REQ`/`CHG`，并在 `05` 登记占用。
+
+## 6. 开干 / 收工（与本仓库绑定）
+
+| 时机 | 动作 |
 |------|------|
-| [`docs/project/03-requirements.md`](docs/project/03-requirements.md) | 需求/变更/拒绝账本 |
-| [`docs/project/05-wip-board.md`](docs/project/05-wip-board.md) | **认领任务**（一 REQ 一行） |
-| [`docs/project/06-process.md`](docs/project/06-process.md) | 流程、热点锁、提交 SOP |
-| [`docs/project/07-review-inbox.md`](docs/project/07-review-inbox.md) | 审阅意见 |
+| 开工 | 读 `docs/project/05-wip-board.md`；认领 Owner；冲突热点见 `06-process.md` |
+| 新需求/变更 | 先写 `03-requirements.md` |
+| 审阅结论 | 写 `07-review-inbox.md`，落地必须进 `03` |
+| 收工 | 更新 `05`；完成则 `03=done` |
 
-规则：`.cursor/rules/project-progress-sync.mdc`（alwaysApply）。
-
-红线摘要：企微仅 C0+`gex.collect`；C2 须 HITL；禁 `place_order`；禁 Agent 自治 restart；`data/gex/*.html` 严禁提交。
+详细流程与冻结清单：`docs/project/06-process.md` · `docs/project/wecom-freeze.md`

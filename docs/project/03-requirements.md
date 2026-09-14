@@ -46,7 +46,7 @@
 | REQ-022 | P2 | L3 | `accepted` | **REQ-004 安全专节**：只读产物同步、禁 OpenD、禁密钥随快照 | |
 | REQ-023 | P0 | L0 | `done` | 进度文档并发协议 | 见 `06-process.md` §3 |
 | REQ-024 | P1 | L3/L0 | `done` | `data/gex` 提交硬规则 | 见 04/06；human 已拍板 |
-| REQ-025 | P1 | L0/L4 | `accepted` | **热点锁补强**：`catalog.yaml` 独占；Doing 行登记占用路径；跨 REQ 同路径禁止 | |
+| REQ-026 | P0 | L0 | `done` | 多端统一 Agent 治理：`AGENTS.md` 精炼版 + `CLAUDE.md` 指针 + `.cursor/rules/agent-governance.mdc` | 2026-09-14 |
 
 | ID | 状态 | 摘要 |
 |----|:----:|------|
