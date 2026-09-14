@@ -76,13 +76,58 @@ git status
 
 ---
 
-## 6. 发布 / HITL（摘要；细则由 REQ-015/019 扩写）
+## 6. 发布 / HITL 可执行清单（`CHG-006`）
 
-1. **本机 C2**（lm/tunnel）：`confirm_token` 60s。  
-2. **生产 C2**：`human-approve`（仅 human）→ 再 confirm；Agent 不代跑。  
-3. **代码对齐**：ff 或 `gcp.deploy_align`（HITL）；默认可只对齐不重启，例外见 REQ-019。  
-4. **具名 restart**：HITL；告警链禁止触发（REJ-004/009）。  
-5. 每次生产 C2：human 填 [`05` Ops 审计行](./05-wip-board.md)。
+> 细则与超时/失败分支：[`runbooks/hitl-c2.md`](./runbooks/hitl-c2.md)（REQ-015）  
+> 对齐后是否重启：[`runbooks/deploy-restart.md`](./runbooks/deploy-restart.md)（REQ-019）  
+> 事故回滚：[`runbooks/incident-rollback.md`](./runbooks/incident-rollback.md)（REQ-016）
+
+### 6.1 分层（勿混用）
+
+| 层 | 门禁 | 谁执行 |
+|----|------|--------|
+| 本机 C2（lm / tunnel 等） | `confirm_token`（约 60s） | 本机操作者；非生产 |
+| 生产 C2（`gcp.deploy_align` / `gcp.pm2_restart`） | invoke → **human** `human-approve` → confirm | **仅 human**；Agent 禁代跑（`REJ-007`） |
+| 企微 `/ops` | 仅 C0 + `gex.collect` | **不承载** C2 / 不消耗 token（`REJ-001`） |
+
+### 6.2 标准四步（对齐 → 验证 → 具名 restart → 记录）
+
+按序勾选；默认 **只对齐、不重启**（例外见 REQ-019 表）。
+
+**A. 对齐前**
+
+- [ ] 目标 SHA 已在 `origin/main`（40 hex）
+- [ ] 相关测试已绿（动 L4：`npm run test:local-ops`）
+- [ ] 无密钥 / `.env` / GEX HTML 夹带进将要对齐的提交
+- [ ] 窗口可接受（开盘活跃期非紧急：慎动 ingest worker）
+
+**B. 对齐**
+
+- [ ] 执行生产对齐：`ff` 或 HITL `gcp.deploy_align`（参数含目标 SHA）
+- [ ] **禁止** Agent 代跑 `human-approve`；禁止企微确认 C2
+
+**C. 验证（对齐后）**
+
+- [ ] `gcp.git_head` 或现场 `git rev-parse HEAD` = 目标 SHA
+- [ ] 按 REQ-019 判定：docs-only → **不重启**；否则 human 决定具名进程
+
+**D. 具名 restart（仅当 C 判定需要）**
+
+- [ ] HITL：`invoke` → human `human-approve` → `confirm`（白名单进程名）
+- [ ] 告警 / 看门狗 / Agent **不得**触发 restart（`REJ-004` / `REJ-009`）
+- [ ] 重启后：`/health` + 相关冒烟；异常走 REQ-016
+
+**E. 记录**
+
+- [ ] human 在 [`05` Ops 审计行](./05-wip-board.md) 填写：时间 / human / 动作 / 目标 / 结果 / 备注（对齐 REQ-020 字段）
+- [ ] Agent 仅可提醒填表，**不得**声称「已 approve」除非 05 行已由 human 写入（`REJ-007`）
+
+### 6.3 No-Go（任一条即停）
+
+- 目标 SHA 不在 origin 或不明确  
+- Agent / 告警要求代跑 approve 或企微点 C2  
+- 无具名进程、或拟重启名单超出白名单  
+- human 未在维护窗口确认  
 
 ---
 

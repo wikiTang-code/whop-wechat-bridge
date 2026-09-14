@@ -16,8 +16,11 @@
 | REQ-019 | L4 | 发布 go/no-go + 重启判据 | `agent:cursor` | Done | `runbooks/deploy-restart.md` · `de288d5` |
 | REQ-023 | L0 | 进度文档并发协议写入 06 | `agent:cursor` | Done | 见 06 §3 |
 | REQ-024 | L3/L0 | data/gex 提交硬规则 | `agent:cursor` | Done | 见 04 §1 / 06 §4 |
-| REQ-015 | L0/L4 | 生产 C2 HITL Runbook | `agent:gemini` | Doing | 骨架：`runbooks/hitl-c2.md` |
-| REQ-016 | L0/L2 | 事故响应+回滚 Runbook | `agent:gemini` | Doing | 骨架：`runbooks/incident-rollback.md` |
+| REQ-015 | L0/L4 | 生产 C2 HITL Runbook | `agent:gemini` | Done | `runbooks/hitl-c2.md` |
+| REQ-016 | L0/L2 | 事故响应+回滚 Runbook | `agent:gemini` | Done | `runbooks/incident-rollback.md` |
+| REQ-017 | L0/L4 | 密钥与企微运维变更控制 | `agent:gemini` | Done | `runbooks/secret-rotation-and-ip.md` |
+| REQ-020 | L4 | C2 审计与看板闭环 | `agent:gemini` | Done | `gateway.js` 审计 + `runbooks/c2-audit-loop.md` |
+| CHG-006 | L0/L4 | 扩写 06 §6 发布/HITL 可执行清单 | `agent:cursor` | Done | `06-process.md` §6 |
 | REQ-001 | L4 | Push 本地 commits → origin | `agent:cursor` | Done | `de872b0..1352705` |
 | REQ-002 | L4 | 生产 ff 对齐 | `human` | Todo | 依赖 push；判据见 REQ-019 |
 | REQ-003 | L3 | 开盘 GEX 计划任务 | — | Todo | 可抢 |
@@ -35,16 +38,17 @@
 
 ### REQ-015（Gemini）建议大纲
 
-- [ ] human-approve 谁可执行 / 超时 / 失败  
-- [ ] 禁止 Agent 代跑（REJ-007）  
-- [ ] 每次 C2 回写本页「Ops 审计」或 audit id  
-- [ ] 与 REQ-020 字段对齐  
+- [x] human-approve 谁可执行 / 超时 / 失败  
+- [x] 禁止 Agent 代跑（REJ-007）  
+- [x] 每次 C2 回写本页「Ops 审计」或 audit id  
+- [x] 与 REQ-020 字段对齐  
 
 ### REQ-016（Gemini）建议大纲
 
-- [ ] 事故分级与宣布人  
-- [ ] 止血 vs 回滚；旧 SHA / 单体镜像  
-- [ ] 验证清单；禁止临场通用 SSH  
+- [x] 事故分级与宣布人  
+- [x] 止血 vs 回滚；旧 SHA / 单体镜像  
+- [x] 验证清单；禁止临场通用 SSH  
+- [x] 灾难备用破窗 SOP 与事后补偿  
 
 ---
 
@@ -60,6 +64,11 @@
 
 | ID | Owner | 日 | 结果 |
 |----|-------|-----|------|
+| REQ-020 | `agent:gemini` | 2026-09-14 | gateway audit + c2-audit-loop runbook |
+| REQ-017 | `agent:gemini` | 2026-09-14 | secret-rotation-and-ip runbook |
+| REQ-016 | `agent:gemini` | 2026-09-14 | incident-rollback runbook |
+| REQ-015 | `agent:gemini` | 2026-09-14 | hitl-c2 runbook |
+| CHG-006 | `agent:cursor` | 2026-09-14 | 06 §6 发布/HITL 清单 |
 | REQ-026 | `agent:cursor` | 2026-09-14 | 多端治理 `AGENTS.md` |
 | REQ-019 | `agent:cursor` | 2026-09-14 | deploy-restart runbook |
 | REQ-018 | `agent:cursor` | 2026-09-14 | wecom-freeze |
@@ -82,5 +91,5 @@
 
 - 治理已落地：根 `AGENTS.md` + `CLAUDE.md` + `.cursor/rules/agent-governance.mdc`  
 - 总控：`docs/project/README.md`  
-- Gemini 续：REQ-015/016 runbook 正文  
+- Gemini：REQ-016 runbook；Cursor：CHG-006（06 §6）已落地
 - Human：本轮 push 后做 REQ-002 生产 ff  

@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadCatalog } from './load-catalog.js';
@@ -46,6 +47,20 @@ export function createGateway(options = {}) {
     persistPath: options.confirmPersistPath || path.join(here, 'state', 'confirm-tokens.json'),
   });
   let c2Busy = false;
+  const auditLogPath = options.auditLogPath || path.join(here, 'audit', 'audit.log');
+
+  function appendAudit(entry) {
+    try {
+      fs.mkdirSync(path.dirname(auditLogPath), { recursive: true });
+      const line = JSON.stringify({
+        ts: options.nowFn ? new Date(options.nowFn()).toISOString() : new Date().toISOString(),
+        ...redactJson(entry),
+      }) + '\n';
+      fs.appendFileSync(auditLogPath, line, 'utf8');
+    } catch {
+      // best-effort audit logging
+    }
+  }
 
   const adapters = options.adapters || {
     gex: createGexAdapter({ rootDir, nowFn: options.nowFn, ...(options.gex || {}) }),
@@ -131,10 +146,30 @@ export function createGateway(options = {}) {
      */
     humanApprove(token) {
       const result = confirm.humanApprove(token);
+      appendAudit({
+        event: 'human_approve',
+        id: result.id || null,
+        token_prefix: token ? String(token).slice(0, 8) : null,
+        ok: Boolean(result.ok),
+        reason: result.reason || null,
+      });
       if (!result.ok) {
         return deny('human_approve_failed', result.reason, { confirm_token: token });
       }
       return { ok: true, ...result };
+    },
+
+    tailAudit(lines = 20) {
+      try {
+        if (!fs.existsSync(auditLogPath)) return [];
+        const content = fs.readFileSync(auditLogPath, 'utf8');
+        const all = content.trim().split('\n').filter(Boolean).map((line) => {
+          try { return JSON.parse(line); } catch { return null; }
+        }).filter(Boolean);
+        return all.slice(-lines);
+      } catch {
+        return [];
+      }
     },
 
     async confirm(token, id, args = {}) {
@@ -185,6 +220,15 @@ export function createGateway(options = {}) {
               ? 'Production C2: run `node tools/local-ops/cli.js human-approve <token>` then confirm'
               : 'Re-invoke with the same args plus confirm_token within 60s',
           }, { requiresHuman });
+          appendAudit({
+            event: 'issue_confirm_token',
+            id: name,
+            class: 'C2',
+            token_prefix: issued.confirm_token.slice(0, 8),
+            requires_human: requiresHuman,
+            target: cleanArgs.name || cleanArgs.sha || null,
+            args: cleanArgs,
+          });
           return {
             ok: false,
             denied: true,
@@ -214,6 +258,17 @@ export function createGateway(options = {}) {
           if (result && typeof result === 'object') {
             result.human_gated = Boolean(consumed.was_human);
           }
+          appendAudit({
+            event: 'execute_c2',
+            id: name,
+            class: 'C2',
+            token_prefix: token ? String(token).slice(0, 8) : null,
+            human_gated: Boolean(consumed.was_human),
+            target: cleanArgs.name || cleanArgs.sha || null,
+            args: cleanArgs,
+            ok: Boolean(result && result.ok),
+            error: result?.error || result?.message || null,
+          });
           return result;
         } finally {
           c2Busy = false;

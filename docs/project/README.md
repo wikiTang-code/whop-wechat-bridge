@@ -64,9 +64,9 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 **三层能力面**：① 业务守护流水线 ② 本机 Local-Ops catalog ③ 企微极窄 `/ops`（C0 + `gex.collect`）。详见 [`01`](./01-background-vision.md) / [`02`](./02-current-state.md)。
 
 **当前最高优先**：见 [`05-wip-board.md`](./05-wip-board.md)  
-- `agent:cursor`：REQ-014 文档树 / CHG-005 方案纠偏 / REQ-023·024  
-- `agent:gemini`：REQ-015 HITL Runbook / REQ-016 回滚 Runbook  
-- `human`：REQ-001 push / REQ-002 生产 ff  
+- `agent:cursor`：CHG-006（06 §6 HITL 清单）已落地；可抢 REQ-003 / REQ-004 等  
+- `agent:gemini`：REQ-015/016/017/020 四项安全治理与 Runbook 均已 Done  
+- `human`：REQ-002 生产 ff  
 
 **审阅建议编号**：已合并进 [`03`](./03-requirements.md)（REQ-015～025）。
 

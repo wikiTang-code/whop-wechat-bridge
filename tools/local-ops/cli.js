@@ -48,9 +48,16 @@ if (cmd === 'confirm') {
   process.exit(result.ok ? 0 : 2);
 }
 
+if (cmd === 'audit') {
+  const count = parseInt(argv[1] || '20', 10);
+  print(gw.tailAudit(count));
+  process.exit(0);
+}
+
 process.stderr.write(`usage:
   node tools/local-ops/cli.js catalog
   node tools/local-ops/cli.js pending
+  node tools/local-ops/cli.js audit [lines]           # tail audit log
   node tools/local-ops/cli.js invoke <id> [json-args]
   node tools/local-ops/cli.js human-approve <token>   # production C2 HITL (not MCP)
   node tools/local-ops/cli.js confirm <id> <token> [json-args]

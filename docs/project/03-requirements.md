@@ -36,12 +36,12 @@
 | REQ-009 | P3 | L1 | `deferred` | uSMART 接入 | 远期 |
 | REQ-010 | P3 | L1 | `deferred` | Python 回测引擎 | 远期 |
 | REQ-014 | P0 | L0 | `done` | 文档树 + 协同框架入库 | `0dc31ea` |
-| REQ-015 | P0 | L0/L4 | `in_progress` | 生产 C2 HITL Runbook | Owner=`agent:gemini`；骨架 `runbooks/hitl-c2.md` |
-| REQ-016 | P0 | L0/L2 | `in_progress` | 事故响应 + 回滚 Runbook | Owner=`agent:gemini`；骨架 `runbooks/incident-rollback.md` |
-| REQ-017 | P0 | L0/L4 | `accepted` | **密钥与企微运维变更控制**（`WECOM_OPS_*`、userid、推送 IP、隧道）；轮换与泄露应急（不写密文） | |
+| REQ-015 | P0 | L0/L4 | `done` | 生产 C2 HITL Runbook | Owner=`agent:gemini`；`runbooks/hitl-c2.md` |
+| REQ-016 | P0 | L0/L2 | `done` | 事故响应 + 回滚 Runbook | Owner=`agent:gemini`；`runbooks/incident-rollback.md` |
+| REQ-017 | P0 | L0/L4 | `done` | **密钥与企微运维变更控制**（`WECOM_OPS_*`、userid、推送 IP、隧道）；轮换与泄露应急（不写密文） | Owner=`agent:gemini`；`runbooks/secret-rotation-and-ip.md` |
 | REQ-018 | P1 | L4 | `done` | 企微能力面冻结清单 | `docs/project/wecom-freeze.md` · `38662c4` |
 | REQ-019 | P1 | L4/L1 | `done` | 发布 go/no-go + 重启判据 | `runbooks/deploy-restart.md` |
-| REQ-020 | P1 | L4 | `accepted` | **C2 审计与看板闭环**（actor/channel/userid/sha/result ↔ 05 Ops 行） | |
+| REQ-020 | P1 | L4 | `done` | **C2 审计与看板闭环**（actor/channel/userid/sha/result ↔ 05 Ops 行） | Owner=`agent:gemini`；`runbooks/c2-audit-loop.md` |
 | REQ-021 | P2 | L1 | `accepted` | **L1 跟单变更沙盒/实盘检查表** + human 门禁 | |
 | REQ-022 | P2 | L3 | `accepted` | **REQ-004 安全专节**：只读产物同步、禁 OpenD、禁密钥随快照 | |
 | REQ-023 | P0 | L0 | `done` | 进度文档并发协议 | 见 `06-process.md` §3 |
@@ -55,7 +55,7 @@
 | CHG-003 | `done` | WeCom 栈开机自启 |
 | CHG-004 | `done` | `/ops gex status` → `gex.summarize` |
 | CHG-005 | `done` | **修订** `local-ops-mcp-skill-plan.md`：作废「企微消耗 confirm_token / 企微点 C2」；P3/§10 对齐 REJ-001 | 2026-09-14 `agent:cursor` |
-| CHG-006 | `accepted` | **扩写** `06-process` 发布/HITL 可执行清单（对齐→验证→具名 restart→记录） |
+| CHG-006 | `done` | **扩写** `06-process` §6 发布/HITL 可执行清单（对齐→验证→具名 restart→记录） | 2026-09-14 `agent:cursor` · 热点 `docs/project/06-process.md` |
 | CHG-007 | `accepted` | 统一开工必读：rule / AGENTS / README 均指向 `docs/project/` 全树 |
 
 ---
