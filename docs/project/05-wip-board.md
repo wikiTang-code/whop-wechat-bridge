@@ -29,8 +29,8 @@
 | REQ-028 | L1 | Paper TTL/滑点状态机 | — | Todo | accepted; 待 027 |
 | REQ-029 | L1/L4 | 移动端跟单确认卡片 | — | Todo | accepted; 待 CHG-009 |
 | CHG-009 | L4 | 企微业务跟单 HITL 回调 | — | Todo | accepted; != /ops |
-| REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | gent:gemini | Doing | monitor.js · CHG-010 |
-| CHG-010 | L1 | 发言推送与交易推送解耦 | gent:gemini | Doing | 随 REQ-030 |
+| REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | `agent:gemini` | Done | monitor.js · CHG-010 |
+| CHG-010 | L1 | 发言推送与交易推送解耦 | `agent:gemini` | Done | 随 REQ-030 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 
@@ -71,6 +71,7 @@
 
 | ID | Owner | 日 | 结果 |
 |----|-------|-----|------|
+| REQ-030 / CHG-010 | `agent:gemini` | 2026-09-14 | monitor.js 移除假跟单后缀，发言通知与交易解耦 |
 | REQ-020 | `agent:gemini` | 2026-09-14 | gateway audit + c2-audit-loop runbook |
 | REQ-017 | `agent:gemini` | 2026-09-14 | secret-rotation-and-ip runbook |
 | REQ-016 | `agent:gemini` | 2026-09-14 | incident-rollback runbook |

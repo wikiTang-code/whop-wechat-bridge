@@ -66,7 +66,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 **当前最高优先**：见 [`05-wip-board.md`](./05-wip-board.md)  
 - `human`：REQ-002 生产 ff  
-- `agent:gemini`：REQ-030（推送文案实事求是 · `monitor.js`）  
+- `agent:gemini`：REQ-030（推送文案实事求是 · `monitor.js`）已 Done；L1 跟单已与 `follow-hitl-plan.md` 对齐  
 - L1 方案已 accepted：REQ-027～029 / CHG-009；按 Phase A→B→C 认领，勿并行抢同一热点  
 - 可抢：REQ-003 / REQ-004  
 

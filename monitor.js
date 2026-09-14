@@ -1959,8 +1959,7 @@ export async function pushRawMessageToWeChat(msg) {
 
   const text = `${cleanContent}
 
-💬 ${msg.sender_name}${channelStr} · ${timeStr}
-已同步处理量化跟单`;
+💬 ${msg.sender_name}${channelStr} · ${timeStr}`;
 
   try {
     const res = await fetch(webhookUrl, {
