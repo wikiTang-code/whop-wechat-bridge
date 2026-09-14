@@ -1,0 +1,154 @@
+# P4.1 catalog — WeCom may invoke allowlisted C1 gex.collect (async ack).
+# cutover/rollback/env_set/place_order remain unregistered.
+version: 1
+phase: P4.1
+max_class: C2
+ssh_host: gcp-vm
+remote_root: /home/wikitang628/whop-wechat-bridge
+capabilities:
+  - id: ops.whoami
+    class: C0
+    where: gateway
+    adapter: gateway
+    description: Current ACL role, phase, and allowed classes
+  - id: gex.status
+    class: C0
+    where: local
+    adapter: gex
+    description: GEX latest.json metadata without ladder or matrix
+  - id: gex.summarize
+    class: C0
+    where: local
+    adapter: gex
+    description: GEX king/floor/regime digest. do_not_use_as_order. No ladder.
+  - id: gex.freshness
+    class: C0
+    where: local
+    adapter: gex
+    description: generated_at, age, session, stale rating only
+  - id: gex.collect
+    class: C1
+    where: local
+    adapter: gex
+    description: Run Futu OpenD GEX collect on Windows. Enum tickers only.
+  - id: gex.skip_open_session
+    class: C1
+    where: local
+    adapter: gex
+    description: Create or remove data/gex/.skip_open_session
+  - id: gex.open_html
+    class: C1
+    where: local
+    adapter: gex
+    description: Open local GEX HTML report in the default browser
+  - id: lm.status
+    class: C0
+    where: local
+    adapter: lm
+    description: Local LM Studio port probe and /v1/models
+  - id: lm.circuit_status
+    class: C0
+    where: local
+    adapter: lm
+    description: Local 8080 probe, /health aiTunnel, managed tunnel status
+  - id: lm.tunnel.status
+    class: C0
+    where: local
+    adapter: lm
+    description: Managed ssh -R tunnel process status (local state file)
+  - id: lm.load
+    class: C2
+    where: local
+    adapter: lm
+    description: lms load allowlisted model (requires confirm_token)
+  - id: lm.unload
+    class: C2
+    where: local
+    adapter: lm
+    description: lms unload --all (requires confirm_token)
+  - id: lm.tunnel.start
+    class: C2
+    where: local
+    adapter: lm
+    description: Start detached ssh -R 8080 reverse tunnel to gcp-vm (confirm_token)
+  - id: lm.tunnel.stop
+    class: C2
+    where: local
+    adapter: lm
+    description: Stop managed reverse tunnel (confirm_token)
+  - id: dash.list
+    class: C0
+    where: local
+    adapter: dash
+    description: List local dashboard URLs and probe ports
+  - id: dash.open
+    class: C1
+    where: local
+    adapter: dash
+    description: Open a local dashboard board in the default browser
+  - id: gcp.health
+    class: C0
+    where: ssh
+    adapter: ssh
+    recipe: gcp_health
+    description: Production GET /health via BatchMode ssh + in-repo recipe
+  - id: gcp.pm2_status
+    class: C0
+    where: ssh
+    adapter: ssh
+    recipe: gcp_pm2_status
+    description: Production pm2 jlist summary (name/status/rss only)
+  - id: gcp.git_head
+    class: C0
+    where: ssh
+    adapter: ssh
+    recipe: gcp_git_head
+    description: Production git HEAD short metadata
+  - id: gcp.health_bundle
+    class: C0
+    where: ssh
+    adapter: ssh
+    recipe: gcp_health_bundle
+    description: One SSH RTT — health + pm2 summary + git HEAD
+  - id: gcp.resources
+    class: C0
+    where: ssh
+    adapter: ssh
+    recipe: gcp_resources
+    description: Production free/disk/loadavg snapshot
+  - id: gcp.logs
+    class: C0
+    where: ssh
+    adapter: ssh
+    recipe: gcp_logs
+    description: Tail pm2 logs for a named process (lines<=80)
+  - id: gcp.smoke_page
+    class: C0
+    where: ssh
+    adapter: ssh
+    recipe: gcp_smoke_page
+    description: page_smoke.sh dry-run (alert-only, no restart)
+  - id: gcp.smoke_consistency
+    class: C0
+    where: ssh
+    adapter: ssh
+    recipe: gcp_smoke_consistency
+    description: consistency_smoke.sh dry-run (alert-only, no restart)
+  - id: gcp.lm_probe_remote
+    class: C0
+    where: ssh
+    adapter: ssh
+    recipe: gcp_lm_probe_remote
+    description: Probe VM 127.0.0.1:8080 to verify reverse LM tunnel
+  - id: gcp.pm2_restart
+    class: C2
+    where: ssh
+    adapter: ssh
+    recipe: gcp_pm2_restart
+    description: Named pm2 restart --update-env (HITL human-approve required)
+  - id: gcp.deploy_align
+    class: C2
+    where: ssh
+    adapter: ssh
+    recipe: gcp_deploy_align
+    description: git reset --hard to 40-hex SHA on origin/main (no auto restart; HITL)

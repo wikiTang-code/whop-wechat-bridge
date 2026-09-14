@@ -38,6 +38,10 @@ data/gex/.skip_open_session
 .env.*.backup
 .env.bak
 
+# Local-ops gateway audit (runtime)
+tools/local-ops/audit/
+tools/local-ops/state/
+
 # Logs and debugs
 logs
 *.log
