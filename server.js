@@ -60,6 +60,7 @@ import { startQueueWorker } from './task-queue.js';
 import { seed2026MacroEvents } from './market-data.js';
 import { rebuildHistoricalCampaigns } from './campaign-engine.js';
 import { startEventLoopProbe } from './monitoring/event-loop-probe.js';
+import { startAiTunnelCircuit } from './monitoring/ai-tunnel-circuit.js';
 import { buildHealthPayload } from './monitoring/health.js';
 import { startSupervisor } from './monitoring/supervisor.js';
 import { createGexReadonlyRouter } from './monitoring/gex-readonly.js';
@@ -232,7 +233,9 @@ app.use((req, res, next) => {
     req.path.startsWith('/api/ticker_kline') ||
     req.path.startsWith('/api/gex') ||
     req.path === '/gex-summary.js' ||
-    req.path.startsWith('/gex-html')
+    req.path.startsWith('/gex-html') ||
+    req.path.startsWith('/follow/') ||
+    req.path.startsWith('/api/follow/')
   ) {
     return next();
   }
@@ -2736,6 +2739,7 @@ function startCloudflareTunnel(port) {
     if (match) {
       const tunnelUrl = match[0];
       urlFound = true;
+      process.env.TUNNEL_URL = tunnelUrl;
       console.log(`=================================================`);
       console.log(`[Cloudflare Tunnel] Public URL created successfully!`);
       console.log(`Public Link: ${tunnelUrl}`);

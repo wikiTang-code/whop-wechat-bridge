@@ -15,7 +15,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const BASE_URL = process.env.PUBLIC_URL || process.env.TUNNEL_URL || `http://${process.env.HOST_IP || '192.168.1.18'}:${process.env.PORT || 3000}`;
+export function getBaseUrl() {
+  return process.env.PUBLIC_URL || process.env.TUNNEL_URL || `http://${process.env.HOST_IP || '192.168.1.18'}:${process.env.PORT || 3000}`;
+}
 const REPLAY_SECRET = process.env.WECOM_HITL_SECRET || 'follow_replay_secret_key_2026';
 const TRUMP_VISIT_START_TS = 1778803200000; // 2026-05-15 00:00:00 UTC
 
@@ -154,8 +156,9 @@ export function buildReplayWeComMessage(item, stats) {
   const totalAmount = (item.parsed_price * item.parsed_qty).toFixed(2);
   const timeStr = new Date(item.created_at).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
 
-  const confirmSkipUrl = `${BASE_URL}/api/follow/replay-callback?action=CONFIRM_SKIP&id=${item.id}&token=${token}`;
-  const correctFormUrl = `${BASE_URL}/follow/correct?id=${item.id}&token=${token}`;
+  const baseUrl = getBaseUrl();
+  const confirmSkipUrl = `${baseUrl}/api/follow/replay-callback?action=CONFIRM_SKIP&id=${item.id}&token=${token}`;
+  const correctFormUrl = `${baseUrl}/follow/correct?id=${item.id}&token=${token}`;
 
   const isBuy = item.parsed_action === 'BUY';
   const actionZh = isBuy ? '🟢 买入 (BUY)' : '🔴 卖出 (SELL)';
