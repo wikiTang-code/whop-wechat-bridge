@@ -181,8 +181,8 @@ export function loadReplayCandidates(db = getDb(), startTs = TRUMP_VISIT_START_T
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
   `);
 
-  // 从 2026-05-15 起零基线推演赵哥账本
-  const zhaoSimPositions = {}; // ticker -> { qty, avgCost, lastPrice }
+  // 从 2026-05-15 起零基线以【批次 Lot 为整体】推演赵哥账本
+  const zhaoSimLots = {}; // ticker -> [ { seqNo, qty, price } ]
 
   const runBatch = db.transaction((rows) => {
     let seq = 1;
@@ -192,10 +192,12 @@ export function loadReplayCandidates(db = getDb(), startTs = TRUMP_VISIT_START_T
       const action = (r.action || 'BUY').toUpperCase();
       const price = Number(r.price || 0);
 
-      // 赵哥变动前持仓 (从 0 开始累计)
-      const curPos = zhaoSimPositions[tickerClean] || { qty: 0, avgCost: 0, lastPrice: price };
-      const beforeQty = curPos.qty;
-      const beforeAvgCost = curPos.avgCost;
+      // 赵哥变动前持仓 (从 0 开始以【批次 Lot 为整体】链式推演)
+      if (!zhaoSimLots[tickerClean]) zhaoSimLots[tickerClean] = [];
+      const lots = zhaoSimLots[tickerClean];
+      const beforeQty = lots.reduce((sum, l) => sum + l.qty, 0);
+      const beforeTotalCost = lots.reduce((sum, l) => sum + l.qty * l.price, 0);
+      const beforeAvgCost = beforeQty > 0 ? Number((beforeTotalCost / beforeQty).toFixed(2)) : 0;
 
       // 仓位表述提炼
       const fractionDesc = formatFractionDesc(r.fraction_name, r.fraction_ratio, r.raw_content);
@@ -216,42 +218,71 @@ export function loadReplayCandidates(db = getDb(), startTs = TRUMP_VISIT_START_T
       let deltaQty = 0;
       if (action === 'BUY') {
         deltaQty = price > 0 ? Math.max(1, Math.round((100000 * targetFractionPct) / price)) : 100;
+        lots.push({ seqNo: seq, qty: deltaQty, price });
       } else {
-        // SELL
-        if (raw.includes('清仓') || raw.includes('出完') || raw.includes('平出') || raw.includes('全出')) {
-          deltaQty = beforeQty;
-        } else if (raw.includes('出一半') || raw.includes('半仓')) {
-          deltaQty = Math.ceil(beforeQty / 2);
+        // SELL: 核心逻辑 —— 以【被卖出的那一批次整体为单位】进行操作
+        const priceMatches = raw.match(/出.*?(\d+(\.\d+)?)/) || raw.match(/(\d+(\.\d+)?)的/);
+        const targetPrice = priceMatches ? parseFloat(priceMatches[1]) : null;
+
+        let targetLot = null;
+        if (targetPrice) {
+          targetLot = lots.find(l => Math.abs(l.price - targetPrice) < 0.5 && l.qty > 0);
+        }
+
+        if (targetLot) {
+          // 命中了目标批次：以该批次当前总股数为整体基数！
+          if (raw.includes('出一半') || raw.includes('半仓')) {
+            deltaQty = Math.ceil(targetLot.qty / 2);
+            targetLot.qty -= deltaQty;
+          } else if (raw.includes('三分之一') || raw.includes('1/3')) {
+            deltaQty = Math.round(targetLot.qty / 3);
+            targetLot.qty -= deltaQty;
+          } else {
+            // 默认整批全部卖出出清！
+            deltaQty = targetLot.qty;
+            targetLot.qty = 0;
+          }
         } else {
-          deltaQty = beforeQty > 0 ? Math.min(beforeQty, Math.max(1, Math.round((100000 * targetFractionPct) / price))) : 0;
+          // 未指定特定买入价批次
+          if (raw.includes('清仓') || raw.includes('出完') || raw.includes('平出') || raw.includes('全出')) {
+            deltaQty = beforeQty;
+            lots.forEach(l => l.qty = 0);
+          } else if (raw.includes('出一半') || raw.includes('半仓')) {
+            deltaQty = Math.ceil(beforeQty / 2);
+            let rem = deltaQty;
+            for (const l of lots) {
+              if (l.qty > 0) {
+                const d = Math.min(l.qty, rem);
+                l.qty -= d;
+                rem -= d;
+                if (rem <= 0) break;
+              }
+            }
+          } else {
+            // 默认扣减最早在持批次
+            const firstLot = lots.find(l => l.qty > 0);
+            if (firstLot) {
+              deltaQty = firstLot.qty;
+              firstLot.qty = 0;
+            } else {
+              deltaQty = beforeQty > 0 ? Math.min(beforeQty, Math.max(1, Math.round((100000 * targetFractionPct) / price))) : 0;
+            }
+          }
         }
       }
 
-      let afterQty = beforeQty;
-      let afterAvgCost = beforeAvgCost;
-
-      if (action === 'BUY') {
-        afterQty = beforeQty + deltaQty;
-        afterAvgCost = afterQty > 0 ? Number(((beforeQty * beforeAvgCost + deltaQty * price) / afterQty).toFixed(2)) : price;
-      } else {
-        afterQty = Math.max(0, beforeQty - deltaQty);
-        afterAvgCost = afterQty > 0 ? beforeAvgCost : 0;
-      }
-
-      // 更新赵哥推演持仓
-      zhaoSimPositions[tickerClean] = {
-        qty: afterQty,
-        avgCost: afterAvgCost,
-        lastPrice: price
-      };
+      const afterQty = lots.reduce((sum, l) => sum + l.qty, 0);
+      const afterTotalCost = lots.reduce((sum, l) => sum + l.qty * l.price, 0);
+      const afterAvgCost = afterQty > 0 ? Number((afterTotalCost / afterQty).toFixed(2)) : 0;
 
       // 计算单票权重与全盘总仓位 (基于标准 $100,000 规模)
       const zhaoBeforePct = Number(((beforeQty * price / 100000) * 100).toFixed(1));
       const zhaoAfterPct = Number(((afterQty * price / 100000) * 100).toFixed(1));
 
       let totalZhaoVal = 0;
-      for (const s in zhaoSimPositions) {
-        totalZhaoVal += zhaoSimPositions[s].qty * zhaoSimPositions[s].lastPrice;
+      for (const s in zhaoSimLots) {
+        const sQty = zhaoSimLots[s].reduce((sum, l) => sum + l.qty, 0);
+        totalZhaoVal += sQty * price;
       }
       const zhaoTotalExpPct = Number(((totalZhaoVal / 100000) * 100).toFixed(1));
 
