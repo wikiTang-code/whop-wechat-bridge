@@ -11,6 +11,14 @@ import { executeOrder } from '../trading.js';
 initDb();
 const db = getDb();
 
+// 保证沙盒测试环境现金充足
+try {
+  const curCash = db.prepare("SELECT value FROM portfolio WHERE key = 'cash'").get()?.value || 0;
+  if (curCash < 50000) {
+    db.prepare("UPDATE portfolio SET value = 100000 WHERE key = 'cash'").run();
+  }
+} catch (e) {}
+
 console.log('===========================================================');
 console.log('🧪 [Test REQ-028] Paper 跟单状态机与风控五大状态验证套件');
 console.log('===========================================================\n');
@@ -226,5 +234,12 @@ assert.strictEqual(directRealExec.success, false);
 assert.strictEqual(directRealExec.mode, 'BLOCKED_BY_SAFETY_LINE', '资金安全红线必须硬拦截');
 
 console.log('✅ 实盘全自动下单拦截红线牢不可破');
+
+// 清理测试生成的临时标的与订单
+try {
+  db.prepare("DELETE FROM orders WHERE ticker LIKE 'TSTP_%'").run();
+  db.prepare("DELETE FROM positions WHERE ticker LIKE 'TSTP_%'").run();
+  db.prepare("DELETE FROM follow_decisions WHERE ticker LIKE 'TSTP_%'").run();
+} catch (e) {}
 
 console.log('\n🎉 REQ-028 Paper 跟单状态机全量测试套件通过！');

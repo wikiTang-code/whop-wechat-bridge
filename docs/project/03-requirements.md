@@ -32,7 +32,7 @@
 | REQ-005 | P2 | L5 | `accepted` | P5 券商只读 MCP | 无下单；建议 CI grep 门禁 |
 | REQ-006 | P2 | L6 | `accepted` | P6 本机运维页 `:18789` | 仅 localhost |
 | REQ-007 | P3 | L7 | `deferred` | NL 只读 Copilot | `/ops` 仍直达 |
-| REQ-008 | P2 | L2 | `in_progress` | P2-16 主库增长治理 | 队列 0.B · Owner=`agent:gemini` · ~867MB/VACUUM/清理策略 |
+| REQ-008 | P2 | L2 | `done` | P2-16 主库增长治理 | Owner=`agent:gemini` · `db-maintenance.js` · `runbooks/db-maintenance-p2-16.md` |
 | REQ-009 | P3 | L1 | `deferred` | uSMART 接入 | 远期 |
 | REQ-010 | P3 | L1 | `deferred` | Python 回测引擎 | 远期 |
 | REQ-014 | P0 | L0 | `done` | 文档树 + 协同框架入库 | `0dc31ea` |

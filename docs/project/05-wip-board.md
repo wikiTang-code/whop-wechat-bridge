@@ -23,8 +23,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-008** | L2 | **P2-16 主库增长治理**（~867MB/VACUUM/清理策略） | `whop_archive.db` · 清理维护脚本 | **Doing** |
-| 2 | REQ-022 | L3 | REQ-004 GEX→GCP 只读同步安全专节 | `docs/project/**` | 候选就绪 |
+| **1** | **REQ-022** | L3 | **REQ-004 GEX→GCP 只读同步安全专节** | `docs/project/**` | **候选就绪（待问 Human 入队）** |
+| 2 | — | — | （空位） | — | — |
 
 ### 0.H Human 槽（非 Agent 队列）
 
@@ -41,7 +41,7 @@
 | 作者 Agent | 累计 Done（未移交） | 阈值阈值 | 最近专题包 | 下一触发预估 |
 |------------|:------------------:|:--------:|------------|--------------|
 | `agent:cursor` | 0 | 5 | — | 满 5 |
-| `agent:gemini` | 0（follow-HITL 全包关闭移交） | 5 | **follow-HITL 全组关闭** (Phase A～D) | 专题包整组关闭触发移交 §0.R-A |
+| `agent:gemini` | 1（REQ-008） | 5 | **follow-HITL 全组关闭** (Phase A～D) | 累计还差 4 个或下个专题包 |
 
 #### §0.R-A · `agent:cursor` 审修队列（审 Gemini 产物）
 
@@ -94,7 +94,7 @@
 | REQ-029 | L1/L4 | 移动端跟单确认卡片 | `agent:gemini` | Done | `follow-hitl.js` + `/api/follow/hitl-callback` 独立通道 |
 | CHG-009 | L4 | 企微业务跟单 HITL 回调 | `agent:gemini` | Done | 独立于 /ops；单测 test_follow_hitl_req029.js |
 | REQ-021 | L1 | L1 跟单沙盒/实盘检查表+门禁 | `agent:gemini` | Done | `runbooks/follow-sandbox-to-live-gate.md` · 专题包关闭 |
-| REQ-008 | L2 | P2-16 主库增长治理（~867MB） | `agent:gemini` | Doing | 队列 0.B · SQLite 清理策略与治理 |
+| REQ-008 | L2 | P2-16 主库增长治理（~867MB） | `agent:gemini` | Done | `db-maintenance.js` · 保留策略与清理脚本 |
 | REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | `agent:gemini` | Done | monitor.js · CHG-010 |
 | CHG-010 | L1 | 发言推送与交易推送解耦 | `agent:gemini` | Done | 随 REQ-030 |
 
