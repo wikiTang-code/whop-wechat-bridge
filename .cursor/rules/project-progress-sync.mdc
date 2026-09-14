@@ -23,7 +23,8 @@ alwaysApply: true
 
 ## 收工
 
-- 更新 05 进度；完成则 03=`done`、刷新 02 Git 快照（必要时同步 04/README）。  
+- 更新 05 进度（本开发队列出队）；完成则 03=`done`、刷新 02 Git 快照（必要时同步 04/README）。  
+- 累计 Done≥阈值或专题包关闭 → 将批次写入**对方** §0.R（交叉审修），并简报 Human（`CHG-012`）。  
 - 联审 → 07，落地必须进 03。  
 - **自动 Git（默认）**：落地自检通过后独立 commit（带 REQ/CHG）并 `push origin HEAD`；禁夹带 `.env` / GEX HTML / `scratch`。生产 ff / C2 仍须 human。
 

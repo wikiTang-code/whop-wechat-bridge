@@ -65,6 +65,7 @@
 | CHG-009 | `accepted` | **企微业务跟单 HITL 回调**（卡片 EXECUTE/SKIP/PARSE_ERROR）；与 `/ops` 冻结表分立专节；禁运维 C2 | 见 `follow-hitl-plan.md`；须威胁说明+单测 |
 | CHG-010 | `done` | **Before**：即时推送硬编码「已同步处理量化跟单」· **After**：大V发言卡仅事实字段；交易由 `trading.js` 独立推送 | 落地 REQ-030 · `monitor.js` |
 | CHG-011 | `done` | **双 Agent 高优队列**：05 §0.A/`cursor` + §0.B/`gemini` 互斥；共享候选池；README 镜像；06 §1.1 SOP | 2026-09-14 `agent:cursor` |
+| CHG-012 | `done` | **交叉 Review+修复队列**：累计 Done≥5 或专题包关闭 → 移交对方 §0.R；07 收意见；06 §1.2 | 2026-09-14 `agent:cursor` |
 
 ---
 

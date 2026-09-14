@@ -56,6 +56,7 @@
 
 **落地后 Git（长期默认，勿等用户再催）**：REQ/CHG 代码或文档落地且自检通过后，Agent **自动**（1）回写 `docs/project/`（2）独立 commit（带 REQ/CHG 号；禁夹带 `.env` / GEX HTML / `scratch`）（3）`git push origin HEAD`。生产 ff / C2 仍须 human（REQ-002 / HITL）。
 
-**双队列**：§0.A=`agent:cursor` · §0.B=`agent:gemini`；同一 REQ/热点互斥（`CHG-011`）。
+**双队列**：§0.A=`agent:cursor` · §0.B=`agent:gemini`；同一 REQ/热点互斥（`CHG-011`）。  
+**交叉审修**：出队满阈值或专题包关闭 → 对方 §0.R（`CHG-012`）；结论进 07，修复进 03。
 
 详细流程与冻结清单：`docs/project/06-process.md` · `docs/project/wecom-freeze.md`
