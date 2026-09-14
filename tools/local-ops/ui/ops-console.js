@@ -1,12 +1,15 @@
 /**
  * Minimal localhost ops console (REQ-006 / P6). No C2 from UI without confirm flow.
+ * REQ-034: embeds CSRF and sends Origin-safe same-origin headers.
  */
-export function renderOpsUiHtml() {
+export function renderOpsUiHtml({ csrfToken = '' } = {}) {
+  const token = String(csrfToken || '').replace(/[^a-zA-Z0-9]/g, '');
   return `<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="local-ops-csrf" content="${token}" />
   <title>Local Ops</title>
   <style>
     :root { color-scheme: light; --ink:#1a1f2e; --muted:#5c6578; --line:#d8dde8; --bg:#f3f5f9; --card:#fff; --accent:#0b6e4f; }
@@ -27,11 +30,12 @@ export function renderOpsUiHtml() {
 <body>
   <main>
     <h1>Local Ops <span class="badge">127.0.0.1 only</span></h1>
-    <p class="sub">本机运维页 · 只暴露网关已注册能力 · 生产 C2 仍须 human-approve</p>
+    <p class="sub">本机运维页 · Host/Origin/CSRF 门禁（REQ-034）· 生产 C2 仍须 human-approve</p>
     <div class="grid" id="actions"></div>
     <pre id="out">loading…</pre>
   </main>
   <script>
+    const CSRF = document.querySelector('meta[name="local-ops-csrf"]')?.content || '';
     const ACTIONS = [
       ['ops.whoami', 'Whoami'],
       ['gex.status', 'GEX status'],
@@ -55,7 +59,12 @@ export function renderOpsUiHtml() {
       try {
         const res = await fetch('/api/ops/invoke', {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
+          credentials: 'same-origin',
+          headers: {
+            'content-type': 'application/json',
+            'x-csrf-token': CSRF,
+            'x-local-ops': '1'
+          },
           body: JSON.stringify({ id, args: {} })
         });
         const data = await res.json();
@@ -68,7 +77,7 @@ export function renderOpsUiHtml() {
       b.onclick = () => invoke(id);
       box.appendChild(b);
     }
-    fetch('/healthz').then(r => r.json()).then(show).catch(e => show(String(e)));
+    fetch('/healthz', { credentials: 'same-origin' }).then(r => r.json()).then(show).catch(e => show(String(e)));
   </script>
 </body>
 </html>`;

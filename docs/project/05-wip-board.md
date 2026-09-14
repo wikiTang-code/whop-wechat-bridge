@@ -13,8 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-034** | L6 | Localhost Ops 端口 `:18789` CSRF/Origin 与 DNS Rebinding 阻断 | `tools/local-ops/http-server.js` | **Doing** |
-| 2 | **REQ-035** | L1 | 回放纠错与 `trade_signals` 流水自动校准联动 | `follow-replay-engine.js` · `database.js` | Queued |
+| **1** | **REQ-035** | L1 | 回放纠错与 `trade_signals` 流水自动校准联动与回归 | `database.js` · 信号底册 | **Doing** |
+| 2 | — | — | （REQ-034 已 Done 出队） | — | — |
 
 ### 0.B 队列 `agent:gemini`
 

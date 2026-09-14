@@ -48,7 +48,12 @@ try {
       ticker TEXT,
       action TEXT,
       price REAL,
+      fraction_name TEXT,
+      fraction_ratio REAL,
       before_qty INTEGER,
+      before_avg_cost REAL,
+      after_qty INTEGER,
+      after_avg_cost REAL,
       raw_content TEXT,
       status TEXT,
       is_manual INTEGER DEFAULT 0,
@@ -60,8 +65,8 @@ try {
   const mockTime = Date.parse('2026-05-18T10:00:00Z');
   db.prepare(`
     INSERT INTO trade_review_pool VALUES 
-    ('p1', 'm1', 'TSLL', 'BUY', 13.5, 100, '13.5入点tsll', 'candidate', 0, ?, ?),
-    ('p2', 'm2', 'CIFR', 'BUY', 18.15, 200, '18.15出 cifr剩下的一半', 'candidate', 0, ?, ?)
+    ('p1', 'm1', 'TSLL', 'BUY', 13.5, '0.5笔常规仓', 0.5, 100, 13.0, 150, 13.17, '13.5入点tsll 常规仓的一半', 'candidate', 0, ?, ?),
+    ('p2', 'm2', 'CIFR', 'BUY', 18.15, '半仓', 0.5, 200, 17.5, 100, 17.5, '18.15出 cifr剩下的一半', 'candidate', 0, ?, ?)
   `).run(mockTime, mockTime, mockTime + 1000, mockTime + 1000);
 
   // 2. 初始化与加载候选

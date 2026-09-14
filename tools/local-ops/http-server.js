@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Local HTTP adapter for WeCom inbound (127.0.0.1 only).
- * Expose via Cloudflare tunnel path /wecom/callback if needed — never use group webhook as inbound.
+ * Expose via tunnel path /wecom/callback if needed — never use group webhook as inbound.
+ * REQ-034: Host / Origin / CSRF gate on /ui and /api/ops/* (WeCom path exempt — own crypto).
  */
 import http from 'http';
 import { URL } from 'url';
@@ -12,6 +13,14 @@ import { createGateway } from './gateway.js';
 import { createWecomHandler } from './wecom/callback.js';
 import { createWecomPusher } from './wecom/push.js';
 import { renderOpsUiHtml } from './ui/ops-console.js';
+import {
+  checkLocalOpsHttpGate,
+  mintCsrfToken,
+  isLoopbackRemote,
+  isLoopbackHostHeader,
+  isLoopbackOrigin,
+  hasLocalOpsHeader,
+} from './http-guard.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '../..');
@@ -38,9 +47,22 @@ function readBody(req, limit = 256 * 1024) {
   });
 }
 
-function missingWecomEnv() {
-  const need = ['WECOM_OPS_TOKEN', 'WECOM_OPS_ENCODING_AES_KEY', 'WECOM_OPS_CORP_ID', 'WECOM_OPS_USERIDS'];
-  return need.filter((k) => !process.env[k]);
+function denyJson(res, status, code, logLine) {
+  res.writeHead(status, {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-store',
+  });
+  res.end(JSON.stringify({ ok: false, denied: true, code }));
+  logLine(status, code);
+}
+
+/** CLI: X-Local-Ops:1 + loopback Host + no browser Origin → CSRF optional */
+function isLocalCliInvoke(req, listenPort) {
+  if (!hasLocalOpsHeader(req)) return false;
+  if (!isLoopbackRemote(req.socket?.remoteAddress)) return false;
+  if (!isLoopbackHostHeader(req.headers?.host, listenPort)) return false;
+  if (req.headers?.origin && !isLoopbackOrigin(req.headers.origin, listenPort)) return false;
+  return !req.headers?.origin;
 }
 
 export function createLocalOpsHttpServer(options = {}) {
@@ -49,6 +71,7 @@ export function createLocalOpsHttpServer(options = {}) {
   const need = ['WECOM_OPS_TOKEN', 'WECOM_OPS_ENCODING_AES_KEY', 'WECOM_OPS_CORP_ID', 'WECOM_OPS_USERIDS'];
   const missing = need.filter((k) => !env[k]);
   const wecomEnabled = missing.length === 0;
+  const csrfToken = options.csrfToken || mintCsrfToken();
 
   let wecom = null;
   let pusher = null;
@@ -85,64 +108,23 @@ export function createLocalOpsHttpServer(options = {}) {
       );
     };
     try {
-      const url = new URL(req.url || '/', `http://${host}:${port}`);
-
-      if (req.method === 'GET' && url.pathname === '/healthz') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          ok: true,
-          wecom_enabled: wecomEnabled,
-          wecom_push_enabled: Boolean(pusher?.enabled),
-          wecom_push_via: pusher?.via || null,
-          missing_env: missing,
-          bind: `${host}:${port}`,
-          ui: '/ui',
-        }));
-        logLine(200);
+      // No CORS: foreign browsers must not call this API.
+      if (req.method === 'OPTIONS') {
+        res.writeHead(405, { Allow: 'GET, POST' });
+        res.end('method not allowed');
+        logLine(405, 'options');
         return;
       }
 
-      if (req.method === 'GET' && (url.pathname === '/ui' || url.pathname === '/ui/')) {
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(renderOpsUiHtml());
-        logLine(200, 'ui');
-        return;
-      }
+      const listenPort = server.address()?.port || port;
+      const url = new URL(req.url || '/', `http://${host}:${listenPort}`);
 
-      if (req.method === 'POST' && url.pathname === '/api/ops/invoke') {
-        const remote = String(req.socket.remoteAddress || '');
-        const loopback = remote === '127.0.0.1' || remote === '::1' || remote === '::ffff:127.0.0.1';
-        if (!loopback) {
-          res.writeHead(403, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ ok: false, denied: true, code: 'localhost_only' }));
-          logLine(403, 'not_loopback');
-          return;
-        }
-        const body = await readBody(req, 64 * 1024);
-        let payload = {};
-        try {
-          payload = body ? JSON.parse(body) : {};
-        } catch {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ ok: false, code: 'bad_json' }));
-          logLine(400, 'bad_json');
-          return;
-        }
-        const id = String(payload.id || '').trim();
-        if (!id || id.includes('place_order') || id === 'human-approve') {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ ok: false, denied: true, code: 'bad_id' }));
-          logLine(400, 'bad_id');
-          return;
-        }
-        const result = await gateway.invoke(id, payload.args || {});
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(result));
-        logLine(200, id);
-        return;
-      }
-
+      // WeCom: crypto auth; Host may be public name via ssh -R. Still require loopback remote.
       if (url.pathname === '/wecom/callback') {
+        if (!isLoopbackRemote(req.socket.remoteAddress)) {
+          denyJson(res, 403, 'localhost_only', logLine);
+          return;
+        }
         if (!wecom) {
           res.writeHead(503, { 'Content-Type': 'text/plain' });
           res.end(`wecom not configured; missing ${missing.join(',')}`);
@@ -179,6 +161,86 @@ export function createLocalOpsHttpServer(options = {}) {
         return;
       }
 
+      if (req.method === 'GET' && url.pathname === '/healthz') {
+        if (!isLoopbackRemote(req.socket.remoteAddress) || !isLoopbackHostHeader(req.headers?.host, listenPort)) {
+          denyJson(res, 403, !isLoopbackRemote(req.socket.remoteAddress) ? 'localhost_only' : 'bad_host', logLine);
+          return;
+        }
+        if (req.headers?.origin && !isLoopbackOrigin(req.headers.origin, listenPort)) {
+          denyJson(res, 403, 'bad_origin', logLine);
+          return;
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+        res.end(JSON.stringify({
+          ok: true,
+          wecom_enabled: wecomEnabled,
+          wecom_push_enabled: Boolean(pusher?.enabled),
+          wecom_push_via: pusher?.via || null,
+          missing_env: missing,
+          bind: `${host}:${listenPort}`,
+          ui: '/ui',
+          csrf: 'required_on_invoke',
+        }));
+        logLine(200);
+        return;
+      }
+
+      if (req.method === 'GET' && (url.pathname === '/ui' || url.pathname === '/ui/')) {
+        if (!isLoopbackRemote(req.socket.remoteAddress) || !isLoopbackHostHeader(req.headers?.host, listenPort)) {
+          denyJson(res, 403, !isLoopbackRemote(req.socket.remoteAddress) ? 'localhost_only' : 'bad_host', logLine);
+          return;
+        }
+        if (req.headers?.origin && !isLoopbackOrigin(req.headers.origin, listenPort)) {
+          denyJson(res, 403, 'bad_origin', logLine);
+          return;
+        }
+        res.writeHead(200, {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store',
+          'X-Frame-Options': 'DENY',
+          'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'none'; base-uri 'none'; form-action 'self'",
+          'Set-Cookie': `local_ops_csrf=${csrfToken}; Path=/; SameSite=Strict; HttpOnly; Max-Age=86400`,
+        });
+        res.end(renderOpsUiHtml({ csrfToken }));
+        logLine(200, 'ui');
+        return;
+      }
+
+      if (req.method === 'POST' && url.pathname === '/api/ops/invoke') {
+        const requireCsrf = !isLocalCliInvoke(req, listenPort);
+        const gate = checkLocalOpsHttpGate(req, {
+          listenPort,
+          csrfToken,
+          requireCsrf,
+        });
+        if (!gate.ok) {
+          denyJson(res, gate.status, gate.code, logLine);
+          return;
+        }
+        const body = await readBody(req, 64 * 1024);
+        let payload = {};
+        try {
+          payload = body ? JSON.parse(body) : {};
+        } catch {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: false, code: 'bad_json' }));
+          logLine(400, 'bad_json');
+          return;
+        }
+        const id = String(payload.id || '').trim();
+        if (!id || id.includes('place_order') || id === 'human-approve') {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: false, denied: true, code: 'bad_id' }));
+          logLine(400, 'bad_id');
+          return;
+        }
+        const result = await gateway.invoke(id, payload.args || {});
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+        res.end(JSON.stringify(result));
+        logLine(200, id);
+        return;
+      }
+
       res.writeHead(404);
       res.end('not found');
       logLine(404);
@@ -189,7 +251,7 @@ export function createLocalOpsHttpServer(options = {}) {
     }
   });
 
-  return { server, gateway, wecomEnabled, missing, host, port };
+  return { server, gateway, wecomEnabled, missing, host, port, csrfToken };
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
@@ -199,5 +261,6 @@ if (isMain) {
     process.stderr.write(`[local-ops-http] listening http://${host}:${port}\n`);
     process.stderr.write(`[local-ops-http] wecom=${wecomEnabled ? 'on' : 'off'} missing=${missing.join(',') || '-'}\n`);
     process.stderr.write(`[local-ops-http] callback path: /wecom/callback\n`);
+    process.stderr.write('[local-ops-http] REQ-034 Host/Origin/CSRF gate on /ui and /api/ops/invoke\n');
   });
 }

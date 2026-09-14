@@ -18,14 +18,19 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
-function request(port, method, urlPath, body) {
+function request(port, method, urlPath, body, headers = {}) {
   return new Promise((resolve, reject) => {
     const req = http.request({
       host: '127.0.0.1',
       port,
       path: urlPath,
       method,
-      headers: body ? { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) } : {},
+      headers: {
+        host: `127.0.0.1:${port}`,
+        ...(body ? { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) } : {}),
+        'x-local-ops': '1',
+        ...headers,
+      },
     }, (res) => {
       const chunks = [];
       res.on('data', (c) => chunks.push(c));

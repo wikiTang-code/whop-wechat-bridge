@@ -56,8 +56,19 @@
         <span id="seqBadge" style="font-size:0.8rem; color:var(--text-muted);"></span>
       </div>
       
-      <label>原始大V发言引用：</label>
       <div class="quote-box" id="rawContent"></div>
+
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:16px; font-size:0.85rem;">
+        <div style="font-weight:600; color:var(--text); margin-bottom:6px;">📊 双账本已持仓位状态：</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="color:var(--text-muted);">赵哥推演持仓:</span>
+          <span id="zhaoPosText" style="font-weight:600; color:var(--primary);">加载中...</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--text-muted);">个人模拟账户:</span>
+          <span id="userPosText" style="font-weight:600; color:#10b981;">加载中...</span>
+        </div>
+      </div>
 
       <form id="correctForm">
         <div class="form-group">
@@ -74,13 +85,21 @@
           <input type="hidden" id="action" value="BUY">
         </div>
 
+        <div class="form-group">
+          <label>仓位维度表述 (大V原始表述/占比)</label>
+          <input type="text" id="fractionDesc" placeholder="如: 0.5笔常规仓、5%仓位、1/3常规仓">
+          <span style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:block;">
+            💡 提示：大V按笔数/比例喊单；本单股数基于标准 $10W 账户推演换算，因人而异。
+          </span>
+        </div>
+
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="form-group">
             <label>委托单价 ($)</label>
             <input type="number" step="0.001" id="price" required placeholder="0.00">
           </div>
           <div class="form-group">
-            <label>委托股数 (股)</label>
+            <label>参考委托股数 (股)</label>
             <input type="number" step="1" id="quantity" required placeholder="100">
           </div>
         </div>
@@ -157,7 +176,17 @@
         setSide(item.parsed_action);
         document.getElementById('price').value = item.parsed_price;
         document.getElementById('quantity').value = item.parsed_qty;
+        document.getElementById('fractionDesc').value = item.fraction_desc || '';
         
+        // 渲染双账本持仓状态
+        const beforeCostStr = item.before_avg_cost > 0 ? '$' + Number(item.before_avg_cost).toFixed(2) : '成本未计';
+        const afterCostStr = item.after_avg_cost > 0 ? '$' + Number(item.after_avg_cost).toFixed(2) : '成本未计';
+        document.getElementById('zhaoPosText').innerText = `${item.before_qty || 0} 股 (${beforeCostStr}) ➔ ${item.after_qty || item.parsed_qty} 股 (${afterCostStr})`;
+        
+        const uQty = item.user_qty || 0;
+        const uCostStr = item.user_avg_cost > 0 ? '$' + Number(item.user_avg_cost).toFixed(2) : '$0.00';
+        document.getElementById('userPosText').innerText = uQty > 0 ? `${uQty} 股 (成本 ${uCostStr})` : '0 股 (当前无持仓 / 历史回放仅跳过核验)';
+
         // 格式化本地时间
         const d = new Date(item.created_at);
         d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
@@ -185,6 +214,7 @@
         action: document.getElementById('action').value,
         price: document.getElementById('price').value,
         quantity: document.getElementById('quantity').value,
+        fraction_desc: document.getElementById('fractionDesc').value,
         trade_time: document.getElementById('tradeTime').value
       };
 
