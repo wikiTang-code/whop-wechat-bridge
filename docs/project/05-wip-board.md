@@ -25,10 +25,12 @@
 | REQ-001 | L4 | Push 本地 commits → origin | `agent:cursor` | Done | `de872b0..1352705` |
 | REQ-002 | L4 | 生产 ff 对齐 | `human` | Todo | 依赖 push；判据见 REQ-019 |
 | REQ-003 | L3 | 开盘 GEX 计划任务 | — | Todo | 可抢 |
-| REQ-027 | L1 | 三账本隔离+看板分源 | — | Todo | proposed; follow-hitl-plan |
-| REQ-028 | L1 | Paper TTL/滑点状态机 | — | Todo | proposed; 待 027 |
-| REQ-029 | L1/L4 | 移动端跟单确认卡片 | — | Todo | proposed; 待 CHG-009 |
-| CHG-009 | L4 | 企微业务跟单 HITL 回调 | — | Todo | proposed; != /ops |
+| REQ-027 | L1 | 三账本隔离+看板分源 | — | Todo | accepted; follow-hitl-plan |
+| REQ-028 | L1 | Paper TTL/滑点状态机 | — | Todo | accepted; 待 027 |
+| REQ-029 | L1/L4 | 移动端跟单确认卡片 | — | Todo | accepted; 待 CHG-009 |
+| CHG-009 | L4 | 企微业务跟单 HITL 回调 | — | Todo | accepted; != /ops |
+| REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | gent:gemini | Doing | monitor.js · CHG-010 |
+| CHG-010 | L1 | 发言推送与交易推送解耦 | gent:gemini | Doing | 随 REQ-030 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 

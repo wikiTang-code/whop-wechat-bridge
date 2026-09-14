@@ -56,7 +56,7 @@
 | Q-002 | 漏重启用何信号发现？ | human+L4 | open |
 | Q-003 | 每次拉链是否 commit `latest.json`？ | — | **已决：否；仅里程碑**（§1.1） |
 | Q-004 | P5 是否加 CI `place_order` grep？ | L5 | open（建议做） |
-| Q-005 | 跟单确认通道：企微业务卡片（默认）vs Dashboard 移动页？ | human | open（方案默认企微；见 follow-hitl-plan §7） |
+| Q-005 | 跟单确认通道：企微业务卡片 vs Dashboard 移动页？ | human | **已决：企微业务确认卡片**（盘中 90s 时效；≠ `/ops`） |
 
 ---
 

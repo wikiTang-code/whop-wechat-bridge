@@ -1,8 +1,8 @@
 # L1 跟单：信号 / 确认 / 模拟仓 对齐方案
 
-> 状态：`proposed`（2026-09-14）· 待 human 拍板后 `accepted` 再开工  
+> 状态：`accepted`（2026-09-14）· Q-005 已决企微业务卡片 · 待 05 认领后开工  
 > 依据：用户目标（模拟仓迭代 + 移动端确认 + 赵哥看板与个人跟单分仓）· 现网事实（[Explore L1 trade follow path](1acf7743-67e8-406e-aee7-aee21e6e9a70)）· 既有规格 [`data/specs/follow_execution_spec.md`](../../data/specs/follow_execution_spec.md)  
-> 账本：`REQ-027`～`REQ-029` · 关联 `REQ-021` · 企微扩面须 `CHG-009`
+> 账本：`REQ-027`～`REQ-030` · `CHG-009`/`CHG-010` · 关联 `REQ-021`
 
 ---
 
@@ -103,8 +103,9 @@ flowchart TD
 
 ---
 
-## 7. 待 human 确认的唯一开口
+## 7. 通道决策（Q-005）
 
-若否决「企微业务回调」：备选改为 **Dashboard 移动浏览器页（仅 VPN/隧道 + 登录）**；则 `CHG-009` 改为 L6 子集，Phase C 重排。默认仍走企微（盘中可达性最高）。
+**已决：企微业务推送 + 交互卡片/按钮回调。**  
+理由：美股盘中以秒计，规格 TTL=90s；Dashboard 移动页依赖隧道+浏览器，易漏单。安全边界仍由 `CHG-009` 与 `/ops` 分立保证。
 
-拍板后：03 中 `REQ-027`～`029` / `CHG-009` → `accepted`，05 认领再改代码。
+拍板后：03 中相关项已 `accepted`；05 认领后再改代码。`REQ-030`/`CHG-010`（推送文案实事求是）可与 Phase A 并行，热点 `monitor.js`。

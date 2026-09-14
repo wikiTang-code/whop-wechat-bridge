@@ -47,9 +47,10 @@
 | REQ-023 | P0 | L0 | `done` | 进度文档并发协议 | 见 `06-process.md` §3 |
 | REQ-024 | P1 | L3/L0 | `done` | `data/gex` 提交硬规则 | 见 04/06；human 已拍板 |
 | REQ-026 | P0 | L0 | `done` | 多端统一 Agent 治理：`AGENTS.md` 精炼版 + `CLAUDE.md` 指针 + `.cursor/rules/agent-governance.mdc` | 2026-09-14 |
-| REQ-027 | P1 | L1 | `proposed` | **三账本隔离**：赵哥 signal ≠ 跟单 decision ≠ fill；看板分源 | 方案 [`follow-hitl-plan.md`](./follow-hitl-plan.md) |
-| REQ-028 | P1 | L1 | `proposed` | **落地 Paper 状态机**（TTL/滑点）；停解析后直连实盘 | 对齐 `follow_execution_spec.md`；热点 `trading.js`/`monitor.js` |
-| REQ-029 | P1 | L1/L4 | `proposed` | **移动端跟单确认卡片**（执行/放弃/解析错误）+ 90s 超时 | 依赖 CHG-009；非 `/ops` |
+| REQ-027 | P1 | L1 | `accepted` | **三账本隔离**：赵哥 signal ≠ 跟单 decision ≠ fill；看板分源 | 方案 [`follow-hitl-plan.md`](./follow-hitl-plan.md)；Q-005 已决企微卡片 |
+| REQ-028 | P1 | L1 | `accepted` | **落地 Paper 状态机**（TTL/滑点）；停解析后直连实盘 | 对齐 `follow_execution_spec.md`；热点 `trading.js`/`monitor.js` |
+| REQ-029 | P1 | L1/L4 | `accepted` | **移动端跟单确认卡片**（执行/放弃/解析错误）+ 90s 超时 | 依赖 CHG-009；非 `/ops` |
+| REQ-030 | P1 | L1 | `in_progress` | **大V即时推送实事求是**：剥离「已同步处理量化跟单」硬编码；发言通知与交易通知正交 | 热点 `monitor.js`；Owner 见 05=`agent:gemini` |
 
 | ID | 状态 | 摘要 |
 |----|:----:|------|
@@ -61,7 +62,8 @@
 | CHG-006 | `done` | **扩写** `06-process` §6 发布/HITL 可执行清单（对齐→验证→具名 restart→记录） | 2026-09-14 `agent:cursor` · 热点 `docs/project/06-process.md` |
 | CHG-007 | `accepted` | 统一开工必读：rule / AGENTS / README 均指向 `docs/project/` 全树 |
 | CHG-008 | `done` | **收工默认自动** commit（带 REQ/CHG）+ `push origin HEAD` + 回写文档树；禁夹带密钥/GEX HTML/scratch；生产 ff/C2 仍 HITL | 2026-09-14 `agent:cursor` · `AGENTS.md` §6 · `06` §8 · progress-sync rule |
-| CHG-009 | `proposed` | **企微业务跟单 HITL 回调**（卡片 EXECUTE/SKIP/PARSE_ERROR）；与 `/ops` 冻结表分立专节；禁运维 C2 | 见 `follow-hitl-plan.md`；须威胁说明+单测 |
+| CHG-009 | `accepted` | **企微业务跟单 HITL 回调**（卡片 EXECUTE/SKIP/PARSE_ERROR）；与 `/ops` 冻结表分立专节；禁运维 C2 | 见 `follow-hitl-plan.md`；须威胁说明+单测 |
+| CHG-010 | `accepted` | **Before**：即时推送硬编码「已同步处理量化跟单」· **After**：大V发言卡仅事实字段；交易由 `trading.js` 独立推送 | 落地 REQ-030 |
 
 ---
 

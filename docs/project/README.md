@@ -65,9 +65,10 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 **三层能力面**：① 业务守护流水线 ② 本机 Local-Ops catalog ③ 企微极窄 `/ops`（C0 + `gex.collect`）。详见 [`01`](./01-background-vision.md) / [`02`](./02-current-state.md)。
 
 **当前最高优先**：见 [`05-wip-board.md`](./05-wip-board.md)  
-- `human`：REQ-002 生产 ff；**拍板** [`follow-hitl-plan.md`](./follow-hitl-plan.md)（Q-005 企微卡片 vs Dashboard）  
-- 可抢：REQ-003 / REQ-004；L1 方案未 accepted 前勿开工 REQ-027～029  
-- 已收官本轮：CHG-006/008、REQ-015～020  
+- `human`：REQ-002 生产 ff  
+- `agent:gemini`：REQ-030（推送文案实事求是 · `monitor.js`）  
+- L1 方案已 accepted：REQ-027～029 / CHG-009；按 Phase A→B→C 认领，勿并行抢同一热点  
+- 可抢：REQ-003 / REQ-004  
 
 **审阅建议编号**：已合并进 [`03`](./03-requirements.md)（REQ-015～025）。
 
