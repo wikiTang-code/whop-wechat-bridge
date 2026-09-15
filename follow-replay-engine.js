@@ -141,7 +141,7 @@ export function formatFractionDesc(fractionName, fractionRatio, rawContent, acti
     if (raw.includes('清仓') || raw.includes('出完') || raw.includes('全出') || raw.includes('平仓') || raw.includes('先出完')) {
       return `全部清仓 (100% 清空${lotPrefix})`;
     }
-    if (raw.includes('出一半') || raw.includes('半仓') || raw.includes('卖一半') || raw.includes('减半')) {
+    if (/(出|卖|减|平).*一半/i.test(raw) || raw.includes('减半') || raw.includes('半仓') || raw.includes('0.5')) {
       return `减持 1/2 份额 (卖出${lotPrefix}的 50%)`;
     }
     if (raw.includes('三分之一') || raw.includes('1/3')) {
@@ -163,12 +163,18 @@ export function formatFractionDesc(fractionName, fractionRatio, rawContent, acti
   if (raw.includes('常规仓') && !raw.includes('一半') && !raw.includes('三分之一')) {
     return '1 笔标准常规仓 (约占总资金 10.0%)';
   }
+  // 清洗 fractionName，去除所有历史拼接的 "(约占总资金...)" 括号及冗余空白
+  const cleanName = (fractionName || '')
+    .replace(/\(约占总资金\s*[\d.]*%\)/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
   if (fractionRatio) {
     const pct = (fractionRatio * 10).toFixed(1);
-    return `${fractionName ? fractionName + ' ' : ''}(约占总资金 ${pct}%)`;
+    return cleanName ? `${cleanName} (约占总资金 ${pct}%)` : `(约占总资金 ${pct}%)`;
   }
-  if (fractionName) {
-    return fractionName;
+  if (cleanName) {
+    return cleanName;
   }
   return '常规建仓 (未明确比例)';
 }
@@ -447,7 +453,9 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
 
       if (!isReviewed) {
         // 动态校准待审单的买卖方向 (针对 "买回/加回/接回/回买" 等核心动词，纠正防止因带“卖出”被误判为 SELL)
-        if (/买回|加回|接回|回买|回吸/.test(raw)) {
+        if (/买回|加回|接回|回买/.test(raw)) {
+          action = 'BUY';
+        } else if (/回吸/.test(raw) && !/出.*回吸|再出.*回吸/.test(raw)) {
           action = 'BUY';
         }
 
@@ -459,7 +467,7 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
           targetFractionPct = 0.05;
         } else if (raw.includes('三分之一') || raw.includes('1/3')) {
           targetFractionPct = 0.0333;
-        } else if (raw.includes('半仓') || raw.includes('出一半') || raw.includes('卖一半') || raw.includes('减半')) {
+        } else if (raw.includes('半仓') || /(出|卖|减|平).*一半/.test(raw) || raw.includes('减半')) {
           targetFractionPct = 0.05;
         } else if (r.fraction_ratio) {
           targetFractionPct = r.fraction_ratio * 0.1;
@@ -494,7 +502,7 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
           if (targetLot) {
             if (raw.includes('出剩下一半') || raw.includes('剩下一半') || raw.includes('剩下') || raw.includes('清仓') || raw.includes('出完') || raw.includes('全出') || raw.includes('平仓') || raw.includes('平本出')) {
               deltaQty = targetLot.qty;
-            } else if (raw.includes('出一半') || raw.includes('半仓') || raw.includes('卖一半') || raw.includes('减半')) {
+            } else if (/(出|卖|减|平).*一半/.test(raw) || raw.includes('半仓') || raw.includes('减半')) {
               deltaQty = Math.ceil(targetLot.qty / 2);
             } else if (raw.includes('三分之一') || raw.includes('1/3')) {
               deltaQty = Math.round(targetLot.qty / 3);
@@ -504,7 +512,7 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
           } else {
             if (raw.includes('清仓') || raw.includes('出完') || raw.includes('平出') || raw.includes('全出') || raw.includes('出剩下一半') || raw.includes('剩下全部')) {
               deltaQty = beforeQty;
-            } else if (raw.includes('出一半') || raw.includes('半仓') || raw.includes('卖一半') || raw.includes('减半')) {
+            } else if (/(出|卖|减|平).*一半/.test(raw) || raw.includes('半仓') || raw.includes('减半')) {
               deltaQty = Math.ceil(beforeQty / 2);
             } else {
               const latestLot = lots.slice().reverse().find(l => l.qty > 0);
