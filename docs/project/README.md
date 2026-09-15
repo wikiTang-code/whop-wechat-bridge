@@ -25,12 +25,14 @@ docs/project/                          ← 你在这里（总索引）
 ├── 05-wip-board.md                    ← 谁在做、做到哪（WIP 看板）
 ├── 06-process.md                      ← 开发流程框架 + 文档维护 SOP
 ├── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
-└── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
+├── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
+└── zhao-knowledge-multimodal-plan.md  ← 大V全频道多模态图文对齐与知识本体方案（proposed）
 
 专题权威方案（不重复当总进度，只被引用）：
 docs/local-ops-mcp-skill-plan.md       ← Local-Ops / 企微 / MCP
 docs/system-hardening-and-monitoring-plan.md
 docs/gex-sidecar.md
+docs/project/zhao-knowledge-multimodal-plan.md ← REQ-037 多模态知识图谱方案
 docs/project-progress.md               ← 兼容跳转页（指向本树）
 ```
 

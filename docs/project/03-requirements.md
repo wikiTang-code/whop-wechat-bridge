@@ -57,6 +57,7 @@
 | REQ-034 | P2 | L6 | `done` | **Localhost Ops 端口 `:18789` CSRF/Origin 与 DNS Rebinding 阻断** | Owner=`agent:cursor` · `http-guard.js` · `test_http_guard_req034.js` |
 | REQ-035 | P1 | L1 | `accepted` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后写入一条 `source=manual_correct` 的 signal） | 共享候选池 · `follow-replay-engine.js` · `database.js` |
 | REQ-036 | P1 | L3 | `done` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（1030组SFT/DPO训练集导出+Unsloth微调配方+端侧极速抽取器+100%回归评测） | Owner=`agent:gemini1` · `scripts/slm/*` · `slm-extractor.js` |
+| REQ-037 | P2 | L3 | `proposed` | **大V全频道多模态图文对齐与交易知识本体图谱体系**（图表视觉要素结构化+语义变点CU会话单元+四大策略本体卡片化+实盘智能参谋联动） | 专题权威方案 `docs/project/zhao-knowledge-multimodal-plan.md` · 待深度评审 |
 
 | ID | 状态 | 摘要 |
 |----|:----:|------|
