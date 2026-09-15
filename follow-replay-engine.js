@@ -249,13 +249,16 @@ export function loadReplayCandidates(db = getDb(), startTs = TRUMP_VISIT_START_T
         lots.push({ seqNo: seq, qty: deltaQty, price });
       } else {
         // SELL: 核心逻辑 —— 以【被卖出的那一批次整体为单位】进行操作
-        const priceMatches = raw.match(/出.*?(\d+(\.\d+)?)/) || raw.match(/(\d+(\.\d+)?)的/);
-        const targetPrice = priceMatches ? parseFloat(priceMatches[1]) : null;
-
         let targetLot = null;
-        if (targetPrice) {
-          // 优先匹配栈顶 (最近买入做T) 的相近价格批次
-          targetLot = lots.slice().reverse().find(l => Math.abs(l.price - targetPrice) < 0.5 && l.qty > 0);
+        if (sourceLotPrice != null) {
+          targetLot = lots.slice().reverse().find(l => Math.abs(l.price - sourceLotPrice) < 0.5 && l.qty > 0);
+        }
+        if (!targetLot) {
+          const priceMatches = raw.match(/出.*?(\d+(?:\.\d+)?)/) || raw.match(/(\d+(?:\.\d+)?)\s*的/);
+          if (priceMatches) {
+            const targetPrice = parseFloat(priceMatches[1]);
+            targetLot = lots.slice().reverse().find(l => Math.abs(l.price - targetPrice) < 0.5 && l.qty > 0);
+          }
         }
 
         if (targetLot) {
@@ -372,72 +375,16 @@ export function loadReplayCandidates(db = getDb(), startTs = TRUMP_VISIT_START_T
 export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
   initReplayTable(db);
 
-  // 1. 建立 seq_no < fromSeqNo 的基准在持批次
-  const historyRows = db.prepare(`
-    SELECT seq_no, parsed_ticker, parsed_action, parsed_price, parsed_qty, raw_content, source_lot_price, status
+  // 一次性获取全量单据，按真实 seq_no 升序排列
+  const allRows = db.prepare(`
+    SELECT id, seq_no, pool_id, message_id, raw_content, parsed_ticker, parsed_action, parsed_price, parsed_qty, fraction_desc, fraction_ratio, source_lot_price, status
     FROM follow_replay_queue
-    WHERE seq_no < ? AND status NOT IN ('rejected_non_trade', 'classified_strategy')
     ORDER BY seq_no ASC
-  `).all(fromSeqNo);
+  `).all();
 
-  const zhaoSimLots = {}; // ticker -> [ { seqNo, qty, price } ]
+  if (allRows.length === 0) return 0;
 
-  for (const r of historyRows) {
-    const ticker = (r.parsed_ticker || '').toUpperCase();
-    const action = (r.parsed_action || 'BUY').toUpperCase();
-    const raw = r.raw_content || '';
-    if (!zhaoSimLots[ticker]) zhaoSimLots[ticker] = [];
-    const lots = zhaoSimLots[ticker];
-
-    if (action === 'BUY') {
-      lots.push({ seqNo: r.seq_no, qty: r.parsed_qty, price: r.parsed_price });
-    } else if (action === 'SELL') {
-      let targetLot = null;
-      if (r.source_lot_price != null) {
-        targetLot = lots.slice().reverse().find(l => Math.abs(l.price - r.source_lot_price) < 0.5 && l.qty > 0);
-      }
-      if (!targetLot) {
-        const priceMatches = raw.match(/出.*?(\d+(\.\d+)?)/) || raw.match(/(\d+(\.\d+)?)的/);
-        if (priceMatches) {
-          const p = parseFloat(priceMatches[1]);
-          targetLot = lots.slice().reverse().find(l => Math.abs(l.price - p) < 0.5 && l.qty > 0);
-        }
-      }
-
-      if (targetLot) {
-        if (r.parsed_qty >= targetLot.qty || raw.includes('剩下一半') || raw.includes('出完') || raw.includes('清仓') || raw.includes('全出')) {
-          targetLot.qty = 0;
-        } else {
-          targetLot.qty -= r.parsed_qty;
-          if (targetLot.qty < 0) targetLot.qty = 0;
-        }
-      } else {
-        // 未指明批次时，按栈结构 (LIFO) 优先扣减最新做T买入批次
-        let rem = r.parsed_qty;
-        for (let i = lots.length - 1; i >= 0; i--) {
-          const l = lots[i];
-          if (l.qty > 0) {
-            const d = Math.min(l.qty, rem);
-            l.qty -= d;
-            rem -= d;
-            if (rem <= 0) break;
-          }
-        }
-      }
-    }
-  }
-
-  // 2. 提取需要级联重算的待审单据 (status = 'pending')
-  const pendingRows = db.prepare(`
-    SELECT id, seq_no, pool_id, message_id, raw_content, parsed_ticker, parsed_action, parsed_price, parsed_qty, fraction_desc, fraction_ratio, source_lot_price
-    FROM follow_replay_queue
-    WHERE seq_no >= ? AND status = 'pending'
-    ORDER BY seq_no ASC
-  `).all(fromSeqNo);
-
-  if (pendingRows.length === 0) return 0;
-
-  const updateStmt = db.prepare(`
+  const updatePendingStmt = db.prepare(`
     UPDATE follow_replay_queue
     SET parsed_price = ?,
         parsed_qty = ?,
@@ -453,17 +400,31 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
     WHERE id = ?
   `);
 
+  const updateReviewedStmt = db.prepare(`
+    UPDATE follow_replay_queue
+    SET source_lot_price = ?,
+        before_qty = ?,
+        before_avg_cost = ?,
+        after_qty = ?,
+        after_avg_cost = ?,
+        zhao_before_pct = ?,
+        zhao_after_pct = ?,
+        zhao_total_exp_pct = ?
+    WHERE id = ?
+  `);
+
+  const zhaoSimLots = {}; // ticker -> [ { seqNo, qty, price } ]
+  let recomputedCount = 0;
+
   const runTx = db.transaction((rows) => {
     for (const r of rows) {
-      const raw = r.raw_content || '';
+      if (r.status === 'rejected_non_trade' || r.status === 'classified_strategy') {
+        continue;
+      }
+
       const ticker = (r.parsed_ticker || '').toUpperCase();
       const action = (r.parsed_action || 'BUY').toUpperCase();
-
-      // 语义解析真实成交价与批次价
-      const { price: extPrice, sourceLotPrice: extSourceLot } = extractSemanticPrice(raw, ticker, action);
-      const price = (extPrice !== null && extPrice > 0) ? extPrice : (r.parsed_price || 100);
-      const sourceLotPrice = extSourceLot !== null ? extSourceLot : r.source_lot_price;
-      const fractionDesc = formatFractionDesc(r.fraction_desc, r.fraction_ratio, raw, action, sourceLotPrice);
+      const raw = r.raw_content || '';
 
       if (!zhaoSimLots[ticker]) zhaoSimLots[ticker] = [];
       const lots = zhaoSimLots[ticker];
@@ -472,29 +433,86 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
       const beforeTotalCost = lots.reduce((sum, l) => sum + l.qty * l.price, 0);
       const beforeAvgCost = beforeQty > 0 ? Number((beforeTotalCost / beforeQty).toFixed(2)) : 0;
 
-      let targetFractionPct = 0.05;
-      if (raw.includes('常规仓的一半') || raw.includes('一半常规仓') || raw.includes('一半做日内')) {
-        targetFractionPct = 0.05;
-      } else if (raw.includes('三分之一') || raw.includes('1/3')) {
-        targetFractionPct = 0.0333;
-      } else if (raw.includes('半仓') || raw.includes('出一半')) {
-        targetFractionPct = 0.05;
-      } else if (r.fraction_ratio) {
-        targetFractionPct = r.fraction_ratio * 0.1;
+      // 语义解析真实成交价与批次价
+      const { price: extPrice, sourceLotPrice: extSourceLot } = extractSemanticPrice(raw, ticker, action);
+      const sourceLotPrice = extSourceLot !== null ? extSourceLot : r.source_lot_price;
+
+      // 判断该单据是否为已由人工审核/修正过的单据（或序号在重算起点前）
+      const isReviewed = (r.status !== 'pending') || (r.seq_no < fromSeqNo);
+
+      let price = r.parsed_price;
+      let deltaQty = r.parsed_qty;
+      let fractionDesc = r.fraction_desc;
+
+      if (!isReviewed) {
+        price = (extPrice !== null && extPrice > 0) ? extPrice : (r.parsed_price || 100);
+        fractionDesc = formatFractionDesc(r.fraction_desc, r.fraction_ratio, raw, action, sourceLotPrice);
+
+        let targetFractionPct = 0.05;
+        if (raw.includes('常规仓的一半') || raw.includes('一半常规仓') || raw.includes('一半做日内')) {
+          targetFractionPct = 0.05;
+        } else if (raw.includes('三分之一') || raw.includes('1/3')) {
+          targetFractionPct = 0.0333;
+        } else if (raw.includes('半仓') || raw.includes('出一半')) {
+          targetFractionPct = 0.05;
+        } else if (r.fraction_ratio) {
+          targetFractionPct = r.fraction_ratio * 0.1;
+        }
+
+        if (action === 'BUY') {
+          deltaQty = price > 0 ? Math.max(1, Math.round((100000 * targetFractionPct) / price)) : 100;
+        } else {
+          // SELL 推荐股数计算
+          let targetLot = null;
+          if (sourceLotPrice != null) {
+            targetLot = lots.slice().reverse().find(l => Math.abs(l.price - sourceLotPrice) < 0.5 && l.qty > 0);
+          }
+          if (!targetLot) {
+            const priceMatches = raw.match(/出.*?(\d+(?:\.\d+)?)/) || raw.match(/(\d+(?:\.\d+)?)\s*的/);
+            if (priceMatches) {
+              const p = parseFloat(priceMatches[1]);
+              targetLot = lots.slice().reverse().find(l => Math.abs(l.price - p) < 0.5 && l.qty > 0);
+            }
+          }
+
+          if (targetLot) {
+            if (raw.includes('出剩下一半') || raw.includes('剩下一半') || raw.includes('剩下') || raw.includes('清仓') || raw.includes('出完') || raw.includes('全出') || raw.includes('平仓') || raw.includes('平本出')) {
+              deltaQty = targetLot.qty;
+            } else if (raw.includes('出一半') || raw.includes('半仓')) {
+              deltaQty = Math.ceil(targetLot.qty / 2);
+            } else if (raw.includes('三分之一') || raw.includes('1/3')) {
+              deltaQty = Math.round(targetLot.qty / 3);
+            } else {
+              deltaQty = targetLot.qty;
+            }
+          } else {
+            if (raw.includes('清仓') || raw.includes('出完') || raw.includes('平出') || raw.includes('全出') || raw.includes('出剩下一半') || raw.includes('剩下全部')) {
+              deltaQty = beforeQty;
+            } else if (raw.includes('出一半') || raw.includes('半仓')) {
+              deltaQty = Math.ceil(beforeQty / 2);
+            } else {
+              const latestLot = lots.slice().reverse().find(l => l.qty > 0);
+              if (latestLot) {
+                deltaQty = latestLot.qty;
+              } else {
+                deltaQty = beforeQty > 0 ? Math.min(beforeQty, Math.max(1, Math.round((100000 * targetFractionPct) / price))) : 0;
+              }
+            }
+          }
+        }
       }
 
-      let deltaQty = 0;
+      // 将本单执行应用到批次账本中 (无论是已审还是待审)
       if (action === 'BUY') {
-        deltaQty = price > 0 ? Math.max(1, Math.round((100000 * targetFractionPct) / price)) : 100;
         lots.push({ seqNo: r.seq_no, qty: deltaQty, price });
       } else {
-        // SELL: 优先使用 sourceLotPrice 从栈顶 (最近买入做T) 匹配目标批次
+        // SELL
         let targetLot = null;
         if (sourceLotPrice != null) {
           targetLot = lots.slice().reverse().find(l => Math.abs(l.price - sourceLotPrice) < 0.5 && l.qty > 0);
         }
         if (!targetLot) {
-          const priceMatches = raw.match(/出.*?(\d+(\.\d+)?)/) || raw.match(/(\d+(\.\d+)?)的/);
+          const priceMatches = raw.match(/出.*?(\d+(?:\.\d+)?)/) || raw.match(/(\d+(?:\.\d+)?)\s*的/);
           if (priceMatches) {
             const p = parseFloat(priceMatches[1]);
             targetLot = lots.slice().reverse().find(l => Math.abs(l.price - p) < 0.5 && l.qty > 0);
@@ -502,43 +520,22 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
         }
 
         if (targetLot) {
-          if (raw.includes('出剩下一半') || raw.includes('剩下一半') || raw.includes('剩下') || raw.includes('清仓') || raw.includes('出完') || raw.includes('全出') || raw.includes('平仓')) {
-            deltaQty = targetLot.qty;
+          if (deltaQty >= targetLot.qty || raw.includes('出剩下一半') || raw.includes('剩下一半') || raw.includes('出完') || raw.includes('清仓') || raw.includes('全出') || raw.includes('平本出')) {
             targetLot.qty = 0;
-          } else if (raw.includes('出一半') || raw.includes('半仓')) {
-            deltaQty = Math.ceil(targetLot.qty / 2);
-            targetLot.qty -= deltaQty;
-          } else if (raw.includes('三分之一') || raw.includes('1/3')) {
-            deltaQty = Math.round(targetLot.qty / 3);
-            targetLot.qty -= deltaQty;
           } else {
-            deltaQty = targetLot.qty;
-            targetLot.qty = 0;
+            targetLot.qty -= deltaQty;
+            if (targetLot.qty < 0) targetLot.qty = 0;
           }
         } else {
-          // 未指定特定买入价批次：按实战栈结构 (LIFO / 后进先出)，优先平最新反弹做T的低位批次
-          if (raw.includes('清仓') || raw.includes('出完') || raw.includes('平出') || raw.includes('全出') || raw.includes('出剩下一半') || raw.includes('剩下全部')) {
-            deltaQty = beforeQty;
-            lots.forEach(l => l.qty = 0);
-          } else if (raw.includes('出一半') || raw.includes('半仓')) {
-            deltaQty = Math.ceil(beforeQty / 2);
-            let rem = deltaQty;
-            for (let i = lots.length - 1; i >= 0; i--) {
-              const l = lots[i];
-              if (l.qty > 0) {
-                const d = Math.min(l.qty, rem);
-                l.qty -= d;
-                rem -= d;
-                if (rem <= 0) break;
-              }
-            }
-          } else {
-            const latestLot = lots.slice().reverse().find(l => l.qty > 0);
-            if (latestLot) {
-              deltaQty = latestLot.qty;
-              latestLot.qty = 0;
-            } else {
-              deltaQty = beforeQty > 0 ? Math.min(beforeQty, Math.max(1, Math.round((100000 * targetFractionPct) / price))) : 0;
+          // LIFO 栈式扣减
+          let rem = deltaQty;
+          for (let i = lots.length - 1; i >= 0; i--) {
+            const l = lots[i];
+            if (l.qty > 0) {
+              const d = Math.min(l.qty, rem);
+              l.qty -= d;
+              rem -= d;
+              if (rem <= 0) break;
             }
           }
         }
@@ -557,26 +554,41 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
       }
       const zhaoTotalExpPct = Number(((totalZhaoVal / 100000) * 100).toFixed(1));
 
-      updateStmt.run(
-        price,
-        deltaQty,
-        sourceLotPrice ?? null,
-        fractionDesc,
-        beforeQty,
-        beforeAvgCost,
-        afterQty,
-        afterAvgCost,
-        zhaoBeforePct,
-        zhaoAfterPct,
-        zhaoTotalExpPct,
-        r.id
-      );
+      if (!isReviewed) {
+        updatePendingStmt.run(
+          price,
+          deltaQty,
+          sourceLotPrice ?? null,
+          fractionDesc,
+          beforeQty,
+          beforeAvgCost,
+          afterQty,
+          afterAvgCost,
+          zhaoBeforePct,
+          zhaoAfterPct,
+          zhaoTotalExpPct,
+          r.id
+        );
+        recomputedCount++;
+      } else {
+        updateReviewedStmt.run(
+          sourceLotPrice ?? null,
+          beforeQty,
+          beforeAvgCost,
+          afterQty,
+          afterAvgCost,
+          zhaoBeforePct,
+          zhaoAfterPct,
+          zhaoTotalExpPct,
+          r.id
+        );
+      }
     }
   });
 
-  runTx(pendingRows);
-  console.log(`[Cascade Re-simulation] 已自动级联重算 ${pendingRows.length} 条待审单据 (从 #${fromSeqNo} 起)`);
-  return pendingRows.length;
+  runTx(allRows);
+  console.log(`[Cascade Re-simulation] 全局批次流水校验完成，级联更新了 ${recomputedCount} 条待审单据。`);
+  return recomputedCount;
 }
 
 /**
@@ -636,15 +648,20 @@ export function getTickerLotsAndHistory(targetSeqNo, ticker, db = getDb()) {
       });
     } else if (r.parsed_action === 'SELL') {
       let rem = r.parsed_qty;
-      // 提取针对特定价格的卖出 (如 "出98.7的")
-      const priceMatches = r.raw_content.match(/出.*?(\d+(\.\d+)?)/) || r.raw_content.match(/(\d+(\.\d+)?)的/);
+      // 提取针对特定价格的卖出 (如 "出98.7的", "47.8 的iren在47.8 平本出")
       let targetPrice = null;
-      if (priceMatches) {
-        targetPrice = parseFloat(priceMatches[1]);
+      const semantic = extractSemanticPrice(r.raw_content, cleanTicker, r.parsed_action);
+      if (semantic.sourceLotPrice != null) {
+        targetPrice = semantic.sourceLotPrice;
+      } else {
+        const priceMatches = r.raw_content.match(/出.*?(\d+(?:\.\d+)?)/) || r.raw_content.match(/(\d+(?:\.\d+)?)\s*的/);
+        if (priceMatches) {
+          targetPrice = parseFloat(priceMatches[1]);
+        }
       }
 
       // 如果有指明价格，优先扣减栈顶 (最近买入做T) 的相近价格 lot
-      const isCleanUp = (r.raw_content || '').includes('出剩下一半') || (r.raw_content || '').includes('剩下一半') || (r.raw_content || '').includes('出完') || (r.raw_content || '').includes('清仓') || (r.raw_content || '').includes('全出');
+      const isCleanUp = (r.raw_content || '').includes('出剩下一半') || (r.raw_content || '').includes('剩下一半') || (r.raw_content || '').includes('出完') || (r.raw_content || '').includes('清仓') || (r.raw_content || '').includes('全出') || (r.raw_content || '').includes('平本出');
       if (targetPrice) {
         for (let i = lots.length - 1; i >= 0; i--) {
           const lot = lots[i];

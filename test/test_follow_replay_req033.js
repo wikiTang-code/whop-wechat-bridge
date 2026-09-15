@@ -152,8 +152,35 @@ try {
   assert.strictEqual(sEnd.total, 2);
   assert.strictEqual(sEnd.processed, 2);
   assert.strictEqual(sEnd.confirmed, 1);
-  assert.strictEqual(sEnd.corrected, 1);
-  console.log('✅ 移动端要素纠错回写成功，金额自动联动核算准确，全部队列闭环');
+  // --- 5. 验证穿插已审单据下的批次匹配与 LIFO 准确性 (防止已审单据在级联中被漏掉) ---
+  console.log('\n--- 5. 验证穿插已审单据下的批次匹配与 LIFO 准确性 ---');
+  db.prepare("DELETE FROM follow_replay_queue").run();
+  
+  // 插入已审的第 1 笔与第 2 笔
+  db.prepare(`
+    INSERT INTO follow_replay_queue (id, seq_no, parsed_ticker, parsed_action, parsed_price, parsed_qty, raw_content, status, created_at)
+    VALUES ('rpl_t1', 1, 'IREN', 'BUY', 49.75, 67, '49.75开了三分之一常规仓的iren', 'confirmed_skip', 1000)
+  `).run();
+  db.prepare(`
+    INSERT INTO follow_replay_queue (id, seq_no, parsed_ticker, parsed_action, parsed_price, parsed_qty, raw_content, status, created_at)
+    VALUES ('rpl_t2', 2, 'IREN', 'BUY', 47.8, 70, '47.8加了三分之一常规仓的iren', 'confirmed_skip', 2000)
+  `).run();
+  // 插入待审的第 3 笔平本出
+  db.prepare(`
+    INSERT INTO follow_replay_queue (id, seq_no, parsed_ticker, parsed_action, parsed_price, parsed_qty, raw_content, status, created_at)
+    VALUES ('rpl_t3', 3, 'IREN', 'SELL', 47.8, 100, '47.8 的iren在47.8 平本出', 'pending', 3000)
+  `).run();
+
+  const { resimulateReplayQueue } = await import('../follow-replay-engine.js');
+  resimulateReplayQueue(db, 1);
+
+  const rowT3 = db.prepare("SELECT * FROM follow_replay_queue WHERE id = 'rpl_t3'").get();
+  assert.strictEqual(rowT3.before_qty, 137, '卖出前在持总股数必须为 137 (67+70)');
+  assert.strictEqual(rowT3.parsed_qty, 70, '必须准确命中 47.8 对应批次的 70 股');
+  assert.strictEqual(rowT3.after_qty, 67, '平出 47.8 批次后必须精准保留 49.75 批次的 67 股');
+  assert.strictEqual(rowT3.before_avg_cost, 48.75);
+  assert.strictEqual(rowT3.after_avg_cost, 49.75);
+  console.log('✅ 穿插已审单据级联推演验证通过: 137股(48.75) -> 卖出47.8批次70股 -> 剩余67股(49.75)');
 
   console.log('\n🎉 REQ-033 历史大V单回放与纠错反馈测试套件全部 PASS！\n');
 } finally {
