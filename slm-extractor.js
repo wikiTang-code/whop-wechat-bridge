@@ -9,7 +9,7 @@
  */
 
 import { extractSemanticPrice } from './price_extractor.js';
-import { LOCAL_LM_DEFAULT_BASE, LOCAL_LM_DEFAULT_MODEL } from './ai-router-policy.js';
+import { LOCAL_LM_DEFAULT_BASE, LOCAL_LM_DEFAULT_MODEL, resolveLocalModel } from './ai-router-policy.js';
 
 const SYSTEM_PROMPT = `你是一个顶级美股量化交易信号提取器，专门解析交易大V的中文口语喊单和调仓发言。
 你的任务是严格从用户文本中提取交易动作要素并输出纯 JSON 对象，禁止输出任何解释或 Markdown 代码块外的内容。
@@ -63,7 +63,7 @@ function cleanJsonOutput(raw) {
  */
 export async function extractTradeWithSLM(rawContent, options = {}) {
   const baseUrl = options.baseUrl || process.env.LM_STUDIO_BASE_URL || LOCAL_LM_DEFAULT_BASE;
-  const model = options.model || process.env.LM_STUDIO_MODEL || LOCAL_LM_DEFAULT_MODEL;
+  const model = resolveLocalModel('trade', options.model);
   const timeoutMs = options.timeoutMs || 8000;
 
   if (!rawContent || !rawContent.trim()) {

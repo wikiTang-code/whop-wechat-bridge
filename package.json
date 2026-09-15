@@ -22,7 +22,9 @@
     "pm2:stop": "pm2 stop whop-wechat-bridge",
     "pm2:restart": "pm2 restart whop-wechat-bridge",
     "pm2:status": "pm2 status",
-    "pm2:logs": "pm2 logs whop-wechat-bridge"
+    "pm2:logs": "pm2 logs whop-wechat-bridge",
+    "lms:status": "node scripts/lms_load.js --status",
+    "lms:clean": "node scripts/lms_load.js --clean"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.0",

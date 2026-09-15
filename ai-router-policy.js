@@ -9,9 +9,25 @@
  * Keep the existing Gemini key pool; never hardcode keys.
  */
 
-export const LOCAL_LM_DEFAULT_MODEL = 'qwen2.5-14b-instruct';
+export const LOCAL_LM_FAST_MODEL = 'qwen2.5-coder-1.5b-instruct';
+export const LOCAL_LM_DEEP_MODEL = 'qwen2.5-14b-instruct';
+export const LOCAL_LM_DEFAULT_MODEL = LOCAL_LM_DEEP_MODEL;
 export const LOCAL_LM_DEFAULT_BASE = 'http://127.0.0.1:8080';
 export const LOCAL_PROMPT_SAFE_CHARS = 12000;
+
+/**
+ * 根据业务场景解析对应的本地模型 (快车道 vs 智囊深车道)
+ * @param {'fast'|'deep'|'trade'|'filter'|'news'|'persona'} lane 
+ * @param {string} [explicitModel] 显式指定的模型名
+ */
+export function resolveLocalModel(lane = 'deep', explicitModel = null) {
+  if (explicitModel) return explicitModel;
+  const isFastLane = ['fast', 'trade', 'filter', 'extract'].includes(lane);
+  if (isFastLane) {
+    return process.env.LM_STUDIO_FAST_MODEL || LOCAL_LM_FAST_MODEL;
+  }
+  return process.env.LM_STUDIO_DEEP_MODEL || process.env.LM_STUDIO_MODEL || LOCAL_LM_DEEP_MODEL;
+}
 
 export function isGeminiKeyProtectError(errOrText) {
   const msg = String(errOrText?.message || errOrText || '').toLowerCase();

@@ -122,6 +122,7 @@
 
 | ID | Owner | 日 | 结果 |
 |----|-------|-----|------|
+| CHG-015 | `agent:gemini1` | 2026-09-15 | LM Studio 显存守卫与绝对防重加载机制落地，tools/lms-guard.js + 单测通过 |
 | REQ-036 | `agent:gemini1` | 2026-09-15 | 1030组SFT/DPO训练集导出+Unsloth微调配方+端侧双轨抽取器+100%Benchmark |
 | REQ-030 / CHG-010 | `agent:gemini` | 2026-09-15 | monitor.js 移除假跟单后缀，发言通知与交易解耦 |
 | REQ-020 | `agent:gemini` | 2026-09-14 | gateway audit + c2-audit-loop runbook |
