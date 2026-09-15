@@ -58,6 +58,7 @@
 | REQ-035 | P1 | L1 | `accepted` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后写入一条 `source=manual_correct` 的 signal） | 共享候选池 · `follow-replay-engine.js` · `database.js` |
 | REQ-036 | P1 | L3 | `done` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（1030组SFT/DPO训练集导出+Unsloth微调配方+端侧极速抽取器+100%回归评测） | Owner=`agent:gemini1` · `scripts/slm/*` · `slm-extractor.js` |
 | REQ-037 | P2 | L3 | `proposed` | **大V全频道多模态图文对齐与交易知识本体图谱体系**（图表视觉要素结构化+语义变点CU会话单元+四大策略本体卡片化+实盘智能参谋联动） | 专题权威方案 `docs/project/zhao-knowledge-multimodal-plan.md` · 待深度评审 |
+| CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |
 |----|:----:|------|
@@ -76,6 +77,7 @@
 | CHG-014 | `done` | **人令「跑完队列」后双 Agent 自主开发↔审修闭环**，中间勿打断确认（仍守互斥/HITL/红线） | 2026-09-14 |
 | CHG-013 | `done` | **每次同步文档树必须重读并镜像最新 §0 队列**（禁会话记忆排班；README↔05 同提交一致） | 2026-09-14 `agent:cursor` · AGENTS/06/rules |
 | CHG-015 | `done` | **LM Studio 显存守卫与绝对防重复加载机制**：`tools/lms-guard.js` 强幂等装载+自动排重巡检+显存预算核算+npm脚本；杜绝 `:2` 冗余副本挤爆显存 | 2026-09-15 `agent:gemini1` |
+| CHG-016 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：`database.js` 统一 `parseDateFilterToMs`，解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载 `whop-web-dashboard` 生效 | 2026-09-15 `agent:gemini` · `database.js` · `test_date_filter_timezone.js` |
 
 ---
 

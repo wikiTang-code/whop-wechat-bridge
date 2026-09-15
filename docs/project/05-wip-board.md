@@ -82,6 +82,7 @@
 | REQ-033 | L1/L4 | 历史回放+企微纠错（全量830笔重筑，保护已审29笔，Tokenizer槽位引擎+LIFO级联推演） | `agent:gemini` | Doing | replay-review-runner |
 | REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮 | `agent:gemini1` | Done | 1030组SFT/DPO训练集+Unsloth微调+端侧抽取器 |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
+| CHG-016 | L2 | 看板日期过滤强绑定北京时间 (+08:00) 闭环 | `agent:gemini` | Done | `3dc07c2` · 生产单进程重启生效 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 
