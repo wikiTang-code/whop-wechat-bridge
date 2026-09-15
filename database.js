@@ -755,6 +755,42 @@ export function isMessageArchived(id) {
   return !!row;
 }
 
+/**
+ * 将前端传入的日期字符串（如 '2026-05-20'）解析为北京时间 (UTC+8) 对应的毫秒时间戳。
+ * 避免因服务器宿主机时区为 UTC（如 GCP Linux 等）导致查询时间窗口发生 8 小时偏移。
+ * @param {string|number} dateStr 
+ * @param {boolean} isEndOfDay 是否为当天结束时间 (23:59:59.999)
+ * @returns {number}
+ */
+export function parseDateFilterToMs(dateStr, isEndOfDay = false) {
+  if (!dateStr) return NaN;
+  if (typeof dateStr === 'number') return dateStr;
+  const str = String(dateStr).trim();
+  if (!str) return NaN;
+
+  // 1. 如果是纯日期 YYYY-MM-DD（前端日历选择器默认传值）
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    const timePart = isEndOfDay ? '23:59:59.999' : '00:00:00.000';
+    return new Date(`${str}T${timePart}+08:00`).getTime();
+  }
+
+  // 2. 如果是纯毫秒时间戳数字
+  if (/^\d{11,}$/.test(str)) return Number(str);
+
+  // 3. 如果已经包含显式时区标识（形如 Z，或者在时间后面跟 +08:00 / -04:00）
+  if (/Z$/i.test(str) || /:\d{2}(?:[+-]\d{2}(?::?\d{2})?)$/.test(str)) {
+    return new Date(str).getTime();
+  }
+
+  // 4. 如果包含时间但未带时区（如 2026-05-20T12:00:00 或 2026-05-20 12:00:00）
+  const normalized = str.replace(' ', 'T');
+  if (normalized.includes('T')) {
+    return new Date(`${normalized}+08:00`).getTime();
+  }
+
+  return new Date(str).getTime();
+}
+
 // Retrieve messages with optional search and pagination and speaker filtering
 export function getMessages({ search, limit = 50, offset = 0, senderIds = [], excludeSenderIds = [], channelId = '', channelName = '', ticker = '', sector = '', strategy = '', startDate = '', endDate = '', msgType = '', dbInstance = null } = {}) {
   // Input validation: clamp limit and offset to safe ranges
@@ -805,7 +841,7 @@ export function getMessages({ search, limit = 50, offset = 0, senderIds = [], ex
   }
 
   if (startDate) {
-    const startMs = new Date(`${startDate}T00:00:00`).getTime();
+    const startMs = parseDateFilterToMs(startDate, false);
     if (!isNaN(startMs)) {
       clauses.push('created_at >= ?');
       params.push(startMs);
@@ -813,7 +849,7 @@ export function getMessages({ search, limit = 50, offset = 0, senderIds = [], ex
   }
 
   if (endDate) {
-    const endMs = new Date(`${endDate}T23:59:59.999`).getTime();
+    const endMs = parseDateFilterToMs(endDate, true);
     if (!isNaN(endMs)) {
       clauses.push('created_at <= ?');
       params.push(endMs);
@@ -1533,7 +1569,7 @@ export function getMessagesExcludingSpeakers(excludeSenderIds = [], { limit = 50
   clauses.push('LENGTH(TRIM(content)) > 5');
 
   if (startDate) {
-    const startMs = new Date(`${startDate}T00:00:00`).getTime();
+    const startMs = parseDateFilterToMs(startDate, false);
     if (!isNaN(startMs)) {
       clauses.push('created_at >= ?');
       params.push(startMs);
@@ -1541,7 +1577,7 @@ export function getMessagesExcludingSpeakers(excludeSenderIds = [], { limit = 50
   }
 
   if (endDate) {
-    const endMs = new Date(`${endDate}T23:59:59.999`).getTime();
+    const endMs = parseDateFilterToMs(endDate, true);
     if (!isNaN(endMs)) {
       clauses.push('created_at <= ?');
       params.push(endMs);
@@ -1587,7 +1623,7 @@ export function getSpecificCommunityMessages(senderIds = [], { limit = 5000, sta
   params.push(...senderIds);
   
   if (startDate) {
-    const startMs = new Date(`${startDate}T00:00:00`).getTime();
+    const startMs = parseDateFilterToMs(startDate, false);
     if (!isNaN(startMs)) {
       clauses.push('created_at >= ?');
       params.push(startMs);
@@ -1595,7 +1631,7 @@ export function getSpecificCommunityMessages(senderIds = [], { limit = 5000, sta
   }
 
   if (endDate) {
-    const endMs = new Date(`${endDate}T23:59:59.999`).getTime();
+    const endMs = parseDateFilterToMs(endDate, true);
     if (!isNaN(endMs)) {
       clauses.push('created_at <= ?');
       params.push(endMs);
@@ -1636,7 +1672,7 @@ export function getFilteredCommunityMessages(excludeSenderIds = [], { limit = 50
   keywords.forEach(kw => params.push(`%${kw}%`));
 
   if (startDate) {
-    const startMs = new Date(`${startDate}T00:00:00`).getTime();
+    const startMs = parseDateFilterToMs(startDate, false);
     if (!isNaN(startMs)) {
       clauses.push('created_at >= ?');
       params.push(startMs);
@@ -1644,7 +1680,7 @@ export function getFilteredCommunityMessages(excludeSenderIds = [], { limit = 50
   }
 
   if (endDate) {
-    const endMs = new Date(`${endDate}T23:59:59.999`).getTime();
+    const endMs = parseDateFilterToMs(endDate, true);
     if (!isNaN(endMs)) {
       clauses.push('created_at <= ?');
       params.push(endMs);
@@ -1677,7 +1713,7 @@ export function getAllSpeakerMessagesChronological(senderIds = [], { limit = 100
   }
 
   if (startDate) {
-    const startMs = new Date(`${startDate}T00:00:00`).getTime();
+    const startMs = parseDateFilterToMs(startDate, false);
     if (!isNaN(startMs)) {
       clauses.push('created_at >= ?');
       params.push(startMs);
@@ -1685,7 +1721,7 @@ export function getAllSpeakerMessagesChronological(senderIds = [], { limit = 100
   }
 
   if (endDate) {
-    const endMs = new Date(`${endDate}T23:59:59.999`).getTime();
+    const endMs = parseDateFilterToMs(endDate, true);
     if (!isNaN(endMs)) {
       clauses.push('created_at <= ?');
       params.push(endMs);
