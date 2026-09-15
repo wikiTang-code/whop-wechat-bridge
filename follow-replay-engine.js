@@ -488,7 +488,11 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
         } else {
           // SELL 推荐股数计算
           let targetLot = null;
-          if (sourceLotPrice != null) {
+          const isRecentLotRef = /刚才(回吸|买入|接回|回买|加的|买的|开的)|最近(一笔|买入|加的|开的)|做[tT]的那部分/i.test(raw);
+          if (isRecentLotRef) {
+            targetLot = lots.slice().reverse().find(l => l.qty > 0);
+          }
+          if (!targetLot && sourceLotPrice != null) {
             targetLot = lots.slice().reverse().find(l => Math.abs(l.price - sourceLotPrice) < 0.5 && l.qty > 0);
           }
           if (!targetLot) {
@@ -503,7 +507,7 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
             if (raw.includes('出剩下一半') || raw.includes('剩下一半') || raw.includes('剩下') || raw.includes('清仓') || raw.includes('出完') || raw.includes('全出') || raw.includes('平仓') || raw.includes('平本出')) {
               deltaQty = targetLot.qty;
             } else if (/(出|卖|减|平).*一半/.test(raw) || raw.includes('半仓') || raw.includes('减半')) {
-              deltaQty = Math.ceil(targetLot.qty / 2);
+              deltaQty = Math.floor(targetLot.qty / 2);
             } else if (raw.includes('三分之一') || raw.includes('1/3')) {
               deltaQty = Math.round(targetLot.qty / 3);
             } else {
@@ -532,7 +536,11 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
       } else {
         // SELL
         let targetLot = null;
-        if (sourceLotPrice != null) {
+        const isRecentLotRef = /刚才(回吸|买入|接回|回买|加的|买的|开的)|最近(一笔|买入|加的|开的)|做[tT]的那部分/i.test(raw);
+        if (isRecentLotRef) {
+          targetLot = lots.slice().reverse().find(l => l.qty > 0);
+        }
+        if (!targetLot && sourceLotPrice != null) {
           targetLot = lots.slice().reverse().find(l => Math.abs(l.price - sourceLotPrice) < 0.5 && l.qty > 0);
         }
         if (!targetLot) {

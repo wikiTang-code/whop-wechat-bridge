@@ -57,10 +57,10 @@ const goldenMap = {
   26: { ticker: 'LITE', action: 'SELL', price: 875, qty: 2, beforeQ: 2, afterQ: 0, lot: 855 },
   27: { ticker: 'CRWV', action: 'SELL', price: 98.3, qty: 34, beforeQ: 68, afterQ: 34, lot: 98.1 },
   28: { ticker: 'TSLL', action: 'SELL', price: 13.6, qty: 245, beforeQ: 408, afterQ: 163, lot: 13.6 },
-  30: { ticker: 'TSLL', action: 'BUY', price: 14.01, qty: 238, beforeQ: 0, afterQ: 238 },
+  30: { ticker: 'TSLL', action: 'BUY', price: 14.01, qty: 238, beforeQ: 163, afterQ: 401 },
   31: { ticker: 'HOOD', action: 'BUY', price: 73.95, qty: 45, beforeQ: 0, afterQ: 45 },
   32: { ticker: 'CONL', action: 'BUY', price: 7.67, qty: 434, beforeQ: 0, afterQ: 434 },
-  33: { ticker: 'TSLL', action: 'SELL', price: 14.41, qty: 119, beforeQ: 238, afterQ: 119, lot: 14.01 },
+  33: { ticker: 'TSLL', action: 'SELL', price: 14.41, qty: 119, beforeQ: 401, afterQ: 282, lot: 14.01 },
   34: { ticker: 'CONL', action: 'SELL', price: 7.99, qty: 217, beforeQ: 434, afterQ: 217, lot: 7.67 },
   35: { ticker: 'CONL', action: 'BUY', price: 7.67, qty: 217, beforeQ: 217, afterQ: 434, lot: 7.99 }
 };

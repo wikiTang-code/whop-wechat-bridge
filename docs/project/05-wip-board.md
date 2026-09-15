@@ -20,7 +20,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错反馈（修复全局批次穿插与空格容错，对齐LIFO栈） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` | **Doing** |
+| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（全量793笔待审接入 1.5B LoRA 专有模型深度解析，完成全队列级联重算，从第 #38 笔全面切入 AI 飞轮审核） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` | **Doing** |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.C 队列 `agent:gemini1`
