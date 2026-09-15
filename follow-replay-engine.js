@@ -154,7 +154,7 @@ export function formatFractionDesc(fractionName, fractionRatio, rawContent, acti
     if (raw.includes('清仓') || raw.includes('出完') || raw.includes('全出') || raw.includes('平仓') || raw.includes('先出完') || raw.includes('全部止盈')) {
       return `全部清仓 (100% 清空${lotPrefix})`;
     }
-    if (/(出|卖|减|平|止盈).*一半/i.test(raw) || raw.includes('减半') || raw.includes('半仓') || raw.includes('0.5')) {
+    if (/(出|卖|减|平|止盈).*?(?:一半|半仓|减半)/i.test(raw) || /(?:^|[^\d.])0\.5\s*(?:仓|笔|份)/.test(raw)) {
       return `减持 1/2 份额 (卖出${lotPrefix}的 50%)`;
     }
     if (raw.includes('三分之一') || raw.includes('1/3')) {
