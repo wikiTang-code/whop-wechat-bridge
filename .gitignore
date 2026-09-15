@@ -117,5 +117,11 @@ dry_*.js
 !scripts/ingest_runner.js
 !scripts/web_runner.js
 !scripts/offline_queue_worker.js
-!scripts/cleanup_gemini_api_cloud.js
-
+# Large model weights (LoRA / GGUF checkpoints)
+models/**/*.safetensors
+models/**/*.bin
+models/**/*.gguf
+!models/**/README.md
+!models/**/adapter_config.json
+!models/**/tokenizer*.json
+!models/**/chat_template.jinja
