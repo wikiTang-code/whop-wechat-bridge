@@ -436,6 +436,13 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
       if (!zhaoSimLots[ticker]) zhaoSimLots[ticker] = [];
       const lots = zhaoSimLots[ticker];
 
+      // 历史长线底仓溯源挂载 (按 $17.30 成本与 1/3 常规仓 $3,333.33 资金推导当时建仓 193 股)
+      if (lots.length === 0 && ticker === 'MSFL' && (raw.includes('长线') || raw.includes('底仓') || r.seq_no === 67)) {
+        const historicalCost = 17.30;
+        const initQty = Math.round(3333.33 / historicalCost); // 193 股
+        lots.push({ seqNo: '历史长线建仓', qty: initQty, price: historicalCost });
+      }
+
       const beforeQty = lots.reduce((sum, l) => sum + l.qty, 0);
       const beforeTotalCost = lots.reduce((sum, l) => sum + l.qty * l.price, 0);
       const beforeAvgCost = beforeQty > 0 ? Number((beforeTotalCost / beforeQty).toFixed(2)) : 0;
@@ -706,8 +713,20 @@ export function getTickerLotsAndHistory(targetSeqNo, ticker, db = getDb()) {
   `).all(targetSeqNo, cleanTicker);
 
   const lots = [];
+  if (cleanTicker === 'MSFL' && targetSeqNo >= 67) {
+    lots.push({
+      seqNo: '历史长线建仓',
+      qty: 193,
+      origQty: 193,
+      price: 17.30
+    });
+  }
 
   for (const r of rows) {
+    if (cleanTicker === 'MSFL' && r.seq_no === 3) {
+      // 第 #3 笔是出 18.8 的做 T 仓，不扣减 17.30 的长线底仓
+      continue;
+    }
     if (r.parsed_action === 'BUY') {
       lots.push({
         seqNo: r.seq_no,
