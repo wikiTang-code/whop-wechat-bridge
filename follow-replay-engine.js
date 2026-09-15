@@ -502,6 +502,9 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
               targetLot = lots.slice().reverse().find(l => Math.abs(l.price - p) < 0.5 && l.qty > 0);
             }
           }
+          if (!targetLot && (raw.includes('剩下一半') || raw.includes('出剩下一半') || /(出|卖|减|平).*一半/.test(raw) || raw.includes('半仓') || raw.includes('减半') || /做[tT]/.test(raw))) {
+            targetLot = lots.slice().reverse().find(l => l.qty > 0);
+          }
 
           if (targetLot) {
             if (raw.includes('出剩下一半') || raw.includes('剩下一半') || raw.includes('剩下') || raw.includes('清仓') || raw.includes('出完') || raw.includes('全出') || raw.includes('平仓') || raw.includes('平本出')) {
@@ -549,6 +552,9 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
             const p = parseFloat(priceMatches[1]);
             targetLot = lots.slice().reverse().find(l => Math.abs(l.price - p) < 0.5 && l.qty > 0);
           }
+        }
+        if (!targetLot && (raw.includes('剩下一半') || raw.includes('出剩下一半') || /(出|卖|减|平).*一半/.test(raw) || raw.includes('半仓') || raw.includes('减半') || /做[tT]/.test(raw))) {
+          targetLot = lots.slice().reverse().find(l => l.qty > 0);
         }
 
         if (targetLot) {
