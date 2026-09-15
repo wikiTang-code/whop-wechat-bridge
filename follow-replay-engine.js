@@ -460,6 +460,21 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
         }
 
         price = (extPrice !== null && extPrice > 0) ? extPrice : (r.parsed_price || 100);
+
+        // 离谱价格拦截与基于栈的持仓成本辅助纠偏 (Sanity & Stack Contextual Correction)
+        if (action === 'SELL' && beforeAvgCost > 0 && price > 0) {
+          const ratio = price / beforeAvgCost;
+          if (ratio < 0.2 || ratio > 5.0) {
+            // 发生离谱价格偏移 (例如持仓成本 107.5，提取出 1.0)
+            const cleanRaw = raw.replace(/(\d+)\s*[。，、·]\s*(\d+)/g, '$1.$2');
+            const allNums = Array.from(cleanRaw.matchAll(/\b(\d+(?:\.\d+)?)\b/g)).map(m => parseFloat(m[1]));
+            const sensibleNum = allNums.find(n => Math.abs(n - beforeAvgCost) / beforeAvgCost < 0.35 && n !== price);
+            if (sensibleNum) {
+              console.warn(`[Stack Price Guard] #${r.seq_no} 离谱价格拦截: $${price} -> 借助栈持仓成本($${beforeAvgCost})辅助校准为 $${sensibleNum}`);
+              price = sensibleNum;
+            }
+          }
+        }
         fractionDesc = formatFractionDesc(r.fraction_desc, r.fraction_ratio, raw, action, sourceLotPrice);
 
         let targetFractionPct = 0.05;
@@ -520,13 +535,28 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
             if (raw.includes('清仓') || raw.includes('出完') || raw.includes('平出') || raw.includes('全出') || raw.includes('出剩下一半') || raw.includes('剩下全部')) {
               deltaQty = beforeQty;
             } else if (/(出|卖|减|平).*一半/.test(raw) || raw.includes('半仓') || raw.includes('减半')) {
-              deltaQty = Math.ceil(beforeQty / 2);
+              if (beforeQty === 0 && (raw.includes('长线') || raw.includes('底仓'))) {
+                const baseShares = price > 0 ? Math.max(1, Math.round(3333 / price)) : 160;
+                deltaQty = Math.floor(baseShares / 2);
+              } else {
+                deltaQty = Math.ceil(beforeQty / 2);
+              }
             } else {
               const latestLot = lots.slice().reverse().find(l => l.qty > 0);
               if (latestLot) {
                 deltaQty = latestLot.qty;
               } else {
-                deltaQty = beforeQty > 0 ? Math.min(beforeQty, Math.max(1, Math.round((100000 * targetFractionPct) / price))) : 0;
+                if (beforeQty === 0 && (raw.includes('长线') || raw.includes('底仓'))) {
+                  // 回放起点前的历史长线底仓减持 (按标准 1/3 常规仓 $3,333 资金推导基准股数)
+                  const baseShares = price > 0 ? Math.max(1, Math.round(3333 / price)) : 100;
+                  if (/(出|卖|减|平).*一半/.test(raw) || raw.includes('半仓') || raw.includes('减半')) {
+                    deltaQty = Math.floor(baseShares / 2);
+                  } else {
+                    deltaQty = baseShares;
+                  }
+                } else {
+                  deltaQty = beforeQty > 0 ? Math.min(beforeQty, Math.max(1, Math.round((100000 * targetFractionPct) / price))) : 0;
+                }
               }
             }
           }

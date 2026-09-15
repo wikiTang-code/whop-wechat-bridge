@@ -5,8 +5,10 @@
  */
 
 export function extractSemanticPrice(rawContent, ticker, action) {
-  if (!rawContent) return { price: null, sourceLotPrice: null, debug: 'empty' };
-  let fullText = rawContent.replace(/\[IMAGE:.*?\]/gi, '').trim();
+  let fullText = rawContent
+    .replace(/\[IMAGE:.*?\]/gi, '')
+    .replace(/(\d+)\s*[。，、·]\s*(\d+)/g, '$1.$2')
+    .trim();
   let text = fullText;
 
   // 1. 如果包含多行且指定了 ticker，优先提取包含该 ticker 的关键句
