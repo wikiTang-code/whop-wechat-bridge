@@ -1,84 +1,67 @@
-# LM Studio 优化指南 (AMD RX 7900 XT)
+# LM Studio 双模型分流与动态生命周期调度规范 (AMD RX 7900 XT 20GB VRAM)
 
-## 问题诊断
+## 1. 架构总览：方案 A 双模型并发与分级生命周期
 
-7900 XT 有 20GB VRAM，理论上跑 qwen2.5-14b 应该很快（<5s）。当前延迟 24-88s 说明 GPU 未正确启用。
+针对大V高频短语识别（交易跟单）与深度长文提炼（知识库/研报）对延迟、上下文和显存的不同诉求，系统在宿主机采用 **方案 A 双模型共存与动态生命周期调度架构**：
 
-## 优化步骤
+| 车道 | 目标模型标识 | 基座显存 | 上下文窗口 | 典型延迟 | 业务场景 | 生命周期策略 |
+|------|-------------|---------|-----------|---------|---------|-------------|
+| **快车道 (Fast Lane)** | `qwen2.5-coder-1.5b-instruct` | ~1.65 GB | 32K (当前开 4K) | **< 400ms** | 交易跟单要素提取 (`trade`)、闲聊噪声过滤 (`filter`) | **永久常驻 (Zero-Swap)** |
+| **深车道 (Deep Lane)** | `qwen2.5-14b-instruct` | ~9.0 - 15.7 GB | 16K - 32K | **3 - 8s** | 知识库原子提炼 (REQ-037)、宏观分析、全天复盘研报 | **迟滞保活 (TTL=3600s) + 按需 JIT 唤醒** |
 
-### 1. 检查 GPU 是否启用
+---
 
-在 LM Studio 中：
-- 点击左下角 **齿轮图标** (Settings)
-- 选择 **Developer** 选项卡
-- 查看 **GPU Offload** 设置
-- 确保已启用且层数设为 **Max**（全部卸载到 GPU）
+## 2. 动态生命周期与摩擦平衡设计 (Friction Balance)
 
-### 2. 使用量化模型
+### 2.1 为什么快车道必须永久常驻？
+- **零冷启动摩擦**：1.5B 模型显存极小（仅 1.65GB），对 20GB 显存几乎无感知。
+- **高频极致确定性**：交易行情稍纵即逝，坚决杜绝任何模型动态装入（Swap In）带来的 1~2 秒读盘抖动，确保 100% 毫秒级直接响应。
 
-当前可能使用的是 FP16 模型（太大太慢）。建议换用量化版本：
+### 2.2 深车道如何平衡频繁切换 (In/Out) 的摩擦开销？
+- **摩擦痛点**：若采用“用完即卸载”策略，长文任务间歇性到来会导致 14B 大模型频繁读盘与初始化（每次换入耗费 8~15 秒），严重拖垮系统吞吐。
+- **迟滞防抖保活 (Hysteresis Keep-Alive TTL = 3600s)**：
+  - 深车道加载时赋予 **1 小时保活租约**；
+  - 在租约期内，后续任何长文或研报任务到达，**0ms 直接命中显存**；
+  - 每次深车道调用都会**自动续租**（LM Studio 原生顺延 TTL），保证盘中活跃期持续在线、零切换摩擦；
+  - 仅在连续 1 小时完全无任何深车道任务时，系统才自动平滑释放显存，把显存还给宿主机或 WSL2 训练（`train_rocm_lora.py`）。
 
-在 LM Studio 搜索并下载：
-- `qwen2.5-14b-instruct-q4_k_m` (约 8GB，速度快)
-- `qwen2.5-14b-instruct-q5_k_m` (约 10GB，质量更好)
-- `qwen2.5-14b-instruct-q6_k` (约 12GB，接近无损)
+### 2.3 按需有效唤醒 (JIT Lazy Loading) 与并发单飞锁
+- **JIT 唤醒保障**：若深车道处于休眠退役状态，当收到分析任务时，业务层调用 `ensureModelReady('qwen2.5-14b-instruct', { ttl: 3600 })` 自动将模型唤醒加载，调用方无感无痛；
+- **Single-Flight 防重锁**：在唤醒过程中，内存 Promise 锁自动拦截并发请求，合并为单次加载操作，绝对杜绝同时发起多次 `lms load` 引发显存溢出与冲突。
 
-7900 XT 20GB VRAM 可以轻松跑 Q6_K 量化版本。
+---
 
-### 3. 更新 AMD 驱动
+## 3. 环境变量与分流配置
 
-确保安装了最新版 AMD Adrenalin 驱动：
-- 下载：https://www.amd.com/en/support
-- 安装后重启
+在 `.env` 中按需配置：
+```bash
+# LM Studio 服务反代地址
+LM_STUDIO_BASE_URL=http://127.0.0.1:8080
 
-### 4. 检查 ROCm 支持
+# 快车道模型 (1.5B)
+LM_STUDIO_FAST_MODEL=qwen2.5-coder-1.5b-instruct
 
-LM Studio 在 Windows 上使用 DirectML 或 ROCm：
-- Settings → Developer → 查看 **Backend** 选项
-- 如果有 **ROCm** 选项，选择它（比 DirectML 快）
-- 如果没有，确保 LM Studio 版本 >= 0.3.x
+# 深车道模型 (14B)
+LM_STUDIO_DEEP_MODEL=qwen2.5-14b-instruct
 
-### 5. 优化 LM Studio 设置
-
-在 Settings → Developer：
-- **GPU Offload Layers**: Max
-- **Context Length**: 4096 (不需要太长)
-- **Thread Count**: 设为 CPU 核心数的一半
-- **Batch Size**: 512 或 1024
-
-### 6. 测试优化效果
-
-运行以下测试：
-
-```javascript
-// 在 LM Studio Server 页面点击 "Start Server"
-// 然后在浏览器访问 http://127.0.0.1:8080/v1/models
-// 确认模型已加载
-
-// 测试简单查询
-curl http://127.0.0.1:8080/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{"model":"qwen2.5-14b-instruct","messages":[{"role":"user","content":"Say hello"}],"max_tokens":10}'
+# 向下兼容默认项
+LM_STUDIO_MODEL=qwen2.5-14b-instruct
 ```
 
-预期延迟：< 5s（如果 GPU 正确启用）
+---
 
-## 预期性能
+## 4. 运维命令与健康自检
 
-| 配置 | 延迟（简单查询） |
-|------|-----------------|
-| CPU only | 50-100s |
-| GPU (未量化) | 10-20s |
-| GPU (Q4_K_M) | 2-5s |
-| GPU (Q6_K) | 3-7s |
+```bash
+# 1. 检查当前显存模型驻留状态与 TTL
+npm run lms:status
 
-## 常见问题
+# 2. 清理幽灵副本与重复加载实例
+npm run lms:clean
 
-### Q: LM Studio 没有 GPU 选项？
-A: 确保使用最新版 LM Studio (>= 0.3.x)，旧版可能不支持 AMD GPU。
+# 3. 运行大小模型分流联调自检
+node test/test_model_routing.js
 
-### Q: 选择 GPU 后崩溃？
-A: 可能是 VRAM 不足，尝试更小的量化版本 (Q4_K_M)。
-
-### Q: 仍然很慢？
-A: 检查任务管理器 → 性能 → GPU，看 GPU 是否有负载。如果 GPU 负载低，说明未正确启用。
+# 4. 运行显存守卫单元测试
+node test/test_lms_guard.js
+```

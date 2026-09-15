@@ -15,6 +15,8 @@ export const LOCAL_LM_DEFAULT_MODEL = LOCAL_LM_DEEP_MODEL;
 export const LOCAL_LM_DEFAULT_BASE = 'http://127.0.0.1:8080';
 export const LOCAL_PROMPT_SAFE_CHARS = 12000;
 
+import { ensureModelReady } from './tools/lms-guard.js';
+
 /**
  * 根据业务场景解析对应的本地模型 (快车道 vs 智囊深车道)
  * @param {'fast'|'deep'|'trade'|'filter'|'news'|'persona'} lane 
@@ -27,6 +29,25 @@ export function resolveLocalModel(lane = 'deep', explicitModel = null) {
     return process.env.LM_STUDIO_FAST_MODEL || LOCAL_LM_FAST_MODEL;
   }
   return process.env.LM_STUDIO_DEEP_MODEL || process.env.LM_STUDIO_MODEL || LOCAL_LM_DEEP_MODEL;
+}
+
+/**
+ * 推理前确保模型就绪 (支持快车道常驻与深车道按需 JIT 唤醒 + 迟滞保活)
+ * @param {'fast'|'deep'|'trade'|'filter'|'news'|'persona'} lane 
+ * @param {string} [explicitModel] 显式指定的模型名
+ */
+export async function prepareLocalModelForInference(lane = 'deep', explicitModel = null) {
+  const model = resolveLocalModel(lane, explicitModel);
+  const isFastLane = ['fast', 'trade', 'filter', 'extract'].includes(lane);
+  // 深车道执行 JIT 按需唤醒与迟滞续租
+  if (!isFastLane) {
+    try {
+      await ensureModelReady(model, { ttl: 3600 });
+    } catch (e) {
+      console.warn(`[AI Router] JIT 模型唤醒跳过/告警: ${e.message}`);
+    }
+  }
+  return model;
 }
 
 export function isGeminiKeyProtectError(errOrText) {

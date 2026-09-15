@@ -26,7 +26,10 @@ This document serves as a context bootstrapper (project memory) for any AI codin
 The system supports three AI engines, configurable in the `.env` settings:
 1. **Google Gemini API (`gemini`):** For fast, high-quality, long-context reviews and multi-modal image chart analysis.
 2. **Local Ollama API (`ollama`):** Free local LLM runs (e.g., `deepseek-r1`) utilizing ROCm GPU acceleration on host (AMD 7900XT).
-3. **Local LM Studio API (`lm-studio`):** Standard OpenAI-compatible API (at `http://localhost:1234/v1`). Optimized for the local **`Qwen3.5 35B A3B Q5_K_M`** model, utilizing 20GB VRAM on the host's AMD 7900XT for ultra-fast, zero-cost reasoning.
+3. **Local LM Studio API (`lm-studio`):** Standard OpenAI-compatible API (at `http://127.0.0.1:8080/v1` via reverse proxy). Implements **Plan A Dual-Model Routing & Dynamic Lifecycle Architecture** on host AMD RX 7900XT:
+   - **Fast Lane (1.5B):** `qwen2.5-coder-1.5b-instruct` (~1.65GB VRAM, <400ms latency) for real-time trading signal extraction (`trade`) and chat noise filtering (`filter`). **Policy: Permanent Zero-Swap (Always-On)** to guarantee zero cold-start latency for trading execution.
+   - **Deep Lane (14B):** `qwen2.5-14b-instruct` (Q4_K_M ~9GB or Q8 ~15GB VRAM) for long-form macro analysis and deep reasoning. **Policy: Hysteresis Keep-Alive (TTL=3600s) + JIT Lazy Load Wakeup** with single-flight mutex. Automatically balances swap friction (no reload penalty during trading sessions) while freeing VRAM when idle for >1h.
+   - **VRAM Total:** ~10.5GB - 16GB / 20GB VRAM, safely leaving ample buffer for context windows and zero VRAM conflicts.
 
 ### 3.2 Intelligent Adaptive Scheduler
 To avoid spamming requests and rate limits during US stock quiet hours, `server.js` implements a dynamic timer:

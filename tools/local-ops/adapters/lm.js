@@ -6,6 +6,8 @@ import { createTunnelManager } from '../tunnel.js';
 
 const MODEL_ALLOW = new Set([
   'qwen2.5-14b-instruct',
+  'qwen2.5-14b-instruct@q4_k_m',
+  'qwen2.5-coder-1.5b-instruct',
   'text-embedding-nomic-embed-text-v1.5',
 ]);
 

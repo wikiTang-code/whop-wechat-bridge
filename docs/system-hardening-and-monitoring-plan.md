@@ -44,7 +44,7 @@
 - **定位**：作为订阅者轮询监听 Whop Chat 频道，提取大V发言 → AI（本地 14B / Gemini）深度提炼市场策略 → 归档 SQLite → 推送企业微信 → 沙盒/实盘跟单，并提供 Web 管理 Dashboard。
 - **技术栈**：Node.js 20（ESM）/ Express / better-sqlite3（**同步** API，867MB 库、WAL、FTS5 全文索引）/ pm2 守护 / Cloudflare 快速隧道 / dotenv。
 - **部署**：GCP 单机 Ubuntu 22.04，**内存仅 958MB**；服务监听 `:8085`（HTTP Basic Auth）；`git@github` SSH remote，采用「main 合并 → 服务器 `git reset --hard origin/main`」的部署流程。
-- **AI 供给**：本地 LM Studio `qwen2.5-14b-instruct` + `nomic-embed` 经 `ssh -R` 隧道映射到服务器 `127.0.0.1:8080`（服务器本身跑不动 14B）；Gemini 作为云端兜底（免费配额受限，已补充新 Key 并清理失效 Key，双 Key 轮询）。
+- **AI 供给**：本地 LM Studio 方案 A 双模型共存（快车道 `qwen2.5-coder-1.5b-instruct` 毫秒级跟单 + 深车道 `qwen2.5-14b-instruct` Q4_K_M 深度宏观推理）+ `nomic-embed` 经 `ssh -R` 隧道映射到服务器 `127.0.0.1:8080`；Gemini 作为云端兜底。
 
 ### 2.2 架构分层（数据流）
 ```
