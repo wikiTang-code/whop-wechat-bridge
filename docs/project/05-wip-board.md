@@ -23,6 +23,13 @@
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错反馈 | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` | **Doing** |
 | 2 | — | — | （空位） | — | — |
 
+### 0.C 队列 `agent:gemini1`
+
+| 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
+|:---:|----|:---:|----------|----------|:----:|
+| **1** | — | — | （空 · REQ-036 Done） | — | — |
+| 2 | — | — | （空位） | — | — |
+
 ### 0.H Human
 
 | ID | 任务 | 状态 |
@@ -73,7 +80,7 @@
 | REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | `agent:gemini` | Done | monitor.js · CHG-010 |
 | REQ-031 | L1 | 解析即写 signal 流水 | `agent:cursor` | Done | trade_signals · test_trade_signals_req031 |
 | REQ-033 | L1/L4 | 历史回放+企微纠错（全量830笔重筑，保护已审29笔，Tokenizer槽位引擎+LIFO级联推演） | `agent:gemini` | Doing | replay-review-runner |
-| REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮 | 待认领/新Agent | Accepted | 依赖 REQ-033 回放标注 |
+| REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮 | `agent:gemini1` | Done | 1030组SFT/DPO训练集+Unsloth微调+端侧抽取器 |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
@@ -115,7 +122,8 @@
 
 | ID | Owner | 日 | 结果 |
 |----|-------|-----|------|
-| REQ-030 / CHG-010 | `agent:gemini` | 2026-09-14 | monitor.js 移除假跟单后缀，发言通知与交易解耦 |
+| REQ-036 | `agent:gemini1` | 2026-09-15 | 1030组SFT/DPO训练集导出+Unsloth微调配方+端侧双轨抽取器+100%Benchmark |
+| REQ-030 / CHG-010 | `agent:gemini` | 2026-09-15 | monitor.js 移除假跟单后缀，发言通知与交易解耦 |
 | REQ-020 | `agent:gemini` | 2026-09-14 | gateway audit + c2-audit-loop runbook |
 | REQ-017 | `agent:gemini` | 2026-09-14 | secret-rotation-and-ip runbook |
 | REQ-016 | `agent:gemini` | 2026-09-14 | incident-rollback runbook |
