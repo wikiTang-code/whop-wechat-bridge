@@ -56,7 +56,7 @@
 | REQ-033 | P1 | L1/L4 | `in_progress` | **历史大V交易单回放与企微移动端纠错反馈**（全量无遗漏重筑 830 笔，保护已审 29 笔；Tokenizer 槽位解析引擎+LIFO 栈模型级联推演+回归测试锁上线） | 队列 0.B · Owner=`agent:gemini` · `follow-replay-engine.js` · 持续流转中 |
 | REQ-034 | P2 | L6 | `done` | **Localhost Ops 端口 `:18789` CSRF/Origin 与 DNS Rebinding 阻断** | Owner=`agent:cursor` · `http-guard.js` · `test_http_guard_req034.js` |
 | REQ-035 | P1 | L1 | `accepted` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后写入一条 `source=manual_correct` 的 signal） | 共享候选池 · `follow-replay-engine.js` · `database.js` |
-| REQ-036 | P1 | L3 | `done` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（1030组SFT/DPO训练集导出+ROCm纯GPU无死锁LoRA微调闭环+横向Base vs LoRA打靶评测+显存互斥守卫） | Owner=`agent:gemini1` · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` |
+| REQ-036 | P1 | L3 | `active` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（长期常驻主线：V1闭环已就绪，随企微人工纠错 Golden 增量持续自动化滚动微调与热更新） | 常驻维护 · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` |
 | REQ-037 | P2 | L3 | `proposed` | **大V全频道多模态图文对齐与交易知识本体图谱体系**（图表视觉要素结构化+语义变点CU会话单元+四大策略本体卡片化+实盘智能参谋联动） | 专题权威方案 `docs/project/zhao-knowledge-multimodal-plan.md` · 待深度评审 |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
