@@ -20,7 +20,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（全量793笔待审接入 1.5B LoRA 专有模型深度解析，完成全队列级联重算，从第 #38 笔全面切入 AI 飞轮审核） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` | **Doing** |
+| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #76，规范 #75 连写买回 31 股与 #76 止盈 MSFL 97 股；根除 fraction_desc 冗余拼接；隧道服务在线，队头步进至 #77） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` | **Doing** |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.C 队列 `agent:gemini1`
