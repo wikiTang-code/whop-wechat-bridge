@@ -57,7 +57,7 @@
 | REQ-034 | P2 | L6 | `done` | **Localhost Ops 端口 `:18789` CSRF/Origin 与 DNS Rebinding 阻断** | Owner=`agent:cursor` · `http-guard.js` · `test_http_guard_req034.js` |
 | REQ-035 | P1 | L1 | `accepted` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后写入一条 `source=manual_correct` 的 signal） | 共享候选池 · `follow-replay-engine.js` · `database.js` |
 | REQ-036 | P1 | L3 | `active` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（长期常驻主线：V1闭环已就绪，随企微人工纠错 Golden 增量持续自动化滚动微调与热更新） | 常驻维护 · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` |
-| REQ-037 | P2 | L3 | `accepted` | **大V全频道多模态图文对齐与交易知识本体图谱**（分期；**仅 Phase 1 MVP 可排期**） | 方案 [`zhao-knowledge-multimodal-plan.md`](./zhao-knowledge-multimodal-plan.md)；评审见 `07` 2026-09-15；Phase 4 企微推送须另 CHG（禁走 `/ops`） |
+| REQ-037 | P2 | L3 | `accepted` | **大V全频道多模态图文对齐与交易知识本体图谱**（分期；**Phase 1 MVP Done**：`message_vision_meta` + stub 扫描；P2–P4 未开） | Owner=`agent:cursor`；`test_vision_meta_req037_phase1.js`；VL 等 Q-006；Phase 4 冻结 |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |

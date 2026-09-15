@@ -71,9 +71,9 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | （空 · REQ-037 方案评审 Done） | — |
+| **§0.A `agent:cursor`** | （空 · REQ-037 Phase1 Done） | — |
 | **§0.B `agent:gemini`** | **REQ-033** 历史回放+企微纠错 | Doing |
-| **§0.C `agent:gemini1`** | **REQ-036** 大V专有 SLM 数据飞轮 | Standing |
+| **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | REQ-002；Q-001；**Q-006** | 等待 |
 | **§0.R-A** | REQ-037 方案评审 | Done |
 

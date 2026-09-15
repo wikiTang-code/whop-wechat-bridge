@@ -111,10 +111,15 @@ flowchart TD
 
 ## 5. 实施路线图（分期规划）
 
-- **Phase 1（图文元数据打通）**：编写视觉提取脚本，抽取历史图片元数据并回写消息表。
+- **Phase 1（图文元数据打通）** ✅ MVP：
+  - 表：`message_vision_meta`（`database.js`）
+  - Stub 抽取：`tools/knowledge/vision-meta-stub.js`（不调 VL；`provider=stub` / `status=pending_vl`）
+  - 小样本扫描：`npm run knowledge:vision-sample` / `:dry`
+  - 单测：`test/test_vision_meta_req037_phase1.js`
+  - **未做**：真实本地/云端 VL（等 Q-006）
 - **Phase 2（语义会话聚类算法）**：实现基于话题漂移的 Dynamic CU 分割引擎，替换固定切片。
 - **Phase 3（策略本体卡片自动化抽取）**：利用本地 14B 模型批量跑通 8.6 万条历史消息的四大卡片沉淀。
-- **Phase 4（企微智能参谋卡盘中联动）**：当行情出现同款异动时，企微端自动推送历史赵哥推演卡。
+- **Phase 4（企微智能参谋卡盘中联动）**：冻结至业务通道 CHG + `wecom-freeze` 更新。
 
 ---
 

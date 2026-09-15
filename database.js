@@ -19,6 +19,34 @@ function getCachedStmt(sql) {
   return stmtCache.get(sql);
 }
 
+/** REQ-037 Phase 1: chart / attachment vision metadata (stub or VL). */
+export function ensureMessageVisionMetaTable(conn) {
+  if (!conn) throw new Error('ensureMessageVisionMetaTable requires db connection');
+  conn.prepare(`
+    CREATE TABLE IF NOT EXISTS message_vision_meta (
+      id TEXT PRIMARY KEY,
+      message_id TEXT NOT NULL,
+      attach_index INTEGER NOT NULL DEFAULT 0,
+      local_path TEXT,
+      chart_type TEXT,
+      ticker TEXT,
+      timeframe TEXT,
+      patterns_json TEXT,
+      support_resistance_json TEXT,
+      hand_drawn_annotation TEXT,
+      schema_json TEXT NOT NULL,
+      provider TEXT NOT NULL DEFAULT 'stub',
+      status TEXT NOT NULL DEFAULT 'stubbed',
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      UNIQUE(message_id, attach_index)
+    )
+  `).run();
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_vision_meta_msg ON message_vision_meta (message_id)').run(); } catch (_) {}
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_vision_meta_status ON message_vision_meta (status)').run(); } catch (_) {}
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_vision_meta_ticker ON message_vision_meta (ticker)').run(); } catch (_) {}
+}
+
 // 权威频道登记册加载器 (全系统唯一频道来源)
 let channelRegistryMap = null;
 function getChannelRegistryMap() {
@@ -128,6 +156,7 @@ export function initDb() {
     `).run();
     try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_created ON trade_signals (created_at DESC)`).run(); } catch (_) {}
     try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_ticker ON trade_signals (ticker)`).run(); } catch (_) {}
+    ensureMessageVisionMetaTable(db);
     console.log('[initDb] Database already initialized and ready (0ms).');
     return;
   }
@@ -331,6 +360,7 @@ export function initDb() {
   `).run();
   try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_created ON trade_signals (created_at DESC)`).run(); } catch (_) {}
   try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_ticker ON trade_signals (ticker)`).run(); } catch (_) {}
+  ensureMessageVisionMetaTable(db);
 
   // 初始化虚拟资金 (如账户不存在，默认存入 100,000 美元沙盒资金)
   const cashCheck = db.prepare('SELECT value FROM portfolio WHERE key = ?').get('cash');
@@ -1225,6 +1255,115 @@ export function getTradeSignals({ limit = 50, offset = 0, ticker = null, dbInsta
   `).all(limit, offset);
   const count = conn.prepare('SELECT COUNT(*) as c FROM trade_signals').get()?.c || 0;
   return { signals: list, total: count };
+}
+
+/**
+ * REQ-037 Phase 1 — upsert vision metadata row for one attachment slot.
+ */
+export function saveMessageVisionMeta(meta, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  ensureMessageVisionMetaTable(conn);
+  const messageId = String(meta.message_id || '').trim();
+  if (!messageId) throw new Error('saveMessageVisionMeta requires message_id');
+  const attachIndex = Number.isFinite(meta.attach_index) ? meta.attach_index : 0;
+  const id = meta.id || `vmeta_${messageId}_${attachIndex}`;
+  const now = meta.updated_at || Date.now();
+  const schemaObj = meta.schema || {
+    chart_type: meta.chart_type || 'UNKNOWN',
+    ticker: meta.ticker || null,
+    timeframe: meta.timeframe || null,
+    patterns: meta.patterns || [],
+    support_resistance: meta.support_resistance || null,
+    hand_drawn_annotation: meta.hand_drawn_annotation || null,
+  };
+  conn.prepare(`
+    INSERT INTO message_vision_meta (
+      id, message_id, attach_index, local_path, chart_type, ticker, timeframe,
+      patterns_json, support_resistance_json, hand_drawn_annotation, schema_json,
+      provider, status, created_at, updated_at
+    ) VALUES (
+      @id, @message_id, @attach_index, @local_path, @chart_type, @ticker, @timeframe,
+      @patterns_json, @support_resistance_json, @hand_drawn_annotation, @schema_json,
+      @provider, @status, @created_at, @updated_at
+    )
+    ON CONFLICT(id) DO UPDATE SET
+      local_path = excluded.local_path,
+      chart_type = excluded.chart_type,
+      ticker = excluded.ticker,
+      timeframe = excluded.timeframe,
+      patterns_json = excluded.patterns_json,
+      support_resistance_json = excluded.support_resistance_json,
+      hand_drawn_annotation = excluded.hand_drawn_annotation,
+      schema_json = excluded.schema_json,
+      provider = excluded.provider,
+      status = excluded.status,
+      updated_at = excluded.updated_at
+  `).run({
+    id,
+    message_id: messageId,
+    attach_index: attachIndex,
+    local_path: meta.local_path || null,
+    chart_type: schemaObj.chart_type || meta.chart_type || null,
+    ticker: schemaObj.ticker || meta.ticker || null,
+    timeframe: schemaObj.timeframe || meta.timeframe || null,
+    patterns_json: JSON.stringify(schemaObj.patterns || meta.patterns || []),
+    support_resistance_json: (schemaObj.support_resistance || meta.support_resistance)
+      ? JSON.stringify(schemaObj.support_resistance || meta.support_resistance)
+      : null,
+    hand_drawn_annotation: schemaObj.hand_drawn_annotation || meta.hand_drawn_annotation || null,
+    schema_json: JSON.stringify(schemaObj),
+    provider: meta.provider || 'stub',
+    status: meta.status || 'stubbed',
+    created_at: meta.created_at || now,
+    updated_at: now,
+  });
+  return id;
+}
+
+export function getMessageVisionMeta({ messageId = null, limit = 50, offset = 0, status = null, dbInstance = null } = {}) {
+  limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
+  offset = Math.max(0, parseInt(offset, 10) || 0);
+  const conn = dbInstance || getDb();
+  ensureMessageVisionMetaTable(conn);
+  if (messageId) {
+    const rows = conn.prepare(`
+      SELECT * FROM message_vision_meta WHERE message_id = ? ORDER BY attach_index ASC
+    `).all(messageId);
+    return { rows, total: rows.length };
+  }
+  if (status) {
+    const rows = conn.prepare(`
+      SELECT * FROM message_vision_meta WHERE status = ? ORDER BY updated_at DESC LIMIT ? OFFSET ?
+    `).all(status, limit, offset);
+    const total = conn.prepare('SELECT COUNT(*) as c FROM message_vision_meta WHERE status = ?').get(status)?.c || 0;
+    return { rows, total };
+  }
+  const rows = conn.prepare(`
+    SELECT * FROM message_vision_meta ORDER BY updated_at DESC LIMIT ? OFFSET ?
+  `).all(limit, offset);
+  const total = conn.prepare('SELECT COUNT(*) as c FROM message_vision_meta').get()?.c || 0;
+  return { rows, total };
+}
+
+/**
+ * Messages that have attachments JSON but no vision_meta rows yet (Phase 1 sample scanner).
+ */
+export function listMessagesNeedingVisionMeta({ limit = 50, dbInstance = null } = {}) {
+  limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
+  const conn = dbInstance || getDb();
+  ensureMessageVisionMetaTable(conn);
+  return conn.prepare(`
+    SELECT m.id, m.content, m.tickers, m.attachments, m.created_at, m.sender_name
+    FROM messages m
+    WHERE m.attachments IS NOT NULL
+      AND TRIM(m.attachments) != ''
+      AND TRIM(m.attachments) != '[]'
+      AND NOT EXISTS (
+        SELECT 1 FROM message_vision_meta v WHERE v.message_id = m.id
+      )
+    ORDER BY m.created_at DESC
+    LIMIT ?
+  `).all(limit);
 }
 
 // Sector mapping (module level)

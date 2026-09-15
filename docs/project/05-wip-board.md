@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；REQ-037 方案评审已入 07） | — | — |
+| **1** | — | — | （空；REQ-037 Phase1 MVP Done） | — | — |
 | 2 | **REQ-035** | L1 | 回放纠错与 `trade_signals` 流水自动校准联动 | `follow-replay-engine.js` · `database.js` | Queued（热点互斥） |
 
 ### 0.B 队列 `agent:gemini`
@@ -48,7 +48,7 @@
 ### 共享候选池
 
 1. `REQ-035`（等 033 释放 follow-replay-engine）
-2. `REQ-037` Phase 1 MVP（方案已 accepted；表结构/小样本视觉元数据，禁 Phase 4）
+2. `REQ-037` Phase 2+（等 Phase1 VL/Q-006；禁 Phase 4）
 3. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · CHG-009 · CHG-015 · CHG-016 · CHG-017
 
 ## 1. 主看板
@@ -82,7 +82,7 @@
 | REQ-031 | L1 | 解析即写 signal 流水 | `agent:cursor` | Done | trade_signals · test_trade_signals_req031 |
 | REQ-033 | L1/L4 | 历史回放+企微纠错（全量830笔重筑，保护已审29笔，Tokenizer槽位引擎+LIFO级联推演） | `agent:gemini` | Doing | replay-review-runner |
 | REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮 | `agent:gemini1` | Done | 1030组SFT/DPO训练集+Unsloth微调+端侧抽取器 |
-| REQ-037 | L3 | 多模态知识图谱方案 | `agent:cursor` | Review Done | 07 2026-09-15 · accepted 分期 |
+| REQ-037 | L3 | 多模态知识图谱 Phase1 MVP | `agent:cursor` | Done | message_vision_meta · vision-meta-stub · sample script |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 | CHG-016 | L2 | 看板日期过滤强绑定北京时间 (+08:00) 闭环 | `agent:gemini` | Done | `3dc07c2` · 生产单进程重启生效 |
 
@@ -154,7 +154,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：REQ-037 方案评审 Done（入 07）；§0.A 空；035 仍互斥。
+- cursor：REQ-037 Phase1 MVP Done（vision_meta 表+stub+扫描）；§0.A 空；035 仍互斥。
 - gemini：REQ-033 Doing。
 - gemini1：REQ-036 Standing。
-- Human：REQ-002；Q-001 interim=SCP；**Q-006**（VL 本地 vs 云端）open。
+- Human：REQ-002；Q-001；**Q-006**（是否上 VL）。
