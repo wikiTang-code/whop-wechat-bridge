@@ -40,7 +40,8 @@
 ### 共享候选池
 
 1. `REQ-035`（等 033 释放 follow-replay-engine）
-2. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · CHG-009
+2. `REQ-036`（大V交易语义专有轻量 AI 微调方案与数据飞轮，新 Agent 承接）
+3. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · CHG-009
 
 ## 1. 主看板
 
@@ -71,8 +72,8 @@
 | REQ-008 | L2 | P2-16 主库增长治理（~867MB） | `agent:gemini` | Done | `db-maintenance.js` · 保留策略与清理脚本 |
 | REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | `agent:gemini` | Done | monitor.js · CHG-010 |
 | REQ-031 | L1 | 解析即写 signal 流水 | `agent:cursor` | Done | trade_signals · test_trade_signals_req031 |
-| REQ-032 | L1 | arrivalPrice 真实盘口 | `agent:cursor` | Done | fetchTickerKlineData |
-| REQ-033 | L1/L4 | 历史回放+企微纠错 | `agent:gemini` | Doing | replay-review-runner |
+| REQ-033 | L1/L4 | 历史回放+企微纠错（全量830笔重筑，保护已审29笔，Tokenizer槽位引擎+LIFO级联推演） | `agent:gemini` | Doing | replay-review-runner |
+| REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮 | 待认领/新Agent | Accepted | 依赖 REQ-033 回放标注 |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`

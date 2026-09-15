@@ -53,9 +53,10 @@
 | REQ-030 | P1 | L1 | `done` | **大V即时推送实事求是**：剥离「已同步处理量化跟单」硬编码；发言通知与交易通知正交 | 热点 `monitor.js`；Owner=`agent:gemini` |
 | REQ-031 | P1 | L1 | `done` | **解析即写 signal 流水**（独立于 follow/decision）；盘中赵哥账本不依赖事后 recalculate | Owner=`agent:cursor`；`trade_signals` + `saveTradeSignal`；`test_trade_signals_req031.js` |
 | REQ-032 | P1 | L1 | `done` | **arrivalPrice 取真实盘口**（禁用喊单价冒充现价）；滑点状态机才可信 | Owner=`agent:cursor`；`fetchTickerKlineData` → processFollowDecision |
-| REQ-033 | P1 | L1/L4 | `in_progress` | **历史大V交易单回放与企微移动端纠错反馈**（特朗普访华至今；一键确认跳过+移动端表单要素修改回写） | 队列 0.B · Owner=`agent:gemini` · `follow-replay-engine.js` + 纠错表单 |
+| REQ-033 | P1 | L1/L4 | `in_progress` | **历史大V交易单回放与企微移动端纠错反馈**（全量无遗漏重筑 830 笔，保护已审 29 笔；Tokenizer 槽位解析引擎+LIFO 栈模型级联推演+回归测试锁上线） | 队列 0.B · Owner=`agent:gemini` · `follow-replay-engine.js` · 持续流转中 |
 | REQ-034 | P2 | L6 | `done` | **Localhost Ops 端口 `:18789` CSRF/Origin 与 DNS Rebinding 阻断** | Owner=`agent:cursor` · `http-guard.js` · `test_http_guard_req034.js` |
 | REQ-035 | P1 | L1 | `accepted` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后写入一条 `source=manual_correct` 的 signal） | 共享候选池 · `follow-replay-engine.js` · `database.js` |
+| REQ-036 | P1 | L3 | `accepted` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（基于已审正样本/纠错对比对/策略负样本，抽取格式化训练集与端侧微调 Pipeline） | 独立 AI Agent 承接推进 · 依赖 REQ-033 提供高质量 Ground Truth |
 
 | ID | 状态 | 摘要 |
 |----|:----:|------|
