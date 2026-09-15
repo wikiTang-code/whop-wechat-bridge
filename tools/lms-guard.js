@@ -10,8 +10,6 @@
 
 import { execSync } from 'child_process';
 
-const MAX_SAFE_VRAM_BYTES = 18 * 1024 * 1024 * 1024; // 18GB 安全警戒线 (给 7900XT 20GB 留 2GB 缓冲区)
-
 /**
  * 获取当前 LM Studio 显存中驻留的全部模型
  * @returns {Array<object>}
@@ -98,23 +96,13 @@ export function safeLoadModel(modelKey, options = {}) {
     };
   }
 
-  // 3. 第三道防线：显存预算硬核核算 (VRAM Budget Check)
+  // 3. 统计显存/内存状态信息 (非阻断，允许大上下文/CPU Offload 灵活配置)
   let currentTotalBytes = 0;
   for (const m of currentLoaded) {
     currentTotalBytes += (m.sizeBytes || 0);
   }
-
-  if (currentTotalBytes >= MAX_SAFE_VRAM_BYTES) {
-    const currentGb = (currentTotalBytes / 1024 / 1024 / 1024).toFixed(2);
-    const limitGb = (MAX_SAFE_VRAM_BYTES / 1024 / 1024 / 1024).toFixed(2);
-    const errMsg = `[LMS Guard] 🚨 显存预算阻断：当前显存已占用 ${currentGb} GB，超过安全预算 ${limitGb} GB，拒绝追加装载 "${cleanKey}"！`;
-    console.error(errMsg);
-    return {
-      success: false,
-      action: 'blocked',
-      message: errMsg
-    };
-  }
+  const currentGb = (currentTotalBytes / 1024 / 1024 / 1024).toFixed(2);
+  console.log(`[LMS Guard] 当前已加载模型基座大小约 ${currentGb} GB (已放开硬拦截，由 LM Studio 自动管理上下文/CPU Offload)`);
 
   // 4. 执行受控加载
   console.log(`[LMS Guard] 🚀 显存预算核算通过，开始安全装载模型: ${cleanKey}...`);
