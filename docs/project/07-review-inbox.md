@@ -8,6 +8,36 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-15 · REQ-037 方案评审（`agent:cursor` · 专题方案）
+
+**范围**：[`zhao-knowledge-multimodal-plan.md`](./zhao-knowledge-multimodal-plan.md)（大V全频道多模态图文对齐与交易知识本体图谱）  
+**对照**：`REQ-033`/`strategy_assets` · `REQ-036` SLM 飞轮 · `CHG-017` 双模型生命周期 · `wecom-freeze.md` / `REJ-008` · 暂缓 `REQ-007`
+
+**总评**：方向正确，应 **接受（`accepted`）但强分期**。痛点（固定开窗切断因果、OCR 丢手绘、噪音淹没干货）与四层蓝图成立，且与现有 1.5B 武官 / 14B 文官分工（CHG-017）一致。当前文稿仍是愿景骨架，**不足以直接开 Phase 3/4 全量工程**；下一可实施切片仅限 **Phase 1 MVP**。
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | 废弃固定时钟切片 → Semantic CU；图片升为 Visual Anchor（要素 Schema 而非纯 OCR）；四大本体卡片分类清晰，可与回放侧 `strategy_assets` 远期汇合 |
+| **通过** | 硬件分工表与本机 LM Studio 现实匹配；离线蒸馏 / 盘中 1.5B 抽取正交，不与实盘下单红线冲突 |
+| **高危→门禁** | **Phase 4「企微盘中推送推演卡」默认扩面**：若走 `/ops` 即触 `REJ-008`。必须另开 **业务通道 CHG**（类比 CHG-009 跟单 HITL），白名单 + 可关闭 + 威胁说明，并更新 `wecom-freeze.md`。在 CHG 落地前 **禁止实现 Phase 4** |
+| **中危** | **显存争用未写死**：14B + VL + 常驻 1.5B LoRA 同机时，须显式服从 `lms-guard` / CHG-017（深车道 JIT、禁止挤掉盘中快车道）。Phase 1–3 仅离线批处理窗口 |
+| **中危** | **数据模型缺口**：未定义 SQLite 表（`message_vision_meta` / `semantic_cu` / `ontology_card`）与现有 `messages` / `strategy_assets` / `trade_signals` 的外键与去重；全量 8.6 万条无抽样验收标准易拖死主库（对照 REQ-008） |
+| **中危** | **云端多模态**若默认开启：有聊天原文/截图外送风险；应 **默认本地 VL**，云端须 Human 拍板（见 04 Q-006） |
+| **中危** | Phase 4 自动推送无 HITL/频控：误召回会污染企微注意力；应先 Dashboard/本机预览，再 opt-in 推送 |
+| **低** | 与暂缓 `REQ-007` NL Copilot 边界未写清：建议 REQ-037 产出「只读知识资产」，NL 入口仍 deferred，避免借壳扩 `/ops` |
+| **低** | 无量化验收：CU 切分一致性、卡片准确率、检索 Hit@K；Phase 1 起就要定黄金集（可复用 REQ-036 Golden） |
+
+**建议处置（已写入 03/04）**：
+
+| 动作 | 说明 |
+|------|------|
+| REQ-037 → `accepted` | 分期门禁：仅 Phase 1 可排期实现；P2–P4 各需独立验收或子 REQ |
+| Phase 1 MVP | 小样本（建议 ≤2k 条或 1 个交易周）视觉元数据回写 + Schema 落表；**不做**全量 14B 蒸馏与企微推送 |
+| Q-006 | 视觉模型：本地 VL vs 云端（Human） |
+| 冻结 | Phase 4 实现前必须有企微业务通道 CHG（建议编号预留，落地时登记） |
+
+**审修状态**：**`Done`**（方案评审闭环；实现未开工）
+
 ### 2026-09-14 · Cross-review PKG-FOLLOW-FULL（`agent:cursor` · §0.R-A）
 
 **范围**：`REQ-027` / `REQ-028` / `REQ-029`+`CHG-009` / `REQ-021`（Gemini 专题包）  

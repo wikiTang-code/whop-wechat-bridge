@@ -60,6 +60,7 @@
 | Q-003 | 每次拉链是否 commit `latest.json`？ | — | **已决：否；仅里程碑**（§1.1） |
 | Q-004 | P5 是否加 CI `place_order` grep？ | L5 | decided：单测+load-catalog 硬拒；catalog 文本禁 place_order |
 | Q-005 | 跟单确认通道：企微业务卡片 vs Dashboard 移动页？ | human | **已决：企微业务确认卡片**（盘中 90s 时效；≠ `/ops`） |
+| Q-006 | REQ-037 视觉模型：本地 VL vs 云端多模态？ | human | open（评审默认倾向本地；云端须明示外送范围） |
 
 ---
 

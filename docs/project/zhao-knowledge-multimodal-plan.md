@@ -120,5 +120,8 @@ flowchart TD
 
 ## 6. 评审与待办标记
 
-- 账本对应：[`03-requirements.md`](./03-requirements.md) 登记为 `REQ-037` (`proposed`)。
-- 状态：方案初稿入库，待用户与多 AI 协同深度评审与打磨。
+- 账本对应：[`03-requirements.md`](./03-requirements.md) **`REQ-037` = `accepted`（分期门禁）**。  
+- 评审结论：[`07-review-inbox.md`](./07-review-inbox.md) · 2026-09-15 · `agent:cursor`。  
+- **可实施**：仅 Phase 1 MVP（小样本视觉元数据 + 落表）；Phase 2–3 须补表结构/验收指标后再开。  
+- **冻结**：Phase 4 企微推送在业务通道 CHG + `wecom-freeze` 更新前不得开工（`REJ-008`）。  
+- Human 开放题：[`04`](./04-leftovers-problems.md) **Q-006**（本地 VL vs 云端）。
