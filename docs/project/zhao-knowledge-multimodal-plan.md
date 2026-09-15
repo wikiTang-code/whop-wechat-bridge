@@ -114,7 +114,7 @@ flowchart TD
 - **Phase 1（图文元数据打通）** ✅ MVP：
   - 表：`message_vision_meta`（`database.js`）
   - Stub 抽取：`tools/knowledge/vision-meta-stub.js`（不调 VL；`provider=stub` / `status=pending_vl`）
-  - 小样本扫描：`npm run knowledge:vision-sample` / `:dry`
+  - 小样本扫描：`npm run knowledge:vision-sample`（`tools/knowledge/phase1_vision_meta_sample.js`）
   - 单测：`test/test_vision_meta_req037_phase1.js`
   - **未做**：真实本地/云端 VL（等 Q-006）
 - **Phase 2（语义会话聚类算法）**：实现基于话题漂移的 Dynamic CU 分割引擎，替换固定切片。
