@@ -735,13 +735,26 @@ export function getTickerLotsAndHistory(targetSeqNo, ticker, db = getDb()) {
 
   const activeLots = lots.filter(l => l.qty > 0);
   
-  // 近期历史明细 (取最近 4 笔)
-  const recentTrades = rows.slice(-4).map(r => {
-    const actIcon = r.parsed_action === 'BUY' ? '🟢买' : '🔴卖';
-    const cleanRaw = (r.raw_content || '').replace(/\n+/g, ' ').trim();
-    const shortRaw = cleanRaw.length > 25 ? cleanRaw.substring(0, 25) + '...' : cleanRaw;
-    return `    • #${r.seq_no} ${actIcon} ${r.parsed_qty}股 @ $${r.parsed_price.toFixed(2)} 「${shortRaw}」`;
-  });
+  // 近期历史明细 (展示最近至多 6 笔，若更早有记录则标明结清提示)
+  const maxShow = 6;
+  let recentTrades = [];
+  if (rows.length > maxShow) {
+    const omitted = rows.length - maxShow;
+    recentTrades.push(`    • *(更早有 ${omitted} 笔历史操作已结清平仓)*`);
+    recentTrades.push(...rows.slice(-maxShow).map(r => {
+      const actIcon = r.parsed_action === 'BUY' ? '🟢买' : '🔴卖';
+      const cleanRaw = (r.raw_content || '').replace(/\n+/g, ' ').trim();
+      const shortRaw = cleanRaw.length > 25 ? cleanRaw.substring(0, 25) + '...' : cleanRaw;
+      return `    • #${r.seq_no} ${actIcon} ${r.parsed_qty}股 @ $${r.parsed_price.toFixed(2)} 「${shortRaw}」`;
+    }));
+  } else {
+    recentTrades = rows.map(r => {
+      const actIcon = r.parsed_action === 'BUY' ? '🟢买' : '🔴卖';
+      const cleanRaw = (r.raw_content || '').replace(/\n+/g, ' ').trim();
+      const shortRaw = cleanRaw.length > 25 ? cleanRaw.substring(0, 25) + '...' : cleanRaw;
+      return `    • #${r.seq_no} ${actIcon} ${r.parsed_qty}股 @ $${r.parsed_price.toFixed(2)} 「${shortRaw}」`;
+    });
+  }
 
   return {
     activeLots,
