@@ -123,3 +123,35 @@ export function extractSemanticPrice(rawContent, ticker, action) {
     debug: `tokenizer_slot exec=${execPrice} lot=${sourceLotPrice}`
   };
 }
+
+/**
+ * 提取交易语义动作 (BUY / SELL)
+ */
+export function extractSemanticAction(rawContent, ticker) {
+  if (!rawContent) return null;
+  let text = rawContent.replace(/\[IMAGE:.*?\]/gi, '').trim();
+  if (ticker) {
+    const lines = text.split(/[\n\r；;。]+/).map(s => s.trim()).filter(Boolean);
+    const lowerTicker = ticker.toLowerCase();
+    const cand = lines.find(l => l.toLowerCase().includes(lowerTicker));
+    if (cand) text = cand;
+  }
+
+  // 1. 核心反向买入动作：买回 / 回买 / 接回 / 加回 / 回吸 必为 BUY (防止误判为 SELL)
+  if (/买回|加回|接回|回买|回吸|低吸/.test(text)) {
+    return 'BUY';
+  }
+
+  // 2. 卖出动作：出 / 卖 / 平仓 / 平本出 / 平出 / 减仓 / 止损
+  if (/出|卖|平仓|平本出|平出|减仓|止损/.test(text)) {
+    return 'SELL';
+  }
+
+  // 3. 买入动作：买 / 加 / 开 / 建仓 / 入
+  if (/买|加|开|建仓|入/.test(text)) {
+    return 'BUY';
+  }
+
+  return null;
+}
+

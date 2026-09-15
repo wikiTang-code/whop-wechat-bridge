@@ -14,7 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getDb } from './database.js';
-import { extractSemanticPrice } from './price_extractor.js';
+import { extractSemanticPrice, extractSemanticAction } from './price_extractor.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -386,7 +386,8 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
 
   const updatePendingStmt = db.prepare(`
     UPDATE follow_replay_queue
-    SET parsed_price = ?,
+    SET parsed_action = ?,
+        parsed_price = ?,
         parsed_qty = ?,
         source_lot_price = ?,
         fraction_desc = ?,
@@ -423,7 +424,7 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
       }
 
       const ticker = (r.parsed_ticker || '').toUpperCase();
-      const action = (r.parsed_action || 'BUY').toUpperCase();
+      let action = (r.parsed_action || 'BUY').toUpperCase();
       const raw = r.raw_content || '';
 
       if (!zhaoSimLots[ticker]) zhaoSimLots[ticker] = [];
@@ -445,6 +446,11 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
       let fractionDesc = r.fraction_desc;
 
       if (!isReviewed) {
+        // 动态校准待审单的买卖方向 (针对 "买回/加回/接回/回买" 等核心动词，纠正防止因带“卖出”被误判为 SELL)
+        if (/买回|加回|接回|回买|回吸/.test(raw)) {
+          action = 'BUY';
+        }
+
         price = (extPrice !== null && extPrice > 0) ? extPrice : (r.parsed_price || 100);
         fractionDesc = formatFractionDesc(r.fraction_desc, r.fraction_ratio, raw, action, sourceLotPrice);
 
@@ -453,14 +459,24 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
           targetFractionPct = 0.05;
         } else if (raw.includes('三分之一') || raw.includes('1/3')) {
           targetFractionPct = 0.0333;
-        } else if (raw.includes('半仓') || raw.includes('出一半')) {
+        } else if (raw.includes('半仓') || raw.includes('出一半') || raw.includes('卖一半') || raw.includes('减半')) {
           targetFractionPct = 0.05;
         } else if (r.fraction_ratio) {
           targetFractionPct = r.fraction_ratio * 0.1;
         }
 
         if (action === 'BUY') {
-          deltaQty = price > 0 ? Math.max(1, Math.round((100000 * targetFractionPct) / price)) : 100;
+          // 做T买回模式：优先对等买回此前卖出的数量
+          if (/买回|加回|接回|回买|回吸/.test(raw) && sourceLotPrice) {
+            const prevSellRow = rows.slice().reverse().find(x => x.seq_no < r.seq_no && (x.parsed_ticker || '').toUpperCase() === ticker && (x.parsed_action || '').toUpperCase() === 'SELL' && Math.abs(x.parsed_price - sourceLotPrice) < 0.5);
+            if (prevSellRow && prevSellRow.parsed_qty > 0) {
+              deltaQty = prevSellRow.parsed_qty;
+            } else {
+              deltaQty = price > 0 ? Math.max(1, Math.round((100000 * targetFractionPct) / price)) : 100;
+            }
+          } else {
+            deltaQty = price > 0 ? Math.max(1, Math.round((100000 * targetFractionPct) / price)) : 100;
+          }
         } else {
           // SELL 推荐股数计算
           let targetLot = null;
@@ -478,7 +494,7 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
           if (targetLot) {
             if (raw.includes('出剩下一半') || raw.includes('剩下一半') || raw.includes('剩下') || raw.includes('清仓') || raw.includes('出完') || raw.includes('全出') || raw.includes('平仓') || raw.includes('平本出')) {
               deltaQty = targetLot.qty;
-            } else if (raw.includes('出一半') || raw.includes('半仓')) {
+            } else if (raw.includes('出一半') || raw.includes('半仓') || raw.includes('卖一半') || raw.includes('减半')) {
               deltaQty = Math.ceil(targetLot.qty / 2);
             } else if (raw.includes('三分之一') || raw.includes('1/3')) {
               deltaQty = Math.round(targetLot.qty / 3);
@@ -488,7 +504,7 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
           } else {
             if (raw.includes('清仓') || raw.includes('出完') || raw.includes('平出') || raw.includes('全出') || raw.includes('出剩下一半') || raw.includes('剩下全部')) {
               deltaQty = beforeQty;
-            } else if (raw.includes('出一半') || raw.includes('半仓')) {
+            } else if (raw.includes('出一半') || raw.includes('半仓') || raw.includes('卖一半') || raw.includes('减半')) {
               deltaQty = Math.ceil(beforeQty / 2);
             } else {
               const latestLot = lots.slice().reverse().find(l => l.qty > 0);
@@ -556,6 +572,7 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
 
       if (!isReviewed) {
         updatePendingStmt.run(
+          action,
           price,
           deltaQty,
           sourceLotPrice ?? null,
