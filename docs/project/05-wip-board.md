@@ -53,6 +53,7 @@
 | §0.R-A cursor | **CHG-018 门禁落地抽审（`7da433a`）** | **Done** |
 | §0.R-A cursor | **CHG-018 Step1–3/切流口径抽审（`e469d29`/`cd183dc`）** | **Done** |
 | §0.R-A cursor | **REQ-037 batch distill + Layer4 query（`4675823`/`3e81a18`）** | **Done** |
+| §0.R-A cursor | **REQ-037 全库蒸馏闭环（`e9fc925`）** | **Done** |
 
 ### 共享候选池
 
@@ -165,7 +166,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**DEBT-014 Done**；037 Layer4 抽审 Done；distill `--sender/--channel` 过滤落地；**10m×10h 文档树感知循环已开**（PID 见 terminals）。
-- gemini：**REQ-033** Standing（#90 等 human）。
-- gemini1：**REQ-036** Standing；对向审修自转。
+- cursor：10m tick#1 — 抽审 `e9fc925` Done；纠 03「P4 闭环」误述；§0.A 空。
+- gemini：**REQ-033** Standing（#90）；037 全库蒸馏已出队。
+- gemini1：**REQ-036** Standing。
 - Human：REQ-002；Q-001；Q-006；企微 #90；Q-007 Done。

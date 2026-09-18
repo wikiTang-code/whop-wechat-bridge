@@ -8,6 +8,25 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · REQ-037 全库蒸馏闭环抽审（`agent:cursor` · §0.R-A · `e9fc925`）
+
+**范围**：`ontology_distill_scanned` · distill 防游标 · 全库 ~4004 卡片 · 03 状态行  
+**对照**：本机 `ontology_card=4004` / `scanned=2705`；pattern 2236 偏多  
+**总评**：**工程交付接受（防游标+全量扫描）**；**03 文案不得写「P4 闭环」**——企微盘中参谋仍冻结（`REJ-008`）。
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | `ontology_distill_scanned` + `markDistillScanned` 解决「无卡片产出消息卡死游标」 |
+| **通过** | 启发式全库跑批有结果；Layer4 仍只读 |
+| **高危→改账本** | 03 写「P1/P2/P3/**P4** 全部闭环」与同句「P4 冻结」矛盾；**P4 未实现且禁止实现**，须改回 P3 Done / P4 frozen |
+| **中危** | 4004 卡 + pattern 占比过半：召回仍偏宽；建议生产批跑默认 `--sender 赵`（cursor 已提供开关） |
+| **中危** | 主库体积对照 REQ-008：大批 ontology 行需关注增长与清理策略 |
+| **低** | 看板 §0.B 空位叙述已更新；§0.R 须登记本批次 |
+
+**建议处置**：cursor 回写 03 去掉 P4 闭环表述；§0.R-A 本批次 Done。
+
+**审修状态**：**`Done`**
+
 ### 2026-09-19 · REQ-037 批蒸馏 + Layer4 查询引擎抽审（`agent:cursor` · §0.R-A · `4675823`/`3e81a18`）
 
 **范围**：`batch_distill_pipeline.js` · `ontology_query_engine.js` · 对应单测  
