@@ -8,6 +8,33 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · CHG-018 门禁落地抽审（`agent:cursor` · §0.R-A · `7da433a`）
+
+**范围**：`tools/ai-runtime-adapter.js` · `tools/lms-guard.js` · `test/test_ai_runtime_adapter.js` · 方案 §6  
+**对照**：方案审阅门禁（同日上方条目）· `npm run test:ai-runtime`  
+**总评**：**门禁切片通过**（Adapter 抽象 + Mock 单测绿 + `lms-guard` 已解耦 Windows CLI 硬路径）。**不得据此关 LMS**——`WslLlamaAdapter` 的 load/unload 仍为占位，Step 1 部署前必须换成真实进程监督。
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | `getRuntimeAdapter` / `setRuntimeAdapterForTest` 单例注入正确；`lms-guard` 幂等拦截在 Mock 下可回归 |
+| **通过** | 默认后端仍为 `lms`（`AI_RUNTIME_BACKEND`），切流前不会误切 WSL |
+| **通过** | `test:ai-runtime` 全绿（含排重 `:2`） |
+| **中危→Step1** | **`WslLlamaAdapter.load/unload` 仅为 `/tmp/llama_target_model` 文件信号**，不是 llama-server 真实控制面；缺 supervisor 脚本时 Arbiter 无法时分卸载 14B |
+| **中危→Step1** | `ps()`/`healthCheck()` 经 `curl`+`execSync`；Windows 无 curl 或 PATH 异常会静默空列表——建议改 Node `http`（模块已 import 未用） |
+| **低** | `echo '${modelKey}'` 进 shell 有注入面；正式 supervisor 应用 argv/文件写，禁拼接 |
+| **低** | `sizeBytes` 硬编码 15GB 占位，预算核算勿当真 |
+| **观察** | 方案 §3.1「热载 1–2s」与库存 llama-server（常需进程重启换模）可能不符；Step 1 验收应以实测冷载为准 |
+
+**建议处置**：
+
+| 动作 | 说明 |
+|------|------|
+| §6 门禁 | Adapter/ROCm/SOP 项可标 Done（已与方案对齐） |
+| Step 1 必做 | 进程级 supervisor：启停 `llama-server --model …`，Adapter 调其控制 API；替换 `/tmp` 占位 |
+| Q-007 | 仍 open；**禁止**在 Step 1–2 连通验收前关 LMS |
+
+**审修状态**：**`Done`**（抽审结论供 Gemini Step 1 消费；无新 REQ）
+
 ### 2026-09-19 · CHG-018 统一 WSL2 AI 运行时方案审阅（`agent:cursor` · §0.R-A · `PKG-WSL-AI-RUNTIME`）
 
 **范围**：[`wsl-unified-ai-runtime-plan.md`](./wsl-unified-ai-runtime-plan.md) · `CHG-018`  

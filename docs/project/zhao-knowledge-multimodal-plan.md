@@ -1,7 +1,7 @@
 # 大V全频道多模态图文对齐与交易知识本体图谱方案 (REQ-037 专题规划)
 
 > **上级索引**：[`README.md`](./README.md) · 账本 [`03-requirements.md`](./03-requirements.md)  
-> **文档定位**：全频道非交易与策略知识深度沉淀的权威架构方案（**accepted** · Phase1 MVP Done；P2+ 待开；VL 等 Q-006；Phase4 冻结）。  
+> **文档定位**：全频道非交易与策略知识深度沉淀的权威架构方案（**accepted** · P1–P3 Done；VL 等 Q-006；全量蒸馏/真人 CU 标注可选；Phase4 冻结）。  
 
 > **核心使命**：彻底跳出“机械固定时间开窗”与“纯文本 OCR”的局限，将大V（赵哥）86,000+ 条历史发言、K线图表手绘、群友提问解答，升维为**具备图文因果推演能力的交易体系多模态知识图谱**。
 
@@ -172,6 +172,6 @@ flowchart TD
 
 - 账本对应：[`03-requirements.md`](./03-requirements.md) **`REQ-037` = `accepted`（分期门禁）**。  
 - 评审结论：[`07-review-inbox.md`](./07-review-inbox.md) · 2026-09-15 · `agent:cursor`。  
-- **可实施**：Phase 1–2 Done；Phase 3 stub 脚手架已开（关键词，未接 14B）；真人 CU 标注与全量跑批可选/未开。  
-- **冻结**：Phase 4 企微推送在业务通道 CHG + `wecom-freeze` 更新前不得开工（`REJ-008`）。  
+- **可实施**：Phase 1–3 Done（含 14B 抽样通路）；真人 CU 标注与全量蒸馏可选/未开（须 Arbiter 互斥）。
+- **冻结**：Phase 4 企微推送在业务通道 CHG + `wecom-freeze` 更新前不得开工（`REJ-008`）。
 - Human 开放题：[`04`](./04-leftovers-problems.md) **Q-006**（本地 VL vs 云端；**不影响 P2**）。

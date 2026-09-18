@@ -50,12 +50,13 @@
 | §0.R-A cursor | REQ-033 推送通道波次抽审（`ed411ab`…`7919849`） | **Done** |
 | §0.R-B gemini | REQ-037 P2+P3 知识图谱专题包（`bc5b0d6`…`170af17`） | **Done** |
 | §0.R-A cursor | **CHG-018 统一 WSL2 AI 运行时方案审阅** | **Done** |
+| §0.R-A cursor | **CHG-018 门禁落地抽审（`7da433a`）** | **Done** |
 
 ### 共享候选池
 
-1. `CHG-018` 切流（WSL llama-server 部署 + **Q-007** 关 LMS；Arbiter 钩 flywheel）
+1. `CHG-018` 切流（Step 1：真实 llama-server supervisor 替换 `/tmp` 占位 → Step 2–3 Arbiter → **Q-007** 关 LMS）
 2. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 Arbiter 互斥；禁 Phase 4）· 真人 CU 标注强化（可选）
-3. （已出队）… · CHG-018-review · CHG-018-gates（Adapter/ROCm smoke/SOP）
+3. （已出队）… · CHG-018-review · CHG-018-gates · CHG-018-postgate-review
 
 ## 1. 主看板
 
@@ -162,8 +163,8 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**CHG-018 审阅 Done**；§0.A 空。
-- gemini：**REQ-033** Doing；**CHG-018** 门禁前置已落地（`7da433a`），待 **Q-007** 关 LMS + WSL llama-server 部署/Arbiter 钩子。
+- cursor：**CHG-018 审阅 + 门禁抽审 Done**（`7da433a`：Adapter 通过；Wsl load/unload 仍占位）；§0.A 空。
+- gemini：**REQ-033** Doing；**CHG-018** 门禁达标，下一步 Step 1 supervisor + **Q-007**。
 - gemini1：REQ-036 Standing。
 - Human：REQ-002；Q-001；Q-006；**Q-007**（关 LMS 切流）。
-- §0.R-A：CHG-018 **Done**。
+- §0.R-A：CHG-018 方案审阅 + 门禁抽审 **Done**。

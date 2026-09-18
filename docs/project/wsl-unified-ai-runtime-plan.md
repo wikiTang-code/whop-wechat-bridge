@@ -3,7 +3,7 @@
 > **上级索引**：[`README.md`](./README.md) · 账本 [`03-requirements.md`](./03-requirements.md) (`CHG-018`) · 审阅 [`07-review-inbox.md`](./07-review-inbox.md)  
 > **提案方**：`agent:gemini`  
 > **审阅方**：`agent:cursor`（见 `05` §0.R-A 批次 `PKG-WSL-AI-RUNTIME`）  
-> **当前状态**：`accepted`（Cursor 审阅 Done · 2026-09-19；**实施前须过 §6 门禁**；关 Windows LM Studio 切流建议 human 在场）
+> **当前状态**：`accepted` · **§6 门禁已达标**（`7da433a` Adapter + ROCm smoke + SOP）；**待 Step 1–4 / Q-007**（关 LMS 切流须 human 在场）
 
 ---
 
@@ -144,12 +144,12 @@ node test/test_ai_runtime_adapter.js
 
 ## 5. 执行步骤（审阅通过后 · 门禁达标才可关 LMS）
 
-1. **Step 0（门禁准备 · 已启动）**：
+1. **Step 0（门禁准备 · Done · `7da433a`）**：
    - 锁定默认方案 A（WSL2 llama-server ROCm）；
    - 落地 `tools/ai-runtime-adapter.js` 统一抽象层与单测；
    - 验证 WSL2 ROCm / PyTorch GPU 张量分配 Smoke（成功识别 7900 XT 并完成物理分配）；
    - 写入显存预算、空窗降级策略与回滚 SOP。
-2. **Step 1**：WSL2 部署 `llama-server`（方案 A），挂载现有 GGUF 权重；
+2. **Step 1（下一步）**：WSL2 部署 `llama-server`（方案 A），挂载现有 GGUF 权重；**须落地真实进程级 load/unload**（见 07 门禁后抽审：当前 `WslLlamaAdapter` 仅为 `/tmp` 信号占位）
 3. **Step 2**：验证宿主机 `127.0.0.1:8080` 连通与推理性能；
 4. **Step 3**：将 Arbiter 调度逻辑钩入 `flywheel_engine.js`；
 5. **Step 4（Q-007 · Human 在场确认）**：关闭 Windows LM Studio，切流至 WSL 运行时，验收 7GB 物理内存释放与微调全程在 GPU。
