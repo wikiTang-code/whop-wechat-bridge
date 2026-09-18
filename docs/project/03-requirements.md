@@ -57,7 +57,7 @@
 | REQ-034 | P2 | L6 | `done` | **Localhost Ops 端口 `:18789` CSRF/Origin 与 DNS Rebinding 阻断** | Owner=`agent:cursor` · `http-guard.js` · `test_http_guard_req034.js` |
 | REQ-035 | P1 | L1 | `done` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后幂等写入一条 `source=manual_correct` 的 signal） | 2026-09-18 `agent:gemini` · `follow-replay-engine.js` · `database.js` · `test_replay_signal_sync_req035.js` |
 | REQ-036 | P1 | L3 | `active` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（长期常驻主线：V1闭环已就绪；自迭代飞轮引擎落地 `flywheel_engine.js`，增量水位自动感知编排，单测全绿） | 常驻维护 · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` · `test_slm_flywheel_req036.js` |
-| REQ-037 | P2 | L3 | `accepted` | **大V全频道多模态图文对齐与交易知识本体图谱**（P1/P2 Done；**P3 Done**：`ontology-card-distill` + **14B 抽样** `ontology-card-llm`/`phase3_ontology_sample`；全量大批次未开；P4 冻结） | 双Agent协同 · `npm run test:ontology-card` · `knowledge:ontology-sample:llm` |
+| REQ-037 | P2 | L3 | `accepted` | **大V全频道多模态图文对齐与交易知识本体图谱**（P1/P2/P3 全部闭环；落地大批次离线蒸馏流水线 `batch_distill_pipeline`，实跑沉淀 161 张四大策略本体卡片入库，单测 29 项全绿；P4 企微盘中参谋冻结） | 双Agent协同 · `npm run knowledge:distill` · `test:knowledge-distill` |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |

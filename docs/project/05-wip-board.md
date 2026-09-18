@@ -13,15 +13,15 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；REQ-037 CU 标注工具 Done） | — | — |
+| **1** | **DEBT-014** | L2/L3 | Supervisor 绑定真实本地推理二进制（将 sleep-mock 替换为真实 llama-server 进程监管；P2 基础设施加固） | `tools/wsl-llama-supervisor.js` · `tools/ai-runtime-adapter.js` | **Doing** |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.B 队列 `agent:gemini`
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #89；底层增加「成本附近平出」槽位与批次出清语义，校准 #89 TSLL 平出 15.05 批次 221 股并级联重算，队头已进至 #90 CONL，进度 10.7%） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` · `price_extractor.js` | **Doing** |
-| 2 | — | — | （空位；CHG-018 + Q-007 切流 Human 确认 Done） | — | — |
+| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（常驻流水线：队头 #90 CONL 等待企微点击，用户手机端操作即自动级联推进下一笔，进度 10.7%） | `follow-replay-engine.js` · `server.js` | **Standing (Active)** |
+| 2 | — | — | （空位；REQ-037 Phase 3 大批次离线策略本体卡片知识蒸馏流水线已全面交付闭环并入库 161 张卡片） | — | — |
 
 ### 0.C 队列 `agent:gemini1`
 

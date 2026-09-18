@@ -74,8 +74,8 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | （空 · Q-007 Human 确认 Done） | — |
-| **§0.B `agent:gemini`** | **REQ-033** 历史大V单回放与企微纠错（#90 CONL） | Doing |
+| **§0.A `agent:cursor`** | **DEBT-014** 真实推理二进制绑定 (Supervisor) | Doing |
+| **§0.B `agent:gemini`** | **REQ-033** 历史大V交易单回放纠错（常驻流水线 · #90 CONL 待审） | Standing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | REQ-002；Q-001；Q-006；企微 #90；**Q-007 Done** | 等待 / Done |
 | **§0.R-A** | CHG-018 抽审系列 | Done |
