@@ -107,6 +107,35 @@ export function ensureOntologyCardTable(conn) {
   try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_ontology_card_cu ON ontology_card (source_cu_id)').run(); } catch (_) {}
 }
 
+/** REQ-037 Phase 3: tracking scanned messages to ensure forward pagination without head-of-line blocking. */
+export function ensureDistillScannedTable(conn) {
+  if (!conn) throw new Error('ensureDistillScannedTable requires db connection');
+  conn.prepare(`
+    CREATE TABLE IF NOT EXISTS ontology_distill_scanned (
+      message_id TEXT PRIMARY KEY,
+      cards_count INTEGER NOT NULL DEFAULT 0,
+      scanned_at INTEGER NOT NULL
+    )
+  `).run();
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_distill_scanned_at ON ontology_distill_scanned (scanned_at)').run(); } catch (_) {}
+}
+
+export function markDistillScanned(items, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  ensureDistillScannedTable(conn);
+  const now = Date.now();
+  const insert = conn.prepare(`
+    INSERT OR REPLACE INTO ontology_distill_scanned (message_id, cards_count, scanned_at)
+    VALUES (?, ?, ?)
+  `);
+  const tx = conn.transaction((batch) => {
+    for (const item of batch) {
+      insert.run(item.message_id, item.cards_count || 0, now);
+    }
+  });
+  tx(items);
+}
+
 // 权威频道登记册加载器 (全系统唯一频道来源)
 let channelRegistryMap = null;
 function getChannelRegistryMap() {
@@ -219,6 +248,7 @@ export function initDb() {
     ensureMessageVisionMetaTable(db);
     ensureSemanticCuTables(db);
     ensureOntologyCardTable(db);
+    ensureDistillScannedTable(db);
     console.log('[initDb] Database already initialized and ready (0ms).');
     return;
   }
@@ -425,6 +455,7 @@ export function initDb() {
   ensureMessageVisionMetaTable(db);
   ensureSemanticCuTables(db);
   ensureOntologyCardTable(db);
+  ensureDistillScannedTable(db);
 
   // 初始化虚拟资金 (如账户不存在，默认存入 100,000 美元沙盒资金)
   const cashCheck = db.prepare('SELECT value FROM portfolio WHERE key = ?').get('cash');

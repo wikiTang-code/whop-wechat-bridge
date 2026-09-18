@@ -51,13 +51,17 @@ export function extractCardsHeuristic(content, meta = {}) {
   const idBase = meta.id || `gen_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
 
   // 1. 心法守则 (risk_rule)
-  if (/止损|降仓|砍仓|底仓不盲动|不加大仓|破位|无条件|严禁加仓/i.test(text)) {
-    let trigger = '行情出现转折或跌破关键支撑';
-    let action = '严格执行纪律减仓止损，防范风险扩大';
-    let theory = '左侧防暴跌踩踏，资金安全置于盈利预期之上';
+  if (/止损|降仓|砍仓|底仓不盲动|不加大仓|破位|无条件|严禁加仓|不要追|不追高|严禁追|切忌追|吃一口|防守|防踩踏|保住利润|知足|控制仓位|轻仓|空仓/i.test(text)) {
+    let trigger = '行情出现转折、跌破关键支撑或情绪过热偏离';
+    let action = '严格执行纪律减仓止损，防范风险扩大，严禁盲目追高';
+    let theory = '左侧防暴跌踩踏，资金安全置于盈利预期之上，严格遵守知行合一';
 
     if (/跌破.*(低点|支撑|缺口|均线)/i.test(text)) {
       trigger = text.match(/跌破[^\s，,。]+/)?.[0] || '跌破关键防线';
+    } else if (/不要追|不追高|严禁追|切忌追|吃一口|卖飞/i.test(text)) {
+      trigger = '盘中急拉冲高或已经错过买点';
+      action = '克制追涨冲动，只吃把握最高的一段，卖飞后绝不追高追入';
+      theory = '宁可踏空也不盲目接飞刀，防守第一，把控盈亏比';
     } else if (/弱势反弹|连续阴线/i.test(text)) {
       trigger = '弱势反弹未破前高，转折向下';
     }
@@ -71,7 +75,7 @@ export function extractCardsHeuristic(content, meta = {}) {
     cards.push({
       id: `ocard_distill_risk_${idBase}`,
       card_type: 'risk_rule',
-      title: '极端/破位行情风控与仓位防踩踏纪律',
+      title: '交易风控与仓位防踩踏纪律守则',
       trigger_text: trigger,
       action_text: action,
       theory_text: theory,
@@ -92,10 +96,10 @@ export function extractCardsHeuristic(content, meta = {}) {
   }
 
   // 2. 形态战法 (pattern)
-  if (/缺口|回补|喇叭口|突破|箱体|做T|买\d+卖\d+|接回|高抛低吸/i.test(text)) {
-    let trigger = '典型技术结构形成（缺口、喇叭口或箱体边界）';
-    let action = '依据量价形态制定高抛低吸或做T应对战术';
-    let theory = '筹码密集区交换与突破回踩确认逻辑';
+  if (/缺口|回补|喇叭口|突破|箱体|做T|买\d+卖\d+|接回|高抛低吸|支撑|阻力|回踩|踩稳|反抽|筑底|双底|头肩/i.test(text)) {
+    let trigger = '典型技术结构形成（支撑阻力、缺口、喇叭口或箱体边界）';
+    let action = '依据量价形态制定高抛低吸、突破跟进或回踩低吸战术';
+    let theory = '筹码密集区交换与支撑阻力确认逻辑';
 
     if (/缺口/i.test(text)) {
       trigger = '遇到未回补跳空缺口';
@@ -105,12 +109,16 @@ export function extractCardsHeuristic(content, meta = {}) {
       trigger = '盘中出现拉升偏离或冲高回落时机';
       action = '分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本';
       theory = '通过日内或隔日波段筹码滚动，在震荡市中实现持仓降本';
+    } else if (/回踩|支撑|踩稳/i.test(text)) {
+      trigger = '标的回踩均线或关键技术支撑位';
+      action = '观察回踩企稳信号分批左侧试仓，跌破止损点果断离场';
+      theory = '共识均线与关键平台的回踩确认具有高胜率不对称赔率';
     }
 
     cards.push({
       id: `ocard_distill_pat_${idBase}`,
       card_type: 'pattern',
-      title: '波段战法与图表形态应对卡',
+      title: '波段战法与量价形态应对卡',
       trigger_text: trigger,
       action_text: action,
       theory_text: theory,
@@ -131,14 +139,14 @@ export function extractCardsHeuristic(content, meta = {}) {
   }
 
   // 3. 宏观逻辑 (macro)
-  if (/美联储|降息|加息|CPI|非农|估值|宏观|美债|鲍威尔/i.test(text)) {
+  if (/美联储|降息|加息|CPI|非农|估值|宏观|美债|鲍威尔|流动性|通胀|缩表|大盘|纳指|标普|十年期|软着陆/i.test(text)) {
     cards.push({
       id: `ocard_distill_macro_${idBase}`,
       card_type: 'macro',
       title: '宏观货币与流动性传导映射卡',
-      trigger_text: '宏观利率拐点或关键宏观经济数据扰动',
-      action_text: '调整大类科技高估值标的仓位暴露，防范利率端估值重估冲击',
-      theory_text: 'DCF 贴现率变化通过无风险利率直接冲击远期现金流折现',
+      trigger_text: '宏观利率拐点、大盘共振或关键宏观经济数据扰动',
+      action_text: '调整大类科技与高贝塔标的仓位暴露，防范利率端估值重估冲击',
+      theory_text: 'DCF 贴现率变化通过无风险利率与流动性直接冲击资产周期',
       tickers,
       source_cu_id: meta.cu_id || null,
       source_message_ids: meta.message_id ? [meta.message_id] : [],
@@ -146,7 +154,7 @@ export function extractCardsHeuristic(content, meta = {}) {
       status: 'distilled',
       schema: {
         card_type: 'macro',
-        trigger: '宏观货币政策或通胀预期变化',
+        trigger: '宏观货币政策或大盘流动性预期变化',
         action: '根据宏观风险偏好调整权益仓位配置',
         theory: '全球流动性总闸门驱动资产价格周期',
         tickers,
@@ -156,13 +164,13 @@ export function extractCardsHeuristic(content, meta = {}) {
   }
 
   // 4. 标的记忆 (asset_memory)
-  if (tickers.length > 0 && (/股性|洗盘|庄家|机构|关键位|控盘|点位|支撑点/i.test(text))) {
+  if (tickers.length > 0 && (/股性|洗盘|庄家|机构|关键位|控盘|点位|支撑点|主力|筹码|做市商|抛压|拉升/i.test(text))) {
     cards.push({
       id: `ocard_distill_asset_${idBase}`,
       card_type: 'asset_memory',
       title: `${tickers[0]} 标的机构行为与股性特征画像`,
-      trigger_text: `${tickers[0]} 触及历史关键点位或出现特征控盘走势`,
-      action_text: '结合标的历史脾性进行操作，避免盲目追涨杀跌，多看30分钟结构确认',
+      trigger_text: `${tickers[0]} 触及历史关键点位或出现主力做市商控盘走势`,
+      action_text: '结合标的历史脾性与控盘特征进行操作，避免盲目追涨杀跌，多看多周期结构确认',
       theory_text: '主力资金风格具有高度延续性，历史关键点位是筹码集中博弈区',
       tickers,
       source_cu_id: meta.cu_id || null,
