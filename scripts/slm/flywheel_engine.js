@@ -19,6 +19,7 @@ import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
 import dotenv from 'dotenv';
 import { exportSLMTrainingData } from './export_training_data.js';
+import { gpuArbiter } from '../../tools/gpu-arbiter.js';
 
 dotenv.config();
 
@@ -190,15 +191,17 @@ export async function executeFlywheelPipeline(options = {}) {
   }
 
   // -------------------------------------------------------------
-  // Stage 2: WSL2 AMD ROCm 极速 LoRA 微调执行
+  // Stage 2: WSL2 AMD ROCm 极速 LoRA 微调执行 (经由 GpuArbiter 时分轮转保护)
   // -------------------------------------------------------------
-  console.log('\n--- [Stage 2/3] 调度 WSL2 AMD ROCm 极速 LoRA 增量训练 ---');
+  console.log('\n--- [Stage 2/3] 调度 WSL2 AMD ROCm 极速 LoRA 增量训练 (Arbiter 显存时分调度) ---');
   const wslCommand = `cd /mnt/c/Users/86597/.gemini/antigravity/scratch/whop-wechat-bridge && export HSA_ENABLE_DXG_DETECTION=1 && export HSA_OVERRIDE_GFX_VERSION=11.0.0 && /root/openmontage_env/bin/python scripts/slm/train_rocm_fast.py`;
 
   let trainOut;
   try {
-    trainOut = await runCommandAsync('wsl', ['--', 'bash', '-c', `"${wslCommand}"`]);
-    console.log('✅ ROCm 极速微调执行成功');
+    trainOut = await gpuArbiter.withTrainingLock('flywheel_engine', async () => {
+      return await runCommandAsync('wsl', ['--', 'bash', '-c', `"${wslCommand}"`]);
+    });
+    console.log('✅ ROCm 极速微调执行成功 (纯物理显存无溢出)');
   } catch (err) {
     console.error('[Flywheel ERROR] 模型训练执行异常:', err.message);
     throw err;

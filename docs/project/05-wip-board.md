@@ -21,7 +21,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #89；底层增加「成本附近平出」槽位与批次出清语义，校准 #89 TSLL 平出 15.05 批次 221 股并级联重算，队头已进至 #90 CONL，进度 10.7%） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` · `price_extractor.js` | **Doing** |
-| 2 | **CHG-018** | L2/L3 | 统一 WSL2 AI 运行时（门禁前置落地：Runtime Adapter + 单测绿、ROCm smoke 显存分配验证、空窗退避与回滚 SOP 入库；等待 Q-007 关 LMS 确认） | `wsl-unified-ai-runtime-plan.md` · `tools/ai-runtime-adapter.js` | **Accepted** |
+| 2 | **CHG-018** | L2/L3 | 统一 WSL2 AI 运行时（Step 1–3 全部达成：真实 Supervisor 进程管理 + Adapter 对接 + Arbiter 时分调度钩入 flywheel + 单测全绿；保持 LMS 运行中，等待 Q-007 拍板切流） | `wsl-unified-ai-runtime-plan.md` · `tools/wsl-llama-supervisor.js` · `tools/gpu-arbiter.js` | **Ready for Q-007** |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -93,7 +93,7 @@
 | REQ-037 | L3 | 多模态知识图谱 P1–P3（含卡片蒸馏引擎） | 双Agent协同 | Done | P1 vision + P2 CU + P3 distill四大卡片全绿；P4 冻结 |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 | CHG-016 | L2 | 看板日期过滤强绑定北京时间 (+08:00) 闭环 | `agent:gemini` | Done | `3dc07c2` · 生产单进程重启生效 |
-| CHG-018 | L2/L3 | 统一 WSL2 AI 运行时方案（llama-server 替代 LM Studio） | `agent:gemini` | Accepted | 方案通过；Runtime Adapter+ROCm Smoke 门禁达标；待 Q-007 关 LMS |
+| CHG-018 | L2/L3 | 统一 WSL2 AI 运行时方案（llama-server 替代 LM Studio） | `agent:gemini` | Ready for Q-007 | Step 1–3 全绿：Supervisor 守护+Adapter+Arbiter钩入flywheel；待 Q-007 拍板 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 

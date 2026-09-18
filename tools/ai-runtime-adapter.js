@@ -11,8 +11,14 @@
  *   4. healthCheck() -> 健康巡检与存活探测
  */
 
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 import http from 'http';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const SYNC_CLIENT_PATH = path.join(__dirname, 'http-sync-client.mjs');
 
 /**
  * 基础运行时适配器抽象基类
@@ -112,78 +118,136 @@ export class WindowsLmsAdapter extends BaseRuntimeAdapter {
  * 适配器 2：WSL2 原生 llama-server 适配器 (方案 A 专用)
  * 通过 HTTP REST 管理接口与 WSL 内部守护进程通信
  */
+/**
+ * 同步 HTTP 请求辅助函数 (利用独立脚本传参执行，杜绝命令行引号转义问题)
+ */
+export function syncHttpRequest(options, bodyData = null) {
+  const bodyStr = bodyData ? JSON.stringify(bodyData) : '';
+  try {
+    const res = spawnSync(process.execPath, [
+      SYNC_CLIENT_PATH,
+      options.url,
+      options.method || 'GET',
+      bodyStr
+    ], {
+      encoding: 'utf-8',
+      timeout: (options.timeout || 5000) + 2000
+    });
+    if (res.stdout && res.stdout.trim()) {
+      return JSON.parse(res.stdout.trim());
+    }
+    return {
+      status: 500,
+      ok: false,
+      error: `spawnSync error: code=${res.status}, signal=${res.signal}, stderr=${res.stderr}, err=${res.error?.message || 'none'}`
+    };
+  } catch (err) {
+    return { status: 500, ok: false, error: err.message };
+  }
+}
+
 export class WslLlamaAdapter extends BaseRuntimeAdapter {
   constructor(options = {}) {
     super('wsl-llama-server');
     this.host = options.host || '127.0.0.1';
     this.port = options.port || 8080;
-    this.modelsDir = options.modelsDir || '/mnt/c/Users/86597/.cache/lm-studio/models';
+    this.supervisorPort = options.supervisorPort || 18080;
   }
 
   ps() {
-    // 方案 A llama-server 暴露 /v1/models 标准接口
-    try {
-      // 同步探测 /v1/models (为与 lms-guard 同步签名保持一致)
-      const res = execSync(`curl -s http://${this.host}:${this.port}/v1/models`, {
-        encoding: 'utf-8',
-        timeout: 4000
-      });
-      const data = JSON.parse(res);
-      if (data && Array.isArray(data.data)) {
-        return data.data.map(m => ({
-          identifier: m.id,
-          modelKey: m.id,
-          sizeBytes: m.sizeBytes || 15 * 1024 * 1024 * 1024 // 估算 14B 占位
-        }));
-      }
-      return [];
-    } catch (err) {
-      // 若尚未拉起或正在切换，安全降级为空列表
-      return [];
+    // 1. 优先向 WSL Supervisor 进程守护服务拉取进程状态
+    const supRes = syncHttpRequest({
+      url: `http://${this.host}:${this.supervisorPort}/status`,
+      method: 'GET',
+      timeout: 2000
+    });
+    if (supRes.ok && supRes.body) {
+      try {
+        const data = JSON.parse(supRes.body);
+        if (data && Array.isArray(data.models)) {
+          return data.models;
+        }
+      } catch (_) {}
     }
+
+    // 2. 备选：探测标准 OpenAI /v1/models 接口
+    const apiRes = syncHttpRequest({
+      url: `http://${this.host}:${this.port}/v1/models`,
+      method: 'GET',
+      timeout: 2000
+    });
+    if (apiRes.ok && apiRes.body) {
+      try {
+        const data = JSON.parse(apiRes.body);
+        if (data && Array.isArray(data.data)) {
+          return data.data.map(m => ({
+            identifier: m.id,
+            modelKey: m.id,
+            sizeBytes: m.sizeBytes || 15 * 1024 * 1024 * 1024
+          }));
+        }
+      } catch (_) {}
+    }
+
+    return [];
   }
 
   load(modelKey, options = {}) {
-    // 方案 A llama-server 通过控制接口或热载脚本管理
-    try {
-      // 检查当前是否已提供服务
-      const current = this.ps();
-      if (current.some(m => m.modelKey === modelKey || m.identifier === modelKey)) {
-        return { success: true, message: `Model ${modelKey} already online` };
-      }
-      // 触发 WSL 内部模型载入 (通过 control server 或 wsl 启动脚本)
-      execSync(`wsl bash -c "touch /tmp/llama_target_model && echo '${modelKey}' > /tmp/llama_target_model"`, {
-        encoding: 'utf-8',
-        timeout: 10000
-      });
-      return { success: true, message: `Dispatched load signal for ${modelKey}` };
-    } catch (err) {
-      return { success: false, message: `Failed to signal load ${modelKey}: ${err.message}` };
+    const cleanKey = String(modelKey || '').trim();
+    // 向 Supervisor 派发真实进程拉起指令
+    const res = syncHttpRequest({
+      url: `http://${this.host}:${this.supervisorPort}/load`,
+      method: 'POST',
+      timeout: 10000
+    }, { modelKey: cleanKey, ...options });
+
+    if (res.ok && res.body) {
+      try {
+        const data = JSON.parse(res.body);
+        return {
+          success: Boolean(data.success),
+          message: data.message || `Loaded ${cleanKey} via supervisor (PID: ${data.pid || 'n/a'})`
+        };
+      } catch (_) {}
     }
+
+    return {
+      success: false,
+      message: res.error || `Supervisor load failed (status: ${res.status})`
+    };
   }
 
   unload(identifier) {
-    try {
-      execSync(`wsl bash -c "rm -f /tmp/llama_target_model"`, {
-        encoding: 'utf-8',
-        timeout: 5000
-      });
-      return { success: true, message: `Dispatched unload signal for ${identifier}` };
-    } catch (err) {
-      return { success: false, message: `Failed to unload ${identifier}: ${err.message}` };
+    // 向 Supervisor 派发真实进程终止与显存排空指令
+    const res = syncHttpRequest({
+      url: `http://${this.host}:${this.supervisorPort}/unload`,
+      method: 'POST',
+      timeout: 10000
+    }, { identifier });
+
+    if (res.ok && res.body) {
+      try {
+        const data = JSON.parse(res.body);
+        return {
+          success: Boolean(data.success),
+          message: data.message || `Unloaded ${identifier} via supervisor`
+        };
+      } catch (_) {}
     }
+
+    return {
+      success: false,
+      message: res.error || `Supervisor unload failed (status: ${res.status})`
+    };
   }
 
   healthCheck() {
-    try {
-      const res = execSync(`curl -s -o /dev/null -w "%{http_code}" http://${this.host}:${this.port}/health`, {
-        encoding: 'utf-8',
-        timeout: 3000
-      }).trim();
-      return res === '200';
-    } catch {
-      return false;
-    }
+    const res = syncHttpRequest({
+      url: `http://${this.host}:${this.supervisorPort}/health`,
+      method: 'GET',
+      timeout: 2000
+    });
+    return res.status === 200;
   }
 }
 

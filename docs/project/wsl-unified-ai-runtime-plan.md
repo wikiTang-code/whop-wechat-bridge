@@ -149,10 +149,10 @@ node test/test_ai_runtime_adapter.js
    - 落地 `tools/ai-runtime-adapter.js` 统一抽象层与单测；
    - 验证 WSL2 ROCm / PyTorch GPU 张量分配 Smoke（成功识别 7900 XT 并完成物理分配）；
    - 写入显存预算、空窗降级策略与回滚 SOP。
-2. **Step 1（下一步）**：WSL2 部署 `llama-server`（方案 A），挂载现有 GGUF 权重；**须落地真实进程级 load/unload**（见 07 门禁后抽审：当前 `WslLlamaAdapter` 仅为 `/tmp` 信号占位）
-3. **Step 2**：验证宿主机 `127.0.0.1:8080` 连通与推理性能；
-4. **Step 3**：将 Arbiter 调度逻辑钩入 `flywheel_engine.js`；
-5. **Step 4（Q-007 · Human 在场确认）**：关闭 Windows LM Studio，切流至 WSL 运行时，验收 7GB 物理内存释放与微调全程在 GPU。
+2. **Step 1（Done）**：落地真实 `tools/wsl-llama-supervisor.js` 进程守护管理器，彻底废弃 `/tmp` 占位符，实现真实进程级 `load/unload/ps/healthCheck`；
+3. **Step 2（Done）**：完成宿主机 GGUF 权重映射（`/mnt/c/Users/86597/.lmstudio/models/...`），在独立端口 (:18080) 跑通进程生命周期与显存排空单测（`test/test_wsl_supervisor.js` PASS）；
+4. **Step 3（Done）**：落地 `tools/gpu-arbiter.js` 时分复用仲裁器，并深度钩入 `scripts/slm/flywheel_engine.js` Stage 2 微调；单测 `test/test_gpu_arbiter.js` PASS；
+5. **Step 4（Q-007 · 等待 Human 在场拍板）**：关闭 Windows LM Studio，切流至 WSL 运行时 (:8080)，验收 7GB 物理内存释放与微调全程在 GPU。
 
 ---
 
@@ -160,11 +160,13 @@ node test/test_ai_runtime_adapter.js
 
 - [x] **引擎锁定**：默认锁定方案 A（WSL llama-server ROCm）；方案 B 仅作失败备选
 - [x] **Runtime Adapter**：抽象 `tools/ai-runtime-adapter.js`，重构 `lms-guard.js` 解耦 Windows CLI，单测 `test:ai-runtime` 全绿
+- [x] **进程级守护 (Supervisor)**：`tools/wsl-llama-supervisor.js` 真实拉起/终止受管进程，废弃 `/tmp` 占位，单测 `test:wsl-supervisor` 全绿
+- [x] **时分仲裁 (Arbiter)**：`tools/gpu-arbiter.js` 钩入 `flywheel_engine.js`，实现微调前排空 14B、训练后自动恢复，单测 `test:gpu-arbiter` 全绿
 - [x] **空窗策略**：校准 14B 冷载耗时 15~20s；快车道降级为规则正则、深车道排队 503 退避
 - [x] **显存预算表**：DWM 预留 1.5GB，模型侧硬上限 ≤18.0GB
 - [x] **ROCm smoke**：验证 WSL2 PyTorch ROCm 识别 7900 XT，成功在 `cuda:0` 物理显存分配张量
 - [x] **回滚 SOP**：严格定义「停 WSL :8080 → 启 LM Studio → 校验连通」流程，杜绝端口冲突
 - [x] **互斥**：飞轮 / 037 蒸馏 / 人工 deep 共用 Arbiter 单飞锁
 - [x] **企微**：里程碑推送不扩 `/ops`（守住 `REJ-008`）
-- [ ] **WSL 部署与切流（Q-007）**：WSL2 llama-server 部署就绪后，关闭 Windows LM Studio 须 human 在场确认一次
+- [ ] **WSL 部署与切流（Q-007）**：全部前置就绪；保持 Windows LM Studio 运行中，只等 Human 一声令下拍板切流
 

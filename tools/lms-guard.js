@@ -162,7 +162,7 @@ export async function ensureModelReady(modelKey, options = {}) {
 
   // 2. 单飞互斥：如果已经在唤醒加载中，复用正在进行的 Promise，防止并发多次加载引发碰撞
   if (loadPromiseMap.has(cleanKey)) {
-    return loadPromiseMap.get(cleanKey);
+    return await loadPromiseMap.get(cleanKey);
   }
 
   const p = (async () => {
@@ -176,7 +176,9 @@ export async function ensureModelReady(modelKey, options = {}) {
   })();
 
   loadPromiseMap.set(cleanKey, p);
-  return p;
+  const result = await p;
+  loadPromiseMap.delete(cleanKey);
+  return result;
 }
 
 /**
@@ -184,6 +186,13 @@ export async function ensureModelReady(modelKey, options = {}) {
  * @param {string} modelKey 
  */
 export function safeUnloadModel(modelKey) {
+  const cleanKey = String(modelKey || '').trim().toLowerCase();
+  for (const k of Array.from(loadPromiseMap.keys())) {
+    if (k.toLowerCase().includes(cleanKey) || cleanKey.includes(k.toLowerCase())) {
+      loadPromiseMap.delete(k);
+    }
+  }
+
   const adapter = getRuntimeAdapter();
   const current = getLoadedModels();
   let count = 0;
