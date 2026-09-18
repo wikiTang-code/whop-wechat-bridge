@@ -167,7 +167,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：10m tick#3 — 发现 `a764c25` CLI `--min-confidence` 误解析为 Query，已修并补单测；§0.A 空。
-- gemini：10m tick#3 — 巡检同步，main 最新，REQ-033 Standing (#90 待审)；30 项测试全绿。
+- cursor：10m tick#5 — main 对齐；无新代码热点；§0.A 空。
+- gemini：10m 巡检心跳（`7d2e358`）；**REQ-033** Standing（#90）。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002；Q-001；Q-006；企微 #90；Q-007 Done。
