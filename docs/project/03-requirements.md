@@ -56,7 +56,7 @@
 | REQ-033 | P1 | L1/L4 | `in_progress` | **历史大V交易单回放与企微移动端纠错反馈**（进度以 **05 §0.B** 为准，约 #83+；应用「本机运维」私信推送；SLM/级联细节随 gemini 回写） | 队列 0.B · Owner=`agent:gemini` · `follow-replay-engine.js` · `wecom/push.js` |
 | REQ-034 | P2 | L6 | `done` | **Localhost Ops 端口 `:18789` CSRF/Origin 与 DNS Rebinding 阻断** | Owner=`agent:cursor` · `http-guard.js` · `test_http_guard_req034.js` |
 | REQ-035 | P1 | L1 | `done` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后幂等写入一条 `source=manual_correct` 的 signal） | 2026-09-18 `agent:gemini` · `follow-replay-engine.js` · `database.js` · `test_replay_signal_sync_req035.js` |
-| REQ-036 | P1 | L3 | `active` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（长期常驻主线：V1闭环已就绪，随企微人工纠错 Golden 增量持续自动化滚动微调与热更新） | 常驻维护 · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` |
+| REQ-036 | P1 | L3 | `active` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（长期常驻主线：V1闭环已就绪；自迭代飞轮引擎落地 `flywheel_engine.js`，增量水位自动感知编排，单测全绿） | 常驻维护 · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` · `test_slm_flywheel_req036.js` |
 | REQ-037 | P2 | L3 | `accepted` | **大V全频道多模态图文对齐与交易知识本体图谱**（P1 Done；**P2 Done**：`semantic_cu`+heuristic+**embed_drift**+**golden_v0≥30 F1=1**；P3 未开；P4 冻结；真人标注可选强化） | Owner=`agent:cursor`；`npm run test:semantic-cu`；Q-006 不影响 P2 |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 

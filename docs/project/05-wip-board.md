@@ -21,7 +21,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #85；卡片接入有效 Tunnel+局域网双通道，根治重启时序导致旧穿透失效报 ERR_CONNECTION_CLOSED 问题，队头已进至 #86 LITE，进度 10.2%） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` | **Doing** |
-| 2 | **REQ-036 Pipeline** | L3 | 自迭代数据飞轮流水线（增量样本提取+一键微调与门禁编排） | `scripts/slm/*` · `data/slm/*` | **Doing** |
+| 2 | **REQ-036 Pipeline** | L3 | 自迭代数据飞轮流水线（`flywheel_engine.js` + 增量感知编排 + 单测全绿） | `scripts/slm/*` · `data/slm/*` | **Done** |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -84,7 +84,7 @@
 | REQ-031 | L1 | 解析即写 signal 流水 | `agent:cursor` | Done | trade_signals · test_trade_signals_req031 |
 | REQ-033 | L1/L4 | 历史回放+企微纠错（进度以 §0.B 为准：约 #83+；应用私信推送） | `agent:gemini` | Doing | `follow-replay-engine` · `wecom/push` |
 | REQ-035 | L1 | 回放纠错与 trade_signals 自动校准联动 | `agent:gemini` | Done | `follow-replay-engine.js` · `test_replay_signal_sync_req035.js` |
-| REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮 | `agent:gemini1` | Done | 1030组SFT/DPO训练集+Unsloth微调+端侧抽取器 |
+| REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮（含自迭代流水线） | `agent:gemini` | Done | 1030组SFT/DPO+ROCm LoRA+`flywheel_engine.js`+单测全绿 |
 | REQ-037 | L3 | 多模态知识图谱 P1+P2（含 eval） | `agent:cursor` | Done | semantic_cu · golden_v0≥30 · embed_drift；P3 未开 |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 | CHG-016 | L2 | 看板日期过滤强绑定北京时间 (+08:00) 闭环 | `agent:gemini` | Done | `3dc07c2` · 生产单进程重启生效 |

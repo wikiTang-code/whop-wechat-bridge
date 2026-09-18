@@ -95,26 +95,54 @@ export function exportSLMTrainingData() {
     if (row.corrected_json) {
       try {
         const corr = JSON.parse(row.corrected_json);
-        if (corr.parsed_ticker) targetTicker = corr.parsed_ticker;
-        if (corr.parsed_action) targetAction = corr.parsed_action;
-        if (corr.parsed_price !== undefined) targetPrice = Number(corr.parsed_price);
-        if (corr.source_lot_price !== undefined) targetSourceLot = corr.source_lot_price ? Number(corr.source_lot_price) : null;
-        if (corr.fraction_desc) targetFracDesc = corr.fraction_desc;
-        if (corr.fraction_ratio) targetFracRatio = Number(corr.fraction_ratio);
+        const correctedObj = corr.corrected || corr;
+        const originalObj = corr.original || null;
+
+        if (correctedObj.ticker || correctedObj.parsed_ticker) {
+          targetTicker = correctedObj.ticker || correctedObj.parsed_ticker;
+        }
+        if (correctedObj.action || correctedObj.parsed_action) {
+          targetAction = correctedObj.action || correctedObj.parsed_action;
+        }
+        if (correctedObj.price !== undefined || correctedObj.parsed_price !== undefined) {
+          targetPrice = Number(correctedObj.price !== undefined ? correctedObj.price : correctedObj.parsed_price);
+        }
+        if (correctedObj.source_lot_price !== undefined) {
+          targetSourceLot = correctedObj.source_lot_price ? Number(correctedObj.source_lot_price) : null;
+        }
+        if (correctedObj.fraction_desc) {
+          targetFracDesc = correctedObj.fraction_desc;
+        }
+        if (correctedObj.fraction_ratio) {
+          targetFracRatio = Number(correctedObj.fraction_ratio);
+        }
         isCorrected = true;
 
-        // 构造 DPO 对比对：Rejected 为未人工修正前的原始解析
-        rejectedTrade = {
-          symbol: row.parsed_ticker,
-          action: row.parsed_action,
-          price_type: 'LIMIT',
-          price: row.parsed_price,
-          source_lot_price: row.source_lot_price,
-          fraction_desc: row.fraction_desc,
-          fraction_ratio: row.fraction_ratio,
-          stop_loss: null,
-          is_day_trade: cleanInput.includes('日内')
-        };
+        if (originalObj) {
+          rejectedTrade = {
+            symbol: originalObj.ticker || originalObj.parsed_ticker || row.parsed_ticker,
+            action: originalObj.action || originalObj.parsed_action || row.parsed_action,
+            price_type: 'LIMIT',
+            price: Number(originalObj.price !== undefined ? originalObj.price : row.parsed_price),
+            source_lot_price: originalObj.source_lot_price || row.source_lot_price || null,
+            fraction_desc: originalObj.fraction_desc || row.fraction_desc,
+            fraction_ratio: originalObj.fraction_ratio || row.fraction_ratio,
+            stop_loss: null,
+            is_day_trade: cleanInput.includes('日内')
+          };
+        } else {
+          rejectedTrade = {
+            symbol: row.parsed_ticker,
+            action: row.parsed_action,
+            price_type: 'LIMIT',
+            price: row.parsed_price,
+            source_lot_price: row.source_lot_price,
+            fraction_desc: row.fraction_desc,
+            fraction_ratio: row.fraction_ratio,
+            stop_loss: null,
+            is_day_trade: cleanInput.includes('日内')
+          };
+        }
       } catch (e) {
         console.warn(`[WARN] 解析 corrected_json 失败 (id=${row.id}):`, e.message);
       }
