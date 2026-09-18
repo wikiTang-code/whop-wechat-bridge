@@ -21,7 +21,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #89；底层增加「成本附近平出」槽位与批次出清语义，校准 #89 TSLL 平出 15.05 批次 221 股并级联重算，队头已进至 #90 CONL，进度 10.7%） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` · `price_extractor.js` | **Doing** |
-| 2 | **CHG-018** | L2/L3 | 统一 WSL2 AI 运行时（Step 1–3 全部达成：真实 Supervisor 进程管理 + Adapter 对接 + Arbiter 时分调度钩入 flywheel + 单测全绿；保持 LMS 运行中，等待 Q-007 拍板切流） | `wsl-unified-ai-runtime-plan.md` · `tools/wsl-llama-supervisor.js` · `tools/gpu-arbiter.js` | **Ready for Q-007** |
+| 2 | — | — | （空位；CHG-018 统一 WSL2 AI 运行时已全面交付闭环并出队） | — | — |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -37,7 +37,7 @@
 | REQ-002 | 生产 ff | 等待 |
 | Q-001 | GEX→GCP 通道 | interim=SCP（可再改） |
 | Q-006 | REQ-037 视觉模型：本地 VL vs 云端 | open（倾向本地） |
-| Q-007 | CHG-018：门禁达标后是否关闭 Windows LM Studio 切流？ | 等待（建议 human 在场） |
+| Q-007 | CHG-018：门禁达标后是否关闭 Windows LM Studio 切流？ | **Done (Human 拍板切流)** |
 
 ### 0.R
 
@@ -54,9 +54,8 @@
 
 ### 共享候选池
 
-1. `CHG-018` 切流（Step 1：真实 llama-server supervisor 替换 `/tmp` 占位 → Step 2–3 Arbiter → **Q-007** 关 LMS）
-2. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 Arbiter 互斥；禁 Phase 4）· 真人标注 worksheet 已就绪（`knowledge:cu-export` / `cu-eval-filled`）
-3. （已出队）… · CHG-018-review · CHG-018-gates · CHG-018-postgate-review · 037-CU-annotate-tooling
+1. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 Arbiter 互斥；禁 Phase 4）· 真人标注 worksheet 已就绪（`knowledge:cu-export` / `cu-eval-filled`）
+2. （已出队）… · CHG-018-review · CHG-018-gates · CHG-018-postgate-review · CHG-018-wsl-unified · 037-CU-annotate-tooling
 
 ## 1. 主看板
 

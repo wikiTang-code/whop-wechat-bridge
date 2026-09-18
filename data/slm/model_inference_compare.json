@@ -1,0 +1,1842 @@
+[
+  {
+    "seq_no": 1,
+    "raw_content": "15.3附近 加了tsll常规仓的一半做日内",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "BUY",
+      "price": 15.3,
+      "fraction_desc": "0.5 笔常规仓 (约占总资金 5.0%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 15.3,
+          "source_lot_price": null,
+          "fraction_desc": "(约占总资金 5.0%) (约占总资金 5.0%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": true
+        }
+      ]
+    },
+    "latency_ms": 3298
+  },
+  {
+    "seq_no": 2,
+    "raw_content": "15.61出一半 15.3的tsll",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "SELL",
+      "price": 15.61,
+      "fraction_desc": "0.5 笔仓位 (半仓 / 约 50% 标的持仓)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 15.61,
+          "source_lot_price": 15.3,
+          "fraction_desc": "减持 1/2 份额 (卖出前序 $15.3 批次的 50%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2482
+  },
+  {
+    "seq_no": 3,
+    "raw_content": "msfl 19.65可以出之前 做T回买的18.8那部分",
+    "current_regex": {
+      "ticker": "MSFL",
+      "action": "SELL",
+      "price": 19.65,
+      "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+      "status": "corrected"
+    },
+    "corrected_truth": {
+      "original": {
+        "ticker": "MSFL",
+        "action": "BUY",
+        "price": 19.65,
+        "quantity": 170,
+        "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+        "time": 1778857075970
+      },
+      "corrected": {
+        "ticker": "MSFL",
+        "action": "SELL",
+        "price": 19.65,
+        "quantity": 170,
+        "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+        "time": 1778857020000,
+        "totalAmount": "3340.50",
+        "note": "",
+        "corrected_by": "human"
+      }
+    },
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "MSFL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 19.65,
+          "source_lot_price": null,
+          "fraction_desc": "常规平仓/减持 (未明确比例)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 1971
+  },
+  {
+    "seq_no": 4,
+    "raw_content": "特斯拉今天收周k线 还是看 422-423这个均价底部 巴伦基金周三就是极限洗盘\n\n\n\n15.3剩下一半轻仓可以拿 有异动也会出\n\n跌破422也是15的价格的时候也会先出 下周再有急跌再进",
+    "current_regex": {
+      "ticker": "TSLA",
+      "action": "SELL",
+      "price": 422,
+      "fraction_desc": "1/2 仓位 (半仓) (约占总资金 5.0%)",
+      "status": "classified_strategy"
+    },
+    "corrected_truth": {
+      "reject_reason": "strategy_plan",
+      "asset_id": "strat_rpl_rev_1778857950144_877",
+      "operator": "human"
+    },
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLA",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 422,
+          "source_lot_price": null,
+          "fraction_desc": "减持 1/2 份额 (非物理清仓)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5039
+  },
+  {
+    "seq_no": 5,
+    "raw_content": "14.2附近 开了三分之一常规仓 tsll  止损放在13.95",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "BUY",
+      "price": 14.2,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 14.2,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2154
+  },
+  {
+    "seq_no": 6,
+    "raw_content": "865附近 开了三分之一常规仓的lite 止损 842",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "BUY",
+      "price": 865,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "LITE",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 865,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2151
+  },
+  {
+    "seq_no": 7,
+    "raw_content": "49.75开了三分之一常规仓的iren 止损在48.3",
+    "current_regex": {
+      "ticker": "IREN",
+      "action": "BUY",
+      "price": 49.75,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "IREN",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 49.75,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2162
+  },
+  {
+    "seq_no": 8,
+    "raw_content": "18.25开了三分之一常规仓的cifr 止损在17.4",
+    "current_regex": {
+      "ticker": "CIFR",
+      "action": "BUY",
+      "price": 18.25,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CIFR",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 18.25,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2237
+  },
+  {
+    "seq_no": 9,
+    "raw_content": "885-886附近出lite的日内",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "SELL",
+      "price": 885.5,
+      "fraction_desc": "全部清仓 (100% 清空该标的在持)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "LITE",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 885.5,
+          "source_lot_price": null,
+          "fraction_desc": "常规平仓/减持 (未明确比例)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": true
+        }
+      ]
+    },
+    "latency_ms": 4912
+  },
+  {
+    "seq_no": 10,
+    "raw_content": "tsll  14.3出14.2的  日内也弱势了平出为主  明天再看看日内机会",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "SELL",
+      "price": 14.3,
+      "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 14.3,
+          "source_lot_price": 14.2,
+          "fraction_desc": "出清批次 (清空前序 $14.2 批次)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": true
+        }
+      ]
+    },
+    "latency_ms": 2129
+  },
+  {
+    "seq_no": 11,
+    "raw_content": "18.52出 18.25的cifr",
+    "current_regex": {
+      "ticker": "CIFR",
+      "action": "SELL",
+      "price": 18.52,
+      "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CIFR",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 18.52,
+          "source_lot_price": 18.25,
+          "fraction_desc": "出清批次 (清空前序 $18.25 批次)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2265
+  },
+  {
+    "seq_no": 12,
+    "raw_content": "这次被动减主要到时候会观察 访华特朗普 带去的一批企业当中 硬件的部分\n\nsndk  1100的缺口\n\nlite 上次850还差一点没补\n\nglw 169的缺口\n\nmu  680夜盘缺口\n\ncohr 340的缺口\n\nnok 12.3附近\n\n\n\n每天会有急跌去探底这些最近的缺口 有2周被动减的周期 \n\n\n\n每天急跌能抓的做做日内\n\n到有横盘的时候再看看是不是企稳开始做吸筹回流了",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "SELL",
+      "price": 850,
+      "fraction_desc": "常规平仓/减持 (未明确比例)",
+      "status": "classified_strategy"
+    },
+    "corrected_truth": {
+      "reject_reason": "strategy_plan",
+      "asset_id": "strat_rpl_rev_1779120508313_12",
+      "operator": "human"
+    },
+    "ai_model": {
+      "has_trade": false,
+      "trades": []
+    },
+    "latency_ms": 327
+  },
+  {
+    "seq_no": 13,
+    "raw_content": "crwv之后几天也可以注意 98  90的位置 今天急跌把98.9那个缺口补了\n\n\n\n被动减每天股仓位一般分三份 每跌一个缺口买一份",
+    "current_regex": {
+      "ticker": "CRWV",
+      "action": "BUY",
+      "price": 98,
+      "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": false,
+      "trades": []
+    },
+    "latency_ms": 319
+  },
+  {
+    "seq_no": 14,
+    "raw_content": "98.7开了crwv三分之一的常规仓止损在96.7",
+    "current_regex": {
+      "ticker": "CRWV",
+      "action": "BUY",
+      "price": 98.7,
+      "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CRWV",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 98.7,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5178
+  },
+  {
+    "seq_no": 15,
+    "raw_content": "13.6买了三分之一常规仓的tsll",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "BUY",
+      "price": 13.6,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 13.6,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5140
+  },
+  {
+    "seq_no": 16,
+    "raw_content": "47.8加了三分之一常规仓的iren",
+    "current_regex": {
+      "ticker": "IREN",
+      "action": "BUY",
+      "price": 47.8,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "IREN",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 47.8,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2110
+  },
+  {
+    "seq_no": 17,
+    "raw_content": "101.2出98.7的crwv",
+    "current_regex": {
+      "ticker": "CRWV",
+      "action": "SELL",
+      "price": 101.2,
+      "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CRWV",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 101.2,
+          "source_lot_price": null,
+          "fraction_desc": "常规平仓/减持 (未明确比例)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 1957
+  },
+  {
+    "seq_no": 18,
+    "raw_content": "98.1 在买入三分之一常规的crwv",
+    "current_regex": {
+      "ticker": "CRWV",
+      "action": "BUY",
+      "price": 98.1,
+      "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CRWV",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 98.1,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2186
+  },
+  {
+    "seq_no": 19,
+    "raw_content": "7.45 conl开了三分之一常规仓",
+    "current_regex": {
+      "ticker": "CONL",
+      "action": "BUY",
+      "price": 7.45,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CONL",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 7.45,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2194
+  },
+  {
+    "seq_no": 20,
+    "raw_content": "74.4  hood开了 三分之一常规仓",
+    "current_regex": {
+      "ticker": "HOOD",
+      "action": "BUY",
+      "price": 74.4,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "HOOD",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 74.4,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5115
+  },
+  {
+    "seq_no": 21,
+    "raw_content": "855开了 lite第一个三分之常规仓 还后面再开2次每个股 价格拉开开三次",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "BUY",
+      "price": 855,
+      "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+      "status": "corrected"
+    },
+    "corrected_truth": {
+      "original": {
+        "ticker": "LITE",
+        "action": "BUY",
+        "price": 75,
+        "quantity": 44,
+        "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+        "time": 1779200950343
+      },
+      "corrected": {
+        "ticker": "LITE",
+        "action": "BUY",
+        "price": 855,
+        "quantity": 4,
+        "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+        "time": 1779200940000,
+        "totalAmount": "3420.00",
+        "note": "",
+        "corrected_by": "human"
+      }
+    },
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "LITE",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 855,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2065
+  },
+  {
+    "seq_no": 22,
+    "raw_content": "7.82出7.45的conl",
+    "current_regex": {
+      "ticker": "CONL",
+      "action": "SELL",
+      "price": 7.82,
+      "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CONL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 7.82,
+          "source_lot_price": 7.45,
+          "fraction_desc": "出清批次 (清空前序 $7.45 批次)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2175
+  },
+  {
+    "seq_no": 23,
+    "raw_content": "866出一半 855的lite",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "SELL",
+      "price": 866,
+      "fraction_desc": "0.5 笔仓位 (半仓 / 约 50% 标的持仓)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": {
+      "original": {
+        "ticker": "LITE",
+        "action": "SELL",
+        "price": 75,
+        "quantity": 22,
+        "fraction_desc": "0.5 笔仓位 (半仓 / 约 50% 标的持仓)",
+        "time": 1779203830923
+      },
+      "corrected": {
+        "ticker": "LITE",
+        "action": "SELL",
+        "price": 866,
+        "quantity": 2,
+        "fraction_desc": "0.5 笔仓位 (半仓 / 约 50% 标的持仓)",
+        "time": 1779203820000,
+        "totalAmount": "1732.00",
+        "note": "",
+        "corrected_by": "human"
+      }
+    },
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "LITE",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 866,
+          "source_lot_price": 855,
+          "fraction_desc": "减持 1/2 份额 (卖出前序 $855 批次的 50%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2314
+  },
+  {
+    "seq_no": 24,
+    "raw_content": "47.8 的iren在47.8 平本出",
+    "current_regex": {
+      "ticker": "IREN",
+      "action": "SELL",
+      "price": 47.8,
+      "fraction_desc": "出清批次 (清空前序 $47.8 批次)",
+      "status": "corrected"
+    },
+    "corrected_truth": {
+      "original": {
+        "ticker": "IREN",
+        "action": "SELL",
+        "price": 47.8,
+        "quantity": 67,
+        "fraction_desc": "出清批次 (清空前序 $47.8 批次)",
+        "time": 1779205192487
+      },
+      "corrected": {
+        "ticker": "IREN",
+        "action": "SELL",
+        "price": 47.8,
+        "quantity": 70,
+        "fraction_desc": "出清批次 (清空前序 $47.8 批次)",
+        "time": 1779205140000,
+        "totalAmount": "3346.00",
+        "note": "",
+        "corrected_by": "human"
+      }
+    },
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "IREN",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 47.8,
+          "source_lot_price": 47.8,
+          "fraction_desc": "出清批次 (清空前序 $47.8 批次)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5145
+  },
+  {
+    "seq_no": 25,
+    "raw_content": "74.6出74.4的hood也是平本出",
+    "current_regex": {
+      "ticker": "HOOD",
+      "action": "SELL",
+      "price": 74.6,
+      "fraction_desc": "1/3 常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "HOOD",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 74.6,
+          "source_lot_price": 74.4,
+          "fraction_desc": "出清批次 (清空前序 $74.4 批次)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2172
+  },
+  {
+    "seq_no": 26,
+    "raw_content": "875出剩下一半 855的lite",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "SELL",
+      "price": 875,
+      "fraction_desc": "出清剩余持仓 (清空前序 $855 批次剩余全部份额)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "LITE",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 875,
+          "source_lot_price": 855,
+          "fraction_desc": "出清剩余持仓 (清空前序 $855 批次剩余全部份额)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2194
+  },
+  {
+    "seq_no": 27,
+    "raw_content": "98.3出  98.1 的第二轮的crwv",
+    "current_regex": {
+      "ticker": "CRWV",
+      "action": "SELL",
+      "price": 98.3,
+      "fraction_desc": "出清批次 (清空前序 $98.1 批次)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CRWV",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 98.3,
+          "source_lot_price": 98.1,
+          "fraction_desc": "出清批次 (清空前序 $98.1 批次)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5155
+  },
+  {
+    "seq_no": 28,
+    "raw_content": "tsll也是直线到13.6附近时候平本出13.6的",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "SELL",
+      "price": 13.6,
+      "fraction_desc": "出清批次 (清空前序 $13.6 批次)",
+      "status": "classified_strategy"
+    },
+    "corrected_truth": {
+      "reject_reason": "strategy_plan",
+      "asset_id": "strat_rpl_rev_1779209627532_28",
+      "operator": "human"
+    },
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 13.6,
+          "source_lot_price": null,
+          "fraction_desc": "常规平仓/减持 (未明确比例)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 1936
+  },
+  {
+    "seq_no": 29,
+    "raw_content": "13.7附近平本出13.6的tsll",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "SELL",
+      "price": 13.7,
+      "fraction_desc": "出清批次 (清空前序 $13.6 批次)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 13.7,
+          "source_lot_price": 13.6,
+          "fraction_desc": "出清批次 (清空前序 $13.6 批次)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2167
+  },
+  {
+    "seq_no": 30,
+    "raw_content": "14.01开了 三分之一常规仓的tsll 昨天最低在13.03附近 到那附近再加",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "BUY",
+      "price": 14.01,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 14.01,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2154
+  },
+  {
+    "seq_no": 31,
+    "raw_content": "73.95开了三分之一常规仓的hood",
+    "current_regex": {
+      "ticker": "HOOD",
+      "action": "BUY",
+      "price": 73.95,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "HOOD",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 73.95,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 8076
+  },
+  {
+    "seq_no": 32,
+    "raw_content": "7.67开了三分之一常规仓的conl",
+    "current_regex": {
+      "ticker": "CONL",
+      "action": "BUY",
+      "price": 7.67,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CONL",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 7.67,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5133
+  },
+  {
+    "seq_no": 33,
+    "raw_content": "14.41可以卖一半14.01的tsll买2卖1份这样 降本",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "SELL",
+      "price": 14.41,
+      "fraction_desc": "减持 1/2 份额 (卖出前序 $14.01 批次的 50%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 14.41,
+          "source_lot_price": 14.01,
+          "fraction_desc": "减持 1/2 份额 (卖出前序 $14.01 批次的 50%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2469
+  },
+  {
+    "seq_no": 34,
+    "raw_content": "7.99 也是出一半 7.67的conl买2份卖一份",
+    "current_regex": {
+      "ticker": "CONL",
+      "action": "SELL",
+      "price": 7.99,
+      "fraction_desc": "减持 1/2 份额 (卖出前序 $7 批次的 50%)",
+      "status": "corrected"
+    },
+    "corrected_truth": {
+      "original": {
+        "ticker": "CONL",
+        "action": "SELL",
+        "price": 7.6,
+        "quantity": 217,
+        "fraction_desc": "减持 1/2 份额 (卖出前序 $7 批次的 50%)",
+        "time": 1779284869834
+      },
+      "corrected": {
+        "ticker": "CONL",
+        "action": "SELL",
+        "price": 7.99,
+        "quantity": 217,
+        "fraction_desc": "减持 1/2 份额 (卖出前序 $7 批次的 50%)",
+        "time": 1779284820000,
+        "totalAmount": "1733.83",
+        "note": "",
+        "corrected_by": "human"
+      }
+    },
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CONL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 7.99,
+          "source_lot_price": 7.67,
+          "fraction_desc": "减持 1/2 份额 (卖出前序 $7.67 批次的 50%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2392
+  },
+  {
+    "seq_no": 35,
+    "raw_content": "7.67在买回 7.99卖出的部分conl 就是不断套利降本",
+    "current_regex": {
+      "ticker": "CONL",
+      "action": "BUY",
+      "price": 7.67,
+      "fraction_desc": "出清批次 (清空前序 $7.99 批次) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%)",
+      "status": "confirmed_skip"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CONL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 7.67,
+          "source_lot_price": 7.99,
+          "fraction_desc": "出清批次 (清空前序 $7.99 批次)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5137
+  },
+  {
+    "seq_no": 36,
+    "raw_content": "iren也是昨天46是最低 今天有双属性逆势  上次49.8的当底仓不动 有到46-47在加",
+    "current_regex": {
+      "ticker": "IREN",
+      "action": "BUY",
+      "price": 46,
+      "fraction_desc": "(约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%) (约占总资金 5.0%)",
+      "status": "classified_strategy"
+    },
+    "corrected_truth": {
+      "reject_reason": "strategy_plan",
+      "asset_id": "strat_rpl_rev_1779286600392_36",
+      "operator": "human"
+    },
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "IREN",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 46,
+          "source_lot_price": null,
+          "fraction_desc": "(约占总资金 5.0%) (约占总资金 5.0%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2103
+  },
+  {
+    "seq_no": 37,
+    "raw_content": "8.11再出刚才回吸的一半conl",
+    "current_regex": {
+      "ticker": "CONL",
+      "action": "SELL",
+      "price": 8.11,
+      "fraction_desc": "减持 1/2 份额 (卖出该标的在持的 50%)",
+      "status": "corrected"
+    },
+    "corrected_truth": {
+      "original": {
+        "ticker": "CONL",
+        "action": "SELL",
+        "price": 8.11,
+        "quantity": 217,
+        "fraction_desc": "减持 1/2 份额 (卖出该标的在持的 50%)",
+        "time": 1779286719615
+      },
+      "corrected": {
+        "ticker": "CONL",
+        "action": "SELL",
+        "price": 8.11,
+        "quantity": 108,
+        "fraction_desc": "减持 1/2 份额 (卖出该标的在持的 50%)",
+        "time": 1779286680000,
+        "totalAmount": "875.88",
+        "note": "",
+        "corrected_by": "human"
+      }
+    },
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CONL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 8.11,
+          "source_lot_price": null,
+          "fraction_desc": "常规平仓/减持 (未明确比例)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 4892
+  },
+  {
+    "seq_no": 38,
+    "raw_content": "859加了三分之一常规仓的lite",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "BUY",
+      "price": 859,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "LITE",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 859,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2068
+  },
+  {
+    "seq_no": 39,
+    "raw_content": "100加了三分之一常规仓的crwv",
+    "current_regex": {
+      "ticker": "CRWV",
+      "action": "BUY",
+      "price": 100,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CRWV",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 100,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5075
+  },
+  {
+    "seq_no": 40,
+    "raw_content": "盘前106出一半100的crwv",
+    "current_regex": {
+      "ticker": "CRWV",
+      "action": "SELL",
+      "price": 106,
+      "fraction_desc": "减持 1/2 份额 (卖出前序 $100 批次的 50%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CRWV",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 106,
+          "source_lot_price": 100,
+          "fraction_desc": "减持 1/2 份额 (卖出前序 $100 批次的 50%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5307
+  },
+  {
+    "seq_no": 41,
+    "raw_content": "15出剩下一半14.01的tsll",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "SELL",
+      "price": 15,
+      "fraction_desc": "出清剩余持仓 (清空前序 $14.01 批次剩余全部份额)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 15,
+          "source_lot_price": 14.01,
+          "fraction_desc": "出清剩余持仓 (清空前序 $14.01 批次剩余全部份额)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5263
+  },
+  {
+    "seq_no": 42,
+    "raw_content": "54出一半49.8的iren",
+    "current_regex": {
+      "ticker": "IREN",
+      "action": "SELL",
+      "price": 54,
+      "fraction_desc": "减持 1/2 份额 (卖出前序 $49.8 批次的 50%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "IREN",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 54,
+          "source_lot_price": 49.8,
+          "fraction_desc": "减持 1/2 份额 (卖出前序 $49.8 批次的 50%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2375
+  },
+  {
+    "seq_no": 43,
+    "raw_content": "885出一半 859的lite",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "SELL",
+      "price": 885,
+      "fraction_desc": "减持 1/2 份额 (卖出前序 $859 批次的 50%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "LITE",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 885,
+          "source_lot_price": 859,
+          "fraction_desc": "减持 1/2 份额 (卖出前序 $859 批次的 50%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2403
+  },
+  {
+    "seq_no": 44,
+    "raw_content": "930-931附近出剩下一半 859的lite",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "SELL",
+      "price": 930.5,
+      "fraction_desc": "出清剩余持仓 (清空前序 $859 批次剩余全部份额)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "LITE",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 930.5,
+          "source_lot_price": 859,
+          "fraction_desc": "出清剩余持仓 (清空前序 $859 批次剩余全部份额)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2252
+  },
+  {
+    "seq_no": 45,
+    "raw_content": "56.65出剩下一半 49.8的iren 也是和lite一样大肉先落袋再找急跌机会",
+    "current_regex": {
+      "ticker": "IREN",
+      "action": "SELL",
+      "price": 56.65,
+      "fraction_desc": "出清剩余持仓 (清空前序 $49.8 批次剩余全部份额)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "IREN",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 56.65,
+          "source_lot_price": 49.8,
+          "fraction_desc": "出清剩余持仓 (清空前序 $49.8 批次剩余全部份额)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2290
+  },
+  {
+    "seq_no": 46,
+    "raw_content": "14.43附近可以接回15卖出的tsll  新开也是先三分之一常规仓开始积累利润垫",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "BUY",
+      "price": 14.43,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 14.43,
+          "source_lot_price": null,
+          "fraction_desc": "减持 1/3 该标的在持份额 (即该标在账户中所占比例的 33%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2375
+  },
+  {
+    "seq_no": 47,
+    "raw_content": "14.7出一半 14.43的tsll",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "SELL",
+      "price": 14.7,
+      "fraction_desc": "减持 1/2 份额 (卖出前序 $14.43 批次的 50%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 14.7,
+          "source_lot_price": 14.43,
+          "fraction_desc": "减持 1/2 份额 (卖出前序 $14.43 批次的 50%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5537
+  },
+  {
+    "seq_no": 48,
+    "raw_content": "15出14.43的tsll剩下一半",
+    "current_regex": {
+      "ticker": "TSLL",
+      "action": "SELL",
+      "price": 15,
+      "fraction_desc": "出清剩余持仓 (清空前序 $14.43 批次剩余全部份额)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "TSLL",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 15,
+          "source_lot_price": null,
+          "fraction_desc": "出清剩余持仓 (清空该标的在持剩余全部份额)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 1989
+  },
+  {
+    "seq_no": 49,
+    "raw_content": "107-108加 三分之一常规仓的nvdl 止损在104",
+    "current_regex": {
+      "ticker": "NVDL",
+      "action": "SELL",
+      "price": 107.5,
+      "fraction_desc": "减持 1/3 份额 (卖出该标的在持的 33%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "NVDL",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 107.5,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5163
+  },
+  {
+    "seq_no": 50,
+    "raw_content": "59.5开了iren 三分之一常规仓 止损在58",
+    "current_regex": {
+      "ticker": "IREN",
+      "action": "SELL",
+      "price": 59.5,
+      "fraction_desc": "减持 1/3 份额 (卖出该标的在持的 33%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "IREN",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 59.5,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2079
+  },
+  {
+    "seq_no": 51,
+    "raw_content": "6.8附近加三分之一常规仓的conl  coin正股下面有个175缺口 下一笔到缺口附近再看加",
+    "current_regex": {
+      "ticker": "CONL",
+      "action": "BUY",
+      "price": 6.8,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CONL",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 6.8,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5046
+  },
+  {
+    "seq_no": 52,
+    "raw_content": "盘前62.3止盈59.5的iren",
+    "current_regex": {
+      "ticker": "IREN",
+      "action": "SELL",
+      "price": 62.3,
+      "fraction_desc": "出清批次 (清空前序 $59.5 批次)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "IREN",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 62.3,
+          "source_lot_price": 59.5,
+          "fraction_desc": "(约占总资金 5.0%) (约占总资金 5.0%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2220
+  },
+  {
+    "seq_no": 53,
+    "raw_content": "860加了三分之一常规仓的lite",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "BUY",
+      "price": 860,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "LITE",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 860,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2047
+  },
+  {
+    "seq_no": 54,
+    "raw_content": "100.4加了三分之一常规仓的crwv",
+    "current_regex": {
+      "ticker": "CRWV",
+      "action": "BUY",
+      "price": 100.4,
+      "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CRWV",
+          "action": "BUY",
+          "price_type": "LIMIT",
+          "price": 100.4,
+          "source_lot_price": null,
+          "fraction_desc": "1/3 笔常规仓 (约占总资金 3.3%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 8153
+  },
+  {
+    "seq_no": 55,
+    "raw_content": "881.5出一半 860的lite",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "SELL",
+      "price": 881.5,
+      "fraction_desc": "减持 1/2 份额 (卖出前序 $860 批次的 50%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "LITE",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 881.5,
+          "source_lot_price": 860,
+          "fraction_desc": "减持 1/2 份额 (卖出前序 $860 批次的 50%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2439
+  },
+  {
+    "seq_no": 56,
+    "raw_content": "890-891附近出剩下一半 860的lite做个日内  再买等860再看有没有第二波",
+    "current_regex": {
+      "ticker": "LITE",
+      "action": "SELL",
+      "price": 890.5,
+      "fraction_desc": "出清剩余持仓 (清空前序 $860 批次剩余全部份额)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "LITE",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 890.5,
+          "source_lot_price": 860,
+          "fraction_desc": "出清剩余持仓 (清空前序 $860 批次剩余全部份额)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": true
+        }
+      ]
+    },
+    "latency_ms": 2294
+  },
+  {
+    "seq_no": 57,
+    "raw_content": "76出一半74的hood",
+    "current_regex": {
+      "ticker": "HOOD",
+      "action": "SELL",
+      "price": 76,
+      "fraction_desc": "减持 1/2 份额 (卖出前序 $74 批次的 50%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "HOOD",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 76,
+          "source_lot_price": 74,
+          "fraction_desc": "减持 1/2 份额 (卖出前序 $74 批次的 50%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2282
+  },
+  {
+    "seq_no": 58,
+    "raw_content": "像soxl  mu之类的主要看散户的单子  散户追高止损了 回调一定程序就会被大资金吸\n\n散户就是养料",
+    "current_regex": {
+      "ticker": "SOXL",
+      "action": "SELL",
+      "price": 45,
+      "fraction_desc": "常规平仓/减持 (未明确比例)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": false,
+      "trades": []
+    },
+    "latency_ms": 3321
+  },
+  {
+    "seq_no": 59,
+    "raw_content": "102出一半 100.3的crwv",
+    "current_regex": {
+      "ticker": "CRWV",
+      "action": "SELL",
+      "price": 102,
+      "fraction_desc": "减持 1/2 份额 (卖出前序 $100.3 批次的 50%)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CRWV",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 102,
+          "source_lot_price": 100.3,
+          "fraction_desc": "减持 1/2 份额 (卖出前序 $100.3 批次的 50%)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 2482
+  },
+  {
+    "seq_no": 60,
+    "raw_content": "crwv 103.9附近出剩下一半",
+    "current_regex": {
+      "ticker": "CRWV",
+      "action": "SELL",
+      "price": 103.9,
+      "fraction_desc": "出清剩余持仓 (清空该标的在持剩余全部份额)",
+      "status": "pending"
+    },
+    "corrected_truth": null,
+    "ai_model": {
+      "has_trade": true,
+      "trades": [
+        {
+          "symbol": "CRWV",
+          "action": "SELL",
+          "price_type": "LIMIT",
+          "price": 103.9,
+          "source_lot_price": null,
+          "fraction_desc": "出清剩余持仓 (清空该标的在持剩余全部份额)",
+          "fraction_ratio": 0.5,
+          "stop_loss": null,
+          "is_day_trade": false
+        }
+      ]
+    },
+    "latency_ms": 5049
+  }
+]

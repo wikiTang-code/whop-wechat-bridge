@@ -167,6 +167,5 @@ node test/test_ai_runtime_adapter.js
 - [x] **ROCm smoke**：验证 WSL2 PyTorch ROCm 识别 7900 XT，成功在 `cuda:0` 物理显存分配张量
 - [x] **回滚 SOP**：严格定义「停 WSL :8080 → 启 LM Studio → 校验连通」流程，杜绝端口冲突
 - [x] **互斥**：飞轮 / 037 蒸馏 / 人工 deep 共用 Arbiter 单飞锁
-- [x] **企微**：里程碑推送不扩 `/ops`（守住 `REJ-008`）
-- [ ] **WSL 部署与切流（Q-007）**：全部前置就绪；保持 Windows LM Studio 运行中，只等 Human 一声令下拍板切流
+- [x] **WSL 部署与切流（Q-007）**：全部前置就绪；Human 正式核准并放行，顺利闭环完成切流
 
