@@ -15,6 +15,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { getDb } from './database.js';
 import { extractSemanticPrice, extractSemanticAction } from './price_extractor.js';
+import { createWecomPusher } from './tools/local-ops/wecom/push.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -1016,30 +1017,61 @@ export async function pushCurrentReplayCard(db = getDb()) {
     return { finished: true, stats };
   }
 
-  const webhookUrl = process.env.WECHAT_WORK_WEBHOOK_URL;
-  if (!webhookUrl) {
-    throw new Error('WECHAT_WORK_WEBHOOK_URL is not configured in .env');
-  }
-
   const { text } = buildReplayWeComMessage(item, stats);
+  let pushedViaOpsApp = false;
 
-  const res = await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      msgtype: 'markdown',
-      markdown: { content: text }
-    })
-  });
+  // 1. 优先通过企微「本机运维」自建应用推送 (私信会话流，彻底避免与讨论群刷屏混叠)
+  const corpId = process.env.WECOM_OPS_CORP_ID;
+  const secret = process.env.WECOM_OPS_SECRET;
+  const agentId = process.env.WECOM_OPS_AGENT_ID;
+  const userIds = process.env.WECOM_OPS_USERIDS;
 
-  const json = await res.json().catch(() => ({}));
-  if (json.errcode !== 0) {
-    console.error(`[Follow Replay] 推送企微失败: errcode=${json.errcode}, errmsg=${json.errmsg}`);
-    return { success: false, error: json.errmsg, item, stats };
+  if (corpId && secret && agentId && userIds) {
+    try {
+      const pusher = createWecomPusher({
+        corpId,
+        secret,
+        agentId,
+        pushVia: process.env.WECOM_OPS_PUSH_VIA || 'gcp',
+      });
+      const pushRes = await pusher.sendMarkdown({
+        userid: userIds,
+        content: text,
+      });
+      if (pushRes && pushRes.ok) {
+        pushedViaOpsApp = true;
+        console.log(`[Follow Replay] 📱 已成功通过「本机运维」自建应用推送第 #${item.seq_no} 条待审单 (${item.parsed_ticker}) 至 ${userIds}`);
+      } else {
+        console.warn(`[Follow Replay] 「本机运维」自建应用推送未成: ${pushRes ? pushRes.error : 'unknown'}，切入群 Webhook 兜底`);
+      }
+    } catch (e) {
+      console.warn(`[Follow Replay] 「本机运维」自建应用调用异常: ${e.message}，切入群 Webhook 兜底`);
+    }
   }
 
-  console.log(`[Follow Replay] ✅ 已成功推送第 #${item.seq_no} 条待审单 (${item.parsed_ticker})`);
-  return { success: true, item, stats };
+  // 2. 如果自建应用未启用或推送失败，则走群机器人 Webhook 兜底
+  if (!pushedViaOpsApp) {
+    const webhookUrl = process.env.WECHAT_WORK_WEBHOOK_URL;
+    if (!webhookUrl) {
+      throw new Error('Neither WECOM_OPS_AGENT nor WECHAT_WORK_WEBHOOK_URL is available in .env');
+    }
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        msgtype: 'markdown',
+        markdown: { content: text }
+      })
+    });
+    const json = await res.json().catch(() => ({}));
+    if (json.errcode !== 0) {
+      console.error(`[Follow Replay] 推送企微 Webhook 失败: errcode=${json.errcode}, errmsg=${json.errmsg}`);
+      return { success: false, error: json.errmsg, item, stats };
+    }
+    console.log(`[Follow Replay] 📢 已通过群 Webhook 推送第 #${item.seq_no} 条待审单 (${item.parsed_ticker})`);
+  }
+
+  return { success: true, item, stats, via: pushedViaOpsApp ? 'ops_app' : 'webhook' };
 }
 
 /**

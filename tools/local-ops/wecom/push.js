@@ -76,11 +76,51 @@ export function createWecomPusher({
     }
   }
 
+  async function sendMarkdown({ userid, content }) {
+    if (!enabled) {
+      return { ok: false, skipped: true, reason: 'push_not_configured' };
+    }
+    const to = String(userid || '').trim();
+    const text = String(content || '');
+    if (!to) return { ok: false, error: 'userid required' };
+    if (!text) return { ok: false, error: 'content required' };
+
+    try {
+      const token = await getAccessToken();
+      const url = `https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=${encodeURIComponent(token)}`;
+      const body = {
+        touser: to,
+        msgtype: 'markdown',
+        agentid: agent,
+        markdown: { content: text },
+        enable_duplicate_check: 0,
+      };
+      const res = await fetchFn(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.errcode !== 0) {
+        return {
+          ok: false,
+          error: `send markdown failed: ${data.errcode} ${data.errmsg || ''}`.trim(),
+          data,
+          via,
+        };
+      }
+      return { ok: true, msgid: data.msgid, data, via };
+    } catch (err) {
+      return { ok: false, error: err.message, via };
+    }
+  }
+
   return {
     enabled,
     agentId: enabled ? agent : null,
     via,
     getAccessToken,
     sendText,
+    sendMarkdown,
   };
 }

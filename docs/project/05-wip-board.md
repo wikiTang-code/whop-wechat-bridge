@@ -20,7 +20,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #83，根除价格带 .5 误判为减半的正则 bug，#84 规范为出清批次 55 股；重新推送企微，进度 10.0%） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` | **Doing** |
+| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #83；切换至企微自建「本机运维」应用专属私信推送，根除群刷屏混叠；#84 已重新推送到应用） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` · `tools/local-ops/wecom/push.js` | **Doing** |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.C 队列 `agent:gemini1`
