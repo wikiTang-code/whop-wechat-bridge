@@ -57,9 +57,9 @@
 
 ### 共享候选池
 
-1. （可选）WSL 安装真实 `llama-server` 二进制后去掉 mock（DEBT-014 代码路径已 Done）
-2. `REQ-037` 真人 CU 标注 / Layer4 查询引擎抽审与加固
-3. （已出队）… · CHG-018 · DEBT-014-code · 037-batch-distill · 037-layer4-query
+1. （可选）WSL 安装真实 `llama-server` 后生产去掉 mock
+2. `REQ-037` 真人 CU 标注（`knowledge:cu-export`）· 默认 `--sender` 生产批跑
+3. （已出队）… · 037-batch · 037-layer4 · 037-full-scan `e9fc925` · DEBT-014-code
 
 ## 1. 主看板
 

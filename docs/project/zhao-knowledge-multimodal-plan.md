@@ -1,7 +1,7 @@
 # 大V全频道多模态图文对齐与交易知识本体图谱方案 (REQ-037 专题规划)
 
 > **上级索引**：[`README.md`](./README.md) · 账本 [`03-requirements.md`](./03-requirements.md)  
-> **文档定位**：全频道非交易与策略知识深度沉淀的权威架构方案（**accepted** · P1–P3 Done；VL 等 Q-006；全量蒸馏/真人 CU 标注可选；Phase4 冻结）。  
+> **文档定位**：全频道非交易与策略知识深度沉淀的权威架构方案（**accepted** · P1–P3 Done：全库启发式蒸馏约 4004 卡 + Layer4 只读检索；VL 等 Q-006；**Phase4 冻结**）。
 
 > **核心使命**：彻底跳出“机械固定时间开窗”与“纯文本 OCR”的局限，将大V（赵哥）86,000+ 条历史发言、K线图表手绘、群友提问解答，升维为**具备图文因果推演能力的交易体系多模态知识图谱**。
 
@@ -125,12 +125,12 @@ flowchart TD
   - 小样本：`npm run knowledge:cu-sample`；标注导出：`export_semantic_cu_golden_candidates.js`（filled 本地 gitignore）
   - 单测：`npm run test:semantic-cu`
   - **残留**：真人聊天 ≥30 边界标注（强化，非阻塞；工具：`npm run knowledge:cu-export` → 本地填 `boundary_start` → `knowledge:cu-eval-filled`）；全量 8.6 万跑批未开
-- **Phase 3（策略本体卡片）** ✅ stub + 14B 抽样通路：
-  - 表：`ontology_card`（见 §5.2）
-  - Stub：`ontology-card-stub.js`；14B：`ontology-card-llm.js`（deep + `lms-guard`）
-  - 抽样：`npm run knowledge:ontology-sample:stub|llm`
-  - 单测：`npm run test:ontology-card`
-  - **未做**：全量蒸馏、与 `strategy_assets` 汇合、Phase4
+- **Phase 3（策略本体卡片）** ✅ 批蒸馏全库扫描 + Layer4 检索：
+  - 表：`ontology_card` + `ontology_distill_scanned`（防游标）
+  - Stub / 启发式：`ontology-card-stub` · `ontology-card-distill` · `batch_distill_pipeline`（`--sender`/`--channel` 可选）
+  - 检索：`ontology_query_engine`（只读打分）
+  - 实跑：约 **4004** 张四大卡片入库；单测含 distill / query
+  - **未做**：14B 全量精炼（抽样通路已有）、与 `strategy_assets` 汇合、**Phase4**
 - **Phase 4（企微智能参谋卡盘中联动）**：冻结至业务通道 CHG + `wecom-freeze` 更新。
 
 ### 5.1 Phase 2 数据模型与验收（设计冻结）
@@ -172,6 +172,6 @@ flowchart TD
 
 - 账本对应：[`03-requirements.md`](./03-requirements.md) **`REQ-037` = `accepted`（分期门禁）**。  
 - 评审结论：[`07-review-inbox.md`](./07-review-inbox.md) · 2026-09-15 · `agent:cursor`。  
-- **可实施**：Phase 1–3 Done（含 14B 抽样通路）；真人 CU 标注与全量蒸馏可选/未开（须 Arbiter 互斥）。
+- **可实施**：Phase 1–3 Done（含全库启发式蒸馏 + Layer4）；真人 CU 标注可选；14B 精炼可选。
 - **冻结**：Phase 4 企微推送在业务通道 CHG + `wecom-freeze` 更新前不得开工（`REJ-008`）。
 - Human 开放题：[`04`](./04-leftovers-problems.md) **Q-006**（本地 VL vs 云端；**不影响 P2**）。
