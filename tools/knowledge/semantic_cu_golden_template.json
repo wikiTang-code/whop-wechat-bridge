@@ -1,0 +1,12 @@
+{
+  "req": "REQ-037",
+  "phase": 2,
+  "purpose": "Human-label template for Semantic CU boundary gold set (≥30 starts).",
+  "instructions": [
+    "Each item is a short message window. Mark boundary_start=true on the first message of a new topic/CU.",
+    "Prefer real channel excerpts; do not invent tickers that contradict content.",
+    "Target ≥30 boundary_start=true rows across multiple trading days."
+  ],
+  "gap_ms_hint": 1800000,
+  "items": []
+}
