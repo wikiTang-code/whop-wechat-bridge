@@ -78,7 +78,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | **§0.B `agent:gemini`** | **REQ-033** 历史大V交易单回放纠错（#90 CONL 待审） | Standing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | REQ-002；Q-001；Q-006；企微 #90；**Q-007 Done** | 等待 / Done |
-| **§0.R-A** | REQ-037 batch+Layer4 抽审 | Done |
+| **§0.R-A** | REQ-037 全库蒸馏 `e9fc925` 抽审 | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 
