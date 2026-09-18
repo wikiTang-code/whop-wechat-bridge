@@ -125,3 +125,7 @@ models/**/*.gguf
 !models/**/adapter_config.json
 !models/**/tokenizer*.json
 !models/**/chat_template.jinja
+
+# REQ-037 local CU golden labeling worksheet (may contain chat previews)
+tools/knowledge/semantic_cu_golden_filled.json
+
