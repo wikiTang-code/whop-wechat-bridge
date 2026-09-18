@@ -8,19 +8,19 @@
  * 3. 显存预算硬拦截 (VRAM Hard Budget)：防止多个大模型挤爆 20GB VRAM。
  */
 
-import { execSync } from 'child_process';
+import { getRuntimeAdapter } from './ai-runtime-adapter.js';
 
 /**
- * 获取当前 LM Studio 显存中驻留的全部模型
+ * 获取当前推理运行时显存中驻留的全部模型
  * @returns {Array<object>}
  */
 export function getLoadedModels() {
   try {
-    const raw = execSync('lms ps --json', { encoding: 'utf-8', timeout: 8000 });
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    const adapter = getRuntimeAdapter();
+    const list = adapter.ps();
+    return Array.isArray(list) ? list : [];
   } catch (err) {
-    console.warn('[LMS Guard] 读取 lms ps 失败:', err.message);
+    console.warn('[LMS Guard] 读取运行时模型列表失败:', err.message);
     return [];
   }
 }
@@ -30,6 +30,7 @@ export function getLoadedModels() {
  * @returns {Array<string>} 卸载的实例列表
  */
 export function evictDuplicates() {
+  const adapter = getRuntimeAdapter();
   const models = getLoadedModels();
   const seenKeys = new Set();
   const evicted = [];
@@ -46,7 +47,7 @@ export function evictDuplicates() {
     if (isNumberedDuplicate || isKeyDuplicate) {
       console.warn(`[LMS Guard] 🚨 探测到冗余重复模型实例: ${id} (${(m.sizeBytes / 1024 / 1024 / 1024).toFixed(2)} GB)，正在强制卸载排空...`);
       try {
-        execSync(`lms unload "${id}"`, { encoding: 'utf-8', timeout: 15000 });
+        adapter.unload(id);
         evicted.push(id);
         console.log(`[LMS Guard] ✅ 成功排空重复副本: ${id}`);
       } catch (e) {
@@ -106,11 +107,13 @@ export function safeLoadModel(modelKey, options = {}) {
 
   // 4. 执行受控加载 (支持迟滞保活 TTL)
   const ttl = options.ttl !== undefined ? options.ttl : 3600; // 默认 1 小时迟滞保活
-  const ttlArg = ttl > 0 ? ` --ttl ${ttl}` : '';
   console.log(`[LMS Guard] 🚀 显存预算核算通过，开始安全装载模型: ${cleanKey} (TTL: ${ttl > 0 ? ttl + 's' : 'none'})...`);
   try {
-    const cmd = `lms load "${cleanKey}" -y${ttlArg}`;
-    const out = execSync(cmd, { encoding: 'utf-8', timeout: 60000 });
+    const adapter = getRuntimeAdapter();
+    const loadRes = adapter.load(cleanKey, { ...options, ttl });
+    if (!loadRes.success) {
+      throw new Error(loadRes.message);
+    }
     console.log(`[LMS Guard] ✅ 模型 "${cleanKey}" 加载成功`);
 
     // 5. 加载后再次执行去重扫描兜底
@@ -181,16 +184,21 @@ export async function ensureModelReady(modelKey, options = {}) {
  * @param {string} modelKey 
  */
 export function safeUnloadModel(modelKey) {
+  const adapter = getRuntimeAdapter();
   const current = getLoadedModels();
   let count = 0;
   for (const m of current) {
     if (m.identifier.includes(modelKey) || (m.modelKey && m.modelKey.includes(modelKey))) {
       try {
-        execSync(`lms unload "${m.identifier}"`, { encoding: 'utf-8', timeout: 15000 });
-        console.log(`[LMS Guard] 已安全卸载: ${m.identifier}`);
-        count++;
+        const res = adapter.unload(m.identifier);
+        if (res.success) {
+          console.log(`[LMS Guard] 已安全卸载: ${m.identifier}`);
+          count++;
+        } else {
+          console.warn(`[LMS Guard] 卸载失败 ${m.identifier}:`, res.message);
+        }
       } catch (e) {
-        console.error(`[LMS Guard] 卸载失败 ${m.identifier}:`, e.message);
+        console.error(`[LMS Guard] 卸载异常 ${m.identifier}:`, e.message);
       }
     }
   }

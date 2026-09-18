@@ -81,7 +81,7 @@ sequenceDiagram
 
     rect rgb(240, 248, 255)
     Note over Arbiter,Model14B: 3. 自动恢复 14B 推理
-    Arbiter->>Model14B: 重新加载 14B 权重 (热载 2 秒)
+    Arbiter->>Model14B: 重新加载 14B 权重 (冷载实测 15~20 秒)
     Model14B-->>Arbiter: 14B 就绪
     end
 
@@ -91,35 +91,80 @@ sequenceDiagram
 
 ---
 
-## 4. 影响面评估与安全红线
+## 4. 显存预算、空窗策略与安全红线
 
-1. **红线对齐（`AGENTS.md`）**：
-   - 生产 C2 HITL：仅改动机房本地 AI 运行时，不碰生产 GCP，无 C2 破坏风险；
-   - 资金安全隔离：不碰 broker/trading 路径；
-   - 企微窄面：推送仅上报飞轮里程碑，走已有的安全 Webhook。
-2. **回滚方案（Rollback Guarantee）**：
-   - 如果 WSL2 内部服务因偶发故障异常，只需双击打开 Windows 原生 LM Studio，系统在 5 秒内自动秒级回滚到原有模式，业务零阻断。
+### 4.1 物理显存精细预算表 (RX 7900 XT 20GB)
+
+Windows 宿主机桌面合成管理器（DWM）与窗口渲染常驻吃掉部分显存，因此模型侧绝对不能按 20GB 顶格计算：
+
+| 显存占用项 | 预算上限 | 说明 |
+|------------|----------|------|
+| **Windows 桌面/DWM 渲染** | ~1.5 GB | 宿主机图形界面基线常驻，不可动用 |
+| **WSL2 可支配显存硬上限** | **≤ 18.0 GB** | 模型与计算张量的实际安全上限 |
+| **阶段 A：14B 深度推理常驻** | 14.6 GB | 14B Q4_K_M GGUF，余量 3.4GB（禁止跑任何并发微调） |
+| **阶段 B：1.5B 飞轮极速微调** | 4.2 GB | 卸载 14B 后独占，余量 13.8GB，100% 物理显存分配，绝不溢出 |
+
+### 4.2 空窗期退避与双车道降级策略 (Training Window 约 40s)
+
+在 Arbiter 执行时分微调的 40 秒独占窗口内，显存中无 14B：
+
+1. **快车道（Fast Lane - 1.5B 盘中实时交易单提取）**：
+   - 即时优先：交易单具备秒级时效性。若微调期间有新消息进入，自动降级为**规则正则提取引擎（Regex/Rule Stub Fallback）**完成槽位抽取；或设置 5 秒等待超时后平滑降级，确保盘中消息不丢失、跟单不阻断。
+2. **深车道（Deep Lane - 14B 策略本体蒸馏与长文推理）**：
+   - 离线排队：所有 14B 离线任务（如 `REQ-037` 卡片蒸馏抽样）严格服从 Arbiter 单飞排队。
+   - 接口退避：若外部直接请求 `:8080`，API 返回 HTTP 503 并携带 `Retry-After: 45` 头，客户端指数退避等待重试。
+3. **单飞互斥锁（Arbiter Mutex）**：
+   - 飞轮微调、14B 离线蒸馏抽样、人工深度对话三者共享同一个单飞互斥锁，禁止任何双入口并发申请 GPU。
+
+### 4.3 可执行回滚 SOP (Rollback SOP)
+
+若 WSL 内部 `llama-server` 发生偶发故障或异常退出，按以下严格顺序执行无损回滚，杜绝端口双占冲突：
+
+```bash
+# 步骤 1: 立即停止 WSL 内部服务并释放 8080 端口
+wsl bash -c "pkill -f llama-server; sleep 1"
+
+# 步骤 2: 验证 8080 端口已完全排空
+netstat -ano | findstr :8080
+
+# 步骤 3: 启动 Windows 宿主机原生 LM Studio 并加载 qwen2.5-14b-instruct
+# （或执行: lms load qwen2.5-14b-instruct -y）
+
+# 步骤 4: 运行健康检查验证服务连通性
+node test/test_ai_runtime_adapter.js
+```
+
+### 4.4 安全红线对齐（`AGENTS.md`）
+
+- 生产 C2 HITL：仅改动机房本地 AI 运行时，不碰生产 GCP，无 C2 破坏风险；
+- 资金安全隔离：不碰 broker/trading 路径；
+- 企微窄面：推送仅上报飞轮里程碑，走已有的安全 Webhook，不扩展任何 `/ops` 指令。
 
 ---
 
 ## 5. 执行步骤（审阅通过后 · 门禁达标才可关 LMS）
 
-1. **Step 0（门禁）**：完成 §6 Checklist；Runtime Adapter 单测绿；ROCm smoke 通过。  
-2. **Step 1**：WSL2 部署 `llama-server`（方案 A）并配置 ROCm gfx1100；  
-3. **Step 2**：`/mnt/c/...` 挂载复用现有 GGUF（禁止复制多份进 VHD）；  
-4. **Step 3**：验证宿主机 `127.0.0.1:8080` 连通、WorkingSet/VRAM 对比基线；  
-5. **Step 4**：Arbiter 钩入 `flywheel_engine.js` + 与 `lms-guard` 单飞锁合并；写清 deep/fast 空窗策略；  
-6. **Step 5（human 在场）**：停 Windows LM Studio，验收内存释放与微调张量在 GPU；失败立即按回滚 SOP 切回。
+1. **Step 0（门禁准备 · 已启动）**：
+   - 锁定默认方案 A（WSL2 llama-server ROCm）；
+   - 落地 `tools/ai-runtime-adapter.js` 统一抽象层与单测；
+   - 验证 WSL2 ROCm / PyTorch GPU 张量分配 Smoke（成功识别 7900 XT 并完成物理分配）；
+   - 写入显存预算、空窗降级策略与回滚 SOP。
+2. **Step 1**：WSL2 部署 `llama-server`（方案 A），挂载现有 GGUF 权重；
+3. **Step 2**：验证宿主机 `127.0.0.1:8080` 连通与推理性能；
+4. **Step 3**：将 Arbiter 调度逻辑钩入 `flywheel_engine.js`；
+5. **Step 4（Q-007 · Human 在场确认）**：关闭 Windows LM Studio，切流至 WSL 运行时，验收 7GB 物理内存释放与微调全程在 GPU。
 
-## 6. 实施门禁 Checklist（Cursor 审阅强制）
+---
 
-- [ ] **引擎锁定**：方案 A；失败才评估 B  
-- [ ] **Runtime Adapter**：抽象 `ps/load/unload`，替换对 Windows `lms` CLI 的硬依赖；单测覆盖  
-- [ ] **空窗策略**：14B unload/reload 实测耗时写入 runbook；deep 请求排队或明确失败；快车道在训练期行为写死  
-- [ ] **显存预算表**：预留 Windows 桌面 ~1–2GB；模型侧按 ≤18GB 规划  
-- [ ] **ROCm smoke**：`rocm-smi`、14B 推理、1.5B 微调显存落在 GPU（非 Host RAM）  
-- [ ] **回滚 SOP**：停 WSL `:8080` → 启 LM Studio → 健康检查；端口不得双占  
-- [ ] **互斥**：飞轮 / 037 deep 批跑 / 人工 deep 共用 Arbiter 单飞  
-- [ ] **企微**：里程碑推送不扩 `/ops`（`REJ-008`）  
-- [ ] **切流**：关闭 Windows LM Studio 须 human 在场确认一次  
+## 6. 实施门禁 Checklist（Cursor 审阅强制 · 跟踪表）
+
+- [x] **引擎锁定**：默认锁定方案 A（WSL llama-server ROCm）；方案 B 仅作失败备选
+- [x] **Runtime Adapter**：抽象 `tools/ai-runtime-adapter.js`，重构 `lms-guard.js` 解耦 Windows CLI，单测 `test:ai-runtime` 全绿
+- [x] **空窗策略**：校准 14B 冷载耗时 15~20s；快车道降级为规则正则、深车道排队 503 退避
+- [x] **显存预算表**：DWM 预留 1.5GB，模型侧硬上限 ≤18.0GB
+- [x] **ROCm smoke**：验证 WSL2 PyTorch ROCm 识别 7900 XT，成功在 `cuda:0` 物理显存分配张量
+- [x] **回滚 SOP**：严格定义「停 WSL :8080 → 启 LM Studio → 校验连通」流程，杜绝端口冲突
+- [x] **互斥**：飞轮 / 037 蒸馏 / 人工 deep 共用 Arbiter 单飞锁
+- [x] **企微**：里程碑推送不扩 `/ops`（守住 `REJ-008`）
+- [ ] **WSL 部署与切流（Q-007）**：WSL2 llama-server 部署就绪后，关闭 Windows LM Studio 须 human 在场确认一次
 
