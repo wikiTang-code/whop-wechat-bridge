@@ -996,13 +996,20 @@ ${historyLines}
   - **单票权重**: **${exp.user.targetPct}%** *(占总资产 / 市值 $${exp.user.posVal})*
   - **全盘总仓位**: **${exp.user.totalExposurePct}%** *(持股占总资产 / 总资产 $${exp.user.totalEquity} / 现金 $${exp.user.cash})*
 ---
-👉 **请对照原始发言对本单 (#${item.seq_no}) 进行确认**：
-1. **[✅ 确认 #${item.seq_no} ${item.parsed_ticker} 正确 (跳过交易)](${confirmSkipUrl})**  
-*(判定为真实交易且要素正确，计入账本并推下一条)*
-2. **[✏️ 修正 #${item.seq_no} ${item.parsed_ticker} 错误 (在表单中修改)](${correctFormUrl})**  
-*(打开表单修改买卖方向、单价、股数或仓位后提交)*
-3. **[💡 判定 #${item.seq_no} 为策略预判 (转存为大V策略资产)](${rejectUrl})**  
-*(若发言仅为走势预判、条件单说明或观点讨论，点击转存为策略资产并不计入交易持仓)*`;
+👉 **请点击下方蓝色链接对本单 (#${item.seq_no}) 进行审核操作**：
+
+1. [👉 点击这里：【✅ 确认 #${item.seq_no} ${item.parsed_ticker} 正确】](${confirmSkipUrl})  
+*(判定为真实交易且要素正确，计入账本并自动推下一条)*
+
+2. [👉 点击这里：【✏️ 修正 #${item.seq_no} ${item.parsed_ticker} 错误】](${correctFormUrl})  
+*(唤起移动端极简表单修改买卖方向、单价、股数或仓位)*
+
+3. [👉 点击这里：【💡 判定 #${item.seq_no} 为策略预判】](${rejectUrl})  
+*(若发言仅为走势预判、条件单说明或观点讨论，转存策略资产)*
+
+---
+🔗 **备用快捷通道 (防拦截点击)**：  
+• <a href="${confirmSkipUrl}">[快速确认正确]</a> ｜ <a href="${correctFormUrl}">[快速进入表单]</a> ｜ <a href="${rejectUrl}">[快速转为策略]</a>`;
 
   return { text, confirmSkipUrl, correctFormUrl, rejectUrl };
 }
@@ -1020,7 +1027,7 @@ export async function pushCurrentReplayCard(db = getDb()) {
   const { text } = buildReplayWeComMessage(item, stats);
   let pushedViaOpsApp = false;
 
-  // 1. 优先通过企微「本机运维」自建应用推送 (私信会话流，彻底避免与讨论群刷屏混叠)
+  // 1. 优先通过企微「本机运维」自建应用推送 (私信独立窗口，防群刷屏混叠)
   const corpId = process.env.WECOM_OPS_CORP_ID;
   const secret = process.env.WECOM_OPS_SECRET;
   const agentId = process.env.WECOM_OPS_AGENT_ID;
@@ -1042,36 +1049,37 @@ export async function pushCurrentReplayCard(db = getDb()) {
         pushedViaOpsApp = true;
         console.log(`[Follow Replay] 📱 已成功通过「本机运维」自建应用推送第 #${item.seq_no} 条待审单 (${item.parsed_ticker}) 至 ${userIds}`);
       } else {
-        console.warn(`[Follow Replay] 「本机运维」自建应用推送未成: ${pushRes ? pushRes.error : 'unknown'}，切入群 Webhook 兜底`);
+        console.warn(`[Follow Replay] 「本机运维」应用推送未成: ${pushRes ? pushRes.error : 'unknown'}`);
       }
     } catch (e) {
-      console.warn(`[Follow Replay] 「本机运维」自建应用调用异常: ${e.message}，切入群 Webhook 兜底`);
+      console.warn(`[Follow Replay] 「本机运维」自建应用调用异常: ${e.message}`);
     }
   }
 
-  // 2. 如果自建应用未启用或推送失败，则走群机器人 Webhook 兜底
-  if (!pushedViaOpsApp) {
-    const webhookUrl = process.env.WECHAT_WORK_WEBHOOK_URL;
-    if (!webhookUrl) {
-      throw new Error('Neither WECOM_OPS_AGENT nor WECHAT_WORK_WEBHOOK_URL is available in .env');
+  // 2. 同步推送到群机器人 Webhook (双通道保障，防止移动端个别版本拦截外链)
+  const webhookUrl = process.env.WECHAT_WORK_WEBHOOK_URL;
+  if (webhookUrl) {
+    try {
+      const res = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          msgtype: 'markdown',
+          markdown: { content: text }
+        })
+      });
+      const json = await res.json().catch(() => ({}));
+      if (json.errcode === 0) {
+        console.log(`[Follow Replay] 📢 已同步推送到群 Webhook 第 #${item.seq_no} 条待审单 (${item.parsed_ticker})`);
+      } else {
+        console.warn(`[Follow Replay] 群 Webhook 推送返回: ${json.errmsg}`);
+      }
+    } catch (err) {
+      console.warn(`[Follow Replay] 群 Webhook 推送异常: ${err.message}`);
     }
-    const res = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        msgtype: 'markdown',
-        markdown: { content: text }
-      })
-    });
-    const json = await res.json().catch(() => ({}));
-    if (json.errcode !== 0) {
-      console.error(`[Follow Replay] 推送企微 Webhook 失败: errcode=${json.errcode}, errmsg=${json.errmsg}`);
-      return { success: false, error: json.errmsg, item, stats };
-    }
-    console.log(`[Follow Replay] 📢 已通过群 Webhook 推送第 #${item.seq_no} 条待审单 (${item.parsed_ticker})`);
   }
 
-  return { success: true, item, stats, via: pushedViaOpsApp ? 'ops_app' : 'webhook' };
+  return { success: true, item, stats, via: pushedViaOpsApp ? 'dual' : 'webhook' };
 }
 
 /**
