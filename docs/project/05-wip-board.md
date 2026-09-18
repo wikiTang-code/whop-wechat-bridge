@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；CHG-018 审阅 Done） | — | — |
+| **1** | — | — | （空；REQ-037 CU 标注工具 Done） | — | — |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.B 队列 `agent:gemini`
@@ -55,8 +55,8 @@
 ### 共享候选池
 
 1. `CHG-018` 切流（Step 1：真实 llama-server supervisor 替换 `/tmp` 占位 → Step 2–3 Arbiter → **Q-007** 关 LMS）
-2. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 Arbiter 互斥；禁 Phase 4）· 真人 CU 标注强化（可选）
-3. （已出队）… · CHG-018-review · CHG-018-gates · CHG-018-postgate-review
+2. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 Arbiter 互斥；禁 Phase 4）· 真人标注 worksheet 已就绪（`knowledge:cu-export` / `cu-eval-filled`）
+3. （已出队）… · CHG-018-review · CHG-018-gates · CHG-018-postgate-review · 037-CU-annotate-tooling
 
 ## 1. 主看板
 
@@ -163,8 +163,8 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**CHG-018 审阅 + 门禁抽审 Done**（`7da433a`：Adapter 通过；Wsl load/unload 仍占位）；§0.A 空。
+- cursor：**CHG-018 审阅+门禁抽审 Done**；**REQ-037** CU 标注工具 Done（`knowledge:cu-export` / `cu-eval-filled`）；§0.A 空。
 - gemini：**REQ-033** Doing；**CHG-018** 门禁达标，下一步 Step 1 supervisor + **Q-007**。
 - gemini1：REQ-036 Standing。
-- Human：REQ-002；Q-001；Q-006；**Q-007**（关 LMS 切流）。
+- Human：REQ-002；Q-001；Q-006；**Q-007**；可选填 `semantic_cu_golden_filled.json`（本地）。
 - §0.R-A：CHG-018 方案审阅 + 门禁抽审 **Done**。

@@ -124,7 +124,7 @@ flowchart TD
   - 评测：`semantic-cu-eval.js` · 合成黄金集 `semantic_cu_golden_v0.json`（**30** 边界，F1=1）
   - 小样本：`npm run knowledge:cu-sample`；标注导出：`export_semantic_cu_golden_candidates.js`（filled 本地 gitignore）
   - 单测：`npm run test:semantic-cu`
-  - **残留**：真人聊天 ≥30 边界标注（强化，非阻塞合成门禁）；全量 8.6 万跑批未开
+  - **残留**：真人聊天 ≥30 边界标注（强化，非阻塞；工具：`npm run knowledge:cu-export` → 本地填 `boundary_start` → `knowledge:cu-eval-filled`）；全量 8.6 万跑批未开
 - **Phase 3（策略本体卡片）** ✅ stub + 14B 抽样通路：
   - 表：`ontology_card`（见 §5.2）
   - Stub：`ontology-card-stub.js`；14B：`ontology-card-llm.js`（deep + `lms-guard`）
