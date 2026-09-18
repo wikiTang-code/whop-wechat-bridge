@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 /**
  * tools/knowledge/batch_distill_pipeline.js
  * REQ-037 Phase 3: 大批次离线策略本体卡片知识蒸馏流水线
@@ -12,6 +12,20 @@
 
 import { initDb, getDb, ensureOntologyCardTable, saveOntologyCard } from '../../database.js';
 import { extractCardsHeuristic } from './ontology-card-distill.js';
+
+/** messages.tickers may be JSON array string or comma-separated */
+export function parseMessageTickers(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw.map((t) => String(t).trim().toUpperCase()).filter(Boolean);
+  const s = String(raw).trim();
+  try {
+    const parsed = JSON.parse(s);
+    if (Array.isArray(parsed)) {
+      return parsed.map((t) => String(t).trim().toUpperCase()).filter(Boolean);
+    }
+  } catch (_) {}
+  return s.split(/[,|\s]+/).map((t) => t.trim().toUpperCase()).filter(Boolean);
+}
 
 export async function runBatchDistill(options = {}) {
   const {
@@ -95,11 +109,28 @@ export async function runBatchDistill(options = {}) {
   };
   const tickerMentions = {};
 
-  const saveBatch = db.transaction((cardsBatch) => {
+  const tx = db.transaction((cardsBatch) => {
     for (const card of cardsBatch) {
       saveOntologyCard(card, db);
     }
   });
+
+  const saveBatchWithRetry = async (cardsBatch, maxRetries = 5) => {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        tx(cardsBatch);
+        return;
+      } catch (err) {
+        const isBusy = err.code === 'SQLITE_BUSY' || (err.message && err.message.includes('locked'));
+        if (isBusy && attempt < maxRetries) {
+          const waitMs = attempt * 100;
+          await new Promise(r => setTimeout(r, waitMs));
+        } else {
+          throw err;
+        }
+      }
+    }
+  };
 
   let currentBatch = [];
   let processedCount = 0;
@@ -109,7 +140,7 @@ export async function runBatchDistill(options = {}) {
     const meta = {
       id: msg.id,
       message_id: msg.id,
-      tickers: msg.tickers ? msg.tickers.split(',').map(t => t.trim()).filter(Boolean) : []
+      tickers: parseMessageTickers(msg.tickers)
     };
 
     const cards = extractCardsHeuristic(msg.content, meta);
@@ -128,14 +159,16 @@ export async function runBatchDistill(options = {}) {
     }
 
     if (!dryRun && currentBatch.length >= batchSize) {
-      saveBatch(currentBatch);
+      await saveBatchWithRetry(currentBatch);
       currentBatch = [];
+      await new Promise(r => setTimeout(r, 20)); // 让出写锁与事件循环
     }
   }
 
   // 写入剩余批次
   if (!dryRun && currentBatch.length > 0) {
-    saveBatch(currentBatch);
+    await saveBatchWithRetry(currentBatch);
+    currentBatch = [];
   }
 
   // 4. 统计与报告

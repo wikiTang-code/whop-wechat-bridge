@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **DEBT-014** | L2/L3 | Supervisor 绑定真实本地推理二进制（将 sleep-mock 替换为真实 llama-server 进程监管；P2 基础设施加固） | `tools/wsl-llama-supervisor.js` · `tools/ai-runtime-adapter.js` | **Doing** |
+| **1** | — | — | （空；DEBT-014 Supervisor 真实二进制路径 Done） | — | — |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.B 队列 `agent:gemini`
@@ -52,12 +52,13 @@
 | §0.R-A cursor | **CHG-018 统一 WSL2 AI 运行时方案审阅** | **Done** |
 | §0.R-A cursor | **CHG-018 门禁落地抽审（`7da433a`）** | **Done** |
 | §0.R-A cursor | **CHG-018 Step1–3/切流口径抽审（`e469d29`/`cd183dc`）** | **Done** |
+| §0.R-A cursor | **REQ-037 batch distill + Layer4 query（`4675823`/`3e81a18`）** | **Done** |
 
 ### 共享候选池
 
-1. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 Arbiter 互斥；禁 Phase 4）· 真人标注 worksheet 已就绪
-2. （可选）DEBT-014：Supervisor 绑真实 `llama-server`（P2，不挡业务）
-3. （已出队）… · CHG-018-wsl-scaffold · CHG-018-Q-007 · 037-CU-annotate-tooling
+1. （可选）WSL 安装真实 `llama-server` 二进制后去掉 mock（DEBT-014 代码路径已 Done）
+2. `REQ-037` 真人 CU 标注 / Layer4 查询引擎抽审与加固
+3. （已出队）… · CHG-018 · DEBT-014-code · 037-batch-distill · 037-layer4-query
 
 ## 1. 主看板
 
@@ -94,7 +95,7 @@
 | REQ-037 | L3 | 多模态知识图谱 P1–P3（含卡片蒸馏引擎） | 双Agent协同 | Done | P1 vision + P2 CU + P3 distill四大卡片全绿；P4 冻结 |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 | CHG-016 | L2 | 看板日期过滤强绑定北京时间 (+08:00) 闭环 | `agent:gemini` | Done | `3dc07c2` · 生产单进程重启生效 |
-| CHG-018 | L2/L3 | 统一 WSL2 AI 运行时（Q-007 切流 Human 确认 Done） | `agent:gemini` | Done | 残留 DEBT-014 P2（Supervisor→真实二进制） |
+| CHG-018 | L2/L3 | 统一 WSL2 AI 运行时（Q-007 Done；DEBT-014 代码路径 Done） | `agent:gemini` / cursor | Done | 装二进制后满血 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 
@@ -164,8 +165,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：Q-007 **按 Human 确认回写 Done**；§0.A 空。等你企微 #90。
-- gemini：**REQ-033** Doing（#90 CONL 等 human）；CHG-018/Q-007 出队。
-- gemini1：REQ-036 Standing。
-- Human：REQ-002；Q-001；Q-006；**企微 #90 CONL**；Q-007 Done。
-- §0.R-A：CHG-018 相关抽审 Done；Q-007 以 Human 本会话确认为准。
+- cursor：**DEBT-014 Done**；§0.R-A 037 batch+Layer4 **Done**；§0.A 空，10m 感知循环续跑认领。
+- gemini：**REQ-033** Standing（#90 等 human）。
+- gemini1：**REQ-036** Standing；对向审修自转。
+- Human：REQ-002；Q-001；Q-006；企微 #90；Q-007 Done。

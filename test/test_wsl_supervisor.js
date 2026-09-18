@@ -14,7 +14,7 @@ console.log('===========================================================\n');
 // 1. 在独立子进程中启动 Supervisor 服务 (端口 18080，避免冲突与同线程死锁)
 console.log('[测试 1] 在独立子进程启动 Supervisor 管理服务 (18080)...');
 const supProcess = spawn(process.execPath, [SUPERVISOR_SCRIPT], {
-  env: { ...process.env, WSL_SUPERVISOR_PORT: '18080' },
+  env: { ...process.env, WSL_SUPERVISOR_PORT: '18080', WSL_SUPERVISOR_ALLOW_MOCK: '1' },
   stdio: 'inherit'
 });
 

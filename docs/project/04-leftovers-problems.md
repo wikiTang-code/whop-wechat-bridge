@@ -29,7 +29,7 @@
 | 债 ID | 摘要 | 关联 | 严重度 |
 |-------|------|------|:------:|
 | DEBT-001 | **生产 gcp-vm 尚未 `git merge --ff-only` 对齐**（push 已完成） | REQ-002 | P0 |
-| DEBT-014 | **CHG-018 Supervisor 未绑真实二进制**：`wsl-llama-supervisor` 仍 spawn sleep-mock；Arbiter 卸载路径与真实 `llama-server` 进程未硬绑定（**Q-007 切流 Human 已确认 Done**，本项降为代码债） | CHG-018 | P2 |
+| DEBT-014 | **CHG-018 Supervisor 真实二进制绑定（已落地代码路径）**：优先 `LLAMA_SERVER_BIN`/`command -v llama-server`；无二进制且未设 `WSL_SUPERVISOR_ALLOW_MOCK=1` 则拒绝假成功；WSL 内尚未安装二进制时仍走显式 mock | CHG-018 | **closed→P3 残留**（装二进制即可满血） |
 
 ### 2.1 已闭环（勿再当开放债）
 
