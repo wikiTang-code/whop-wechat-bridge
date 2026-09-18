@@ -2,7 +2,7 @@
 
 > 上级：[`README.md`](./README.md) · 未立项记本页；成熟后 **Promote → [`03-requirements.md`](./03-requirements.md)**
 
-**快照**：2026-09-14（CHG-008 文档树刷新）
+**快照**：2026-09-18（文档树卫生：闭环债与开放表对齐）
 
 ---
 
@@ -29,25 +29,24 @@
 | 债 ID | 摘要 | 关联 | 严重度 |
 |-------|------|------|:------:|
 | DEBT-001 | **生产 gcp-vm 尚未 `git merge --ff-only` 对齐**（push 已完成） | REQ-002 | P0 |
-| DEBT-002 | GEX 开盘计划任务未确认挂载 | REQ-003 | P1 |
-| DEBT-003 | latest→GCP 同步通道 | REQ-004/022 | closed（SCP 脚本已落地；Q-001 interim） |
-| DEBT-004 | P5/P6/P2-16 | REQ-005/006/008 | closed（005/006/008 Done） |
-| DEBT-009 | L1 跟单无可验收沙盒表 | REQ-021 → done | — |
-| DEBT-012 | 解析未写独立 signal 流水；arrivalPrice 用喊单价 | REQ-031/032 | closed |
-| DEBT-011 | 实时跟单无 HITL；赵哥仓与个人仓数据缠绕；规格未接线 | REQ-027～029 · [`follow-hitl-plan.md`](./follow-hitl-plan.md) | closed（主体） |
+| DEBT-013 | GEX 开盘任务 **DST 漂移**（换季后须重跑安装器） | REQ-003 | P2（残留） |
 
 ### 2.1 已闭环（勿再当开放债）
 
 | 债 ID | 关闭说明 |
 |-------|----------|
 | DEBT-001 旧义「未 push」 | REQ-001 Done；`origin/main` 已含 local-ops+docs |
+| DEBT-002 | REQ-003 Done；本机 Task `WhopGexOpenSession0940ET` Ready；DST 残留见 DEBT-013 |
+| DEBT-003 | REQ-004/022 Done；SCP 脚本 + 安全专节；Q-001 interim=SCP |
+| DEBT-004 | REQ-005/006/008 Done |
 | DEBT-005 | REQ-015/016/017 Done；runbooks 已入库 |
 | DEBT-006 | CHG-005 Done；方案已作废「企微点 C2」 |
 | DEBT-007 | REQ-018 Done；见 `wecom-freeze.md` |
 | DEBT-008 | REQ-020 Done；gateway 审计 + `runbooks/c2-audit-loop.md` |
+| DEBT-009 | REQ-021 Done |
 | DEBT-010 | REQ-023 Done；见 06 §3 |
-| DEBT-002 | REQ-003 Done；本机 Task `WhopGexOpenSession0940ET` Ready（DST 后重装安装器） |
-| DEBT-011 | follow-HITL 包已落地；剩余 REQ-031/032 |
+| DEBT-011 | REQ-027～029 Done；031/032 亦 Done |
+| DEBT-012 | REQ-031/032 Done |
 
 ---
 
@@ -73,5 +72,5 @@
 | Agent 纸面 HITL | REJ-007 + REQ-015/020 + CHG-006 | **已缓解**（runbook+清单） |
 | 多 Agent 改总控撞车 | 05/07 拆分 + REQ-023 | 部分缓解 |
 | GEX HTML / 盘中 json 刷爆历史 | REQ-024 + 里程碑策略 | 已拍板 |
-| 赵哥仓/跟单仓数据缠绕 + 无盘中确认 | REQ-027～029 | **已缓解**；余 REQ-031/032 |
-| GEX 开盘任务 DST 漂移 | 重跑 install_open_session_task.ps1 | 残留 |
+| 赵哥仓/跟单仓数据缠绕 + 无盘中确认 | REQ-027～032 | **已缓解** |
+| GEX 开盘任务 DST 漂移 | 重跑 install_open_session_task.ps1 · DEBT-013 | 残留 |

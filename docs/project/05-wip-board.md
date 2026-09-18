@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；REQ-037 Phase1 MVP Done） | — | — |
+| **1** | — | — | （空；文档树卫生 Done · 037 Phase1 Done；035 等 033） | — | — |
 | 2 | **REQ-035** | L1 | 回放纠错与 `trade_signals` 流水自动校准联动 | `follow-replay-engine.js` · `database.js` | Queued（热点互斥） |
 
 ### 0.B 队列 `agent:gemini`
@@ -36,6 +36,7 @@
 |----|------|:----:|
 | REQ-002 | 生产 ff | 等待 |
 | Q-001 | GEX→GCP 通道 | interim=SCP（可再改） |
+| Q-006 | REQ-037 视觉模型：本地 VL vs 云端 | open（倾向本地） |
 
 ### 0.R
 
@@ -80,7 +81,7 @@
 | REQ-008 | L2 | P2-16 主库增长治理（~867MB） | `agent:gemini` | Done | `db-maintenance.js` · 保留策略与清理脚本 |
 | REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | `agent:gemini` | Done | monitor.js · CHG-010 |
 | REQ-031 | L1 | 解析即写 signal 流水 | `agent:cursor` | Done | trade_signals · test_trade_signals_req031 |
-| REQ-033 | L1/L4 | 历史回放+企微纠错（全量830笔重筑，保护已审29笔，Tokenizer槽位引擎+LIFO级联推演） | `agent:gemini` | Doing | replay-review-runner |
+| REQ-033 | L1/L4 | 历史回放+企微纠错（进度以 §0.B 为准：约 #83+；应用私信推送） | `agent:gemini` | Doing | `follow-replay-engine` · `wecom/push` |
 | REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮 | `agent:gemini1` | Done | 1030组SFT/DPO训练集+Unsloth微调+端侧抽取器 |
 | REQ-037 | L3 | 多模态知识图谱 Phase1 MVP | `agent:cursor` | Done | message_vision_meta · vision-meta-stub · sample script |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
@@ -154,7 +155,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：REQ-037 Phase1 MVP Done（vision_meta 表+stub+扫描）；§0.A 空；035 仍互斥。
-- gemini：REQ-033 Doing。
+- cursor：文档树卫生 Done（README/02/04/05/037 方案状态对齐）；§0.A 空；035 仍互斥等 033。
+- gemini：REQ-033 Doing（§0.B 为准，约 #83+；应用私信推送）。
 - gemini1：REQ-036 Standing。
-- Human：REQ-002；Q-001；**Q-006**（是否上 VL）。
+- Human：REQ-002；Q-001 interim=SCP；**Q-006**（是否上 VL）。

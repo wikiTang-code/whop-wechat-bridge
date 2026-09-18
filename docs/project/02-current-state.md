@@ -3,7 +3,7 @@
 > 上级：[`README.md`](./README.md) · 遗留见 [`04`](./04-leftovers-problems.md) · 需求见 [`03`](./03-requirements.md)  
 > **刷新规则**：重大联调/发布后更新本页日期与表格；细节可链到专题方案。
 
-**快照日期**：2026-09-14
+**快照日期**：2026-09-18
 
 ---
 
@@ -38,7 +38,7 @@
 | P0 止血 / P1 监测库与双进程准备 / P1-11 切流 | ✅ 生产 |
 | P2-11 健康看板 / P2-12 page_smoke / P2-13 consistency / P2-15 软降级 | ✅ |
 | P2-14 RUM | ⏸ 跳过（`REJ-005`） |
-| P2-16 主库治理 | ⏳（`REQ-008`） |
+| P2-16 主库治理 | ✅（`REQ-008` Done · `db-maintenance.js`） |
 
 ---
 
@@ -79,7 +79,7 @@
 | 项 | 值 |
 |----|-----|
 | 分支 | `main` |
-| HEAD / vs origin | push 后应与 `origin/main` 同步（见 `git status -sb`） |
+| HEAD / vs origin | 文档树卫生提交后应对齐 `origin/main`（见 `git status -sb`） |
 | 本机 OpenD `11111` | 联调日已通（会随用户启停变化） |
 | 本机 `ops:http` `18789` + ssh -R | 联调日已通；靠自启任务保活 |
 | 企微可信 IP | 应以 **GCP 公网** 为准 |

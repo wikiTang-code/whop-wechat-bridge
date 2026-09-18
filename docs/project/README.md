@@ -5,10 +5,10 @@
 
 | 字段 | 值 |
 |------|-----|
-| 最后审阅 | 2026-09-14 |
+| 最后审阅 | 2026-09-18 |
 | 审阅基准 HEAD | 以 `git log -1` 为准；**每次同步必重读 §0 队列**（`CHG-013`） |
 | Agent 治理真相源 | 根目录 [`AGENTS.md`](../../AGENTS.md)（Claude→`CLAUDE.md` 指针；Cursor→`.cursor/rules/agent-governance.mdc`） |
-| 权威方案 | [`../local-ops-mcp-skill-plan.md`](../local-ops-mcp-skill-plan.md) · [`../system-hardening-and-monitoring-plan.md`](../system-hardening-and-monitoring-plan.md) · [`../gex-sidecar.md`](../gex-sidecar.md) |
+| 权威方案 | [`../local-ops-mcp-skill-plan.md`](../local-ops-mcp-skill-plan.md) · [`../system-hardening-and-monitoring-plan.md`](../system-hardening-and-monitoring-plan.md) · [`../gex-sidecar.md`](../gex-sidecar.md) · [`zhao-knowledge-multimodal-plan.md`](./zhao-knowledge-multimodal-plan.md) |
 
 ---
 
@@ -26,7 +26,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── 06-process.md                      ← 开发流程框架 + 文档维护 SOP
 ├── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
 ├── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
-└── zhao-knowledge-multimodal-plan.md  ← 大V全频道多模态图文对齐与知识本体方案（proposed）
+└── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·Phase1 Done；P2+ 待开）
 
 专题权威方案（不重复当总进度，只被引用）：
 docs/local-ops-mcp-skill-plan.md       ← Local-Ops / 企微 / MCP
@@ -58,9 +58,9 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 主线 | 状态 | 一句话 |
 |------|:----:|--------|
 | L1 核心业务 Whop→AI→微信→跟单 | ✅ | 双进程生产闭环 |
-| L2 加固与监测 P0–P2 | ✅ | 主体收官；P2-16 待做 |
-| L3 GEX 结构传感器 | ✅ | v1 可用；09-14 本机拉链通 |
-| L4 Local-Ops / 企微回控 | ✅ 联调 | 已 push；生产 ff 待 human（REQ-002） |
+| L2 加固与监测 P0–P2 | ✅ | 主体收官；**P2-16=`REQ-008` Done** |
+| L3 GEX 结构传感器 | ✅ | v1 可用；开盘任务已挂；SCP 同步脚本就绪 |
+| L4 Local-Ops / 企微回控 | ✅ 联调 | P5/P6/REQ-034 Done；生产 ff 待 human（REQ-002） |
 | L5 券商只读 P5 | ✅ | REQ-005 Done |
 | L6 本机运维页 P6 | ✅ | REQ-006 Done · http://127.0.0.1:18789/ui |
 | L7 NL Copilot | ⏸ | 暂缓（只读参谋构想） |
@@ -71,10 +71,10 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | （空 · REQ-037 Phase1 Done） | — |
-| **§0.B `agent:gemini`** | **REQ-033** 历史回放+企微纠错 | Doing |
+| **§0.A `agent:cursor`** | （空 · 文档树卫生 Done；035 仍等 033） | — |
+| **§0.B `agent:gemini`** | **REQ-033** 历史回放审批（§0.B 为准，约 #83+） | Doing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
-| **§0.H `human`** | REQ-002；Q-001；**Q-006** | 等待 |
+| **§0.H `human`** | REQ-002；Q-001 interim=SCP；**Q-006** | 等待 |
 | **§0.R-A** | REQ-037 方案评审 | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
