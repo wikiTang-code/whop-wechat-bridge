@@ -963,53 +963,40 @@ export function buildReplayWeComMessage(item, stats, db = getDb()) {
     lotsLines = exp.zhao.activeLots.map((l, i) => `    - 批次#${i + 1} (#${l.seqNo}): \`${l.qty} 股\` @ \`$${l.price.toFixed(2)}\``).join('\n');
   }
 
+  // 限制近期操作明细只保留最近 3 笔，防止超出企业微信自建应用 2048 字节硬性上限
   let historyLines = '';
   if (exp.zhao.recentTrades && exp.zhao.recentTrades.length > 0) {
-    historyLines = `\n  - **近期操作明细 (历史对账)**:\n${exp.zhao.recentTrades.join('\n')}`;
+    const recentSample = exp.zhao.recentTrades.slice(-3);
+    historyLines = `\n  - **近期操作对账 (最近3笔)**:\n${recentSample.join('\n')}`;
   }
 
-  const text = `### 📋 历史大V交易单回放校验【第 #${item.seq_no} 笔 / 共 ${stats.total} 笔】
-> **进度**: 已审 **${stats.processed}/${stats.total}** (${stats.progressPct}%) ｜ 正确: ${stats.confirmed} ｜ 修正: ${stats.corrected} ｜ 策略资产: ${strategyCount}
+  const text = `### 📋 大V交易单回放校验【第 #${item.seq_no} 笔 / 共 ${stats.total} 笔】
+> **进度**: 已审 **${stats.processed}/${stats.total}** (${stats.progressPct}%) ｜ 正确: ${stats.confirmed} ｜ 修正: ${stats.corrected} ｜ 策略: ${strategyCount}
 
 **原始大V发言**:
 > 「*${item.raw_content}*」
 
 ---
 - **发言时间**: \`${timeStr}\`
-- **解析标的**: **${item.parsed_ticker}**
-- **交易方向**: <font color="${actionColor}">${actionZh}</font>
-- **委托价格**: \`$${item.parsed_price.toFixed(2)}\`
-- **仓位维度 (大V表述)**: **${fractionDesc}**
-- **参考委托股数**: \`${item.parsed_qty} 股\` *(参考金额: $${totalAmount})*
+- **解析标的**: **${item.parsed_ticker}** ｜ **方向**: <font color="${actionColor}">${actionZh}</font>
+- **委托价格**: \`$${item.parsed_price.toFixed(2)}\` ｜ **股数**: \`${item.parsed_qty} 股\` *(约 $${totalAmount})*
+- **仓位维度**: **${fractionDesc}**
 ---
-📊 **双账本持仓与总仓位状态 (基于【总资产】基准)**：
-> 💡 *注：单票权重与全盘总仓位均以【总资产 (现金+股票市值)】为分母，非仅基于股票。*
-- **赵哥推演账本**:
+👉 **请点击下方蓝色链接进行审核**：
+1. [👉 点击这里：【✅ 确认 #${item.seq_no} 正确】](${confirmSkipUrl})
+2. [👉 点击这里：【✏️ 修正 #${item.seq_no} 错误】](${correctFormUrl})
+3. [👉 点击这里：【💡 判定 #${item.seq_no} 为策略预判】](${rejectUrl})
+---
+📊 **持仓与总仓位对账**：
+- **赵哥推演账本 (${item.parsed_ticker})**:
   - **个股持仓**: \`${exp.zhao.beforeQ} 股\` (${exp.zhao.beforeCostStr}) ➔ \`${exp.zhao.afterQ} 股\` (${exp.zhao.afterCostStr})
   - **单票权重**: **${exp.zhao.beforePct}%** ➔ **${exp.zhao.afterPct}%** *(占总资产)*
-  - **当前持有批次明细**:
+  - **当前持有批次**:
 ${lotsLines}
 ${historyLines}
   - **全盘总仓位**: 约 **${exp.zhao.totalExposurePct}%** *(持股占总资产)*
 - **个人模拟账户**:
-  - **个股持仓**: \`${userStockDesc}\`
-  - **单票权重**: **${exp.user.targetPct}%** *(占总资产 / 市值 $${exp.user.posVal})*
-  - **全盘总仓位**: **${exp.user.totalExposurePct}%** *(持股占总资产 / 总资产 $${exp.user.totalEquity} / 现金 $${exp.user.cash})*
----
-👉 **请点击下方蓝色链接对本单 (#${item.seq_no}) 进行审核操作**：
-
-1. [👉 点击这里：【✅ 确认 #${item.seq_no} ${item.parsed_ticker} 正确】](${confirmSkipUrl})  
-*(判定为真实交易且要素正确，计入账本并自动推下一条)*
-
-2. [👉 点击这里：【✏️ 修正 #${item.seq_no} ${item.parsed_ticker} 错误】](${correctFormUrl})  
-*(唤起移动端极简表单修改买卖方向、单价、股数或仓位)*
-
-3. [👉 点击这里：【💡 判定 #${item.seq_no} 为策略预判】](${rejectUrl})  
-*(若发言仅为走势预判、条件单说明或观点讨论，转存策略资产)*
-
----
-🔗 **备用快捷通道 (防拦截点击)**：  
-• <a href="${confirmSkipUrl}">[快速确认正确]</a> ｜ <a href="${correctFormUrl}">[快速进入表单]</a> ｜ <a href="${rejectUrl}">[快速转为策略]</a>`;
+  - **个股持仓**: \`${userStockDesc}\` ｜ **全盘总仓位**: **${exp.user.totalExposurePct}%**`;
 
   return { text, confirmSkipUrl, correctFormUrl, rejectUrl };
 }
