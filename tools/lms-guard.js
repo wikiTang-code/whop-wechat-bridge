@@ -213,3 +213,28 @@ export function safeUnloadModel(modelKey) {
   }
   return count;
 }
+
+/**
+ * 安全卸载当前显存中的所有模型实例 (游戏模式 / 彻底腾空显存)
+ * @returns {number} 成功卸载的模型数量
+ */
+export function unloadAllModels() {
+  loadPromiseMap.clear();
+  const adapter = getRuntimeAdapter();
+  const current = getLoadedModels();
+  let count = 0;
+  for (const m of current) {
+    try {
+      const res = adapter.unload(m.identifier);
+      if (res.success) {
+        console.log(`[LMS Guard] 已安全卸载: ${m.identifier}`);
+        count++;
+      } else {
+        console.warn(`[LMS Guard] 卸载失败 ${m.identifier}:`, res.message);
+      }
+    } catch (e) {
+      console.error(`[LMS Guard] 卸载异常 ${m.identifier}:`, e.message);
+    }
+  }
+  return count;
+}

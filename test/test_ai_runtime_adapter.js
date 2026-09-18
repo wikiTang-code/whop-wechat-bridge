@@ -119,9 +119,27 @@ if (!(wslAdapter instanceof WslLlamaAdapter)) {
 }
 console.log('  ✅ wsl_llama 后端适配器实例化正确');
 
+// 7. 测试游戏模式全量排空显存 (unloadAllModels)
+console.log('\n[测试 7] 验证游戏模式一秒排空全部显存 (unloadAllModels)...');
+const mockGame = new MockRuntimeAdapter([
+  { identifier: 'qwen2.5-14b-instruct', modelKey: 'qwen2.5-14b-instruct', sizeBytes: 15 * 1024 * 1024 * 1024 },
+  { identifier: 'qwen2.5-coder-1.5b-instruct', modelKey: 'qwen2.5-coder-1.5b-instruct', sizeBytes: 2 * 1024 * 1024 * 1024 }
+]);
+setRuntimeAdapterForTest(mockGame);
+
+import { unloadAllModels } from '../tools/lms-guard.js';
+const unloadedCount = unloadAllModels();
+const afterGame = getLoadedModels();
+if (unloadedCount !== 2 || afterGame.length !== 0) {
+  console.error('❌ 游戏模式排空显存失败, 剩余模型:', afterGame);
+  process.exit(1);
+}
+console.log(`  ✅ 成功排空 ${unloadedCount} 个模型实例，显存模型归零 (0 GB 占用)`);
+
 // 恢复默认适配器
 resetRuntimeAdapter();
 
 console.log('\n===========================================================');
-console.log('🎉 全部单测验证通过！Runtime Adapter 彻底解除了对 Windows lms 的硬绑定！');
+console.log('🎉 全部单测验证通过！Runtime Adapter 与游戏/工作模式显存调度验证通过！');
 console.log('===========================================================');
+

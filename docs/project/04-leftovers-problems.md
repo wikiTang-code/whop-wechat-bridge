@@ -29,7 +29,7 @@
 | 债 ID | 摘要 | 关联 | 严重度 |
 |-------|------|------|:------:|
 | DEBT-001 | **生产 gcp-vm 尚未 `git merge --ff-only` 对齐**（push 已完成） | REQ-002 | P0 |
-| DEBT-014 | **CHG-018 切流未闭环**：Supervisor 仍 spawn sleep-mock，未挂真实 `llama-server`；默认后端仍 `lms`；Q-007 曾被标 Done 但缺 `:8080`/关 LMS 验收 | CHG-018 · Q-007 | P1 |
+| DEBT-014 | **CHG-018 Supervisor 未绑真实二进制**：`wsl-llama-supervisor` 仍 spawn sleep-mock；Arbiter 卸载路径与真实 `llama-server` 进程未硬绑定（**Q-007 切流 Human 已确认 Done**，本项降为代码债） | CHG-018 | P2 |
 
 ### 2.1 已闭环（勿再当开放债）
 
@@ -60,7 +60,7 @@
 | Q-004 | P5 是否加 CI `place_order` grep？ | L5 | decided：单测+load-catalog 硬拒；catalog 文本禁 place_order |
 | Q-005 | 跟单确认通道：企微业务卡片 vs Dashboard 移动页？ | human | **已决：企微业务确认卡片**（盘中 90s 时效；≠ `/ops`） |
 | Q-006 | REQ-037 视觉模型：本地 VL vs 云端多模态？ | human | open（评审默认倾向本地；云端须明示外送范围） |
-| Q-007 | CHG-018 门禁达标后是否关闭 Windows LM Studio 切到 WSL llama-server？ | human | **reopened**（`cd183dc` 曾标 Done；cursor 抽审：缺真实推理切流证据 → DEBT-014） |
+| Q-007 | CHG-018 门禁达标后是否关闭 Windows LM Studio 切到 WSL llama-server？ | human | **Done**（2026-09-19 Human 确认已关 LMS、切流试用无问题；cursor 本机见 `:8080/v1/models` 仍可列模型） |
 
 ---
 

@@ -21,7 +21,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #89；底层增加「成本附近平出」槽位与批次出清语义，校准 #89 TSLL 平出 15.05 批次 221 股并级联重算，队头已进至 #90 CONL，进度 10.7%） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` · `price_extractor.js` | **Doing** |
-| 2 | — | — | （空位；CHG-018 Step1–3 脚手架已出队；真实切流→DEBT-014） | — | — |
+| 2 | — | — | （空位；CHG-018 + Q-007 切流 Human 确认 Done） | — | — |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -37,7 +37,7 @@
 | REQ-002 | 生产 ff | 等待 |
 | Q-001 | GEX→GCP 通道 | interim=SCP（可再改） |
 | Q-006 | REQ-037 视觉模型：本地 VL vs 云端 | open（倾向本地） |
-| Q-007 | CHG-018：关 Windows LM Studio 切流？ | **reopened**（DEBT-014：Supervisor 仍为 sleep-mock） |
+| Q-007 | CHG-018：关 Windows LM Studio 切流？ | **Done**（Human 2026-09-19 确认已关 LMS 且切流试用 OK） |
 
 ### 0.R
 
@@ -55,9 +55,9 @@
 
 ### 共享候选池
 
-1. `CHG-018` **DEBT-014**（真实 `llama-server` + `AI_RUNTIME_BACKEND=wsl_llama` + `:8080` smoke + **Q-007** 关 LMS）
-2. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 Arbiter 互斥；禁 Phase 4）· 真人标注 worksheet 已就绪
-3. （已出队）… · CHG-018-wsl-scaffold · CHG-018-cutover-claimed · 037-CU-annotate-tooling
+1. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 Arbiter 互斥；禁 Phase 4）· 真人标注 worksheet 已就绪
+2. （可选）DEBT-014：Supervisor 绑真实 `llama-server`（P2，不挡业务）
+3. （已出队）… · CHG-018-wsl-scaffold · CHG-018-Q-007 · 037-CU-annotate-tooling
 
 ## 1. 主看板
 
@@ -94,7 +94,7 @@
 | REQ-037 | L3 | 多模态知识图谱 P1–P3（含卡片蒸馏引擎） | 双Agent协同 | Done | P1 vision + P2 CU + P3 distill四大卡片全绿；P4 冻结 |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 | CHG-016 | L2 | 看板日期过滤强绑定北京时间 (+08:00) 闭环 | `agent:gemini` | Done | `3dc07c2` · 生产单进程重启生效 |
-| CHG-018 | L2/L3 | 统一 WSL2 AI 运行时（Step1–3 脚手架 Done；真实切流见 DEBT-014） | `agent:gemini` | Done+残留 | Supervisor/Arbiter 单测绿；Q-007 reopened |
+| CHG-018 | L2/L3 | 统一 WSL2 AI 运行时（Q-007 切流 Human 确认 Done） | `agent:gemini` | Done | 残留 DEBT-014 P2（Supervisor→真实二进制） |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 
@@ -164,8 +164,8 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**CHG-018 切流口径抽审 Done**（DEBT-014 / Q-007 reopened）；§0.A 空。等你企微点 #90。
-- gemini：**REQ-033** Doing（#90 CONL @7.29 已推企微，等 human）；CHG-018 脚手架已出队，真实切流残留见 DEBT-014。
+- cursor：Q-007 **按 Human 确认回写 Done**；§0.A 空。等你企微 #90。
+- gemini：**REQ-033** Doing（#90 CONL 等 human）；CHG-018/Q-007 出队。
 - gemini1：REQ-036 Standing。
-- Human：REQ-002；Q-001；Q-006；**Q-007 reopened**；**企微 #90 CONL**。
-- §0.R-A：CHG-018 Step1–3/切流抽审 **Done**。
+- Human：REQ-002；Q-001；Q-006；**企微 #90 CONL**；Q-007 Done。
+- §0.R-A：CHG-018 相关抽审 Done；Q-007 以 Human 本会话确认为准。

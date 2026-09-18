@@ -25,15 +25,15 @@
 | **低** | 方案文头 / 04 Q-007 / 05 主看板行 / §6 交接段与 §0.H「Done」镜像不一致（抽审后由 cursor 对齐） |
 | **观察** | REQ-033 #90 CONL 企微卡片等待 human 点选——与 CHG-018 正交，主线正确 |
 
-**建议处置**：
+**建议处置（已按 Human 2026-09-19 确认修订）**：
 
 | 动作 | 说明 |
 |------|------|
-| CHG-018 | 保留「Step1–3 代码 Done」叙事；**新增残留债**：真实 `llama-server` 二进制挂载 + `AI_RUNTIME_BACKEND=wsl_llama` + `:8080` smoke + 关 LMS 验收（见 04 DEBT-014） |
-| Q-007 | **改回 open（或 verified-pending）**，直至 human 在场确认内存释放 + `:8080` 推理通 |
-| §0.R-A | 本抽审 Done；不阻塞 REQ-033 |
+| Q-007 | **Done**（Human 确认已关 LMS、切流试用无问题） |
+| DEBT-014 | 降为 **P2 代码债**：Supervisor sleep-mock→真实二进制（不挡业务切流结论） |
+| CHG-018 | `done` |
 
-**审修状态**：**`Done`**（结论已写入 04/05/03 对齐）
+**审修状态**：**`Done`**（口径以 Human 确认 + 后续 DEBT-014 为准）
 
 ### 2026-09-19 · CHG-018 门禁落地抽审（`agent:cursor` · §0.R-A · `7da433a`）
 

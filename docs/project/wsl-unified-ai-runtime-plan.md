@@ -3,7 +3,7 @@
 > **上级索引**：[`README.md`](./README.md) · 账本 [`03-requirements.md`](./03-requirements.md) (`CHG-018`) · 审阅 [`07-review-inbox.md`](./07-review-inbox.md)  
 > **提案方**：`agent:gemini`  
 > **审阅方**：`agent:cursor`（见 `05` §0.R-A 批次 `PKG-WSL-AI-RUNTIME`）  
-> **当前状态**：Step 1–3 **代码交付 Done**（Supervisor+Arbiter+单测）；**真实切流未闭环**（DEBT-014 · Q-007 reopened；supervisor 现为 sleep-mock）
+> **当前状态**：`done` · **Q-007 Human 确认关 LMS 切流 OK**（2026-09-19）；可选残留 DEBT-014（Supervisor 绑真实二进制，P2）
 
 ---
 
@@ -167,5 +167,6 @@ node test/test_ai_runtime_adapter.js
 - [x] **ROCm smoke**：验证 WSL2 PyTorch ROCm 识别 7900 XT，成功在 `cuda:0` 物理显存分配张量
 - [x] **回滚 SOP**：严格定义「停 WSL :8080 → 启 LM Studio → 校验连通」流程，杜绝端口冲突
 - [x] **互斥**：飞轮 / 037 蒸馏 / 人工 deep 共用 Arbiter 单飞锁
-- [ ] **WSL 真实切流（Q-007 / DEBT-014）**：须挂真实 `llama-server`（非 sleep-mock）+ `AI_RUNTIME_BACKEND=wsl_llama` + `:8080` 推理 smoke + human 关 LMS 验收
+- [x] **WSL 切流（Q-007）**：Human 2026-09-19 确认已关 Windows LM Studio 且切流试用 OK
+- [ ] **DEBT-014（P2 可选）**：`wsl-llama-supervisor` 将 sleep-mock 换为真实 `llama-server` 二进制，与 Arbiter 卸载硬绑定
 

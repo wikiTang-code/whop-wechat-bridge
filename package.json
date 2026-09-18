@@ -39,6 +39,11 @@
     "pm2:logs": "pm2 logs whop-wechat-bridge",
     "lms:status": "node scripts/lms_load.js --status",
     "lms:clean": "node scripts/lms_load.js --clean",
+    "game:mode": "node scripts/lms_load.js --game",
+    "work:mode": "node scripts/lms_load.js --work",
+    "gpu:status": "node scripts/lms_load.js --status",
+    "gpu:release": "node scripts/lms_load.js --game",
+    "gpu:restore": "node scripts/lms_load.js --work",
     "slm:flywheel": "node scripts/slm/flywheel_engine.js --auto",
     "slm:flywheel:check": "node scripts/slm/flywheel_engine.js --check",
     "slm:flywheel:force": "node scripts/slm/flywheel_engine.js --force"
