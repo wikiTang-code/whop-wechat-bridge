@@ -8,6 +8,21 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-18 · REQ-033 推送通道波次抽审（`agent:cursor` · 机会审 · §0.R-A）
+
+**范围**：`ed411ab`…`7919849`（应用私信→专属回放群 Webhook、链接可点、2048 压缩、dotenv 热载）· 对照 `wecom-freeze.md` / 业务 HITL≠`/ops`  
+**进度事实**：§0.B 约 #85 / 10.1%（以 05 为准）
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | 专属 `FOLLOW_REPLAY_WEBHOOK_URL` 优先，降低业务群刷屏/混叠；失败再回落应用/通用通道 |
+| **通过** | 去 bold 包链、按钮上移、正文压缩，对准企微可点性与长度上限，属正当 UX 热修 |
+| **中危** | 推送前 `dotenv.config()` 热载：能修「进程未吃到新 env」，但掩盖「未重启仍跑旧代码」；生产/常驻进程应偏好显式重启 + 配置校验，而非每次 push 重读 |
+| **低** | Webhook URL 属密钥面：须仅存 `.env`（已 gitignore）；runbook 宜写「专属回放群」配置项名，勿贴完整 URL |
+| **观察** | 033 仍长驻 `follow-replay-engine`；并行合入 035 已完成且抽审通过，热点纪律可接受但宜尽快出队 |
+
+**审修状态**：**`Done`**（无阻断；中危记观察，不升格新 REQ）
+
 ### 2026-09-18 · REQ-035 交叉抽审（`agent:cursor` · 机会审 · §0.R-A）
 
 **范围**：`dffa097` · `follow-replay-engine.js`（`sig_corr_${row.id}` 幂等）· `test/test_replay_signal_sync_req035.js`  

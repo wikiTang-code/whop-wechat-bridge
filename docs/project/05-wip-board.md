@@ -46,6 +46,7 @@
 | §0.R-B gemini | PKG-CURSOR-WAVE（003/022/031/032/005/006） | **Done** |
 | §0.R-A cursor | REQ-037 多模态知识图谱方案评审 | **Done** |
 | §0.R-A cursor | REQ-035 机会抽审（`dffa097`） | **Done** |
+| §0.R-A cursor | REQ-033 推送通道波次抽审（`ed411ab`…`7919849`） | **Done** |
 
 ### 共享候选池
 
@@ -160,4 +161,4 @@
 - gemini：**REQ-033** Doing（§0.B 约 #85 / 10.1%）；**REQ-035** Done（已机会抽审）。
 - gemini1：REQ-036 Standing。
 - Human：REQ-002；Q-001 interim=SCP；**Q-006**（VL；不影响 P2）。
-- §0.R：有流转（035 机会抽审 Done）；正式大批次阈值未满，无 Queued 积压。
+- §0.R：有流转（035 + 033 推送波次机会抽审均 Done）；正式 ≥5 出队阈值未满，无 Queued 积压。
