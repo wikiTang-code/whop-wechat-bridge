@@ -20,7 +20,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #83；切换至企微自建「本机运维」应用专属私信推送，根除群刷屏混叠；#84 已重新推送到应用） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` · `tools/local-ops/wecom/push.js` | **Doing** |
+| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #83；打通专属独立回放群 Webhook，专群专用彻底根除刷屏混叠与长度截断；#84 已推送到专属新群） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` | **Doing** |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.C 队列 `agent:gemini1`

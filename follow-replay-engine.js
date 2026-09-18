@@ -1012,9 +1012,33 @@ export async function pushCurrentReplayCard(db = getDb()) {
   }
 
   const { text } = buildReplayWeComMessage(item, stats);
+
+  // 1. 优先使用专属独立回放群 Webhook (专群专用无刷屏干扰，完整支持 4096 字节与标准超链接)
+  const replayWebhook = process.env.FOLLOW_REPLAY_WEBHOOK_URL;
+  if (replayWebhook) {
+    try {
+      const res = await fetch(replayWebhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          msgtype: 'markdown',
+          markdown: { content: text }
+        })
+      });
+      const json = await res.json().catch(() => ({}));
+      if (json.errcode === 0) {
+        console.log(`[Follow Replay] 🎯 已成功推送到专属独立回放群第 #${item.seq_no} 条待审单 (${item.parsed_ticker})`);
+        return { success: true, item, stats, via: 'replay_group_webhook' };
+      }
+      console.warn(`[Follow Replay] 专属回放群推送返回: ${json.errmsg}，尝试备用通道...`);
+    } catch (err) {
+      console.warn(`[Follow Replay] 专属回放群推送网络异常: ${err.message}`);
+    }
+  }
+
   let pushedViaOpsApp = false;
 
-  // 1. 优先通过企微「本机运维」自建应用推送 (私信独立窗口，防群刷屏混叠)
+  // 2. 备选通道：自建应用或通用群 Webhook
   const corpId = process.env.WECOM_OPS_CORP_ID;
   const secret = process.env.WECOM_OPS_SECRET;
   const agentId = process.env.WECOM_OPS_AGENT_ID;
@@ -1034,18 +1058,15 @@ export async function pushCurrentReplayCard(db = getDb()) {
       });
       if (pushRes && pushRes.ok) {
         pushedViaOpsApp = true;
-        console.log(`[Follow Replay] 📱 已成功通过「本机运维」自建应用推送第 #${item.seq_no} 条待审单 (${item.parsed_ticker}) 至 ${userIds}`);
-      } else {
-        console.warn(`[Follow Replay] 「本机运维」应用推送未成: ${pushRes ? pushRes.error : 'unknown'}`);
+        console.log(`[Follow Replay] 📱 已推送「本机运维」自建应用第 #${item.seq_no} 条待审单 (${item.parsed_ticker})`);
       }
     } catch (e) {
-      console.warn(`[Follow Replay] 「本机运维」自建应用调用异常: ${e.message}`);
+      console.warn(`[Follow Replay] 「本机运维」应用调用异常: ${e.message}`);
     }
   }
 
-  // 2. 同步推送到群机器人 Webhook (双通道保障，防止移动端个别版本拦截外链)
   const webhookUrl = process.env.WECHAT_WORK_WEBHOOK_URL;
-  if (webhookUrl) {
+  if (webhookUrl && !pushedViaOpsApp) {
     try {
       const res = await fetch(webhookUrl, {
         method: 'POST',
@@ -1058,15 +1079,13 @@ export async function pushCurrentReplayCard(db = getDb()) {
       const json = await res.json().catch(() => ({}));
       if (json.errcode === 0) {
         console.log(`[Follow Replay] 📢 已同步推送到群 Webhook 第 #${item.seq_no} 条待审单 (${item.parsed_ticker})`);
-      } else {
-        console.warn(`[Follow Replay] 群 Webhook 推送返回: ${json.errmsg}`);
       }
     } catch (err) {
-      console.warn(`[Follow Replay] 群 Webhook 推送异常: ${err.message}`);
+      console.warn(`[Follow Replay] 通用群 Webhook 推送异常: ${err.message}`);
     }
   }
 
-  return { success: true, item, stats, via: pushedViaOpsApp ? 'dual' : 'webhook' };
+  return { success: true, item, stats, via: pushedViaOpsApp ? 'ops_app' : 'webhook' };
 }
 
 /**
