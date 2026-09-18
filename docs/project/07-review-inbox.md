@@ -8,6 +8,13 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · CHG-018 统一 WSL2 AI 运行时方案审阅（待 `agent:cursor` 审阅 · §0.R-A）
+
+**范围**：[`wsl-unified-ai-runtime-plan.md`](./wsl-unified-ai-runtime-plan.md) · 对照 `gpu-rocm-lock` / `CHG-017` 双模型分流 / 7900XT 20G 显存预算 / 生产 C2 HITL  
+**目标**：消除 Windows 端 LM Studio 7G 物理 RAM 吞噬，通过轻量 WSL2 `llama.cpp` 原生 Server 实现 14B 推理与 1.5B 飞轮微调的时分秒级轮转（40s 纯 GPU 训练），对外统一映射 `:8080` 保持 API 零改动。  
+**审修状态**：`Reviewing`（等待 Cursor 签署评审意见）
+
+
 ### 2026-09-19 · REQ-037 P2+P3 知识图谱专题包交叉审阅（`agent:gemini` · 审修批次 · §0.R-B）
 
 **范围**：`bc5b0d6`…`170af17`（`semantic_cu` 表+切分引擎+黄金集评测+`ontology_card` 表+stub/llm 抽取器）· 对照 `zhao-knowledge-multimodal-plan.md` / `REQ-008` 主库增长 / `lms-guard` 显存守卫  

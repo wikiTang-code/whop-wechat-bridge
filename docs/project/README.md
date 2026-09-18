@@ -26,13 +26,15 @@ docs/project/                          ← 你在这里（总索引）
 ├── 06-process.md                      ← 开发流程框架 + 文档维护 SOP
 ├── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
 ├── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
-└── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2 Done；P3 待开）
+├── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2/P3 Done）
+└── wsl-unified-ai-runtime-plan.md     ← CHG-018 统一 WSL2 AI 运行时方案（Reviewing）
 
 专题权威方案（不重复当总进度，只被引用）：
 docs/local-ops-mcp-skill-plan.md       ← Local-Ops / 企微 / MCP
 docs/system-hardening-and-monitoring-plan.md
 docs/gex-sidecar.md
 docs/project/zhao-knowledge-multimodal-plan.md ← REQ-037 多模态知识图谱方案
+docs/project/wsl-unified-ai-runtime-plan.md    ← CHG-018 统一 WSL2 AI 运行时方案
 docs/project-progress.md               ← 兼容跳转页（指向本树）
 ```
 
@@ -71,10 +73,10 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | （空 · 037 P3-llm 抽样 Done） | — |
-| **§0.B `agent:gemini`** | **REQ-033** 回放审批（Doing · #86）+ **REQ-037 P3-distill**（Done） | Doing |
+| **§0.A `agent:cursor`** | （待认领 §0.R-A 审阅包） | — |
+| **§0.B `agent:gemini`** | **REQ-033** 回放审批（Doing · #90）+ **CHG-018** WSL运行时方案（Review） | Doing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
-| **§0.R** | §0.R-A (035/033抽审 Done) · §0.R-B (037 P2+P3审阅 Done) | Done |
+| **§0.R** | §0.R-A (CHG-018 方案待 Cursor 审阅) · §0.R-B (037 P2+P3审阅 Done) | Queued |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 
