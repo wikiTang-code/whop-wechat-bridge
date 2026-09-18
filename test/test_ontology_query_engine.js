@@ -115,6 +115,28 @@ if (emptyResults.length !== 2) {
 }
 console.log('  ✅ 空参优雅降级通过，正确返回默认降序卡片');
 
+// 5. minConfidence 过滤
+console.log('\n[测试 5] 验证 minConfidence 阈值过滤...');
+const highBar = queryKnowledgeCards({
+  ticker: 'NVDA',
+  minConfidence: 0.99,
+  dbInstance: testDb
+});
+if (highBar.length !== 0) {
+  console.error('❌ minConfidence=0.99 应滤掉 0.95 卡片:', highBar);
+  process.exit(1);
+}
+const okBar = queryKnowledgeCards({
+  ticker: 'NVDA',
+  minConfidence: 0.9,
+  dbInstance: testDb
+});
+if (okBar.length < 1) {
+  console.error('❌ minConfidence=0.9 应保留 NVDA 卡片');
+  process.exit(1);
+}
+console.log('  ✅ minConfidence 过滤通过');
+
 console.log('\n===========================================================');
 console.log('🎉 REQ-037 策略本体知识图谱智能检索引擎单测全部 PASS！');
 console.log('===========================================================');

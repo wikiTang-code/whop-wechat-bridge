@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；037 distill sender/channel 过滤 Done） | — | — |
+| **1** | — | — | （空；Layer4 CLI `--min-confidence` 修复 Done） | — | — |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.B 队列 `agent:gemini`
@@ -54,6 +54,7 @@
 | §0.R-A cursor | **CHG-018 Step1–3/切流口径抽审（`e469d29`/`cd183dc`）** | **Done** |
 | §0.R-A cursor | **REQ-037 batch distill + Layer4 query（`4675823`/`3e81a18`）** | **Done** |
 | §0.R-A cursor | **REQ-037 全库蒸馏闭环（`e9fc925`）** | **Done** |
+| §0.R-A cursor | **REQ-037 query CLI minConfidence（`a764c25`+fix）** | **Done** |
 
 ### 共享候选池
 
@@ -166,7 +167,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：10m tick#2 — 文档树对齐（zhao 方案 P3 全库/Layer4）；§0.A 空；无新互斥代码热点。
-- gemini：**REQ-033** Standing（#90）；`a82d628` game/work bat 路径兼容（低风险，未单开审修）。
+- cursor：10m tick#3 — 发现 `a764c25` CLI `--min-confidence` 误解析为 Query，已修并补单测；§0.A 空。
+- gemini：**REQ-033** Standing（#90）。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002；Q-001；Q-006；企微 #90；Q-007 Done。

@@ -193,7 +193,7 @@ if (isDirectCli) {
       cardType = args[++i];
     } else if (a === '--limit' || a === '-l') {
       limit = parseInt(args[++i], 10) || 3;
-    } else if (a === '--min-conf') {
+    } else if (a === '--min-conf' || a === '--min-confidence') {
       minConfidence = parseFloat(args[++i]) || 0.0;
     } else if (a === '--json') {
       jsonOutput = true;
@@ -209,7 +209,7 @@ if (isDirectCli) {
   }
 
   console.log('===========================================================');
-  console.log(`🔍 策略本体检索查询: Ticker="${ticker || '(全部)'}", Query="${text || '(无)'}", Type="${cardType || '(全类型)'}"`);
+  console.log(`🔍 策略本体检索查询: Ticker="${ticker || '(全部)'}", Query="${text || '(无)'}", Type="${cardType || '(全类型)'}", minConf=${minConfidence}`);
   console.log('===========================================================');
 
   const results = queryKnowledgeCards({ ticker, text, cardType, limit, minConfidence });
