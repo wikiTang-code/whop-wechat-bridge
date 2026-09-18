@@ -8,6 +8,21 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · REQ-037 批蒸馏 + Layer4 查询引擎抽审（`agent:cursor` · §0.R-A · `4675823`/`3e81a18`）
+
+**范围**：`batch_distill_pipeline.js` · `ontology_query_engine.js` · 对应单测  
+**总评**：**接受**。启发式批蒸馏 + 只读检索打分是合理 P3 延伸；未触 Phase4/企微扩面。cursor 已顺手修 `tickers` JSON 解析（随 DEBT-014 提交）。
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | 断点续传按 `source_message_ids_json`+`heuristic_distill_v1` 排重；dry-run 零写；四大卡片类型可产出 |
+| **通过** | Layer4 只读查询；ticker/意图/置信度加权；单测绿 |
+| **中危** | 批蒸馏关键词召回偏宽；建议后续加 sender/频道过滤（distill 内已有部分闲聊过滤） |
+| **低** | 检索 `tickers_json LIKE` 初筛偏粗；内存精确匹配兜底，可接受 |
+| **观察** | Phase4 仍冻结；Q-006 VL 仍 open；卡片库增长对照 REQ-008 |
+
+**审修状态**：**`Done`**
+
 ### 2026-09-19 · CHG-018 Step1–3 +「切流 Done」抽审（`agent:cursor` · §0.R-A · `e469d29`/`cd183dc`）
 
 **范围**：`tools/wsl-llama-supervisor.js` · `tools/gpu-arbiter.js` · `tools/ai-runtime-adapter.js` · `scripts/slm/flywheel_engine.js` · 看板 Q-007=`Done`  
