@@ -13,8 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；文档树卫生 Done · 037 Phase1 Done；035 等 033） | — | — |
-| 2 | **REQ-035** | L1 | 回放纠错与 `trade_signals` 流水自动校准联动 | `follow-replay-engine.js` · `database.js` | Queued（热点互斥） |
+| **1** | **REQ-037 P2** | L3 | 语义会话单元 Semantic CU 核心数据表与切分引擎骨架 | `knowledge/` · `database.js` | **Todo** |
+| 2 | — | — | （空位） | — | — |
 
 ### 0.B 队列 `agent:gemini`
 
@@ -48,9 +48,8 @@
 
 ### 共享候选池
 
-1. `REQ-035`（等 033 释放 follow-replay-engine）
-2. `REQ-037` Phase 2+（等 Phase1 VL/Q-006；禁 Phase 4）
-3. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · CHG-009 · CHG-015 · CHG-016 · CHG-017
+1. `REQ-037` Phase 2+（语义会话单元构建；禁 Phase 4）
+2. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · 035 · CHG-009 · CHG-015 · CHG-016 · CHG-017
 
 ## 1. 主看板
 
@@ -82,6 +81,7 @@
 | REQ-030 | L1 | 大V即时推送实事求是（去假跟单后缀） | `agent:gemini` | Done | monitor.js · CHG-010 |
 | REQ-031 | L1 | 解析即写 signal 流水 | `agent:cursor` | Done | trade_signals · test_trade_signals_req031 |
 | REQ-033 | L1/L4 | 历史回放+企微纠错（进度以 §0.B 为准：约 #83+；应用私信推送） | `agent:gemini` | Doing | `follow-replay-engine` · `wecom/push` |
+| REQ-035 | L1 | 回放纠错与 trade_signals 自动校准联动 | `agent:gemini` | Done | `follow-replay-engine.js` · `test_replay_signal_sync_req035.js` |
 | REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮 | `agent:gemini1` | Done | 1030组SFT/DPO训练集+Unsloth微调+端侧抽取器 |
 | REQ-037 | L3 | 多模态知识图谱 Phase1 MVP | `agent:cursor` | Done | message_vision_meta · vision-meta-stub · sample script |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |

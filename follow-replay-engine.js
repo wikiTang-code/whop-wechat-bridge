@@ -1322,7 +1322,7 @@ export async function handleReplayCorrectionSubmit(data, userid = 'human', db = 
   try {
     const { saveTradeSignal } = await import('./database.js');
     saveTradeSignal({
-      signal_id: `sig_corr_${row.id}_${now}`,
+      signal_id: `sig_corr_${row.id}`,
       message_id: row.message_id || null,
       channel_id: null,
       speaker_name: '赵哥(人工修正)',
