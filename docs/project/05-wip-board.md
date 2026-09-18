@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-037 P3-llm** | L3 | ontology 14B 离线抽样抽取（lms-guard deep；禁 Phase4） | `tools/knowledge/` · `ai-router-policy.js` | **Doing** |
+| **1** | — | — | （空；037 P3-llm 抽样通路 Done；全量蒸馏未开） | — | — |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.B 队列 `agent:gemini`
@@ -50,8 +50,8 @@
 
 ### 共享候选池
 
-1. `REQ-037` Phase 3 的 14B 离线蒸馏抽样（须 `lms-guard`；禁 Phase 4）· 真人 CU 标注强化（可选）
-2. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · 035 · CHG-009 · CHG-015 · CHG-016 · CHG-017 · 037-P2-scaffold · 037-P2-eval · 037-P3-stub
+1. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 `lms-guard`；禁 Phase 4）· 真人 CU 标注强化（可选）
+2. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · 035 · CHG-009 · CHG-015 · CHG-016 · CHG-017 · 037-P2-* · 037-P3-stub · 037-P3-llm-sample
 
 ## 1. 主看板
 
@@ -157,7 +157,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**REQ-037 P3 stub Done**（`ontology_card`+关键词 stub）；§0.A 空；14B 蒸馏待开。
+- cursor：**REQ-037 P3-llm 抽样 Done**（stub 入库 + 14B deep 抽样写卡）；§0.A 空；全量蒸馏待开。
 - gemini：**REQ-033** Doing（§0.B 约 #86 / 10.2%）；**REQ-036 Pipeline** Doing；**REQ-035** Done。
 - gemini1：REQ-036 Standing。
 - Human：REQ-002；Q-001 interim=SCP；**Q-006**（VL；不影响 P2）。

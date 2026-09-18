@@ -125,12 +125,12 @@ flowchart TD
   - 小样本：`npm run knowledge:cu-sample`；标注导出：`export_semantic_cu_golden_candidates.js`（filled 本地 gitignore）
   - 单测：`npm run test:semantic-cu`
   - **残留**：真人聊天 ≥30 边界标注（强化，非阻塞合成门禁）；全量 8.6 万跑批未开
-- **Phase 3（策略本体卡片）** 🔧 stub 脚手架（**不调 14B**）：
+- **Phase 3（策略本体卡片）** ✅ stub + 14B 抽样通路：
   - 表：`ontology_card`（见 §5.2）
-  - Stub：`tools/knowledge/ontology-card-stub.js`（关键词四类：risk_rule/pattern/macro/asset_memory）
-  - CRUD：`saveOntologyCard` / `listOntologyCards`
+  - Stub：`ontology-card-stub.js`；14B：`ontology-card-llm.js`（deep + `lms-guard`）
+  - 抽样：`npm run knowledge:ontology-sample:stub|llm`
   - 单测：`npm run test:ontology-card`
-  - **未做**：14B 蒸馏、全量跑批、与 `strategy_assets` 汇合
+  - **未做**：全量蒸馏、与 `strategy_assets` 汇合、Phase4
 - **Phase 4（企微智能参谋卡盘中联动）**：冻结至业务通道 CHG + `wecom-freeze` 更新。
 
 ### 5.1 Phase 2 数据模型与验收（设计冻结）
