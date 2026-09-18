@@ -943,6 +943,9 @@ export function buildReplayWeComMessage(item, stats, db = getDb()) {
   const confirmSkipUrl = `${baseUrl}/api/follow/replay-callback?action=CONFIRM_SKIP&id=${item.id}&token=${token}`;
   const correctFormUrl = `${baseUrl}/follow/correct?id=${item.id}&token=${token}`;
   const rejectUrl = `${baseUrl}/api/follow/replay-callback?action=REJECT_NON_TRADE&id=${item.id}&token=${token}`;
+  const localBase = `http://${process.env.HOST_IP || '192.168.1.18'}:${process.env.PORT || 8085}`;
+  const localConfirmUrl = `${localBase}/api/follow/replay-callback?action=CONFIRM_SKIP&id=${item.id}&token=${token}`;
+  const localCorrectUrl = `${localBase}/follow/correct?id=${item.id}&token=${token}`;
 
   const isBuy = item.parsed_action === 'BUY';
   const actionZh = isBuy ? '🟢 买入 (BUY)' : '🔴 卖出 (SELL)';
@@ -986,6 +989,7 @@ export function buildReplayWeComMessage(item, stats, db = getDb()) {
 1. [👉 点击这里：【✅ 确认 #${item.seq_no} 正确】](${confirmSkipUrl})
 2. [👉 点击这里：【✏️ 修正 #${item.seq_no} 错误】](${correctFormUrl})
 3. [👉 点击这里：【💡 判定 #${item.seq_no} 为策略预判】](${rejectUrl})
+🔗 **电脑/同WiFi直连备用**：[直连确认正确](${localConfirmUrl}) ｜ [直连修改表单](${localCorrectUrl})
 ---
 📊 **持仓与总仓位对账**：
 - **赵哥推演账本 (${item.parsed_ticker})**:

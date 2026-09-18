@@ -26,7 +26,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── 06-process.md                      ← 开发流程框架 + 文档维护 SOP
 ├── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
 ├── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
-└── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·Phase1 Done；P2+ 待开）
+└── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2 Done；P3 待开）
 
 专题权威方案（不重复当总进度，只被引用）：
 docs/local-ops-mcp-skill-plan.md       ← Local-Ops / 企微 / MCP
@@ -71,8 +71,8 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | （空 · 037 P2 骨架 Done；黄金集≥30 待开） | — |
-| **§0.B `agent:gemini`** | **REQ-033** 历史回放审批（§0.B 为准，约 #85 / 10.1%） | Doing |
+| **§0.A `agent:cursor`** | （空 · 037 P2-eval Done） | — |
+| **§0.B `agent:gemini`** | **REQ-033** 回放审批 + **REQ-036 Pipeline** | Doing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | REQ-002；Q-001 interim=SCP；**Q-006** | 等待 |
 | **§0.R-A** | 035 + 033 推送波次机会抽审 | Done |

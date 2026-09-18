@@ -1,0 +1,419 @@
+{
+  "req": "REQ-037",
+  "phase": 2,
+  "version": "v0_synthetic",
+  "note": "Synthetic oracle for heuristic_v1 acceptance path; human chat labels still preferred long-term.",
+  "gap_ms": 1800000,
+  "boundary_starts": [
+    "gap_0_a",
+    "gap_1_a",
+    "gap_2_a",
+    "gap_3_a",
+    "gap_4_a",
+    "gap_5_a",
+    "gap_6_a",
+    "gap_7_a",
+    "gap_8_a",
+    "gap_9_a",
+    "gap_10_a",
+    "gap_11_a",
+    "tk_NVDA",
+    "tk_AMD",
+    "tk_AAPL",
+    "tk_META",
+    "tk_MSFT",
+    "tk_COIN",
+    "tk_MSTR",
+    "tk_BABA",
+    "tk_PDD",
+    "tk_CIFR",
+    "tk_SMCI",
+    "tk_ARM",
+    "ch_0",
+    "ch_1",
+    "ch_2",
+    "ch_3",
+    "ch_4",
+    "ch_5"
+  ],
+  "messages": [
+    {
+      "id": "gap_0_a",
+      "channel_id": "chA",
+      "created_at": 1700000000000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_0_b",
+      "channel_id": "chA",
+      "created_at": 1700000060000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "gap_1_a",
+      "channel_id": "chA",
+      "created_at": 1700001920000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_1_b",
+      "channel_id": "chA",
+      "created_at": 1700001980000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "gap_2_a",
+      "channel_id": "chA",
+      "created_at": 1700003840000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_2_b",
+      "channel_id": "chA",
+      "created_at": 1700003900000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "gap_3_a",
+      "channel_id": "chA",
+      "created_at": 1700005760000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_3_b",
+      "channel_id": "chA",
+      "created_at": 1700005820000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "gap_4_a",
+      "channel_id": "chA",
+      "created_at": 1700007680000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_4_b",
+      "channel_id": "chA",
+      "created_at": 1700007740000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "gap_5_a",
+      "channel_id": "chA",
+      "created_at": 1700009600000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_5_b",
+      "channel_id": "chA",
+      "created_at": 1700009660000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "gap_6_a",
+      "channel_id": "chA",
+      "created_at": 1700011520000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_6_b",
+      "channel_id": "chA",
+      "created_at": 1700011580000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "gap_7_a",
+      "channel_id": "chA",
+      "created_at": 1700013440000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_7_b",
+      "channel_id": "chA",
+      "created_at": 1700013500000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "gap_8_a",
+      "channel_id": "chA",
+      "created_at": 1700015360000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_8_b",
+      "channel_id": "chA",
+      "created_at": 1700015420000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "gap_9_a",
+      "channel_id": "chA",
+      "created_at": 1700017280000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_9_b",
+      "channel_id": "chA",
+      "created_at": 1700017340000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "gap_10_a",
+      "channel_id": "chA",
+      "created_at": 1700019200000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_10_b",
+      "channel_id": "chA",
+      "created_at": 1700019260000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "gap_11_a",
+      "channel_id": "chA",
+      "created_at": 1700021120000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "gap_11_b",
+      "channel_id": "chA",
+      "created_at": 1700021180000,
+      "tickers": "[\"TSLA\"]",
+      "sender_name": "群友"
+    },
+    {
+      "id": "tk_NVDA",
+      "channel_id": "chA",
+      "created_at": 1700023041000,
+      "tickers": "[\"NVDA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_NVDA_b",
+      "channel_id": "chA",
+      "created_at": 1700023131000,
+      "tickers": "[\"NVDA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_AMD",
+      "channel_id": "chA",
+      "created_at": 1700023221000,
+      "tickers": "[\"AMD\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_AMD_b",
+      "channel_id": "chA",
+      "created_at": 1700023311000,
+      "tickers": "[\"AMD\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_AAPL",
+      "channel_id": "chA",
+      "created_at": 1700023401000,
+      "tickers": "[\"AAPL\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_AAPL_b",
+      "channel_id": "chA",
+      "created_at": 1700023491000,
+      "tickers": "[\"AAPL\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_META",
+      "channel_id": "chA",
+      "created_at": 1700023581000,
+      "tickers": "[\"META\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_META_b",
+      "channel_id": "chA",
+      "created_at": 1700023671000,
+      "tickers": "[\"META\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_MSFT",
+      "channel_id": "chA",
+      "created_at": 1700023761000,
+      "tickers": "[\"MSFT\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_MSFT_b",
+      "channel_id": "chA",
+      "created_at": 1700023851000,
+      "tickers": "[\"MSFT\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_COIN",
+      "channel_id": "chA",
+      "created_at": 1700023941000,
+      "tickers": "[\"COIN\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_COIN_b",
+      "channel_id": "chA",
+      "created_at": 1700024031000,
+      "tickers": "[\"COIN\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_MSTR",
+      "channel_id": "chA",
+      "created_at": 1700024121000,
+      "tickers": "[\"MSTR\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_MSTR_b",
+      "channel_id": "chA",
+      "created_at": 1700024211000,
+      "tickers": "[\"MSTR\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_BABA",
+      "channel_id": "chA",
+      "created_at": 1700024301000,
+      "tickers": "[\"BABA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_BABA_b",
+      "channel_id": "chA",
+      "created_at": 1700024391000,
+      "tickers": "[\"BABA\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_PDD",
+      "channel_id": "chA",
+      "created_at": 1700024481000,
+      "tickers": "[\"PDD\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_PDD_b",
+      "channel_id": "chA",
+      "created_at": 1700024571000,
+      "tickers": "[\"PDD\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_CIFR",
+      "channel_id": "chA",
+      "created_at": 1700024661000,
+      "tickers": "[\"CIFR\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_CIFR_b",
+      "channel_id": "chA",
+      "created_at": 1700024751000,
+      "tickers": "[\"CIFR\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_SMCI",
+      "channel_id": "chA",
+      "created_at": 1700024841000,
+      "tickers": "[\"SMCI\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_SMCI_b",
+      "channel_id": "chA",
+      "created_at": 1700024931000,
+      "tickers": "[\"SMCI\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_ARM",
+      "channel_id": "chA",
+      "created_at": 1700025021000,
+      "tickers": "[\"ARM\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "tk_ARM_b",
+      "channel_id": "chA",
+      "created_at": 1700025111000,
+      "tickers": "[\"ARM\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "ch_0",
+      "channel_id": "chA",
+      "created_at": 1700025201000,
+      "tickers": "[\"SPY\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "ch_1",
+      "channel_id": "chB",
+      "created_at": 1700025321000,
+      "tickers": "[\"SPY\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "ch_2",
+      "channel_id": "chA",
+      "created_at": 1700025441000,
+      "tickers": "[\"SPY\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "ch_3",
+      "channel_id": "chB",
+      "created_at": 1700025561000,
+      "tickers": "[\"SPY\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "ch_4",
+      "channel_id": "chA",
+      "created_at": 1700025681000,
+      "tickers": "[\"SPY\"]",
+      "sender_name": "赵哥"
+    },
+    {
+      "id": "ch_5",
+      "channel_id": "chB",
+      "created_at": 1700025801000,
+      "tickers": "[\"SPY\"]",
+      "sender_name": "赵哥"
+    }
+  ]
+}

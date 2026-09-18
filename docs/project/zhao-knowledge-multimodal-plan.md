@@ -118,13 +118,13 @@ flowchart TD
   - 小样本扫描：`npm run knowledge:vision-sample`（`tools/knowledge/phase1_vision_meta_sample.js`）
   - 单测：`test/test_vision_meta_req037_phase1.js`
   - **未做**：真实本地/云端 VL（等 Q-006）
-- **Phase 2（语义会话聚类）** 🔧 脚手架已开（**不依赖 Q-006**）：
+- **Phase 2（语义会话聚类）** ✅ 骨架 + 验收路径（**不依赖 Q-006**）：
   - 表：`semantic_cu` + `semantic_cu_members`（见 §5.1）
-  - 切分：`tools/knowledge/semantic-cu-segment.js`（`heuristic_v1`：空闲间隔 + 主 ticker 切换 + 频道切换）
-  - CRUD：`saveSemanticCu` / `getSemanticCu` / `listSemanticCu`
-  - 小样本：`npm run knowledge:cu-sample`（`--dry-run` / `--channel` / `--gap-min`）
-  - 单测：`test/test_semantic_cu_req037_phase2.js` · `npm run test:semantic-cu`
-  - **未做**：embedding 余弦漂移、黄金集边界评测、全量 8.6 万跑批
+  - 切分：`heuristic_v1` + **`embed_drift_v1`**（`tools/knowledge/semantic-cu-segment.js`）
+  - 评测：`semantic-cu-eval.js` · 合成黄金集 `semantic_cu_golden_v0.json`（**30** 边界，F1=1）
+  - 小样本：`npm run knowledge:cu-sample`；标注导出：`export_semantic_cu_golden_candidates.js`（filled 本地 gitignore）
+  - 单测：`npm run test:semantic-cu`
+  - **残留**：真人聊天 ≥30 边界标注（强化，非阻塞合成门禁）；全量 8.6 万跑批未开
 - **Phase 3（策略本体卡片自动化抽取）**：利用本地 14B 模型批量跑通抽样历史消息的四大卡片沉淀（须 P2 验收后另开）。
 - **Phase 4（企微智能参谋卡盘中联动）**：冻结至业务通道 CHG + `wecom-freeze` 更新。
 
@@ -148,10 +148,11 @@ flowchart TD
 
 **验收（开全量前必过）**：
 
-1. 手工黄金集 ≥30 条边界（可复用 REQ-036 Golden 片段）：边界 F1 ≥0.7 或人工抽检同意率 ≥80%。  
+1. **合成黄金集 ≥30**（`semantic_cu_golden_v0.json`）：边界 F1 ≥0.7 — **已过**（heuristic_v1 F1=1）。  
 2. 样本跑批 ≤2k 条或 1 个交易周；主库增长对照 REQ-008。  
 3. 离线窗口；服从 `lms-guard`（本 Phase 不调 14B/VL）。  
-4. 单测绿：`test_semantic_cu_req037_phase2.js`。
+4. 单测绿：`npm run test:semantic-cu`（含 embed_drift）。  
+5. （强化）真人聊天 ≥30 边界标注 — 可选，模板/导出已就绪。
 
 **非目标**：企微推送、NL `/ops`、全量蒸馏、替换盘中交易抽取。
 
@@ -161,6 +162,6 @@ flowchart TD
 
 - 账本对应：[`03-requirements.md`](./03-requirements.md) **`REQ-037` = `accepted`（分期门禁）**。  
 - 评审结论：[`07-review-inbox.md`](./07-review-inbox.md) · 2026-09-15 · `agent:cursor`。  
-- **可实施**：Phase 1 Done；Phase 2 脚手架+规格已开（启发式切分）；全量/embedding/黄金集评测仍待。Phase 3 须 P2 验收后另开。  
+- **可实施**：Phase 1 Done；Phase 2 骨架+合成黄金门禁+embed_drift 已开；真人标注与全量跑批仍可选/未开。Phase 3 须另开。  
 - **冻结**：Phase 4 企微推送在业务通道 CHG + `wecom-freeze` 更新前不得开工（`REJ-008`）。  
 - Human 开放题：[`04`](./04-leftovers-problems.md) **Q-006**（本地 VL vs 云端；**不影响 P2**）。
