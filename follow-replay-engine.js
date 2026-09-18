@@ -1005,6 +1005,7 @@ ${historyLines}
  * 发送当前队头卡片至企业微信
  */
 export async function pushCurrentReplayCard(db = getDb()) {
+  dotenv.config();
   const { item, stats } = getNextPendingReplayItem(db);
   if (!item) {
     console.log('[Follow Replay] 🎉 队列已全部审核完毕！没有更多待审单据。');
