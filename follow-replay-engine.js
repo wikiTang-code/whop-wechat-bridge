@@ -162,6 +162,9 @@ export function formatFractionDesc(fractionName, fractionRatio, rawContent, acti
       return `减持 1/3 份额 (卖出${lotPrefix}的 33%)`;
     }
     if (sourceLotPrice) {
+      if (raw.includes('平出') || raw.includes('平本出') || raw.includes('成本附近')) {
+        return `出清批次 (平出前序 $${sourceLotPrice} 批次)`;
+      }
       return `出清批次 (清空${lotPrefix})`;
     }
     return '常规平仓/减持 (未明确比例)';
@@ -572,7 +575,7 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
           }
 
           if (targetLot) {
-            if (raw.includes('出剩下一半') || raw.includes('剩下一半') || raw.includes('剩下') || raw.includes('清仓') || raw.includes('出完') || raw.includes('全出') || raw.includes('平仓') || raw.includes('平本出')) {
+            if (raw.includes('出剩下一半') || raw.includes('剩下一半') || raw.includes('剩下') || raw.includes('清仓') || raw.includes('出完') || raw.includes('全出') || raw.includes('平仓') || raw.includes('平本出') || raw.includes('平出')) {
               deltaQty = targetLot.qty;
             } else if (/(出|卖|减|平).*一半/.test(raw) || raw.includes('半仓') || raw.includes('减半')) {
               deltaQty = Math.floor(targetLot.qty / 2);
@@ -638,7 +641,7 @@ export function resimulateReplayQueue(db = getDb(), fromSeqNo = 1) {
         }
 
         if (targetLot) {
-          if (deltaQty >= targetLot.qty || raw.includes('出剩下一半') || raw.includes('剩下一半') || raw.includes('出完') || raw.includes('清仓') || raw.includes('全出') || raw.includes('平本出')) {
+          if (deltaQty >= targetLot.qty || raw.includes('出剩下一半') || raw.includes('剩下一半') || raw.includes('出完') || raw.includes('清仓') || raw.includes('全出') || raw.includes('平本出') || raw.includes('平出')) {
             targetLot.qty = 0;
           } else {
             targetLot.qty -= deltaQty;

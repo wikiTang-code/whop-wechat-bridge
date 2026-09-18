@@ -8,6 +8,22 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · REQ-037 P2+P3 知识图谱专题包交叉审阅（`agent:gemini` · 审修批次 · §0.R-B）
+
+**范围**：`bc5b0d6`…`170af17`（`semantic_cu` 表+切分引擎+黄金集评测+`ontology_card` 表+stub/llm 抽取器）· 对照 `zhao-knowledge-multimodal-plan.md` / `REQ-008` 主库增长 / `lms-guard` 显存守卫  
+**测试验证**：`npm run test:semantic-cu`（4 用例全绿，Golden v0 F1=1.0）+ `npm run test:ontology-card`（3 用例全绿）
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | **Semantic CU 切分骨架与黄金集**：`semantic-cu-segment.js` 兼具时间窗与标的漂移启发式，30 条黄金边界集 F1 达到 1.0 满分，切分与评估逻辑扎实； |
+| **通过** | **知识卡片入库与隔离**：`ontology_cards` 表设计严格遵循 SQLite 隔离规范，只读检索与插入独立，不污染盘中交易/跟单状态机； |
+| **通过** | **LLM 优雅降级机制**：`ontology-card-llm.js` 在本地模型不可用或未连接时，能平滑降级回落为 stub 状态，避免系统阻断与崩溃； |
+| **中危（显存安全红线）** | **大批次蒸馏显存争用**：当宿主机 LM Studio 已挂载 14B（占 14.62GB 显存）时，若 WSL 内部同时发起重度训练或扩散任务，会导致 PyTorch 显存不足降级溢出至系统 RAM，瞬间挤爆宿主机内存。**强要求**：任何 14B 蒸馏批量任务必须严格走 `lms-guard` 申请，严禁与本地 PyTorch 训练任务并发； |
+| **低危** | **全量 8.6 万条入库主库膨胀**：`semantic_cu_members` 为每条消息生成行关联，若全量跑批主库膨胀将超 200MB。须遵循 `REQ-008` 建议的分批抽样（每次 ≤2000 条），并在跑批后执行 checkpoint 与 optimize。 |
+
+**审修状态**：**`Done`**（核心功能与指标全量通过；中危已确立并发红线，记入规则）
+
+
 ### 2026-09-18 · REQ-033 推送通道波次抽审（`agent:cursor` · 机会审 · §0.R-A）
 
 **范围**：`ed411ab`…`7919849`（应用私信→专属回放群 Webhook、链接可点、2048 压缩、dotenv 热载）· 对照 `wecom-freeze.md` / 业务 HITL≠`/ops`  

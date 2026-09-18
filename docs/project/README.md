@@ -74,8 +74,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | **§0.A `agent:cursor`** | （空 · 037 P3-llm 抽样 Done） | — |
 | **§0.B `agent:gemini`** | **REQ-033** 回放审批（Doing · #86）+ **REQ-037 P3-distill**（Done） | Doing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
-| **§0.H `human`** | REQ-002；Q-001 interim=SCP；**Q-006** | 等待 |
-| **§0.R-A** | 035 + 033 推送波次机会抽审 | Done |
+| **§0.R** | §0.R-A (035/033抽审 Done) · §0.R-B (037 P2+P3审阅 Done) | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 

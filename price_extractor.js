@@ -68,6 +68,16 @@ export function extractSemanticPrice(rawContent, ticker, action) {
       debug: 'breakeven_slot_b'
     };
   }
+  // 槽位解析 B2: 成本附近平出模式 (如 "15.05成本附近平出tsll", "47.8成本平出iren")
+  const costBreakeven = text.match(/(\d+(?:\.\d+)?)\s*(?:成本|成本线)?\s*(?:附近|左右)?\s*平出/);
+  if (costBreakeven) {
+    const p = parseFloat(costBreakeven[1]);
+    return {
+      price: p,
+      sourceLotPrice: p,
+      debug: 'cost_breakeven_slot'
+    };
+  }
 
   // 槽位解析 C: 区间成交价 (如 "930-931附近出剩下一半", "885-886附近出")
   const rangeMatch = text.match(/(\d+(?:\.\d+)?)\s*[-~至到]\s*(\d+(?:\.\d+)?)\s*(?:附近|左右)?\s*(?:出|卖|加|开|买|接|补|减|平)/);

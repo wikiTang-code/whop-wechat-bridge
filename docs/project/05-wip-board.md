@@ -47,6 +47,7 @@
 | §0.R-A cursor | REQ-037 多模态知识图谱方案评审 | **Done** |
 | §0.R-A cursor | REQ-035 机会抽审（`dffa097`） | **Done** |
 | §0.R-A cursor | REQ-033 推送通道波次抽审（`ed411ab`…`7919849`） | **Done** |
+| §0.R-B gemini | REQ-037 P2+P3 知识图谱专题包（`bc5b0d6`…`170af17`） | **Done** |
 
 ### 共享候选池
 
