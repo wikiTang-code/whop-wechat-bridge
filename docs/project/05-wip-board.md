@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；DEBT-014 Supervisor 真实二进制路径 Done） | — | — |
+| **1** | — | — | （空；037 distill sender/channel 过滤 Done） | — | — |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.B 队列 `agent:gemini`
@@ -165,7 +165,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**DEBT-014 Done**；§0.R-A 037 batch+Layer4 **Done**；§0.A 空，10m 感知循环续跑认领。
+- cursor：**DEBT-014 Done**；037 Layer4 抽审 Done；distill `--sender/--channel` 过滤落地；**10m×10h 文档树感知循环已开**（PID 见 terminals）。
 - gemini：**REQ-033** Standing（#90 等 human）。
 - gemini1：**REQ-036** Standing；对向审修自转。
 - Human：REQ-002；Q-001；Q-006；企微 #90；Q-007 Done。
