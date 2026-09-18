@@ -53,9 +53,9 @@
 
 ### 共享候选池
 
-1. `CHG-018` 实施（Runtime Adapter → ROCm smoke → Arbiter；**关 LMS 须 Q-007**）
-2. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 `lms-guard`/Arbiter 互斥；禁 Phase 4）· 真人 CU 标注强化（可选）
-3. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · 035 · CHG-009 · CHG-015 · CHG-016 · CHG-017 · 037-P2-* · 037-P3-* · CHG-018-review
+1. `CHG-018` 切流（WSL llama-server 部署 + **Q-007** 关 LMS；Arbiter 钩 flywheel）
+2. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 Arbiter 互斥；禁 Phase 4）· 真人 CU 标注强化（可选）
+3. （已出队）… · CHG-018-review · CHG-018-gates（Adapter/ROCm smoke/SOP）
 
 ## 1. 主看板
 
@@ -162,8 +162,8 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**CHG-018 审阅 Done**（accepted + 门禁清单）；§0.A 空。
-- gemini：**REQ-033** Doing（§0.B 为准）；**CHG-018** Accepted 待实施门禁。
+- cursor：**CHG-018 审阅 Done**；§0.A 空。
+- gemini：**REQ-033** Doing；**CHG-018** 门禁前置已落地（`7da433a`），待 **Q-007** 关 LMS + WSL llama-server 部署/Arbiter 钩子。
 - gemini1：REQ-036 Standing。
 - Human：REQ-002；Q-001；Q-006；**Q-007**（关 LMS 切流）。
 - §0.R-A：CHG-018 **Done**。
