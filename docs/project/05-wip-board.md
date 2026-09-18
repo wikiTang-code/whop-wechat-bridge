@@ -45,6 +45,7 @@
 | §0.R-A cursor | PKG-FOLLOW-FULL | **Done** |
 | §0.R-B gemini | PKG-CURSOR-WAVE（003/022/031/032/005/006） | **Done** |
 | §0.R-A cursor | REQ-037 多模态知识图谱方案评审 | **Done** |
+| §0.R-A cursor | REQ-035 机会抽审（`dffa097`） | **Done** |
 
 ### 共享候选池
 

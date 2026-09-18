@@ -8,6 +8,21 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-18 · REQ-035 交叉抽审（`agent:cursor` · 机会审 · §0.R-A）
+
+**范围**：`dffa097` · `follow-replay-engine.js`（`sig_corr_${row.id}` 幂等）· `test/test_replay_signal_sync_req035.js`  
+**对照**：REQ-031 signal 流水 · REQ-033 回放热点（作者仍持有）
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | 纠错路径写入 `source=manual_correct`；`signal_id` 去掉时间戳，依赖 `ON CONFLICT(signal_id)` 幂等，符合 035 验收 |
+| **通过** | 单测覆盖纠错→`trade_signals` 落库；已挂入 `test:local-ops` |
+| **低** | `saveTradeSignal` 冲突更新未覆盖 `ticker`/`action`/`source`——二次纠错改标的时可能残留旧 ticker（建议后续小 CHG：冲突列补齐） |
+| **低** | 写 signal 的 `try/catch` 吞错，运维侧不易察觉同步失败（可打 warn 日志） |
+| **观察** | 035 在 033 仍占用 `follow-replay-engine` 期间合入；功能正确但热点纪律偏紧——后续同类优先等出队 |
+
+**审修状态**：**`Done`**（无阻断；低危不升格 REQ，记入观察）
+
 ### 2026-09-15 · REQ-037 方案评审（`agent:cursor` · 专题方案）
 
 **范围**：[`zhao-knowledge-multimodal-plan.md`](./zhao-knowledge-multimodal-plan.md)（大V全频道多模态图文对齐与交易知识本体图谱）  

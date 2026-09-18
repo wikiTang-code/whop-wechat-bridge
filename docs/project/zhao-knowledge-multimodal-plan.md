@@ -122,6 +122,7 @@ flowchart TD
   - 表：`semantic_cu` + `semantic_cu_members`（见 §5.1）
   - 切分：`tools/knowledge/semantic-cu-segment.js`（`heuristic_v1`：空闲间隔 + 主 ticker 切换 + 频道切换）
   - CRUD：`saveSemanticCu` / `getSemanticCu` / `listSemanticCu`
+  - 小样本：`npm run knowledge:cu-sample`（`--dry-run` / `--channel` / `--gap-min`）
   - 单测：`test/test_semantic_cu_req037_phase2.js` · `npm run test:semantic-cu`
   - **未做**：embedding 余弦漂移、黄金集边界评测、全量 8.6 万跑批
 - **Phase 3（策略本体卡片自动化抽取）**：利用本地 14B 模型批量跑通抽样历史消息的四大卡片沉淀（须 P2 验收后另开）。
