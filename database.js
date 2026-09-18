@@ -81,6 +81,32 @@ export function ensureSemanticCuTables(conn) {
   try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_semantic_cu_members_msg ON semantic_cu_members (message_id)').run(); } catch (_) {}
 }
 
+/** REQ-037 Phase 3: trading ontology cards (risk/pattern/macro/asset). */
+export function ensureOntologyCardTable(conn) {
+  if (!conn) throw new Error('ensureOntologyCardTable requires db connection');
+  conn.prepare(`
+    CREATE TABLE IF NOT EXISTS ontology_card (
+      id TEXT PRIMARY KEY,
+      card_type TEXT NOT NULL,
+      title TEXT,
+      trigger_text TEXT,
+      action_text TEXT,
+      theory_text TEXT,
+      tickers_json TEXT,
+      source_cu_id TEXT,
+      source_message_ids_json TEXT,
+      provider TEXT NOT NULL DEFAULT 'stub',
+      status TEXT NOT NULL DEFAULT 'draft',
+      schema_json TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `).run();
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_ontology_card_type ON ontology_card (card_type)').run(); } catch (_) {}
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_ontology_card_status ON ontology_card (status)').run(); } catch (_) {}
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_ontology_card_cu ON ontology_card (source_cu_id)').run(); } catch (_) {}
+}
+
 // 权威频道登记册加载器 (全系统唯一频道来源)
 let channelRegistryMap = null;
 function getChannelRegistryMap() {
@@ -192,6 +218,7 @@ export function initDb() {
     try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_ticker ON trade_signals (ticker)`).run(); } catch (_) {}
     ensureMessageVisionMetaTable(db);
     ensureSemanticCuTables(db);
+    ensureOntologyCardTable(db);
     console.log('[initDb] Database already initialized and ready (0ms).');
     return;
   }
@@ -397,6 +424,7 @@ export function initDb() {
   try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_ticker ON trade_signals (ticker)`).run(); } catch (_) {}
   ensureMessageVisionMetaTable(db);
   ensureSemanticCuTables(db);
+  ensureOntologyCardTable(db);
 
   // 初始化虚拟资金 (如账户不存在，默认存入 100,000 美元沙盒资金)
   const cashCheck = db.prepare('SELECT value FROM portfolio WHERE key = ?').get('cash');
@@ -1497,6 +1525,81 @@ export function listSemanticCu({ channelId = null, status = null, limit = 50, of
     SELECT * FROM semantic_cu ${clause} ORDER BY start_ts DESC LIMIT ? OFFSET ?
   `).all(...params, limit, offset);
   const total = conn.prepare(`SELECT COUNT(*) as c FROM semantic_cu ${clause}`).get(...params)?.c || 0;
+  return { rows, total };
+}
+
+/**
+ * REQ-037 Phase 3 — upsert ontology card.
+ */
+export function saveOntologyCard(card, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  ensureOntologyCardTable(conn);
+  const cardType = String(card.card_type || '').trim();
+  if (!cardType) throw new Error('saveOntologyCard requires card_type');
+  const now = card.updated_at || Date.now();
+  const id = String(card.id || '').trim() || `ocard_${cardType}_${now}_${Math.random().toString(36).slice(2, 7)}`;
+  const schemaObj = card.schema || {
+    card_type: cardType,
+    title: card.title || null,
+    trigger: card.trigger_text || null,
+    action: card.action_text || null,
+    theory: card.theory_text || null,
+    tickers: card.tickers || [],
+  };
+  conn.prepare(`
+    INSERT INTO ontology_card (
+      id, card_type, title, trigger_text, action_text, theory_text, tickers_json,
+      source_cu_id, source_message_ids_json, provider, status, schema_json, created_at, updated_at
+    ) VALUES (
+      @id, @card_type, @title, @trigger_text, @action_text, @theory_text, @tickers_json,
+      @source_cu_id, @source_message_ids_json, @provider, @status, @schema_json, @created_at, @updated_at
+    )
+    ON CONFLICT(id) DO UPDATE SET
+      card_type = excluded.card_type,
+      title = excluded.title,
+      trigger_text = excluded.trigger_text,
+      action_text = excluded.action_text,
+      theory_text = excluded.theory_text,
+      tickers_json = excluded.tickers_json,
+      source_cu_id = excluded.source_cu_id,
+      source_message_ids_json = excluded.source_message_ids_json,
+      provider = excluded.provider,
+      status = excluded.status,
+      schema_json = excluded.schema_json,
+      updated_at = excluded.updated_at
+  `).run({
+    id,
+    card_type: cardType,
+    title: card.title || null,
+    trigger_text: card.trigger_text || null,
+    action_text: card.action_text || null,
+    theory_text: card.theory_text || null,
+    tickers_json: JSON.stringify(card.tickers || schemaObj.tickers || []),
+    source_cu_id: card.source_cu_id || null,
+    source_message_ids_json: JSON.stringify(card.source_message_ids || []),
+    provider: card.provider || 'stub',
+    status: card.status || 'draft',
+    schema_json: JSON.stringify(schemaObj),
+    created_at: card.created_at || now,
+    updated_at: now,
+  });
+  return id;
+}
+
+export function listOntologyCards({ cardType = null, status = null, limit = 50, offset = 0, dbInstance = null } = {}) {
+  limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
+  offset = Math.max(0, parseInt(offset, 10) || 0);
+  const conn = dbInstance || getDb();
+  ensureOntologyCardTable(conn);
+  const where = [];
+  const params = [];
+  if (cardType) { where.push('card_type = ?'); params.push(cardType); }
+  if (status) { where.push('status = ?'); params.push(status); }
+  const clause = where.length ? `WHERE ${where.join(' AND ')}` : '';
+  const rows = conn.prepare(`
+    SELECT * FROM ontology_card ${clause} ORDER BY updated_at DESC LIMIT ? OFFSET ?
+  `).all(...params, limit, offset);
+  const total = conn.prepare(`SELECT COUNT(*) as c FROM ontology_card ${clause}`).get(...params)?.c || 0;
   return { rows, total };
 }
 

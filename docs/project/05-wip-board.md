@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；037 P2-eval Done：v0≥30 F1=1 + embed_drift；真人标注可选） | — | — |
+| **1** | — | — | （空；037 P3 stub Done；14B 蒸馏未开） | — | — |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.B 队列 `agent:gemini`
@@ -50,8 +50,8 @@
 
 ### 共享候选池
 
-1. `REQ-037` Phase 3 本体卡片抽样（须另开；禁 Phase 4）· 真人 CU 标注强化（可选）
-2. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · 035 · CHG-009 · CHG-015 · CHG-016 · CHG-017 · 037-P2-scaffold · 037-P2-eval
+1. `REQ-037` Phase 3 的 14B 离线蒸馏抽样（须 `lms-guard`；禁 Phase 4）· 真人 CU 标注强化（可选）
+2. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · 035 · CHG-009 · CHG-015 · CHG-016 · CHG-017 · 037-P2-scaffold · 037-P2-eval · 037-P3-stub
 
 ## 1. 主看板
 
@@ -85,7 +85,7 @@
 | REQ-033 | L1/L4 | 历史回放+企微纠错（进度以 §0.B 为准：约 #83+；应用私信推送） | `agent:gemini` | Doing | `follow-replay-engine` · `wecom/push` |
 | REQ-035 | L1 | 回放纠错与 trade_signals 自动校准联动 | `agent:gemini` | Done | `follow-replay-engine.js` · `test_replay_signal_sync_req035.js` |
 | REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮（含自迭代流水线） | `agent:gemini` | Done | 1030组SFT/DPO+ROCm LoRA+`flywheel_engine.js`+单测全绿 |
-| REQ-037 | L3 | 多模态知识图谱 P1+P2（含 eval） | `agent:cursor` | Done | semantic_cu · golden_v0≥30 · embed_drift；P3 未开 |
+| REQ-037 | L3 | 多模态知识图谱 P1–P3 stub | `agent:cursor` | Done | ontology_card · stub；14B 未接；P4 冻结 |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 | CHG-016 | L2 | 看板日期过滤强绑定北京时间 (+08:00) 闭环 | `agent:gemini` | Done | `3dc07c2` · 生产单进程重启生效 |
 
@@ -157,7 +157,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**REQ-037 P2-eval Done**（golden_v0≥30 F1=1 + embed_drift_v1）；§0.A 空；下一切片=P3 或真人标注强化。
+- cursor：**REQ-037 P3 stub Done**（`ontology_card`+关键词 stub）；§0.A 空；14B 蒸馏待开。
 - gemini：**REQ-033** Doing（§0.B 约 #86 / 10.2%）；**REQ-036 Pipeline** Doing；**REQ-035** Done。
 - gemini1：REQ-036 Standing。
 - Human：REQ-002；Q-001 interim=SCP；**Q-006**（VL；不影响 P2）。

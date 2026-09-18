@@ -125,7 +125,12 @@ flowchart TD
   - 小样本：`npm run knowledge:cu-sample`；标注导出：`export_semantic_cu_golden_candidates.js`（filled 本地 gitignore）
   - 单测：`npm run test:semantic-cu`
   - **残留**：真人聊天 ≥30 边界标注（强化，非阻塞合成门禁）；全量 8.6 万跑批未开
-- **Phase 3（策略本体卡片自动化抽取）**：利用本地 14B 模型批量跑通抽样历史消息的四大卡片沉淀（须 P2 验收后另开）。
+- **Phase 3（策略本体卡片）** 🔧 stub 脚手架（**不调 14B**）：
+  - 表：`ontology_card`（见 §5.2）
+  - Stub：`tools/knowledge/ontology-card-stub.js`（关键词四类：risk_rule/pattern/macro/asset_memory）
+  - CRUD：`saveOntologyCard` / `listOntologyCards`
+  - 单测：`npm run test:ontology-card`
+  - **未做**：14B 蒸馏、全量跑批、与 `strategy_assets` 汇合
 - **Phase 4（企微智能参谋卡盘中联动）**：冻结至业务通道 CHG + `wecom-freeze` 更新。
 
 ### 5.1 Phase 2 数据模型与验收（设计冻结）
@@ -156,12 +161,17 @@ flowchart TD
 
 **非目标**：企微推送、NL `/ops`、全量蒸馏、替换盘中交易抽取。
 
+### 5.2 Phase 3 数据模型（stub 已开）
+
+**`ontology_card`**：`card_type` ∈ `risk_rule|pattern|macro|asset_memory`；`provider=stub` / 远期 `llm_14b`；`status=draft|pending_llm|reviewed`；可挂 `source_cu_id` 与 `source_message_ids_json`。  
+**门禁**：stub 单测绿即可合入脚手架；14B 批量须离线窗口 + `lms-guard`，样本 ≤2k。
+
 ---
 
 ## 6. 评审与待办标记
 
 - 账本对应：[`03-requirements.md`](./03-requirements.md) **`REQ-037` = `accepted`（分期门禁）**。  
 - 评审结论：[`07-review-inbox.md`](./07-review-inbox.md) · 2026-09-15 · `agent:cursor`。  
-- **可实施**：Phase 1 Done；Phase 2 骨架+合成黄金门禁+embed_drift 已开；真人标注与全量跑批仍可选/未开。Phase 3 须另开。  
+- **可实施**：Phase 1–2 Done；Phase 3 stub 脚手架已开（关键词，未接 14B）；真人 CU 标注与全量跑批可选/未开。  
 - **冻结**：Phase 4 企微推送在业务通道 CHG + `wecom-freeze` 更新前不得开工（`REJ-008`）。  
 - Human 开放题：[`04`](./04-leftovers-problems.md) **Q-006**（本地 VL vs 云端；**不影响 P2**）。
