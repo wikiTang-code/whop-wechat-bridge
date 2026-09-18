@@ -1,4 +1,4 @@
-﻿/**
+/**
  * tools/knowledge/ontology_query_engine.js
  * REQ-037 Layer 4: 交易体系策略本体知识图谱智能检索与匹配引擎
  * 
@@ -42,6 +42,7 @@ function countKeywordHits(text, keywords) {
  * @param {string} [params.ticker] 目标标的代码 (如 QQQ, NVDA, TSLA)
  * @param {string} [params.text] 盘中事件或查询文本 (如 "跌破支撑位考虑止损")
  * @param {string} [params.cardType] 指定卡片类型 (risk_rule | pattern | macro | asset_memory)
+ * @param {number} [params.minConfidence=0.0] 最小置信度过滤阈值 (0.0 ~ 1.0)
  * @param {number} [params.limit=5] 返回前 N 条结果
  * @param {object} [params.dbInstance] 可选的数据库连接
  * @returns {Array<object>} 排序后的策略卡片列表 (含 score 与 match_reason)
@@ -51,6 +52,7 @@ export function queryKnowledgeCards(params = {}) {
     ticker = '',
     text = '',
     cardType = null,
+    minConfidence = 0.0,
     limit = 5,
     dbInstance = null
   } = params;
@@ -78,7 +80,7 @@ export function queryKnowledgeCards(params = {}) {
     sqlParams.push(tickerPattern, tickerPattern, tickerPattern);
   }
 
-  sql += ` ORDER BY updated_at DESC LIMIT 100`;
+  sql += ` ORDER BY updated_at DESC LIMIT 150`;
 
   const candidates = db.prepare(sql).all(...sqlParams);
 
@@ -98,6 +100,11 @@ export function queryKnowledgeCards(params = {}) {
     try {
       schema = JSON.parse(c.schema_json || '{}');
     } catch (_) {}
+
+    const confidence = Number(schema.confidence) || 0.85;
+    if (confidence < minConfidence) {
+      continue;
+    }
 
     // 维度 1: 标的匹配评分 (最高 40 分)
     if (cleanTicker) {
@@ -135,7 +142,6 @@ export function queryKnowledgeCards(params = {}) {
     }
 
     // 维度 3: 规则质量与置信度权重 (最高 15 分)
-    const confidence = Number(schema.confidence) || 0.85;
     const confScore = Math.round(confidence * 15);
     score += confScore;
     matchReasons.push(`置信度权重 ${(confidence * 100).toFixed(0)}% (+${confScore})`);
@@ -170,9 +176,61 @@ export function queryKnowledgeCards(params = {}) {
 const isDirectCli = process.argv[1] && process.argv[1].replace(/\\/g, '/').endsWith('tools/knowledge/ontology_query_engine.js');
 if (isDirectCli) {
   const args = process.argv.slice(2);
-  const ticker = args[0] || 'QQQ';
-  const text = args[1] || '突破回踩加仓';
-  console.log(`\n🔍 检索测试: Ticker="${ticker}", Text="${text}"`);
-  const results = queryKnowledgeCards({ ticker, text, limit: 3 });
-  console.log(JSON.stringify(results, null, 2));
+  let ticker = '';
+  let text = '';
+  let cardType = null;
+  let limit = 3;
+  let minConfidence = 0.0;
+  let jsonOutput = false;
+
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '--ticker' || a === '-t') {
+      ticker = args[++i];
+    } else if (a === '--query' || a === '-q') {
+      text = args[++i];
+    } else if (a === '--type') {
+      cardType = args[++i];
+    } else if (a === '--limit' || a === '-l') {
+      limit = parseInt(args[++i], 10) || 3;
+    } else if (a === '--min-conf') {
+      minConfidence = parseFloat(args[++i]) || 0.0;
+    } else if (a === '--json') {
+      jsonOutput = true;
+    } else if (!a.startsWith('-')) {
+      if (!ticker) ticker = a;
+      else if (!text) text = a;
+    }
+  }
+
+  if (!ticker && !text) {
+    ticker = 'QQQ';
+    text = '突破回踩加仓';
+  }
+
+  console.log('===========================================================');
+  console.log(`🔍 策略本体检索查询: Ticker="${ticker || '(全部)'}", Query="${text || '(无)'}", Type="${cardType || '(全类型)'}"`);
+  console.log('===========================================================');
+
+  const results = queryKnowledgeCards({ ticker, text, cardType, limit, minConfidence });
+
+  if (jsonOutput) {
+    console.log(JSON.stringify(results, null, 2));
+  } else {
+    if (results.length === 0) {
+      console.log('未找到符合条件的策略卡片。');
+    } else {
+      results.forEach((r, idx) => {
+        const c = r.card;
+        const icon = c.card_type === 'risk_rule' ? '🛡️' : c.card_type === 'pattern' ? '📈' : c.card_type === 'macro' ? '🌐' : '🎯';
+        console.log(`\n#${idx + 1} [匹配度: ${r.score}分] ${icon} 【${c.title}】 (${c.card_type})`);
+        console.log(`   - 关联标的: [${(c.tickers || []).join(', ') || '通用'}]`);
+        console.log(`   - 触发条件: ${c.trigger_text}`);
+        console.log(`   - 应对战术: ${c.action_text}`);
+        console.log(`   - 底层因果: ${c.theory_text}`);
+        console.log(`   - 匹配理由: ${r.match_reasons.join(' | ')}`);
+      });
+      console.log('\n===========================================================');
+    }
+  }
 }

@@ -166,7 +166,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：10m tick#1 — 抽审 `e9fc925` Done；纠 03「P4 闭环」误述；§0.A 空。
-- gemini：**REQ-033** Standing（#90）；037 全库蒸馏已出队。
+- cursor：10m tick#2 — 文档树对齐（zhao 方案 P3 全库/Layer4）；§0.A 空；无新互斥代码热点。
+- gemini：**REQ-033** Standing（#90）；`a82d628` game/work bat 路径兼容（低风险，未单开审修）。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002；Q-001；Q-006；企微 #90；Q-007 Done。
