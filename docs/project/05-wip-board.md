@@ -20,7 +20,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #85；卡片接入有效 Tunnel+局域网双通道，根治重启时序导致旧穿透失效报 ERR_CONNECTION_CLOSED 问题，队头已进至 #86 LITE，进度 10.2%） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` | **Doing** |
+| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #89；底层增加「成本附近平出」槽位与批次出清语义，校准 #89 TSLL 平出 15.05 批次 221 股并级联重算，队头已进至 #90 CONL，进度 10.7%） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` · `price_extractor.js` | **Doing** |
 | 2 | **REQ-037 P3-distill** | L3 | 策略本体四大卡片离线蒸馏引擎（`ontology-card-distill.js` + Prompt模板 + 单测全绿） | `tools/knowledge/` · `data/prompts/` | **Done** |
 
 ### 0.C 队列 `agent:gemini1`
