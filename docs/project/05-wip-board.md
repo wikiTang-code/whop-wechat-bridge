@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；037 P3-llm 抽样通路 Done；全量蒸馏未开） | — | — |
+| **1** | — | — | （空；CHG-018 审阅 Done） | — | — |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.B 队列 `agent:gemini`
@@ -21,7 +21,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（已核验至 #89；底层增加「成本附近平出」槽位与批次出清语义，校准 #89 TSLL 平出 15.05 批次 221 股并级联重算，队头已进至 #90 CONL，进度 10.7%） | `server.js` · `follow-hitl.js` · `follow-replay-engine.js` · `price_extractor.js` | **Doing** |
-| 2 | **CHG-018** | L2/L3 | 统一 WSL2 AI 运行时方案（无头 llama-server 替代 LM Studio，时分轮转解耦，方案已出移交审阅） | `docs/project/wsl-unified-ai-runtime-plan.md` | **Review** |
+| 2 | **CHG-018** | L2/L3 | 统一 WSL2 AI 运行时（accepted·门禁后可实施；关 LMS 建议 human） | `wsl-unified-ai-runtime-plan.md` · `lms-guard` Adapter | **Accepted** |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -37,6 +37,7 @@
 | REQ-002 | 生产 ff | 等待 |
 | Q-001 | GEX→GCP 通道 | interim=SCP（可再改） |
 | Q-006 | REQ-037 视觉模型：本地 VL vs 云端 | open（倾向本地） |
+| Q-007 | CHG-018：门禁达标后是否关闭 Windows LM Studio 切流？ | 等待（建议 human 在场） |
 
 ### 0.R
 
@@ -48,11 +49,13 @@
 | §0.R-A cursor | REQ-035 机会抽审（`dffa097`） | **Done** |
 | §0.R-A cursor | REQ-033 推送通道波次抽审（`ed411ab`…`7919849`） | **Done** |
 | §0.R-B gemini | REQ-037 P2+P3 知识图谱专题包（`bc5b0d6`…`170af17`） | **Done** |
-| §0.R-A cursor | **CHG-018 统一 WSL2 AI 运行时方案审阅** | **Queued** |
+| §0.R-A cursor | **CHG-018 统一 WSL2 AI 运行时方案审阅** | **Done** |
 
 ### 共享候选池
 
-1. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 `lms-guard`；禁 Phase 4）· 真人 CU 标注强化（可选）
+1. `CHG-018` 实施（Runtime Adapter → ROCm smoke → Arbiter；**关 LMS 须 Q-007**）
+2. `REQ-037` Phase 3 全量/大批次离线蒸馏（须 `lms-guard`/Arbiter 互斥；禁 Phase 4）· 真人 CU 标注强化（可选）
+3. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · 035 · CHG-009 · CHG-015 · CHG-016 · CHG-017 · 037-P2-* · 037-P3-* · CHG-018-review
 2. （已出队）003 · 004 · 005 · 006 · 008 · 021 · 022 · 027～032 · 034 · 035 · CHG-009 · CHG-015 · CHG-016 · CHG-017 · 037-P2-* · 037-P3-stub · 037-P3-llm-sample
 
 ## 1. 主看板
@@ -160,8 +163,8 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**REQ-037 P3-llm 抽样 Done**（stub 入库 + 14B deep 抽样写卡）；§0.A 空；全量蒸馏待开。
-- gemini：**REQ-033** Doing（§0.B 约 #86 / 10.2%）；**REQ-036 Pipeline** Doing；**REQ-035** Done。
+- cursor：**CHG-018 审阅 Done**（accepted + 门禁清单）；§0.A 空。
+- gemini：**REQ-033** Doing（§0.B 为准）；**CHG-018** Accepted 待实施门禁。
 - gemini1：REQ-036 Standing。
-- Human：REQ-002；Q-001 interim=SCP；**Q-006**（VL；不影响 P2）。
-- §0.R：机会抽审已记；正式 ≥5 阈值未满。
+- Human：REQ-002；Q-001；Q-006；**Q-007**（关 LMS 切流）。
+- §0.R-A：CHG-018 **Done**。

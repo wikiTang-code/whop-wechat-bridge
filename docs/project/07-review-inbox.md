@@ -8,12 +8,37 @@
 
 ## 1. 待消化审阅
 
-### 2026-09-19 · CHG-018 统一 WSL2 AI 运行时方案审阅（待 `agent:cursor` 审阅 · §0.R-A）
+### 2026-09-19 · CHG-018 统一 WSL2 AI 运行时方案审阅（`agent:cursor` · §0.R-A · `PKG-WSL-AI-RUNTIME`）
 
-**范围**：[`wsl-unified-ai-runtime-plan.md`](./wsl-unified-ai-runtime-plan.md) · 对照 `gpu-rocm-lock` / `CHG-017` 双模型分流 / 7900XT 20G 显存预算 / 生产 C2 HITL  
-**目标**：消除 Windows 端 LM Studio 7G 物理 RAM 吞噬，通过轻量 WSL2 `llama.cpp` 原生 Server 实现 14B 推理与 1.5B 飞轮微调的时分秒级轮转（40s 纯 GPU 训练），对外统一映射 `:8080` 保持 API 零改动。  
-**审修状态**：`Reviewing`（等待 Cursor 签署评审意见）
+**范围**：[`wsl-unified-ai-runtime-plan.md`](./wsl-unified-ai-runtime-plan.md) · `CHG-018`  
+**对照**：`CHG-015`/`CHG-017`（`lms-guard` · 快/深车道）· `REQ-036` 飞轮 · 7900XT 20GB · 生产 C2 HITL / 企微窄面  
+**总评**：**方向正确，接受（`accepted`）但强门禁**。痛点（Windows LM Studio ~7GB WorkingSet、WSL PyTorch 显存不足静默回落到 Host RAM、单卡无法 14B+微调并发）成立；时分仲裁 + 保留 `:8080` OpenAI 兼容面是合理主路径。文稿尚不足以「零摩擦直接切流」——实施前必须锁死引擎选型并改造 `lms-guard` 抽象层。
 
+| 级别 | 结论 |
+|------|------|
+| **通过** | 收益叙事清晰：释放宿主机物理内存、统一 Linux 命名空间内轮转、业务端口契约 `:8080` 保持 |
+| **通过** | 红线对齐：不碰 GCP C2、不下单、不扩 `/ops`；飞轮里程碑推送须继续走既有业务 Webhook |
+| **通过** | 回滚思路（切回 Windows LM Studio）可作为兜底，但须写成**可执行 SOP**（先停 WSL 监听再启 LMS，避免端口双占） |
+| **高危→门禁** | **「`lms-guard` / 业务零改动」不成立**：现状 `tools/lms-guard.js` 硬依赖 Windows `lms ps/load/unload` CLI。迁到 WSL `llama-server` 后，**必须**增加 Runtime Adapter（或改写 guard）统一 `load/unload/ps`；否则 Arbiter 无法落地。实施切片应含 **Runtime Adapter + 单测** |
+| **高危→门禁** | **深车道空窗**：卸载 14B 期间（实测冷载常 **15–20s**，方案写的 1–2s 偏乐观）`:8080` deep/ontology 请求会失败。须定义：排队重试 / 503+退避 / 训练窗口禁 deep 批跑；**盘中快车道**（CHG-017 1.5B 抽取）在训练占用 GPU 时的行为必须写死（暂停 / CPU stub / 拒绝） |
+| **中危** | **方案 A/B 未锁定**：文中「A 或 B」会在实施期分叉。评审裁定默认 **方案 A（WSL llama-server ROCm）**；B 仅作 A 验收失败时的备选，须另开短 CHG |
+| **中危** | **ROCm gfx1100 @ WSL2 脆**：切流前验收门禁：`rocm-smi` 可见卡、14B GGUF 推理 smoke、微调 1.5B **确认张量在 GPU 而非 Host RAM**。失败则不得关 Windows LM Studio |
+| **中危** | **显存预算漏项**：Windows 桌面合成仍占 VRAM（方案自述 ~1.2G）。仲裁预算应按 **≤18GB 可用给模型** 核算，避免「刚好 20=20」贴脸 |
+| **中危** | **Arbiter 单飞**：飞轮微调、037 14B 蒸馏抽样、人工 deep 对话必须互斥；与既有 `lms-guard` 单飞锁合并，禁止双入口抢 GPU |
+| **低** | GGUF 权重应用 `/mnt/c/...` 挂载复用，禁止复制多份大文件进 VHD |
+| **低** | WSL 网络模式（mirrored vs NAT）影响 `127.0.0.1:8080` 映射，须在 runbook 固定一种并验收 |
+| **观察** | 企微「飞轮升级报告」不得借壳扩 `/ops`（`REJ-008`） |
+
+**建议处置（已写入 03）**：
+
+| 动作 | 说明 |
+|------|------|
+| `CHG-018` → `accepted` | 方案接受；**禁止**在门禁清单未完成前关闭 Windows LM Studio |
+| 锁定引擎 | **默认方案 A**（llama-server ROCm）；B 为失败备选 |
+| 实施前置 | Adapter 改造 `lms-guard`；空窗策略；ROCm smoke；回滚 SOP；显存预算表 |
+| Human | 最终「关掉 LM Studio 切流」建议 human 在场确认一次（非生产 C2，但是本机关键路径） |
+
+**审修状态**：**`Done`**（方案可接受；实施门禁见上）
 
 ### 2026-09-19 · REQ-037 P2+P3 知识图谱专题包交叉审阅（`agent:gemini` · 审修批次 · §0.R-B）
 

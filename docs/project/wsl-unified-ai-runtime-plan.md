@@ -3,7 +3,7 @@
 > **上级索引**：[`README.md`](./README.md) · 账本 [`03-requirements.md`](./03-requirements.md) (`CHG-018`) · 审阅 [`07-review-inbox.md`](./07-review-inbox.md)  
 > **提案方**：`agent:gemini`  
 > **审阅方**：`agent:cursor`（见 `05` §0.R-A 批次 `PKG-WSL-AI-RUNTIME`）  
-> **当前状态**：`proposed`（等待 Cursor 审阅与 Human 拍板）
+> **当前状态**：`accepted`（Cursor 审阅 Done · 2026-09-19；**实施前须过 §6 门禁**；关 Windows LM Studio 切流建议 human 在场）
 
 ---
 
@@ -32,8 +32,9 @@
   * **日常状态**：14B 独占 GPU 显存（~14GB），处理非交易和深度图谱抽取；
   * **飞轮触发**：自迭代飞轮需微调 1.5B 时，仲裁器通过 API 临时卸载 14B（耗时 1 秒），1.5B 独享显存跑 40 秒完成微调，完成后自动恢复 14B；
   * **杜绝双模型贴脸并发造成的内存溢出**。
-* **收益 3：100% 保持对外 API 契约不变**  
-  在 WSL2 内部启动 OpenAI 兼容端点，向宿主机映射端口 `http://127.0.0.1:8080/v1`，上层 Node.js 网桥业务（`ai-router-policy.js`、`tools/lms-guard.js`）零代码修改无缝对接。
+* **收益 3：对外 API 契约尽量不变**  
+  目标保持宿主机 `http://127.0.0.1:8080/v1` OpenAI 兼容面，使 `ai-router-policy.js` 等业务调用路径少改。  
+  **更正（Cursor 审阅）**：`tools/lms-guard.js` 当前绑定 Windows `lms` CLI，**不能**宣称「lms-guard 零改动」；须先落地 Runtime Adapter（见 §6）。
 
 ---
 
@@ -47,7 +48,7 @@
 | **方案 B** | **WSL2 Ollama (Linux ROCm 版)** | 命令行安装极其简单，自动管理内存与空闲释放 | 具有 `keep_alive` 参数（超时自动释放显存，有请求自动秒唤醒） | ⭐⭐⭐⭐ |
 | **方案 C** | **WSL2 vLLM (ROCm)** | 吞吐量极高，支持 PagedAttention | 对 7900XT 消费级卡支持较脆，且显存预分配过于霸道（默认占90%） | ⭐⭐ (不推荐) |
 
-👉 **结论**：采用 **方案 A（WSL2 原生 llama-server ROCm 构建）** 或 **方案 B（WSL2 Linux Ollama）**，直接加载现有 GGUF 权重，完全无缝平替。
+👉 **结论（Cursor 审阅锁定）**：默认采用 **方案 A（WSL2 原生 llama-server ROCm）**。方案 B 仅在 A 的 ROCm/稳定性验收失败时启用，并另开短 CHG。
 
 ### 3.2 显存仲裁调度器（GPU Arbiter 时分轮转机制）
 
@@ -101,11 +102,24 @@ sequenceDiagram
 
 ---
 
-## 5. 执行步骤（待 Cursor 审阅通过后实施）
+## 5. 执行步骤（审阅通过后 · 门禁达标才可关 LMS）
 
-1. **Step 1**：在 WSL2 内部部署轻量 `llama-server` 并配置 ROCm gfx1100 加速；
-2. **Step 2**：挂载现有的 `qwen2.5-14b-instruct.Q4_K_M.gguf` 模型文件；
-3. **Step 3**：验证 WSL2 映射宿主机端口 `127.0.0.1:8080` 的连通性与显存开销；
-4. **Step 4**：在 `flywheel_engine.js` 中集成一键排空与恢复时分钩子；
-5. **Step 5**：关闭 Windows LM Studio，实测验证 Windows 物理内存释放 7+ GB 与微调 40 秒全走 GPU 显存。
+1. **Step 0（门禁）**：完成 §6 Checklist；Runtime Adapter 单测绿；ROCm smoke 通过。  
+2. **Step 1**：WSL2 部署 `llama-server`（方案 A）并配置 ROCm gfx1100；  
+3. **Step 2**：`/mnt/c/...` 挂载复用现有 GGUF（禁止复制多份进 VHD）；  
+4. **Step 3**：验证宿主机 `127.0.0.1:8080` 连通、WorkingSet/VRAM 对比基线；  
+5. **Step 4**：Arbiter 钩入 `flywheel_engine.js` + 与 `lms-guard` 单飞锁合并；写清 deep/fast 空窗策略；  
+6. **Step 5（human 在场）**：停 Windows LM Studio，验收内存释放与微调张量在 GPU；失败立即按回滚 SOP 切回。
+
+## 6. 实施门禁 Checklist（Cursor 审阅强制）
+
+- [ ] **引擎锁定**：方案 A；失败才评估 B  
+- [ ] **Runtime Adapter**：抽象 `ps/load/unload`，替换对 Windows `lms` CLI 的硬依赖；单测覆盖  
+- [ ] **空窗策略**：14B unload/reload 实测耗时写入 runbook；deep 请求排队或明确失败；快车道在训练期行为写死  
+- [ ] **显存预算表**：预留 Windows 桌面 ~1–2GB；模型侧按 ≤18GB 规划  
+- [ ] **ROCm smoke**：`rocm-smi`、14B 推理、1.5B 微调显存落在 GPU（非 Host RAM）  
+- [ ] **回滚 SOP**：停 WSL `:8080` → 启 LM Studio → 健康检查；端口不得双占  
+- [ ] **互斥**：飞轮 / 037 deep 批跑 / 人工 deep 共用 Arbiter 单飞  
+- [ ] **企微**：里程碑推送不扩 `/ops`（`REJ-008`）  
+- [ ] **切流**：关闭 Windows LM Studio 须 human 在场确认一次  
 
