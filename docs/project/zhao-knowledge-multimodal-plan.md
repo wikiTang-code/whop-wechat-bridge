@@ -118,9 +118,41 @@ flowchart TD
   - 小样本扫描：`npm run knowledge:vision-sample`（`tools/knowledge/phase1_vision_meta_sample.js`）
   - 单测：`test/test_vision_meta_req037_phase1.js`
   - **未做**：真实本地/云端 VL（等 Q-006）
-- **Phase 2（语义会话聚类算法）**：实现基于话题漂移的 Dynamic CU 分割引擎，替换固定切片。
-- **Phase 3（策略本体卡片自动化抽取）**：利用本地 14B 模型批量跑通 8.6 万条历史消息的四大卡片沉淀。
+- **Phase 2（语义会话聚类）** 🔧 脚手架已开（**不依赖 Q-006**）：
+  - 表：`semantic_cu` + `semantic_cu_members`（见 §5.1）
+  - 切分：`tools/knowledge/semantic-cu-segment.js`（`heuristic_v1`：空闲间隔 + 主 ticker 切换 + 频道切换）
+  - CRUD：`saveSemanticCu` / `getSemanticCu` / `listSemanticCu`
+  - 单测：`test/test_semantic_cu_req037_phase2.js` · `npm run test:semantic-cu`
+  - **未做**：embedding 余弦漂移、黄金集边界评测、全量 8.6 万跑批
+- **Phase 3（策略本体卡片自动化抽取）**：利用本地 14B 模型批量跑通抽样历史消息的四大卡片沉淀（须 P2 验收后另开）。
 - **Phase 4（企微智能参谋卡盘中联动）**：冻结至业务通道 CHG + `wecom-freeze` 更新。
+
+### 5.1 Phase 2 数据模型与验收（设计冻结）
+
+**`semantic_cu`**
+
+| 列 | 含义 |
+|----|------|
+| `id` | CU 主键（启发式：`cu_{channel}_{start_ts}_{first_msg}`） |
+| `channel_id` | 频道 |
+| `topic_label` / `primary_ticker` | 话题标签 / 主标的 |
+| `start_ts` / `end_ts` / `msg_count` | 时间窗与条数 |
+| `method` | `heuristic_v1` → 远期 `embed_drift_v1` |
+| `status` | `draft` / `reviewed` / `rejected` |
+| `summary` / `meta_json` | 可选摘要与切分元数据 |
+
+**`semantic_cu_members`**：`(cu_id, message_id)` + `seq` + `role`（`utterance`/`question`）。
+
+**与现表关系**：成员 `message_id` → `messages.id`（逻辑外键，SQLite 不强制）；可与 `message_vision_meta` 同消息并存；**不写** `trade_signals` / 跟单账本。
+
+**验收（开全量前必过）**：
+
+1. 手工黄金集 ≥30 条边界（可复用 REQ-036 Golden 片段）：边界 F1 ≥0.7 或人工抽检同意率 ≥80%。  
+2. 样本跑批 ≤2k 条或 1 个交易周；主库增长对照 REQ-008。  
+3. 离线窗口；服从 `lms-guard`（本 Phase 不调 14B/VL）。  
+4. 单测绿：`test_semantic_cu_req037_phase2.js`。
+
+**非目标**：企微推送、NL `/ops`、全量蒸馏、替换盘中交易抽取。
 
 ---
 
@@ -128,6 +160,6 @@ flowchart TD
 
 - 账本对应：[`03-requirements.md`](./03-requirements.md) **`REQ-037` = `accepted`（分期门禁）**。  
 - 评审结论：[`07-review-inbox.md`](./07-review-inbox.md) · 2026-09-15 · `agent:cursor`。  
-- **可实施**：仅 Phase 1 MVP（小样本视觉元数据 + 落表）；Phase 2–3 须补表结构/验收指标后再开。  
+- **可实施**：Phase 1 Done；Phase 2 脚手架+规格已开（启发式切分）；全量/embedding/黄金集评测仍待。Phase 3 须 P2 验收后另开。  
 - **冻结**：Phase 4 企微推送在业务通道 CHG + `wecom-freeze` 更新前不得开工（`REJ-008`）。  
-- Human 开放题：[`04`](./04-leftovers-problems.md) **Q-006**（本地 VL vs 云端）。
+- Human 开放题：[`04`](./04-leftovers-problems.md) **Q-006**（本地 VL vs 云端；**不影响 P2**）。

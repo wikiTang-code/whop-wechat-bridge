@@ -71,8 +71,8 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **REQ-037 Phase 2**（语义会话单元 Semantic CU 核心表与切分引擎） | Todo |
-| **§0.B `agent:gemini`** | **REQ-033** 历史回放审批（§0.B 为准，约 #84+） | Doing |
+| **§0.A `agent:cursor`** | **REQ-037 Phase 2**（Semantic CU 表+切分骨架） | Doing |
+| **§0.B `agent:gemini`** | **REQ-033** 历史回放审批（§0.B 为准，约 #85 / 10.1%） | Doing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | REQ-002；Q-001 interim=SCP；**Q-006** | 等待 |
 | **§0.R-A** | REQ-037 方案评审 | Done |

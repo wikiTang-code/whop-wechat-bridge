@@ -57,7 +57,7 @@
 | REQ-034 | P2 | L6 | `done` | **Localhost Ops 端口 `:18789` CSRF/Origin 与 DNS Rebinding 阻断** | Owner=`agent:cursor` · `http-guard.js` · `test_http_guard_req034.js` |
 | REQ-035 | P1 | L1 | `done` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后幂等写入一条 `source=manual_correct` 的 signal） | 2026-09-18 `agent:gemini` · `follow-replay-engine.js` · `database.js` · `test_replay_signal_sync_req035.js` |
 | REQ-036 | P1 | L3 | `active` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（长期常驻主线：V1闭环已就绪，随企微人工纠错 Golden 增量持续自动化滚动微调与热更新） | 常驻维护 · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` |
-| REQ-037 | P2 | L3 | `in_progress` | **大V全频道多模态图文对齐与交易知识本体图谱**（分期；**P1 Done**；**P2 Doing**：`semantic_cu` 表+验收规格+脚手架；P3 未开；P4 冻结） | 队列 0.A · Owner=`agent:cursor`；VL 等 Q-006；禁碰 replay |
+| REQ-037 | P2 | L3 | `in_progress` | **大V全频道多模态图文对齐与交易知识本体图谱**（P1 Done；**P2 脚手架落地**：`semantic_cu`+heuristic 切分+单测；待黄金集评测；P3 未开；P4 冻结） | 队列 0.A · Owner=`agent:cursor`；`test_semantic_cu_req037_phase2.js`；Q-006 不影响 P2 |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |

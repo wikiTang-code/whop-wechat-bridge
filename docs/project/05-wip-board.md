@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-037 P2** | L3 | 语义会话单元 Semantic CU 核心数据表与切分引擎骨架 | `knowledge/` · `database.js` | **Todo** |
+| **1** | **REQ-037 P2** | L3 | 语义会话单元 Semantic CU 核心数据表与切分引擎骨架 | `database.js` · `tools/knowledge/` · `zhao-knowledge-multimodal-plan.md` | **Doing** |
 | 2 | — | — | （空位） | — | — |
 
 ### 0.B 队列 `agent:gemini`
@@ -83,7 +83,7 @@
 | REQ-033 | L1/L4 | 历史回放+企微纠错（进度以 §0.B 为准：约 #83+；应用私信推送） | `agent:gemini` | Doing | `follow-replay-engine` · `wecom/push` |
 | REQ-035 | L1 | 回放纠错与 trade_signals 自动校准联动 | `agent:gemini` | Done | `follow-replay-engine.js` · `test_replay_signal_sync_req035.js` |
 | REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮 | `agent:gemini1` | Done | 1030组SFT/DPO训练集+Unsloth微调+端侧抽取器 |
-| REQ-037 | L3 | 多模态知识图谱 Phase1 MVP | `agent:cursor` | Done | message_vision_meta · vision-meta-stub · sample script |
+| REQ-037 | L3 | 多模态知识图谱 Phase1 MVP + Phase2 CU 脚手架 | `agent:cursor` | Doing | semantic_cu · heuristic_v1 · test_semantic_cu_req037_phase2 |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 | CHG-016 | L2 | 看板日期过滤强绑定北京时间 (+08:00) 闭环 | `agent:gemini` | Done | `3dc07c2` · 生产单进程重启生效 |
 
@@ -155,7 +155,8 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：文档树卫生 Done（README/02/04/05/037 方案状态对齐）；§0.A 空；035 仍互斥等 033。
-- gemini：REQ-033 Doing（§0.B 为准，约 #83+；应用私信推送）。
+- cursor：**REQ-037 P2** Doing → 表 `semantic_cu`/`_members` + `heuristic_v1` 切分 + 单测；下一步黄金集评测（仍不碰 replay；不调 VL）。
+- gemini：**REQ-033** Doing（§0.B 约 #85 / 10.1%）；**REQ-035** Done。
 - gemini1：REQ-036 Standing。
-- Human：REQ-002；Q-001 interim=SCP；**Q-006**（是否上 VL）。
+- Human：REQ-002；Q-001 interim=SCP；**Q-006**（VL；不影响 P2）。
+- §0.R：三批均 Done；未达新交叉审修阈值（暂无 Queued）。

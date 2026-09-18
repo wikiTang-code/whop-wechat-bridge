@@ -47,6 +47,40 @@ export function ensureMessageVisionMetaTable(conn) {
   try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_vision_meta_ticker ON message_vision_meta (ticker)').run(); } catch (_) {}
 }
 
+/** REQ-037 Phase 2: semantic conversation units (Dynamic CU). */
+export function ensureSemanticCuTables(conn) {
+  if (!conn) throw new Error('ensureSemanticCuTables requires db connection');
+  conn.prepare(`
+    CREATE TABLE IF NOT EXISTS semantic_cu (
+      id TEXT PRIMARY KEY,
+      channel_id TEXT,
+      topic_label TEXT,
+      primary_ticker TEXT,
+      start_ts INTEGER NOT NULL,
+      end_ts INTEGER NOT NULL,
+      msg_count INTEGER NOT NULL DEFAULT 0,
+      method TEXT NOT NULL DEFAULT 'heuristic_v1',
+      status TEXT NOT NULL DEFAULT 'draft',
+      summary TEXT,
+      meta_json TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `).run();
+  conn.prepare(`
+    CREATE TABLE IF NOT EXISTS semantic_cu_members (
+      cu_id TEXT NOT NULL,
+      message_id TEXT NOT NULL,
+      seq INTEGER NOT NULL DEFAULT 0,
+      role TEXT NOT NULL DEFAULT 'utterance',
+      PRIMARY KEY (cu_id, message_id)
+    )
+  `).run();
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_semantic_cu_channel_ts ON semantic_cu (channel_id, start_ts)').run(); } catch (_) {}
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_semantic_cu_status ON semantic_cu (status)').run(); } catch (_) {}
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_semantic_cu_members_msg ON semantic_cu_members (message_id)').run(); } catch (_) {}
+}
+
 // 权威频道登记册加载器 (全系统唯一频道来源)
 let channelRegistryMap = null;
 function getChannelRegistryMap() {
@@ -157,6 +191,7 @@ export function initDb() {
     try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_created ON trade_signals (created_at DESC)`).run(); } catch (_) {}
     try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_ticker ON trade_signals (ticker)`).run(); } catch (_) {}
     ensureMessageVisionMetaTable(db);
+    ensureSemanticCuTables(db);
     console.log('[initDb] Database already initialized and ready (0ms).');
     return;
   }
@@ -361,6 +396,7 @@ export function initDb() {
   try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_created ON trade_signals (created_at DESC)`).run(); } catch (_) {}
   try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_ticker ON trade_signals (ticker)`).run(); } catch (_) {}
   ensureMessageVisionMetaTable(db);
+  ensureSemanticCuTables(db);
 
   // 初始化虚拟资金 (如账户不存在，默认存入 100,000 美元沙盒资金)
   const cashCheck = db.prepare('SELECT value FROM portfolio WHERE key = ?').get('cash');
@@ -1364,6 +1400,104 @@ export function listMessagesNeedingVisionMeta({ limit = 50, dbInstance = null } 
     ORDER BY m.created_at DESC
     LIMIT ?
   `).all(limit);
+}
+
+/**
+ * REQ-037 Phase 2 — upsert one semantic CU + replace membership (transactional).
+ */
+export function saveSemanticCu(cu, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  ensureSemanticCuTables(conn);
+  const id = String(cu.id || '').trim() || `cu_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const now = cu.updated_at || Date.now();
+  const members = Array.isArray(cu.members) ? cu.members : [];
+  const startTs = Number(cu.start_ts) || 0;
+  const endTs = Number(cu.end_ts) || startTs;
+  const tx = conn.transaction(() => {
+    conn.prepare(`
+      INSERT INTO semantic_cu (
+        id, channel_id, topic_label, primary_ticker, start_ts, end_ts, msg_count,
+        method, status, summary, meta_json, created_at, updated_at
+      ) VALUES (
+        @id, @channel_id, @topic_label, @primary_ticker, @start_ts, @end_ts, @msg_count,
+        @method, @status, @summary, @meta_json, @created_at, @updated_at
+      )
+      ON CONFLICT(id) DO UPDATE SET
+        channel_id = excluded.channel_id,
+        topic_label = excluded.topic_label,
+        primary_ticker = excluded.primary_ticker,
+        start_ts = excluded.start_ts,
+        end_ts = excluded.end_ts,
+        msg_count = excluded.msg_count,
+        method = excluded.method,
+        status = excluded.status,
+        summary = excluded.summary,
+        meta_json = excluded.meta_json,
+        updated_at = excluded.updated_at
+    `).run({
+      id,
+      channel_id: cu.channel_id || null,
+      topic_label: cu.topic_label || null,
+      primary_ticker: cu.primary_ticker || null,
+      start_ts: startTs,
+      end_ts: endTs,
+      msg_count: members.length || Number(cu.msg_count) || 0,
+      method: cu.method || 'heuristic_v1',
+      status: cu.status || 'draft',
+      summary: cu.summary || null,
+      meta_json: cu.meta_json != null
+        ? (typeof cu.meta_json === 'string' ? cu.meta_json : JSON.stringify(cu.meta_json))
+        : null,
+      created_at: cu.created_at || now,
+      updated_at: now,
+    });
+    conn.prepare('DELETE FROM semantic_cu_members WHERE cu_id = ?').run(id);
+    const insertMember = conn.prepare(`
+      INSERT INTO semantic_cu_members (cu_id, message_id, seq, role)
+      VALUES (@cu_id, @message_id, @seq, @role)
+    `);
+    members.forEach((m, i) => {
+      const messageId = typeof m === 'string' ? m : m.message_id;
+      if (!messageId) return;
+      insertMember.run({
+        cu_id: id,
+        message_id: String(messageId),
+        seq: Number.isFinite(m?.seq) ? m.seq : i,
+        role: (typeof m === 'object' && m.role) || 'utterance',
+      });
+    });
+  });
+  tx();
+  return id;
+}
+
+export function getSemanticCu(cuId, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  ensureSemanticCuTables(conn);
+  const row = conn.prepare('SELECT * FROM semantic_cu WHERE id = ?').get(cuId);
+  if (!row) return null;
+  const members = conn.prepare(`
+    SELECT message_id, seq, role FROM semantic_cu_members
+    WHERE cu_id = ? ORDER BY seq ASC
+  `).all(cuId);
+  return { ...row, members };
+}
+
+export function listSemanticCu({ channelId = null, status = null, limit = 50, offset = 0, dbInstance = null } = {}) {
+  limit = Math.max(1, Math.min(500, parseInt(limit, 10) || 50));
+  offset = Math.max(0, parseInt(offset, 10) || 0);
+  const conn = dbInstance || getDb();
+  ensureSemanticCuTables(conn);
+  const where = [];
+  const params = [];
+  if (channelId) { where.push('channel_id = ?'); params.push(channelId); }
+  if (status) { where.push('status = ?'); params.push(status); }
+  const clause = where.length ? `WHERE ${where.join(' AND ')}` : '';
+  const rows = conn.prepare(`
+    SELECT * FROM semantic_cu ${clause} ORDER BY start_ts DESC LIMIT ? OFFSET ?
+  `).all(...params, limit, offset);
+  const total = conn.prepare(`SELECT COUNT(*) as c FROM semantic_cu ${clause}`).get(...params)?.c || 0;
+  return { rows, total };
 }
 
 // Sector mapping (module level)
