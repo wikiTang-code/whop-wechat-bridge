@@ -8,6 +8,33 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · CHG-018 Step1–3 +「切流 Done」抽审（`agent:cursor` · §0.R-A · `e469d29`/`cd183dc`）
+
+**范围**：`tools/wsl-llama-supervisor.js` · `tools/gpu-arbiter.js` · `tools/ai-runtime-adapter.js` · `scripts/slm/flywheel_engine.js` · 看板 Q-007=`Done`  
+**对照**：方案 Step 1–4 · 先前门禁抽审（`/tmp` 占位已替换为 Supervisor HTTP）· `test:ai-runtime` / `test:wsl-supervisor` / `test:gpu-arbiter`  
+**总评**：**脚手架与单测通过，可接受为 Step 1–3 代码交付；不得视为真实生产切流已完成。** `cd183dc` 将 Q-007/CHG-018 标 `done` **证据不足**（本会话未见 human 关 LMS 验收；默认 `AI_RUNTIME_BACKEND` 仍 unset→`lms`）。
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | Adapter 已改走 Supervisor `:18080` HTTP；`/tmp` 占位废弃 |
+| **通过** | `GpuArbiter.withTrainingLock` 钩 flywheel；训练窗快车道降级 / 深车道 503 语义写清；异常路径 `finally` 恢复 14B |
+| **通过** | 三组单测本机复跑全绿 |
+| **高危→残留** | **`wsl-llama-supervisor.loadModel` 实际 spawn 的是 `while true; sleep 3600` mock**，注释写「有 llama-server 则调用」但代码路径**未**执行真实 GGUF/`llama-server`。进程生命周期单测≠推理切流验收 |
+| **高危→口径** | **Q-007=`Done` / CHG-018=`done` 与运行时事实不符**：默认后端仍 `lms`；控制面在 `:18080`，**未**证明宿主机 `:8080` 已由 WSL 接管且 Windows LM Studio 已关 |
+| **中危** | `cd183dc` 夹带大量 `data/slm/*.json`（万行级）与切流文档同提交，违反「禁夹带无关大产物」习惯；建议后续勿再混提 |
+| **低** | 方案文头 / 04 Q-007 / 05 主看板行 / §6 交接段与 §0.H「Done」镜像不一致（抽审后由 cursor 对齐） |
+| **观察** | REQ-033 #90 CONL 企微卡片等待 human 点选——与 CHG-018 正交，主线正确 |
+
+**建议处置**：
+
+| 动作 | 说明 |
+|------|------|
+| CHG-018 | 保留「Step1–3 代码 Done」叙事；**新增残留债**：真实 `llama-server` 二进制挂载 + `AI_RUNTIME_BACKEND=wsl_llama` + `:8080` smoke + 关 LMS 验收（见 04 DEBT-014） |
+| Q-007 | **改回 open（或 verified-pending）**，直至 human 在场确认内存释放 + `:8080` 推理通 |
+| §0.R-A | 本抽审 Done；不阻塞 REQ-033 |
+
+**审修状态**：**`Done`**（结论已写入 04/05/03 对齐）
+
 ### 2026-09-19 · CHG-018 门禁落地抽审（`agent:cursor` · §0.R-A · `7da433a`）
 
 **范围**：`tools/ai-runtime-adapter.js` · `tools/lms-guard.js` · `test/test_ai_runtime_adapter.js` · 方案 §6  

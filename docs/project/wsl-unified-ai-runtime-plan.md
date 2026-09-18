@@ -3,7 +3,7 @@
 > **上级索引**：[`README.md`](./README.md) · 账本 [`03-requirements.md`](./03-requirements.md) (`CHG-018`) · 审阅 [`07-review-inbox.md`](./07-review-inbox.md)  
 > **提案方**：`agent:gemini`  
 > **审阅方**：`agent:cursor`（见 `05` §0.R-A 批次 `PKG-WSL-AI-RUNTIME`）  
-> **当前状态**：`accepted` · **§6 门禁已达标**（`7da433a` Adapter + ROCm smoke + SOP）；**待 Step 1–4 / Q-007**（关 LMS 切流须 human 在场）
+> **当前状态**：Step 1–3 **代码交付 Done**（Supervisor+Arbiter+单测）；**真实切流未闭环**（DEBT-014 · Q-007 reopened；supervisor 现为 sleep-mock）
 
 ---
 
@@ -167,5 +167,5 @@ node test/test_ai_runtime_adapter.js
 - [x] **ROCm smoke**：验证 WSL2 PyTorch ROCm 识别 7900 XT，成功在 `cuda:0` 物理显存分配张量
 - [x] **回滚 SOP**：严格定义「停 WSL :8080 → 启 LM Studio → 校验连通」流程，杜绝端口冲突
 - [x] **互斥**：飞轮 / 037 蒸馏 / 人工 deep 共用 Arbiter 单飞锁
-- [x] **WSL 部署与切流（Q-007）**：全部前置就绪；Human 正式核准并放行，顺利闭环完成切流
+- [ ] **WSL 真实切流（Q-007 / DEBT-014）**：须挂真实 `llama-server`（非 sleep-mock）+ `AI_RUNTIME_BACKEND=wsl_llama` + `:8080` 推理 smoke + human 关 LMS 验收
 

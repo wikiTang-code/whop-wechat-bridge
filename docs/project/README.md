@@ -27,7 +27,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
 ├── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
 ├── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2/P3 Done）
-└── wsl-unified-ai-runtime-plan.md     ← CHG-018 统一 WSL2 AI 运行时（门禁达标·待 Q-007 切流）
+└── wsl-unified-ai-runtime-plan.md     ← CHG-018（Step1–3 脚手架 Done · 真实切流 DEBT-014）
 
 专题权威方案（不重复当总进度，只被引用）：
 docs/local-ops-mcp-skill-plan.md       ← Local-Ops / 企微 / MCP
@@ -73,11 +73,11 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | （空 · CHG-018 抽审 + 037 CU 工具 Done） | — |
+| **§0.A `agent:cursor`** | （空 · CHG-018 切流抽审 Done → DEBT-014） | — |
 | **§0.B `agent:gemini`** | **REQ-033** 历史大V单回放与企微纠错（#90 CONL） | Doing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
-| **§0.H `human`** | REQ-002；Q-001；Q-006；**Q-007** 切流已核准闭环 | 等待 / Done |
-| **§0.R-A** | CHG-018 方案审阅 + `7da433a` 门禁抽审 | Done |
+| **§0.H `human`** | REQ-002；Q-001；Q-006；**Q-007 reopened**；企微 #90 | 等待 |
+| **§0.R-A** | CHG-018 Step1–3/切流口径抽审 | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 

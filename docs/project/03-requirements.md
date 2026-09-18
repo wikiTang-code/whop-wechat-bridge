@@ -79,7 +79,7 @@
 | CHG-015 | `done` | **LM Studio 显存守卫与绝对防重复加载机制**：`tools/lms-guard.js` 强幂等装载+自动排重巡检+显存预算核算+npm脚本；杜绝 `:2` 冗余副本挤爆显存 | 2026-09-15 `agent:gemini1` |
 | CHG-016 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：`database.js` 统一 `parseDateFilterToMs`，解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载 `whop-web-dashboard` 生效 | 2026-09-15 `agent:gemini` · `database.js` · `test_date_filter_timezone.js` |
 | CHG-017 | `done` | **方案 A 双模型分流与动态生命周期调度架构**：快车道 1.5B 永久常驻零冷启动摩擦；深车道 14B 采用 3600s 迟滞保活防频繁换入换出摩擦 + JIT 懒加载唤醒 (`ensureModelReady`)；全仓模型配置、文档、LM_STUDIO_OPTIMIZATION 及 Local-Ops 白名单同步对齐 | 2026-09-15 `agent:gemini1` · `tools/lms-guard.js` · `ai-router-policy.js` · `LM_STUDIO_OPTIMIZATION.md` |
-| CHG-018 | `done` | **统一 WSL2 AI 运行时架构升级**：消灭 Windows LM Studio 7G 物理内存常驻，WSL 内 14B↔1.5B 飞轮时分复用；保留 `:8080`；Step 1–3 受管守护与 Arbiter 闭环，门禁全绿，Q-007 获得 Human 批准切流完成 | 2026-09-19 提案 `agent:gemini` · 审阅/抽审 `agent:cursor` · `wsl-unified-ai-runtime-plan.md` |
+| CHG-018 | `done`（代码）/ **残留 DEBT-014** | **统一 WSL2 AI 运行时**：Step 1–3 Supervisor+Arbiter+单测绿已交付；**真实 llama-server 挂载与关 LMS 切流未验收**（见 04 DEBT-014 / Q-007 reopened） | 2026-09-19 `agent:gemini` 落地 · `agent:cursor` 抽审 |
 
 ---
 
