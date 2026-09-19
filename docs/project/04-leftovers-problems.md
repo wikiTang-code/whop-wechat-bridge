@@ -31,6 +31,7 @@
 | DEBT-001 | 生产 gcp-vm ff 对齐 | REQ-002 | **Done**（Human 2026-09-19 确认 pull + pm2 restart） |
 | DEBT-014 | **CHG-018/023 Supervisor+切流**：CPU `llama-server` + Win bridge 已满血可用；HIP 编译仍缺完整 ROCm | CHG-018/023 | **P3 残留**（HIP） |
 | DEBT-015 | **知识资产只在本机、未进生产库**（见 §2.2） | REQ-039 表级 promote **Done**（gcp `ontology_card=4032` / `message_vision_meta=73`，`messages=109159` 仅 ingest 增长） | **Done** |
+| DEBT-016 | **周哥「美股工具箱」量化资产与日内波段信号深度建模**（定位已确立为客观量化参考参谋；暂缓后补，当前全力把赵哥完整学会） | `config/channel_registry.json` · `tape_confluence_detector.js` | **P3 暂缓 (Backlog)** |
 
 ### 2.2 本机 vs git vs 生产（2026-09-19 Cursor 盘点）
 
