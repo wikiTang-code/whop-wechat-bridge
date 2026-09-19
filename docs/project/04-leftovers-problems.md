@@ -86,6 +86,7 @@
 | Q-005 | 跟单确认通道：企微业务卡片 vs Dashboard 移动页？ | human | **已决：企微业务确认卡片**（盘中 90s 时效；≠ `/ops`） |
 | Q-006 | REQ-037 视觉模型：本地 VL vs 云端多模态？ | human | **已决：云端轻量 VL 离线批**（不占本地 14B/OM 显存时分；字段白名单 `ticker/timeframe/levels/pattern_notes`；禁进 L2a actions；磁盘 files=441 / uniq_sha=421 / >15KB=432） |
 | Q-007 | CHG-018 门禁达标后是否关闭 Windows LM Studio 切到 WSL llama-server？ | human | **Done**（2026-09-19 Human 确认已关 LMS、切流试用无问题；cursor 本机见 `:8080/v1/models` 仍可列模型） |
+| Q-008 | REQ-038-T1 云端 VL 实跑：本机 `.env` 的 `GEMINI_API_KEY` 报 401 凭证无效 | human | **待配置**（门禁生效：实跑拦截并标记 `status='failed'`，单测走 Mock 绿；需填入有效 key 才能真实批跑 423 张真图） |
 
 ---
 
