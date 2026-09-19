@@ -28,6 +28,8 @@ const catalog = loadCatalog(path.join(opsDir, 'catalog.yaml'));
 assert(['P3', 'P4', 'P4.1', 'P5'].includes(catalog.phase), `phase P3+ (got ${catalog.phase})`);
 assert(catalog.capabilities.some((c) => c.id === 'gcp.pm2_restart'), 'pm2_restart registered');
 assert(catalog.capabilities.some((c) => c.id === 'gcp.deploy_align'), 'deploy_align registered');
+assert(catalog.capabilities.some((c) => c.id === 'knowledge.promote.apply'), 'knowledge.promote.apply registered');
+assert(PROD_C2_IDS.includes('knowledge.promote.apply'), 'promote apply is prod C2');
 assert(!catalog.capabilities.some((c) => c.id === 'gcp.cutover_dual'), 'no cutover');
 validateCatalog(parseCatalogYaml(fs.readFileSync(path.join(opsDir, 'catalog.yaml'), 'utf8')));
 
@@ -105,11 +107,18 @@ const ssh = createSshAdapter({
 const confirmPath = path.join(opsDir, 'state', '_test_confirm.json');
 try { fs.unlinkSync(confirmPath); } catch { /* ignore */ }
 const confirm = createConfirmStore({ persistPath: confirmPath });
+const knowledgeCalls = [];
+const knowledge = {
+  async invoke(id) {
+    knowledgeCalls.push(id);
+    return { mocked: id };
+  }
+};
 const gw = createGateway({
   rootDir,
   catalog,
   confirmStore: confirm,
-  adapters: { gex, lm, ssh, dash },
+  adapters: { gex, lm, ssh, dash, knowledge },
 });
 
 // Local C2 still token-only
@@ -159,6 +168,15 @@ assert(invalidName.denied && invalidName.code === 'bad_args', 'invalid pm2 name 
 
 const badShaEarly = await gw.invoke('gcp.deploy_align', { sha: 'origin/main' });
 assert(badShaEarly.code === 'bad_args', 'bad sha early reject');
+
+const needKp = await gw.invoke('knowledge.promote.apply', {});
+assert(needKp.code === 'human_confirm_required', 'promote apply needs human');
+const noKp = await gw.invoke('knowledge.promote.apply', { confirm_token: needKp.confirm_token });
+assert(noKp.denied && noKp.message === 'human_approve_required', 'promote blocked without human');
+gw.humanApprove(needKp.confirm_token);
+const kpOk = await gw.invoke('knowledge.promote.apply', { confirm_token: needKp.confirm_token });
+assert(kpOk.ok === true, 'promote apply after HITL');
+assert(knowledgeCalls.includes('knowledge.promote.apply'), 'knowledge adapter ran');
 
 for (const id of FORBIDDEN_IDS) {
   const r = await gw.invoke(id);

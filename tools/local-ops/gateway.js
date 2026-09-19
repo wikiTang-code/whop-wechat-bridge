@@ -10,6 +10,7 @@ import { createLmAdapter } from './adapters/lm.js';
 import { createSshAdapter } from './adapters/ssh.js';
 import { createDashAdapter } from './adapters/dash.js';
 import { createBrokerAdapter } from './adapters/broker.js';
+import { createKnowledgeAdapter } from './adapters/knowledge.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_ROOT = path.resolve(here, '../..');
@@ -91,6 +92,7 @@ export function createGateway(options = {}) {
         return lb.getTodayOrders();
       },
     }),
+    knowledge: options.knowledge || createKnowledgeAdapter({ rootDir, ...(options.knowledgeOpts || {}) }),
   };
 
   const byId = new Map(catalog.capabilities.map((c) => [c.id, c]));

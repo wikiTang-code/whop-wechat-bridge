@@ -172,3 +172,19 @@ capabilities:
     adapter: ssh
     recipe: gcp_deploy_align
     description: git reset --hard to 40-hex SHA on origin/main (no auto restart; HITL)
+  - id: knowledge.promote.plan
+    class: C0
+    where: local
+    adapter: knowledge
+    description: Dry-run knowledge table promote plan (no prod write)
+  - id: knowledge.promote.dump
+    class: C1
+    where: local
+    adapter: knowledge
+    description: Dump allowlist knowledge tables locally (no prod write)
+  - id: knowledge.promote.apply
+    class: C2
+    where: ssh
+    adapter: knowledge
+    recipe: knowledge_promote_apply
+    description: HITL table-level promote to gcp-vm (win-host dump+scp; never WeCom)

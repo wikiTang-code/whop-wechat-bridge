@@ -17,6 +17,7 @@ export const FORBIDDEN_IDS = Object.freeze([
 export const PROD_C2_IDS = Object.freeze([
   'gcp.pm2_restart',
   'gcp.deploy_align',
+  'knowledge.promote.apply',
 ]);
 
 export const LOCAL_C2_IDS = Object.freeze([

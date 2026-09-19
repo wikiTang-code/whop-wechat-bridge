@@ -51,7 +51,7 @@
 | `data/gex/latest.json` | 有 | 里程碑可提交 | 有（SCP） | 维持 REQ-024，禁盘中 commit |
 | REQ-038-T2 实跑 | candidates=15 / with_level=11 / yahoo_eligible=0（11 mixed） | 口径在 git | 知识表已 promote | 可打分集空因 mixed，不是 Yahoo |
 
-**T2 结论**：Yahoo 通。11 张有点位但方向 mixed 不打分；4 张无点位。等 T1 真 TSLA VL。catalog C2 见 **CHG-027 proposed**。
+**T2 结论**：Yahoo 通。11 张有点位但方向 mixed 不打分；4 张无点位。等 T1 真 TSLA VL。catalog C2 见 **CHG-027 Done**。
 
 合同见 [`environments.md`](./environments.md)。**自动流**（REQ-039）：知识表/媒体走 promote·rsync；禁止整库覆盖；禁止无门禁「同步 1995 张卡」。盘点：`npm run env:inventory`。
 

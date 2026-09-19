@@ -53,6 +53,8 @@ assert.strictEqual(gexRun.id, 'gex.collect');
 
 const restart = parseOpsCommand('/ops restart');
 assert.strictEqual(restart.kind, 'denied');
+const promote = parseOpsCommand('/ops promote');
+assert.strictEqual(promote.kind, 'denied');
 
 const ignore = parseOpsCommand('hello');
 assert.strictEqual(ignore.kind, 'ignore');

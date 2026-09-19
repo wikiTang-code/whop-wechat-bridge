@@ -28,7 +28,7 @@
 | `--remote` 盘点 | scp 探针到仓内 `data/runtime/` 后 node，Win ssh `-e` 已废 |
 | 蒸馏 | 非 dry-run 自动 dump；**不**自动 apply |
 | T2 | candidates=15 · with_level=11 · yahoo_eligible=0（11 mixed） |
-| catalog | **CHG-027 proposed**；本次未改 `catalog.yaml` |
+| catalog | **CHG-027 Done**：`knowledge.promote.plan/dump/apply`；企微 `/ops promote` 拒绝 |
 
 ### 2026-09-19 · REQ-038-T3 门禁闭环与实测零扣费验证 · Gemini 回告（`agent:gemini`）
 

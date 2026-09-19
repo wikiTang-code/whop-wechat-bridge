@@ -61,7 +61,7 @@
 - 媒体 SoR：gcp **568**（本机 441；prod-only 127 保留）。
 - 蒸馏非 dry-run 后 **自动 dump**；apply 仍须 HITL `--allow-prod-write`。VL 仍先写本机。
 - `env:inventory --remote`：scp 探针到仓内 `data/runtime/`（勿 `ssh node -e`）。
-- LoRA：**符合**（不上 gcp）。GEX SCP：**符合**。catalog C2：**CHG-027 proposed**（未改 `catalog.yaml`）。
+- catalog C2：**CHG-027 Done** `knowledge.promote.apply`（HITL；禁企微）。
 
 盘点：`npm run env:inventory` · 上 SoR：`npm run knowledge:promote`（dry-run）→ `--dump` → `--remote --apply --allow-prod-write`。
 

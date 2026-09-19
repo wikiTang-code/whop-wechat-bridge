@@ -36,7 +36,7 @@ export const WECOM_C1_IDS = new Set(['gex.collect']);
 
 const BLOCKED = new Set([
   'restart', 'deploy', 'load', 'unload',
-  'tunnel-start', 'tunnel-stop', 'open', 'skip', 'align',
+  'tunnel-start', 'tunnel-stop', 'open', 'skip', 'align', 'promote',
 ]);
 
 export function parseOpsCommand(text) {
