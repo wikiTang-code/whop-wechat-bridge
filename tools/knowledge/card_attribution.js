@@ -24,28 +24,26 @@ function parseJsonArr(raw) {
   }
 }
 
+function mentionBlob(card) {
+  return [card.title, card.trigger_text, card.action_text, card.theory_text, card.source_text]
+    .map((x) => String(x || ''))
+    .join('\n');
+}
+
 function blobOf(card) {
-  return [
-    card.title,
-    card.trigger_text,
-    card.action_text,
-    card.theory_text,
-    card.tickers_json,
-    card.schema_json,
-    card.source_text
-  ]
+  return [mentionBlob(card), card.tickers_json, card.schema_json]
     .map((x) => String(x || ''))
     .join('\n');
 }
 
 export function cardTickers(card) {
-  const fromJson = parseJsonArr(card.tickers_json).map((t) => String(t).toUpperCase());
-  const blob = blobOf(card).toUpperCase();
-  const found = new Set(fromJson.filter((t) => ATTR_TICKERS.includes(t)));
+  const blob = mentionBlob(card).toUpperCase();
+  const found = [];
   for (const t of ATTR_TICKERS) {
-    if (blob.includes(t)) found.add(t);
+    const re = new RegExp(`(^|[^A-Z0-9])${t}([^A-Z0-9]|$)`);
+    if (re.test(blob)) found.push(t);
   }
-  return [...found];
+  return found;
 }
 
 export function pricingTicker(tickers) {
@@ -198,7 +196,7 @@ export function evaluateCard(card, { messageCreatedAt, bars } = {}) {
   if (!ATTR_CARD_TYPES.has(String(card.card_type || ''))) {
     return { status: 'skipped_type', ticker };
   }
-  const level = extractExplicitLevel(blobOf(card), ticker);
+  const level = extractExplicitLevel(mentionBlob(card), ticker);
   if (level == null) return { status: 'skipped_no_level', ticker };
   const direction = inferDirection(card);
   if (!direction) return { status: 'skipped_no_direction', ticker, level };
@@ -207,6 +205,20 @@ export function evaluateCard(card, { messageCreatedAt, bars } = {}) {
   if (messageCreatedAt == null) return { status: 'skipped_no_t0', ticker, level, direction };
   const t0Date = etCalendarDate(messageCreatedAt);
   const scored = scoreCardAgainstBars({ direction, t0Date, bars });
+  if (scored.status === 'scored' && scored.entry_px) {
+    const ratio = level / scored.entry_px;
+    if (!(ratio >= 0.4 && ratio <= 2.5)) {
+      return {
+        ticker,
+        level,
+        direction,
+        t0_et: t0Date,
+        ...scored,
+        status: 'skipped_level_mismatch',
+        level_entry_ratio: ratio
+      };
+    }
+  }
   return { ticker, level, direction, t0_et: t0Date, ...scored };
 }
 

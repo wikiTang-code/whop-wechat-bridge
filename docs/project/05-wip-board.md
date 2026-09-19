@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | 点位子集：源消息正文抽价 + Yahoo；禁灌 1995 卡 | `card_attribution.js` · 禁 `batch_vision*` | **Doing** |
+| **1** | **REQ-038-T2** | L3 | 收紧标的/点位后门 with_level=0；等 VL 价位 | `card_attribution.js` · 禁 `batch_vision*` | **Doing** |
 | 2 | **REQ-039** | L0/L3 | 知识表 promote 白名单（DEBT-015）；禁整库覆盖 | `env_inventory.js` · 禁 wecom | Standing |
 | 3 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
@@ -135,8 +135,9 @@
 - [x] `card_attribution.js` + 单测（fixture，不打网）
 - [x] CLI `npm run knowledge:attr-tsla`（`--dry-run` / `--persist`；`card_attribution_cli.js`）
 - [x] 主库 Yahoo：gcp 知识表空 → `candidates=0`（与 Gemini 回告同根因）
-- [x] 本机点位子集：222 候选 → 源消息抽价后 **with_level=18** / `skipped_no_level=109` / `unscored_mixed=95`；Yahoo **n_scored=18 hit_rate_5d≈0.56**（小样本；存在 NVDL 卡误打 TSLL / 价位错位，不能当生产结论）
-- [ ] 生产实跑：须 `REQ-039` 表级 promote，**拒绝**无门禁同步 1995 张卡
+- [x] 本机点位子集：222 候选 → 源消息抽价后 **with_level=18**（含 NVDL 串味）
+- [x] 标的须正文独立词 + 点位/入场 ∈[0.4,2.5] 后门：**candidates=15 / with_level=0**（11 mixed / 4 no_level）。Sprint 1 本机可打分集为空，不是 Yahoo 故障
+- [ ] 生产实跑：须 `REQ-039` 表级 promote；**真正的点位**更可能来自 T1 VL `support_resistance`，不是再灌 1995 张 stub
 
 ### REQ-014 文档树入库
 
@@ -200,7 +201,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：T2 点位子集评测（源消息抽价）；T1 抽审 `accepted-with-gates`；拒绝无门禁灌 1995 卡。
+- cursor：T2 收紧后门 with_level=0；下一步 REQ-039 promote 干跑。T1 抽审 gates 完。
 - gemini：REQ-033 队头 #91 CONL · T1 管道已交付（R-A 抽审完）。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002 Done；Q-001；企微 #91；Q-006 云端离线批已决。

@@ -124,4 +124,36 @@ const fromSrc = evaluateCard(
 assert.strictEqual(fromSrc.status, 'scored');
 assert.strictEqual(fromSrc.level, 247);
 
-console.log('  ✅ level/direction/windows/event-exclude/db isolation/source_text PASS');
+const hitch = evaluateCard(
+  {
+    card_type: 'asset_memory',
+    title: 'NVDL 标的机构行为与股性特征画像',
+    trigger_text: '回踩支撑加仓',
+    tickers_json: '["NVDL","TSLL"]',
+    source_text: 'NVDL 机构盘'
+  },
+  { messageCreatedAt: t0, bars }
+);
+assert.strictEqual(hitch.status, 'skipped_ticker');
+
+const tsllBars = bars.map((b) => ({
+  ...b,
+  high: 20,
+  low: 17,
+  close: 19,
+  adjClose: 19
+}));
+const mismatch = evaluateCard(
+  {
+    card_type: 'risk_rule',
+    title: 'TSLL 止损纪律',
+    trigger_text: '止损 96 降仓',
+    tickers_json: '["TSLL"]',
+    source_text: 'TSLL 止损 96'
+  },
+  { messageCreatedAt: t0, bars: tsllBars }
+);
+assert.strictEqual(mismatch.status, 'skipped_level_mismatch');
+assert.strictEqual(mismatch.level, 96);
+
+console.log('  ✅ level/direction/windows/event-exclude/db isolation/source_text/ticker-gate PASS');

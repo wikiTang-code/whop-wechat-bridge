@@ -50,7 +50,8 @@ const SKIP_YAHOO = new Set([
   'skipped_type',
   'skipped_no_level',
   'skipped_no_direction',
-  'unscored_mixed'
+  'unscored_mixed',
+  'skipped_ticker'
 ]);
 
 const prepped = candidates.map((card) => {

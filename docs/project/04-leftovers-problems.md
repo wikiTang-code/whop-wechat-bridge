@@ -51,7 +51,7 @@
 | `data/gex/latest.json` | 有 | 里程碑可提交 | 有（SCP） | 维持 REQ-024，禁盘中 commit |
 | REQ-038-T2 实跑 | 本机 222 候选 / 抽 120 张 **全 `skipped_no_level`**（stub 卡无明确价位） | 口径在 git | 生产 0 卡 | 归因卡在蒸馏质量，不在 Yahoo |
 
-**T2 结论**：Yahoo 通。源消息抽价后本机 **18** 张可打分（hit_5d≈56%，n 太小且有标的串味）。生产仍缺知识 SoR。
+**T2 结论**：Yahoo 通。收紧标的/点位后本机 **with_level=0**。生产缺知识 SoR；stub 卡也缺干净点位。下步 `REQ-039` promote 管道 + 等 T1 VL 价位，不灌 1995 stub。
 
 合同见 [`environments.md`](./environments.md)。**自动流**（REQ-039）：知识表/媒体走 promote·rsync；禁止整库覆盖；禁止无门禁「同步 1995 张卡」。盘点：`npm run env:inventory`。
 
