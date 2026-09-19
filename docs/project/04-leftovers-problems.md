@@ -60,7 +60,7 @@
 | Q-003 | 每次拉链是否 commit `latest.json`？ | — | **已决：否；仅里程碑**（§1.1） |
 | Q-004 | P5 是否加 CI `place_order` grep？ | L5 | decided：单测+load-catalog 硬拒；catalog 文本禁 place_order |
 | Q-005 | 跟单确认通道：企微业务卡片 vs Dashboard 移动页？ | human | **已决：企微业务确认卡片**（盘中 90s 时效；≠ `/ops`） |
-| Q-006 | REQ-037 视觉模型：本地 VL vs 云端多模态？ | human | open（**2026-09-19 Cursor 联审**：磁盘硬账 files=441 / uniq_sha=421 / >15KB=432 / .bin=8；默认倾向改为 **云端轻量 VL 离线批**写 `message_vision_meta`，禁进 L2a actions；本地 7B-VL 不抢 14B/OM 时分。等人拍板） |
+| Q-006 | REQ-037 视觉模型：本地 VL vs 云端多模态？ | human | **已决：云端轻量 VL 离线批**（不占本地 14B/OM 显存时分；字段白名单 `ticker/timeframe/levels/pattern_notes`；禁进 L2a actions；磁盘 files=441 / uniq_sha=421 / >15KB=432） |
 | Q-007 | CHG-018 门禁达标后是否关闭 Windows LM Studio 切到 WSL llama-server？ | human | **Done**（2026-09-19 Human 确认已关 LMS、切流试用无问题；cursor 本机见 `:8080/v1/models` 仍可列模型） |
 
 ---

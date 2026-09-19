@@ -58,6 +58,7 @@
 | REQ-035 | P1 | L1 | `done` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后幂等写入一条 `source=manual_correct` 的 signal） | 2026-09-18 `agent:gemini` · `follow-replay-engine.js` · `database.js` · `test_replay_signal_sync_req035.js` |
 | REQ-036 | P1 | L3 | `active` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（长期常驻主线：V1闭环已就绪；自迭代飞轮引擎落地 `flywheel_engine.js`，增量水位自动感知编排，单测全绿） | 常驻维护 · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` · `test_slm_flywheel_req036.js` |
 | REQ-037 | P2 | L3 | `done` | **大V全频道多模态图文对齐与交易知识本体图谱**（P1–P3 Done：批蒸馏全库扫描 + 防游标 `ontology_distill_scanned` + Layer4 只读检索；默认 `--sender xiaozhaolucky` 过滤大V，提炼 1995 张大V纯正卡片并将 `sender_name` 沉淀入 `schema_json`；支持 `--all-senders`；**P4 企微盘中参谋仍冻结** `REJ-008`） | 双Agent协同 · `knowledge:distill` · `ontology_query_engine` · 单测全绿 |
+| REQ-038 | P1 | L3 | `in_progress` | **战法卡归因回测与共振只读雷达**（Sprint 1：① 432 张真图云端 VL 离线批跑→`message_vision_meta` 白名单入库 ② TSLA/TSLL 子集归因实验（胜率定义写死）③ 大V+GEX+价位三点共振只读推送设计稿；**禁止**：VL→L2a actions、共振自动下单、全量胜率飞轮（等标签可信后）） | 双Agent协同 · `tools/knowledge/` · Q-006=云端离线批 |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |
