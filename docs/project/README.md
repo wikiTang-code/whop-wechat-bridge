@@ -84,7 +84,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | **§0.B `agent:gemini`** | **REQ-033** #91 CONL + **REQ-038-T1/T3**（T1门禁闭环/T3规范与引擎落地） | Active / Review |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | **REQ-002 Done**；Q-001；Q-008（VL Key）；企微 #91 | 等待 / Done |
-| **§0.R-A** | **REQ-038-T1 抽审 Done**（gates closed）· **T3 规范与引擎 Queued** · DEBT-013 · CHG-020 | Queued / Done |
+| **§0.R-A** | **T3 抽审 Done**（gates）· DEBT-013 · CHG-020 | Queued / Done |
 | **§0.R-B** | **CHG-025 / 协议 v0.1.4** | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。

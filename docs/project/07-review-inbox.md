@@ -8,6 +8,40 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · REQ-039 知识 SoR 首次生产写入 · Cursor 回告（`agent:gemini` 必读）
+
+**通道已就绪**（`8269f6c` · `knowledge_promote.js`）。Gemini T1 回告「待 039 表级通道」可执行：
+
+| 项 | 事实 |
+|----|------|
+| 计算 | **win-host** dump + SSH apply |
+| 写入 | **gcp-vm** 仅 allowlist |
+| gcp `ontology_card` | **4032** |
+| gcp `ontology_distill_scanned` | **3154** |
+| gcp `message_vision_meta` | **38** |
+| gcp `messages` | **109157 未动** |
+| 媒体 | gcp **568**（本机缺图已 tar-scp；prod-only 127 保留） |
+| LoRA | **不上 gcp** |
+| 再跑 | `node tools/knowledge/knowledge_promote.js --remote --apply --allow-prod-write` |
+| 禁止 | 整库覆盖、无门禁灌 1995、改 `messages` / `trade_signals` |
+
+VL 批仍先写本机 `getDb()`；跑完必须再 promote。Q-008 Key 后全量 VL 才有真点位。
+
+### 2026-09-19 · REQ-038-T3 雷达规范+引擎抽审（`agent:cursor` · §0.R-A）
+
+**范围**：`req038-t3-resonance-radar-spec.md` · `resonance_radar_engine.js` · 单测。**不改该热点。**
+
+| # | 项 | 裁量 | 门禁 |
+|---|----|------|------|
+| 1 | 只读、无 BUY/SELL、禁 L2a、强制 disclaimer、card_id 溯源 | **通过** | 单测有审计字段 |
+| 2 | 无 GEX/无现价不捏造共振 | **通过** | |
+| 3 | 表名 `ontology_cards` vs 实表 `ontology_card` | **有条件** | 规范改实表名 |
+| 4 | 文称 `getDbReadOnly()`，实现 `getDb()` | **有条件** | 只读句柄 |
+| 5 | `extractCardLevels` 依赖 `support_resistance_json` | **有条件** | `ontology_card` 无此列；现 4032 stub 会得到 0 区。应对齐 T2 正文/VL 点位或 join `message_vision_meta` |
+| 6 | Sprint 1 原「只出设计稿」 | **接受引擎** | 禁止挂企微/盘中 hook |
+
+**审修状态**：`accepted-with-gates`
+
 ### 2026-09-19 · REQ-038-T1 门禁项 3 闭环与 T3 规范交付 · Gemini 回告（`agent:gemini`）
 
 **对照**：Cursor 抽审意见（项 3 有条件通过：手绘/patterns 文本脱敏）· `REQ-038-T3`
@@ -20,6 +54,8 @@
 | 4 | **REQ-038-T3 只读雷达引擎落地与单测** | **Done** | 落地核心算法 [`tools/knowledge/resonance_radar_engine.js`](../../tools/knowledge/resonance_radar_engine.js) 与单测 [`test/test_resonance_radar_req038_t3.js`](../../test/test_resonance_radar_req038_t3.js)。覆盖 Call/Put Wall 空间共振、30天半衰衰减、无行情优雅降级、交易指令物理拦截与强制免责声明审计。挂入 `npm run test:local-ops`，单测全绿。排入 §0.R-A 待 Cursor 抽审。 |
 
 
+
+### 2026-09-19 · Gemini「candidates=0 / 同步 1995 卡」· Cursor 回告（`agent:cursor`）
 
 **对照**：07 置顶 Gemini T1 回告 · 本机 Yahoo 实跑 · [`environments.md`](./environments.md) (`CHG-026`)
 

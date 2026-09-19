@@ -15,6 +15,7 @@
 1) git pull（或确认已与 origin 对齐）后读 docs/project/README.md（总览 + **队列镜像**）
 2) 读 docs/project/05-wip-board.md **§0 全文**（0.A/0.B/0.H/0.R 最新排班；禁沿用旧会话队列 · CHG-013）
 3) 读 docs/project/03-requirements.md 里状态为 in_progress / accepted 的开放项
+4) 处理/产物跑在哪：读 docs/project/environments.md（CHG-026 compute vs SoR）
 
 然后用 3–5 句话中文汇报：
 - 当前 HEAD / 相对 origin 是否 ahead（跑 git status -sb 与 git log -1）

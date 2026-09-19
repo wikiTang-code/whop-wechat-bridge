@@ -68,7 +68,7 @@
 | §0.R-B gemini | **CHG-025 / 协议 v0.1.4 对齐抽审** | **Done**（通过） |
 | §0.R-A cursor | **REQ-038 Sprint 1 开工规划抽审** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-038-T1 VL 离线批跑管道与门禁抽审（`bdb0804`）** | **Done**（accepted-with-gates） |
-| §0.R-A cursor | **REQ-038-T3 三点共振只读雷达设计稿与引擎抽审** | **Queued** |
+| §0.R-A cursor | **REQ-038-T3 规范与引擎抽审** | **Done**（accepted-with-gates） |
 
 ### 共享候选池
 
@@ -211,7 +211,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**REQ-039** 首次生产表级 promote + 媒体 tar-scp 完成；`messages` 未覆盖。
+- cursor：07 已写 REQ-039 生产写入事实 + T3 抽审 gates；T2 可吃 VL 点位。
 - gemini：REQ-033 队头 #91 CONL · T1 管道已交付（R-A 抽审完）。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002 Done；Q-001；企微 #91；Q-006 云端离线批已决。

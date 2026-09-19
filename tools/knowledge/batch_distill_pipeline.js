@@ -248,6 +248,11 @@ export async function runBatchDistill(options = {}) {
     });
   }
   console.log('===========================================================\n');
+  if (!dryRun && totalCardsProduced > 0) {
+    console.log(
+      '[REQ-039] 蒸馏只写当前 SQLite（SoR=gcp-vm）。HITL 上生产：node tools/knowledge/knowledge_promote.js --remote --apply --allow-prod-write'
+    );
+  }
 
   return {
     success: true,

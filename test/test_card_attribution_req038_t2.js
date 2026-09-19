@@ -156,4 +156,20 @@ const mismatch = evaluateCard(
 assert.strictEqual(mismatch.status, 'skipped_level_mismatch');
 assert.strictEqual(mismatch.level, 96);
 
+const fromVl = evaluateCard(
+  {
+    card_type: 'pattern',
+    title: 'TSLA 形态卡',
+    trigger_text: '回踩关键支撑再加仓',
+    tickers_json: '["TSLA"]'
+  },
+  {
+    messageCreatedAt: t0,
+    bars,
+    visionMeta: { support_resistance_json: JSON.stringify({ support: [247], resistance: [260] }) }
+  }
+);
+assert.strictEqual(fromVl.status, 'scored');
+assert.strictEqual(fromVl.level, 247);
+
 console.log('  ✅ level/direction/windows/event-exclude/db isolation/source_text/ticker-gate PASS');

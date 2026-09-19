@@ -45,6 +45,14 @@ const cards = conn.prepare(`
 `).all();
 const candidates = selectCandidateCards(cards);
 const msgGet = conn.prepare('SELECT created_at, content FROM messages WHERE id = ?');
+let visGet = null;
+try {
+  visGet = conn.prepare(
+    'SELECT support_resistance_json, ticker FROM message_vision_meta WHERE message_id = ? ORDER BY attach_index ASC LIMIT 1'
+  );
+} catch {
+  visGet = null;
+}
 const SKIP_YAHOO = new Set([
   'skipped_ticker',
   'skipped_type',
@@ -57,9 +65,14 @@ const SKIP_YAHOO = new Set([
 const prepped = candidates.map((card) => {
   const mid = firstSourceMessageId(card);
   const msg = mid ? msgGet.get(mid) : null;
+  const visionMeta = mid && visGet ? visGet.get(mid) : null;
   const card2 = { ...card, source_text: msg?.content || '' };
-  const preview = evaluateCard(card2, { messageCreatedAt: msg?.created_at ?? null, bars: [] });
-  return { card: card2, created: msg?.created_at ?? null, preview };
+  const preview = evaluateCard(card2, {
+    messageCreatedAt: msg?.created_at ?? null,
+    bars: [],
+    visionMeta
+  });
+  return { card: card2, created: msg?.created_at ?? null, preview, visionMeta };
 });
 const skipCounts = {};
 for (const p of prepped) {
@@ -78,7 +91,7 @@ async function barsFor(ticker) {
 }
 
 const results = [];
-for (const { card, created, preview } of picked) {
+for (const { card, created, preview, visionMeta } of picked) {
   let bars = [];
   const ticker = preview.ticker;
   if (ticker) {
@@ -89,7 +102,7 @@ for (const { card, created, preview } of picked) {
       continue;
     }
   }
-  const ev = evaluateCard(card, { messageCreatedAt: created, bars });
+  const ev = evaluateCard(card, { messageCreatedAt: created, bars, visionMeta });
   const row = { card_id: card.id, card_type: card.card_type, title: card.title, ...ev };
   results.push(row);
   if (persist && !dry) saveAttributionRow(conn, card.id, ev);

@@ -189,14 +189,35 @@ export function scoreCardAgainstBars({ direction, t0Date, bars }) {
   };
 }
 
-export function evaluateCard(card, { messageCreatedAt, bars } = {}) {
+export function extractLevelFromVisionMeta(meta, ticker) {
+  if (!meta) return null;
+  let sr = meta.support_resistance_json || meta.support_resistance;
+  if (typeof sr === 'string') {
+    try {
+      sr = JSON.parse(sr);
+    } catch {
+      sr = null;
+    }
+  }
+  if (!sr || typeof sr !== 'object') return null;
+  const nums = [...(sr.support || []), ...(sr.resistance || [])]
+    .map(Number)
+    .filter((n) => Number.isFinite(n));
+  const lo = ticker === 'TSLL' ? 1 : 20;
+  const hi = ticker === 'TSLL' ? 200 : 900;
+  const ok = nums.filter((n) => n >= lo && n <= hi);
+  return ok.length ? ok[0] : null;
+}
+
+export function evaluateCard(card, { messageCreatedAt, bars, visionMeta } = {}) {
   const tickers = cardTickers(card);
   const ticker = pricingTicker(tickers);
   if (!ticker) return { status: 'skipped_ticker' };
   if (!ATTR_CARD_TYPES.has(String(card.card_type || ''))) {
     return { status: 'skipped_type', ticker };
   }
-  const level = extractExplicitLevel(mentionBlob(card), ticker);
+  let level = extractExplicitLevel(mentionBlob(card), ticker);
+  if (level == null) level = extractLevelFromVisionMeta(visionMeta, ticker);
   if (level == null) return { status: 'skipped_no_level', ticker };
   const direction = inferDirection(card);
   if (!direction) return { status: 'skipped_no_direction', ticker, level };
