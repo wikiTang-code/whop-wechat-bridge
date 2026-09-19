@@ -1067,24 +1067,10 @@ export async function pushCurrentReplayCard(db = getDb()) {
     }
   }
 
-  const webhookUrl = process.env.WECHAT_WORK_WEBHOOK_URL;
-  if (webhookUrl && !pushedViaOpsApp) {
-    try {
-      const res = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          msgtype: 'markdown',
-          markdown: { content: text }
-        })
-      });
-      const json = await res.json().catch(() => ({}));
-      if (json.errcode === 0) {
-        console.log(`[Follow Replay] 📢 已同步推送到群 Webhook 第 #${item.seq_no} 条待审单 (${item.parsed_ticker})`);
-      }
-    } catch (err) {
-      console.warn(`[Follow Replay] 通用群 Webhook 推送异常: ${err.message}`);
-    }
+  // 3. 安全隔离红线：严禁向大V消息推送群 (WECHAT_WORK_WEBHOOK_URL) 发送任何回放校验单！
+  // 仅允许专属独立回放群 (FOLLOW_REPLAY_WEBHOOK_URL) 或自建应用私信 (WECOM_OPS_USERIDS) 接收。
+  if (!pushedViaOpsApp) {
+    console.warn(`[Follow Replay] 未启用或未成功投递自建应用私信，仅以专属独立回放群为准。`);
   }
 
   return { success: true, item, stats, via: pushedViaOpsApp ? 'ops_app' : 'webhook' };
