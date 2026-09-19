@@ -13,9 +13,9 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **DEBT-014** | L2/L3 | CPU `llama-server` 已装并在 WSL :8080 跑 1.5B；Windows :8080 仍是 LMS（须走 WSL IP） | `wsl-llama-supervisor.js` | **Doing** |
-| 2 | **REQ-037** | L3 | 并行：CU export + 14B 精炼批跑（等 :8080；CHG-019 `saveTradeSignal` 冲突列已闭环 `52f2ed9`） | `tools/knowledge/*` | **Doing** |
-| 3 | **REQ-037** | L3 | CU export 80 条；WSL 1.5B ontology LLM 抽样 | `tools/knowledge/*` | **Doing** |
+| **1** | **DEBT-014** | L2/L3 | CPU `llama-server` 已装并在 WSL :8080 跑 1.5B；Windows :8080 仍是 LMS（须走 WSL IP）；HIP ROCm 残缺暂缓 | `wsl-llama-supervisor.js` | **Doing** |
+| 2 | **REQ-037** | L3 | CU export 80 条；WSL 1.5B ontology LLM 抽样 6 cards 入库；更大批继续后台 | `tools/knowledge/*` | **Doing** |
+| 3 | — | — | （CHG-019 Done `52f2ed9`） | — | — |
 
 ### 0.B 队列 `agent:gemini`
 
