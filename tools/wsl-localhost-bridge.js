@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /**
- * tools/wsl-localhost-bridge.js — CHG-023
- * Userspace TCP bridge: Windows 127.0.0.1:8080 -> WSL_IP:8080
+ * tools/wsl-localhost-bridge.js — CHG-023 / CHG-024
+ * Userspace TCP bridge: Windows 127.0.0.1:<port> -> WSL_IP:<port>
  * Used when netsh portproxy is unavailable (no Admin).
  *
  *   node tools/wsl-localhost-bridge.js --target 172.21.130.3:8080
+ *   node tools/wsl-localhost-bridge.js --listen-port 18080 --target 172.21.130.3:18080
  */
 import net from 'net';
 import fs from 'fs';
@@ -20,14 +21,14 @@ const listenHost = argVal('--listen-host', '127.0.0.1');
 const listenPort = parseInt(argVal('--listen-port', process.env.LLAMA_SERVER_PORT || '8080'), 10);
 const target = argVal('--target', process.env.WSL_BRIDGE_TARGET || '');
 if (!target || !target.includes(':')) {
-  console.error('Usage: node tools/wsl-localhost-bridge.js --target <wslIp>:8080');
+  console.error('Usage: node tools/wsl-localhost-bridge.js --target <wslIp>:<port> [--listen-port N]');
   process.exit(1);
 }
 const [targetHost, targetPortStr] = target.split(':');
 const targetPort = parseInt(targetPortStr, 10);
 
 const pidDir = path.resolve('data/runtime');
-const pidFile = path.join(pidDir, 'wsl-localhost-bridge.pid');
+const pidFile = argVal('--pid-file', path.join(pidDir, `wsl-localhost-bridge-${listenPort}.pid`));
 
 try {
   fs.mkdirSync(pidDir, { recursive: true });

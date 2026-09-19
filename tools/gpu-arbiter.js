@@ -20,6 +20,7 @@
  */
 
 import { safeUnloadModel, ensureModelReady, getLoadedModels, unloadAllModels } from './lms-guard.js';
+import { getRuntimeAdapter } from './ai-runtime-adapter.js';
 
 export const ArbiterState = {
   IDLE: 'IDLE',
@@ -30,6 +31,28 @@ export const ArbiterState = {
   RENDER_OM: 'RENDER_OM',
   GAME: 'GAME'
 };
+
+/** CHG-024: hard reject local Wan 14B / A14B class on 20GB card */
+export function isForbiddenLocalGpuRequest({ purpose = '', vram_mb_estimate = 0, model = '' } = {}) {
+  const blob = `${purpose} ${model}`.toLowerCase();
+  if (Number(vram_mb_estimate) > 16000) return true;
+  if (/(wan\s*2\.[12]\s*-?\s*14|wan14|wan-?14|a14b|wan2\.2.?a14b)/i.test(blob)) return true;
+  if (/\b14b\b/i.test(blob) && /wan|video|diffusion|comfy/i.test(blob)) return true;
+  return false;
+}
+
+function modelStillLoaded(modelKey) {
+  const key = String(modelKey || '').toLowerCase();
+  try {
+    return getLoadedModels().some((m) => {
+      const id = String(m.identifier || '').toLowerCase();
+      const mk = String(m.modelKey || '').toLowerCase();
+      return id.includes(key) || mk.includes(key);
+    });
+  } catch {
+    return true; // unknown → treat as still loaded (fail closed for exclusive)
+  }
+}
 
 class GpuArbiter {
   constructor() {
@@ -236,10 +259,21 @@ class GpuArbiter {
     exclusive = true,
     vram_mb_estimate = 8000,
     ttl_seconds = 900,
-    targetDeepModel = this.defaultDeepModel
+    targetDeepModel = this.defaultDeepModel,
+    model = ''
   } = {}) {
     if (!owner) {
       return { success: false, reason: 'OWNER_REQUIRED', message: 'owner is required' };
+    }
+
+    // CHG-024: server-side hard reject oversize / Wan 14B class
+    if (isForbiddenLocalGpuRequest({ purpose, vram_mb_estimate, model })) {
+      return {
+        success: false,
+        reason: 'VRAM_EXCEEDED_20GB_BUDGET',
+        message:
+          'RX 7900XT 20GB budget rejected: requested model exceeds card capacity (Wan 14B is strictly cloud-only)'
+      };
     }
 
     // 若申请游戏模式
@@ -291,7 +325,35 @@ class GpuArbiter {
       };
     }
 
-    // 成功抢占
+    const canCoexistWith14B = !exclusive && vram_mb_estimate <= 4000;
+
+    // CHG-024: exclusive path requires Supervisor reachable when deep model present or health fails closed
+    if (!canCoexistWith14B) {
+      let adapterOk = true;
+      try {
+        adapterOk = Boolean(getRuntimeAdapter().healthCheck());
+      } catch {
+        adapterOk = false;
+      }
+      const deepPresent = modelStillLoaded(targetDeepModel);
+      if (!adapterOk && deepPresent) {
+        return {
+          success: false,
+          reason: 'SUPERVISOR_UNREACHABLE',
+          retry_after: 15,
+          message: 'Supervisor :18080 unreachable; exclusive lock not granted while deep model may still be loaded'
+        };
+      }
+    }
+
+    // 成功抢占（先占锁；卸载失败则回滚 —— 禁止假成功）
+    const prevState = this.state;
+    const prevOwner = this.currentOwner;
+    const prevPurpose = this.purpose;
+    const prevLockedAt = this.lockedAt;
+    const prevTtl = this.ttlSeconds;
+    const prevModeBefore = this.modeBefore;
+
     this.modeBefore = this.state === ArbiterState.IDLE ? ArbiterState.DEEP_14B : this.state;
     this.state = ArbiterState.RENDER_OM;
     this.currentOwner = owner;
@@ -300,22 +362,45 @@ class GpuArbiter {
     this.ttlSeconds = ttl_seconds;
 
     const unloadedModels = [];
-
-    // 共存策略判定 (Cursor 冻结 §7.4: exclusive=false 且 vram_mb_estimate <= 4000MB 时与 14B 共存，不卸 14B)
-    const canCoexistWith14B = !exclusive && vram_mb_estimate <= 4000;
+    const rollback = () => {
+      this.state = prevState;
+      this.currentOwner = prevOwner;
+      this.purpose = prevPurpose;
+      this.lockedAt = prevLockedAt;
+      this.ttlSeconds = prevTtl;
+      this.modeBefore = prevModeBefore;
+      this.clearTtlTimer();
+    };
 
     if (canCoexistWith14B) {
       console.log(`[Arbiter] 💡 租户 "${owner}" 请求非独占轻量渲染 (预计 ${vram_mb_estimate}MB <= 4000MB)，允许与 14B 显存共存，不卸载 14B。`);
     } else {
       console.log(`[Arbiter] 🔒 租户 "${owner}" 获取 GPU 独占锁 (Purpose: ${purpose}, TTL: ${ttl_seconds}s)，正在排空 14B 显存...`);
+      const deepBefore = modelStillLoaded(targetDeepModel);
       try {
         const count = safeUnloadModel(targetDeepModel);
         if (count > 0) unloadedModels.push(targetDeepModel);
       } catch (e) {
         console.warn(`[Arbiter] 卸载 ${targetDeepModel} 异常:`, e.message);
+        rollback();
+        return {
+          success: false,
+          reason: 'UNLOAD_FAILED',
+          retry_after: 15,
+          message: `Unload threw: ${e.message}`
+        };
+      }
+      if (deepBefore && modelStillLoaded(targetDeepModel)) {
+        rollback();
+        return {
+          success: false,
+          reason: 'UNLOAD_FAILED',
+          retry_after: 15,
+          message: 'Supervisor :18080 unreachable or deep model still loaded; lock not granted'
+        };
       }
 
-      // 显式 keep 1.5B 规则 (Cursor 冻结 §7.4: LTX/Wan 1.3B 估 6~10GB 时显式保留 1.5B；估 >=12GB 时 1.5B 也卸)
+      // 显式 keep 1.5B 规则 (Cursor 冻结 §7.4)
       if (vram_mb_estimate < 12000) {
         try {
           console.log(`[Arbiter] ⚡ 外部显存预算为 ${vram_mb_estimate}MB (< 12GB)，显式装载并保活 1.5B 快车道模型 (${this.defaultFastModel})...`);
@@ -377,15 +462,20 @@ class GpuArbiter {
     } else {
       this.state = ArbiterState.DEEP_14B;
       modeNow = ArbiterState.DEEP_14B;
-      // 标记异步装载 pending 状态，并在装载完成后复位
+      // CHG-024: delay restore so OM ROCm allocator can return VRAM (tail-chase)
       this.restorePending = true;
-      ensureModelReady(targetDeepModel)
-        .catch(err => {
-          console.error(`[Arbiter] 释放后异步唤醒 14B 异常:`, err.message);
-        })
-        .finally(() => {
-          this.restorePending = false;
-        });
+      const delayMs = parseInt(process.env.GPU_RESTORE_DELAY_MS || '2500', 10);
+      const wait = Number.isFinite(delayMs) ? Math.max(0, delayMs) : 2500;
+      const timer = setTimeout(() => {
+        ensureModelReady(targetDeepModel)
+          .catch(err => {
+            console.error(`[Arbiter] 释放后异步唤醒 14B 异常:`, err.message);
+          })
+          .finally(() => {
+            this.restorePending = false;
+          });
+      }, wait);
+      if (timer.unref) timer.unref();
     }
 
     this.currentOwner = null;

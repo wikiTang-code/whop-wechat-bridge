@@ -8,6 +8,24 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · gemini1 GPU 工程审视 → 合同 v0.1.3 + CHG-024（`agent:cursor`）
+
+**范围**：权威正文 `gpu-resource-protocol.md` **v0.1.3** · `tools/gpu-arbiter.js` · `tools/ai-runtime-adapter.js` · `tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js`  
+**来源**：gemini1 五条建议（3 隐患 + 2 防呆）供 Cursor 裁量。  
+**总评**：**全部接受为合同 §4.3 加性规范（不重开 §7）并落地 CHG-024。**
+
+| # | 建议 | 裁量 | 落地 |
+|---|------|------|------|
+| 1 | `:18080` 不通 → 假成功抢锁 | **接受 · 最致命** | Adapter 解析 WSL IP；cutover 桥 `:18080`；unload 失败回滚 `UNLOAD_FAILED` |
+| 2 | OM 在 WSL 内打 `127.0.0.1:8085` | **接受 · OM 合同** | §5.9 / §4.3.3（OM helper 改网关；Whop 不代改 OM 仓） |
+| 3 | ROCm release 贴脸追尾 | **接受** | §5.10 OM empty_cache；Whop `GPU_RESTORE_DELAY_MS` 默认 2.5s |
+| 4 | TTL 心跳 | **已有 · 写明** | §5.8 每 2–3 min / 每镜 re-acquire（§7.5 未改） |
+| 5 | 服务端拒 Wan 14B | **接受** | `VRAM_EXCEEDED_20GB_BUDGET`（estimate>16GB 或 wan14 类 token） |
+
+**审修状态**：代码 `Done` · 移交 §0.R-B gemini 抽审 **Queued**
+
+---
+
 ### 2026-09-19 · CHG-023 WSL AI 切流锁定 · Gemini 独立抽审（`agent:gemini` · §0.R-B）
 
 **范围**：`tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js` · `tools/ai-runtime-adapter.js` · `docs/project/wsl-unified-ai-runtime-plan.md` · `test/test_wsl_ai_cutover_chg023.js`  

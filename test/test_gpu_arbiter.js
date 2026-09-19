@@ -3,12 +3,15 @@
  * 单元测试：GPU 时分复用仲裁器 (Time-Division GPU Arbiter)
  */
 
-import { gpuArbiter, ArbiterState } from '../tools/gpu-arbiter.js';
+import { gpuArbiter, ArbiterState, isForbiddenLocalGpuRequest } from '../tools/gpu-arbiter.js';
 import {
   MockRuntimeAdapter,
   setRuntimeAdapterForTest,
   resetRuntimeAdapter
 } from '../tools/ai-runtime-adapter.js';
+
+// CHG-024 tests: skip ROCm handoff delay in unit tests
+process.env.GPU_RESTORE_DELAY_MS = '0';
 
 console.log('===========================================================');
 console.log('🧪 启动 GPU 时分复用仲裁器 (GpuArbiter) 核心逻辑单测');
@@ -284,9 +287,52 @@ if (!exitRes.success) {
 await new Promise(r => setTimeout(r, 100));
 console.log('  ✅ 游戏模式成功一秒排空显存、锁定防打扰，退出后自动装回 14B！');
 
+// 6. CHG-024: Wan / oversize reject + unload false-success closed
+console.log('\n[测试 6] CHG-024 防呆：Wan14 拒载 + 卸载失败不发锁...');
+if (!isForbiddenLocalGpuRequest({ vram_mb_estimate: 18000 })) {
+  console.error('❌ vram>16000 应被拒绝');
+  process.exit(1);
+}
+const wanRej = await gpuArbiter.acquireExternalLock({
+  owner: 'openmontage',
+  purpose: 'wan2.1-14b local video',
+  vram_mb_estimate: 8000
+});
+if (wanRej.success !== false || wanRej.reason !== 'VRAM_EXCEEDED_20GB_BUDGET') {
+  console.error('❌ Wan 14B 未拒载:', wanRej);
+  process.exit(1);
+}
+
+class StickyFailUnloadAdapter extends MockRuntimeAdapter {
+  unload(identifier) {
+    this.history.push({ action: 'unload_fail', identifier, timestamp: Date.now() });
+    return { success: false, message: 'ECONNREFUSED simulated' };
+  }
+}
+const sticky = new StickyFailUnloadAdapter([
+  { identifier: 'qwen2.5-14b-instruct', modelKey: 'qwen2.5-14b-instruct', sizeBytes: 15 * 1024 * 1024 * 1024 }
+]);
+setRuntimeAdapterForTest(sticky);
+gpuArbiter.state = ArbiterState.IDLE;
+gpuArbiter.currentOwner = null;
+const failAcq = await gpuArbiter.acquireExternalLock({
+  owner: 'openmontage',
+  exclusive: true,
+  vram_mb_estimate: 8000
+});
+if (failAcq.success !== false || failAcq.reason !== 'UNLOAD_FAILED') {
+  console.error('❌ 卸载失败仍发了锁:', failAcq);
+  process.exit(1);
+}
+if (gpuArbiter.state === ArbiterState.RENDER_OM) {
+  console.error('❌ 卸载失败后状态未回滚:', gpuArbiter.getStatus());
+  process.exit(1);
+}
+console.log('  ✅ CHG-024 拒载与假成功闭环通过');
+
 // 恢复适配器单例
 resetRuntimeAdapter();
 
 console.log('\n===========================================================');
-console.log('🎉 GpuArbiter 所有时分复用、跨项目协议与 CHG-022 门禁单测全部验证通过！');
+console.log('🎉 GpuArbiter 所有时分复用、跨项目协议与 CHG-022/024 门禁单测全部验证通过！');
 console.log('===========================================================');

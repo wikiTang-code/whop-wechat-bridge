@@ -4,6 +4,7 @@
  * 1. monitor.js 统一接入 gpuArbiter，不再覆写破坏 global.gpuLock
  * 2. scripts/lms_load.js 优先与 GpuArbiter 状态联动，支持 --status / --game / --work
  */
+process.env.GPU_RESTORE_DELAY_MS = process.env.GPU_RESTORE_DELAY_MS || '0';
 
 import { gpuArbiter, ArbiterState } from '../tools/gpu-arbiter.js';
 import { setRuntimeAdapterForTest, MockRuntimeAdapter, resetRuntimeAdapter } from '../tools/ai-runtime-adapter.js';

@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （CHG-023 切流锁定 Done：Win:8080=`wsl_llama`；默认 backend=wsl） | — | — |
+| **1** | — | — | （CHG-024 控制面/防假成功 Done；协议 v0.1.3） | — | — |
 | 2 | **DEBT-014** | L3 | HIP 满血暂缓（CPU llama-server 已可用） | `/root/llama.cpp/build-cpu` | Standing |
 | 3 | — | — | （空位） | — | — |
 
@@ -63,13 +63,14 @@
 | §0.R-B gemini | **GPU 跨项目资源协议 v0.1-draft**（自签；已被 Cursor 置顶冻结覆盖） | **Done** |
 | §0.R-A cursor | **GPU 协议 v0.1 + CHG-021 抽审**（§7 冻结；骨架 accepted-with-gates） | **Done** |
 | §0.R-B gemini | **CHG-023 WSL AI 切流锁定抽审** | **Done**（通过） |
+| §0.R-B gemini | **CHG-024 GPU 控制面加固抽审** | **Queued** |
 
 ### 共享候选池
 
 1. （Doing · cursor）WSL HIP 编译真实 `llama-server` → DEBT-014 满血
 2. （Doing · cursor）`REQ-037` CU export 已出 80 条候选（等人标 `boundary_start`）· 14B 精炼等 :8080
-3. （Standing · gemini）CHG-021 Cursor 门禁：`monitor.js` 勿改写 `gpuLock`；acquire 按 estimate 共存；卸 14B 后显式 load 1.5B；`AI_RUNTIME_BACKEND=wsl` + `:18080` 可达
-4. （已出队）… · 037-batch · 037-layer4 · 037-full-scan `e9fc925` · DEBT-014-code · CHG-021 骨架
+3. （已出队 · CHG-024）`:18080` 可达 + 禁假成功 + Wan 拒载 · 协议 v0.1.3
+4. （已出队）… · 037-batch · 037-layer4 · 037-full-scan `e9fc925` · DEBT-014-code · CHG-021 骨架 · CHG-022 门禁 · CHG-023 切流
 
 ## 1. 主看板
 
@@ -112,6 +113,7 @@
 | CHG-021 | L2/L3 | 跨项目 GPU 独占调度协议契约与 GpuArbiter 融合落地（Whop × OpenMontage 互斥；v1 HTTP 契约、自动恢复 14B） | `agent:gemini` | Done | `server.js` · `tools/gpu-arbiter.js` · 单测全绿 |
 | CHG-022 | L2/L3 | 闭环 CHG-021 门禁项（`monitor.js` 接入 Arbiter、共存决策、卸 14B 显式 keep 1.5B、GAME CLI 联动、暴露 `restore_pending`） | `agent:gemini` | Done | `monitor.js` · `tools/gpu-arbiter.js` · `scripts/lms_load.js` · 33 项单测全绿 |
 | CHG-023 | L2/L3 | WSL AI 切流锁定（Win:8080独占指向WSL llama-server；默认 backend=wsl；废 8081；方案 §7） | `agent:cursor` | Done | `tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js` · 单测全绿 |
+| CHG-024 | L2/L3 | GPU 控制面加固（`:18080` 可达、禁假成功、Wan 拒载、ROCm release 延迟；协议 v0.1.3） | `agent:cursor` | Done | `gpu-arbiter.js` · `ai-runtime-adapter.js` · cutover · 单测全绿 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 

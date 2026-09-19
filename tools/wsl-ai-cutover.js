@@ -32,6 +32,7 @@ export const DEFAULT_MODEL_PATH =
   '/mnt/c/Users/86597/.lmstudio/models/lmstudio-community/Qwen2.5-Coder-1.5B-Instruct-GGUF/Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf';
 
 const PORT = parseInt(process.env.LLAMA_SERVER_PORT || '8080', 10);
+const SUPERVISOR_PORT = parseInt(process.env.WSL_SUPERVISOR_PORT || '18080', 10);
 
 export function fingerprintFromModelsJson(bodyText) {
   const raw = String(bodyText || '');
@@ -144,11 +145,11 @@ export function stopWindowsLmStudio() {
   return { skipped: false, killed };
 }
 
-export function waitPortFree(ms = 8000) {
+export function waitPortFree(ms = 8000, listenPort = PORT) {
   const start = Date.now();
   while (Date.now() - start < ms) {
     try {
-      const out = execSync(`netstat -ano | findstr ":${PORT}"`, { encoding: 'utf-8', timeout: 5000 });
+      const out = execSync(`netstat -ano | findstr ":${listenPort}"`, { encoding: 'utf-8', timeout: 5000 });
       if (!/LISTENING/i.test(out)) return true;
     } catch {
       return true; // findstr exit 1 = no match
@@ -158,10 +159,10 @@ export function waitPortFree(ms = 8000) {
   return false;
 }
 
-export function ensurePortProxy(wslIp) {
+export function ensurePortProxy(wslIp, listenPort = PORT) {
   if (!wslIp) throw new Error('WSL IP required for portproxy');
   try {
-    execSync(`netsh interface portproxy delete v4tov4 listenaddress=127.0.0.1 listenport=${PORT}`, {
+    execSync(`netsh interface portproxy delete v4tov4 listenaddress=127.0.0.1 listenport=${listenPort}`, {
       encoding: 'utf-8',
       timeout: 10000,
       stdio: ['ignore', 'pipe', 'pipe']
@@ -169,56 +170,72 @@ export function ensurePortProxy(wslIp) {
   } catch (_) {}
   try {
     execSync(
-      `netsh interface portproxy add v4tov4 listenaddress=127.0.0.1 listenport=${PORT} connectaddress=${wslIp} connectport=${PORT}`,
+      `netsh interface portproxy add v4tov4 listenaddress=127.0.0.1 listenport=${listenPort} connectaddress=${wslIp} connectport=${listenPort}`,
       { encoding: 'utf-8', timeout: 10000 }
     );
-    return { mode: 'portproxy', listen: `127.0.0.1:${PORT}`, connect: `${wslIp}:${PORT}` };
+    return { mode: 'portproxy', listen: `127.0.0.1:${listenPort}`, connect: `${wslIp}:${listenPort}` };
   } catch (err) {
     const msg = String(err.stderr || err.message || err);
-    return { mode: 'portproxy_failed', error: msg.slice(0, 240) };
+    return { mode: 'portproxy_failed', error: msg.slice(0, 240), listenPort };
   }
 }
 
-export function stopUserspaceBridge() {
-  const pidFile = pathResolve('data/runtime/wsl-localhost-bridge.pid');
-  try {
-    const pid = parseInt(fsRead(pidFile), 10);
-    if (pid > 0) {
-      try { execSync(`taskkill /PID ${pid} /F`, { timeout: 8000, stdio: 'ignore' }); } catch (_) {}
-    }
-  } catch (_) {}
-  try { fsUnlink(pidFile); } catch (_) {}
+export function stopUserspaceBridge(listenPort = PORT) {
+  const pidFile = pathResolve(`data/runtime/wsl-localhost-bridge-${listenPort}.pid`);
+  const legacyPid = pathResolve('data/runtime/wsl-localhost-bridge.pid');
+  for (const f of [pidFile, listenPort === PORT ? legacyPid : null].filter(Boolean)) {
+    try {
+      const pid = parseInt(fsRead(f), 10);
+      if (pid > 0) {
+        try { execSync(`taskkill /PID ${pid} /F`, { timeout: 8000, stdio: 'ignore' }); } catch (_) {}
+      }
+    } catch (_) {}
+    try { fsUnlink(f); } catch (_) {}
+  }
 }
 
-export function ensureUserspaceBridge(wslIp) {
-  stopUserspaceBridge();
-  waitPortFree(5000);
+export function ensureUserspaceBridge(wslIp, listenPort = PORT) {
+  stopUserspaceBridge(listenPort);
+  waitPortFree(5000, listenPort);
   const bridgeJs = pathResolve('tools/wsl-localhost-bridge.js');
-  const child = spawn(process.execPath, [bridgeJs, '--target', `${wslIp}:${PORT}`], {
-    detached: true,
-    stdio: 'ignore',
-    cwd: pathResolve('.')
-  });
+  const pidFile = pathResolve(`data/runtime/wsl-localhost-bridge-${listenPort}.pid`);
+  const child = spawn(
+    process.execPath,
+    [bridgeJs, '--listen-port', String(listenPort), '--target', `${wslIp}:${listenPort}`, '--pid-file', pidFile],
+    {
+      detached: true,
+      stdio: 'ignore',
+      cwd: pathResolve('.')
+    }
+  );
   child.unref();
   const deadline = Date.now() + 8000;
   while (Date.now() < deadline) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 300);
   }
-  return { mode: 'userspace_bridge', pid: child.pid, connect: `${wslIp}:${PORT}` };
+  return { mode: 'userspace_bridge', pid: child.pid, connect: `${wslIp}:${listenPort}`, listenPort };
 }
 
 export function removePortProxy() {
-  stopUserspaceBridge();
-  try {
-    execSync(`netsh interface portproxy delete v4tov4 listenaddress=127.0.0.1 listenport=${PORT}`, {
-      encoding: 'utf-8',
-      timeout: 10000,
-      stdio: ['ignore', 'pipe', 'pipe']
-    });
-    return true;
-  } catch {
-    return false;
+  stopUserspaceBridge(PORT);
+  stopUserspaceBridge(SUPERVISOR_PORT);
+  for (const p of [PORT, SUPERVISOR_PORT]) {
+    try {
+      execSync(`netsh interface portproxy delete v4tov4 listenaddress=127.0.0.1 listenport=${p}`, {
+        encoding: 'utf-8',
+        timeout: 10000,
+        stdio: ['ignore', 'pipe', 'pipe']
+      });
+    } catch (_) {}
   }
+  return true;
+}
+
+function ensureHostToWslPort(wslIp, listenPort) {
+  const proxy = ensurePortProxy(wslIp, listenPort);
+  if (proxy.mode === 'portproxy') return { bridge: proxy };
+  const bridge = ensureUserspaceBridge(wslIp, listenPort);
+  return { portproxy: proxy, bridge };
 }
 
 export function ensureWslLlamaServer(options = {}) {
@@ -297,22 +314,17 @@ export async function runCutover(options = {}) {
   if (!wslIp) throw new Error('Cannot resolve WSL IP');
   report.wslIp = wslIp;
 
-  // If Windows already sees WSL (mirrored), skip proxy
+  // If Windows already sees WSL (mirrored), skip inference proxy; still ensure :18080
   let win = await probeWin8080();
   if (win.fingerprint?.kind === 'wsl_llama') {
     report.steps.push({ bridge: 'skipped_mirrored_localhost' });
   } else {
-    const proxy = ensurePortProxy(wslIp);
-    if (proxy.mode === 'portproxy') {
-      report.steps.push({ bridge: proxy });
-    } else {
-      report.steps.push({ portproxy: proxy });
-      const bridge = ensureUserspaceBridge(wslIp);
-      report.steps.push({ bridge });
-    }
+    report.steps.push(ensureHostToWslPort(wslIp, PORT));
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000);
     win = await probeWin8080();
   }
+  // CHG-024: also bridge Supervisor control plane
+  report.steps.push({ supervisorBridge: ensureHostToWslPort(wslIp, SUPERVISOR_PORT) });
 
   report.windows = win;
   report.ok = win.reachable && win.fingerprint.kind === 'wsl_llama';

@@ -13,6 +13,7 @@
 
 import { execSync, spawnSync } from 'child_process';
 import http from 'http';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -146,12 +147,49 @@ export function syncHttpRequest(options, bodyData = null) {
   }
 }
 
+/**
+ * Resolve WSL eth IP for Windows→WSL Supervisor hops (CHG-024).
+ * Cached briefly; override with WSL_SUPERVISOR_HOST / WSL_HOST_IP.
+ */
+let cachedWslIp = { ip: null, at: 0 };
+export function resolveWslSupervisorHost(explicitHost) {
+  if (explicitHost) return explicitHost;
+  if (process.env.WSL_SUPERVISOR_HOST) return process.env.WSL_SUPERVISOR_HOST.trim();
+  if (process.env.WSL_HOST_IP) return process.env.WSL_HOST_IP.trim();
+  // Inside WSL, Supervisor listens on WSL loopback
+  if (process.platform === 'linux' && fsExistsProcVersionWsl()) {
+    return '127.0.0.1';
+  }
+  if (process.platform !== 'win32') return '127.0.0.1';
+  const now = Date.now();
+  if (cachedWslIp.ip && now - cachedWslIp.at < 60_000) return cachedWslIp.ip;
+  try {
+    const out = execSync('wsl -e bash -lc "hostname -I"', { encoding: 'utf-8', timeout: 8000 }).trim();
+    const ip = out.split(/\s+/).find((p) => /^\d+\.\d+\.\d+\.\d+$/.test(p));
+    if (ip) {
+      cachedWslIp = { ip, at: now };
+      return ip;
+    }
+  } catch (_) {}
+  return '127.0.0.1';
+}
+
+function fsExistsProcVersionWsl() {
+  try {
+    const v = fs.readFileSync('/proc/version', 'utf8').toLowerCase();
+    return v.includes('microsoft') || v.includes('wsl');
+  } catch {
+    return false;
+  }
+}
+
 export class WslLlamaAdapter extends BaseRuntimeAdapter {
   constructor(options = {}) {
     super('wsl-llama-server');
-    this.host = options.host || '127.0.0.1';
+    // CHG-024: on Windows, prefer WSL eth IP for :18080 so unload works without localhost bridge
+    this.host = resolveWslSupervisorHost(options.host);
     this.port = options.port || 8080;
-    this.supervisorPort = options.supervisorPort || 18080;
+    this.supervisorPort = options.supervisorPort || parseInt(process.env.WSL_SUPERVISOR_PORT || '18080', 10);
   }
 
   ps() {
