@@ -80,11 +80,12 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **REQ-038-T2 / REQ-040 Doing**（n_scored=4；等纯化 promote） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** #91；T1 VL 收尾；**CHG-034 / REQ-042 Accepted** | Active |
+| **§0.A `agent:cursor`** | **REQ-038-T2 / REQ-040 Doing**（纯化后 n_scored=4；等 TSLA SR） | Doing |
+| **§0.B `agent:gemini`** | **REQ-033** #91；T1≈356/384；**CHG-034/042** Cursor 抽审 Done | Active |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
-| **§0.X Blocked** | 040=**Partial / Unblocking**（门禁齐，等产物）；033→human | **见 05 §0.X** |
+| **§0.X Blocked** | 040=**Partial**（门禁齐；缺赵哥 TSLA 带内 SR）；033→human | **见 05 §0.X** |
+| **§0.R-A** | **REQ-042/CHG-034** accepted-with-gates | Done |
 | **§0.R-A** | T1 fallback 抽审 Done | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |
 

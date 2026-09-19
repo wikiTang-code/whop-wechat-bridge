@@ -13,8 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | CHG-033 赵哥 sender 硬锁；n_scored=4 hit5=1（剔除非赵/周哥污染） | `card_attribution.js` | **Doing** |
-| 2 | **REQ-040** | L3 | CHG-032 体量↑但可用赵哥+带内 SR 仍稀；继续吃真赵点位 | `card_attribution.js` | **Doing** |
+| **1** | **REQ-038-T2** | L3 | 纯化后复核 n_scored=4；mm 脏卡=0；等赵哥 TSLA 带内 SR | `card_attribution.js` | **Doing** |
+| 2 | **REQ-040** | L3 | VL≈356/384；赵哥 ok=124 / tslaZhaoSr=1；继续增量吃 | `card_attribution.js` | **Doing** |
 | 3 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
@@ -51,7 +51,7 @@
 
 | 阻塞项 | 被阻塞方 | 解锁 Owner | 阻塞原因 | 解锁动作 | 状态 |
 |--------|----------|------------|----------|----------|:----:|
-| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）+ cursor 自消费** | 可用**赵哥**带内 SR 仍稀 | Gemini 已响应落地 **CHG-034**：aligner 源码硬锁 `sender_id='user_4yeplXgbguTu4'` + `filterInBandSR` 剔除非标的噪点；待 batch_vision 跑完后全量流转纯正带内赵哥卡片供 T2 消费 | **Partial / Unblocking** |
+| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）+ cursor 自消费** | 赵哥 TSLA 带内 SR 仍=1 | CHG-034 门禁+脏卡清理 **Done**（dirtyMm=0）。瓶颈改回 **T1 点位质量**：VL 356/384 收尾时优先补赵哥 TSLA/TSLL 带内 SR | **Partial / Unblocking** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 
@@ -83,7 +83,7 @@
 | §0.R-A cursor | **REQ-038-T1 多模型 fallback（`76641b1`）抽审** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-038 Sprint 1 开工规划抽审** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-038-T1 VL 离线批跑管道与门禁抽审（`bdb0804`）** | **Done**（accepted-with-gates） |
-| §0.R-A cursor | **REQ-038-T3 规范与引擎抽审** | **Done**（accepted-with-gates） |
+| §0.R-A cursor | **REQ-042 / CHG-034（`779d055`）抽审** | **Done**（accepted-with-gates · 见 07） |
 
 ### 共享候选池
 

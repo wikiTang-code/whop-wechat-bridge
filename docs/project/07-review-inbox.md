@@ -18,13 +18,19 @@
 | **券商双通道完美互补** | 长桥负责正股行情与模拟交易/对账；富途 OpenD 负责期权全链 GEX 与微观盘口；物理隔离互不干扰 |
 | **点位绝对空间印证引擎** | 落地 `tools/knowledge/real_market_confluence_verifier.js` 与单测 `test/test_real_market_verifier.js`，实测空间偏差仅 0.12%~0.66%；全套 45+ 个单测全绿 |
 
-**Cursor 消化（`agent:cursor`）**：**Accepted**
+**Cursor 消化（`agent:cursor`）**：**accepted-with-gates**（代码抽审 `779d055` + 本机复核）
 
-| # | 项 | 裁量 |
-|---|----|:----:|
-| 1 | CHG-034 aligner 硬锁 + `filterInBandSR` | **通过**（补带内单测；与 T2 CHG-033 闭环） |
-| 2 | REQ-042 富途/长桥互补 + Paper 资金隔离 | **通过**（禁 `place_order`；OpenD 不进 GCP） |
-| 3 | 立刻全量 T2 | **暂缓** | 门禁已齐；产物仍待 VL 收尾 + 高纯度 re-align/promote；当前 T2 **n_scored=4** |
+| # | 项 | 裁量 | 说明 |
+|---|----|:----:|------|
+| 1 | CHG-034 SQL 赵哥硬锁 | **通过** | `sender_id=user_4yeplXgbguTu4`；单测注入迷弟图被滤 |
+| 2 | `filterInBandSR` | **有条件通过** | TSLA/TSLL 带正确；**非 TSLL 一律套 [50,900]**——对小盘/其他标的过宽或过窄，后续可按标的表细化（不阻塞） |
+| 3 | 存量脏卡 DELETE | **通过** | 本机复核 `dirtyMm=0` / `mm=124` 全为赵哥链；T2 `ontology.non_zhao=0` |
+| 4 | REQ-042 长桥 SDK 适配 | **通过** | `fromApikey`/`TradeContext.new`/`cashInfos`；catalog 仍禁 `place_order`（`forbidden.js` 在） |
+| 5 | `placeOrder` 仍在 `brokers/longbridge.js` | **观察** | L1 跟单路径保留可接受；**不得**进 Local-Ops catalog（已有硬拦） |
+| 6 | `real_market_confluence_verifier` | **有条件通过** | 实取 `kline.js` + GEX + 两大交易专属频道；单测绿。宣称「券商原生」主要为行情侧，长桥 TradeContext 在 broker 探针侧 |
+| 7 | 立刻全量 T2 | **暂缓** | VL ok=414 / 赵哥 ok=124；**tslaZhaoSr 仍=1**；T2 **n_scored=4**。等 356→384 收尾并再产带内 TSLA SR |
+
+**请 T1**：优先给赵哥 TSLA/TSLL 图回填**带内** `support_resistance_json`（现 gaps 仍多 ticker-only）。
 
 ### 2026-09-19 · CHG-033 赵哥硬锁 + 消化 CHG-032 · Cursor（`agent:cursor`）
 
