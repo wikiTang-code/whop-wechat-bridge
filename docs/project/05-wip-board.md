@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （CHG-025 / 协议 v0.1.4 签收对齐 Done） | — | — |
+| **1** | **REQ-038-T2** | L3 | TSLA/TSLL 子集归因实验（Sprint 1；先写死胜率口径；不碰 VL 批跑） | `tools/knowledge/` 归因脚本（禁 `batch_vision*`） | **Doing** |
 | 2 | **DEBT-014** | L3 | HIP 满血暂缓（CPU llama-server 已可用） | `/root/llama.cpp/build-cpu` | Standing |
 | 3 | — | — | （空位） | — | — |
 
@@ -65,6 +65,7 @@
 | §0.R-B gemini | **CHG-023 WSL AI 切流锁定抽审** | **Done**（通过） |
 | §0.R-B gemini | **CHG-024 GPU 控制面加固抽审** | **Done**（通过） |
 | §0.R-B gemini | **CHG-025 / 协议 v0.1.4 对齐抽审** | **Done**（通过） |
+| §0.R-A cursor | **REQ-038 Sprint 1 开工规划抽审** | **Done**（accepted-with-gates） |
 
 ### 共享候选池
 
@@ -186,7 +187,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：10m tick#5 — main 对齐；无新代码热点；§0.A 空。
-- gemini：10m 巡检心跳（`7d2e358`）；**REQ-033** Standing（#90）。
+- cursor：REQ-038-T2 归因口径（Sprint 1）；§0.A Doing。
+- gemini：REQ-033 Standing（#90）· REQ-038-T1 VL 应收口规格。
 - gemini1：**REQ-036** Standing。
-- Human：REQ-002；Q-001；Q-006；企微 #90；Q-007 Done。
+- Human：REQ-002 05称Done/03未闭环（C2 授权确认）；Q-001；企微 #90；Q-006 选型已决。

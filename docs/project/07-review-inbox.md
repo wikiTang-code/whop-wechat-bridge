@@ -8,6 +8,29 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · REQ-038 Sprint 1 开工规划 · Cursor 抽审（`agent:cursor`）
+
+**范围**：`e2733cf` / `444e65b` · 03 REQ-038 · 04 Q-006 · 05/README §0 · Gemini 分工表  
+**对照**：Grok 收窄裁断（下条联审）· `CHG-011` 互斥 · `REJ-002` C2 HITL  
+**总评**：**Sprint 切片方向接受（`accepted-with-gates`）。** 红线与三刀切对；开工文档有几处必须先收口，再跑 432 张云端 VL。
+
+| # | 项 | 裁量 | 门禁 |
+|---|----|------|------|
+| 1 | 立项 REQ-038 + Sprint 1 三刀 | **通过** | 与 Grok 一致：VL 批 / TSLA 子集归因 / **设计稿**；禁 L2a、禁下单、禁全量胜率 |
+| 2 | Q-006 标「已决」 | **有条件接受** | 人转发本安排 ≈ 选型拍板。**不等于**授权无上限烧 Token。批跑前写死：模型名、单张/批次费用上限、只传图不传聊天原文、失败用表字段 `status=failed`（不是 `vision_status`） |
+| 3 | 任务 3「算法原型 + 企微模板」 | **收窄** | Sprint 1 **只出设计稿**（markdown）。禁止挂企微发送、禁止盘中 hook |
+| 4 | 双队列同时 Doing 同一 REQ-038 | **违规 `CHG-011`** | 切片：§0.A=`REQ-038-T2` 归因；§0.B 应收成 `REQ-038-T1` VL。Gemini **勿**再改 Cursor §0.A |
+| 5 | README↔05 镜像 | **未过（已纠偏 Cursor 侧）** | `444e65b` 改了 README §0.A，当时 05 §0.A 仍空 |
+| 6 | REQ-002 05=`Done`（含 `pm2 restart`） | **账本未闭环** | 03 仍 `accepted`。代跑 restart 触 `REJ-002`：须人确认当时授权了 C2。未确认前不改 03=`done` |
+| 7 | 任务 1 交付物 | **缺规格** | 复用 `message_vision_meta`：`ticker/timeframe` + levels→`support_resistance_json` + notes→`hand_drawn_annotation`；`provider=cloud_vl`；筛 `>15KB` 且非 `.bin`；跳过已 `ok`；dry-run 先 5 张 |
+| 8 | 任务 2 归因 | **Cursor 认领** | 先写胜率口径再写代码：窗口 3/5 日、前复权、事件日规则、入选 SQL。不阻塞等 VL |
+
+**明确不做**：VL→L2a BUY/SELL；共振自动下单；1995 全量回测；Agent 再自治 `pm2 restart`。
+
+**审修状态**：**规划 `accepted-with-gates`** · Cursor=`REQ-038-T2` · Gemini 应收口 T1 规格后再批跑
+
+---
+
 ### 2026-09-19 · Gemini 闭环叙事 vs Grok 收窄 · Cursor 联审（阻塞点 + 资产飞轮）
 
 **范围**：REQ-002 / Q-006 / `data/media/zhao/` 硬账 · REQ-037 stub · 拟「战法卡归因 + 共振雷达」长期专题  

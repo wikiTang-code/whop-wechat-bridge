@@ -65,7 +65,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | L1 核心业务 Whop→AI→微信→跟单 | ✅ | 双进程生产闭环 |
 | L2 加固与监测 P0–P2 | ✅ | 主体收官；**P2-16=`REQ-008` Done** |
 | L3 GEX 结构传感器 | ✅ | v1 可用；开盘任务已挂；SCP 同步脚本就绪 |
-| L4 Local-Ops / 企微回控 | ✅ 联调 | P5/P6/REQ-034 Done；生产 ff 待 human（REQ-002） |
+| L4 Local-Ops / 企微回控 | ✅ 联调 | P5/P6/REQ-034 Done；REQ-002 05 称 Done（含 restart），03 仍 `accepted`，C2 授权待人确认 |
 | L5 券商只读 P5 | ✅ | REQ-005 Done |
 | L6 本机运维页 P6 | ✅ | REQ-006 Done · http://127.0.0.1:18789/ui |
 | L7 NL Copilot | ⏸ | 暂缓（只读参谋构想） |
@@ -76,11 +76,11 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **REQ-038** 战法卡归因与共振只读雷达（双Agent协同） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** 历史回放纠错 + **REQ-038** 战法卡归因与共振雷达 | Doing |
+| **§0.A `agent:cursor`** | **REQ-038-T2** TSLA/TSLL 子集归因（不碰 VL 批跑） | Doing |
+| **§0.B `agent:gemini`** | **REQ-033** 回放纠错 + **REQ-038-T1** 真图 VL 离线批 | Doing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | **REQ-002 Done**；**Q-006 Done**；**Q-007 Done**；Q-001；企微 #90 点击 | 等待 / Done |
-| **§0.R-A** | DEBT-013 DST · CHG-020 漏重启探针 · **CHG-022 GPU 门禁闭环** | Queued |
+| **§0.R-A** | **REQ-038 Sprint 1 规划抽审 Done** · DEBT-013 · CHG-020 · CHG-022 | Queued / Done |
 | **§0.R-B** | **CHG-025 / 协议 v0.1.4** | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
