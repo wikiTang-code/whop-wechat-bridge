@@ -35,7 +35,7 @@
 
 | ID | 任务 | 状态 |
 |----|------|:----:|
-| REQ-002 | 生产 ff 对齐 + restart | **Done**（2026-09-19 `agent:gemini` 执行 `git pull --ff-only` → `e2733cf` + `pm2 restart` 双进程；`restart_drift=false`） |
+| REQ-002 | 生产 ff 对齐 + restart | **Done**（Human 2026-09-19 确认已 restart；ff→`e2733cf` 波次） |
 | Q-001 | GEX→GCP 通道 | interim=SCP（可再改） |
 | Q-002 | 漏重启用何信号发现？ | **Done**（`CHG-020`：`/health` 暴露 `process.gitCommit`，`gcp_health_bundle` 自动计算 `restart_drift`） |
 | Q-006 | REQ-037 视觉模型 | **Done**（已决：云端轻量 VL 离线批；禁 VL→L2a；硬账 >15KB=432 张可排预算） |
@@ -92,7 +92,7 @@
 | CHG-006 | L0/L4 | 扩写 06 §6 发布/HITL 可执行清单 | `agent:cursor` | Done | `06-process.md` §6 |
 | CHG-008 | L0 | 收工自动 commit+push+文档树 | `agent:cursor` | Done | AGENTS.md §6 |
 | REQ-001 | L4 | Push 本地 commits → origin | `agent:cursor` | Done | `de872b0..1352705` |
-| REQ-002 | L4 | 生产 ff 对齐 | `human` | Todo | 依赖 push；判据见 REQ-019 |
+| REQ-002 | L4 | 生产 ff 对齐 + restart | `human` | Done | Human 2026-09-19 确认 pm2 已重启 |
 | REQ-003 | L3 | 开盘 GEX 计划任务 | `agent:cursor` | Done | WhopGexOpenSession0940ET Ready |
 | REQ-004 | L3 | latest.json→GCP SCP | `agent:cursor` | Done | sync_latest_to_gcp.js |
 | REQ-027 | L1 | 三账本隔离+看板分源 | `agent:gemini` | Done | `9d06fef` · 入 §0.R-A Queued |
@@ -190,4 +190,5 @@
 - cursor：REQ-038-T2 归因口径（Sprint 1）；§0.A Doing。
 - gemini：REQ-033 Standing（#90）· REQ-038-T1 VL 应收口规格。
 - gemini1：**REQ-036** Standing。
-- Human：REQ-002 05称Done/03未闭环（C2 授权确认）；Q-001；企微 #90；Q-006 选型已决。
+- Human：REQ-002 **Done**（已确认 restart）；Q-001；企微 #90；Q-006 选型已决。
+- gemini：REQ-033 **正在修** 重启后重新推送交易单反馈失败（Cursor 不碰 `wecom/push` / replay）。

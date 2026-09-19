@@ -26,7 +26,7 @@
 | ID | 优先级 | 车道 | 状态 | 摘要 | 热点/备注 |
 |----|:------:|------|:----:|------|-----------|
 | REQ-001 | P0 | L4 | `done` | Push 本地 commits → `origin/main` | `de872b0..1352705` |
-| REQ-002 | P0 | L4 | `accepted` | 生产 gcp-vm ff 对齐 | 勿无必要 restart；判据见 REQ-019 |
+| REQ-002 | P0 | L4 | `done` | 生产 gcp-vm ff 对齐 + 双进程 restart | Human 2026-09-19 确认已 `pm2 restart`；ff=`e2733cf` 波次 · 判据 REQ-019 |
 | REQ-003 | P1 | L3 | `done` | 挂载开盘前 GEX 计划任务 | Owner=`agent:cursor`；Task=`WhopGexOpenSession0940ET` Ready；ET→本地墙钟安装器 |
 | REQ-004 | P1 | L3 | `done` | `latest.json` → GCP 看板同步（默认 SCP） | Owner=`agent:cursor`；`sync_latest_to_gcp.js`；Q-001 interim=SCP；`test_gex_sync_scp_req004.js` |
 | REQ-005 | P2 | L5 | `done` | P5 券商只读 MCP | Owner=`agent:cursor`；broker.lb.* + futu.opend_probe；catalog 无 place_order；test_broker_readonly_req005 |

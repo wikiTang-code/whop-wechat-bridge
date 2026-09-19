@@ -36,7 +36,7 @@
 | Cursor 续开发 | `本会话 Owner 标记为 agent:cursor；只改 §0.A。` |
 | Gemini 续开发 | `本会话 Owner 标记为 agent:gemini；只改 §0.B / §0.R-B。` |
 | 只审阅 | `只读：读 07-review-inbox.md，缺口写成建议 REQ，不改业务代码。` |
-| 生产对齐 | `焦点 REQ-002；先读 runbooks/deploy-restart.md 与 hitl-c2.md。` |
+| 生产对齐 | `REQ-002 Done（2026-09-19 Human 确认 restart）。后续 C2 仍读 runbooks/deploy-restart.md 与 hitl-c2.md。` |
 
 ---
 

@@ -65,7 +65,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | L1 核心业务 Whop→AI→微信→跟单 | ✅ | 双进程生产闭环 |
 | L2 加固与监测 P0–P2 | ✅ | 主体收官；**P2-16=`REQ-008` Done** |
 | L3 GEX 结构传感器 | ✅ | v1 可用；开盘任务已挂；SCP 同步脚本就绪 |
-| L4 Local-Ops / 企微回控 | ✅ 联调 | P5/P6/REQ-034 Done；REQ-002 05 称 Done（含 restart），03 仍 `accepted`，C2 授权待人确认 |
+| L4 Local-Ops / 企微回控 | ✅ 联调 | P5/P6/REQ-034 Done；**REQ-002 Done**（Human 确认生产已 restart） |
 | L5 券商只读 P5 | ✅ | REQ-005 Done |
 | L6 本机运维页 P6 | ✅ | REQ-006 Done · http://127.0.0.1:18789/ui |
 | L7 NL Copilot | ⏸ | 暂缓（只读参谋构想） |

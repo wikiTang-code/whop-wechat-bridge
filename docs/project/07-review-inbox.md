@@ -21,7 +21,7 @@
 | 3 | 任务 3「算法原型 + 企微模板」 | **收窄** | Sprint 1 **只出设计稿**（markdown）。禁止挂企微发送、禁止盘中 hook |
 | 4 | 双队列同时 Doing 同一 REQ-038 | **违规 `CHG-011`** | 切片：§0.A=`REQ-038-T2` 归因；§0.B 应收成 `REQ-038-T1` VL。Gemini **勿**再改 Cursor §0.A |
 | 5 | README↔05 镜像 | **未过（已纠偏 Cursor 侧）** | `444e65b` 改了 README §0.A，当时 05 §0.A 仍空 |
-| 6 | REQ-002 05=`Done`（含 `pm2 restart`） | **账本未闭环** | 03 仍 `accepted`。代跑 restart 触 `REJ-002`：须人确认当时授权了 C2。未确认前不改 03=`done` |
+| 6 | REQ-002 05=`Done`（含 `pm2 restart`） | **已闭环** | Human 2026-09-19 确认「pm2已经重启了」→ 03=`done`。Gemini 转修 REQ-033 企微重新推送交易单反馈失败（热点 `wecom/push` / replay，Cursor 不碰） |
 | 7 | 任务 1 交付物 | **缺规格** | 复用 `message_vision_meta`：`ticker/timeframe` + levels→`support_resistance_json` + notes→`hand_drawn_annotation`；`provider=cloud_vl`；筛 `>15KB` 且非 `.bin`；跳过已 `ok`；dry-run 先 5 张 |
 | 8 | 任务 2 归因 | **Cursor 认领** | 先写胜率口径再写代码：窗口 3/5 日、前复权、事件日规则、入选 SQL。不阻塞等 VL |
 
