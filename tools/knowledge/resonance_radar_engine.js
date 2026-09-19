@@ -65,6 +65,25 @@ export function extractCardLevels(card) {
     }
   }
 
+  // 若无显式 support_resistance_json，从正文线索词进行文本启发式抽取
+  if (levels.support.length === 0 || levels.resistance.length === 0) {
+    const text = [card.trigger_text, card.title, card.theory_text, card.source_text].filter(Boolean).join(' ');
+    
+    // 支撑线索: 支撑/低吸/企稳/不破 + 价格
+    const supMatch = /(?:支撑|低吸|企稳|不破)[^\d$]{0,10}\$?(\d{1,4}(?:\.\d{1,2})?)/i.exec(text);
+    if (supMatch && levels.support.length === 0) {
+      const p = parseFloat(supMatch[1]);
+      if (Number.isFinite(p) && p > 0) levels.support.push(p);
+    }
+
+    // 阻力线索: 阻力|压力|前高|关键位 + 价格
+    const resMatch = /(?:阻力|压力|前高|破位|关键位)[^\d$]{0,10}\$?(\d{1,4}(?:\.\d{1,2})?)/i.exec(text);
+    if (resMatch && levels.resistance.length === 0) {
+      const p = parseFloat(resMatch[1]);
+      if (Number.isFinite(p) && p > 0) levels.resistance.push(p);
+    }
+  }
+
   return {
     card_id: card.id || card.card_id || 'unknown_card',
     ticker: (card.ticker || '').toUpperCase(),

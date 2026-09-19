@@ -31,7 +31,7 @@ graph TD
 ```
 
 ### 维度 1：大V战法点位（Ontology Layer）
-- **数据源**：`ontology_cards`（只读句柄 `getDbReadOnly()`，SoR=`gcp-vm` 或本地镜像）
+- **数据源**：`ontology_card`（只读句柄 `getDbReadOnly()`，SoR=`gcp-vm` 或本地镜像）
 - **抽取要素**：
   - `card_id`（唯一标识，如 `card_1725...`）
   - `ticker`（标的代码，如 `TSLA`, `NVDA`, `QQQ`）

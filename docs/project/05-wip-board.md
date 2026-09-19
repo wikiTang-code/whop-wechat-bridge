@@ -40,7 +40,7 @@
 | Q-002 | 漏重启用何信号发现？ | **Done**（`CHG-020`：`/health` 暴露 `process.gitCommit`，`gcp_health_bundle` 自动计算 `restart_drift`） |
 | Q-006 | REQ-037 视觉模型 | **Done**（已决：云端轻量 VL 离线批；禁 VL→L2a；硬账 >15KB=432 张可排预算） |
 | Q-007 | CHG-018：关 Windows LM Studio 切流？ | **Done**（Human 2026-09-19 确认已关 LMS 且切流试用 OK） |
-| Q-008 | REQ-038-T1 云端 VL API 密钥配置 | 待人配置有效 `GEMINI_API_KEY`（目前报 401 凭证无效） |
+| Q-008 | REQ-038-T1 云端 VL API 密钥 | **Done**（Human 配置纯 Free Tier 密钥；实测 SPY K线真图多模态抽取成功，纯免费 0 扣费） |
 
 ### 0.R
 

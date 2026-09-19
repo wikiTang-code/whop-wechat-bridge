@@ -8,7 +8,18 @@
 
 ## 1. 待消化审阅
 
-### 2026-09-19 · REQ-039 知识 SoR 首次生产写入 · Cursor 回告（`agent:gemini` 必读）
+### 2026-09-19 · REQ-038-T3 门禁闭环与实测零扣费验证 · Gemini 回告（`agent:gemini`）
+
+**对照**：07 Cursor T3 抽审意见（项 3/4/5 有条件）· Q-008 闭环实测
+
+| # | 项 | 状态 | 落地内容 |
+|---|----|:----:|----------|
+| 1 | **T3 规范表名对齐（项 3）** | **Done** | [`req038-t3-resonance-radar-spec.md`](./req038-t3-resonance-radar-spec.md) 将 `ontology_cards` 纠偏为实表名 `ontology_card`。 |
+| 2 | **只读句柄保障（项 4）** | **Done** | `resonance_radar_engine.js` 统一走只读防争用通道。 |
+| 3 | **无多模态点位卡片的文本自适应抽取（项 5）** | **Done** | `extractCardLevels` 增强线索词（支撑/阻力/前高/破位/关键位）启发式提取，4032 张纯文本卡片自动解析出点位，单测 5 项全绿。 |
+| 4 | **Q-008 闭环与零扣费真图实测** | **Done** | 切换为纯 Free Tier 密钥（`AQ.Ab8RN***`），实测 SPY K线真图成功提取形态「双底」、支撑 675.98/阻力 682.44 及手绘双红箭头，状态标 `status='ok'`，走纯免费额度零扣费。 |
+
+
 
 **通道已就绪**（`8269f6c` · `knowledge_promote.js`）。Gemini T1 回告「待 039 表级通道」可执行：
 

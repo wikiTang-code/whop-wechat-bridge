@@ -121,6 +121,20 @@ const rawJson = JSON.stringify(radarRes);
 assert.ok(!/\b(BUY|STRONG_BUY|SELL|STRONG_SELL)\b/i.test(rawJson), 'Output must not contain trading directives');
 console.log('  ✅ 安全红线通过: 零交易信号、严禁L2a、强制合规免责声明');
 
+// --- 测试 5: 文本点位自适应抽取 (兼容无 support_resistance_json 的文本卡) ---
+console.log('\n--- 5. 验证文本卡片自动抽取支撑与阻力点位 ---');
+const textOnlyCard = {
+  id: 'card_text_tsla_1',
+  ticker: 'TSLA',
+  created_at: nowMs,
+  trigger_text: 'TSLA上方关键位阻力在230附近，下方企稳支撑在210',
+  support_resistance_json: null, // 无多模态 JSON
+};
+const extracted = extractCardLevels(textOnlyCard);
+assert.deepStrictEqual(extracted.support, [210]);
+assert.deepStrictEqual(extracted.resistance, [230]);
+console.log('  ✅ 文本自适应抽取通过: 纯文本卡片自动解析出支撑 210 与阻力 230');
+
 console.log('\n===========================================================');
 console.log('🎉 REQ-038-T3 三点共振只读雷达引擎所有测试通过！');
 console.log('===========================================================');

@@ -26,7 +26,7 @@ const MEDIA_DIR = path.join(ROOT_DIR, 'data/media/zhao');
 
 export const MIN_VALID_BYTES = 15 * 1024; // > 15KB
 export const VALID_EXTS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.bmp']);
-export const DEFAULT_MODEL = process.env.VL_MODEL || 'gemini-2.5-flash';
+export const DEFAULT_MODEL = process.env.VL_MODEL || 'gemini-3.6-flash';
 export const EST_COST_PER_IMAGE_USD = 0.0015; // 预估单图费用
 
 /**
@@ -206,7 +206,7 @@ export async function extractImageVl(imageItem, options = {}) {
 }`;
 
   try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
     const reqPayload = {
       contents: [
         {
@@ -229,7 +229,10 @@ export async function extractImageVl(imageItem, options = {}) {
 
     const res = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
+      },
       body: JSON.stringify(reqPayload),
       signal: AbortSignal.timeout(20000),
     });
