@@ -93,6 +93,7 @@
 | CHG-026 | `done` | **运行环境合同**：每种处理冻结 compute vs SoR（gcp-vm / win-host / wsl-gpu / cloud-vl）；LoRA SoR=WSL 不是缺口；知识表 SoR=gcp | 2026-09-19 `agent:cursor` · [`environments.md`](./environments.md) · `environments.json` |
 | CHG-027 | `done` | **Local-Ops catalog HITL C2 `knowledge.promote.apply`**（plan=C0 dump=C1；apply 须 human-approve；禁企微 `/ops promote`；win-host dump+scp，ssh recipe 故意 fail-closed） | 2026-09-19 `agent:cursor` · `catalog.yaml` · `adapters/knowledge.js` · `test_knowledge_promote_adapter_chg027.js` |
 | CHG-028 | `done` | **T2 方向/点位消歧**：结论行优先；拒概率%；异标的近邻价丢弃；TSLA 带 [50,900] | 2026-09-19 `agent:cursor` · `card_attribution.js` · 口径页 · dry-run n_scored=5 |
+| CHG-029 | `done` | **流水线解耦与增量消费原则（Top 级流水原则）**：批量长任务与下游消费严禁完全等待；有阶段性有效产出即刻开启下游图文关联/点位对齐/归因雷达；依赖 `status='ok'` 状态机与游标防漏 | 2026-09-19 人令确立 · 写入 `AGENTS.md` §3 · `06-process.md` |
 
 ---
 
