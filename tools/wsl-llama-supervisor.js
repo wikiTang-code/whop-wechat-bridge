@@ -39,8 +39,9 @@ const MODEL_REGISTRY = {
 const CANDIDATE_BINS = [
   '/usr/local/bin/llama-server',
   '/usr/bin/llama-server',
-  '$HOME/llama.cpp/build/bin/llama-server',
-  '$HOME/.local/bin/llama-server'
+  '/root/llama.cpp/build/bin/llama-server',
+  '/root/llama.cpp/build-cpu/bin/llama-server',
+  '/root/.local/bin/llama-server'
 ];
 
 /** Escape for single-quoted bash strings */
@@ -65,9 +66,29 @@ export function resolveLlamaServerBin(options = {}) {
     if (found && !found.includes('not found')) return found.split(/\r?\n/)[0].trim();
   } catch (_) {}
 
+  // Expand ~ / $HOME candidates inside WSL (do not pass literal $HOME to test -x)
+  try {
+    const homeBins = run(
+      'wsl bash -lc "echo \\$HOME/llama.cpp/build/bin/llama-server; echo \\$HOME/.local/bin/llama-server"',
+      { encoding: 'utf-8', timeout: 5000 }
+    )
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    for (const p of homeBins) {
+      try {
+        const check = run(`wsl bash -lc "test -x ${shellSingleQuote(p)} && echo ${shellSingleQuote(p)}"`, {
+          encoding: 'utf-8',
+          timeout: 5000
+        }).trim();
+        if (check) return check.split(/\r?\n/)[0].trim();
+      } catch (_) {}
+    }
+  } catch (_) {}
+
   for (const cand of CANDIDATE_BINS) {
     try {
-      const check = run(`wsl bash -c "test -x ${cand} && echo ${cand}"`, {
+      const check = run(`wsl bash -lc "test -x ${shellSingleQuote(cand)} && echo ${shellSingleQuote(cand)}"`, {
         encoding: 'utf-8',
         timeout: 5000
       }).trim();

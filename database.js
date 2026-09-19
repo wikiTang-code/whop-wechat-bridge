@@ -1311,10 +1311,18 @@ export function saveTradeSignal(signal, dbInstance = null) {
       @parse_status, @source, @created_at
     )
     ON CONFLICT(signal_id) DO UPDATE SET
-      parse_status = excluded.parse_status,
-      reason = excluded.reason,
+      message_id = COALESCE(excluded.message_id, trade_signals.message_id),
+      channel_id = COALESCE(excluded.channel_id, trade_signals.channel_id),
+      speaker_id = COALESCE(excluded.speaker_id, trade_signals.speaker_id),
+      speaker_name = COALESCE(excluded.speaker_name, trade_signals.speaker_name),
+      ticker = excluded.ticker,
+      action = excluded.action,
       price = excluded.price,
-      quantity = excluded.quantity
+      quantity = excluded.quantity,
+      stop_loss = excluded.stop_loss,
+      reason = excluded.reason,
+      parse_status = excluded.parse_status,
+      source = excluded.source
   `).run({
     signal_id: signalId,
     message_id: signal.message_id || null,
