@@ -47,27 +47,19 @@ if not defined LONGBRIDGE_REGION set LONGBRIDGE_REGION=global
 "@
 Set-Content -Path $Wrapper -Value $WrapperBody -Encoding ASCII
 
-# Convert next Eastern 09:40 to local wall-clock for CalendarTrigger (CN-safe).
-$et = [System.TimeZoneInfo]::FindSystemTimeZoneById("Eastern Standard Time")
+# Convert Eastern 09:38 (EDT Summer earliest anchor) to local wall-clock for CalendarTrigger.
+# In Summer (EDT UTC-4), 09:38 ET = 13:38 UTC. In Winter (EST UTC-5), 09:38 ET = 14:38 UTC.
+# Anchoring to Summer 13:38 UTC ensures the task triggers early enough in all seasons,
+# and open_session_run.py automatically detects America/New_York DST offset and waits until 09:40 ET (DEBT-013).
 $localTz = [System.TimeZoneInfo]::Local
-$utcNow = [DateTime]::UtcNow
-$candidates = @()
-for ($d = 0; $d -lt 14; $d++) {
-  $etNow = [System.TimeZoneInfo]::ConvertTimeFromUtc($utcNow.AddDays($d), $et)
-  $etDay = $etNow.Date
-  if ($etDay.DayOfWeek -eq [DayOfWeek]::Saturday -or $etDay.DayOfWeek -eq [DayOfWeek]::Sunday) { continue }
-  $etTarget = $etDay.AddHours(9).AddMinutes(40)
-  # Interpret etTarget as Eastern wall time -> UTC -> local
-  $etAsUnspec = [DateTime]::SpecifyKind($etTarget, [DateTimeKind]::Unspecified)
-  $utcTarget = [System.TimeZoneInfo]::ConvertTimeToUtc($etAsUnspec, $et)
-  $localTarget = [System.TimeZoneInfo]::ConvertTimeFromUtc($utcTarget, $localTz)
-  if ($localTarget -gt (Get-Date)) { $candidates += $localTarget }
+$summerRefUtc = [DateTime]::SpecifyKind([DateTime]"2026-07-01 13:38:00", [DateTimeKind]::Utc)
+$summerLocal = [System.TimeZoneInfo]::ConvertTimeFromUtc($summerRefUtc, $localTz)
+$localHHmm = $summerLocal.ToString("HH:mm")
+
+$nextLocal = (Get-Date).Date.AddHours($summerLocal.Hour).AddMinutes($summerLocal.Minute)
+while ($nextLocal.DayOfWeek -eq [DayOfWeek]::Saturday -or $nextLocal.DayOfWeek -eq [DayOfWeek]::Sunday -or $nextLocal -le (Get-Date)) {
+  $nextLocal = $nextLocal.AddDays(1)
 }
-if ($candidates.Count -eq 0) {
-  throw "Could not compute next Eastern 09:40 local wall-clock"
-}
-$nextLocal = $candidates[0]
-$localHHmm = $nextLocal.ToString("HH:mm")
 $startBoundary = $nextLocal.ToString("yyyy-MM-ddTHH:mm:00")
 
 $wrapperEsc = [System.Security.SecurityElement]::Escape($Wrapper)
@@ -75,7 +67,7 @@ $xml = @"
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>Whop GEX open-session collect Mon-Fri ~09:40 Eastern (REQ-003). Local wall=$localHHmm at install; re-run after DST.</Description>
+    <Description>Whop GEX open-session collect Mon-Fri ~09:40 Eastern (REQ-003, DEBT-013 DST-immune). Earliest local wall=$localHHmm; python handles DST alignment automatically.</Description>
   </RegistrationInfo>
   <Triggers>
     <CalendarTrigger>
@@ -127,10 +119,10 @@ Register-ScheduledTask -TaskName $TaskName -Xml $xml -Force | Out-Null
 
 Write-Host ""
 Write-Host "Installed task: $TaskName"
-Write-Host "  Target: Mon-Fri Eastern 09:40 -> local wall-clock $localHHmm (host TZ=$($localTz.Id))"
-Write-Host "  StartBoundary: $startBoundary"
-Write-Host "  Wrapper: $Wrapper"
-Write-Host "  Config: $Config"
-Write-Host "  Re-run this installer after US DST changes."
+  Write-Host "  Target: Mon-Fri Eastern 09:40 (DST-immune: local wall=$localHHmm, auto-aligns EDT/EST via open_session_run.py)"
+  Write-Host "  StartBoundary: $startBoundary"
+  Write-Host "  Wrapper: $Wrapper"
+  Write-Host "  Config: $Config"
+  Write-Host "  DST immune: no re-installation required across seasonal time changes (DEBT-013)."
 Write-Host "Dry-run: python tools/gex-sidecar/open_session_run.py --dry-run"
 Write-Host "Uninstall: powershell -File tools/gex-sidecar/install_open_session_task.ps1 -Uninstall"

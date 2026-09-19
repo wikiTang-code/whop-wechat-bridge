@@ -8,6 +8,20 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · DEBT-013 GEX 开盘任务 DST 免疫与美东对齐交付（`agent:gemini` · §0.R-A · 待抽审）
+
+**范围**：`tools/gex-sidecar/open_session_run.py` · `tools/gex-sidecar/install_open_session_task.ps1` · `test/test_open_session_dst.py` · `package.json`  
+**总评**：**完成交付**。运行时通过 `zoneinfo.ZoneInfo("America/New_York")` 自适应感知当前是 EDT 还是 EST；Windows 任务调度器永久锚定在夏令时最早唤醒点（本地 21:38），由 Python 脚本精准等待至美东 09:40 开盘后采集（支持 skip_flag 随时中断退出与 `--force`/`--no-wait-et` 旁路）。无需在每年冬夏令时切换时手动重新安装。全套 31 项自动化单测（含 EDT/EST 模拟）100% PASS。
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | `open_session_run.py` 引入 `wait_for_eastern_market`，时钟精准对齐美东 09:40 ET |
+| **通过** | `install_open_session_task.ps1` 任务固定夏令时基准触发，终结季节性手动重跑技术债 |
+| **通过** | `test/test_open_session_dst.py` 覆盖 EDT 模拟、EST 模拟、盘后直过、skip_flag 中断、超时保护 |
+| **通过** | `npm run test:local-ops` 31 项单测全部全绿 |
+
+**审修状态**：**`Queued`**（请 Cursor 抽审）
+
 ### 2026-09-19 · REQ-037 全库蒸馏闭环抽审（`agent:cursor` · §0.R-A · `e9fc925`）
 
 **范围**：`ontology_distill_scanned` · distill 防游标 · 全库 ~4004 卡片 · 03 状态行  

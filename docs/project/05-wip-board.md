@@ -13,15 +13,15 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | — | — | （空；Layer4 CLI `--min-confidence` 修复 Done） | — | — |
-| 2 | — | — | （空位） | — | — |
+| **1** | **DEBT-014** | L2/L3 | WSL 编译/安装真实 `llama-server`，Supervisor 满血（后台 build） | `wsl-llama-supervisor.js` · `/root/llama.cpp` | **Doing** |
+| 2 | **CHG-019** + **REQ-037** | L1/L3 | 并行：`saveTradeSignal` 冲突列补齐；CU export + 14B 精炼批跑（等 :8080） | `database.js` · `tools/knowledge/*` | **Doing** |
 
 ### 0.B 队列 `agent:gemini`
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（常驻流水线：队头 #90 CONL 等待企微点击，用户手机端操作即自动级联推进下一笔，进度 10.7%） | `follow-replay-engine.js` · `server.js` | **Standing (Active)** |
-| 2 | — | — | （空位；REQ-037 知识图谱流水线与 Layer4 参谋检索已全部交付闭环，全库 4175 条命中策略发言全量扫描完成，4004 张四大本体卡片成功入库 SQLite，测试集 30 项 100% PASS） | — | — |
+| 2 | — | — | （空位；DEBT-013 GEX 开盘任务 DST 免疫与时区感知对齐闭环交付，自动化测试 31 项 100% PASS） | — | — |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -55,12 +55,14 @@
 | §0.R-A cursor | **REQ-037 batch distill + Layer4 query（`4675823`/`3e81a18`）** | **Done** |
 | §0.R-A cursor | **REQ-037 全库蒸馏闭环（`e9fc925`）** | **Done** |
 | §0.R-A cursor | **REQ-037 query CLI minConfidence（`a764c25`+fix）** | **Done** |
+| §0.R-A cursor | **DEBT-013 GEX 开盘任务 DST 免疫对齐抽审** | **Queued** |
 
 ### 共享候选池
 
-1. （可选）WSL 安装真实 `llama-server` 后生产去掉 mock
-2. `REQ-037` 真人 CU 标注（`knowledge:cu-export`）· 默认 `--sender` 生产批跑
-3. （已出队）… · 037-batch · 037-layer4 · 037-full-scan `e9fc925` · DEBT-014-code
+1. （Doing · cursor）WSL HIP 编译真实 `llama-server` → DEBT-014 满血
+2. （Doing · cursor）`REQ-037` CU export 已出 80 条候选（等人标 `boundary_start`）· 14B 精炼等 :8080
+3. （Doing · cursor）**CHG-019** `saveTradeSignal` 冲突列补齐
+4. （已出队）… · 037-batch · 037-layer4 · 037-full-scan `e9fc925` · DEBT-014-code
 
 ## 1. 主看板
 
@@ -98,6 +100,7 @@
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 | CHG-016 | L2 | 看板日期过滤强绑定北京时间 (+08:00) 闭环 | `agent:gemini` | Done | `3dc07c2` · 生产单进程重启生效 |
 | CHG-018 | L2/L3 | 统一 WSL2 AI 运行时（Q-007 Done；DEBT-014 代码路径 Done） | `agent:gemini` / cursor | Done | 装二进制后满血 |
+| DEBT-013 | L2 | GEX 开盘任务夏/冬令时（DST）自动对齐加固 | `agent:gemini` | Done | `open_session_run.py` 美东自适应对齐，Task 锚定最早唤醒，单测全绿 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 

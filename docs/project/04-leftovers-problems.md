@@ -29,7 +29,7 @@
 | 债 ID | 摘要 | 关联 | 严重度 |
 |-------|------|------|:------:|
 | DEBT-001 | **生产 gcp-vm 尚未 `git merge --ff-only` 对齐**（push 已完成） | REQ-002 | P0 |
-| DEBT-014 | **CHG-018 Supervisor 真实二进制绑定（已落地代码路径）**：优先 `LLAMA_SERVER_BIN`/`command -v llama-server`；无二进制且未设 `WSL_SUPERVISOR_ALLOW_MOCK=1` 则拒绝假成功；WSL 内尚未安装二进制时仍走显式 mock | CHG-018 | **closed→P3 残留**（装二进制即可满血） |
+| DEBT-014 | **CHG-018 Supervisor 真实二进制**：CPU `llama-server` 已装 `/usr/local/bin`（`build-cpu`）；HIP 编译仍缺完整 ROCm（hsa-runtime64Targets 残缺）→ 先 CPU 满血路径，HIP 另排 | CHG-018 | **P2 进行中**（CPU 可用 / HIP 阻塞） |
 
 ### 2.1 已闭环（勿再当开放债）
 
@@ -47,6 +47,7 @@
 | DEBT-010 | REQ-023 Done；见 06 §3 |
 | DEBT-011 | REQ-027～029 Done；031/032 亦 Done |
 | DEBT-012 | REQ-031/032 Done |
+| DEBT-013 | open_session_run.py 美东时区感知 (America/New_York) 与自适应等待闭环；install_open_session_task.ps1 锚定夏令时最早本地唤醒 (21:38)，免疫每年 DST 切换，单测全部 PASS |
 
 ---
 
@@ -74,4 +75,4 @@
 | 多 Agent 改总控撞车 | 05/07 拆分 + REQ-023 | 部分缓解 |
 | GEX HTML / 盘中 json 刷爆历史 | REQ-024 + 里程碑策略 | 已拍板 |
 | 赵哥仓/跟单仓数据缠绕 + 无盘中确认 | REQ-027～032 | **已缓解** |
-| GEX 开盘任务 DST 漂移 | 重跑 install_open_session_task.ps1 · DEBT-013 | 残留 |
+| GEX 开盘任务 DST 漂移 | open_session_run.py 美东对齐 + install_open_session_task.ps1 锚定最早唤醒 · DEBT-013 | **已缓解**（DEBT-013 Done） |

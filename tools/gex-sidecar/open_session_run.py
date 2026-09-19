@@ -18,7 +18,9 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
@@ -50,7 +52,76 @@ def load_config(path: Path) -> dict:
     cfg.setdefault("ask_wait_seconds", 300)
     cfg.setdefault("skip_flag_path", "data/gex/.skip_open_session")
     cfg.setdefault("webhook_env", "WECHAT_WORK_WEBHOOK_URL")
+    cfg.setdefault("target_eastern_time", "09:40")
+    cfg.setdefault("max_et_wait_seconds", 5400)
     return cfg
+
+
+def wait_for_eastern_market(
+    target_et_str: str = "09:40",
+    max_wait_seconds: int = 5400,
+    skip: Path | None = None,
+    dry_run: bool = False,
+    force: bool = False,
+    now_fn: callable = None,
+) -> bool:
+    """Align execution with US Eastern market time (e.g. 09:40 America/New_York).
+    Immunizes Windows Task Scheduler from seasonal DST shifts (EDT vs EST).
+    Returns True if proceeded to market run, False if aborted via skip_flag.
+    """
+    if force:
+        print("[open_session] force=True — skipping Eastern market alignment wait")
+        return True
+
+    try:
+        tz_et = ZoneInfo("America/New_York")
+    except Exception as exc:
+        print(f"[open_session] warning: could not load America/New_York timezone ({exc}) — skipping wait")
+        return True
+
+    now_et = now_fn() if now_fn else datetime.now(tz_et)
+    try:
+        parts = target_et_str.strip().split(":")
+        target_h, target_m = int(parts[0]), int(parts[1])
+        target_dt = now_et.replace(hour=target_h, minute=target_m, second=0, microsecond=0)
+    except Exception as exc:
+        print(f"[open_session] invalid target_eastern_time '{target_et_str}': {exc} — skipping wait")
+        return True
+
+    wait_sec = (target_dt - now_et).total_seconds()
+
+    if wait_sec <= 0:
+        print(
+            f"[open_session] ET alignment: current {now_et.strftime('%H:%M:%S %Z')} >= target {target_et_str} ET (diff={wait_sec:.1f}s). Proceeding immediately."
+        )
+        return True
+
+    if wait_sec > max_wait_seconds:
+        print(
+            f"[open_session] ET alignment: current {now_et.strftime('%H:%M:%S %Z')}, target {target_et_str} ET. "
+            f"Wait time {wait_sec:.0f}s exceeds max {max_wait_seconds}s. Proceeding without wait."
+        )
+        return True
+
+    print(
+        f"[open_session] ET alignment (DST safe): current {now_et.strftime('%H:%M:%S %Z')} -> target {target_et_str} ET. "
+        f"Waiting {wait_sec:.1f}s until market open..."
+    )
+
+    if dry_run:
+        print(f"[open_session] dry-run — skip actual sleeping for {wait_sec:.1f}s")
+        return True
+
+    deadline = time.time() + wait_sec
+    while time.time() < deadline:
+        if skip and skip.is_file():
+            print("[open_session] skip flag present during ET wait — abort")
+            return False
+        time.sleep(min(5.0, max(0.5, deadline - time.time())))
+
+    now_done = datetime.now(tz_et)
+    print(f"[open_session] ET alignment reached: {now_done.strftime('%H:%M:%S %Z')}")
+    return True
 
 
 def resolve_webhook(cfg: dict) -> str:
@@ -150,6 +221,8 @@ def main() -> int:
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     ap.add_argument("--dry-run", action="store_true", help="Print plan only; do not call OpenD")
     ap.add_argument("--force", action="store_true", help="Ignore skip flag and ask_wait")
+    ap.add_argument("--no-wait-et", action="store_true", help="Skip waiting for Eastern market open time alignment")
+    ap.add_argument("--target-et", type=str, default="", help="Override target Eastern time (HH:MM, default 09:40)")
     args = ap.parse_args()
 
     cfg = load_config(args.config)
@@ -159,9 +232,22 @@ def main() -> int:
     wait_sec = int(cfg.get("ask_wait_seconds") or 0)
     skip = skip_path(cfg)
     webhook = resolve_webhook(cfg)
+    target_et = (args.target_et or str(cfg.get("target_eastern_time") or "09:40")).strip()
+    max_wait = int(cfg.get("max_et_wait_seconds") or 5400)
 
-    print(f"[open_session] mode={mode} zero_dte={zero} matrix={matrix} wait={wait_sec}s")
+    print(f"[open_session] mode={mode} zero_dte={zero} matrix={matrix} wait={wait_sec}s target_et={target_et}")
     print(f"[open_session] skip_flag={skip}")
+
+    if not args.no_wait_et:
+        proceed = wait_for_eastern_market(
+            target_et_str=target_et,
+            max_wait_seconds=max_wait,
+            skip=skip,
+            dry_run=args.dry_run,
+            force=args.force,
+        )
+        if not proceed:
+            return 0
 
     if mode == "ask_console" and not args.force and not args.dry_run:
         ans = input(f"Run GEX collect for {zero}+{matrix}? [y/N] ").strip().lower()
