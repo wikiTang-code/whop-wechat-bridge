@@ -49,9 +49,9 @@
 | `data/media/zhao` | **441** | 近月 untracked | **568**（本机缺图已上；prod-only 127 保留） | SoR=gcp；不 git add |
 | `models/zhao_slm_1.5b_lora/*.safetensors` | **17MB** 权重 | **gitignore**（只跟踪 tokenizer/config） | **无权重**（仅 config） | **符合 CHG-026**：SoR=wsl-gpu，不上 gcp |
 | `data/gex/latest.json` | 有 | 里程碑可提交 | 有（SCP） | 维持 REQ-024，禁盘中 commit |
-| REQ-038-T2 实跑 | candidates=15 / with_level=11 / yahoo_eligible=5 / n_scored=5（CHG-028） | 口径在 git | 知识表已 promote | 可打分集已非空；扩样等 T1 VL（REQ-040） |
+| REQ-038-T2 实跑 | candidates=16 / n_scored=6 / hit_5d=1（CHG-030 收 VL level） | 口径在 git | promote 后 gcp vision_meta=158 | **增量进行中**；继续吃 TSLA SR |
 
-**T2 结论**：Yahoo 通。CHG-028 后首次打出 **5 张 scored**。**Blocked**：扩样等 T1 真图 VL（05 §0.X · 解锁 Owner=`agent:gemini`）。catalog C2 **CHG-027** 已经 Gemini Accepted。
+**T2 结论**：已按 CHG-029 增量开工。首张多模态 TSLL `level` 卡 **hit_5d=true**。§0.X REQ-040=**Partial**。
 
 合同见 [`environments.md`](./environments.md)。**自动流**（REQ-039）：知识表/媒体走 promote·rsync；禁止整库覆盖；禁止无门禁「同步 1995 张卡」。盘点：`npm run env:inventory`。
 
