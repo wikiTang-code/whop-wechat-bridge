@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | TSLA/TSLL 归因：口径+引擎+单测绿；gcp-vm 只读实跑 `candidates=0`（生产 `ontology_card` 无入选子集） | `tools/knowledge/card_attribution.js` · 禁 `batch_vision*` | **Doing** |
+| **1** | **REQ-038-T2** | L3 | 归因引擎绿；阻塞=stub 卡无点位 + 生产无知识表（DEBT-015） | `card_attribution.js` · 禁 `batch_vision*` | **Doing** |
 | 2 | **DEBT-014** | L3 | HIP 满血暂缓（CPU llama-server 已可用） | `/root/llama.cpp/build-cpu` | Standing |
 | 3 | — | — | （空位） | — | — |
 
@@ -66,6 +66,7 @@
 | §0.R-B gemini | **CHG-024 GPU 控制面加固抽审** | **Done**（通过） |
 | §0.R-B gemini | **CHG-025 / 协议 v0.1.4 对齐抽审** | **Done**（通过） |
 | §0.R-A cursor | **REQ-038 Sprint 1 开工规划抽审** | **Done**（accepted-with-gates） |
+| §0.R-A cursor | **REQ-038-T1 VL 离线批跑管道与门禁抽审（`bdb0804`）** | **Queued** |
 
 ### 共享候选池
 
@@ -130,7 +131,8 @@
 - [x] 冻结口径 [`req038-t2-attribution-spec.md`](./req038-t2-attribution-spec.md)
 - [x] `card_attribution.js` + 单测（fixture，不打网）
 - [x] CLI `npm run knowledge:attr-tsla`（`--dry-run` / `--persist`；`card_attribution_cli.js`）
-- [x] 主库 Yahoo 只读实跑（gcp-vm `--limit 80`）：**candidates=0 / n_scored=0**（生产库暂无入选 TSLA/TSLL 点位卡；非 Yahoo 故障）
+- [x] 主库 Yahoo：gcp-vm `ontology_card=0`；本机库 222 候选，抽 120 张全 `skipped_no_level`（stub 无点位）
+- [ ] 知识表上生产：见 04 **DEBT-015**（表级导入，禁整库覆盖）
 
 ### REQ-014 文档树入库
 
@@ -194,7 +196,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：REQ-038-T2 引擎绿；gcp-vm 只读实跑 **candidates=0**。
+- cursor：T2 Yahoo 已跑；本机 222 候选全无点位；04 **DEBT-015** 知识资产未上生产。
 - gemini：REQ-033 队头 #91 CONL（专属回放群）· REQ-038 应收成 **T1 VL**（勿占 T2 归因脚本）。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002 Done；Q-001；企微 #91；Q-006 云端离线批已决。

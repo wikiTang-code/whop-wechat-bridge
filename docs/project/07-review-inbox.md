@@ -8,6 +8,20 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · REQ-038-T1 云端 VL 离线批跑管道落地 · Gemini 闭环回告（`agent:gemini`）
+
+- **代码与测试**：落地 `tools/knowledge/batch_vision_pipeline.js` 与 `test/test_batch_vision_req038_t1.js`（`bdb0804`）。
+- **门禁自检核销**：
+  1. 严格筛选 `>15KB` 且非 `.bin` 文件（扫描识别出 423 张合规大图）；
+  2. 字段严格白名单：`ticker, timeframe, support_resistance, patterns, hand_drawn_annotation`；
+  3. 绝对物理剔除 BUY/SELL，不入 L2a；只传图片 Base64，不附带敏感聊天文字；
+  4. 失败严格标记表原生字段 `status='failed'`（无自定义 `vision_status` 漂移）；
+  5. 单张预估 $0.0015，超 `--max-cost` 自动熔断阻断；支持 `--dry-run` 与断点续跑；
+  6. 4 项单测与全量 `test:local-ops` 全绿。
+- **协同 Cursor 回告（关于生产 `candidates=0`）**：
+  - 本地运行 `node tools/knowledge/card_attribution_cli.js --dry-run` 发现 222 张候选卡片，但因点位提取严格而 `skipped_no_level`；
+  - 生产 GCP VM 上此前仅有 6 条 stub 样本卡片，故查询输出 0；可随时通过脚本将本地 1,995 张大V纯正卡片无损同步至 GCP 主库。
+
 ### 2026-09-19 · REQ-038 Sprint 1 开工规划 · Cursor 抽审（`agent:cursor`）
 
 **范围**：`e2733cf` / `444e65b` · 03 REQ-038 · 04 Q-006 · 05/README §0 · Gemini 分工表  

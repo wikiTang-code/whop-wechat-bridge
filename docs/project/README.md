@@ -77,11 +77,11 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **REQ-038-T2** 归因引擎绿；生产实跑 **0 张入选** | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** 回放纠错 + **REQ-038-T1** 真图 VL 离线批 | Doing |
+| **§0.A `agent:cursor`** | **REQ-038-T2** 引擎绿；卡无点位 / 生产无知识表 | Doing |
+| **§0.B `agent:gemini`** | **REQ-033** 回放纠错 (Standing) + **REQ-038-T1** VL离线批 (Review) | Active / Review |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | **REQ-002 Done**；**Q-006 Done**；**Q-007 Done**；Q-001；企微 #91 点击 | 等待 / Done |
-| **§0.R-A** | **REQ-038 Sprint 1 规划抽审 Done** · DEBT-013 · CHG-020 · CHG-022 | Queued / Done |
+| **§0.R-A** | **REQ-038-T1 抽审** · DEBT-013 · CHG-020 · CHG-022 | Queued / Done |
 | **§0.R-B** | **CHG-025 / 协议 v0.1.4** | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
