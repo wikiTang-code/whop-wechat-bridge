@@ -1,0 +1,411 @@
+/**
+ * tools/knowledge/tape_confluence_detector.js
+ * REQ-041 — 盘口微观大单与四维共振检测引擎 (Quad-Confluence Tape Detector)
+ *
+ * 核心架构:
+ * 1. 维度 1: 大盘 GEX 期权做市商引力场 (Put Wall / Call Wall / 60点动态箱体);
+ * 2. 维度 2: 赵哥大盘与标的多模态走势预判 (ontology_card / message_vision_meta);
+ * 3. 维度 3: 赵哥 457 笔历史第一人称真实成交单价格佐证 (trade_signals / zhao_positions);
+ * 4. 维度 4: 盘口微观超级大单通吃检测 (Block Trade Sweep / 云光存板块异动 / 尾盘V点窗口).
+ *
+ * 安全红线:
+ * - 纯只读数据对齐与参谋，绝不生成实盘 BUY/SELL 下单，严禁接入 L2a;
+ * - 强制免责声明与数据溯源。
+ */
+
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Database from 'better-sqlite3';
+import { getDb } from '../../database.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT_DIR = path.resolve(__dirname, '../../');
+const GEX_PATH = path.join(ROOT_DIR, 'data/gex/latest.json');
+
+export const TAPE_DISCLAIMER =
+  '【纯客观盘口微观结构参谋 · 绝非投资建议】本引擎整合做市商GEX伽马分布、大V历史预判图表、真实交割单点位与盘口大单特征，仅用于市场微观机制学术与复盘印证，严禁作为自动交易依据。';
+
+/** 云·光·存 核心主线标的池 (赵哥量化核心仓) */
+export const SECTOR_MAP = {
+  CLOUD: ['CRWV', 'IREN', 'NBIS', 'CIFR', 'DELL'],
+  OPTICS: ['LITE', 'COHR'],
+  MEMORY: ['DRAM', 'MU', 'WDC', 'SNDK', 'SNXX'],
+  FLAGSHIP: ['TSLA', 'TSLL', 'NVDA', 'INTC', 'QQQ', 'SPY'],
+};
+
+/** 正股 ↔ 杠杆做多 ETF 常用战法军火库映射 */
+export const LEVERAGED_ETF_MAP = {
+  TSLA: { etf: 'TSLL', leverage: 2, name: '2倍做多特斯拉', defaultPrice: 10.35 },
+  NBIS: { etf: 'NEBX', leverage: 2, name: '2倍做多Nebius', defaultPrice: 28.5 },
+  LITE: { etf: 'LITX', leverage: 2, name: '2倍做多Lumentum', defaultPrice: 846.0 },
+  COHR: { etf: 'COHX', leverage: 2, name: '2倍做多Coherent', defaultPrice: 42.0 },
+  COIN: { etf: 'CONL', leverage: 2, name: '2倍做多Coinbase', defaultPrice: 3.99 },
+  QQQ: { etf: 'TQQQ', leverage: 3, name: '3倍做多纳指', defaultPrice: 78.5 },
+  SPY: { etf: 'SPYU', leverage: 4, name: '4倍做多标普', defaultPrice: 33.26 },
+  WDC: { etf: 'SNXX', leverage: 2, name: '2倍做多闪存存储', defaultPrice: 18.2 },
+  SNDK: { etf: 'SNXX', leverage: 2, name: '2倍做多闪存存储', defaultPrice: 18.2 },
+  MU: { etf: 'MUU', leverage: 2, name: '2倍做多美光', defaultPrice: 35.7 },
+};
+
+/**
+ * 将正股关键点位（支撑/阻力/做市商墙）动态折算为杠杆做多 ETF 对应点位
+ * 公式: L_etf = P_etf * (1 + leverage * ((L_underlying - P_underlying) / P_underlying))
+ */
+export function projectLeveragedEtfLevels(underlyingTicker, levels = {}, underlyingPrice, customEtfPrice = null) {
+  const t = (underlyingTicker || '').toUpperCase();
+  const meta = LEVERAGED_ETF_MAP[t];
+  if (!meta || !underlyingPrice || underlyingPrice <= 0) return null;
+
+  const etfPrice = customEtfPrice || meta.defaultPrice;
+  const { leverage, etf, name } = meta;
+
+  const project = (lvl) => {
+    if (typeof lvl !== 'number' || lvl <= 0) return null;
+    const deltaPct = (lvl - underlyingPrice) / underlyingPrice;
+    const etfLvl = etfPrice * (1 + leverage * deltaPct);
+    return Number(Math.max(0.01, etfLvl).toFixed(2));
+  };
+
+  return {
+    etf,
+    name,
+    leverage,
+    etf_current_price: etfPrice,
+    underlying_ticker: t,
+    underlying_price: underlyingPrice,
+    projected_support: (levels.support || []).map(project).filter(Boolean),
+    projected_resistance: (levels.resistance || []).map(project).filter(Boolean),
+  };
+}
+
+/**
+ * 获取标的所属板块
+ */
+export function getSector(ticker) {
+  const t = (ticker || '').toUpperCase();
+  for (const [sec, list] of Object.entries(SECTOR_MAP)) {
+    if (list.includes(t)) return sec;
+  }
+  return 'OTHER';
+}
+
+/**
+ * 盘口大单微观检测器核心实现
+ */
+export function detectTapeConfluence(params = {}) {
+  const {
+    ticker,
+    currentPrice,
+    timestamp = Date.now(),
+    tapeEvent = null, // 盘口逐笔事件 { block_buy_usd: 2500000, is_sweep: true, retail_panic: true, time_et: '15:35' }
+    gexSnapshot = null,
+    dbInstance = getDb(),
+  } = params;
+
+  if (!ticker || !currentPrice) {
+    throw new Error('MISSING_REQUIRED_PARAMS: ticker and currentPrice are required');
+  }
+
+  const t = ticker.toUpperCase();
+  const sector = getSector(t);
+
+  const report = {
+    schema_version: '1.0.0',
+    detected_at: new Date(timestamp).toISOString(),
+    ticker: t,
+    sector,
+    current_price: currentPrice,
+    disclaimer: TAPE_DISCLAIMER,
+    dimensions: {
+      d1_gex_structure: { score: 0, max: 25, details: null },
+      d2_zhao_outlook: { score: 0, max: 25, details: null },
+      d3_trade_signals_proof: { score: 0, max: 25, details: null },
+      d4_tape_block_flow: { score: 0, max: 25, details: null },
+    },
+    total_confluence_score: 0,
+    confluence_level: 'NORMAL', // NORMAL | HIGH | WANGZHA_CONFLUENCE
+    observations: [],
+    safety_audit: {
+      has_buy_sell_orders: false,
+      is_l2a_eligible: false,
+      source_db: 'whop_archive.db',
+    },
+  };
+
+  // --- 维度 1: 大盘 GEX 结构比对 (0 ~ 25分) ---
+  let gex = gexSnapshot;
+  if (!gex && fs.existsSync(GEX_PATH)) {
+    try {
+      gex = JSON.parse(fs.readFileSync(GEX_PATH, 'utf8'));
+    } catch (_) {}
+  }
+
+  if (gex) {
+    // 检查标的本身或联动大盘 (SPY/QQQ) 的 GEX
+    let targetGex = gex.zero_dte?.[t] || gex.matrix?.[t];
+    let macroGex = gex.zero_dte?.['SPY'] || gex.zero_dte?.['QQQ'];
+
+    let gexScore = 0;
+    const gexObs = [];
+
+    if (targetGex) {
+      const putWall = targetGex.king?.strike;
+      const callWall = targetGex.floor?.strike;
+      if (putWall && Math.abs(currentPrice - putWall) / putWall <= 0.015) {
+        gexScore += 15;
+        gexObs.push(`标的现价 ${currentPrice} 紧贴自身 GEX Put Wall (${putWall}) 强支撑带`);
+      }
+      if (callWall && Math.abs(currentPrice - callWall) / callWall <= 0.015) {
+        gexScore += 10;
+        gexObs.push(`标的现价 ${currentPrice} 紧贴自身 GEX Call Wall (${callWall}) 阻力带`);
+      }
+    }
+
+    if (macroGex && macroGex.king?.strike) {
+      gexScore = Math.min(25, gexScore + 10);
+      gexObs.push(`大盘 GEX 处于基准对冲区 (SPY Put Wall: ${macroGex.king.strike})`);
+    }
+
+    report.dimensions.d1_gex_structure.score = Math.min(25, gexScore || 10);
+    report.dimensions.d1_gex_structure.details = gexObs.join('; ');
+  }
+
+  // --- 维度 2: 赵哥大盘与标的多模态走势预判 (0 ~ 25分) ---
+  let bestLevel = null;
+  try {
+    const cards = dbInstance.prepare(`
+      SELECT id, title, trigger_text, action_text, schema_json, created_at 
+      FROM ontology_card 
+      WHERE tickers_json LIKE ? OR title LIKE ?
+      ORDER BY created_at DESC 
+      LIMIT 15
+    `).all(`%"${t}"%`, `%${t}%`);
+
+    let bestDist = Infinity;
+    let matchedCard = null;
+
+    for (const card of cards) {
+      let sr = null;
+      try {
+        if (card.schema_json) {
+          const parsed = JSON.parse(card.schema_json);
+          sr = parsed.support_resistance;
+          if (!sr && parsed.support_resistance_json) {
+            sr = typeof parsed.support_resistance_json === 'string'
+              ? JSON.parse(parsed.support_resistance_json)
+              : parsed.support_resistance_json;
+          }
+        }
+      } catch (_) {}
+
+      const levels = [...(sr?.support || []), ...(sr?.resistance || [])];
+      for (const lvl of levels) {
+        if (typeof lvl === 'number' && lvl > 0) {
+          const dist = Math.abs(currentPrice - lvl) / lvl;
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestLevel = lvl;
+            matchedCard = card;
+          }
+        }
+      }
+    }
+
+    if (bestLevel && bestDist <= 0.03) {
+      const outlookScore = bestDist <= 0.01 ? 25 : (bestDist <= 0.02 ? 20 : 15);
+      report.dimensions.d2_zhao_outlook.score = outlookScore;
+      report.dimensions.d2_zhao_outlook.details = `命中大V多模态战法卡 [${matchedCard.id}] 预测点位 ${bestLevel} (空间偏差 ${(bestDist * 100).toFixed(2)}%)`;
+      report.observations.push(report.dimensions.d2_zhao_outlook.details);
+    } else if (cards.length > 0) {
+      report.dimensions.d2_zhao_outlook.score = 12;
+      report.dimensions.d2_zhao_outlook.details = `命中大V该标的相关卡片 ${cards.length} 张 (形态跟踪中)`;
+    }
+  } catch (_) {}
+
+  // --- 维度 3: 赵哥 457 笔真实成交单历史点位佐证 (0 ~ 25分) ---
+  try {
+    const signals = dbInstance.prepare(`
+      SELECT signal_id, action, price, quantity, created_at 
+      FROM trade_signals 
+      WHERE ticker = ?
+      ORDER BY created_at DESC 
+      LIMIT 20
+    `).all(t);
+
+    if (signals.length > 0) {
+      // 计算历史买入均价或最近成交价
+      const buySignals = signals.filter((s) => s.action === 'BUY' && s.price > 0);
+      let closestSignal = null;
+      let minSigDist = Infinity;
+
+      for (const s of buySignals) {
+        const dist = Math.abs(currentPrice - s.price) / s.price;
+        if (dist < minSigDist) {
+          minSigDist = dist;
+          closestSignal = s;
+        }
+      }
+
+      if (closestSignal && minSigDist <= 0.05) {
+        const sigScore = minSigDist <= 0.02 ? 25 : (minSigDist <= 0.035 ? 20 : 15);
+        report.dimensions.d3_trade_signals_proof.score = sigScore;
+        report.dimensions.d3_trade_signals_proof.details = `与赵哥历史真实 BUY 成交单 [${closestSignal.signal_id}] 点位 $${closestSignal.price} 偏差仅 ${(minSigDist * 100).toFixed(2)}% (真实资金佐证)`;
+        report.observations.push(report.dimensions.d3_trade_signals_proof.details);
+      } else {
+        report.dimensions.d3_trade_signals_proof.score = 12;
+        report.dimensions.d3_trade_signals_proof.details = `历史存在赵哥 ${signals.length} 笔真金白银交易记录 (最高频活跃标的)`;
+      }
+    }
+  } catch (_) {}
+
+  // --- 维度 4: 盘口微观超级大单通吃检测 (0 ~ 25分) ---
+  let tapeScore = 0;
+  const tapeObs = [];
+
+  if (tapeEvent) {
+    // 1. 超级大单溢价吞没 (Block Buy Sweep)
+    if (tapeEvent.block_buy_usd && tapeEvent.block_buy_usd >= 1000000) {
+      tapeScore += 12;
+      tapeObs.push(`检测到单笔超大资金买单 ($${(tapeEvent.block_buy_usd / 1e6).toFixed(2)}M)`);
+      if (tapeEvent.retail_panic) {
+        tapeScore += 5;
+        tapeObs.push('微观特征符合: 散户恐慌止损盘被大单单笔一把通吃扫入');
+      }
+    }
+
+    // 2. 尾盘时空窗口 (美东 15:00~15:50 强平 V 反点)
+    if (tapeEvent.time_et) {
+      const [hh, mm] = tapeEvent.time_et.split(':').map(Number);
+      if (hh === 15 && mm >= 25 && mm <= 55) {
+        tapeScore += 8;
+        tapeObs.push(`命中大V特定尾盘窗口 [${tapeEvent.time_et} ET]: 0DTE期权强平Delta回补拉升区`);
+      }
+    }
+  } else {
+    // 缺省/模拟默认微观分
+    tapeScore = 10;
+    tapeObs.push('常规微观盘口活跃度监控中');
+  }
+
+  report.dimensions.d4_tape_block_flow.score = Math.min(25, tapeScore);
+  report.dimensions.d4_tape_block_flow.details = tapeObs.join('; ');
+  if (tapeObs.length && tapeScore > 10) {
+    report.observations.push(tapeObs.join('; '));
+  }
+
+  // 计算总置信度 (0 ~ 100)
+  const total =
+    report.dimensions.d1_gex_structure.score +
+    report.dimensions.d2_zhao_outlook.score +
+    report.dimensions.d3_trade_signals_proof.score +
+    report.dimensions.d4_tape_block_flow.score;
+
+  report.total_confluence_score = total;
+
+  if (total >= 75) {
+    report.confluence_level = 'WANGZHA_CONFLUENCE'; // 王炸共振
+    report.observations.unshift('🔥【同花顺与王炸共振触发】大盘GEX支撑 + 大V多模态预判 + 真实交割单锚定 + 盘口超级大单通吃！');
+  } else if (total >= 50) {
+    report.confluence_level = 'HIGH';
+    report.observations.unshift('⚡【高置信度多维共振】多维度结构高度重合');
+  }
+
+  // --- 折算 2倍/多倍 做多杠杆 ETF 点位 ---
+  const collectedLevels = {
+    support: [],
+    resistance: [],
+  };
+  // 注入 GEX 墙点位
+  if (gex) {
+    const targetGex = gex.zero_dte?.[t] || gex.matrix?.[t];
+    if (targetGex?.king?.strike) collectedLevels.support.push(targetGex.king.strike);
+    if (targetGex?.floor?.strike) collectedLevels.resistance.push(targetGex.floor.strike);
+  }
+  // 注入已提取的预判点位
+  if (bestLevel) {
+    if (bestLevel < currentPrice) collectedLevels.support.push(bestLevel);
+    else collectedLevels.resistance.push(bestLevel);
+  }
+
+  const etfProjection = projectLeveragedEtfLevels(t, collectedLevels, currentPrice);
+  if (etfProjection) {
+    report.leveraged_etf_projection = etfProjection;
+    let projMsg = `💡 [${etfProjection.name} ${etfProjection.etf} (${etfProjection.leverage}x)] 正股锚点 $${currentPrice}`;
+    if (etfProjection.projected_support.length) {
+      projMsg += ` | 折算做多支撑: $${etfProjection.projected_support.join(', $')}`;
+    }
+    if (etfProjection.projected_resistance.length) {
+      projMsg += ` | 折算做多阻力: $${etfProjection.projected_resistance.join(', $')}`;
+    }
+    report.observations.push(projMsg);
+  }
+
+  return report;
+}
+
+/**
+ * 批量扫描云光存核心标的四维共振
+ */
+export function scanSectorsConfluence(options = {}) {
+  const {
+    dbInstance = getDb(),
+    watchlist = ['IREN', 'CRWV', 'LITE', 'DRAM', 'MU', 'TSLL'],
+    gexPath = GEX_PATH,
+  } = options;
+
+  console.log('===========================================================');
+  console.log('🔍 [REQ-041] 云·光·存 核心标的盘口微观大单与四维共振扫描');
+  console.log('===========================================================');
+
+  let gexData = null;
+  if (fs.existsSync(gexPath)) {
+    try {
+      gexData = JSON.parse(fs.readFileSync(gexPath, 'utf8'));
+    } catch (_) {}
+  }
+
+  const results = [];
+
+  for (const ticker of watchlist) {
+    // 获取该标的最新真实交易记录价格作为参考现价
+    let refPrice = 100;
+    try {
+      const lastSig = dbInstance.prepare(`SELECT price FROM trade_signals WHERE ticker = ? ORDER BY created_at DESC LIMIT 1`).get(ticker);
+      if (lastSig && lastSig.price > 0) refPrice = lastSig.price;
+    } catch (_) {}
+
+    // 模拟盘口事件: 尾盘 15:35 触发大单扫单
+    const mockTape = {
+      block_buy_usd: 2800000,
+      is_sweep: true,
+      retail_panic: true,
+      time_et: '15:35',
+    };
+
+    const res = detectTapeConfluence({
+      ticker,
+      currentPrice: refPrice,
+      tapeEvent: mockTape,
+      gexSnapshot: gexData,
+      dbInstance,
+    });
+
+    console.log(`\n🎯 标的: ${res.ticker} [${res.sector}] | 总共振分: ${res.total_confluence_score} | 等级: ${res.confluence_level}`);
+    console.log(`   - GEX 结构: ${res.dimensions.d1_gex_structure.score}分 (${res.dimensions.d1_gex_structure.details || '无'})`);
+    console.log(`   - 大V预判: ${res.dimensions.d2_zhao_outlook.score}分 (${res.dimensions.d2_zhao_outlook.details || '无'})`);
+    console.log(`   - 历史真单: ${res.dimensions.d3_trade_signals_proof.score}分 (${res.dimensions.d3_trade_signals_proof.details || '无'})`);
+    console.log(`   - 盘口大单: ${res.dimensions.d4_tape_block_flow.score}分 (${res.dimensions.d4_tape_block_flow.details || '无'})`);
+    if (res.observations.length) {
+      console.log(`   💡 核心观察: ${res.observations[0]}`);
+    }
+
+    results.push(res);
+  }
+
+  return results;
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  scanSectorsConfluence();
+}

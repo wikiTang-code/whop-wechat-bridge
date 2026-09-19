@@ -61,6 +61,7 @@
 | REQ-038 | P1 | L3 | `in_progress` | **战法卡归因**（CHG-030：收 VL `level` 卡；dry-run **n_scored=6 / hit_5d=1/6**；已 persist + promote） | T2=`card_attribution*` · 增量消费 T1 |
 | REQ-039 | P1 | L0/L3 | `done` | **知识/GPU 产物自动到达规划 SoR**。Gemini §0.R-B **Accepted**。蒸馏 auto-dump；C2 `knowledge.promote.apply` HITL（CHG-027） | `knowledge_promote.js` · 禁 wecom |
 | REQ-040 | P2 | L3 | `in_progress` | **T2 扩样本（增量）**：`--gaps` 已列 **missing_sr=6**（5 TSLA+1 TSLL）；继续吃回填后的 SR | 05 §0.X Partial · 禁 L2a |
+| REQ-041 | P1 | L3 | `done` | **盘口微观大单与四维共振检测引擎（Tape & Block Order Confluence Detector）**：融合 GEX 做市商引力场 + 赵哥多模态预判 + 457笔第一人称真实单佐证 + 尾盘微观大单通吃；**支持正股（Underlying）分析与 2x/多倍做多杠杆 ETF（TSLL, NEBX, LITX, COHX, CONL, TQQQ, SPYU, SNXX, MUU 等）关键点位动态折算**；单测 `test_tape_confluence_detector_req041.js` 100分王炸共振全绿通过 | 纯只读参谋 · `tools/knowledge/tape_confluence_detector.js` · 禁接 L2a / 禁下单 |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |

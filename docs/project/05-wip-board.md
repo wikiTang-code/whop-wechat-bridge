@@ -23,6 +23,7 @@
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（队头 #91 CONL；**Blocked→Human 企微点击**） | `follow-replay-engine.js` · `server.js` | **Blocked (Active)** |
 | 2 | **REQ-038-T1/T3** | L3 | T1：**优先回填** gaps 清单 6 条 TSLA/TSLL（`req038-t2-vl-gaps.json`）再继续批跑；解锁 Cursor REQ-040 | `tools/knowledge/batch_vision*` · `resonance_radar*` | **Doing / Unblock** |
+| 3 | **REQ-041** | L3 | 盘口微观大单与四维共振检测引擎（GEX + 大V预判 + 457笔真实单佐证 + 云光存盘口大单检测 + 正股点位折算2x做多ETF） | `tools/knowledge/tape_confluence_detector*` | **Done** |
 
 ### 0.C 队列 `agent:gemini1`
 
