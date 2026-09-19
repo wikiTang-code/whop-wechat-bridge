@@ -82,6 +82,7 @@
 | CHG-018 | `done` | **统一 WSL2 AI 运行时**：Step 1–3 + **Q-007 Human 确认关 LMS 切流 OK**（2026-09-19）；残留代码债 DEBT-014（Supervisor sleep-mock→真实二进制，P2） | 2026-09-19 `agent:gemini` 落地 · `agent:cursor` 抽审/回写 |
 | CHG-019 | `done` | **`saveTradeSignal` ON CONFLICT 补齐 `ticker`/`action`/`source`/`stop_loss`/`speaker_*` 等**（二次纠错改标的不残留旧字段；来自 07 REQ-035 抽审尾巴） | 2026-09-19 `agent:cursor` 落地 (`52f2ed9`) · `agent:gemini` 抽审通过 |
 | CHG-020 | `done` | **/health 暴露 process.gitCommit + gcp_health_bundle 探测 restart_drift（闭环 Q-002 漏重启发现信号）** | 2026-09-19 `agent:gemini` · `monitoring/health.js` · `test_health_git_commit_q002.js` · 单测全绿 |
+| CHG-021 | `done` | **跨项目 GPU 独占调度协议契约与 GpuArbiter 融合落地**（Whop × OpenMontage 显存互斥；支持 v1 acquire/release/status 契约、自动恢复 14B 与软降级） | 2026-09-19 `agent:gemini` · `server.js` · `tools/gpu-arbiter.js` · `docs/project/gpu-shared-protocol.md` · 覆盖多租户互斥/排空/TTL/恢复单测全部通过 |
 
 ---
 

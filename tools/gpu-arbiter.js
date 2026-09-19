@@ -23,39 +23,58 @@ import { safeUnloadModel, ensureModelReady, getLoadedModels } from './lms-guard.
 
 export const ArbiterState = {
   IDLE: 'IDLE',
+  DEEP_14B: 'DEEP_14B',
+  FAST_1_5B: 'FAST_1.5B',
+  'FAST_1.5B': 'FAST_1.5B',
   TRAINING: 'TRAINING',
-  DEEP_INFERENCE: 'DEEP_INFERENCE'
+  RENDER_OM: 'RENDER_OM',
+  GAME: 'GAME'
 };
 
 class GpuArbiter {
   constructor() {
     this.state = ArbiterState.IDLE;
     this.currentOwner = null;
+    this.purpose = null;
     this.lockedAt = null;
+    this.ttlSeconds = 900;
+    this.ttlTimer = null;
+    this.modeBefore = ArbiterState.IDLE;
     this.waitQueue = [];
     this.defaultDeepModel = 'qwen2.5-14b-instruct';
   }
 
   /**
-   * 获取当前仲裁器运行状态
+   * 获取当前仲裁器运行状态 (向后兼容 + 扩展 v1 契约)
    */
   getStatus() {
+    const isLocked = this.state === ArbiterState.TRAINING || this.state === ArbiterState.RENDER_OM;
     return {
       state: this.state,
       isTraining: this.state === ArbiterState.TRAINING,
+      isLocked,
       owner: this.currentOwner,
+      purpose: this.purpose,
       lockedAt: this.lockedAt,
       lockedDurationMs: this.lockedAt ? Date.now() - this.lockedAt : 0,
-      queueLength: this.waitQueue.length
+      ttlSeconds: this.ttlSeconds,
+      queueLength: this.waitQueue.length,
+      // 向后兼容旧版 /api/gpu/status data
+      gpuLock: {
+        isLocked,
+        owner: this.currentOwner,
+        acquiredAt: this.lockedAt,
+        mode: this.state
+      }
     };
   }
 
   /**
    * 检查快车道当前是否需要降级
-   * @returns {boolean} 若处于微调独占期，返回 true 提示调用方降级为规则抽取
+   * @returns {boolean} 若处于微调或外部渲染独占期，返回 true 提示调用方降级为规则抽取
    */
   shouldFastLaneFallback() {
-    return this.state === ArbiterState.TRAINING;
+    return this.state === ArbiterState.TRAINING || this.state === ArbiterState.RENDER_OM;
   }
 
   /**
@@ -68,6 +87,13 @@ class GpuArbiter {
         blocked: true,
         reason: 'GPU 目前正处于 1.5B 模型时分微调窗口 (预计持续 40s)，14B 已暂时离线',
         retryAfter: 45
+      };
+    }
+    if (this.state === ArbiterState.RENDER_OM) {
+      return {
+        blocked: true,
+        reason: `GPU 目前已被外部租户 ${this.currentOwner} 独占渲染中，14B 已暂时离线`,
+        retryAfter: 30
       };
     }
     return { blocked: false };
@@ -137,6 +163,169 @@ class GpuArbiter {
       throw trainError;
     }
     return trainResult;
+  }
+
+  /**
+   * 申请外部租户锁 (跨项目 HTTP v1 契约: OpenMontage 等)
+   */
+  async acquireExternalLock({
+    owner,
+    purpose = 'local_render',
+    exclusive = true,
+    vram_mb_estimate = 8000,
+    ttl_seconds = 900,
+    targetDeepModel = this.defaultDeepModel
+  } = {}) {
+    if (!owner) {
+      return { success: false, reason: 'OWNER_REQUIRED', message: 'owner is required' };
+    }
+
+    // 若锁已被自己持有，幂等刷新 TTL
+    if (this.currentOwner === owner && this.state === ArbiterState.RENDER_OM) {
+      this.refreshTtl(owner, ttl_seconds);
+      return {
+        success: true,
+        mode_before: this.modeBefore || ArbiterState.DEEP_14B,
+        mode_now: ArbiterState.RENDER_OM,
+        ttl_seconds,
+        message: 'GPU lock already held by you; TTL refreshed'
+      };
+    }
+
+    // 若当前处于 GAME 模式，拒绝
+    if (this.state === ArbiterState.GAME) {
+      return {
+        success: false,
+        reason: 'GAME_MODE',
+        retry_after: 300,
+        message: 'GPU 目前处于游戏模式 (人类独占)，暂不可用'
+      };
+    }
+
+    // 若当前处于 SLM 时分微调中，返回忙碌与重试时间
+    if (this.state === ArbiterState.TRAINING) {
+      return {
+        success: false,
+        reason: 'TRAIN_1.5B',
+        retry_after: 45,
+        owner: this.currentOwner,
+        message: 'GPU 目前正处于 1.5B 飞轮微调独占期 (预计 40s)'
+      };
+    }
+
+    // 若已被其他外部租户持有，返回忙碌
+    if (this.state === ArbiterState.RENDER_OM && this.currentOwner !== owner) {
+      return {
+        success: false,
+        reason: 'RENDER_BUSY',
+        retry_after: 60,
+        owner: this.currentOwner,
+        message: `GPU 目前已被 ${this.currentOwner} 独占渲染中`
+      };
+    }
+
+    // 成功抢占
+    this.modeBefore = this.state === ArbiterState.IDLE ? ArbiterState.DEEP_14B : this.state;
+    this.state = ArbiterState.RENDER_OM;
+    this.currentOwner = owner;
+    this.purpose = purpose;
+    this.lockedAt = Date.now();
+    this.ttlSeconds = ttl_seconds;
+
+    console.log(`[Arbiter] 🔒 租户 "${owner}" 获取 GPU 独占锁 (Purpose: ${purpose}, TTL: ${ttl_seconds}s)，正在排空 14B 显存...`);
+    const unloadedModels = [];
+    try {
+      const count = safeUnloadModel(targetDeepModel);
+      if (count > 0) unloadedModels.push(targetDeepModel);
+    } catch (e) {
+      console.warn(`[Arbiter] 卸载 ${targetDeepModel} 异常:`, e.message);
+    }
+
+    this.setupTtlTimer(owner, ttl_seconds);
+
+    return {
+      success: true,
+      mode_before: this.modeBefore,
+      mode_now: ArbiterState.RENDER_OM,
+      unloaded: unloadedModels,
+      ttl_seconds
+    };
+  }
+
+  /**
+   * 释放外部租户锁并恢复模型
+   */
+  async releaseExternalLock({
+    owner,
+    restore = 'previous',
+    targetDeepModel = this.defaultDeepModel
+  } = {}) {
+    if (!owner) {
+      return { success: false, reason: 'OWNER_REQUIRED', message: 'owner is required' };
+    }
+
+    if (this.state !== ArbiterState.RENDER_OM) {
+      return { success: true, message: 'GPU is not currently locked by external tenant' };
+    }
+
+    if (this.currentOwner !== owner) {
+      return { success: false, reason: 'FORBIDDEN', message: `Cannot release lock held by ${this.currentOwner}` };
+    }
+
+    this.clearTtlTimer();
+    console.log(`[Arbiter] 🔓 租户 "${owner}" 释放 GPU 锁 (restore=${restore})`);
+
+    let modeNow = ArbiterState.IDLE;
+    if (restore === 'empty' || this.state === ArbiterState.GAME) {
+      this.state = ArbiterState.IDLE;
+      modeNow = ArbiterState.IDLE;
+    } else {
+      this.state = ArbiterState.DEEP_14B;
+      modeNow = ArbiterState.DEEP_14B;
+      // 异步非阻塞唤醒 14B
+      ensureModelReady(targetDeepModel).catch(err => {
+        console.error(`[Arbiter] 释放后异步唤醒 14B 异常:`, err.message);
+      });
+    }
+
+    this.currentOwner = null;
+    this.lockedAt = null;
+    this.purpose = null;
+
+    if (this.waitQueue.length > 0) {
+      const next = this.waitQueue.shift();
+      next();
+    }
+
+    return {
+      success: true,
+      mode_now: modeNow,
+      message: 'GPU unlocked successfully',
+      restored: restore !== 'empty'
+    };
+  }
+
+  setupTtlTimer(owner, ttlSeconds) {
+    this.clearTtlTimer();
+    this.ttlTimer = setTimeout(() => {
+      console.warn(`[Arbiter TTL] ⚠️ 租户 "${owner}" 持锁超过 ${ttlSeconds}s 未释放，看门狗自动触发回收！`);
+      this.releaseExternalLock({ owner, restore: 'previous' }).catch(err => {
+        console.error(`[Arbiter TTL] 自动释放异常:`, err.message);
+      });
+    }, ttlSeconds * 1000);
+    if (this.ttlTimer.unref) this.ttlTimer.unref();
+  }
+
+  clearTtlTimer() {
+    if (this.ttlTimer) {
+      clearTimeout(this.ttlTimer);
+      this.ttlTimer = null;
+    }
+  }
+
+  refreshTtl(owner, ttlSeconds) {
+    this.ttlSeconds = ttlSeconds;
+    this.setupTtlTimer(owner, ttlSeconds);
   }
 }
 

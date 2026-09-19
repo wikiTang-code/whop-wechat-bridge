@@ -113,9 +113,80 @@ if (errRestoredModels.length !== 1 || errRestoredModels[0].identifier !== 'qwen2
 }
 console.log('  ✅ 异常发生后，Arbiter 成功在 finally 中兜底恢复 14B 并释放训练锁');
 
+// 4. 测试外部租户独占锁 (CHG-021: OpenMontage 协议契约落地)
+console.log('\n[测试 4] 测试外部租户 (OpenMontage) 独占锁 acquire/release 契约与自动恢复...');
+
+// 4.1 申请锁
+const acqRes = await gpuArbiter.acquireExternalLock({
+  owner: 'openmontage',
+  purpose: 'local_video_gen',
+  exclusive: true,
+  ttl_seconds: 60
+});
+if (!acqRes.success || acqRes.mode_now !== ArbiterState.RENDER_OM) {
+  console.error('❌ 外部租户申请锁失败:', acqRes);
+  process.exit(1);
+}
+// 14B 应被排空
+if (mock.ps().length !== 0) {
+  console.error('❌ 外部租户占锁后 14B 未能排空');
+  process.exit(1);
+}
+// 快车道应降级
+if (!gpuArbiter.shouldFastLaneFallback()) {
+  console.error('❌ 外部租户占锁期间快车道降级开关未开启');
+  process.exit(1);
+}
+// 深车道应拦截
+const deepBlocked = gpuArbiter.checkDeepLaneAccess();
+if (!deepBlocked.blocked) {
+  console.error('❌ 外部租户占锁期间深车道未能正确退避');
+  process.exit(1);
+}
+
+// 4.2 冲突互斥：第三方租户尝试申请应被拒
+const conflictRes = await gpuArbiter.acquireExternalLock({
+  owner: 'other_tenant',
+  purpose: 'test'
+});
+if (conflictRes.success !== false || conflictRes.reason !== 'RENDER_BUSY') {
+  console.error('❌ 冲突租户未能正确被拦截:', conflictRes);
+  process.exit(1);
+}
+
+// 4.3 自身幂等刷新 TTL
+const refreshRes = await gpuArbiter.acquireExternalLock({
+  owner: 'openmontage',
+  ttl_seconds: 120
+});
+if (!refreshRes.success || refreshRes.ttl_seconds !== 120) {
+  console.error('❌ 自身幂等刷新 TTL 失败:', refreshRes);
+  process.exit(1);
+}
+
+// 4.4 释放锁 (restore=previous)
+const relRes = await gpuArbiter.releaseExternalLock({
+  owner: 'openmontage',
+  restore: 'previous'
+});
+if (!relRes.success || relRes.mode_now !== ArbiterState.DEEP_14B) {
+  console.error('❌ 释放锁失败:', relRes);
+  process.exit(1);
+}
+
+// 等待异步唤醒完成
+await new Promise(r => setTimeout(r, 100));
+
+const omRestored = mock.ps();
+if (omRestored.length !== 1 || omRestored[0].identifier !== 'qwen2.5-14b-instruct') {
+  console.error('❌ OpenMontage 释放后 14B 模型未能自动恢复:', omRestored);
+  process.exit(1);
+}
+console.log('  ✅ 外部租户 (OM) 独占排空、冲突拦截、幂等 TTL、释放后 14B 自动恢复全部通过！');
+
 // 恢复适配器单例
 resetRuntimeAdapter();
 
 console.log('\n===========================================================');
-console.log('🎉 GpuArbiter 所有时分复用与安全恢复单测全部验证通过！');
+console.log('🎉 GpuArbiter 所有时分复用与跨项目协议单测全部验证通过！');
 console.log('===========================================================');

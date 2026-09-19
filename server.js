@@ -20,6 +20,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { getEffectivePollIntervalSec, getBackpressureStatus } from './monitoring/backpressure-controller.js';
 import l2WorkbenchRouter from './routes/l2_workbench_routes.js';
+import { gpuArbiter, ArbiterState } from './tools/gpu-arbiter.js';
 import {
   initDb,
   getMessages,
@@ -2926,89 +2927,66 @@ server.timeout = 1200000; // 20 minutes timeout for long local LLM reasoning
 // ==========================================================================
 // 全局 GPU 资源排队与独占调度系统 (用于协同解决 WeChat Bridge & OpenMontage 显存冲突)
 // ==========================================================================
-global.gpuLock = {
-  isLocked: false,
-  owner: null,
-  acquiredAt: null
-};
+// 全局 GPU 锁兼容引用 (由 gpuArbiter 单例统管, 解决与训练/WSL AI 运行时分裂)
+global.gpuLock = gpuArbiter.getStatus().gpuLock;
 
-// 申请 GPU 锁
+// 申请 GPU 锁 (接入 gpuArbiter 统一真相源，遵循 gpu-resource-protocol v1)
 app.post('/api/gpu/acquire', async (req, res) => {
-  const { owner } = req.body;
+  const { owner, purpose, exclusive, vram_mb_estimate, ttl_seconds } = req.body || {};
   if (!owner) {
     return res.status(400).json({ success: false, error: 'owner is required' });
   }
 
-  // 如果锁已被自己持有，直接返回成功
-  if (global.gpuLock.isLocked && global.gpuLock.owner === owner) {
-    return res.json({ success: true, message: 'GPU already locked by you' });
-  }
-
-  // 如果被别人持有，返回失败并告知占用者
-  if (global.gpuLock.isLocked && global.gpuLock.owner !== owner) {
-    return res.json({
-      success: false,
-      reason: `GPU 已被 ${global.gpuLock.owner} 占用，锁定于 ${new Date(global.gpuLock.acquiredAt).toLocaleTimeString('zh-CN')}`
-    });
-  }
-
-  global.gpuLock = {
-    isLocked: true,
+  const result = await gpuArbiter.acquireExternalLock({
     owner,
-    acquiredAt: Date.now()
-  };
-  console.log(`[GPU Scheduler] GPU 锁已被 ${owner} 成功获取`);
+    purpose: purpose || 'local_render',
+    exclusive: exclusive !== false,
+    vram_mb_estimate: Number(vram_mb_estimate) || 8000,
+    ttl_seconds: Number(ttl_seconds) || 900
+  });
 
-  if (owner === 'openmontage') {
-    // 自动卸载大模型以腾空全部显存给视频渲染
-    try {
-      const { exec } = await import('child_process');
-      console.log('[GPU Scheduler] 检测到 openmontage 触发独占渲染，正在执行 lms unload 释放显存...');
-      exec('lms unload --all', (err, stdout, stderr) => {
-        if (err) {
-          console.warn('[GPU Scheduler] lms 命令行卸载失败，可能未安装 lms CLI。尝试 HTTP 备用路径:', err.message);
-          const lmStudioUrl = process.env.LM_STUDIO_BASE_URL || 'http://127.0.0.1:8080';
-          // 备用请求：卸载本地大模型接口
-          fetch(`${lmStudioUrl}/api/v1/models/unload`, { method: 'POST' }).catch(() => {});
-        } else {
-          console.log('[GPU Scheduler] LM Studio 显存成功彻底释放:', stdout.trim());
-        }
-      });
-    } catch (e) {
-      console.warn('[GPU Scheduler] 执行 lms 卸载任务异常:', e.message);
-    }
-  }
+  // 同步更新兼容引用
+  global.gpuLock = gpuArbiter.getStatus().gpuLock;
 
-  res.json({ success: true, message: 'GPU locked successfully' });
+  return res.json({
+    ...result,
+    isLocked: result.success,
+    owner
+  });
 });
 
-// 释放 GPU 锁
-app.post('/api/gpu/release', (req, res) => {
-  const { owner } = req.body;
+// 释放 GPU 锁 (接入 gpuArbiter, 支持 restore=previous 自动恢复 14B)
+app.post('/api/gpu/release', async (req, res) => {
+  const { owner, restore } = req.body || {};
   if (!owner) {
     return res.status(400).json({ success: false, error: 'owner is required' });
   }
 
-  if (!global.gpuLock.isLocked) {
-    return res.json({ success: true, message: 'GPU is already unlocked' });
+  const result = await gpuArbiter.releaseExternalLock({
+    owner,
+    restore: restore || 'previous'
+  });
+
+  // 同步更新兼容引用
+  global.gpuLock = gpuArbiter.getStatus().gpuLock;
+
+  if (!result.success && result.reason === 'FORBIDDEN') {
+    return res.status(403).json(result);
   }
-
-  if (global.gpuLock.owner !== owner) {
-    return res.status(403).json({ success: false, error: `You cannot release lock held by ${global.gpuLock.owner}` });
-  }
-
-  console.log(`[GPU Scheduler] GPU 锁已被 ${owner} 释放`);
-  global.gpuLock = {
-    isLocked: false,
-    owner: null,
-    acquiredAt: null
-  };
-
-  res.json({ success: true, message: 'GPU unlocked successfully' });
+  return res.json({
+    ...result,
+    isLocked: false
+  });
 });
 
 // 获取当前 GPU 锁状态
 app.get('/api/gpu/status', (req, res) => {
-  res.json({ success: true, data: global.gpuLock });
+  const status = gpuArbiter.getStatus();
+  global.gpuLock = status.gpuLock;
+  res.json({
+    success: true,
+    data: status.gpuLock,
+    ...status
+  });
 });
 

@@ -22,7 +22,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（常驻流水线：队头 #90 CONL 等待企微点击，用户手机端操作即自动级联推进下一笔，进度 10.7%） | `follow-replay-engine.js` · `server.js` | **Standing (Active)** |
-| 2 | — | — | （空位；CHG-020 / Q-002 漏重启发现信号已闭环，/health 暴露 gitCommit + 漂移判定，32 项单测全绿） | — | — |
+| 2 | — | — | （空位） | — | — |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -60,6 +60,7 @@
 | §0.R-A cursor | **DEBT-013 GEX 开盘任务 DST 免疫对齐抽审** | **Queued** |
 | §0.R-B gemini | **CHG-019 + DEBT-014 路径抽审（`52f2ed9`）** | **Done** |
 | §0.R-A cursor | **CHG-020 / Q-002 漏重启发现信号与探针抽审** | **Queued** |
+| §0.R-B gemini | **GPU 跨项目资源协议 v0.1-draft**（签署完成，转入 CHG-021） | **Done** |
 
 ### 共享候选池
 
@@ -106,6 +107,7 @@
 | CHG-018 | L2/L3 | 统一 WSL2 AI 运行时（Q-007 Done；DEBT-014 代码路径 Done） | `agent:gemini` / cursor | Done | 装二进制后满血 |
 | DEBT-013 | L2 | GEX 开盘任务夏/冬令时（DST）自动对齐加固 | `agent:gemini` | Done | `open_session_run.py` 美东自适应对齐，Task 锚定最早唤醒，单测全绿 |
 | CHG-020 | L2/L4 | 漏重启发现信号与探针闭环（Q-002 Done） | `agent:gemini` | Done | `/health` 暴露 `process.gitCommit`，`gcp_health_bundle` 自动计算 `restart_drift` |
+| CHG-021 | L2/L3 | 跨项目 GPU 独占调度协议契约与 GpuArbiter 融合落地（Whop × OpenMontage 互斥；v1 HTTP 契约、自动恢复 14B） | `agent:gemini` | Done | `server.js` · `tools/gpu-arbiter.js` · 单测全绿 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 

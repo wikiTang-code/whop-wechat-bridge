@@ -8,6 +8,57 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · CHG-021 跨项目 GPU 独占调度协议契约与 GpuArbiter 融合落地交付（`agent:gemini` · §0.R-A · 待抽审）
+
+**范围**：`server.js` `/api/gpu/acquire|release|status` · `tools/gpu-arbiter.js` · `test/test_gpu_arbiter.js` · `docs/project/gpu-shared-protocol.md`  
+**总评**：**完成交付**。彻底融合 `GpuArbiter` 单例与 HTTP 接口，Whop 与外部租户（如 OpenMontage 视频渲染、训练任务）共享 GPU 7900XT 显存。支持跨租户独占锁排空 14B、TTL 超时回收、释放后异步自动恢复 14B、快车道自动正则抽取降级与深车道 503 退避。32 项单测全绿。
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | `tools/gpu-arbiter.js` 扩展状态机（`RENDER_OM`, `TRAINING`, `GAME` 等），提供 `acquireExternalLock` / `releaseExternalLock` 核心调度原语 |
+| **通过** | `server.js` 重构 `/api/gpu/acquire|release|status`，完全接入 `gpuArbiter` 统一真相源，废弃无状态简单布尔变量 |
+| **通过** | 契约支持状态码 200 + `success: false` + `retry_after`，严防客户端抛异常触发无锁硬跑 |
+| **通过** | `test/test_gpu_arbiter.js` 新增测试用例覆盖租户独占、互斥拦截、排空、TTL 与自动恢复 |
+| **通过** | `npm run test:local-ops` 32 项自动化单测全绿（含 DST、Q-002、Supervisor、Arbiter 等） |
+
+**审修状态**：**`Queued`**（请 Cursor 抽审）
+
+---
+
+### 2026-09-19 · GPU 跨项目资源协议 v0.1-draft（Whop 开发 Agent · 审阅结论）
+
+**范围**：本机共享协议 `C:\Users\86597\.cursor\shared-protocols\gpu-resource-protocol.md` · 指针 [`gpu-shared-protocol.md`](./gpu-shared-protocol.md)  
+**对照**：`server.js` `/api/gpu/acquire|release|status` · `tools/gpu-arbiter.js` · CHG-018 WSL llama-server · OpenMontage `gpu_lock_helper.py`  
+**审阅方**：Whop wechat-bridge Agent（`agent:gemini` · 2026-09-19）  
+**总评**：**接受（`accepted-with-gates`）**。协议切中 7900XT 20GB 单卡双应用显存争用的核心要害（状态分裂、静默无锁强跑、WSL 切流遗留、缺少自动恢复），权责划分清晰，硬件红线（坚决不跑 Wan 14B）完全符合安全原则。
+
+#### 针对 §7 开放问题的逐条定稿结论：
+
+1. **Source of truth（唯一真相源）**：
+   - **由 Whop `:8085` 的 `GpuArbiter` 单例作为唯一总仲裁中心**。
+   - 理由：`/api/gpu/*` 接口作为外部 HTTP 契约直接代理调用 `GpuArbiter`，Whop 内部的 `flywheel_engine` 训练任务亦通过 `GpuArbiter` 排队；底层的真正模型排空与加载，由 `GpuArbiter` 统一委托给 `ai-runtime-adapter.js`（对接 WSL Supervisor `:18080`），Supervisor 只负责进程看护，不参与多租户业务仲裁。
+2. **Busy status code（忙时状态码）**：
+   - **保持 `HTTP 200 + { "success": false, "reason": "...", "retry_after": N }`**。
+   - 理由：现有 Python 客户端如捕获到 423/409 会引发 `HTTPError`，若配置了 `fallback_on_fail` 极易诱发无锁盲跑；保持 200 结构化 JSON 响应兼顾历史兼容与安全性，且 `retry_after` 字段对客户端自旋等待极为友好。
+3. **Restore on release（释放自动恢复）**：
+   - **是（`restore=previous|deep` 时默认触发恢复 14B；`restore=empty` 或 `GAME` 模式则不恢复）**。
+   - 规则：释放接口返回 HTTP 200 前以异步非阻塞 Promise 触发 `ensureModelReady('qwen2.5-14b-instruct')`，既不阻断 OM 释放响应，又能在 15–20s 内平滑恢复深车道推理能力。
+4. **Coexistence（1.5B 显存共存）**：
+   - **允许（当预估显存 ≤ 10GB 时保留 1.5B，仅排空 14B）**。
+   - 理由：1.5B 仅占约 2GB 显存，OM 运行 LTX-2 或 Wan 1.3B 时，20GB 显存扣除系统缓冲后完全能容纳 1.5B + 扩散模型，使微信网桥保持亚秒级快车道处理能力，避免全盘降级。
+5. **TTL（超时防泄漏）**：
+   - **15 分钟（900s）作为默认最大 TTL 合理；增加心跳续期机制**。
+   - 规则：OM 长批次渲染每 60s 可发送一次 heartbeat 续期；若 15 分钟无释放且无心跳，Whop 自动回收锁并记录 warn 审计日志。
+6. **Windows vs WSL IP**：
+   - **完全确认可行**。
+   - 链路：Windows OM 访问 `127.0.0.1:8085`（Whop 服务）→ Whop 进程通过 `ai-runtime-adapter` 调用 WSL 内的 Supervisor `:18080` 优雅卸载模型，全链路零网络阻碍。
+7. **变更立项（CHG ID）**：
+   - **立项为全新变更编号 `CHG-021`（跨项目 GPU 独占调度协议契约与 GpuArbiter 融合落地）**。
+
+**审修状态**：**`Done`（accepted-with-gates · 进入 CHG-021 落地实施）**
+
+---
+
 ### 2026-09-19 · CHG-020 / Q-002 漏重启发现信号与探针闭环交付（`agent:gemini` · §0.R-A · 待抽审）
 
 **范围**：`monitoring/health.js` · `tools/local-ops/remote/gcp_health_bundle.sh` · `runbooks/deploy-restart.md` · `test/test_health_git_commit_q002.js` · `package.json`  
