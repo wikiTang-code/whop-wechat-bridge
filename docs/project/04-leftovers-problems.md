@@ -51,7 +51,7 @@
 | `data/gex/latest.json` | 有 | 里程碑可提交 | 有（SCP） | 维持 REQ-024，禁盘中 commit |
 | REQ-038-T2 实跑 | candidates=15 / with_level=11 / yahoo_eligible=5 / n_scored=5（CHG-028） | 口径在 git | 知识表已 promote | 可打分集已非空；扩样等 T1 VL（REQ-040） |
 
-**T2 结论**：Yahoo 通。CHG-028 后首次打出 **5 张 scored**（1 TSLA + 4 TSLL）。仍缺真图 VL 点位扩样。catalog C2 见 **CHG-027 Done**。
+**T2 结论**：Yahoo 通。CHG-028 后首次打出 **5 张 scored**。**Blocked**：扩样等 T1 真图 VL（05 §0.X · 解锁 Owner=`agent:gemini`）。catalog C2 **CHG-027** 已经 Gemini Accepted。
 
 合同见 [`environments.md`](./environments.md)。**自动流**（REQ-039）：知识表/媒体走 promote·rsync；禁止整库覆盖；禁止无门禁「同步 1995 张卡」。盘点：`npm run env:inventory`。
 

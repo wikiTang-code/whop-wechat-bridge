@@ -58,9 +58,9 @@
 | REQ-035 | P1 | L1 | `done` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后幂等写入一条 `source=manual_correct` 的 signal） | 2026-09-18 `agent:gemini` · `follow-replay-engine.js` · `database.js` · `test_replay_signal_sync_req035.js` |
 | REQ-036 | P1 | L3 | `active` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（长期常驻主线：V1闭环已就绪；自迭代飞轮引擎落地 `flywheel_engine.js`，增量水位自动感知编排，单测全绿） | 常驻维护 · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` · `test_slm_flywheel_req036.js` |
 | REQ-037 | P2 | L3 | `done` | **大V全频道多模态图文对齐与交易知识本体图谱**（P1–P3 Done：批蒸馏全库扫描 + 防游标 `ontology_distill_scanned` + Layer4 只读检索；默认 `--sender xiaozhaolucky` 过滤大V，提炼 1995 张大V纯正卡片并将 `sender_name` 沉淀入 `schema_json`；支持 `--all-senders`；**P4 企微盘中参谋仍冻结** `REJ-008`） | 双Agent协同 · `knowledge:distill` · `ontology_query_engine` · 单测全绿 |
-| REQ-038 | P1 | L3 | `in_progress` | **战法卡归因回测与共振只读雷达**（T2 CHG-028 后 dry-run **candidates=15 / with_level=11 / yahoo_eligible=5 / n_scored=5**，hit_rate_5d=0 / hit_3d=0.6；等 T1 TSLA VL 扩样本） | T1/T3：`batch_vision*` / `resonance_radar*`；T2：`card_attribution.js`；SoR=gcp |
-| REQ-039 | P1 | L0/L3 | `done` | **知识/GPU 产物自动到达规划 SoR**。gcp `ontology_card=4032` / `message_vision_meta=73` / `messages=109159`（ingest 自然增长）。蒸馏 auto-dump；Local-Ops C2 `knowledge.promote.apply` HITL（CHG-027）；禁企微 | `knowledge_promote.js` · HITL `--allow-prod-write` · 禁 wecom |
-| REQ-040 | P2 | L3 | `proposed` | **T2 扩样本**：T1 真图 VL 批出 TSLA/TSLL 点位 → promote → 再跑归因（禁 L2a） | 依赖 REQ-038-T1 批跑；热点仍 `card_attribution*`（cursor） |
+| REQ-038 | P1 | L3 | `in_progress` | **战法卡归因回测与共振只读雷达**（T2 CHG-028：n_scored=5；**REQ-040 Blocked** 等 T1 TSLA/TSLL 真 VL） | T1 解锁方=`agent:gemini` · 见 05 §0.X |
+| REQ-039 | P1 | L0/L3 | `done` | **知识/GPU 产物自动到达规划 SoR**。Gemini §0.R-B **Accepted**（2026-09-19）。蒸馏 auto-dump；C2 `knowledge.promote.apply` HITL（CHG-027） | `knowledge_promote.js` · 禁 wecom |
+| REQ-040 | P2 | L3 | `accepted` | **T2 扩样本**：T1 真图 VL（优先 TSLA/TSLL）→ promote → 再归因。**当前 Blocked**（解锁 Owner=`agent:gemini` T1） | 见 05 §0.X · 禁 L2a |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |

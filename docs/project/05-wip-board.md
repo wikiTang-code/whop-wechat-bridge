@@ -13,16 +13,16 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | CHG-028 后 yahoo_eligible=5 / n_scored=5；等 T1 VL 扩样（REQ-040） | `card_attribution.js` | **Doing** |
-| 2 | **REQ-040** | L3 | T1 TSLA VL→promote→再归因（proposed） | `card_attribution.js` | Queued |
+| **1** | **REQ-038-T2** | L3 | Sprint1 已 scored=5；**扩样 Blocked→REQ-040/T1** | `card_attribution.js` | **Blocked** |
+| 2 | **REQ-040** | L3 | T1 TSLA/TSLL 真点位 VL→promote→再归因 | `card_attribution.js`（等 T1 产物） | **Blocked** |
 | 3 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（常驻流水线：队头 #91 CONL 等待企微点击，独立专属回放群通道已锁定，进度 10.8%） | `follow-replay-engine.js` · `server.js` | **Standing (Active)** |
-| 2 | **REQ-038-T1/T3** | L3 | T1 门禁闭环；T3 三点共振雷达规范与引擎落地，单测全绿；禁碰 card_attribution* | `tools/knowledge/batch_vision*` · `tools/knowledge/resonance_radar*` | **Done / In Review** |
+| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（队头 #91 CONL；**Blocked→Human 企微点击**） | `follow-replay-engine.js` · `server.js` | **Blocked (Active)** |
+| 2 | **REQ-038-T1/T3** | L3 | T1 门禁+多模型 fallback；**解锁 Cursor REQ-040 的关键路径**：批跑 TSLA/TSLL 真点位并走 promote | `tools/knowledge/batch_vision*` · `resonance_radar*` | **Doing / Unblock** |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -41,6 +41,17 @@
 | Q-006 | REQ-037 视觉模型 | **Done**（已决：云端轻量 VL 离线批；禁 VL→L2a；硬账 >15KB=432 张可排预算） |
 | Q-007 | CHG-018：关 Windows LM Studio 切流？ | **Done**（Human 2026-09-19 确认已关 LMS 且切流试用 OK） |
 | Q-008 | REQ-038-T1 云端 VL API 密钥 | **Done**（Human 配置纯 Free Tier 密钥；实测 SPY K线真图多模态抽取成功，纯免费 0 扣费） |
+| **企微 #91 CONL** | 解锁 §0.B REQ-033 队头回放 | **等待点击**（阻塞 gemini） |
+
+### 0.X Blocked 感知表（跨 Owner · 强制可见）
+
+> 任一队列项进入 `Blocked` 必须在本表留一行；**解锁 Owner** 每次同步必读。解除后删行或改 `Cleared`。
+
+| 阻塞项 | 被阻塞方 | 解锁 Owner | 阻塞原因 | 解锁动作 | 状态 |
+|--------|----------|------------|----------|----------|:----:|
+| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）** | Sprint1 文本点位已打满；缺 TSLA/TSLL **真图 VL** `support_resistance_json` | T1 批跑优先标的 TSLA/TSLL → 本机落库 → `knowledge.promote.apply` HITL → 通知 cursor 重跑 `knowledge:attr-tsla` | **Open** |
+| **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
+| **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 
 ### 0.R
 
@@ -66,7 +77,8 @@
 | §0.R-B gemini | **CHG-023 WSL AI 切流锁定抽审** | **Done**（通过） |
 | §0.R-B gemini | **CHG-024 GPU 控制面加固抽审** | **Done**（通过） |
 | §0.R-B gemini | **CHG-025 / 协议 v0.1.4 对齐抽审** | **Done**（通过） |
-| §0.R-B gemini | **REQ-039 / CHG-027 知识 promote 通道抽审** | **Done**（通过） |
+| §0.R-B gemini | **REQ-039 / CHG-027 知识 promote 通道抽审** | **Done**（通过 · Cursor 已消化） |
+| §0.R-A cursor | **REQ-038-T1 多模型 fallback（`76641b1`）抽审** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-038 Sprint 1 开工规划抽审** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-038-T1 VL 离线批跑管道与门禁抽审（`bdb0804`）** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-038-T3 规范与引擎抽审** | **Done**（accepted-with-gates） |
@@ -121,9 +133,12 @@
 | CHG-023 | L2/L3 | WSL AI 切流锁定（Win:8080独占指向WSL llama-server；默认 backend=wsl；废 8081；方案 §7） | `agent:cursor` | Done | `tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js` · 单测全绿 |
 | CHG-024 | L2/L3 | GPU 控制面加固（`:18080` 可达、禁假成功、Wan 拒载、ROCm release 延迟；协议 v0.1.3） | `agent:cursor` | Done | Gemini 抽审通过 |
 | CHG-025 | L2/L3 | 协议 v0.1.4 对齐（status 契约、GAME 无 retry_after、INVALID_PAYLOAD） | `agent:cursor` | Done | `gpu-arbiter.js` · `server.js` |
-| REQ-038 | L3 | 战法卡归因与共振只读雷达（T2 CHG-028：n_scored=5；REQ-040 等 T1 VL） | 双Agent协同 | Doing | Sprint 1；禁进L2a |
-| REQ-039 | L0/L3 | 知识/GPU 产物到达规划 SoR（表级 promote，禁整库覆盖） | `agent:cursor` | Done | auto-dump + gcp vision_meta=73；CHG-027 catalog HITL |
+| REQ-038 | L3 | 战法卡归因与共振只读雷达（T2 scored=5；**040 Blocked→T1**） | 双Agent协同 | Blocked | 见 §0.X；禁进L2a |
+| REQ-039 | L0/L3 | 知识/GPU 产物到达规划 SoR（表级 promote，禁整库覆盖） | `agent:cursor` | Done | Gemini Accepted · CHG-027 |
+| REQ-040 | L3 | T2 扩样（T1 VL→promote→归因） | `agent:cursor` | Blocked | 解锁=`agent:gemini` T1 |
 | CHG-026 | L0 | 运行环境合同（compute vs SoR） | `agent:cursor` | Done | `environments.md` |
+| CHG-027 | L4/L0 | Local-Ops knowledge.promote HITL C2 | `agent:cursor` | Done | Gemini Accepted |
+| CHG-028 | L3 | T2 方向/点位消歧 | `agent:cursor` | Done | n_scored=5 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 
@@ -154,7 +169,7 @@
 - [x] VL 点位：标的须匹配；拒 100.5/120 fixture；`schema_json` 可抽价
 - [x] 口径修正：`with_level` / `yahoo_eligible` 分计
 - [x] **CHG-028**：结论行消歧 + 拒概率% + 异标的近邻价丢弃 → dry-run **yahoo_eligible=5 / n_scored=5**（hit_5d=0 / hit_3d=0.6）
-- [ ] REQ-040：T1 真 TSLA VL 扩样本后再跑
+- [ ] REQ-040：**Blocked**（05 §0.X · 解锁 Owner=`agent:gemini` T1 真 TSLA/TSLL VL + promote）
 
 ### REQ-014 文档树入库
 
@@ -218,7 +233,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：CHG-028 Done；T2 dry-run n_scored=5。REQ-040 入队 Queued（等 T1 VL）。039/027 交 Gemini §0.R-B。
-- gemini：REQ-033 队头 #91 CONL · T1 管道已交付（R-A 抽审完）。
+- cursor：消化 Gemini 039/027 Accepted；T1 fallback 抽审 gates。T2/040 **Blocked→gemini T1**（05 §0.X）。033 Blocked→Human #91。
+- gemini：**请读 §0.X**：你是 REQ-040 解锁方（T1 批 TSLA/TSLL 真点位 + promote）；033 仍等 Human #91。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002 Done；Q-001；企微 #91；Q-006 云端离线批已决。

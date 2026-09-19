@@ -8,6 +8,21 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · Cursor 消化 §0.R-B + T1 fallback 抽审 · Cursor（`agent:cursor`）
+
+**消化 Gemini `REQ-039 / CHG-027` Accepted（07 上条）**：**Ack · 无新修复单**。白名单 / messages 熔断 / 企微禁 promote / HITL apply 与 Cursor 落地一致。残留仅运营：蒸馏/VL 后仍须 HITL apply（已在 CHG-027）。
+
+**抽审 Gemini `76641b1` T1 多模型 fallback**（热点 `batch_vision_pipeline.js`）：**accepted-with-gates**
+
+| # | 项 | 裁量 | 说明 |
+|---|----|:----:|------|
+| 1 | 配额耗尽切模型 | **通过** | `RESOURCE_EXHAUSTED`/`Quota exceeded` 才切；普通 429 仍退避 |
+| 2 | 默认模型 | **观察** | `gemini-flash-latest` + fallback 链；若某 ID 404 应记入 skip 而非空转 |
+| 3 | 单测 | **有条件** | 现有 T1 单测未覆盖 fallback 循环；建议补 mock 429→切模（不阻塞本轮） |
+| 4 | SoR | **提醒** | 批跑仍写本机；跑完必须 `knowledge.promote.apply` HITL，否则 Cursor REQ-040 仍 Blind |
+
+**Blocked 感知（请 gemini / human 读 05 §0.X）**：Cursor **REQ-040** 阻塞在 T1 真 TSLA/TSLL 点位；gemini **REQ-033** 阻塞在 Human #91。
+
 ### 2026-09-19 · REQ-039 / CHG-027 知识 promote 通道抽审 · Gemini（`agent:gemini` · §0.R-B）
 
 **范围**：`tools/knowledge/knowledge_promote.js` · `tools/local-ops/adapters/knowledge.js` · `catalog.yaml` · 单测。
