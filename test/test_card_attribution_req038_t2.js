@@ -172,4 +172,50 @@ const fromVl = evaluateCard(
 assert.strictEqual(fromVl.status, 'scored');
 assert.strictEqual(fromVl.level, 247);
 
+const fromSchema = evaluateCard(
+  {
+    card_type: 'pattern',
+    title: 'TSLA 形态卡',
+    trigger_text: '回踩关键支撑再加仓',
+    tickers_json: '["TSLA"]',
+    schema_json: '{"sender_name":"xiaozhaolucky","note":"回踩 $247 支撑"}'
+  },
+  { messageCreatedAt: t0, bars }
+);
+assert.strictEqual(fromSchema.status, 'scored');
+assert.strictEqual(fromSchema.level, 247);
+
+const spyVl = evaluateCard(
+  {
+    card_type: 'pattern',
+    title: 'TSLA 形态卡',
+    trigger_text: '回踩关键支撑再加仓',
+    tickers_json: '["TSLA"]'
+  },
+  {
+    messageCreatedAt: t0,
+    bars,
+    visionMeta: {
+      ticker: 'SPY',
+      support_resistance_json: JSON.stringify({ support: [247], resistance: [260] })
+    }
+  }
+);
+assert.strictEqual(spyVl.status, 'skipped_no_level');
+
+const fixtureVl = evaluateCard(
+  {
+    card_type: 'pattern',
+    title: 'TSLA 形态卡',
+    trigger_text: '回踩关键支撑再加仓',
+    tickers_json: '["TSLA"]'
+  },
+  {
+    messageCreatedAt: t0,
+    bars,
+    visionMeta: { support_resistance_json: JSON.stringify({ support: [100.5], resistance: [120] }) }
+  }
+);
+assert.strictEqual(fixtureVl.status, 'skipped_no_level');
+
 console.log('  ✅ level/direction/windows/event-exclude/db isolation/source_text/ticker-gate PASS');

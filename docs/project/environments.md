@@ -49,18 +49,19 @@
 | `message_vision_meta` | `zhao_positions` |
 | `semantic_cu` | `follow_decisions` · `strategy_assets` |
 
-整文件替换生产 `whop_archive.db` = **事故**（本机 messages 90456 < 生产 109157）。
+整文件替换生产 `whop_archive.db` = **事故**（本机 messages 90456 < 生产 109159）。
 
 生产写库走 **HITL / 预注册配方**（`REQ-039`），禁止 Agent 随手 `scp` 整库、禁止「无损同步 1995 张卡」的无门禁脚本当正式通道。
 
 ---
 
-## 4. 现状（2026-09-19 首次 promote 后）
+## 4. 现状（2026-09-19 二次 promote 后）
 
-- 知识表 SoR：**已对齐** gcp `ontology_card=4032` / `ontology_distill_scanned=3154` / `message_vision_meta=38`；`messages=109157` 未覆盖。
-- 媒体 SoR：gcp **568**（本机 441 已补上；prod-only 127 保留）。
-- 蒸馏/VL 仍先写本机；跑完必须再 `knowledge:promote --remote --apply --allow-prod-write`。
-- LoRA：**符合**（不上 gcp）。GEX SCP：**符合**。
+- 知识表 SoR：**已对齐** gcp `ontology_card=4032` / `ontology_distill_scanned=3154` / `message_vision_meta=73`；`messages=109159` 仅 ingest 增长，promote 未覆盖。
+- 媒体 SoR：gcp **568**（本机 441；prod-only 127 保留）。
+- 蒸馏非 dry-run 后 **自动 dump**；apply 仍须 HITL `--allow-prod-write`。VL 仍先写本机。
+- `env:inventory --remote`：scp 探针到仓内 `data/runtime/`（勿 `ssh node -e`）。
+- LoRA：**符合**（不上 gcp）。GEX SCP：**符合**。catalog C2：**CHG-027 proposed**（未改 `catalog.yaml`）。
 
 盘点：`npm run env:inventory` · 上 SoR：`npm run knowledge:promote`（dry-run）→ `--dump` → `--remote --apply --allow-prod-write`。
 

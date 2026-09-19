@@ -79,8 +79,9 @@ for (const p of prepped) {
   const s = p.preview.status || 'unknown';
   skipCounts[s] = (skipCounts[s] || 0) + 1;
 }
-const withLevel = prepped.filter((p) => !SKIP_YAHOO.has(p.preview.status));
-const picked = withLevel.slice(0, Number.isFinite(limit) ? limit : 200);
+const withLevel = prepped.filter((p) => p.preview.level != null);
+const yahooEligible = withLevel.filter((p) => !SKIP_YAHOO.has(p.preview.status));
+const picked = yahooEligible.slice(0, Number.isFinite(limit) ? limit : 200);
 
 const barCache = {};
 async function barsFor(ticker) {
@@ -116,6 +117,7 @@ const report = {
   db: dbPath,
   candidates: candidates.length,
   with_level: withLevel.length,
+  yahoo_eligible: yahooEligible.length,
   skip_counts: skipCounts,
   evaluated: results.length,
   summary: summarize(results),

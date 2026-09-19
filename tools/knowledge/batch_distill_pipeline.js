@@ -12,6 +12,8 @@
 
 import { initDb, getDb, ensureOntologyCardTable, ensureDistillScannedTable, saveOntologyCard, markDistillScanned } from '../../database.js';
 import { extractCardsHeuristic } from './ontology-card-distill.js';
+import { dumpAllowlist, DEFAULT_DUMP } from './knowledge_promote.js';
+import { resolveDbPath } from './env_inventory.js';
 
 /** messages.tickers may be JSON array string or comma-separated */
 export function parseMessageTickers(raw) {
@@ -248,7 +250,20 @@ export async function runBatchDistill(options = {}) {
     });
   }
   console.log('===========================================================\n');
-  if (!dryRun && totalCardsProduced > 0) {
+  let promoteDump = null;
+  if (!dryRun && totalCardsProduced > 0 && !dbInstance) {
+    try {
+      const srcPath = resolveDbPath();
+      if (!srcPath) throw new Error('src db missing');
+      promoteDump = dumpAllowlist({ srcPath, dumpPath: DEFAULT_DUMP });
+      console.log(`[REQ-039] auto-dump ${JSON.stringify(promoteDump.dumped)} -> ${promoteDump.dumpPath}`);
+      console.log(
+        '[REQ-039] HITL 上生产（不自动 --allow-prod-write）：node tools/knowledge/knowledge_promote.js --remote --apply --allow-prod-write'
+      );
+    } catch (err) {
+      console.warn('[REQ-039] auto-dump failed (蒸馏已入库，promote 需手工重跑):', err.message || err);
+    }
+  } else if (!dryRun && totalCardsProduced > 0) {
     console.log(
       '[REQ-039] 蒸馏只写当前 SQLite（SoR=gcp-vm）。HITL 上生产：node tools/knowledge/knowledge_promote.js --remote --apply --allow-prod-write'
     );
@@ -259,7 +274,8 @@ export async function runBatchDistill(options = {}) {
     scanned: processedCount,
     cardsProduced: totalCardsProduced,
     stats: cardTypeDistribution,
-    topTickers: sortedTickers
+    topTickers: sortedTickers,
+    promoteDump
   };
 }
 

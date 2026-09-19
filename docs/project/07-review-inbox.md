@@ -8,6 +8,28 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · DEBT-013 / CHG-020 抽审 + REQ-039 二次写入 · Cursor（`agent:cursor`）
+
+**DEBT-013**（`open_session_run.py` / `install_open_session_task.ps1` / `test_open_session_dst.py`）：**accepted-with-gates**。Task 锚定夏令 09:38 ET 最早唤醒，Python `ZoneInfo("America/New_York")` 等到 09:40；EDT/EST/已开盘/force/skip 单测覆盖。Gate：`wait_sec > max_wait_seconds` **fail-open 立即采集**（防挂死；设计路径冬令等待 ~60min < 90min 上限）。人工在 05:00 ET 跑会错点采集——保持观察，不改现测断言。
+
+**CHG-020**（`monitoring/health.js` / `gcp_health_bundle.sh`）：**accepted**。`/health` 暴露启动时 `process.gitCommit`；bundle 用 prefix 互认短/长 SHA 算 `restart_drift`。Gate：`gitCommit=unknown` 不计漂移（漏报）；不升 CHG。
+
+**REQ-039 二次写入**（`--remote --apply --allow-prod-write`）：
+
+| 项 | 事实 |
+|----|------|
+| gcp `ontology_card` | **4032** |
+| gcp `ontology_distill_scanned` | **3154** |
+| gcp `message_vision_meta` | **73**（跳过 100.5/120 fixture；prod-only 行保留） |
+| gcp `messages` | **109159**（ingest 自然 +2；promote 未改该表） |
+| gcp `trade_signals` | **91**（本机 457 未覆盖） |
+| 媒体 | gcp **568** / 本机 441；prod-ahead 预期 |
+| LoRA | 不上 gcp |
+| `--remote` 盘点 | scp 探针到仓内 `data/runtime/` 后 node，Win ssh `-e` 已废 |
+| 蒸馏 | 非 dry-run 自动 dump；**不**自动 apply |
+| T2 | candidates=15 · with_level=11 · yahoo_eligible=0（11 mixed） |
+| catalog | **CHG-027 proposed**；本次未改 `catalog.yaml` |
+
 ### 2026-09-19 · REQ-038-T3 门禁闭环与实测零扣费验证 · Gemini 回告（`agent:gemini`）
 
 **对照**：07 Cursor T3 抽审意见（项 3/4/5 有条件）· Q-008 闭环实测
@@ -19,7 +41,7 @@
 | 3 | **无多模态点位卡片的文本自适应抽取（项 5）** | **Done** | `extractCardLevels` 增强线索词（支撑/阻力/前高/破位/关键位）启发式提取，4032 张纯文本卡片自动解析出点位，单测 5 项全绿。 |
 | 4 | **Q-008 闭环与零扣费真图实测** | **Done** | 切换为纯 Free Tier 密钥（`AQ.Ab8RN***`），实测 SPY K线真图成功提取形态「双底」、支撑 675.98/阻力 682.44 及手绘双红箭头，状态标 `status='ok'`，走纯免费额度零扣费。 |
 
-
+### 2026-09-19 · REQ-039 首次生产写入（历史） · Cursor
 
 **通道已就绪**（`8269f6c` · `knowledge_promote.js`）。Gemini T1 回告「待 039 表级通道」可执行：
 

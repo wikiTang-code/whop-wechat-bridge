@@ -59,6 +59,14 @@ src.prepare(
    VALUES ('c1','pattern','TSLA','t','a','th','["TSLA"]',null,'[]','stub','draft','{}',1,1)`
 ).run();
 src.prepare('INSERT INTO ontology_distill_scanned (message_id, cards_count, scanned_at) VALUES (\'m1\', 1, 1)').run();
+src.prepare(
+  `INSERT INTO message_vision_meta (id, message_id, attach_index, ticker, support_resistance_json, schema_json, provider, status, created_at, updated_at)
+   VALUES ('v_fix','m_fix',0,null,'{"support":[100.5],"resistance":[120]}','{}','stub','ok',1,1)`
+).run();
+src.prepare(
+  `INSERT INTO message_vision_meta (id, message_id, attach_index, ticker, support_resistance_json, schema_json, provider, status, created_at, updated_at)
+   VALUES ('v_spy','m_spy',0,'SPY','{"support":[675.98],"resistance":[682.44]}','{}','cloud_vl','ok',1,1)`
+).run();
 src.close();
 
 const dest = new Database(destPath);
@@ -81,8 +89,11 @@ assert.ok(refused, 'must refuse without HITL flag');
 
 const dumped = dumpAllowlist({ srcPath, dumpPath, spec });
 assert.strictEqual(dumped.dumped.ontology_card, 1);
+assert.strictEqual(dumped.dumped.message_vision_meta, 1);
 const dumpDb = new Database(dumpPath, { readonly: true });
 const dumpTables = dumpDb.prepare(`SELECT name FROM sqlite_master WHERE type='table'`).all().map((r) => r.name);
+assert.strictEqual(dumpDb.prepare('SELECT COUNT(*) AS c FROM message_vision_meta').get().c, 1);
+assert.strictEqual(dumpDb.prepare('SELECT ticker FROM message_vision_meta').get().ticker, 'SPY');
 dumpDb.close();
 assert.ok(!dumpTables.includes('messages'));
 assert.ok(!dumpTables.includes('trade_signals'));

@@ -30,28 +30,28 @@
 |-------|------|------|:------:|
 | DEBT-001 | 生产 gcp-vm ff 对齐 | REQ-002 | **Done**（Human 2026-09-19 确认 pull + pm2 restart） |
 | DEBT-014 | **CHG-018/023 Supervisor+切流**：CPU `llama-server` + Win bridge 已满血可用；HIP 编译仍缺完整 ROCm | CHG-018/023 | **P3 残留**（HIP） |
-| DEBT-015 | **知识资产只在本机、未进生产库**（见 §2.2） | REQ-039 表级 promote **Done**（gcp `ontology_card=4032`，`messages=109157` 未动） | **Done** |
+| DEBT-015 | **知识资产只在本机、未进生产库**（见 §2.2） | REQ-039 表级 promote **Done**（gcp `ontology_card=4032` / `message_vision_meta=73`，`messages=109159` 仅 ingest 增长） | **Done** |
 
 ### 2.2 本机 vs git vs 生产（2026-09-19 Cursor 盘点）
 
-**禁止**把本机 294MB `whop_archive.db` 整文件盖掉生产 950MB 库（生产 `messages` 109157 > 本机 90456）。
+**禁止**把本机 ~294MB `whop_archive.db` 整文件盖掉生产 ~950MB 库（生产 `messages` 109159 > 本机 90456）。
 
 | 资产 | 本机 | git | gcp-vm | 处置 |
 |------|-----:|-----|--------|------|
-| `ontology_card` | **4032** | 不入库（`*.db` ignore） | **4032**（REQ-039 表级 promote） | 日常蒸馏后须再 promote；禁整库覆盖 |
+| `ontology_card` | **4032** | 不入库（`*.db` ignore） | **4032**（REQ-039 表级 promote） | 日常蒸馏后 auto-dump，HITL apply |
 | `ontology_distill_scanned` | 3154 | 不入库 | **3154** | 同上 |
-| `message_vision_meta` | 38 | 不入库 | **38** | VL 仍写本机，跑完 promote |
+| `message_vision_meta` | 73 | 不入库 | **73** | VL 仍写本机，跑完 promote（跳过 100.5/120 fixture） |
 | `semantic_cu` | 0 | — | 0 | 两边都空 |
 | `strategy_assets` | 5 | 不入库 | 0 | 随跟单资产，勿覆盖生产消息 |
 | `zhao_positions` | 27 | 不入库 | 0 | 本机账本切片，生产以 ingest 为准 |
 | `trade_signals` | 457 | 不入库 | 91 | 生产回放进度不同，禁止覆盖 |
-| `messages` | 90456 | 不入库 | **109157（未动）** | **生产为准** |
+| `messages` | 90456 | 不入库 | **109159（ingest 自然增长）** | **生产为准** |
 | `data/media/zhao` | **441** | 近月 untracked | **568**（本机缺图已上；prod-only 127 保留） | SoR=gcp；不 git add |
 | `models/zhao_slm_1.5b_lora/*.safetensors` | **17MB** 权重 | **gitignore**（只跟踪 tokenizer/config） | **无权重**（仅 config） | **符合 CHG-026**：SoR=wsl-gpu，不上 gcp |
 | `data/gex/latest.json` | 有 | 里程碑可提交 | 有（SCP） | 维持 REQ-024，禁盘中 commit |
-| REQ-038-T2 实跑 | 本机 222 候选 / 抽 120 张 **全 `skipped_no_level`**（stub 卡无明确价位） | 口径在 git | 生产 0 卡 | 归因卡在蒸馏质量，不在 Yahoo |
+| REQ-038-T2 实跑 | candidates=15 / with_level=11 / yahoo_eligible=0（11 mixed） | 口径在 git | 知识表已 promote | 可打分集空因 mixed，不是 Yahoo |
 
-**T2 结论**：Yahoo 通。收紧后门后本机 **with_level=0**。知识 SoR 已 promote 到 gcp（4032 张 stub 同样缺干净点位）。等 T1 VL 价位。
+**T2 结论**：Yahoo 通。11 张有点位但方向 mixed 不打分；4 张无点位。等 T1 真 TSLA VL。catalog C2 见 **CHG-027 proposed**。
 
 合同见 [`environments.md`](./environments.md)。**自动流**（REQ-039）：知识表/媒体走 promote·rsync；禁止整库覆盖；禁止无门禁「同步 1995 张卡」。盘点：`npm run env:inventory`。
 

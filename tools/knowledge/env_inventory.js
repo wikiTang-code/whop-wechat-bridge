@@ -4,6 +4,7 @@
  * Does not write production SQLite. Does not scp the whole db.
  */
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -190,52 +191,84 @@ function parseRemoteJson(raw) {
   return JSON.parse(text.slice(start, end + 1));
 }
 
+export function remoteProbeSource(tables) {
+  return `import fs from 'fs';
+import Database from 'better-sqlite3';
+const tables = ${JSON.stringify(tables)};
+const dbPath = process.env.SQLITE_PATH || (fs.existsSync('whop_archive.db') ? 'whop_archive.db' : 'data/whop_bridge.db');
+const out = { host: 'gcp-vm', sqlite: { dbPath, missing: !fs.existsSync(dbPath), bytes: 0, tables: {} }, media: { files: 0, over15kb: 0, bin: 0 }, lora: { present: false, files: [] } };
+if (fs.existsSync(dbPath)) {
+  out.sqlite.bytes = fs.statSync(dbPath).size;
+  const d = new Database(dbPath, { readonly: true });
+  for (const t of tables) {
+    try { out.sqlite.tables[t] = d.prepare('SELECT COUNT(*) AS c FROM ' + t).get().c; }
+    catch { out.sqlite.tables[t] = null; }
+  }
+  d.close();
+}
+const walk = (p) => {
+  if (!fs.existsSync(p)) return;
+  for (const ent of fs.readdirSync(p, { withFileTypes: true })) {
+    const full = p + '/' + ent.name;
+    if (ent.isDirectory()) walk(full);
+    else if (ent.isFile()) {
+      out.media.files++;
+      if (ent.name.endsWith('.bin')) out.media.bin++;
+      try { if (fs.statSync(full).size > 15360) out.media.over15kb++; } catch {}
+    }
+  }
+};
+walk('data/media/zhao');
+const ldir = 'models/zhao_slm_1.5b_lora';
+if (fs.existsSync(ldir)) {
+  out.lora.files = fs.readdirSync(ldir).filter((n) => n.endsWith('.safetensors'));
+  out.lora.present = out.lora.files.length > 0;
+}
+process.stdout.write(JSON.stringify(out));
+`;
+}
+
 export function probeRemote(spec = loadSpec()) {
   const tables = spec.sqlite_probes.filter((t) => /^[a-z_][a-z0-9_]*$/i.test(t));
-  const remoteJs = `
-    import fs from 'fs';
-    import Database from 'better-sqlite3';
-    const tables = ${JSON.stringify(tables)};
-    const dbPath = process.env.SQLITE_PATH || (fs.existsSync('whop_archive.db') ? 'whop_archive.db' : 'data/whop_bridge.db');
-    const out = { host: 'gcp-vm', sqlite: { dbPath, missing: !fs.existsSync(dbPath), bytes: 0, tables: {} }, media: { files: 0, over15kb: 0, bin: 0 }, lora: { present: false, files: [] } };
-    if (fs.existsSync(dbPath)) {
-      out.sqlite.bytes = fs.statSync(dbPath).size;
-      const d = new Database(dbPath, { readonly: true });
-      for (const t of tables) {
-        try { out.sqlite.tables[t] = d.prepare('SELECT COUNT(*) AS c FROM ' + t).get().c; }
-        catch { out.sqlite.tables[t] = null; }
-      }
-      d.close();
+  const sshHost = process.env.KNOWLEDGE_PROMOTE_SSH_HOST || 'gcp-vm';
+  const remoteRepo =
+    process.env.KNOWLEDGE_PROMOTE_REMOTE_REPO || '/home/wikitang628/whop-wechat-bridge';
+  const localTmp = path.join(os.tmpdir(), `env_inv_probe_${process.pid}.mjs`);
+  const remoteTmp = `${remoteRepo}/data/runtime/env_inv_probe.mjs`;
+  fs.writeFileSync(localTmp, remoteProbeSource(tables), 'utf8');
+  try {
+    const mkdir = spawnSync(
+      'ssh',
+      ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=12', sshHost, `mkdir -p ${remoteRepo}/data/runtime`],
+      { encoding: 'utf8', timeout: 15000 }
+    );
+    if (mkdir.status !== 0) {
+      return { error: (mkdir.stderr || mkdir.stdout || 'mkdir runtime failed').slice(0, 800), status: mkdir.status };
     }
-    const walk = (p) => {
-      if (!fs.existsSync(p)) return;
-      for (const ent of fs.readdirSync(p, { withFileTypes: true })) {
-        const full = p + '/' + ent.name;
-        if (ent.isDirectory()) walk(full);
-        else if (ent.isFile()) {
-          out.media.files++;
-          if (ent.name.endsWith('.bin')) out.media.bin++;
-          try { if (fs.statSync(full).size > 15360) out.media.over15kb++; } catch {}
-        }
-      }
-    };
-    walk('data/media/zhao');
-    const ldir = 'models/zhao_slm_1.5b_lora';
-    if (fs.existsSync(ldir)) {
-      out.lora.files = fs.readdirSync(ldir).filter((n) => n.endsWith('.safetensors'));
-      out.lora.present = out.lora.files.length > 0;
+    const scp = spawnSync(
+      'scp',
+      ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=12', localTmp, `${sshHost}:${remoteTmp}`],
+      { encoding: 'utf8', timeout: 20000 }
+    );
+    if (scp.status !== 0) {
+      return { error: (scp.stderr || scp.stdout || 'scp probe failed').slice(0, 800), status: scp.status };
     }
-    process.stdout.write(JSON.stringify(out));
-  `;
-  const r = spawnSync(
-    'ssh',
-    ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=12', 'gcp-vm', 'cd /home/wikitang628/whop-wechat-bridge && node --input-type=module -e ' + JSON.stringify(remoteJs)],
-    { encoding: 'utf8', timeout: 25000 }
-  );
-  if (r.status !== 0) {
-    return { error: (r.stderr || r.stdout || 'ssh failed').slice(0, 800), status: r.status };
+    const r = spawnSync(
+      'ssh',
+      ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=12', sshHost, `cd ${remoteRepo} && node data/runtime/env_inv_probe.mjs`],
+      { encoding: 'utf8', timeout: 25000 }
+    );
+    if (r.status !== 0) {
+      return { error: (r.stderr || r.stdout || 'ssh failed').slice(0, 800), status: r.status };
+    }
+    return parseRemoteJson(r.stdout);
+  } finally {
+    try {
+      fs.unlinkSync(localTmp);
+    } catch {
+      /* ignore */
+    }
   }
-  return parseRemoteJson(r.stdout);
 }
 
 function main() {

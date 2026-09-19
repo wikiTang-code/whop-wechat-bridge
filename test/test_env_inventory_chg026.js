@@ -6,7 +6,8 @@ import {
   loadSpec,
   assertPromoteSafety,
   classify,
-  countTables
+  countTables,
+  remoteProbeSource
 } from '../tools/knowledge/env_inventory.js';
 
 console.log('🧪 [CHG-026] env inventory');
@@ -63,5 +64,9 @@ assert.ok(drifts.some((d) => d.id === 'media-files'));
 const empty = countTables('/no/such.db', ['messages']);
 assert.strictEqual(empty.missing, true);
 assert.strictEqual(empty.tables.messages, null);
+
+const probeSrc = remoteProbeSource(['ontology_card', 'messages']);
+assert.ok(probeSrc.includes("SELECT COUNT(*) AS c FROM ' + t"), 'probe SQL uses bound table loop');
+assert.ok(!probeSrc.includes('node --input-type=module -e'), 'win-host must not use ssh node -e');
 
 console.log('✅ [CHG-026] env inventory PASS');

@@ -30,6 +30,10 @@ function mentionBlob(card) {
     .join('\n');
 }
 
+function levelBlob(card) {
+  return [mentionBlob(card), card.schema_json].map((x) => String(x || '')).join('\n');
+}
+
 function blobOf(card) {
   return [mentionBlob(card), card.tickers_json, card.schema_json]
     .map((x) => String(x || ''))
@@ -191,6 +195,9 @@ export function scoreCardAgainstBars({ direction, t0Date, bars }) {
 
 export function extractLevelFromVisionMeta(meta, ticker) {
   if (!meta) return null;
+  const vt = String(meta.ticker || '').trim().toUpperCase();
+  const want = String(ticker || '').trim().toUpperCase();
+  if (vt && want && vt !== want) return null;
   let sr = meta.support_resistance_json || meta.support_resistance;
   if (typeof sr === 'string') {
     try {
@@ -203,6 +210,7 @@ export function extractLevelFromVisionMeta(meta, ticker) {
   const nums = [...(sr.support || []), ...(sr.resistance || [])]
     .map(Number)
     .filter((n) => Number.isFinite(n));
+  if (nums.includes(100.5) && nums.includes(120) && nums.length <= 2) return null;
   const lo = ticker === 'TSLL' ? 1 : 20;
   const hi = ticker === 'TSLL' ? 200 : 900;
   const ok = nums.filter((n) => n >= lo && n <= hi);
@@ -216,7 +224,7 @@ export function evaluateCard(card, { messageCreatedAt, bars, visionMeta } = {}) 
   if (!ATTR_CARD_TYPES.has(String(card.card_type || ''))) {
     return { status: 'skipped_type', ticker };
   }
-  let level = extractExplicitLevel(mentionBlob(card), ticker);
+  let level = extractExplicitLevel(levelBlob(card), ticker);
   if (level == null) level = extractLevelFromVisionMeta(visionMeta, ticker);
   if (level == null) return { status: 'skipped_no_level', ticker };
   const direction = inferDirection(card);

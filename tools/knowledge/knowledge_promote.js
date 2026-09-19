@@ -25,7 +25,7 @@ import { loadSpec, assertPromoteSafety, resolveDbPath, countMedia } from './env_
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
-const DEFAULT_DUMP = path.join(ROOT, 'data/runtime/knowledge-promote.sqlite');
+export const DEFAULT_DUMP = path.join(ROOT, 'data/runtime/knowledge-promote.sqlite');
 const SSH_HOST = process.env.KNOWLEDGE_PROMOTE_SSH_HOST || 'gcp-vm';
 const REMOTE_REPO =
   process.env.KNOWLEDGE_PROMOTE_REMOTE_REPO || '/home/wikitang628/whop-wechat-bridge';
@@ -57,6 +57,18 @@ function ensureAllowlistTables(conn) {
   ensureDistillScannedTable(conn);
   ensureMessageVisionMetaTable(conn);
   ensureSemanticCuTables(conn);
+}
+
+function isVisionFixtureRow(row) {
+  const raw = row && row.support_resistance_json;
+  if (!raw) return false;
+  try {
+    const sr = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    const nums = [...(sr.support || []), ...(sr.resistance || [])].map(Number);
+    return nums.includes(100.5) && nums.includes(120) && nums.length <= 2;
+  } catch {
+    return false;
+  }
 }
 
 function upsertRows(dest, table, rows) {
@@ -91,7 +103,8 @@ export function dumpAllowlist({ srcPath, dumpPath, spec = loadSpec() } = {}) {
       assertIdent(t);
       dumped[t] = 0;
       try {
-        const rows = src.prepare(`SELECT * FROM ${t}`).all();
+        let rows = src.prepare(`SELECT * FROM ${t}`).all();
+        if (t === 'message_vision_meta') rows = rows.filter((r) => !isVisionFixtureRow(r));
         dumped[t] = upsertRows(dump, t, rows);
       } catch (e) {
         if (!String(e.message || e).includes('no such table')) throw e;
@@ -132,6 +145,7 @@ export function applyDump({ dumpPath, destPath, spec = loadSpec(), allowProdWrit
         } catch {
           rows = [];
         }
+        if (t === 'message_vision_meta') rows = rows.filter((r) => !isVisionFixtureRow(r));
         applied[t] = upsertRows(dest, t, rows);
       }
     });

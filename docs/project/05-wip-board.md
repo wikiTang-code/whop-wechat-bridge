@@ -13,8 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-039** | L0/L3 | 合同缺口：知识表/媒体表级 promote → gcp | `knowledge_promote.js` · 禁 wecom / `batch_vision*` | **Doing** |
-| 2 | **REQ-038-T2** | L3 | 本机 with_level=0；等 SoR + VL 价位 | `card_attribution.js` | Standing |
+| **1** | **REQ-039** | L0/L3 | 知识表已 promote；蒸馏 auto-dump；catalog C2 须独立 CHG | `knowledge_promote.js` · 禁 wecom / `batch_vision*` | **Doing** |
+| 2 | **REQ-038-T2** | L3 | candidates=15；with_level=11 全 mixed；yahoo_eligible=0 | `card_attribution.js` | Standing |
 | 3 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
@@ -58,9 +58,9 @@
 | §0.R-A cursor | **REQ-037 batch distill + Layer4 query（`4675823`/`3e81a18`）** | **Done** |
 | §0.R-A cursor | **REQ-037 全库蒸馏闭环（`e9fc925`）** | **Done** |
 | §0.R-A cursor | **REQ-037 query CLI minConfidence（`a764c25`+fix）** | **Done** |
-| §0.R-A cursor | **DEBT-013 GEX 开盘任务 DST 免疫对齐抽审** | **Queued** |
+| §0.R-A cursor | **DEBT-013 GEX 开盘任务 DST 免疫对齐抽审** | **Done**（accepted-with-gates） |
 | §0.R-B gemini | **CHG-019 + DEBT-014 路径抽审（`52f2ed9`）** | **Done** |
-| §0.R-A cursor | **CHG-020 / Q-002 漏重启发现信号与探针抽审** | **Queued** |
+| §0.R-A cursor | **CHG-020 / Q-002 漏重启发现信号与探针抽审** | **Done**（accepted） |
 | §0.R-B gemini | **GPU 跨项目资源协议 v0.1-draft**（自签；已被 Cursor 置顶冻结覆盖） | **Done** |
 | §0.R-A cursor | **GPU 协议 v0.1 + CHG-021 抽审**（§7 冻结；骨架 accepted-with-gates） | **Done** |
 | §0.R-B gemini | **CHG-023 WSL AI 切流锁定抽审** | **Done**（通过） |
@@ -121,7 +121,7 @@
 | CHG-024 | L2/L3 | GPU 控制面加固（`:18080` 可达、禁假成功、Wan 拒载、ROCm release 延迟；协议 v0.1.3） | `agent:cursor` | Done | Gemini 抽审通过 |
 | CHG-025 | L2/L3 | 协议 v0.1.4 对齐（status 契约、GAME 无 retry_after、INVALID_PAYLOAD） | `agent:cursor` | Done | `gpu-arbiter.js` · `server.js` |
 | REQ-038 | L3 | 战法卡归因与共振只读雷达（Sprint 1：432张真图VL批跑+TSLA子集归因+共振推送稿） | 双Agent协同 | Doing | Sprint 1 开工；禁进L2a |
-| REQ-039 | L0/L3 | 知识/GPU 产物到达规划 SoR（表级 promote，禁整库覆盖） | `agent:cursor` | Doing | `knowledge_promote.js` |
+| REQ-039 | L0/L3 | 知识/GPU 产物到达规划 SoR（表级 promote，禁整库覆盖） | `agent:cursor` | Doing | auto-dump + gcp vision_meta=73；catalog=CHG-027 |
 | CHG-026 | L0 | 运行环境合同（compute vs SoR） | `agent:cursor` | Done | `environments.md` |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
@@ -135,9 +135,12 @@
 - [x] 合同 [`environments.md`](./environments.md) + `env_inventory.js`
 - [x] `knowledge_promote.js` 表级 dump / apply；禁 `messages`；无 `--allow-prod-write` 拒绝
 - [x] 单测 `test_knowledge_promote_req039.js`
-- [x] 本机 `--dump` + `--remote --apply --allow-prod-write`：gcp `ontology_card=4032`，`messages=109157` 未动
+- [x] 本机 `--dump` + `--remote --apply --allow-prod-write`：gcp `ontology_card=4032`；`messages` 仅 ingest 自然增长（109159），promote 未改
 - [x] `--media` tar-scp：本机缺图已上；gcp files=568；prod-only 127 未删
-- [ ] 蒸馏/VL 跑完自动再 promote（未接 `catalog.yaml`，须独立 CHG）
+- [x] 蒸馏非 dry-run 且非测试 `dbInstance` 后 **自动 `--dump`**（仍不自动 `--allow-prod-write`）
+- [x] `env_inventory.js --remote`：scp 探针到仓内 `data/runtime/` 再 node（避开 Win ssh `-e` 与 `/tmp` ESM 解析）
+- [x] 二次 promote：gcp `message_vision_meta=73`（跳过 100.5/120 fixture）；与本机对齐
+- [ ] 接 `catalog.yaml` C2 recipe（须独立 CHG-027；禁本次改 catalog）
 
 ### REQ-038-T2 TSLA/TSLL 子集归因
 
@@ -146,8 +149,9 @@
 - [x] CLI `npm run knowledge:attr-tsla`（`--dry-run` / `--persist`；`card_attribution_cli.js`）
 - [x] 主库 Yahoo：gcp 知识表空 → `candidates=0`（与 Gemini 回告同根因）
 - [x] 本机点位子集：222 候选 → 源消息抽价后 **with_level=18**（含 NVDL 串味）
-- [x] 标的须正文独立词 + 点位/入场 ∈[0.4,2.5] 后门：**candidates=15 / with_level=0**（11 mixed / 4 no_level）。Sprint 1 本机可打分集为空，不是 Yahoo 故障
-- [x] 生产知识 SoR：REQ-039 已 promote（`ontology_card=4032`）；T2 干净点位子仍空，等 VL
+- [x] 标的须正文独立词 + 点位/入场 ∈[0.4,2.5] 后门：**candidates=15**
+- [x] VL 点位：标的须匹配；拒 100.5/120 fixture；`schema_json` 可抽价
+- [x] 口径修正：`with_level`=抽出点位（含 mixed），`yahoo_eligible`=可打分。现 **with_level=11 / yahoo_eligible=0**（11 mixed / 4 no_level）。Sprint 1 可打分集仍空，等 T1 真 TSLA 点位，不是 Yahoo 故障
 
 ### REQ-014 文档树入库
 
@@ -211,7 +215,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：07 已写 REQ-039 生产写入事实 + T3 抽审 gates；T2 可吃 VL 点位。
+- cursor：039 SoR 对齐（vision_meta=73）；蒸馏 auto-dump；`--remote` 盘点可用。T2 yahoo_eligible=0（11 mixed）。R-A DEBT-013/CHG-020 Done。下一切片：CHG-027 catalog（独立认领）或等 T1 TSLA VL。
 - gemini：REQ-033 队头 #91 CONL · T1 管道已交付（R-A 抽审完）。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002 Done；Q-001；企微 #91；Q-006 云端离线批已决。
