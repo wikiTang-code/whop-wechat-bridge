@@ -367,6 +367,41 @@ export function selectCandidateCards(rows) {
   });
 }
 
+/**
+ * REQ-040 gaps: VL ok rows for ATTR_TICKERS that still lack usable SR.
+ * Used so T1 can backfill without waiting for full 432.
+ */
+export function listT2VisionGaps(rows, { tickers = ATTR_TICKERS } = {}) {
+  const want = new Set((tickers || []).map((t) => String(t).toUpperCase()));
+  const gaps = [];
+  let withSr = 0;
+  for (const row of rows || []) {
+    const status = String(row.status || '').toLowerCase();
+    if (status && status !== 'ok') continue;
+    const ticker = String(row.ticker || '').trim().toUpperCase();
+    if (!want.has(ticker)) continue;
+    const level = extractLevelFromVisionMeta(row, ticker);
+    if (level != null) {
+      withSr += 1;
+      continue;
+    }
+    gaps.push({
+      message_id: row.message_id || null,
+      vision_id: row.id || row.vision_id || null,
+      ticker,
+      status: row.status || 'ok',
+      has_annotation: Boolean(row.hand_drawn_annotation),
+      reason: 'missing_or_unusable_sr'
+    });
+  }
+  return {
+    tickers: [...want],
+    with_sr: withSr,
+    missing_sr: gaps.length,
+    gaps
+  };
+}
+
 export function summarize(results) {
   const scored = results.filter((r) => r.status === 'scored');
   const hit5 = scored.filter((r) => r.hit_5d).length;

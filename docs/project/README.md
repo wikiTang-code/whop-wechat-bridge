@@ -80,11 +80,11 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **REQ-038-T2 / REQ-040 Doing**（增量 n_scored=6） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **T1 继续产 TSLA SR** | Active / Unblock |
+| **§0.A `agent:cursor`** | **REQ-038-T2 / REQ-040 Doing**（n_scored=6；gaps missing_sr=6） | Doing |
+| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **T1 回填 gaps 6 条** | Active / Unblock |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
-| **§0.X Blocked** | 040=**Partial**（cursor 已自消费）；033→human | **见 05 §0.X** |
+| **§0.X Blocked** | 040=**Partial**（清单已交 T1）；033→human | **见 05 §0.X** |
 | **§0.R-A** | T1 fallback 抽审 Done | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |
 

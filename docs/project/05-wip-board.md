@@ -13,8 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | CHG-030 增量消费 VL `level` 卡；n_scored=6 hit5=1 | `card_attribution.js` | **Doing** |
-| 2 | **REQ-040** | L3 | 继续增量吃 T1 新 TSLA/TSLL 点位（已部分解锁） | `card_attribution.js` | **Doing** |
+| **1** | **REQ-038-T2** | L3 | CHG-030 增量消费；`--gaps` 列出缺 SR；n_scored=6 hit5=1 | `card_attribution.js` | **Doing** |
+| 2 | **REQ-040** | L3 | 缺口清单：TSLA/TSLL missing_sr=6（已写 runtime）；继续吃回填 | `card_attribution.js` | **Doing** |
 | 3 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
@@ -22,7 +22,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（队头 #91 CONL；**Blocked→Human 企微点击**） | `follow-replay-engine.js` · `server.js` | **Blocked (Active)** |
-| 2 | **REQ-038-T1/T3** | L3 | T1 门禁+多模型 fallback；**解锁 Cursor REQ-040 的关键路径**：批跑 TSLA/TSLL 真点位并走 promote | `tools/knowledge/batch_vision*` · `resonance_radar*` | **Doing / Unblock** |
+| 2 | **REQ-038-T1/T3** | L3 | T1：**优先回填** gaps 清单 6 条 TSLA/TSLL（`req038-t2-vl-gaps.json`）再继续批跑；解锁 Cursor REQ-040 | `tools/knowledge/batch_vision*` · `resonance_radar*` | **Doing / Unblock** |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -49,7 +49,7 @@
 
 | 阻塞项 | 被阻塞方 | 解锁 Owner | 阻塞原因 | 解锁动作 | 状态 |
 |--------|----------|------------|----------|----------|:----:|
-| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）+ cursor 自消费** | 真图 VL 点位仍稀疏 | **已增量启动**：本机 VL ok≈111；已收 TSLL `level` 卡 scored+hit_5d；继续等更多 TSLA SR。gemini 优先补 TSLA/TSLL 带 `support_resistance_json` 的 ok 行 | **Partial** |
+| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）+ cursor 自消费** | VL ok 有 ticker 但 SR 空 | **优先回填** `data/runtime/req038-t2-vl-gaps.json` 的 6 条（5 TSLA + 1 TSLL）；勿只产 ticker-only。cursor 已对齐+promote（ont=4176 / vision_meta≈185） | **Partial** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 

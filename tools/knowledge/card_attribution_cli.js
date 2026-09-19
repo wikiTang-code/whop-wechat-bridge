@@ -14,12 +14,14 @@ import {
   evaluateCard,
   summarize,
   saveAttributionRow,
-  fetchYahooDailyBars
+  fetchYahooDailyBars,
+  listT2VisionGaps
 } from './card_attribution.js';
 
 const args = process.argv.slice(2);
 const dry = args.includes('--dry-run');
 const persist = args.includes('--persist');
+const gapsOnly = args.includes('--gaps');
 const limitIdx = args.indexOf('--limit');
 const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : 200;
 const outIdx = args.indexOf('--out');
@@ -39,6 +41,30 @@ if (!fs.existsSync(dbPath)) {
 }
 
 const conn = new Database(dbPath, { readonly: !persist, fileMustExist: true, timeout: 8000 });
+
+if (gapsOnly) {
+  let visionRows = [];
+  try {
+    visionRows = conn
+      .prepare(
+        `SELECT id, message_id, ticker, status, support_resistance_json, hand_drawn_annotation
+         FROM message_vision_meta`
+      )
+      .all();
+  } catch (e) {
+    console.error(JSON.stringify({ ok: false, error: e.message }));
+    process.exit(1);
+  }
+  const report = { ok: true, mode: 'gaps', db: dbPath, ...listT2VisionGaps(visionRows) };
+  const gapsOut =
+    outIdx >= 0 ? outPath : path.resolve('data/runtime/req038-t2-vl-gaps.json');
+  fs.mkdirSync(path.dirname(gapsOut), { recursive: true });
+  fs.writeFileSync(gapsOut, JSON.stringify(report, null, 2), 'utf8');
+  console.log(JSON.stringify({ ...report, out: gapsOut }, null, 2));
+  conn.close();
+  process.exit(0);
+}
+
 const cards = conn.prepare(`
   SELECT * FROM ontology_card
   WHERE card_type IN ('pattern','asset_memory','risk_rule','level')

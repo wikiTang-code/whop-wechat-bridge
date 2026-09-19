@@ -11,7 +11,8 @@ import {
   summarize,
   saveAttributionRow,
   ensureAttributionTable,
-  confidenceFromRet
+  confidenceFromRet,
+  listT2VisionGaps
 } from '../tools/knowledge/card_attribution.js';
 import { ensureOntologyCardTable, saveOntologyCard } from '../database.js';
 
@@ -265,5 +266,21 @@ assert.strictEqual(mmLevel.status, 'scored');
 assert.strictEqual(mmLevel.ticker, 'TSLL');
 assert.strictEqual(mmLevel.level, 10);
 assert.strictEqual(mmLevel.direction, 'bullish');
+
+const gapReport = listT2VisionGaps([
+  { id: 'v1', message_id: 'm1', ticker: 'TSLA', status: 'ok', support_resistance_json: null },
+  {
+    id: 'v2',
+    message_id: 'm2',
+    ticker: 'TSLL',
+    status: 'ok',
+    support_resistance_json: JSON.stringify({ support: [10], resistance: [11] })
+  },
+  { id: 'v3', message_id: 'm3', ticker: 'AAPL', status: 'ok', support_resistance_json: null },
+  { id: 'v4', message_id: 'm4', ticker: 'TSLA', status: 'failed', support_resistance_json: null }
+]);
+assert.strictEqual(gapReport.with_sr, 1);
+assert.strictEqual(gapReport.missing_sr, 1);
+assert.strictEqual(gapReport.gaps[0].message_id, 'm1');
 
 console.log('  ✅ level/direction/windows/event-exclude/db isolation/source_text/ticker-gate PASS');

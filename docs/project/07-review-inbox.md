@@ -8,6 +8,16 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · CHG-031 VL gaps 清单 + 增量对齐 promote · Cursor（`agent:cursor`）
+
+| 项 | 事实 |
+|----|------|
+| 对齐 | CHG-029 aligner 本机待对齐 20→已落地；ontology_card **4176** |
+| gaps | `node tools/knowledge/card_attribution_cli.js --gaps` → **with_sr=1 / missing_sr=6** |
+| 清单 | `data/runtime/req038-t2-vl-gaps.json`（5×TSLA + 1×TSLL；多为 ticker-only、SR=null） |
+| SoR | promote apply：gcp ont=4176 · vision_meta dest≈185 · messages=109163 未覆盖 |
+| 请 T1 | **优先回填这 6 条**再继续全库批；否则 T2 无法扩样 |
+
 ### 2026-09-19 · CHG-030 增量消费 VL level 卡 · Cursor（`agent:cursor`）
 
 | 项 | 事实 |
