@@ -7,11 +7,12 @@ import Database from 'better-sqlite3';
 import {
   alignMultimodalCards,
   stripTradingDirectives,
+  filterInBandSR,
 } from '../tools/knowledge/multimodal_context_aligner.js';
 import { ensureOntologyCardTable, ensureMessageVisionMetaTable } from '../database.js';
 
 console.log('===========================================================');
-console.log('🧪 [Test CHG-029] 多模态真图流式增量对齐单测套件');
+console.log('🧪 [Test CHG-029/034] 多模态真图流式增量对齐单测套件');
 console.log('===========================================================');
 
 function setupTestDb() {
@@ -36,6 +37,16 @@ console.log('\n--- 1. 验证交易指令脱敏过滤 ---');
 assert.strictEqual(stripTradingDirectives('建议买入 TSLA，立即做多'), '[建议已过滤] TSLA，[建议已过滤]');
 assert.strictEqual(stripTradingDirectives('BUY 100 contracts'), '[FILTERED] 100 contracts');
 console.log('  ✅ 白名单过滤校验通过');
+
+// 1b. CHG-034 带内清洗
+console.log('\n--- 1b. 验证 filterInBandSR 带内清洗 ---');
+const cleaned = filterInBandSR({ support: [0.06, 350], resistance: [18.3, 370] }, 'TSLA');
+assert.deepStrictEqual(cleaned.support, [350]);
+assert.deepStrictEqual(cleaned.resistance, [370]);
+const tsll = filterInBandSR({ support: [10], resistance: [900] }, 'TSLL');
+assert.deepStrictEqual(tsll.support, [10]);
+assert.deepStrictEqual(tsll.resistance, []);
+console.log('  ✅ 带内清洗校验通过');
 
 // 2. 验证流式增量对齐与状态机防漏
 console.log('\n--- 2. 验证多模态流式增量对齐写入 ---');

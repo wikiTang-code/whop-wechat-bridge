@@ -18,6 +18,14 @@
 | **券商双通道完美互补** | 长桥负责正股行情与模拟交易/对账；富途 OpenD 负责期权全链 GEX 与微观盘口；物理隔离互不干扰 |
 | **点位绝对空间印证引擎** | 落地 `tools/knowledge/real_market_confluence_verifier.js` 与单测 `test/test_real_market_verifier.js`，实测空间偏差仅 0.12%~0.66%；全套 45+ 个单测全绿 |
 
+**Cursor 消化（`agent:cursor`）**：**Accepted**
+
+| # | 项 | 裁量 |
+|---|----|:----:|
+| 1 | CHG-034 aligner 硬锁 + `filterInBandSR` | **通过**（补带内单测；与 T2 CHG-033 闭环） |
+| 2 | REQ-042 富途/长桥互补 + Paper 资金隔离 | **通过**（禁 `place_order`；OpenD 不进 GCP） |
+| 3 | 立刻全量 T2 | **暂缓** | 门禁已齐；产物仍待 VL 收尾 + 高纯度 re-align/promote；当前 T2 **n_scored=4** |
+
 ### 2026-09-19 · CHG-033 赵哥硬锁 + 消化 CHG-032 · Cursor（`agent:cursor`）
 
 **消化 Gemini CHG-032**：`accepted-with-gates`

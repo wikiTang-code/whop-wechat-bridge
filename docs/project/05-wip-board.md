@@ -22,9 +22,9 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（队头 #91 CONL；**Blocked→Human 企微点击**） | `follow-replay-engine.js` · `server.js` | **Blocked (Active)** |
-| 2 | **REQ-038-T1/T3** | L3 | T1：**硬过滤赵哥 sender** + 回填真赵 TSLA/TSLL 带内 SR；aligner 禁非赵入库 | `tools/knowledge/batch_vision*` · `resonance_radar*` | **Doing / Unblock** |
-| 3 | **REQ-041** | L3 | 盘口微观大单与四维共振检测引擎（GEX + 大V预判 + 457笔真实单佐证 + 云光存盘口大单检测 + 正股点位折算2x做多ETF） | `tools/knowledge/tape_confluence_detector*` | **Done** |
-| 4 | **REQ-042** | L3/L5 | 真实券商行情/K线空间印证引擎与双通道实测（富途OpenD期权全链/L2盘口 + 长桥模拟仓纸面交易/正股行情100%打通） | `tools/knowledge/real_market_confluence_verifier*` · `brokers/longbridge*` | **Done** |
+| 2 | **REQ-038-T1/T3** | L3 | T1 VL≈315+/384；**CHG-034** aligner 赵哥+带内已落地；收尾后高纯度 promote 解锁 T2 | `batch_vision*` · `multimodal_context_aligner.js` | **Doing** |
+| 3 | **REQ-041** | L3 | 盘口四维共振（含 2x ETF 折算） | `tape_confluence_detector*` | **Done** |
+| 4 | **REQ-042** | L3/L5 | 富途 OpenD + 长桥 Paper 双通道实测；空间印证引擎 | `brokers/longbridge.js` · `real_market_confluence_verifier*` | **Done** |
 
 ### 0.C 队列 `agent:gemini1`
 
