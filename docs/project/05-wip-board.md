@@ -49,7 +49,7 @@
 
 | 阻塞项 | 被阻塞方 | 解锁 Owner | 阻塞原因 | 解锁动作 | 状态 |
 |--------|----------|------------|----------|----------|:----:|
-| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）** | Sprint1 文本点位已打满；缺 TSLA/TSLL **真图 VL** `support_resistance_json` | T1 批跑优先标的 TSLA/TSLL → 本机落库 → `knowledge.promote.apply` HITL → 通知 cursor 重跑 `knowledge:attr-tsla` | **Open** |
+| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）** | Sprint1 文本点位已打满；缺 TSLA/TSLL **真图 VL** 点位 | **增量即可**：T1 先批出若干 `status=ok` 且 ticker∈{TSLA,TSLL} 的 `message_vision_meta` → promote HITL → 通知 cursor 重跑归因（**不必等全量 432**） | **Open** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 
