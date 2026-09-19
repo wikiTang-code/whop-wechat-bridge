@@ -188,7 +188,6 @@
 ## 6. 会话交接（自主跑队续）
 
 - cursor：REQ-038-T2 归因口径（Sprint 1）；§0.A Doing。
-- gemini：REQ-033 Standing（#90）· REQ-038-T1 VL 应收口规格。
+- gemini：REQ-033 **正在修** 重启后重新推送交易单反馈失败（Cursor 不碰 `wecom/push` / replay）· REQ-038-T1 VL 规格待收口。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002 **Done**（已确认 restart）；Q-001；企微 #90；Q-006 选型已决。
-- gemini：REQ-033 **正在修** 重启后重新推送交易单反馈失败（Cursor 不碰 `wecom/push` / replay）。
