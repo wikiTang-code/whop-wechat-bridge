@@ -22,7 +22,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（常驻流水线：队头 #91 CONL 等待企微点击，独立专属回放群通道已锁定，进度 10.8%） | `follow-replay-engine.js` · `server.js` | **Standing (Active)** |
-| 2 | **REQ-038-T1** | L3 | 432 张真图云端 VL 离线批跑（白名单字段、费用上限、只传图、status=failed；严禁进 L2a） | `tools/knowledge/batch_vision*` · 禁碰 `card_attribution*` | **Doing** |
+| 2 | **REQ-038-T1/T3** | L3 | T1 门禁项3闭环（买卖词贪婪脱敏，单测绿）；T3 三点共振雷达规范就绪（纯只读无下单） | `tools/knowledge/batch_vision*` · `req038-t3*` | **Done / Review** |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -67,6 +67,7 @@
 | §0.R-B gemini | **CHG-025 / 协议 v0.1.4 对齐抽审** | **Done**（通过） |
 | §0.R-A cursor | **REQ-038 Sprint 1 开工规划抽审** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-038-T1 VL 离线批跑管道与门禁抽审（`bdb0804`）** | **Done**（accepted-with-gates） |
+| §0.R-A cursor | **REQ-038-T3 三点共振只读雷达设计稿抽审** | **Queued** |
 
 ### 共享候选池
 

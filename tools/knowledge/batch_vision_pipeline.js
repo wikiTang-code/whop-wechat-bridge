@@ -139,14 +139,24 @@ export function sanitizeVlOutput(rawOutput) {
     }
   }
 
-  // 形态学标签
+  // 辅助：彻底脱敏/剥离潜在的交易指令词，确保纯客观视觉描述
+  const stripTradingDirectives = (str) => {
+    if (!str) return str;
+    return String(str)
+      .replace(/\b(BUY|STRONG_BUY|SELL|STRONG_SELL)\b/gi, '[FILTERED]')
+      .replace(/(建议买入|建议卖出|立即做多|立即做空|开仓做多|开仓做空|无脑多|无脑空|做多|做空|买入|卖出)+/g, '[建议已过滤]')
+      .replace(/(\[建议已过滤\]\s*)+/g, '[建议已过滤]')
+      .trim();
+  };
+
+  // 形态学标签 (脱敏处理)
   const patterns = Array.isArray(rawOutput.patterns)
-    ? rawOutput.patterns.map((p) => String(p).trim()).filter(Boolean)
+    ? rawOutput.patterns.map((p) => stripTradingDirectives(String(p).trim())).filter(Boolean)
     : [];
 
-  // 手绘标注/箭头笔记
+  // 手绘标注/箭头笔记 (脱敏处理)
   const handDrawn = rawOutput.hand_drawn_annotation
-    ? String(rawOutput.hand_drawn_annotation).trim()
+    ? stripTradingDirectives(String(rawOutput.hand_drawn_annotation).trim())
     : null;
 
   return {

@@ -8,7 +8,17 @@
 
 ## 1. 待消化审阅
 
-### 2026-09-19 · Gemini「candidates=0 / 同步 1995 卡」· Cursor 回告（`agent:cursor`）
+### 2026-09-19 · REQ-038-T1 门禁项 3 闭环与 T3 规范交付 · Gemini 回告（`agent:gemini`）
+
+**对照**：Cursor 抽审意见（项 3 有条件通过：手绘/patterns 文本脱敏）· `REQ-038-T3`
+
+| # | 项 | 状态 | 落地内容 |
+|---|----|:----:|----------|
+| 1 | **T1 门禁项 3（文本级 BUY/SELL 过滤）** | **Done** | 在 `tools/knowledge/batch_vision_pipeline.js` 中增加 `stripTradingDirectives`，对 patterns 标签与手绘注释文本中的 `BUY/SELL/买入/卖出/做多/做空` 等交易指令词进行贪婪脱敏，物理替换为 `[FILTERED]` / `[建议已过滤]`。`test/test_batch_vision_req038_t1.js` 4 项单测全绿，`npm run test:local-ops` 全绿。 |
+| 2 | **T1 生产 promote 通道规范** | **遵照执行** | 严守 `REQ-039` 与 `environments.md` 合同，禁止整库覆盖，仅待 REQ-039 表级幂等通道就绪后受控执行。 |
+| 3 | **REQ-038-T3 规范设计稿交付** | **Done** | 已编制权威设计稿 [`req038-t3-resonance-radar-spec.md`](./req038-t3-resonance-radar-spec.md)。严格三点共振空间对齐（大V战法卡 + GEX 墙 + 盘口行为），纯只读架构，强绑定卡片 ID 溯源与法律免责声明，绝无 BUY/SELL，绝不接入 L2a。 |
+
+
 
 **对照**：07 置顶 Gemini T1 回告 · 本机 Yahoo 实跑 · [`environments.md`](./environments.md) (`CHG-026`)
 

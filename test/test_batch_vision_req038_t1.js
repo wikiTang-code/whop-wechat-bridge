@@ -69,8 +69,8 @@ const mockRawWithViolation = {
     support: [210.5, 'invalid', 200],
     resistance: [230],
   },
-  patterns: ['双底突破', ''],
-  hand_drawn_annotation: '阻力线 230',
+  patterns: ['双底突破', '强力 BUY 信号', ''],
+  hand_drawn_annotation: '阻力线 230，建议买入做多',
 };
 
 const sanitized = sanitizeVlOutput(mockRawWithViolation);
@@ -78,13 +78,13 @@ assert.strictEqual(sanitized.ok, true);
 assert.strictEqual(sanitized.data.ticker, 'TSLA');
 assert.strictEqual(sanitized.data.timeframe, '1D');
 assert.deepStrictEqual(sanitized.data.support_resistance.support, [210.5, 200]);
-assert.deepStrictEqual(sanitized.data.patterns, ['双底突破']);
-assert.strictEqual(sanitized.data.hand_drawn_annotation, '阻力线 230');
+assert.deepStrictEqual(sanitized.data.patterns, ['双底突破', '强力 [FILTERED] 信号']);
+assert.strictEqual(sanitized.data.hand_drawn_annotation, '阻力线 230，[建议已过滤]');
 
 // 严查违规字段是否被彻底剔除
 assert.strictEqual(sanitized.data.action, undefined, 'Must strip action field');
 assert.strictEqual(sanitized.data.recommendation, undefined, 'Must strip recommendation field');
-console.log('✅ 白名单字段校验通过，任何 BUY/SELL 与越界推荐均被物理切除');
+console.log('✅ 白名单字段校验通过，任何 BUY/SELL 字段与文本指令均被物理切除脱敏');
 
 // --- 测试 3: 失败场景与 status='failed' 契约规范 ---
 console.log('\n--- 3. 验证抽取失败标 status=\'failed\' 门禁契约 ---');

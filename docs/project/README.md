@@ -29,6 +29,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── environments.md                    ← CHG-026 运行环境合同（compute vs SoR）
 ├── environments.json                  ← 同上，机器可读
 ├── req038-t2-attribution-spec.md      ← REQ-038-T2 胜率口径（冻结）
+├── req038-t3-resonance-radar-spec.md  ← REQ-038-T3 三点共振只读雷达规范（只读/禁下单）
 ├── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2/P3 Done）
 ├── wsl-unified-ai-runtime-plan.md     ← CHG-018 Done（Q-007；DEBT-014 代码路径 Done）
 └── gpu-shared-protocol.md             ← 跨仓库 GPU 协议指针（正文在 ~/.cursor/shared-protocols/；Cursor 2026-09-19 冻结 §7）
@@ -80,10 +81,10 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **REQ-038-T2** 点位子集评测（源消息抽价） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** #91 CONL + **REQ-038-T1** VL（05 仍 Doing） | Active |
+| **§0.B `agent:gemini`** | **REQ-033** #91 CONL + **REQ-038-T1/T3**（T1门禁闭环/T3规范就绪） | Active / Review |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | **REQ-002 Done**；Q-001；企微 #91 | 等待 / Done |
-| **§0.R-A** | **REQ-038-T1 抽审 Done**（gates）· DEBT-013 · CHG-020 | Queued / Done |
+| **§0.R-A** | **REQ-038-T1 抽审 Done**（gates closed）· **T3 设计稿 Queued** · DEBT-013 · CHG-020 | Queued / Done |
 | **§0.R-B** | **CHG-025 / 协议 v0.1.4** | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
