@@ -227,29 +227,51 @@ export async function extractImageVl(imageItem, options = {}) {
       },
     };
 
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
-      },
-      body: JSON.stringify(reqPayload),
-      signal: AbortSignal.timeout(20000),
-    });
+    const maxRetries = 3;
+    let attempt = 0;
+    while (attempt <= maxRetries) {
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
+          body: JSON.stringify(reqPayload),
+          signal: AbortSignal.timeout(30000),
+        });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      return { ok: false, error: `API_HTTP_${res.status}: ${errText.slice(0, 120)}` };
+        if (res.ok) {
+          const data = await res.json();
+          const candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!candidateText) {
+            return { ok: false, error: 'EMPTY_CANDIDATE_OUTPUT' };
+          }
+          const parsed = JSON.parse(candidateText);
+          return sanitizeVlOutput(parsed);
+        }
+
+        if ((res.status === 429 || res.status === 503) && attempt < maxRetries) {
+          attempt++;
+          const waitSec = res.status === 429 ? 20 + attempt * 10 : 10;
+          console.warn(`  ⚠️ 触发 ${res.status} 限流/负载，退避等待 ${waitSec} 秒后进行第 ${attempt}/${maxRetries} 次重试...`);
+          await new Promise((r) => setTimeout(r, waitSec * 1000));
+          continue;
+        }
+
+        const errText = await res.text();
+        return { ok: false, error: `API_HTTP_${res.status}: ${errText.slice(0, 120)}` };
+      } catch (reqErr) {
+        if (attempt < maxRetries) {
+          attempt++;
+          console.warn(`  ⚠️ 网络请求异常 (${reqErr.message})，等待 10 秒后进行第 ${attempt}/${maxRetries} 次重试...`);
+          await new Promise((r) => setTimeout(r, 10000));
+          continue;
+        }
+        return { ok: false, error: reqErr.message };
+      }
     }
-
-    const data = await res.json();
-    const candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!candidateText) {
-      return { ok: false, error: 'EMPTY_CANDIDATE_OUTPUT' };
-    }
-
-    const parsed = JSON.parse(candidateText);
-    return sanitizeVlOutput(parsed);
+    return { ok: false, error: 'EXCEEDED_MAX_RETRIES' };
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -287,6 +309,7 @@ export async function runBatchVisionPipeline(options = {}) {
     dryRun = false,
     maxCostUsd = 0.5,
     mock = false,
+    intervalMs = (mock || dryRun ? 0 : 6500),
     dbInstance = getDb(),
     onProgress = null,
   } = options;
@@ -380,7 +403,16 @@ export async function runBatchVisionPipeline(options = {}) {
     });
 
     if (typeof onProgress === 'function') {
-      onProgress(i + 1, toProcess.length, metaPayload);
+      onProgress(i + 1, toProcess.length, metaPayload, results);
+    }
+
+    if ((i + 1) % 20 === 0 || i === toProcess.length - 1) {
+      console.log(`[Batch Vision 进度里程碑] 已处理: ${i + 1}/${toProcess.length} | 成功: ${results.success_count} | 失败: ${results.failed_count}`);
+    }
+
+    // 免费层速率保护: 保持在 15 RPM 以内 (每次请求间隔 intervalMs)
+    if (!dryRun && !mock && i < toProcess.length - 1 && intervalMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
     }
   }
 
@@ -402,6 +434,12 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
     limit = 1000;
   }
 
+  let intervalMs = 6500;
+  const intervalIdx = args.indexOf('--interval');
+  if (intervalIdx >= 0 && args[intervalIdx + 1]) {
+    intervalMs = parseInt(args[intervalIdx + 1], 10) || 6500;
+  }
+
   let maxCostUsd = 0.5;
   const costIdx = args.indexOf('--max-cost');
   if (costIdx >= 0 && args[costIdx + 1]) {
@@ -412,6 +450,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
     limit,
     dryRun,
     mock,
+    intervalMs,
     maxCostUsd,
     onProgress: (done, total, meta) => {
       console.log(`[Batch Vision] (${done}/${total}) ${meta.local_path} -> ${meta.status} [${meta.ticker || 'NONE'}]`);
