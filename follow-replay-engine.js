@@ -26,21 +26,8 @@ const __dirname = path.dirname(__filename);
 export function getBaseUrl() {
   if (process.env.PUBLIC_URL) return process.env.PUBLIC_URL;
   if (process.env.TUNNEL_URL) return process.env.TUNNEL_URL;
-  try {
-    const runtimeFile = path.join(__dirname, 'data', 'runtime', 'tunnel_url.json');
-    if (fs.existsSync(runtimeFile)) {
-      const parsed = JSON.parse(fs.readFileSync(runtimeFile, 'utf8'));
-      if (parsed?.status === 'ok' && parsed?.url && parsed.url.startsWith('http')) {
-        return parsed.url.trim();
-      }
-    }
-    const tunnelFile = path.join(__dirname, 'data', 'tunnel_url.txt');
-    if (fs.existsSync(tunnelFile)) {
-      const u = fs.readFileSync(tunnelFile, 'utf8').trim();
-      if (u.startsWith('http')) return u;
-    }
-  } catch (_) {}
-  return `http://${process.env.HOST_IP || '192.168.1.18'}:${process.env.PORT || 8085}`;
+  // 默认直连生产固定公网 IP (35.212.142.173:8085)，免去 Cloudflare Quick Tunnel 域名漂移与国内 DNS 污染
+  return 'http://35.212.142.173:8085';
 }
 const REPLAY_SECRET = process.env.WECOM_HITL_SECRET || 'follow_replay_secret_key_2026';
 const TRUMP_VISIT_START_TS = 1778803200000; // 2026-05-15 00:00:00 UTC
