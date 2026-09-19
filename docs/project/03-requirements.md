@@ -80,7 +80,7 @@
 | CHG-016 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：`database.js` 统一 `parseDateFilterToMs`，解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载 `whop-web-dashboard` 生效 | 2026-09-15 `agent:gemini` · `database.js` · `test_date_filter_timezone.js` |
 | CHG-017 | `done` | **方案 A 双模型分流与动态生命周期调度架构**：快车道 1.5B 永久常驻零冷启动摩擦；深车道 14B 采用 3600s 迟滞保活防频繁换入换出摩擦 + JIT 懒加载唤醒 (`ensureModelReady`)；全仓模型配置、文档、LM_STUDIO_OPTIMIZATION 及 Local-Ops 白名单同步对齐 | 2026-09-15 `agent:gemini1` · `tools/lms-guard.js` · `ai-router-policy.js` · `LM_STUDIO_OPTIMIZATION.md` |
 | CHG-018 | `done` | **统一 WSL2 AI 运行时**：Step 1–3 + **Q-007 Human 确认关 LMS 切流 OK**（2026-09-19）；残留代码债 DEBT-014（Supervisor sleep-mock→真实二进制，P2） | 2026-09-19 `agent:gemini` 落地 · `agent:cursor` 抽审/回写 |
-| CHG-019 | `in_progress` | **`saveTradeSignal` ON CONFLICT 补齐 `ticker`/`action`/`source`/`stop_loss`/`speaker_*` 等**（二次纠错改标的不残留旧字段；来自 07 REQ-035 抽审尾巴） | 2026-09-19 `agent:cursor` · `database.js` · `test_trade_signals_req031.js` |
+| CHG-019 | `done` | **`saveTradeSignal` ON CONFLICT 补齐 `ticker`/`action`/`source`/`stop_loss`/`speaker_*` 等**（二次纠错改标的不残留旧字段；来自 07 REQ-035 抽审尾巴） | 2026-09-19 `agent:cursor` 落地 (`52f2ed9`) · `agent:gemini` 抽审通过 |
 
 ---
 

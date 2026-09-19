@@ -13,8 +13,9 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **DEBT-014** | L2/L3 | WSL 编译/安装真实 `llama-server`，Supervisor 满血（后台 build） | `wsl-llama-supervisor.js` · `/root/llama.cpp` | **Doing** |
-| 2 | **CHG-019** + **REQ-037** | L1/L3 | 并行：`saveTradeSignal` 冲突列补齐；CU export + 14B 精炼批跑（等 :8080） | `database.js` · `tools/knowledge/*` | **Doing** |
+| **1** | **DEBT-014** | L2/L3 | CPU `llama-server` 已装并在 WSL :8080 跑 1.5B；Windows :8080 仍是 LMS（须走 WSL IP） | `wsl-llama-supervisor.js` | **Doing** |
+| 2 | **REQ-037** | L3 | 并行：CU export + 14B 精炼批跑（等 :8080；CHG-019 `saveTradeSignal` 冲突列已闭环 `52f2ed9`） | `tools/knowledge/*` | **Doing** |
+| 3 | **REQ-037** | L3 | CU export 80 条；WSL 1.5B ontology LLM 抽样 | `tools/knowledge/*` | **Doing** |
 
 ### 0.B 队列 `agent:gemini`
 
@@ -56,6 +57,7 @@
 | §0.R-A cursor | **REQ-037 全库蒸馏闭环（`e9fc925`）** | **Done** |
 | §0.R-A cursor | **REQ-037 query CLI minConfidence（`a764c25`+fix）** | **Done** |
 | §0.R-A cursor | **DEBT-013 GEX 开盘任务 DST 免疫对齐抽审** | **Queued** |
+| §0.R-B gemini | **CHG-019 + DEBT-014 路径抽审（`52f2ed9`）** | **Done** |
 
 ### 共享候选池
 
