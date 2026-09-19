@@ -77,11 +77,11 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | （空 · CHG-025 / v0.1.4 签收 Done） | — |
-| **§0.B `agent:gemini`** | **REQ-033** 历史大V回放纠错 + **REQ-037** 大V知识本体批跑 | Doing |
+| **§0.B `agent:gemini`** | **REQ-033** 历史大V回放纠错（常驻流水线，队头 #90 CONL 等待企微点击） | Standing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | REQ-002；Q-001；Q-006；企微 #90；**Q-007 Done** | 等待 / Done |
 | **§0.R-A** | DEBT-013 DST · CHG-020 漏重启探针 · **CHG-022 GPU 门禁闭环** | Queued |
-| **§0.R-B** | **CHG-025 / 协议 v0.1.4** | Queued |
+| **§0.R-B** | **CHG-025 / 协议 v0.1.4** | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 

@@ -22,7 +22,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（常驻流水线：队头 #90 CONL 等待企微点击，用户手机端操作即自动级联推进下一笔，进度 10.7%） | `follow-replay-engine.js` · `server.js` | **Standing (Active)** |
-| 2 | **REQ-037** | L3 | 知识本体蒸馏默认 `--sender` 大V生产批跑与高精策略卡片入库沉淀 | `tools/knowledge/batch_distill_pipeline.js` · `package.json` | **Doing** |
+| 2 | — | — | （空位） | — | — |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -64,12 +64,12 @@
 | §0.R-A cursor | **GPU 协议 v0.1 + CHG-021 抽审**（§7 冻结；骨架 accepted-with-gates） | **Done** |
 | §0.R-B gemini | **CHG-023 WSL AI 切流锁定抽审** | **Done**（通过） |
 | §0.R-B gemini | **CHG-024 GPU 控制面加固抽审** | **Done**（通过） |
-| §0.R-B gemini | **CHG-025 / 协议 v0.1.4 对齐抽审** | **Queued** |
+| §0.R-B gemini | **CHG-025 / 协议 v0.1.4 对齐抽审** | **Done**（通过） |
 
 ### 共享候选池
 
 1. （Doing · cursor）WSL HIP 编译真实 `llama-server` → DEBT-014 满血
-2. （Doing · cursor）`REQ-037` CU export 已出 80 条候选（等人标 `boundary_start`）· 14B 精炼等 :8080
+2. （已出队 · REQ-037）默认 `--sender xiaozhaolucky` 蒸馏批跑落地，1995 张大V纯正卡片沉淀入库，单测全绿
 3. （已出队 · CHG-024）`:18080` 可达 + 禁假成功 + Wan 拒载 · 协议 v0.1.3
 4. （已出队）… · 037-batch · 037-layer4 · 037-full-scan `e9fc925` · DEBT-014-code · CHG-021 骨架 · CHG-022 门禁 · CHG-023 切流
 
@@ -105,7 +105,7 @@
 | REQ-033 | L1/L4 | 历史回放+企微纠错（进度以 §0.B 为准：约 #83+；应用私信推送） | `agent:gemini` | Doing | `follow-replay-engine` · `wecom/push` |
 | REQ-035 | L1 | 回放纠错与 trade_signals 自动校准联动 | `agent:gemini` | Done | `follow-replay-engine.js` · `test_replay_signal_sync_req035.js` |
 | REQ-036 | L3 | 大V交易语义专有 SLM 微调与数据飞轮（含自迭代流水线） | `agent:gemini` | Done | 1030组SFT/DPO+ROCm LoRA+`flywheel_engine.js`+单测全绿 |
-| REQ-037 | L3 | 多模态知识图谱 P1–P3（含卡片蒸馏引擎） | 双Agent协同 | Done | P1 vision + P2 CU + P3 distill四大卡片全绿；P4 冻结 |
+| REQ-037 | L3 | 多模态知识图谱 P1–P3（含卡片蒸馏引擎） | 双Agent协同 | Done | P1 vision + P2 CU + P3 distill四大卡片全绿（默认大V过滤，1995张沉淀入库）；P4 冻结 |
 | REQ-022 | L3 | GEX→GCP 同步安全专节 | `agent:cursor` | Done | runbooks/gex-gcp-sync-security.md |
 | CHG-016 | L2 | 看板日期过滤强绑定北京时间 (+08:00) 闭环 | `agent:gemini` | Done | `3dc07c2` · 生产单进程重启生效 |
 | CHG-018 | L2/L3 | 统一 WSL2 AI 运行时（Q-007 Done；DEBT-014 代码路径 Done） | `agent:gemini` / cursor | Done | 装二进制后满血 |

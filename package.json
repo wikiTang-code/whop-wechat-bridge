@@ -33,6 +33,8 @@
     "knowledge:ontology-sample:llm": "node tools/knowledge/phase3_ontology_sample.js --mode llm --limit 5",
     "knowledge:distill": "node tools/knowledge/batch_distill_pipeline.js",
     "knowledge:distill:dry": "node tools/knowledge/batch_distill_pipeline.js --dry-run",
+    "knowledge:distill:zhao": "node tools/knowledge/batch_distill_pipeline.js --sender xiaozhaolucky",
+    "knowledge:distill:all": "node tools/knowledge/batch_distill_pipeline.js --all-senders",
     "test:semantic-cu": "node test/test_semantic_cu_req037_phase2.js && node test/test_semantic_cu_golden_smoke_req037.js && node test/test_semantic_cu_golden_v0_req037.js && node test/test_semantic_cu_embed_drift_req037.js && node test/test_semantic_cu_filled_eval_req037.js",
     "test:ontology-card": "node test/test_ontology_card_req037_phase3.js && node test/test_ontology_card_llm_req037_phase3.js && node test/test_ontology_card_distill_req037.js",
     "ops": "node tools/local-ops/cli.js",

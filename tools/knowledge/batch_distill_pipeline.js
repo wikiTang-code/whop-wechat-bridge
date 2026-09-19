@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 /**
  * tools/knowledge/batch_distill_pipeline.js
  * REQ-037 Phase 3: 大批次离线策略本体卡片知识蒸馏流水线
@@ -27,6 +27,8 @@ export function parseMessageTickers(raw) {
   return s.split(/[,|\s]+/).map((t) => t.trim().toUpperCase()).filter(Boolean);
 }
 
+export const DEFAULT_SENDER = 'xiaozhaolucky';
+
 export async function runBatchDistill(options = {}) {
   const {
     limit = 200,
@@ -34,9 +36,14 @@ export async function runBatchDistill(options = {}) {
     force = false,
     batchSize = 50,
     dbInstance = null,
-    sender = '',
+    sender = undefined,
+    allSenders = false,
     channelId = ''
   } = options;
+
+  const effectiveSender = allSenders
+    ? ''
+    : (sender !== undefined && sender !== null ? String(sender).trim() : DEFAULT_SENDER);
 
   initDb();
   const db = dbInstance || getDb();
@@ -45,7 +52,7 @@ export async function runBatchDistill(options = {}) {
 
   console.log('===========================================================');
   console.log(`🚀 启动大批次策略本体卡片知识蒸馏流水线 (REQ-037 Phase 3)`);
-  console.log(`参数配置: Limit=${limit}, DryRun=${dryRun}, Force=${force}, BatchSize=${batchSize}, Sender=${sender || '(any)'}, Channel=${channelId || '(any)'}`);
+  console.log(`参数配置: Limit=${limit}, DryRun=${dryRun}, Force=${force}, BatchSize=${batchSize}, Sender=${effectiveSender || '(all)'}, AllSenders=${allSenders}, Channel=${channelId || '(any)'}`);
   console.log('===========================================================\n');
 
   // 1. 查询已蒸馏与已扫描过的 message_id 列表，支持断点续传且防游标卡死
@@ -70,7 +77,7 @@ export async function runBatchDistill(options = {}) {
   }
   console.log(`[Batch Distill] 已处理索引库排重集合包含: ${processedMessageIds.size} 条历史消息`);
 
-  // 2. 检索包含策略本体特征的大V发言（可选 --sender / --channel 收窄）
+  // 2. 检索包含策略本体特征的大V发言（默认 xiaozhaolucky，可选 --sender / --channel 收窄，--all-senders 放行全量）
   const whereParts = [
     'content IS NOT NULL AND LENGTH(TRIM(content)) >= 10',
     `(
@@ -86,9 +93,9 @@ export async function runBatchDistill(options = {}) {
       )`
   ];
   const queryParams = [];
-  if (sender) {
+  if (effectiveSender) {
     whereParts.push('(sender_name LIKE ? OR sender_id LIKE ?)');
-    const like = `%${sender}%`;
+    const like = `%${effectiveSender}%`;
     queryParams.push(like, like);
   }
   if (channelId) {
@@ -163,7 +170,9 @@ export async function runBatchDistill(options = {}) {
     const meta = {
       id: msg.id,
       message_id: msg.id,
-      tickers: parseMessageTickers(msg.tickers)
+      tickers: parseMessageTickers(msg.tickers),
+      sender_name: msg.sender_name || null,
+      channel_id: msg.channel_id || null
     };
 
     const cards = extractCardsHeuristic(msg.content, meta);
@@ -173,6 +182,15 @@ export async function runBatchDistill(options = {}) {
       totalCardsProduced++;
       cardTypeDistribution[card.card_type] = (cardTypeDistribution[card.card_type] || 0) + 1;
       
+      // 记录 sender_name 与大V归属至 card 与 schema
+      if (msg.sender_name) {
+        card.sender_name = msg.sender_name;
+        if (!card.schema) {
+          card.schema = {};
+        }
+        card.schema.sender_name = msg.sender_name;
+      }
+
       // 标的统计
       if (Array.isArray(card.tickers)) {
         for (const tk of card.tickers) {
@@ -246,16 +264,17 @@ if (isDirectCli) {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
   const force = args.includes('--force');
+  const allSenders = args.includes('--all-senders');
   const limitIdx = args.indexOf('--limit');
   const limit = limitIdx >= 0 ? Math.max(1, parseInt(args[limitIdx + 1], 10) || 200) : 200;
   const batchIdx = args.indexOf('--batch-size');
   const batchSize = batchIdx >= 0 ? Math.max(1, parseInt(args[batchIdx + 1], 10) || 50) : 50;
   const senderIdx = args.indexOf('--sender');
-  const sender = senderIdx >= 0 ? String(args[senderIdx + 1] || '').trim() : '';
+  const sender = senderIdx >= 0 ? String(args[senderIdx + 1] || '').trim() : undefined;
   const channelIdx = args.indexOf('--channel');
   const channelId = channelIdx >= 0 ? String(args[channelIdx + 1] || '').trim() : '';
 
-  runBatchDistill({ limit, dryRun, force, batchSize, sender, channelId })
+  runBatchDistill({ limit, dryRun, force, batchSize, sender, allSenders, channelId })
     .then(() => process.exit(0))
     .catch((err) => {
       console.error('❌ 蒸馏流水线执行失败:', err);

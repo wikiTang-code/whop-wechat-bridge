@@ -22,7 +22,7 @@ const supProcess = spawn(process.execPath, [SUPERVISOR_SCRIPT], {
 await new Promise(resolve => setTimeout(resolve, 800));
 console.log('  ✅ Supervisor 独立守护子进程已启动 (PID:', supProcess.pid, ')');
 
-const adapter = new WslLlamaAdapter({ supervisorPort: 18080 });
+const adapter = new WslLlamaAdapter({ host: '127.0.0.1', supervisorPort: 18080 });
 
 function cleanupAndExit(code = 0) {
   try { supProcess.kill('SIGTERM'); } catch (_) {}
