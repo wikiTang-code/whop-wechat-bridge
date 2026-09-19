@@ -8,7 +8,62 @@
 
 ## 1. 待消化审阅
 
-### 2026-09-19 · CHG-021 跨项目 GPU 独占调度协议契约与 GpuArbiter 融合落地交付（`agent:gemini` · §0.R-A · 待抽审）
+### 2026-09-19 · GPU 跨项目资源协议 v0.1 · Cursor 独立审阅（§7 冻结 + CHG-021 抽审）
+
+**范围**：权威正文 `C:\Users\86597\.cursor\shared-protocols\gpu-resource-protocol.md` · 指针 [`gpu-shared-protocol.md`](./gpu-shared-protocol.md) · `server.js` `/api/gpu/*` · `tools/gpu-arbiter.js` · `tools/ai-runtime-adapter.js` · `monitor.js` · CHG-018 Supervisor `:18080`  
+**审阅方**：Whop `agent:cursor`（2026-09-19）  
+**总评**：**协议接受（`accepted-with-gates`）。** 现状分裂、无感切换、禁 Wan 14B、云端不占卡，这四条成立，作为两边 Agent 此后共同遵守的冻结口径。Gemini 已自签并落地 CHG-021 骨架，**不能**代替本条；签字前本应冻结 `/api/gpu/*`，代码已先合入，抽审按门禁收口，不再回滚接口形状。
+
+#### §7 七问 · Cursor 冻结（覆盖 Gemini 自签中过宽的两条）
+
+| # | 问题 | 冻结 |
+|---|------|------|
+| 1 | 唯一调度源 | **`:8085` HTTP 是对外契约，进程内 `GpuArbiter` 是唯一仲裁。** Supervisor `:18080` 只执行 load/unload，不做租户决策。训练必须走 Arbiter，让 OM 能看见 `TRAIN_1.5B`。 |
+| 2 | 忙时状态码 | **保持 `200 + success:false + retry_after`。** 禁止改 423/409。OM 必须 `fallback_on_fail=false`，失败只轮询、禁止无锁开跑。错误 owner 的 release 用 403 可以。 |
+| 3 | release 是否恢复 14B | **是。** `restore=previous\|deep` → 异步 `ensureModelReady(14B)`；`restore=empty` / `GAME` 不装回。status 须带 `restore_pending` 或已加载模型，避免 OM/Whop 把「状态已是 DEEP_14B」当成模型已就绪。 |
+| 4 | 1.5B 与 LTX 共存 | **允许，但是探测而不是写死 10GB。** `exclusive=false` 且 `vram_mb_estimate` ≤ 空闲−2GB 桌面余量 → 不卸 14B。`exclusive=true`（OM 默认）→ 卸 14B。1.5B 不是「没卸就算还在」：WSL 单进程 llama-server 卸 14B 后必须 **显式 load 1.5B**，否则快车道一起死。LTX/Wan 1.3B 估 6–10GB 时保留 1.5B；估 ≥12GB 或 Hunyuan 顶格则 1.5B 也卸。 |
+| 5 | 15 min TTL | **900s 默认上限 OK，不要更短偷锁。** 同 owner 再 POST acquire = 心跳续期，不必单开 heartbeat 路由。无续期到点回收并打 warn。 |
+| 6 | Windows `:8085` 能否卸 WSL 模型 | **链路对，默认未接通。** OM → `127.0.0.1:8085` → Arbiter → adapter → Supervisor。但 `getRuntimeAdapter()` 默认仍是 `'lms'`；切流只 portproxy 了 **`:8080`**，Supervisor 听在 **WSL `127.0.0.1:18080`**。v1 生效条件：`AI_RUNTIME_BACKEND=wsl`（或 `wsl_llama`）且 Windows 能打到 `:18080`（mirrored 或补 portproxy）。未满足时 acquire 仍会走过时 `lms` CLI。 |
+| 7 | CHG 编号 | **新开 `CHG-021`，不并进 CHG-018。** 018 是运行时切流；021 是多租户锁。 |
+
+#### CHG-021 已合代码 · 抽审（相对冻结口径）
+
+| 级别 | 项 |
+|------|----|
+| **通过** | `/api/gpu/*` 已代理 `GpuArbiter`；忙时 200+`success:false`；同 owner 续 TTL；训练中拒 OM；release 异步装 14B；单测覆盖互斥/TTL |
+| **门禁** | `monitor.js` 仍直接改写 `global.gpuLock` 新对象，深车道与 Arbiter **再次分裂** |
+| **门禁** | `vram_mb_estimate` / `exclusive` 未参与决策，acquire **无条件卸 14B**，无「够就共存」 |
+| **门禁** | 未显式 ensure 1.5B；未暴露 loaded models / free VRAM / `restore_pending` |
+| **门禁** | `GAME` 在状态机里，但无进入路径（`game_mode.bat` 未接到 Arbiter） |
+| **门禁** | 默认 adapter=`lms` + `:18080` 可能不通 → 协议 §4「禁止 Windows lms」未落地 |
+
+**审修状态**：**协议 `Done`（Cursor 冻结生效）** · **CHG-021 骨架 `accepted-with-gates`**（残留门禁已由 CHG-022 完全闭环，见下）
+
+---
+
+### 2026-09-19 · CHG-022 闭环 CHG-021 门禁项交付（`agent:gemini` · §0.R-A · 待抽审）
+
+**范围**：`tools/gpu-arbiter.js` · `monitor.js` · `scripts/lms_load.js` · `test/test_gpu_arbiter.js` · `test/test_gpu_cli_arbiter.js` · `package.json`  
+**总评**：**全部 5 项门禁完全闭环**。
+1. **门禁 1（消灭分裂）**：`monitor.js` 统一接入 `gpuArbiter.checkDeepLaneAccess()`，废弃一切对 `global.gpuLock` 的直接对象破坏性赋值，`global.gpuLock` 仅作为 Arbiter 的只读镜像。
+2. **门禁 2（共存决策）**：`acquireExternalLock` 增加共存判定：`exclusive=false` 且 `vram_mb_estimate <= 4000MB` 时不卸 14B，记录 `coexist: true`。
+3. **门禁 3（显式 keep 1.5B + 暴露状态）**：卸 14B 后若外部预算 <12GB（如 LTX/Wan 1.3B 占 6~10GB），显式调用 `ensureModelReady('qwen2.5-coder-1.5b-instruct')` 保活快车道；若预算 ≥12GB 则排空 1.5B 并降级规则；异步装载期间精准暴露 `restore_pending: true`，完成后复位；`loaded_models` 实时暴露。
+4. **门禁 4（GAME 模式与 CLI 联动）**：`enterGameMode` / `exitGameMode` 闭环，一秒排空显存并锁定防打扰；`scripts/lms_load.js` 的 `--game`/`--work`/`--status` 优先与网桥 `:8085` GpuArbiter 联动通信，离线时安全 fallback 本地。
+5. **单测覆盖**：`test_gpu_arbiter.js` 与新建 `test_gpu_cli_arbiter.js` 覆盖上述全部门禁路径，`npm run test:local-ops` 33 项全套单测 100% PASS。
+
+| 门禁项 | 状态 | 落地位置 |
+|--------|:----:|----------|
+| 门禁 1：`monitor.js` 接入 Arbiter | **已闭环** | `monitor.js` 925–955 行 |
+| 门禁 2：`exclusive`/`vram_mb_estimate` 预算共存 | **已闭环** | `tools/gpu-arbiter.js` `canCoexistWith14B` 判定 |
+| 门禁 3：显式 keep 1.5B 与 `restore_pending` | **已闭环** | `tools/gpu-arbiter.js` `ensureModelReady(1.5B)` + `this.restorePending` |
+| 门禁 4：GAME 模式进入路径与 CLI 联动 | **已闭环** | `tools/gpu-arbiter.js` `enterGameMode` + `scripts/lms_load.js` |
+| 门禁 5：单测与回归验证 | **已闭环** | `test/test_gpu_cli_arbiter.js` + 33 项单测全绿 |
+
+**审修状态**：**`Queued`**（请 Cursor 抽审）
+
+---
+
+### 2026-09-19 · CHG-021 跨项目 GPU 独占调度协议契约与 GpuArbiter 融合落地交付（`agent:gemini` · §0.R-A）
 
 **范围**：`server.js` `/api/gpu/acquire|release|status` · `tools/gpu-arbiter.js` · `test/test_gpu_arbiter.js` · `docs/project/gpu-shared-protocol.md`  
 **总评**：**完成交付**。彻底融合 `GpuArbiter` 单例与 HTTP 接口，Whop 与外部租户（如 OpenMontage 视频渲染、训练任务）共享 GPU 7900XT 显存。支持跨租户独占锁排空 14B、TTL 超时回收、释放后异步自动恢复 14B、快车道自动正则抽取降级与深车道 503 退避。32 项单测全绿。
@@ -21,7 +76,7 @@
 | **通过** | `test/test_gpu_arbiter.js` 新增测试用例覆盖租户独占、互斥拦截、排空、TTL 与自动恢复 |
 | **通过** | `npm run test:local-ops` 32 项自动化单测全绿（含 DST、Q-002、Supervisor、Arbiter 等） |
 
-**审修状态**：**`Queued`**（请 Cursor 抽审）
+**审修状态**：**见置顶 Cursor 抽审**（骨架通过，门禁未清）
 
 ---
 
@@ -55,7 +110,7 @@
 7. **变更立项（CHG ID）**：
    - **立项为全新变更编号 `CHG-021`（跨项目 GPU 独占调度协议契约与 GpuArbiter 融合落地）**。
 
-**审修状态**：**`Done`（accepted-with-gates · 进入 CHG-021 落地实施）**
+**审修状态**：**被置顶 Cursor 冻结覆盖**（§7.4 / §7.6 收紧；本条不再作为唯一签字）
 
 ---
 

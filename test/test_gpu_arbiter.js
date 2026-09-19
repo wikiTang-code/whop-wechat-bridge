@@ -127,9 +127,14 @@ if (!acqRes.success || acqRes.mode_now !== ArbiterState.RENDER_OM) {
   console.error('❌ 外部租户申请锁失败:', acqRes);
   process.exit(1);
 }
-// 14B 应被排空
-if (mock.ps().length !== 0) {
-  console.error('❌ 外部租户占锁后 14B 未能排空');
+// 14B 应被排空，且 1.5B 快车道显式保留
+const runningModels = mock.ps();
+if (runningModels.some(m => m.identifier === 'qwen2.5-14b-instruct')) {
+  console.error('❌ 外部租户占锁后 14B 未能排空:', runningModels);
+  process.exit(1);
+}
+if (!runningModels.some(m => m.identifier === 'qwen2.5-coder-1.5b-instruct')) {
+  console.error('❌ 外部租户占锁后 1.5B 快车道未能显式保留:', runningModels);
   process.exit(1);
 }
 // 快车道应降级
@@ -178,15 +183,110 @@ if (!relRes.success || relRes.mode_now !== ArbiterState.DEEP_14B) {
 await new Promise(r => setTimeout(r, 100));
 
 const omRestored = mock.ps();
-if (omRestored.length !== 1 || omRestored[0].identifier !== 'qwen2.5-14b-instruct') {
+if (!omRestored.some(m => m.identifier === 'qwen2.5-14b-instruct')) {
   console.error('❌ OpenMontage 释放后 14B 模型未能自动恢复:', omRestored);
   process.exit(1);
 }
 console.log('  ✅ 外部租户 (OM) 独占排空、冲突拦截、幂等 TTL、释放后 14B 自动恢复全部通过！');
 
+// 5. 测试 CHG-022 门禁收口逻辑 (共存策略、显式 keep 1.5B、restore_pending、GAME 模式)
+console.log('\n[测试 5] 测试 CHG-022 门禁项：共存策略、显式 keep 1.5B、restore_pending 与游戏模式...');
+
+// 5.1 轻量非独占共存: exclusive=false, vram_mb_estimate=2000 -> 14B 不卸载
+const coexistRes = await gpuArbiter.acquireExternalLock({
+  owner: 'lightweight_worker',
+  purpose: 'quick_feature_extract',
+  exclusive: false,
+  vram_mb_estimate: 2000,
+  ttl_seconds: 60
+});
+if (!coexistRes.success || coexistRes.coexist !== true) {
+  console.error('❌ 轻量任务未能判定为共存:', coexistRes);
+  process.exit(1);
+}
+// 14B 仍然存在
+const coexistPs = mock.ps();
+if (!coexistPs.find(m => m.identifier === 'qwen2.5-14b-instruct')) {
+  console.error('❌ 共存模式下 14B 被错误卸载:', coexistPs);
+  process.exit(1);
+}
+await gpuArbiter.releaseExternalLock({ owner: 'lightweight_worker', restore: 'previous' });
+console.log('  ✅ 轻量非独占任务 (2GB) 成功与 14B 共存，14B 未被误卸');
+
+// 5.2 视频模型 (8GB < 12GB): 卸 14B，但显式保留 1.5B 快车道
+const videoRes = await gpuArbiter.acquireExternalLock({
+  owner: 'openmontage_ltx',
+  purpose: 'ltx_video_gen',
+  exclusive: true,
+  vram_mb_estimate: 8000,
+  ttl_seconds: 60
+});
+if (!videoRes.success) {
+  console.error('❌ 视频渲染申请锁失败:', videoRes);
+  process.exit(1);
+}
+const afterVideoPs = mock.ps();
+const has14B = afterVideoPs.some(m => m.identifier === 'qwen2.5-14b-instruct');
+const has1_5B = afterVideoPs.some(m => m.identifier === 'qwen2.5-coder-1.5b-instruct');
+if (has14B || !has1_5B) {
+  console.error('❌ 8GB 视频模型占锁时未能正确卸载 14B 并保留 1.5B:', afterVideoPs);
+  process.exit(1);
+}
+console.log('  ✅ 8GB 视频模型占锁：14B 卸载成功，且显式保持 1.5B 快车道常驻！');
+
+// 5.3 释放锁测试 restore_pending 状态暴露
+const relPromise = gpuArbiter.releaseExternalLock({
+  owner: 'openmontage_ltx',
+  restore: 'previous'
+});
+const midStatus = gpuArbiter.getStatus();
+if (midStatus.restore_pending !== true) {
+  console.error('❌ 释放锁后异步恢复中未能正确暴露 restore_pending=true:', midStatus);
+  process.exit(1);
+}
+await relPromise;
+// 等待异步恢复就绪
+await new Promise(r => setTimeout(r, 100));
+const endStatus = gpuArbiter.getStatus();
+if (endStatus.restore_pending !== false) {
+  console.error('❌ 异步恢复完成后 restore_pending 未复位为 false:', endStatus);
+  process.exit(1);
+}
+console.log('  ✅ restore_pending 在恢复期间正确标记并在完成后自动复位！');
+
+// 5.4 游戏模式测试: enterGameMode -> 显存清空 (0GB), 其他任务被拒
+const gameRes = await gpuArbiter.enterGameMode({ owner: 'gamer' });
+if (!gameRes.success || gameRes.mode_now !== ArbiterState.GAME) {
+  console.error('❌ 进入游戏模式失败:', gameRes);
+  process.exit(1);
+}
+if (mock.ps().length !== 0) {
+  console.error('❌ 游戏模式下显存未归零:', mock.ps());
+  process.exit(1);
+}
+const gameStatus = gpuArbiter.getStatus();
+if (gameStatus.isGame !== true || gameStatus.state !== ArbiterState.GAME) {
+  console.error('❌ 仲裁器状态未处于 GAME:', gameStatus);
+  process.exit(1);
+}
+// 游戏期间任何租户申请均被拒绝 (HTTP 200 + success:false + reason:GAME_MODE)
+const rejRent = await gpuArbiter.acquireExternalLock({ owner: 'other_job' });
+if (rejRent.success !== false || rejRent.reason !== 'GAME_MODE') {
+  console.error('❌ 游戏期间未正确拒绝其他租户:', rejRent);
+  process.exit(1);
+}
+// 退出游戏模式
+const exitRes = await gpuArbiter.exitGameMode({ restore: 'deep' });
+if (!exitRes.success) {
+  console.error('❌ 退出游戏模式失败:', exitRes);
+  process.exit(1);
+}
+await new Promise(r => setTimeout(r, 100));
+console.log('  ✅ 游戏模式成功一秒排空显存、锁定防打扰，退出后自动装回 14B！');
+
 // 恢复适配器单例
 resetRuntimeAdapter();
 
 console.log('\n===========================================================');
-console.log('🎉 GpuArbiter 所有时分复用与跨项目协议单测全部验证通过！');
+console.log('🎉 GpuArbiter 所有时分复用、跨项目协议与 CHG-022 门禁单测全部验证通过！');
 console.log('===========================================================');

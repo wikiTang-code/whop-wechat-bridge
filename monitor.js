@@ -39,6 +39,7 @@ import {
 import { isAiTunnelSuspended, notifyAiTunnelFailure } from './monitoring/ai-tunnel-circuit.js';
 import { shouldPauseSecondaryWorkers } from './monitoring/backpressure-controller.js';
 import { recordPushMetric } from './monitoring/push-latency-probe.js';
+import { gpuArbiter } from './tools/gpu-arbiter.js';
 
 dotenv.config();
 
@@ -925,32 +926,22 @@ export async function analyzeWithFallback(prompt, options = {}) {
   let acquiredLockLocally = false;
   let localErr = null;
   try {
-    while (global.gpuLock && global.gpuLock.isLocked && global.gpuLock.owner !== 'wechat-bridge') {
-      console.log(`[GPU Scheduler] GPU 当前被 ${global.gpuLock.owner} 占用，微信大模型分析任务排队等待中...`);
-      await new Promise(resolve => setTimeout(resolve, 5000));
+    // 接入统一 gpuArbiter 仲裁：深车道先判断是否被占用/降级
+    let access = gpuArbiter.checkDeepLaneAccess();
+    while (access.blocked) {
+      console.log(`[GPU Scheduler] GPU 当前忙碌 (${access.reason})，微信大模型分析任务排队等待中...`);
+      await new Promise(resolve => setTimeout(resolve, Math.min(5000, (access.retryAfter || 5) * 1000)));
+      access = gpuArbiter.checkDeepLaneAccess();
     }
 
-    if (global.gpuLock && !global.gpuLock.isLocked) {
-      global.gpuLock = {
-        isLocked: true,
-        owner: 'wechat-bridge',
-        acquiredAt: Date.now()
-      };
-      acquiredLockLocally = true;
-    }
+    // 同步镜像到 global.gpuLock 保持向后兼容只读引用，绝不赋破坏性新对象
+    global.gpuLock = gpuArbiter.getStatus().gpuLock;
 
     return await tryLocal();
   } catch (e) {
     localErr = e;
   } finally {
-    if (acquiredLockLocally && global.gpuLock && global.gpuLock.owner === 'wechat-bridge') {
-      global.gpuLock = {
-        isLocked: false,
-        owner: null,
-        acquiredAt: null
-      };
-      console.log('[GPU Scheduler] 微信大模型任务分析完成，释放 GPU 锁');
-    }
+    global.gpuLock = gpuArbiter.getStatus().gpuLock;
   }
 
   if (!localErr) return;

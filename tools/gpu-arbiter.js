@@ -19,7 +19,7 @@
  *    - 深车道 (isDeepLane) 请求直接退避 (返回 HTTP 503 + Retry-After)
  */
 
-import { safeUnloadModel, ensureModelReady, getLoadedModels } from './lms-guard.js';
+import { safeUnloadModel, ensureModelReady, getLoadedModels, unloadAllModels } from './lms-guard.js';
 
 export const ArbiterState = {
   IDLE: 'IDLE',
@@ -42,16 +42,24 @@ class GpuArbiter {
     this.modeBefore = ArbiterState.IDLE;
     this.waitQueue = [];
     this.defaultDeepModel = 'qwen2.5-14b-instruct';
+    this.defaultFastModel = 'qwen2.5-coder-1.5b-instruct';
+    this.restorePending = false;
   }
 
   /**
    * 获取当前仲裁器运行状态 (向后兼容 + 扩展 v1 契约)
    */
   getStatus() {
-    const isLocked = this.state === ArbiterState.TRAINING || this.state === ArbiterState.RENDER_OM;
+    const isLocked = this.state === ArbiterState.TRAINING || this.state === ArbiterState.RENDER_OM || this.state === ArbiterState.GAME;
+    let loadedList = [];
+    try {
+      loadedList = getLoadedModels().map(m => m.identifier);
+    } catch (_) {}
+
     return {
       state: this.state,
       isTraining: this.state === ArbiterState.TRAINING,
+      isGame: this.state === ArbiterState.GAME,
       isLocked,
       owner: this.currentOwner,
       purpose: this.purpose,
@@ -59,12 +67,15 @@ class GpuArbiter {
       lockedDurationMs: this.lockedAt ? Date.now() - this.lockedAt : 0,
       ttlSeconds: this.ttlSeconds,
       queueLength: this.waitQueue.length,
+      restore_pending: this.restorePending,
+      loaded_models: loadedList,
       // 向后兼容旧版 /api/gpu/status data
       gpuLock: {
         isLocked,
         owner: this.currentOwner,
         acquiredAt: this.lockedAt,
-        mode: this.state
+        mode: this.state,
+        restore_pending: this.restorePending
       }
     };
   }
@@ -166,6 +177,57 @@ class GpuArbiter {
   }
 
   /**
+   * 进入游戏模式 (人类独占，一秒排空所有显存，杜绝任何任务自动唤醒)
+   */
+  async enterGameMode({ owner = 'game' } = {}) {
+    this.clearTtlTimer();
+    this.state = ArbiterState.GAME;
+    this.currentOwner = owner;
+    this.purpose = 'gaming';
+    this.lockedAt = Date.now();
+    this.ttlSeconds = 86400; // 24小时兜底
+
+    console.log(`[Arbiter] 🎮 进入游戏模式 (人类独占)，排空所有模型实例...`);
+    let count = 0;
+    try {
+      count = unloadAllModels();
+    } catch (e) {
+      console.warn(`[Arbiter] 排空显存异常:`, e.message);
+    }
+    return {
+      success: true,
+      mode_now: ArbiterState.GAME,
+      unloadedCount: count,
+      message: 'GPU switched to GAME mode; VRAM cleared to 0 GB'
+    };
+  }
+
+  /**
+   * 退出游戏模式并恢复工作模型
+   */
+  async exitGameMode({ restore = 'deep', targetDeepModel = this.defaultDeepModel } = {}) {
+    console.log(`[Arbiter] 💼 退出游戏模式，准备恢复工作模式 (restore=${restore})...`);
+    this.state = restore === 'empty' ? ArbiterState.IDLE : ArbiterState.DEEP_14B;
+    this.currentOwner = null;
+    this.lockedAt = null;
+    this.purpose = null;
+
+    if (restore !== 'empty') {
+      this.restorePending = true;
+      ensureModelReady(targetDeepModel)
+        .catch(err => console.error(`[Arbiter] 退出游戏模式恢复 14B 异常:`, err.message))
+        .finally(() => { this.restorePending = false; });
+    }
+
+    return {
+      success: true,
+      mode_now: this.state,
+      message: 'Exited GAME mode successfully',
+      restored: restore !== 'empty'
+    };
+  }
+
+  /**
    * 申请外部租户锁 (跨项目 HTTP v1 契约: OpenMontage 等)
    */
   async acquireExternalLock({
@@ -178,6 +240,11 @@ class GpuArbiter {
   } = {}) {
     if (!owner) {
       return { success: false, reason: 'OWNER_REQUIRED', message: 'owner is required' };
+    }
+
+    // 若申请游戏模式
+    if (owner === 'game' || purpose === 'gaming') {
+      return await this.enterGameMode({ owner });
     }
 
     // 若锁已被自己持有，幂等刷新 TTL
@@ -232,13 +299,35 @@ class GpuArbiter {
     this.lockedAt = Date.now();
     this.ttlSeconds = ttl_seconds;
 
-    console.log(`[Arbiter] 🔒 租户 "${owner}" 获取 GPU 独占锁 (Purpose: ${purpose}, TTL: ${ttl_seconds}s)，正在排空 14B 显存...`);
     const unloadedModels = [];
-    try {
-      const count = safeUnloadModel(targetDeepModel);
-      if (count > 0) unloadedModels.push(targetDeepModel);
-    } catch (e) {
-      console.warn(`[Arbiter] 卸载 ${targetDeepModel} 异常:`, e.message);
+
+    // 共存策略判定 (Cursor 冻结 §7.4: exclusive=false 且 vram_mb_estimate <= 4000MB 时与 14B 共存，不卸 14B)
+    const canCoexistWith14B = !exclusive && vram_mb_estimate <= 4000;
+
+    if (canCoexistWith14B) {
+      console.log(`[Arbiter] 💡 租户 "${owner}" 请求非独占轻量渲染 (预计 ${vram_mb_estimate}MB <= 4000MB)，允许与 14B 显存共存，不卸载 14B。`);
+    } else {
+      console.log(`[Arbiter] 🔒 租户 "${owner}" 获取 GPU 独占锁 (Purpose: ${purpose}, TTL: ${ttl_seconds}s)，正在排空 14B 显存...`);
+      try {
+        const count = safeUnloadModel(targetDeepModel);
+        if (count > 0) unloadedModels.push(targetDeepModel);
+      } catch (e) {
+        console.warn(`[Arbiter] 卸载 ${targetDeepModel} 异常:`, e.message);
+      }
+
+      // 显式 keep 1.5B 规则 (Cursor 冻结 §7.4: LTX/Wan 1.3B 估 6~10GB 时显式保留 1.5B；估 >=12GB 时 1.5B 也卸)
+      if (vram_mb_estimate < 12000) {
+        try {
+          console.log(`[Arbiter] ⚡ 外部显存预算为 ${vram_mb_estimate}MB (< 12GB)，显式装载并保活 1.5B 快车道模型 (${this.defaultFastModel})...`);
+          ensureModelReady(this.defaultFastModel).catch(() => {});
+        } catch (_) {}
+      } else {
+        console.log(`[Arbiter] 🚨 外部显存预算 ${vram_mb_estimate}MB >= 12GB (顶格模型)，连 1.5B 快车道也排空，快车道全面降级为正则。`);
+        try {
+          safeUnloadModel(this.defaultFastModel);
+          unloadedModels.push(this.defaultFastModel);
+        } catch (_) {}
+      }
     }
 
     this.setupTtlTimer(owner, ttl_seconds);
@@ -247,6 +336,7 @@ class GpuArbiter {
       success: true,
       mode_before: this.modeBefore,
       mode_now: ArbiterState.RENDER_OM,
+      coexist: canCoexistWith14B,
       unloaded: unloadedModels,
       ttl_seconds
     };
@@ -264,6 +354,11 @@ class GpuArbiter {
       return { success: false, reason: 'OWNER_REQUIRED', message: 'owner is required' };
     }
 
+    // 若从游戏模式退出
+    if (this.state === ArbiterState.GAME || owner === 'game') {
+      return await this.exitGameMode({ restore, targetDeepModel });
+    }
+
     if (this.state !== ArbiterState.RENDER_OM) {
       return { success: true, message: 'GPU is not currently locked by external tenant' };
     }
@@ -276,16 +371,21 @@ class GpuArbiter {
     console.log(`[Arbiter] 🔓 租户 "${owner}" 释放 GPU 锁 (restore=${restore})`);
 
     let modeNow = ArbiterState.IDLE;
-    if (restore === 'empty' || this.state === ArbiterState.GAME) {
+    if (restore === 'empty') {
       this.state = ArbiterState.IDLE;
       modeNow = ArbiterState.IDLE;
     } else {
       this.state = ArbiterState.DEEP_14B;
       modeNow = ArbiterState.DEEP_14B;
-      // 异步非阻塞唤醒 14B
-      ensureModelReady(targetDeepModel).catch(err => {
-        console.error(`[Arbiter] 释放后异步唤醒 14B 异常:`, err.message);
-      });
+      // 标记异步装载 pending 状态，并在装载完成后复位
+      this.restorePending = true;
+      ensureModelReady(targetDeepModel)
+        .catch(err => {
+          console.error(`[Arbiter] 释放后异步唤醒 14B 异常:`, err.message);
+        })
+        .finally(() => {
+          this.restorePending = false;
+        });
     }
 
     this.currentOwner = null;
@@ -300,6 +400,7 @@ class GpuArbiter {
     return {
       success: true,
       mode_now: modeNow,
+      restore_pending: this.restorePending,
       message: 'GPU unlocked successfully',
       restored: restore !== 'empty'
     };

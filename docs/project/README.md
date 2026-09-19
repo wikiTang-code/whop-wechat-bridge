@@ -28,7 +28,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
 ├── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2/P3 Done）
 ├── wsl-unified-ai-runtime-plan.md     ← CHG-018 Done（Q-007；DEBT-014 代码路径 Done）
-└── gpu-shared-protocol.md             ← 跨仓库 GPU 协议指针（正文在 ~/.cursor/shared-protocols/；待 Whop Agent 审 v0.1）
+└── gpu-shared-protocol.md             ← 跨仓库 GPU 协议指针（正文在 ~/.cursor/shared-protocols/；Cursor 2026-09-19 冻结 §7）
 
 专题权威方案（不重复当总进度，只被引用）：
 docs/local-ops-mcp-skill-plan.md       ← Local-Ops / 企微 / MCP
@@ -76,12 +76,12 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **DEBT-014**/CHG-019/037 并行（CPU llama-server + 冲突列） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** 历史大V回放纠错（CHG-021 已 Done 出队，恢复空位） | Standing |
+| **§0.A `agent:cursor`** | **CHG-023** WSL 切流锁定（8080≡llama-server） | Doing |
+| **§0.B `agent:gemini`** | **REQ-033** 历史大V回放纠错（CHG-022 门禁已 Done 出队，恢复空位） | Standing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | REQ-002；Q-001；Q-006；企微 #90；**Q-007 Done** | 等待 / Done |
-| **§0.R-A** | DEBT-013 DST · CHG-020 漏重启探针 · CHG-021 GPU 跨项目调度 | Queued |
-| **§0.R-B** | **GPU 跨项目资源协议 v0.1-draft**（审阅签署完成，转入 CHG-021 落地闭环） | Done |
+| **§0.R-A** | DEBT-013 DST · CHG-020 漏重启探针 · **CHG-022 GPU 门禁闭环** | Queued |
+| **§0.R-B** | GPU 协议 Gemini 自签（已被 Cursor 置顶覆盖） | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 

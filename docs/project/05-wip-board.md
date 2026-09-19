@@ -13,16 +13,16 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **DEBT-014** | L2/L3 | CPU `llama-server` 已装并在 WSL :8080 跑 1.5B；Windows :8080 仍是 LMS（须走 WSL IP）；HIP ROCm 残缺暂缓 | `wsl-llama-supervisor.js` | **Doing** |
-| 2 | **REQ-037** | L3 | CU export 80 条；WSL 1.5B ontology LLM 抽样 6 cards 入库；更大批继续后台 | `tools/knowledge/*` | **Doing** |
-| 3 | — | — | （CHG-019 Done `52f2ed9`） | — | — |
+| **1** | **CHG-023** | L2/L3 | 切流锁定：Win `127.0.0.1:8080`≡WSL llama-server；默认 `AI_RUNTIME_BACKEND=wsl`；开机单隧道；废 8081 | `tools/wsl-ai-cutover.js` · `scripts/whop-lm-tunnel.bat` | **Doing** |
+| 2 | **DEBT-014** | L3 | HIP 满血暂缓（CPU 路径已可用） | `/root/llama.cpp/build-cpu` | Standing |
+| 3 | — | — | （REQ-037 抽样/CU export 已交付；CHG-019 Done） | — | — |
 
 ### 0.B 队列 `agent:gemini`
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（常驻流水线：队头 #90 CONL 等待企微点击，用户手机端操作即自动级联推进下一笔，进度 10.7%） | `follow-replay-engine.js` · `server.js` | **Standing (Active)** |
-| 2 | — | — | （空位） | — | — |
+| 2 | — | — | （空位 · CHG-022 已 Done 出队） | — | — |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -60,14 +60,15 @@
 | §0.R-A cursor | **DEBT-013 GEX 开盘任务 DST 免疫对齐抽审** | **Queued** |
 | §0.R-B gemini | **CHG-019 + DEBT-014 路径抽审（`52f2ed9`）** | **Done** |
 | §0.R-A cursor | **CHG-020 / Q-002 漏重启发现信号与探针抽审** | **Queued** |
-| §0.R-B gemini | **GPU 跨项目资源协议 v0.1-draft**（签署完成，转入 CHG-021） | **Done** |
+| §0.R-B gemini | **GPU 跨项目资源协议 v0.1-draft**（自签；已被 Cursor 置顶冻结覆盖） | **Done** |
+| §0.R-A cursor | **GPU 协议 v0.1 + CHG-021 抽审**（§7 冻结；骨架 accepted-with-gates） | **Done** |
 
 ### 共享候选池
 
 1. （Doing · cursor）WSL HIP 编译真实 `llama-server` → DEBT-014 满血
 2. （Doing · cursor）`REQ-037` CU export 已出 80 条候选（等人标 `boundary_start`）· 14B 精炼等 :8080
-3. （Doing · cursor）**CHG-019** `saveTradeSignal` 冲突列补齐
-4. （已出队）… · 037-batch · 037-layer4 · 037-full-scan `e9fc925` · DEBT-014-code
+3. （Standing · gemini）CHG-021 Cursor 门禁：`monitor.js` 勿改写 `gpuLock`；acquire 按 estimate 共存；卸 14B 后显式 load 1.5B；`AI_RUNTIME_BACKEND=wsl` + `:18080` 可达
+4. （已出队）… · 037-batch · 037-layer4 · 037-full-scan `e9fc925` · DEBT-014-code · CHG-021 骨架
 
 ## 1. 主看板
 
@@ -108,6 +109,7 @@
 | DEBT-013 | L2 | GEX 开盘任务夏/冬令时（DST）自动对齐加固 | `agent:gemini` | Done | `open_session_run.py` 美东自适应对齐，Task 锚定最早唤醒，单测全绿 |
 | CHG-020 | L2/L4 | 漏重启发现信号与探针闭环（Q-002 Done） | `agent:gemini` | Done | `/health` 暴露 `process.gitCommit`，`gcp_health_bundle` 自动计算 `restart_drift` |
 | CHG-021 | L2/L3 | 跨项目 GPU 独占调度协议契约与 GpuArbiter 融合落地（Whop × OpenMontage 互斥；v1 HTTP 契约、自动恢复 14B） | `agent:gemini` | Done | `server.js` · `tools/gpu-arbiter.js` · 单测全绿 |
+| CHG-022 | L2/L3 | 闭环 CHG-021 门禁项（`monitor.js` 接入 Arbiter、共存决策、卸 14B 显式 keep 1.5B、GAME CLI 联动、暴露 `restore_pending`） | `agent:gemini` | Done | `monitor.js` · `tools/gpu-arbiter.js` · `scripts/lms_load.js` · 33 项单测全绿 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 
