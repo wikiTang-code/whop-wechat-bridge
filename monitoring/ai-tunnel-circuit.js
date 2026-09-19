@@ -93,7 +93,7 @@ async function transitionToOpen(detail) {
     title: '本地 14B 隧道不可达',
     detail: `127.0.0.1:8080 探活失败，已悬挂 task_queue 队头消费（不重试、不转抛 Gemini）。\n${detail}`,
     evidence: getAiTunnelStatus(),
-    suggestion: '检查本机 LM Studio 与 ssh -R 隧道；恢复后自动续消费',
+    suggestion: '检查本机 WSL llama-server（npm run ai:cutover）与 ssh -R 8080 隧道；恢复后自动续消费',
     key: 'ai_tunnel',
   });
 }

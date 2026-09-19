@@ -3,7 +3,7 @@
 > **上级索引**：[`README.md`](./README.md) · 账本 [`03-requirements.md`](./03-requirements.md) (`CHG-018`) · 审阅 [`07-review-inbox.md`](./07-review-inbox.md)  
 > **提案方**：`agent:gemini`  
 > **审阅方**：`agent:cursor`（见 `05` §0.R-A 批次 `PKG-WSL-AI-RUNTIME`）  
-> **当前状态**：`done` · **Q-007 Human 确认关 LMS 切流 OK**（2026-09-19）；可选残留 DEBT-014（Supervisor 绑真实二进制，P2）
+> **当前状态**：`done`（运行时骨架）· **CHG-023 切流锁定**（Windows `127.0.0.1:8080` ≡ WSL llama-server；默认 `AI_RUNTIME_BACKEND=wsl`）· HIP 满血仍见 DEBT-014
 
 ---
 
@@ -168,6 +168,48 @@ node test/test_ai_runtime_adapter.js
 - [x] **回滚 SOP**：严格定义「停 WSL :8080 → 启 LM Studio → 校验连通」流程，杜绝端口冲突
 - [x] **互斥**：飞轮 / 037 蒸馏 / 人工 deep 共用 Arbiter 单飞锁
 - [x] **WSL 切流（Q-007）**：Human 2026-09-19 确认已关 Windows LM Studio 且切流试用 OK
-- [x] **DEBT-014（CPU 路径）**：`/usr/local/bin/llama-server` = `build-cpu`；WSL :8080 已跑 1.5B；Windows :8080 仍可能被 LMS 占用 → 业务须 `LM_STUDIO_BASE_URL=http://<WSL_IP>:8080`
-- [ ] **DEBT-014（HIP 满血）**：ROCm 残缺（`hsa-runtime64Targets` / device libs）阻断 HIP 编译；装齐后换 `build/bin` 并 `-ngl 99`
+- [x] **DEBT-014（CPU 路径）**：`/usr/local/bin/llama-server` = `build-cpu`
+- [x] **CHG-023 切流锁定**：停 LMS 双栈；`tools/wsl-ai-cutover.js`；默认 `AI_RUNTIME_BACKEND=wsl`；开机隧道 `ssh -R 8080:127.0.0.1:8080`（废 8081 bridge）
+- [ ] **DEBT-014（HIP 满血）**：ROCm 残缺阻断 HIP；装齐后换 `build/bin` 并 `-ngl 99`
+
+---
+
+## 7. 期望拓扑（CHG-023 · 权威）
+
+```text
+Windows 业务 Node / 蒸馏脚本
+    │  LM_STUDIO_BASE_URL=http://127.0.0.1:8080
+    │  model= 1.5B | 14B   ← 同口不同 model，不按端口分车
+    ▼
+127.0.0.1:8080  ──────────────────────────────┐
+    （Win 入口；必要时 netsh portproxy → WSL）   │
+                                               ▼
+                                    WSL llama-server
+                                    （唯一推理内核）
+
+本机换模 / 游戏·工作模式
+    → 127.0.0.1:18080  WSL Supervisor（控制面，禁止 SSH 反代）
+
+GCP 云上进程
+    → VM 127.0.0.1:8080
+    → ssh -R 8080:127.0.0.1:8080
+    → 你家 Windows 127.0.0.1:8080 → 同上 WSL 内核
+```
+
+| 端口 | 角色 | 谁连 |
+|------|------|------|
+| **8080** | 唯一 OpenAI 推理面（1.5B/14B） | 本机业务 + GCP 反代 |
+| **18080** | Supervisor load/unload | 仅本机 |
+| **18789** | Local-Ops | 企微等（与 AI 无关） |
+| ~~8081~~ | 旧 `lm_bridge` | **废弃**（切流后勿开机自启） |
+
+**调用约定**
+
+1. 本机与 GCP **都不**直连 WSL IP；统一 `127.0.0.1:8080`。  
+2. 选模型靠请求 `model` + Arbiter/Supervisor 时分换卡，不靠双推理端口。  
+3. 回滚：`AI_RUNTIME_BACKEND=lms` + 启 LMS + `npm run ai:cutover:rollback`。  
+4. 运维入口：`npm run ai:cutover` / `ai:cutover:status`；开机 `scripts/whop-lm-tunnel.bat`（先 cutover 再 ssh）。  
+5. **桥接**：优先 `netsh portproxy`；无管理员权限时自动落 `tools/wsl-localhost-bridge.js`（用户态 TCP：`127.0.0.1:8080`→`WSL_IP:8080`）。
+
+---
 

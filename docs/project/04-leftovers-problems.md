@@ -29,7 +29,7 @@
 | 债 ID | 摘要 | 关联 | 严重度 |
 |-------|------|------|:------:|
 | DEBT-001 | **生产 gcp-vm 尚未 `git merge --ff-only` 对齐**（push 已完成） | REQ-002 | P0 |
-| DEBT-014 | **CHG-018 Supervisor 真实二进制**：CPU `llama-server` 已装 `/usr/local/bin`（`build-cpu`）；HIP 编译仍缺完整 ROCm（hsa-runtime64Targets 残缺）→ 先 CPU 满血路径，HIP 另排 | CHG-018 | **P2 进行中**（CPU 可用 / HIP 阻塞） |
+| DEBT-014 | **CHG-018/023 Supervisor+切流**：CPU `llama-server` + Win bridge 已满血可用；HIP 编译仍缺完整 ROCm | CHG-018/023 | **P3 残留**（HIP） |
 
 ### 2.1 已闭环（勿再当开放债）
 

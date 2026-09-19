@@ -76,7 +76,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **CHG-023** WSL 切流锁定（8080≡llama-server） | Doing |
+| **§0.A `agent:cursor`** | （空 · CHG-023 切流锁定 Done） | — |
 | **§0.B `agent:gemini`** | **REQ-033** 历史大V回放纠错（CHG-022 门禁已 Done 出队，恢复空位） | Standing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | REQ-002；Q-001；Q-006；企微 #90；**Q-007 Done** | 等待 / Done |

@@ -304,15 +304,17 @@ export function getRuntimeAdapter(backendOverride) {
     return activeAdapter;
   }
 
-  const backend = backendOverride || process.env.AI_RUNTIME_BACKEND || 'lms';
+  // CHG-023: default WSL llama-server; set AI_RUNTIME_BACKEND=lms only for rollback
+  const backend = backendOverride || process.env.AI_RUNTIME_BACKEND || 'wsl';
 
   if (backend === 'mock') {
     activeAdapter = new MockRuntimeAdapter();
   } else if (backend === 'wsl_llama' || backend === 'wsl') {
     activeAdapter = new WslLlamaAdapter();
-  } else {
-    // 默认回落至 Windows LMS 适配器
+  } else if (backend === 'lms' || backend === 'windows_lms') {
     activeAdapter = new WindowsLmsAdapter();
+  } else {
+    activeAdapter = new WslLlamaAdapter();
   }
 
   return activeAdapter;

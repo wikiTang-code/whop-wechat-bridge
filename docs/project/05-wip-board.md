@@ -13,9 +13,9 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **CHG-023** | L2/L3 | 切流锁定：Win `127.0.0.1:8080`≡WSL llama-server；默认 `AI_RUNTIME_BACKEND=wsl`；开机单隧道；废 8081 | `tools/wsl-ai-cutover.js` · `scripts/whop-lm-tunnel.bat` | **Doing** |
-| 2 | **DEBT-014** | L3 | HIP 满血暂缓（CPU 路径已可用） | `/root/llama.cpp/build-cpu` | Standing |
-| 3 | — | — | （REQ-037 抽样/CU export 已交付；CHG-019 Done） | — | — |
+| **1** | — | — | （CHG-023 切流锁定 Done：Win:8080=`wsl_llama`；默认 backend=wsl） | — | — |
+| 2 | **DEBT-014** | L3 | HIP 满血暂缓（CPU llama-server 已可用） | `/root/llama.cpp/build-cpu` | Standing |
+| 3 | — | — | （空位） | — | — |
 
 ### 0.B 队列 `agent:gemini`
 
