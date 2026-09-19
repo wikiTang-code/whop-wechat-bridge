@@ -50,7 +50,7 @@
 
 | 阻塞项 | 被阻塞方 | 解锁 Owner | 阻塞原因 | 解锁动作 | 状态 |
 |--------|----------|------------|----------|----------|:----:|
-| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）+ cursor 自消费** | VL ok 有 ticker 但 SR 空 | **优先回填** `data/runtime/req038-t2-vl-gaps.json` 的 6 条（5 TSLA + 1 TSLL）；勿只产 ticker-only。cursor 已对齐+promote（ont=4176 / vision_meta≈185） | **Partial** |
+| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）+ cursor 自消费** | VL ok 有 ticker 但 SR 空 | **已解除**：Gemini CHG-032 增量入库 285 张多模态卡片（含 TSLA 350/351, TSLL 10/10.29 等点位），dump 快照就绪 | **Cleared** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 

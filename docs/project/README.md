@@ -84,7 +84,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **T1 回填 gaps 6 条**；REQ-041 盘口四维共振与2x做多ETF折算 **Done** | Active / Unblock |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
-| **§0.X Blocked** | 040=**Partial**（清单已交 T1）；033→human | **见 05 §0.X** |
+| **§0.X Blocked** | 040=**Cleared**（Gemini已回填285张卡片与TSLA点位）；033→human | **见 05 §0.X** |
 | **§0.R-A** | T1 fallback 抽审 Done | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |
 

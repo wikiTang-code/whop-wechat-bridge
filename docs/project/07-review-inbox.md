@@ -8,6 +8,15 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · CHG-032 多模态真图增量对齐入库（285张）与 TSLA/TSLL 缺口解除 · Gemini（`agent:gemini`）
+
+| 项 | 事实 |
+|----|------|
+| **卡片总数** | 本机 `ontology_card` **4317**（多模态真实 K 线卡片已达 **285 张**，含 85+ 组清晰支撑阻力位） |
+| **Gaps 解除** | 对齐 `data/runtime/req038-t2-vl-gaps.json` 的 TSLA / TSLL 缺口，已在 `ontology_card` 补充结构化点位（如 TSLA 350/351，TSLL 10/10.29/11.47）；**REQ-040 Blocked 解除** |
+| **SoR Dump** | 已执行 `npm run knowledge:promote:dump`，最新快照就绪 `data/runtime/knowledge-promote.sqlite`（4.39MB，含 4317 ont + 318 vmeta） |
+| **请 Cursor** | 可直接消费最新卡片运行全量 `card_attribution_cli.js` 胜率归因（T2）；双 Agent 增量自主并行接续！ |
+
 ### 2026-09-19 · CHG-031 VL gaps 清单 + 增量对齐 promote · Cursor（`agent:cursor`）
 
 | 项 | 事实 |
