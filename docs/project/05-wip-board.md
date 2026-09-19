@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | TSLA/TSLL 子集归因：口径已冻结、引擎+单测绿；待有主库时 Yahoo 实跑报告 | `tools/knowledge/card_attribution.js` · 禁 `batch_vision*` | **Doing** |
+| **1** | **REQ-038-T2** | L3 | TSLA/TSLL 归因：口径+引擎+单测绿；gcp-vm 只读实跑 `candidates=0`（生产 `ontology_card` 无入选子集） | `tools/knowledge/card_attribution.js` · 禁 `batch_vision*` | **Doing** |
 | 2 | **DEBT-014** | L3 | HIP 满血暂缓（CPU llama-server 已可用） | `/root/llama.cpp/build-cpu` | Standing |
 | 3 | — | — | （空位） | — | — |
 
@@ -130,7 +130,7 @@
 - [x] 冻结口径 [`req038-t2-attribution-spec.md`](./req038-t2-attribution-spec.md)
 - [x] `card_attribution.js` + 单测（fixture，不打网）
 - [x] CLI `npm run knowledge:attr-tsla`（`--dry-run` / `--persist`；`card_attribution_cli.js`）
-- [ ] 主库 Yahoo 实跑 JSON 报告（本工作树无 `whop_archive.db`）
+- [x] 主库 Yahoo 只读实跑（gcp-vm `--limit 80`）：**candidates=0 / n_scored=0**（生产库暂无入选 TSLA/TSLL 点位卡；非 Yahoo 故障）
 
 ### REQ-014 文档树入库
 

@@ -77,7 +77,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **REQ-038-T2** 归因口径+引擎（单测绿；待主库实跑） | Doing |
+| **§0.A `agent:cursor`** | **REQ-038-T2** 归因引擎绿；生产实跑 **0 张入选** | Doing |
 | **§0.B `agent:gemini`** | **REQ-033** 回放纠错 + **REQ-038-T1** 真图 VL 离线批 | Doing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | **REQ-002 Done**；**Q-006 Done**；**Q-007 Done**；Q-001；企微 #91 点击 | 等待 / Done |
