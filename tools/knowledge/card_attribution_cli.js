@@ -15,7 +15,8 @@ import {
   summarize,
   saveAttributionRow,
   fetchYahooDailyBars,
-  listT2VisionGaps
+  listT2VisionGaps,
+  listT2OntologyLevelGaps
 } from './card_attribution.js';
 
 const args = process.argv.slice(2);
@@ -41,6 +42,9 @@ if (!fs.existsSync(dbPath)) {
 }
 
 const conn = new Database(dbPath, { readonly: !persist, fileMustExist: true, timeout: 8000 });
+const msgGet = conn.prepare(
+  'SELECT created_at, content, sender_id, sender_name FROM messages WHERE id = ?'
+);
 
 if (gapsOnly) {
   let visionRows = [];
@@ -55,7 +59,20 @@ if (gapsOnly) {
     console.error(JSON.stringify({ ok: false, error: e.message }));
     process.exit(1);
   }
-  const report = { ok: true, mode: 'gaps', db: dbPath, ...listT2VisionGaps(visionRows) };
+  const levelCards = conn
+    .prepare(
+      `SELECT * FROM ontology_card WHERE card_type='level' AND (provider='multimodal_vl' OR id LIKE 'card_mm_%')`
+    )
+    .all();
+  const report = {
+    ok: true,
+    mode: 'gaps',
+    db: dbPath,
+    ...listT2VisionGaps(visionRows),
+    ontology: listT2OntologyLevelGaps(levelCards, {
+      resolveSender: (mid) => msgGet.get(mid) || null
+    })
+  };
   const gapsOut =
     outIdx >= 0 ? outPath : path.resolve('data/runtime/req038-t2-vl-gaps.json');
   fs.mkdirSync(path.dirname(gapsOut), { recursive: true });
@@ -70,7 +87,6 @@ const cards = conn.prepare(`
   WHERE card_type IN ('pattern','asset_memory','risk_rule','level')
 `).all();
 const candidates = selectCandidateCards(cards);
-const msgGet = conn.prepare('SELECT created_at, content FROM messages WHERE id = ?');
 let visGet = null;
 try {
   visGet = conn.prepare(
@@ -85,6 +101,7 @@ const SKIP_YAHOO = new Set([
   'skipped_no_level',
   'skipped_no_direction',
   'unscored_mixed',
+  'skipped_non_zhao',
   'skipped_ticker'
 ]);
 
@@ -93,12 +110,16 @@ const prepped = candidates.map((card) => {
   const msg = mid ? msgGet.get(mid) : null;
   const visionMeta = mid && visGet ? visGet.get(mid) : null;
   const card2 = { ...card, source_text: msg?.content || '' };
+  const sourceSender = msg
+    ? { sender_id: msg.sender_id, sender_name: msg.sender_name }
+    : null;
   const preview = evaluateCard(card2, {
     messageCreatedAt: msg?.created_at ?? null,
     bars: [],
-    visionMeta
+    visionMeta,
+    sourceSender
   });
-  return { card: card2, created: msg?.created_at ?? null, preview, visionMeta };
+  return { card: card2, created: msg?.created_at ?? null, preview, visionMeta, sourceSender };
 });
 const skipCounts = {};
 for (const p of prepped) {
@@ -118,7 +139,7 @@ async function barsFor(ticker) {
 }
 
 const results = [];
-for (const { card, created, preview, visionMeta } of picked) {
+for (const { card, created, preview, visionMeta, sourceSender } of picked) {
   let bars = [];
   const ticker = preview.ticker;
   if (ticker) {
@@ -129,7 +150,7 @@ for (const { card, created, preview, visionMeta } of picked) {
       continue;
     }
   }
-  const ev = evaluateCard(card, { messageCreatedAt: created, bars, visionMeta });
+  const ev = evaluateCard(card, { messageCreatedAt: created, bars, visionMeta, sourceSender });
   const row = { card_id: card.id, card_type: card.card_type, title: card.title, ...ev };
   results.push(row);
   if (persist && !dry) saveAttributionRow(conn, card.id, ev);

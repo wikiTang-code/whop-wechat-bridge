@@ -283,4 +283,35 @@ assert.strictEqual(gapReport.with_sr, 1);
 assert.strictEqual(gapReport.missing_sr, 1);
 assert.strictEqual(gapReport.gaps[0].message_id, 'm1');
 
+const nonZhao = evaluateCard(
+  {
+    card_type: 'level',
+    title: '[多模态] TSLA 关键点位结构',
+    trigger_text: '支撑位: 350',
+    tickers_json: '["TSLA"]'
+  },
+  {
+    messageCreatedAt: t0,
+    bars,
+    sourceSender: { sender_id: 'user_oG1fCF443Qg6n', sender_name: 'xiuyushan lucky' }
+  }
+);
+assert.strictEqual(nonZhao.status, 'skipped_non_zhao');
+
+const zhaoOk = evaluateCard(
+  {
+    card_type: 'level',
+    title: '[多模态] TSLA 关键点位结构',
+    trigger_text: '支撑位: 247',
+    tickers_json: '["TSLA"]'
+  },
+  {
+    messageCreatedAt: t0,
+    bars,
+    sourceSender: { sender_id: 'user_4yeplXgbguTu4', sender_name: 'xiaozhaolucky' }
+  }
+);
+assert.strictEqual(zhaoOk.status, 'scored');
+assert.strictEqual(zhaoOk.level, 247);
+
 console.log('  ✅ level/direction/windows/event-exclude/db isolation/source_text/ticker-gate PASS');

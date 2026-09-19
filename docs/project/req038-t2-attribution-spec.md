@@ -12,6 +12,7 @@ Sprint 1 **只做子集实验**。不写 `trade_signals`、不进 L2a、不生�
 | 条件 | 规则 |
 |------|------|
 | 标的 | **标题 / 触发 / 源消息正文** 出现独立词 **TSLA 或 TSLL**（大小写不敏感）。**不**凭 `tickers_json` 入选（防 NVDL 卡误打 TSLL） |
+| 发送者硬锁（CHG-033） | 源消息 `messages.sender_id` **必须** = `user_4yeplXgbguTu4`（赵哥）；否则 `skipped_non_zhao`。禁模糊名匹配；周哥参考卡不得进 T2 胜率样本 |
 | 点位 vs 入场 | 抽出点位 / `entry` Adj Close ∈ **[0.4, 2.5]**，否则 `skipped_level_mismatch`（防 128 打在 ~19 的 TSLL 上） |
 | 卡类 | `pattern` / `asset_memory` / `risk_rule` / **`level`**（多模态 VL 点位卡，CHG-030 增量消费；排除纯 `macro` / 无点位的 `market_structure`） |
 | 明确点位 | **正文** = 卡片字段 ∪ 首条源消息 `messages.content` ∪ `schema_json` 文本；若仍抽不出，用同源 `message_vision_meta.support_resistance_json`（VL `ticker` 空或与计价标的相同；拒 100.5/120 测试 fixture）。能抽出 **一个**价位。Yahoo **只打**过了点位门 **且** 方向非 mixed 的子集 |

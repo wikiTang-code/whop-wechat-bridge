@@ -13,8 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | CHG-030 增量消费；`--gaps` 列出缺 SR；n_scored=6 hit5=1 | `card_attribution.js` | **Doing** |
-| 2 | **REQ-040** | L3 | 缺口清单：TSLA/TSLL missing_sr=6（已写 runtime）；继续吃回填 | `card_attribution.js` | **Doing** |
+| **1** | **REQ-038-T2** | L3 | CHG-033 赵哥 sender 硬锁；n_scored=4 hit5=1（剔除非赵/周哥污染） | `card_attribution.js` | **Doing** |
+| 2 | **REQ-040** | L3 | CHG-032 体量↑但可用赵哥+带内 SR 仍稀；继续吃真赵点位 | `card_attribution.js` | **Doing** |
 | 3 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
@@ -22,7 +22,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（队头 #91 CONL；**Blocked→Human 企微点击**） | `follow-replay-engine.js` · `server.js` | **Blocked (Active)** |
-| 2 | **REQ-038-T1/T3** | L3 | T1：**优先回填** gaps 清单 6 条 TSLA/TSLL（`req038-t2-vl-gaps.json`）再继续批跑；解锁 Cursor REQ-040 | `tools/knowledge/batch_vision*` · `resonance_radar*` | **Doing / Unblock** |
+| 2 | **REQ-038-T1/T3** | L3 | T1：**硬过滤赵哥 sender** + 回填真赵 TSLA/TSLL 带内 SR；aligner 禁非赵入库 | `tools/knowledge/batch_vision*` · `resonance_radar*` | **Doing / Unblock** |
 | 3 | **REQ-041** | L3 | 盘口微观大单与四维共振检测引擎（GEX + 大V预判 + 457笔真实单佐证 + 云光存盘口大单检测 + 正股点位折算2x做多ETF） | `tools/knowledge/tape_confluence_detector*` | **Done** |
 
 ### 0.C 队列 `agent:gemini1`
@@ -50,7 +50,7 @@
 
 | 阻塞项 | 被阻塞方 | 解锁 Owner | 阻塞原因 | 解锁动作 | 状态 |
 |--------|----------|------------|----------|----------|:----:|
-| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）+ cursor 自消费** | VL ok 有 ticker 但 SR 空 | **已解除**：Gemini CHG-032 增量入库 285 张多模态卡片（含 TSLA 350/351, TSLL 10/10.29 等点位），dump 快照就绪 | **Cleared** |
+| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）+ cursor 自消费** | 可用**赵哥**带内 SR 仍稀 | Cursor 抽审 CHG-032：**accepted-with-gates**（见 07）。库内 ont=4317/mm=285，但 T2 可用赵哥 mm level=**1**；宣称 350/351 **未检出**；2 张新 TSLA level 为群友+点位出带。请 T1/aligner **硬过滤 `sender_id=user_4yeplXgbguTu4`** 并回填真赵 TSLA SR | **Partial** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 

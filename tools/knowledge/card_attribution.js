@@ -8,6 +8,13 @@ export const ATTR_TICKERS = ['TSLA', 'TSLL'];
 /** Distill types + multimodal VL level cards (CHG-030 incremental consume). */
 export const ATTR_CARD_TYPES = new Set(['pattern', 'asset_memory', 'risk_rule', 'level']);
 export const EVENT_ABS_RET = 0.15;
+/** AGENTS §6.9 — 大V身份绝对硬锁（禁模糊匹配）. */
+export const ZHAO_SENDER_ID = 'user_4yeplXgbguTu4';
+export const ZHAO_SENDER_NAME = 'xiaozhaolucky';
+
+export function isZhaoSender(row) {
+  return String(row?.sender_id || '') === ZHAO_SENDER_ID;
+}
 
 const BULL_RE = /突破|回踩|支撑|低吸|加仓|做多|反弹|企稳|不破/g;
 const BEAR_RE = /止损|跌破|降仓|减仓|砍仓|阻力|做空|弱势/g;
@@ -326,12 +333,20 @@ export function extractLevelFromVisionMeta(meta, ticker) {
   return ok.length ? ok[0] : null;
 }
 
-export function evaluateCard(card, { messageCreatedAt, bars, visionMeta } = {}) {
+export function evaluateCard(card, { messageCreatedAt, bars, visionMeta, sourceSender } = {}) {
   const tickers = cardTickers(card);
   const ticker = pricingTicker(tickers);
   if (!ticker) return { status: 'skipped_ticker' };
   if (!ATTR_CARD_TYPES.has(String(card.card_type || ''))) {
     return { status: 'skipped_type', ticker };
+  }
+  if (sourceSender != null && !isZhaoSender(sourceSender)) {
+    return {
+      status: 'skipped_non_zhao',
+      ticker,
+      sender_id: sourceSender.sender_id || null,
+      sender_name: sourceSender.sender_name || null
+    };
   }
   let level = extractExplicitLevel(levelBlob(card), ticker);
   if (level == null) level = extractLevelFromVisionMeta(visionMeta, ticker);
@@ -399,6 +414,58 @@ export function listT2VisionGaps(rows, { tickers = ATTR_TICKERS } = {}) {
     with_sr: withSr,
     missing_sr: gaps.length,
     gaps
+  };
+}
+
+/**
+ * CHG-033: ontology multimodal level cards that T2 cannot score
+ * (non-Zhao source and/or out-of-band levels).
+ */
+export function listT2OntologyLevelGaps(cards, { resolveSender } = {}) {
+  const oob = [];
+  const nonZhao = [];
+  let usable = 0;
+  for (const card of cards || []) {
+    if (String(card.card_type || '') !== 'level') continue;
+    const isMm =
+      String(card.provider || '') === 'multimodal_vl' || String(card.id || '').startsWith('card_mm_');
+    if (!isMm) continue;
+    const tickers = cardTickers(card);
+    const ticker = pricingTicker(tickers);
+    if (!ticker) continue;
+    const mid = firstSourceMessageId(card);
+    const sender = resolveSender && mid ? resolveSender(mid) : null;
+    if (sender && !isZhaoSender(sender)) {
+      nonZhao.push({
+        card_id: card.id,
+        message_id: mid,
+        ticker,
+        sender_id: sender.sender_id || null,
+        sender_name: sender.sender_name || null,
+        trigger: String(card.trigger_text || '').slice(0, 120),
+        reason: 'non_zhao_sender'
+      });
+      continue;
+    }
+    const level = extractExplicitLevel(levelBlob(card), ticker);
+    if (level != null) {
+      usable += 1;
+      continue;
+    }
+    oob.push({
+      card_id: card.id,
+      message_id: mid,
+      ticker,
+      trigger: String(card.trigger_text || '').slice(0, 120),
+      reason: 'out_of_band_or_missing_level'
+    });
+  }
+  return {
+    usable_zhao_level: usable,
+    non_zhao: nonZhao.length,
+    out_of_band: oob.length,
+    non_zhao_gaps: nonZhao,
+    out_of_band_gaps: oob
   };
 }
 
