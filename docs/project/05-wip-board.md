@@ -21,7 +21,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（常驻流水线：队头 #90 CONL 等待企微点击，用户手机端操作即自动级联推进下一笔，进度 10.7%） | `follow-replay-engine.js` · `server.js` | **Standing (Active)** |
+| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（常驻流水线：队头 #91 CONL 等待企微点击，独立专属回放群通道已锁定，进度 10.8%） | `follow-replay-engine.js` · `server.js` | **Standing (Active)** |
 | 2 | **REQ-038** | L3 | 战法卡归因回测与共振只读雷达 Sprint 1（真图 VL 批跑 + TSLA/TSLL 子集归因 + 共振推送设计稿） | `tools/knowledge/` · 双Agent协同 | **Doing** |
 
 ### 0.C 队列 `agent:gemini1`

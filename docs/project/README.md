@@ -80,7 +80,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | **§0.A `agent:cursor`** | **REQ-038-T2** 归因口径+引擎（单测绿；待主库实跑） | Doing |
 | **§0.B `agent:gemini`** | **REQ-033** 回放纠错 + **REQ-038-T1** 真图 VL 离线批 | Doing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
-| **§0.H `human`** | **REQ-002 Done**；**Q-006 Done**；**Q-007 Done**；Q-001；企微 #90 点击 | 等待 / Done |
+| **§0.H `human`** | **REQ-002 Done**；**Q-006 Done**；**Q-007 Done**；Q-001；企微 #91 点击 | 等待 / Done |
 | **§0.R-A** | **REQ-038 Sprint 1 规划抽审 Done** · DEBT-013 · CHG-020 · CHG-022 | Queued / Done |
 | **§0.R-B** | **CHG-025 / 协议 v0.1.4** | Done |
 
