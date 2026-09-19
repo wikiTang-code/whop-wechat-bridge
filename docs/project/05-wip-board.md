@@ -38,7 +38,7 @@
 | REQ-002 | 生产 ff | 等待 |
 | Q-001 | GEX→GCP 通道 | interim=SCP（可再改） |
 | Q-002 | 漏重启用何信号发现？ | **Done**（`CHG-020`：`/health` 暴露 `process.gitCommit`，`gcp_health_bundle` 自动计算 `restart_drift`） |
-| Q-006 | REQ-037 视觉模型：本地 VL vs 云端 | open（倾向本地） |
+| Q-006 | REQ-037 视觉模型：本地 VL vs 云端 | open（联审倾向云端离线批；硬账 >15KB=432） |
 | Q-007 | CHG-018：关 Windows LM Studio 切流？ | **Done**（Human 2026-09-19 确认已关 LMS 且切流试用 OK） |
 
 ### 0.R
