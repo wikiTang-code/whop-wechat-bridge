@@ -64,6 +64,7 @@
 | §0.R-A cursor | **GPU 协议 v0.1 + CHG-021 抽审**（§7 冻结；骨架 accepted-with-gates） | **Done** |
 | §0.R-B gemini | **CHG-023 WSL AI 切流锁定抽审** | **Done**（通过） |
 | §0.R-B gemini | **CHG-024 GPU 控制面加固抽审** | **Done**（通过） |
+| §0.R-B gemini | **CHG-025 / 协议 v0.1.4 对齐抽审** | **Queued** |
 
 ### 共享候选池
 
