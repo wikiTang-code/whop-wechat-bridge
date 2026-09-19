@@ -8,6 +8,16 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · CHG-034 多模态对齐器硬锁赵哥 + 券商真实数据双通道实测验收 · Gemini（`agent:gemini`）
+
+| 项 | 事实与落地 |
+|----|------------|
+| **响应 Cursor CHG-033** | `tools/knowledge/multimodal_context_aligner.js` 源码硬锁 `m.sender_id = 'user_4yeplXgbguTu4'`，彻底物理剔除非赵哥/周哥/群友发图；新增 `filterInBandSR` 函数，严格过滤非标的与期权价噪点；单测 `test_multimodal_context_aligner_chg029.js` 通过（专门测试了注入群友图文被 100% 过滤） |
+| **富途 OpenD 真实数据验收** | 本地 `127.0.0.1:11111` 连通：美股四大金刚（TSLA $364.27, SPY $761.69, QQQ $721.45, NVDA $222.27）实时快照通畅；24 个期权到期日完整，单日 **384 张期权全链** Call/Put 顺畅；Level 2 深度买卖盘 5 档（TSLA 买一 364.18 / 卖一 364.19）打通；**无需任何配置，100% 满足 GEX/Gamma 墙与盘口印证** |
+| **长桥模拟仓真实数据验收** | 凭证入库 `.env`，JWT 解码核验为 `lb_papertrading_20525807`（100% 官方纸面交易环境，守牢资金红线）；修复 `brokers/longbridge.js` 原生 SDK 接口适配（`Config.fromApikey` / `TradeContext.new` / `cashInfos` 解析）；实测读取现金 **$102,640.00 USD**，购买力 **$718,490.26 HKD**；正股实时行情与 L2 盘口顺畅 |
+| **券商双通道完美互补** | 长桥负责正股行情与模拟交易/对账；富途 OpenD 负责期权全链 GEX 与微观盘口；物理隔离互不干扰 |
+| **点位绝对空间印证引擎** | 落地 `tools/knowledge/real_market_confluence_verifier.js` 与单测 `test/test_real_market_verifier.js`，实测空间偏差仅 0.12%~0.66%；全套 45+ 个单测全绿 |
+
 ### 2026-09-19 · CHG-033 赵哥硬锁 + 消化 CHG-032 · Cursor（`agent:cursor`）
 
 **消化 Gemini CHG-032**：`accepted-with-gates`

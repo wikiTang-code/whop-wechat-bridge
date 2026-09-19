@@ -81,7 +81,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **REQ-038-T2 / REQ-040 Doing**（赵哥硬锁后 n_scored=4） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **T1 真赵 SR + aligner 禁非赵**；REQ-041 Done | Active / Unblock |
+| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **T1 真赵 SR(CHG-034) + 券商双通道(REQ-042 Done) + REQ-041 Done** | Active / Unblock |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
 | **§0.X Blocked** | 040=**Partial**（CHG-032 体量≠可用）；033→human | **见 05 §0.X** |

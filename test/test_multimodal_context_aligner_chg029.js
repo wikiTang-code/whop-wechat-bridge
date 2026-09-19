@@ -41,10 +41,27 @@ console.log('  ✅ 白名单过滤校验通过');
 console.log('\n--- 2. 验证多模态流式增量对齐写入 ---');
 const db = setupTestDb();
 
-// 插入 mock 消息
+// 插入 mock 消息 (赵哥真实 sender_id)
 db.prepare(`
   INSERT INTO messages (id, channel_id, sender_id, sender_name, content, created_at)
-  VALUES ('msg_1', 'ch_1', 'u_1', 'xiaozhaolucky', '这里是二次探底，关注675支撑', 1700000000000)
+  VALUES ('msg_1', 'ch_1', 'user_4yeplXgbguTu4', 'xiaozhaolucky', '这里是二次探底，关注675支撑', 1700000000000)
+`).run();
+
+// 插入 mock 非赵哥消息 (应被过滤)
+db.prepare(`
+  INSERT INTO messages (id, channel_id, sender_id, sender_name, content, created_at)
+  VALUES ('msg_fan', 'ch_1', 'user_fan_123', '赵哥小迷弟', '我也觉得会涨', 1700000000000)
+`).run();
+db.prepare(`
+  INSERT INTO message_vision_meta (
+    id, message_id, attach_index, local_path, ticker, timeframe,
+    patterns_json, support_resistance_json, hand_drawn_annotation,
+    schema_json, provider, status, created_at, updated_at
+  ) VALUES (
+    'vmeta_fan_0', 'msg_fan', 0, 'data/media/zhao/post_fan.jpg', 'SPY', '1D',
+    '["双底"]', '{"support":[670.0]}', null,
+    '{}', 'cloud_vl', 'ok', 1700000000000, 1700000000000
+  )
 `).run();
 
 // 插入 mock 视觉元数据 (status='ok')

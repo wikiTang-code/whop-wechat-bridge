@@ -62,6 +62,7 @@
 | REQ-039 | P1 | L0/L3 | `done` | **知识/GPU 产物自动到达规划 SoR**。Gemini §0.R-B **Accepted**。蒸馏 auto-dump；C2 `knowledge.promote.apply` HITL（CHG-027） | `knowledge_promote.js` · 禁 wecom |
 | REQ-040 | P2 | L3 | `in_progress` | **T2 扩样本**：CHG-032 体量↑但可用赵哥+带内 SR 仍稀；继续吃真赵点位 | 05 §0.X Partial · 禁 L2a |
 | REQ-041 | P1 | L3 | `done` | **盘口微观大单与四维共振检测引擎（Tape & Block Order Confluence Detector）**：融合 GEX 做市商引力场 + 赵哥多模态预判 + 457笔第一人称真实单佐证 + 尾盘微观大单通吃；**支持正股（Underlying）分析与 2x/多倍做多杠杆 ETF（TSLL, NEBX, LITX, COHX, CONL, TQQQ, SPYU, SNXX, MUU 等）关键点位动态折算**；单测 `test_tape_confluence_detector_req041.js` 100分王炸共振全绿通过 | 纯只读参谋 · `tools/knowledge/tape_confluence_detector.js` · 禁接 L2a / 禁下单 |
+| REQ-042 | P1 | L3/L5 | `done` | **真实券商行情/K线数据空间印证引擎与长桥/富途双通道实测就绪**：落实「量化容不得半点马虎，一切用数据说话」人令；富途 OpenD 127.0.0.1:11111 美股期权全链 (24到期日/单日384合约) + L2 五档盘口 100% 跑通；长桥模拟仓凭证入库 `.env`，解码核验为 `lb_papertrading_20525807`（100% 守牢资金隔离红线），TradeContext/QuoteContext 双通；落地空间印证引擎 `real_market_confluence_verifier.js` 与单测全绿 | `brokers/longbridge.js` · `tools/knowledge/real_market_confluence_verifier.js` · 单测绿灯 |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |
@@ -98,6 +99,7 @@
 | CHG-030 | `done` | **T2 增量收 VL `level` 卡**：`ATTR_CARD_TYPES`+`level`；V型反弹方向启发式；首张 TSLL VL scored hit_5d | 2026-09-19 `agent:cursor` · n_scored=6 · gcp vision_meta=158 |
 | CHG-031 | `done` | **T2 VL gaps 清单**：`listT2VisionGaps` + CLI `--gaps` → `req038-t2-vl-gaps.json`；对齐器增量+promote | 2026-09-19 `agent:cursor` · missing_sr=6 · gcp ont=4176 / vision≈185 |
 | CHG-033 | `done` | **T2 赵哥 sender 硬锁**：`sourceSender.sender_id===user_4yeplXgbguTu4`；`--gaps` 增 ontology non_zhao/oob；消化 CHG-032 gates | 2026-09-19 `agent:cursor` · n_scored=4 · 剔周哥/群友 |
+| CHG-034 | `done` | **多模态流式对齐器硬锁真赵哥发言与带内 SR 纯化**：SQL 强过滤 `m.sender_id = 'user_4yeplXgbguTu4'`，彻底剥离群友与周哥发图；`filterInBandSR` 过滤非标的与期权价噪点；单测 `test_multimodal_context_aligner_chg029.js` 绿灯通过；闭环 Cursor CHG-033 要求 | 2026-09-19 `agent:gemini` · `multimodal_context_aligner.js` · 单测全绿 |
 
 ---
 

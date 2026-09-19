@@ -28,6 +28,28 @@ export function stripTradingDirectives(str) {
     .trim();
 }
 
+export const ZHAO_SENDER_ID = 'user_4yeplXgbguTu4';
+
+/**
+ * 点位带内校验 (过滤期权毛刺与非标的噪点)
+ */
+export function filterInBandSR(sr, ticker) {
+  if (!sr || typeof sr !== 'object') return { support: [], resistance: [] };
+  const sym = String(ticker || '').trim().toUpperCase();
+  const lo = sym === 'TSLL' ? 1 : 50;
+  const hi = sym === 'TSLL' ? 200 : 900;
+  
+  const filterList = (list) => {
+    if (!Array.isArray(list)) return [];
+    return list.map(Number).filter((n) => Number.isFinite(n) && (sym ? (n >= lo && n <= hi) : true));
+  };
+
+  return {
+    support: filterList(sr.support),
+    resistance: filterList(sr.resistance),
+  };
+}
+
 /**
  * 流式对齐执行器
  */
@@ -36,11 +58,13 @@ export function alignMultimodalCards(options = {}) {
     dbInstance = getDb(),
     dryRun = false,
     limit = 1000,
+    forceAllSenders = false,
   } = options;
 
   ensureOntologyCardTable(dbInstance);
 
-  // 1. 查询所有已提取成功的真实多模态元数据
+  // 1. 查询所有已提取成功的真实多模态元数据 (AGENTS §6.9 硬锁赵哥 sender_id)
+  const senderClause = forceAllSenders ? "" : "AND m.sender_id = 'user_4yeplXgbguTu4'";
   const visionRows = dbInstance.prepare(`
     SELECT 
       v.id as vision_id,
@@ -55,10 +79,11 @@ export function alignMultimodalCards(options = {}) {
       v.created_at as vision_created_at,
       m.content as msg_content,
       m.created_at as msg_created_at,
-      m.sender_name
+      m.sender_name,
+      m.sender_id
     FROM message_vision_meta v
     LEFT JOIN messages m ON v.message_id = m.id
-    WHERE v.status = 'ok' AND v.provider != 'stub'
+    WHERE v.status = 'ok' AND v.provider != 'stub' ${senderClause}
     ORDER BY v.updated_at ASC
   `).all();
 
@@ -136,11 +161,12 @@ export function alignMultimodalCards(options = {}) {
         patterns = JSON.parse(item.patterns_json || '[]');
       } catch (_) {}
 
-      // 解析 support_resistance
-      let sr = { support: [], resistance: [] };
+      // 解析 support_resistance 并应用带内清洗
+      let rawSr = { support: [], resistance: [] };
       try {
-        sr = JSON.parse(item.support_resistance_json || '{"support":[],"resistance":[]}');
+        rawSr = JSON.parse(item.support_resistance_json || '{"support":[],"resistance":[]}');
       } catch (_) {}
+      const sr = filterInBandSR(rawSr, ticker);
 
       const hasLevels = (sr.support && sr.support.length > 0) || (sr.resistance && sr.resistance.length > 0);
       if (hasLevels) {
@@ -177,8 +203,10 @@ export function alignMultimodalCards(options = {}) {
         timeframe: item.timeframe,
         patterns,
         support_resistance: sr,
-        support_resistance_json: item.support_resistance_json,
+        support_resistance_json: JSON.stringify(sr),
         hand_drawn_annotation: item.hand_drawn_annotation,
+        sender_id: item.sender_id,
+        sender_name: item.sender_name,
         aligned_from: 'message_vision_meta',
       };
 

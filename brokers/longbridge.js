@@ -18,14 +18,18 @@ async function getContext() {
   }
 
   // Create config
-  const config = new Config({
-    appKey,
-    appSecret,
-    accessToken,
-  });
+  const config = typeof Config.fromApikey === 'function'
+    ? Config.fromApikey(appKey, appSecret, accessToken)
+    : new Config({ appKey, appSecret, accessToken });
 
   // Create trade context instance
-  tradeContext = await TradeContext.create(config);
+  if (typeof TradeContext.new === 'function') {
+    tradeContext = await TradeContext.new(config);
+  } else if (typeof TradeContext.create === 'function') {
+    tradeContext = await TradeContext.create(config);
+  } else {
+    throw new Error('TradeContext initialization method not found');
+  }
   return tradeContext;
 }
 
@@ -39,12 +43,18 @@ export async function getAccountBalances() {
   
   let usdBalance = { cash: 0, power: 0 };
   
-  if (Array.isArray(balance)) {
-    // 默认选取美股交易账户的 USD 余额，如不存在取第一个币种
-    const usd = balance.find(b => b.currency === 'USD') || balance[0];
-    if (usd) {
-      usdBalance.cash = parseFloat(usd.cash || '0');
-      usdBalance.power = parseFloat(usd.max_power || usd.cash || '0');
+  if (Array.isArray(balance) && balance.length > 0) {
+    const acc = balance[0];
+    usdBalance.power = parseFloat(acc.buyPower || acc.max_power || acc.totalCash || acc.netAssets || '0');
+    
+    // 如果存在分币种详情
+    if (Array.isArray(acc.cashInfos)) {
+      const usdInfo = acc.cashInfos.find((c) => c.currency === 'USD') || acc.cashInfos[0];
+      if (usdInfo) {
+        usdBalance.cash = parseFloat(usdInfo.availableCash || usdInfo.cash || '0');
+      }
+    } else {
+      usdBalance.cash = parseFloat(acc.cash || '0');
     }
   }
 
@@ -65,8 +75,8 @@ export async function getActivePositions() {
     // 长桥 symbol 格式如 "TSLA.US"，需要分割提取出股票代码
     const ticker = (pos.symbol || '').split('.')[0] || '';
     const quantity = parseInt(pos.quantity || '0', 10);
-    const avgPrice = parseFloat(pos.cost_price || '0');
-    const currentPrice = parseFloat(pos.current_price || '0');
+    const avgPrice = parseFloat(pos.costPrice || pos.cost_price || '0');
+    const currentPrice = parseFloat(pos.currentPrice || pos.current_price || '0');
     const marketValue = quantity * currentPrice;
     const unrealizedPnl = (currentPrice - avgPrice) * quantity;
     
@@ -92,11 +102,11 @@ export async function getTodayOrders() {
   return orders.map((o) => {
     const ticker = String(o.symbol || '').split('.')[0] || '';
     return {
-      order_id: String(o.order_id || o.id || ''),
+      order_id: String(o.orderId || o.order_id || o.id || ''),
       ticker,
       side: String(o.side || ''),
       quantity: parseInt(o.quantity || '0', 10),
-      price: parseFloat(o.price || o.submitted_price || '0'),
+      price: parseFloat(o.price || o.submittedPrice || o.submitted_price || '0'),
       status: String(o.status || ''),
     };
   });
