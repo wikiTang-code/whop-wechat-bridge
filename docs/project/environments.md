@@ -32,8 +32,8 @@
 | Local-Ops / 企微 `/ops` | win-host | win-host | catalog | 本机网关 |
 | 14B / 1.5B 推理 | **wsl-gpu** | 运行时（无库） | HTTP `:8080` | 切流 CHG-023 |
 | SLM LoRA 飞轮 | **wsl-gpu** | **wsl-gpu** `models/…/lora` | safetensors | **不上 gcp**（生产无 GPU） |
-| 知识蒸馏 | **wsl-gpu** | **gcp-vm** 知识表 | `ontology_*` | **REQ-039 promote**（现状缺口） |
-| 云端 VL 批 | **cloud-vl** | **gcp-vm** `message_vision_meta` | 白名单字段 | 读生产媒体 → 写表 → promote |
+| **知识蒸馏** | **wsl-gpu** | **gcp-vm** 知识表 | `ontology_*` | **已有** `knowledge:promote`（HITL `--allow-prod-write`） |
+| 云端 VL 批 | **cloud-vl** | **gcp-vm** `message_vision_meta` | 白名单字段 | 读 gcp 媒体；结果表走 promote |
 | 战法卡归因 | win-host（Yahoo） | **gcp-vm** 知识表 | `data/runtime/*.json` | 先有 SoR 卡再打分 |
 
 蒸馏的**输入**也必须是生产 `messages` 只读快照（或正式 replica），禁止长期拿过期本机库当语料还当结案。
@@ -55,16 +55,14 @@
 
 ---
 
-## 4. 现状漂移（2026-09-19，DEBT-015）
+## 4. 现状（2026-09-19 首次 promote 后）
 
-相对本合同，当前违规的是「计算环境对了、SoR 错了」：
+- 知识表 SoR：**已对齐** gcp `ontology_card=4032` / `ontology_distill_scanned=3154` / `message_vision_meta=38`；`messages=109157` 未覆盖。
+- 媒体 SoR：gcp **568**（本机 441 已补上；prod-only 127 保留）。
+- 蒸馏/VL 仍先写本机；跑完必须再 `knowledge:promote --remote --apply --allow-prod-write`。
+- LoRA：**符合**（不上 gcp）。GEX SCP：**符合**。
 
-- 蒸馏/stub 卡写在 **本机** SQLite（4032 张），生产知识表 **0**。
-- VL 管道默认 `getDb()` + 本机 `data/media/zhao`（441 vs 生产 403）。
-- LoRA 17MB 在本机/WSL：**符合**本合同（不是生产缺口）。
-- GEX SCP：**符合**（采集本机、副本上云）。
-
-盘点：`npm run env:inventory`（本机）· `npm run env:inventory -- --remote`（对照 gcp）。
+盘点：`npm run env:inventory` · 上 SoR：`npm run knowledge:promote`（dry-run）→ `--dump` → `--remote --apply --allow-prod-write`。
 
 ---
 

@@ -13,8 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | 收紧标的/点位后门 with_level=0；等 VL 价位 | `card_attribution.js` · 禁 `batch_vision*` | **Doing** |
-| 2 | **REQ-039** | L0/L3 | 知识表 promote 白名单（DEBT-015）；禁整库覆盖 | `env_inventory.js` · 禁 wecom | Standing |
+| **1** | **REQ-039** | L0/L3 | 合同缺口：知识表/媒体表级 promote → gcp | `knowledge_promote.js` · 禁 wecom / `batch_vision*` | **Doing** |
+| 2 | **REQ-038-T2** | L3 | 本机 with_level=0；等 SoR + VL 价位 | `card_attribution.js` | Standing |
 | 3 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
@@ -121,7 +121,7 @@
 | CHG-024 | L2/L3 | GPU 控制面加固（`:18080` 可达、禁假成功、Wan 拒载、ROCm release 延迟；协议 v0.1.3） | `agent:cursor` | Done | Gemini 抽审通过 |
 | CHG-025 | L2/L3 | 协议 v0.1.4 对齐（status 契约、GAME 无 retry_after、INVALID_PAYLOAD） | `agent:cursor` | Done | `gpu-arbiter.js` · `server.js` |
 | REQ-038 | L3 | 战法卡归因与共振只读雷达（Sprint 1：432张真图VL批跑+TSLA子集归因+共振推送稿） | 双Agent协同 | Doing | Sprint 1 开工；禁进L2a |
-| REQ-039 | L0/L3 | 知识/GPU 产物到达规划 SoR（表级 promote，禁整库覆盖） | `agent:cursor` | Todo | `environments.md` · DEBT-015；§0.A 顺位 2 |
+| REQ-039 | L0/L3 | 知识/GPU 产物到达规划 SoR（表级 promote，禁整库覆盖） | `agent:cursor` | Doing | `knowledge_promote.js` |
 | CHG-026 | L0 | 运行环境合同（compute vs SoR） | `agent:cursor` | Done | `environments.md` |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
@@ -129,6 +129,15 @@
 ---
 
 ## 2. 子 Checklist（仅复杂项）
+
+### REQ-039 知识 promote（CHG-026）
+
+- [x] 合同 [`environments.md`](./environments.md) + `env_inventory.js`
+- [x] `knowledge_promote.js` 表级 dump / apply；禁 `messages`；无 `--allow-prod-write` 拒绝
+- [x] 单测 `test_knowledge_promote_req039.js`
+- [x] 本机 `--dump` + `--remote --apply --allow-prod-write`：gcp `ontology_card=4032`，`messages=109157` 未动
+- [x] `--media` tar-scp：本机缺图已上；gcp files=568；prod-only 127 未删
+- [ ] 蒸馏/VL 跑完自动再 promote（未接 `catalog.yaml`，须独立 CHG）
 
 ### REQ-038-T2 TSLA/TSLL 子集归因
 
@@ -138,7 +147,7 @@
 - [x] 主库 Yahoo：gcp 知识表空 → `candidates=0`（与 Gemini 回告同根因）
 - [x] 本机点位子集：222 候选 → 源消息抽价后 **with_level=18**（含 NVDL 串味）
 - [x] 标的须正文独立词 + 点位/入场 ∈[0.4,2.5] 后门：**candidates=15 / with_level=0**（11 mixed / 4 no_level）。Sprint 1 本机可打分集为空，不是 Yahoo 故障
-- [ ] 生产实跑：须 `REQ-039` 表级 promote；**真正的点位**更可能来自 T1 VL `support_resistance`，不是再灌 1995 张 stub
+- [x] 生产知识 SoR：REQ-039 已 promote（`ontology_card=4032`）；T2 干净点位子仍空，等 VL
 
 ### REQ-014 文档树入库
 
@@ -202,7 +211,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：T2 收紧后门 with_level=0；下一步 REQ-039 promote 干跑。T1 抽审 gates 完。
+- cursor：**REQ-039** 首次生产表级 promote + 媒体 tar-scp 完成；`messages` 未覆盖。
 - gemini：REQ-033 队头 #91 CONL · T1 管道已交付（R-A 抽审完）。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002 Done；Q-001；企微 #91；Q-006 云端离线批已决。
