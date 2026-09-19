@@ -65,6 +65,10 @@ scripts/*
 !scripts/lms_load.js
 !scripts/game_mode.bat
 !scripts/work_mode.bat
+!scripts/whop-lm-tunnel.bat
+!scripts/start-tunnel.bat
+!scripts/WhopTunnelGuard.ps1
+!scripts/lm_bridge.js
 !scripts/cleanup_gemini_api_cloud.js
 !scripts/offline_queue_worker.js
 !scripts/run_offline_asset_sync.js
