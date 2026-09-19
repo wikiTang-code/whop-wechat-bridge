@@ -1,0 +1,86 @@
+# REQ-038-T2 — TSLA/TSLL 子集归因口径（冻结）
+
+> 上级：[`03-requirements.md`](./03-requirements.md) REQ-038 · 抽审 07 置顶门禁 #8  
+> **本文件先于代码**。改口径必须改本页，禁止脚本里悄悄换窗口。
+
+Sprint 1 **只做子集实验**。不写 `trade_signals`、不进 L2a、不生成 BUY/SELL、不跑 1995 张全量。
+
+---
+
+## 1. 入选
+
+| 条件 | 规则 |
+|------|------|
+| 标的 | `tickers_json` / 标题 / 触发文含 **TSLA 或 TSLL**（大小写不敏感） |
+| 卡类 | `pattern` / `asset_memory` / `risk_rule`（排除纯 `macro`） |
+| 明确点位 | 正文能抽出 **一个**价位，且紧邻线索词：支撑/阻力/突破/跌破/回踩/止损/加仓/关键位/低点/高点；或带 `$` 前缀 |
+| 价位范围 | TSLA ∈ [20, 900]；TSLL ∈ [1, 200]（滤掉「30分钟」「14B」等） |
+| 方向 | 能判 bullish **或** bearish；两边都强则 `unscored_mixed` |
+| 时间 | 源消息 `messages.created_at` 可解析；否则 `skipped_no_t0` |
+
+**计价标的**：文中优先 TSLL，否则 TSLA（杠杆卡不对齐正股）。
+
+**方向启发式**
+
+- bullish：突破 / 回踩 / 支撑 / 低吸 / 加仓 / 做多 / 反弹 / 企稳 / 不破  
+- bearish：止损 / 跌破 / 降仓 / 减仓 / 砍仓 / 阻力 / 做空 / 弱势  
+
+`risk_rule` 且含止损/降仓 → 强制 bearish。
+
+---
+
+## 2. 行情与时钟
+
+- 交易日日历：**美东** `America/New_York`。`t0` = 源消息美东日历日。  
+- **入场价 `entry`**：`t0` 之后 **下一根日线** 的 **Adj Close**（消息当日收盘后才交易；盘中发言不偷当日已走完的涨跌）。  
+- 窗口：入场后再数 **3 / 5 个交易日**（不是自然日）。  
+- 价格：**前复权 Adj Close**；高低用同期 raw high/low 相对 adj 因子缩放：`adjHigh = high * (adjClose/close)`。缺 adj 则退回 close（`px_basis=raw`）。  
+- 来源：Yahoo chart `interval=1d`（与现网 `kline.js` 同源）；单测注入 fixture，禁止测试打网。
+
+---
+
+## 3. 指标（每张入选卡）
+
+相对 `entry`：
+
+| 字段 | 定义 |
+|------|------|
+| `close_ret_{3,5}d` | 窗口末日 Adj Close / entry − 1 |
+| `max_gain_{3,5}d` | 窗口内 adjHigh 最高 / entry − 1 |
+| `max_dd_{3,5}d` | 窗口内 adjLow 最低 / entry − 1（通常 ≤ 0） |
+
+**命中 `hit_5d`（主指标；`hit_3d` 同期披露）**
+
+- bullish：`close_ret_5d > 0`  
+- bearish：`close_ret_5d < 0`  
+- 等于 0 → 未命中  
+
+**Confidence**（仅历史跟穿，**不是**下单建议）
+
+- 命中：`0.55 + min(0.30, |close_ret_5d| / 0.20)` 再 clip 到 `[0, 1]`  
+- 未命中：`0.45 - min(0.30, |close_ret_5d| / 0.20)` 再 clip 到 `[0, 1]`  
+
+---
+
+## 4. 事件日剔除
+
+入场日相对 **前一交易日** Adj Close 涨跌绝对值 **> 15%** → `excluded_event`（拆分/财报跳空代理）。不进胜率分母。
+
+K 线不足 1+5 根 → `skipped_no_bars`。
+
+---
+
+## 5. 汇总（报告）
+
+仅 `status=scored`：
+
+- `n`、`hit_rate_5d`、`hit_rate_3d`  
+- 分方向、分标的（TSLA vs TSLL）计数  
+
+**禁止**把 `confidence` 写进跟单/signal；可写入隔离表 `ontology_card_attribution` 或 JSON 报告。
+
+---
+
+## 6. 非目标（Sprint 1）
+
+- 全量 1995 卡、分钟线、DPO、共振推送、VL 字段依赖。

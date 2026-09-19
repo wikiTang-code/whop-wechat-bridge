@@ -26,6 +26,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── 06-process.md                      ← 开发流程框架 + 文档维护 SOP
 ├── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
 ├── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
+├── req038-t2-attribution-spec.md      ← REQ-038-T2 胜率口径（冻结）
 ├── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2/P3 Done）
 ├── wsl-unified-ai-runtime-plan.md     ← CHG-018 Done（Q-007；DEBT-014 代码路径 Done）
 └── gpu-shared-protocol.md             ← 跨仓库 GPU 协议指针（正文在 ~/.cursor/shared-protocols/；Cursor 2026-09-19 冻结 §7）
@@ -76,7 +77,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **REQ-038-T2** TSLA/TSLL 子集归因（不碰 VL 批跑） | Doing |
+| **§0.A `agent:cursor`** | **REQ-038-T2** 归因口径+引擎（单测绿；待主库实跑） | Doing |
 | **§0.B `agent:gemini`** | **REQ-033** 回放纠错 + **REQ-038-T1** 真图 VL 离线批 | Doing |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | **REQ-002 Done**；**Q-006 Done**；**Q-007 Done**；Q-001；企微 #90 点击 | 等待 / Done |

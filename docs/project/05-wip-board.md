@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | TSLA/TSLL 子集归因实验（Sprint 1；先写死胜率口径；不碰 VL 批跑） | `tools/knowledge/` 归因脚本（禁 `batch_vision*`） | **Doing** |
+| **1** | **REQ-038-T2** | L3 | TSLA/TSLL 子集归因：口径已冻结、引擎+单测绿；待有主库时 Yahoo 实跑报告 | `tools/knowledge/card_attribution.js` · 禁 `batch_vision*` | **Doing** |
 | 2 | **DEBT-014** | L3 | HIP 满血暂缓（CPU llama-server 已可用） | `/root/llama.cpp/build-cpu` | Standing |
 | 3 | — | — | （空位） | — | — |
 
@@ -125,6 +125,13 @@
 
 ## 2. 子 Checklist（仅复杂项）
 
+### REQ-038-T2 TSLA/TSLL 子集归因
+
+- [x] 冻结口径 [`req038-t2-attribution-spec.md`](./req038-t2-attribution-spec.md)
+- [x] `card_attribution.js` + 单测（fixture，不打网）
+- [x] CLI `npm run knowledge:attr-tsla`（`--dry-run` / `--persist`）
+- [ ] 主库 Yahoo 实跑 JSON 报告（本工作树无 `whop_archive.db`）
+
 ### REQ-014 文档树入库
 
 - [x] 01–07 + README + 跳转页 + AGENTS/rule  
@@ -187,7 +194,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：REQ-038-T2 归因口径（Sprint 1）；§0.A Doing。
+- cursor：REQ-038-T2 口径+引擎+单测绿；主库实跑待 `whop_archive.db`。
 - gemini：REQ-033 **正在修** 重启后重新推送交易单反馈失败（Cursor 不碰 `wecom/push` / replay）· REQ-038-T1 VL 规格待收口。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002 **Done**（已确认 restart）；Q-001；企微 #90；Q-006 选型已决。
