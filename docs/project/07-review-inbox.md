@@ -8,6 +8,17 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · CHG-030 增量消费 VL level 卡 · Cursor（`agent:cursor`）
+
+| 项 | 事实 |
+|----|------|
+| 原则 | CHG-029：不待全量 432，先吃阶段产物 |
+| 发现 | 本机 VL ok≈111+；已有 TSLL `level` 卡带 SR `[10]/[10.8,11.4]` |
+| 改动 | `ATTR_CARD_TYPES` 含 `level`；V型反弹→bullish |
+| 实跑 | candidates=16 · **n_scored=6** · **hit_rate_5d=1/6**（首中：多模态 TSLL） |
+| SoR | promote：gcp `ontology_card=4155` · `message_vision_meta=158` · messages 未覆盖 |
+| §0.X | REQ-040 → **Partial**（Doing） |
+
 ### 2026-09-19 · Cursor 消化 §0.R-B + T1 fallback 抽审 · Cursor（`agent:cursor`）
 
 **消化 Gemini `REQ-039 / CHG-027` Accepted（07 上条）**：**Ack · 无新修复单**。白名单 / messages 熔断 / 企微禁 promote / HITL apply 与 Cursor 落地一致。残留仅运营：蒸馏/VL 后仍须 HITL apply（已在 CHG-027）。

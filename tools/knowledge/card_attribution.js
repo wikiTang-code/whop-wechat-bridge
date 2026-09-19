@@ -5,7 +5,8 @@
  */
 
 export const ATTR_TICKERS = ['TSLA', 'TSLL'];
-export const ATTR_CARD_TYPES = new Set(['pattern', 'asset_memory', 'risk_rule']);
+/** Distill types + multimodal VL level cards (CHG-030 incremental consume). */
+export const ATTR_CARD_TYPES = new Set(['pattern', 'asset_memory', 'risk_rule', 'level']);
 export const EVENT_ABS_RET = 0.15;
 
 const BULL_RE = /突破|回踩|支撑|低吸|加仓|做多|反弹|企稳|不破/g;
@@ -179,6 +180,13 @@ export function inferDirection(card) {
   const concluded = extractConclusionDirection(text);
   if (concluded === null) return null;
   if (concluded === 'bullish' || concluded === 'bearish') return concluded;
+
+  // Multimodal level cards: pattern labels in title/patterns often encode bias
+  if (type === 'level') {
+    if (/V型反弹|底部反弹|低吸|回踩/.test(text) && !/单边下跌(?!.*反弹)/.test(text)) return 'bullish';
+    if (/单边下跌|破位下跌|弱势/.test(text) && !/反弹|V型/.test(text)) return 'bearish';
+    if (/V型反弹|底部V/.test(text)) return 'bullish';
+  }
 
   const bullHits = [...text.matchAll(BULL_RE)].length;
   const bearHits = [...text.matchAll(BEAR_RE)].length;

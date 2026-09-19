@@ -58,9 +58,9 @@
 | REQ-035 | P1 | L1 | `done` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后幂等写入一条 `source=manual_correct` 的 signal） | 2026-09-18 `agent:gemini` · `follow-replay-engine.js` · `database.js` · `test_replay_signal_sync_req035.js` |
 | REQ-036 | P1 | L3 | `active` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（长期常驻主线：V1闭环已就绪；自迭代飞轮引擎落地 `flywheel_engine.js`，增量水位自动感知编排，单测全绿） | 常驻维护 · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` · `test_slm_flywheel_req036.js` |
 | REQ-037 | P2 | L3 | `done` | **大V全频道多模态图文对齐与交易知识本体图谱**（P1–P3 Done：批蒸馏全库扫描 + 防游标 `ontology_distill_scanned` + Layer4 只读检索；默认 `--sender xiaozhaolucky` 过滤大V，提炼 1995 张大V纯正卡片并将 `sender_name` 沉淀入 `schema_json`；支持 `--all-senders`；**P4 企微盘中参谋仍冻结** `REJ-008`） | 双Agent协同 · `knowledge:distill` · `ontology_query_engine` · 单测全绿 |
-| REQ-038 | P1 | L3 | `in_progress` | **战法卡归因回测与共振只读雷达**（T2 CHG-028：n_scored=5；**REQ-040 Blocked** 等 T1 TSLA/TSLL 真 VL） | T1 解锁方=`agent:gemini` · 见 05 §0.X |
-| REQ-039 | P1 | L0/L3 | `done` | **知识/GPU 产物自动到达规划 SoR**。Gemini §0.R-B **Accepted**（2026-09-19）。蒸馏 auto-dump；C2 `knowledge.promote.apply` HITL（CHG-027） | `knowledge_promote.js` · 禁 wecom |
-| REQ-040 | P2 | L3 | `accepted` | **T2 扩样本**：T1 真图 VL（优先 TSLA/TSLL）→ promote → 再归因。**当前 Blocked**（解锁 Owner=`agent:gemini` T1） | 见 05 §0.X · 禁 L2a |
+| REQ-038 | P1 | L3 | `in_progress` | **战法卡归因**（CHG-030：收 VL `level` 卡；dry-run **n_scored=6 / hit_5d=1/6**；已 persist + promote） | T2=`card_attribution*` · 增量消费 T1 |
+| REQ-039 | P1 | L0/L3 | `done` | **知识/GPU 产物自动到达规划 SoR**。Gemini §0.R-B **Accepted**。蒸馏 auto-dump；C2 `knowledge.promote.apply` HITL（CHG-027） | `knowledge_promote.js` · 禁 wecom |
+| REQ-040 | P2 | L3 | `in_progress` | **T2 扩样本（增量）**：不待全量 432；已消费首张 TSLL VL level 卡。继续吃新 TSLA/TSLL SR | 05 §0.X Partial · 禁 L2a |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |
@@ -94,6 +94,7 @@
 | CHG-027 | `done` | **Local-Ops catalog HITL C2 `knowledge.promote.apply`**（plan=C0 dump=C1；apply 须 human-approve；禁企微 `/ops promote`；win-host dump+scp，ssh recipe 故意 fail-closed） | 2026-09-19 `agent:cursor` · `catalog.yaml` · `adapters/knowledge.js` · `test_knowledge_promote_adapter_chg027.js` |
 | CHG-028 | `done` | **T2 方向/点位消歧**：结论行优先；拒概率%；异标的近邻价丢弃；TSLA 带 [50,900] | 2026-09-19 `agent:cursor` · `card_attribution.js` · 口径页 · dry-run n_scored=5 |
 | CHG-029 | `done` | **流水线解耦与增量消费原则（Top 级流水原则）**：批量长任务与下游消费严禁完全等待；有阶段性有效产出即刻开启下游图文关联/点位对齐/归因雷达；依赖 `status='ok'` 状态机与游标防漏 | 2026-09-19 人令确立 · 写入 `AGENTS.md` §3 · `06-process.md` |
+| CHG-030 | `done` | **T2 增量收 VL `level` 卡**：`ATTR_CARD_TYPES`+`level`；V型反弹方向启发式；首张 TSLL VL scored hit_5d | 2026-09-19 `agent:cursor` · n_scored=6 · gcp vision_meta=158 |
 
 ---
 

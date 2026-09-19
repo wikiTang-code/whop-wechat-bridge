@@ -80,12 +80,12 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **REQ-038-T2 / REQ-040 Blocked**（等 T1 VL） | **Blocked** |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **T1 Unblock REQ-040** | Active / Unblock |
+| **§0.A `agent:cursor`** | **REQ-038-T2 / REQ-040 Doing**（增量 n_scored=6） | Doing |
+| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **T1 继续产 TSLA SR** | Active / Unblock |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
-| **§0.H `human`** | 企微 **#91 CONL** 解锁 033；Q-001 | 等待 |
-| **§0.X Blocked** | 040→gemini · 033→human · HIP→deferred | **见 05 §0.X** |
-| **§0.R-A** | T1 fallback 抽审 Done；039/027 已消化 | Done |
+| **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
+| **§0.X Blocked** | 040=**Partial**（cursor 已自消费）；033→human | **见 05 §0.X** |
+| **§0.R-A** | T1 fallback 抽审 Done | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。

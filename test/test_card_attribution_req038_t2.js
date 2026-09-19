@@ -247,4 +247,23 @@ assert.strictEqual(
 );
 assert.strictEqual(extractExplicitLevel('TSLL 止损 12.5 降仓', 'TSLL'), 12.5);
 
+const mmLevel = evaluateCard(
+  {
+    card_type: 'level',
+    title: '[多模态] TSLL 单边下跌/底部V型反弹',
+    trigger_text: 'TSLL 触及支撑',
+    tickers_json: '["TSLL"]',
+    source_text: 'TSLL 分时图'
+  },
+  {
+    messageCreatedAt: t0,
+    bars: tsllBars,
+    visionMeta: { ticker: 'TSLL', support_resistance_json: JSON.stringify({ support: [10], resistance: [10.8] }) }
+  }
+);
+assert.strictEqual(mmLevel.status, 'scored');
+assert.strictEqual(mmLevel.ticker, 'TSLL');
+assert.strictEqual(mmLevel.level, 10);
+assert.strictEqual(mmLevel.direction, 'bullish');
+
 console.log('  ✅ level/direction/windows/event-exclude/db isolation/source_text/ticker-gate PASS');

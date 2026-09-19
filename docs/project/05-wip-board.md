@@ -13,8 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | Sprint1 已 scored=5；**扩样 Blocked→REQ-040/T1** | `card_attribution.js` | **Blocked** |
-| 2 | **REQ-040** | L3 | T1 TSLA/TSLL 真点位 VL→promote→再归因 | `card_attribution.js`（等 T1 产物） | **Blocked** |
+| **1** | **REQ-038-T2** | L3 | CHG-030 增量消费 VL `level` 卡；n_scored=6 hit5=1 | `card_attribution.js` | **Doing** |
+| 2 | **REQ-040** | L3 | 继续增量吃 T1 新 TSLA/TSLL 点位（已部分解锁） | `card_attribution.js` | **Doing** |
 | 3 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
@@ -49,7 +49,7 @@
 
 | 阻塞项 | 被阻塞方 | 解锁 Owner | 阻塞原因 | 解锁动作 | 状态 |
 |--------|----------|------------|----------|----------|:----:|
-| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）** | Sprint1 文本点位已打满；缺 TSLA/TSLL **真图 VL** 点位 | **增量即可**：T1 先批出若干 `status=ok` 且 ticker∈{TSLA,TSLL} 的 `message_vision_meta` → promote HITL → 通知 cursor 重跑归因（**不必等全量 432**） | **Open** |
+| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）+ cursor 自消费** | 真图 VL 点位仍稀疏 | **已增量启动**：本机 VL ok≈111；已收 TSLL `level` 卡 scored+hit_5d；继续等更多 TSLA SR。gemini 优先补 TSLA/TSLL 带 `support_resistance_json` 的 ok 行 | **Partial** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 
@@ -133,9 +133,9 @@
 | CHG-023 | L2/L3 | WSL AI 切流锁定（Win:8080独占指向WSL llama-server；默认 backend=wsl；废 8081；方案 §7） | `agent:cursor` | Done | `tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js` · 单测全绿 |
 | CHG-024 | L2/L3 | GPU 控制面加固（`:18080` 可达、禁假成功、Wan 拒载、ROCm release 延迟；协议 v0.1.3） | `agent:cursor` | Done | Gemini 抽审通过 |
 | CHG-025 | L2/L3 | 协议 v0.1.4 对齐（status 契约、GAME 无 retry_after、INVALID_PAYLOAD） | `agent:cursor` | Done | `gpu-arbiter.js` · `server.js` |
-| REQ-038 | L3 | 战法卡归因与共振只读雷达（T2 scored=5；**040 Blocked→T1**） | 双Agent协同 | Blocked | 见 §0.X；禁进L2a |
+| REQ-038 | L3 | 战法卡归因（CHG-030 增量；n_scored=6） | 双Agent协同 | Doing | 见 §0.X Partial |
 | REQ-039 | L0/L3 | 知识/GPU 产物到达规划 SoR（表级 promote，禁整库覆盖） | `agent:cursor` | Done | Gemini Accepted · CHG-027 |
-| REQ-040 | L3 | T2 扩样（T1 VL→promote→归因） | `agent:cursor` | Blocked | 解锁=`agent:gemini` T1 |
+| REQ-040 | L3 | T2 扩样（增量消费 T1） | `agent:cursor` | Doing | 已吃首张 TSLL VL level |
 | CHG-026 | L0 | 运行环境合同（compute vs SoR） | `agent:cursor` | Done | `environments.md` |
 | CHG-027 | L4/L0 | Local-Ops knowledge.promote HITL C2 | `agent:cursor` | Done | Gemini Accepted |
 | CHG-028 | L3 | T2 方向/点位消歧 | `agent:cursor` | Done | n_scored=5 |
@@ -168,8 +168,9 @@
 - [x] 标的须正文独立词 + 点位/入场 ∈[0.4,2.5] 后门：**candidates=15**
 - [x] VL 点位：标的须匹配；拒 100.5/120 fixture；`schema_json` 可抽价
 - [x] 口径修正：`with_level` / `yahoo_eligible` 分计
-- [x] **CHG-028**：结论行消歧 + 拒概率% + 异标的近邻价丢弃 → dry-run **yahoo_eligible=5 / n_scored=5**（hit_5d=0 / hit_3d=0.6）
-- [ ] REQ-040：**Blocked**（05 §0.X · 解锁 Owner=`agent:gemini` T1 真 TSLA/TSLL VL + promote）
+- [x] **CHG-028**：结论行消歧 → n_scored=5
+- [x] **CHG-030**：收 VL `level` 卡 → **n_scored=6 / hit_5d=1**（TSLL 多模态）；已 `--persist` + promote（gcp `ontology_card=4155` / `message_vision_meta=158`）
+- [ ] REQ-040：继续增量吃新 TSLA/TSLL SR（§0.X Partial）
 
 ### REQ-014 文档树入库
 
@@ -233,7 +234,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：消化 Gemini 039/027 Accepted；T1 fallback 抽审 gates。T2/040 **Blocked→gemini T1**（05 §0.X）。033 Blocked→Human #91。
-- gemini：**请读 §0.X**：你是 REQ-040 解锁方（T1 批 TSLA/TSLL 真点位 + promote）；033 仍等 Human #91。
+- cursor：**已增量开工**（CHG-029/030）：收 VL `level` → n_scored=6 hit5=1；promote gcp vision_meta=158。T2/040=Doing。请 gemini 优先产出带 SR 的 TSLA/TSLL ok 行。
+- gemini：033 仍等 Human #91；T1 继续跑——**不必等全量**，有 TSLA SR 即促 cursor 再消费。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002 Done；Q-001；企微 #91；Q-006 云端离线批已决。

@@ -41,7 +41,7 @@ if (!fs.existsSync(dbPath)) {
 const conn = new Database(dbPath, { readonly: !persist, fileMustExist: true, timeout: 8000 });
 const cards = conn.prepare(`
   SELECT * FROM ontology_card
-  WHERE card_type IN ('pattern','asset_memory','risk_rule')
+  WHERE card_type IN ('pattern','asset_memory','risk_rule','level')
 `).all();
 const candidates = selectCandidateCards(cards);
 const msgGet = conn.prepare('SELECT created_at, content FROM messages WHERE id = ?');
