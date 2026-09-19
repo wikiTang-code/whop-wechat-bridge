@@ -8,6 +8,16 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · Cursor 接管 Gemini 额度耗尽后的 T1/T2（CHG-035/036）
+
+| 项 | 事实 |
+|----|------|
+| 背景 | Gemini Free Tier 配额耗尽；人令后续批量交 Cursor |
+| CHG-035 | aligner 脏卡清理入库；`--reprocess-empty-sr` 跑完 9→6 张；**多数「TSLA」实为聊天截图**，SR 仍空属事实而非管道失败 |
+| CHG-036 | T2 扩标的后 persist **n_scored=7 / hit_5d≈0.43**（TSLL4 + SPY1 + QQQ1 + IREN1） |
+| VL | disk 423；ok≈423；赵哥 mm=124 / dirty=0；tslaZhaoSr 仍=1（真 K 线带点位） |
+| SoR | promote 纯化知识表（messages 未覆盖） |
+
 ### 2026-09-19 · CHG-034 多模态对齐器硬锁赵哥 + 券商真实数据双通道实测验收 · Gemini（`agent:gemini`）
 
 | 项 | 事实与落地 |

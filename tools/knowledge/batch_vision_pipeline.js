@@ -83,12 +83,19 @@ export function scanValidDiskImages(mediaDir = MEDIA_DIR) {
 }
 
 /**
- * 过滤出尚未处理成功 (status != 'ok') 的图片任务
+ * 过滤出尚未处理成功 (status != 'ok') 的图片任务。
+ * CHG-035: `--reprocess-empty-sr` 时，额外纳入赵哥 TSLA/TSLL 且 SR 空的 ok 行（解锁 T2）。
  */
-export function filterPendingImages(images, dbInstance = getDb()) {
+export function filterPendingImages(images, dbInstance = getDb(), { reprocessEmptySr = false } = {}) {
   const selectStmt = dbInstance.prepare(
-    "SELECT status FROM message_vision_meta WHERE id = ?"
+    'SELECT status, support_resistance_json, ticker FROM message_vision_meta WHERE id = ?'
   );
+  let senderStmt = null;
+  try {
+    senderStmt = dbInstance.prepare('SELECT sender_id FROM messages WHERE id = ?');
+  } catch {
+    senderStmt = null;
+  }
 
   const pending = [];
   for (const img of images) {
@@ -96,9 +103,45 @@ export function filterPendingImages(images, dbInstance = getDb()) {
     const row = selectStmt.get(id);
     if (!row || row.status !== 'ok') {
       pending.push({ ...img, id });
+      continue;
     }
+    if (!reprocessEmptySr) continue;
+
+    const srRaw = String(row.support_resistance_json || '').trim();
+    const srEmpty =
+      !srRaw ||
+      srRaw.length < 5 ||
+      srRaw === 'null' ||
+      srRaw === '{}' ||
+      srRaw === '{"support":[],"resistance":[]}';
+    if (!srEmpty) continue;
+
+    const ticker = String(row.ticker || '').trim().toUpperCase();
+    if (!['TSLA', 'TSLL'].includes(ticker)) continue;
+
+    if (senderStmt) {
+      const msg = senderStmt.get(img.message_id);
+      if (!msg || msg.sender_id !== 'user_4yeplXgbguTu4') continue;
+    }
+
+    pending.push({ ...img, id, reprocess: true });
   }
   return pending;
+}
+
+function filterSrByTickerBand(sr, ticker) {
+  if (!sr || typeof sr !== 'object') return null;
+  const sym = String(ticker || '').trim().toUpperCase();
+  if (!sym) return sr;
+  const lo = sym === 'TSLL' ? 1 : sym === 'TSLA' ? 50 : null;
+  const hi = sym === 'TSLL' ? 200 : sym === 'TSLA' ? 900 : null;
+  if (lo == null) return sr;
+  const filt = (list) =>
+    Array.isArray(list) ? list.map(Number).filter((n) => Number.isFinite(n) && n >= lo && n <= hi) : [];
+  const support = filt(sr.support);
+  const resistance = filt(sr.resistance);
+  if (!support.length && !resistance.length) return null;
+  return { support, resistance };
 }
 
 /**
@@ -136,7 +179,11 @@ export function sanitizeVlOutput(rawOutput) {
       cleanSr.resistance = sr.resistance.map(Number).filter((n) => !isNaN(n));
     }
     if (cleanSr.support?.length || cleanSr.resistance?.length) {
-      supportResistance = cleanSr;
+      supportResistance = filterSrByTickerBand(cleanSr, ticker) || cleanSr;
+      // 若带内过滤后为空，保留原值由下游 T2 丢弃；对 TSLA/TSLL 则强制清空脏点
+      if (ticker === 'TSLA' || ticker === 'TSLL') {
+        supportResistance = filterSrByTickerBand(cleanSr, ticker);
+      }
     }
   }
 
@@ -194,9 +241,9 @@ export async function extractImageVl(imageItem, options = {}) {
 1. 严禁生成任何 BUY/SELL、下单建议或操作推荐；
 2. 识别图中股票标的 (ticker)；若图中没有则为 null；
 3. 识别时间周期 (timeframe, 例如 1D, 5m, 1h, 15m)；
-4. 识别标注或图表呈现的支撑位与阻力位 (support_resistance: { support: [], resistance: [] })；
+4. 支撑/阻力必须尽量给出数字：读 Y 轴刻度；若有水平线/框/手绘箭头，读取箭头尖端或线对应的价格写入 support_resistance；若确实无法读出价格，才返回空数组；
 5. 识别图表中呈现的形态特征 (patterns: [])；
-6. 描述画面中任何手绘箭头、框线或手写批注 (hand_drawn_annotation)；
+6. 描述画面中任何手绘箭头、框线或手写批注 (hand_drawn_annotation)，批注原文照录；
 7. 必须且只能输出标准 JSON，格式如下：
 {
   "ticker": "TSLA",
@@ -338,8 +385,12 @@ export async function runBatchVisionPipeline(options = {}) {
   const allImages = scanValidDiskImages();
   console.log(`[Batch Vision] 📊 扫描完成：共发现 ${allImages.length} 张磁盘真图。`);
 
-  const pending = filterPendingImages(allImages, dbInstance);
-  console.log(`[Batch Vision] ⏳ 待处理单据 (剔除 status='ok'): ${pending.length} 张。`);
+  const pending = filterPendingImages(allImages, dbInstance, {
+    reprocessEmptySr: Boolean(options.reprocessEmptySr)
+  });
+  console.log(
+    `[Batch Vision] ⏳ 待处理单据 (剔除 status='ok'${options.reprocessEmptySr ? '+空SR赵哥TSLA/TSLL重提' : ''}): ${pending.length} 张。`
+  );
 
   const effectiveLimit = Math.min(limit, pending.length);
   const toProcess = pending.slice(0, effectiveLimit);
@@ -445,6 +496,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   const dryRun = args.includes('--dry-run');
   const mock = args.includes('--mock');
   const allValid = args.includes('--all-valid');
+  const reprocessEmptySr = args.includes('--reprocess-empty-sr');
 
   let limit = 5;
   const limitIdx = args.indexOf('--limit');
@@ -472,6 +524,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
     mock,
     intervalMs,
     maxCostUsd,
+    reprocessEmptySr,
     onProgress: (done, total, meta) => {
       console.log(`[Batch Vision] (${done}/${total}) ${meta.local_path} -> ${meta.status} [${meta.ticker || 'NONE'}]`);
     },

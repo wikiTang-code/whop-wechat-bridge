@@ -58,9 +58,9 @@
 | REQ-035 | P1 | L1 | `done` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后幂等写入一条 `source=manual_correct` 的 signal） | 2026-09-18 `agent:gemini` · `follow-replay-engine.js` · `database.js` · `test_replay_signal_sync_req035.js` |
 | REQ-036 | P1 | L3 | `active` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（长期常驻主线：V1闭环已就绪；自迭代飞轮引擎落地 `flywheel_engine.js`，增量水位自动感知编排，单测全绿） | 常驻维护 · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` · `test_slm_flywheel_req036.js` |
 | REQ-037 | P2 | L3 | `done` | **大V全频道多模态图文对齐与交易知识本体图谱**（P1–P3 Done：批蒸馏全库扫描 + 防游标 `ontology_distill_scanned` + Layer4 只读检索；默认 `--sender xiaozhaolucky` 过滤大V，提炼 1995 张大V纯正卡片并将 `sender_name` 沉淀入 `schema_json`；支持 `--all-senders`；**P4 企微盘中参谋仍冻结** `REJ-008`） | 双Agent协同 · `knowledge:distill` · `ontology_query_engine` · 单测全绿 |
-| REQ-038 | P1 | L3 | `in_progress` | **战法卡归因**（CHG-033：源消息赵哥硬锁；**n_scored=4 / hit_5d=1/4**；剔周哥/群友） | T2=`card_attribution*` · 增量消费 T1 |
+| REQ-038 | P1 | L3 | `in_progress` | **战法卡归因**（CHG-036 扩样：+SOXL/IREN/NBIS/QQQ/SPY/NVDA；**n_scored=7 / hit_5d≈3/7**） | T2=`card_attribution*` · Cursor 接管 T1 |
 | REQ-039 | P1 | L0/L3 | `done` | **知识/GPU 产物自动到达规划 SoR**。Gemini §0.R-B **Accepted**。蒸馏 auto-dump；C2 `knowledge.promote.apply` HITL（CHG-027） | `knowledge_promote.js` · 禁 wecom |
-| REQ-040 | P2 | L3 | `in_progress` | **T2 扩样本**：CHG-032 体量↑但可用赵哥+带内 SR 仍稀；继续吃真赵点位 | 05 §0.X Partial · 禁 L2a |
+| REQ-040 | P2 | L3 | `in_progress` | **T2 扩样本**：Gemini 额度耗尽→Cursor 接手；空 SR 重提证实多数「TSLA」为聊天截图；已靠其他标的 mm level 扩到 n_scored=7 | 05 §0.X Partial/Expanding |
 | REQ-041 | P1 | L3 | `done` | **盘口微观大单与四维共振检测引擎（Tape & Block Order Confluence Detector）**：融合 GEX 做市商引力场 + 赵哥多模态预判 + 457笔第一人称真实单佐证 + 尾盘微观大单通吃；**支持正股（Underlying）分析与 2x/多倍做多杠杆 ETF（TSLL, NEBX, LITX, COHX, CONL, TQQQ, SPYU, SNXX, MUU 等）关键点位动态折算**；单测 `test_tape_confluence_detector_req041.js` 100分王炸共振全绿通过 | 纯只读参谋 · `tools/knowledge/tape_confluence_detector.js` · 禁接 L2a / 禁下单 |
 | REQ-042 | P1 | L3/L5 | `done` | **真实券商行情/K线数据空间印证引擎与长桥/富途双通道实测就绪**：落实「量化容不得半点马虎，一切用数据说话」人令；富途 OpenD 127.0.0.1:11111 美股期权全链 (24到期日/单日384合约) + L2 五档盘口 100% 跑通；长桥模拟仓凭证入库 `.env`，解码核验为 `lb_papertrading_20525807`（100% 守牢资金隔离红线），TradeContext/QuoteContext 双通；落地空间印证引擎 `real_market_confluence_verifier.js` 与单测全绿 | `brokers/longbridge.js` · `tools/knowledge/real_market_confluence_verifier.js` · 单测绿灯 |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
@@ -100,6 +100,8 @@
 | CHG-031 | `done` | **T2 VL gaps 清单**：`listT2VisionGaps` + CLI `--gaps` → `req038-t2-vl-gaps.json`；对齐器增量+promote | 2026-09-19 `agent:cursor` · missing_sr=6 · gcp ont=4176 / vision≈185 |
 | CHG-033 | `done` | **T2 赵哥 sender 硬锁**：`sourceSender.sender_id===user_4yeplXgbguTu4`；`--gaps` 增 ontology non_zhao/oob；消化 CHG-032 gates | 2026-09-19 `agent:cursor` · n_scored=4 · 剔周哥/群友 |
 | CHG-034 | `done` | **多模态流式对齐器硬锁真赵哥发言与带内 SR 纯化**：SQL 强过滤 `m.sender_id = 'user_4yeplXgbguTu4'`，彻底剥离群友与周哥发图；`filterInBandSR` 过滤非标的与期权价噪点；单测 `test_multimodal_context_aligner_chg029.js` 绿灯通过；闭环 Cursor CHG-033 要求 | 2026-09-19 `agent:gemini` · `multimodal_context_aligner.js` · 单测全绿 |
+| CHG-035 | `done` | **Cursor 接管 T1**：aligner 脏卡 DELETE；`--reprocess-empty-sr` 重提赵哥空 SR；VL prompt 强制读 Y 轴；证实多数 TSLA「图」为聊天截图 | 2026-09-19 `agent:cursor` · `batch_vision*` · `multimodal_context_aligner.js` |
+| CHG-036 | `done` | **T2 扩标的**：ATTR_TICKERS+=SOXL/IREN/NBIS/QQQ/SPY/NVDA；分标的价带；persist **n_scored=7** | 2026-09-19 `agent:cursor` · `card_attribution*` · 口径页 |
 
 ---
 

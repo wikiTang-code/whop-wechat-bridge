@@ -4,7 +4,7 @@
  * Does not write trade_signals / L2a / BUY-SELL.
  */
 
-export const ATTR_TICKERS = ['TSLA', 'TSLL'];
+export const ATTR_TICKERS = ['TSLA', 'TSLL', 'SOXL', 'IREN', 'NBIS', 'QQQ', 'SPY', 'NVDA'];
 /** Distill types + multimodal VL level cards (CHG-030 incremental consume). */
 export const ATTR_CARD_TYPES = new Set(['pattern', 'asset_memory', 'risk_rule', 'level']);
 export const EVENT_ABS_RET = 0.15;
@@ -65,6 +65,9 @@ export function cardTickers(card) {
 export function pricingTicker(tickers) {
   if (tickers.includes('TSLL')) return 'TSLL';
   if (tickers.includes('TSLA')) return 'TSLA';
+  for (const t of ATTR_TICKERS) {
+    if (tickers.includes(t)) return t;
+  }
   return null;
 }
 
@@ -75,9 +78,12 @@ function parsePriceToken(tok) {
 }
 
 function inTickerBand(n, ticker) {
-  const lo = ticker === 'TSLL' ? 1 : 50;
-  const hi = ticker === 'TSLL' ? 200 : 900;
-  return n >= lo && n <= hi;
+  const t = String(ticker || '').toUpperCase();
+  if (t === 'TSLL') return n >= 1 && n <= 200;
+  if (t === 'SOXL' || t === 'IREN') return n >= 5 && n <= 200;
+  if (t === 'NBIS') return n >= 20 && n <= 500;
+  if (t === 'TSLA' || t === 'SPY' || t === 'QQQ' || t === 'NVDA') return n >= 50 && n <= 900;
+  return n >= 1 && n <= 5000;
 }
 
 function isPercentContext(src, index, tokenLen) {
@@ -327,8 +333,8 @@ export function extractLevelFromVisionMeta(meta, ticker) {
     .map(Number)
     .filter((n) => Number.isFinite(n));
   if (nums.includes(100.5) && nums.includes(120) && nums.length <= 2) return null;
-  const lo = ticker === 'TSLL' ? 1 : 50;
-  const hi = ticker === 'TSLL' ? 200 : 900;
+  const lo = ticker === 'TSLL' ? 1 : ticker === 'SOXL' || ticker === 'IREN' ? 5 : ticker === 'NBIS' ? 20 : 50;
+  const hi = ticker === 'TSLL' || ticker === 'SOXL' || ticker === 'IREN' ? 200 : ticker === 'NBIS' ? 500 : 900;
   const ok = nums.filter((n) => n >= lo && n <= hi);
   return ok.length ? ok[0] : null;
 }

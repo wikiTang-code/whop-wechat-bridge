@@ -89,7 +89,24 @@ export function alignMultimodalCards(options = {}) {
 
   console.log(`[Aligner] 🔍 发现已就绪的真实多模态元数据: ${visionRows.length} 条`);
 
-  // 2. 检查 ontology_card 已有的多模态卡片 (防漏去重)
+  // 2. 清理历史遗留的非赵哥多模态卡片 (AGENTS §6.9 身份硬锁治理)
+  if (!forceAllSenders && !dryRun) {
+    const dirtyCards = dbInstance.prepare(`
+      SELECT c.id FROM ontology_card c
+      LEFT JOIN message_vision_meta v ON c.id = ('card_mm_' || v.id)
+      LEFT JOIN messages m ON v.message_id = m.id
+      WHERE c.provider = 'multimodal_vl' AND (m.sender_id != 'user_4yeplXgbguTu4' OR m.sender_id IS NULL)
+    `).all();
+    if (dirtyCards.length > 0) {
+      console.log(`[Aligner] 🧹 清除历史非赵哥多模态卡片: ${dirtyCards.length} 条`);
+      const delStmt = dbInstance.prepare(`DELETE FROM ontology_card WHERE id = ?`);
+      for (const d of dirtyCards) {
+        delStmt.run(d.id);
+      }
+    }
+  }
+
+  // 3. 检查 ontology_card 已有的多模态卡片 (防漏去重)
   const existingCardIds = new Set(
     dbInstance.prepare(`SELECT id FROM ontology_card WHERE provider = 'multimodal_vl'`)
       .all()

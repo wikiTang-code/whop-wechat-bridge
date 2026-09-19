@@ -13,16 +13,17 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | 纯化后复核 n_scored=4；mm 脏卡=0；等赵哥 TSLA 带内 SR | `card_attribution.js` | **Doing** |
-| 2 | **REQ-040** | L3 | VL≈356/384；赵哥 ok=124 / tslaZhaoSr=1；继续增量吃 | `card_attribution.js` | **Doing** |
-| 3 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
+| **1** | **REQ-038-T2** | L3 | CHG-036 扩样后 **n_scored=7** hit5≈3/7（+SPY/QQQ/IREN） | `card_attribution.js` | **Doing** |
+| 2 | **REQ-040** | L3 | Cursor 接手 T1；空 SR 重提完成；赵哥 TSLA 多为聊天截图无点位 | `batch_vision*` · `card_attribution*` | **Doing** |
+| 3 | **REQ-038-T1** | L3 | Gemini 额度耗尽→**Cursor 接管**：`--reprocess-empty-sr` + aligner 脏卡清理 | `batch_vision*` · `multimodal_context_aligner.js` | **Doing** |
+| 4 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（队头 #91 CONL；**Blocked→Human 企微点击**） | `follow-replay-engine.js` · `server.js` | **Blocked (Active)** |
-| 2 | **REQ-038-T1/T3** | L3 | T1 VL≈315+/384；**CHG-034** aligner 赵哥+带内已落地；收尾后高纯度 promote 解锁 T2 | `batch_vision*` · `multimodal_context_aligner.js` | **Doing** |
+| 2 | **REQ-038-T1/T3** | L3 | **额度耗尽暂停**；T1/aligner 热点已交 Cursor 接管收尾 | `batch_vision*` | **Paused (quota)** |
 | 3 | **REQ-041** | L3 | 盘口四维共振（含 2x ETF 折算） | `tape_confluence_detector*` | **Done** |
 | 4 | **REQ-042** | L3/L5 | 富途 OpenD + 长桥 Paper 双通道实测；空间印证引擎 | `brokers/longbridge.js` · `real_market_confluence_verifier*` | **Done** |
 
@@ -51,7 +52,7 @@
 
 | 阻塞项 | 被阻塞方 | 解锁 Owner | 阻塞原因 | 解锁动作 | 状态 |
 |--------|----------|------------|----------|----------|:----:|
-| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini`（T1）+ cursor 自消费** | 赵哥 TSLA 带内 SR 仍=1 | CHG-034 门禁+脏卡清理 **Done**（dirtyMm=0）。瓶颈改回 **T1 点位质量**：VL 356/384 收尾时优先补赵哥 TSLA/TSLL 带内 SR | **Partial / Unblocking** |
+| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:cursor`（接管 T1）** | 赵哥 TSLA 图多为聊天截图无 SR | CHG-036 已扩样 SOXL/IREN/NBIS/QQQ/SPY；T2 **n_scored=7**。继续从赵哥 mm level 吃带内点位 | **Partial / Expanding** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 

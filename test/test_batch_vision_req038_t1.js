@@ -81,6 +81,13 @@ assert.deepStrictEqual(sanitized.data.support_resistance.support, [210.5, 200]);
 assert.deepStrictEqual(sanitized.data.patterns, ['双底突破', '强力 [FILTERED] 信号']);
 assert.strictEqual(sanitized.data.hand_drawn_annotation, '阻力线 230，[建议已过滤]');
 
+const oob = sanitizeVlOutput({
+  ticker: 'TSLA',
+  support_resistance: { support: [0.06, 350], resistance: [18.3, 370] }
+});
+assert.deepStrictEqual(oob.data.support_resistance.support, [350]);
+assert.deepStrictEqual(oob.data.support_resistance.resistance, [370]);
+
 // 严查违规字段是否被彻底剔除
 assert.strictEqual(sanitized.data.action, undefined, 'Must strip action field');
 assert.strictEqual(sanitized.data.recommendation, undefined, 'Must strip recommendation field');
