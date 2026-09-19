@@ -58,8 +58,9 @@
 | REQ-035 | P1 | L1 | `done` | **历史回放纠错与 `trade_signals` 流水自动校准联动**（纠错后幂等写入一条 `source=manual_correct` 的 signal） | 2026-09-18 `agent:gemini` · `follow-replay-engine.js` · `database.js` · `test_replay_signal_sync_req035.js` |
 | REQ-036 | P1 | L3 | `active` | **大V交易语义专有轻量 AI (SLM) 微调方案与数据飞轮**（长期常驻主线：V1闭环已就绪；自迭代飞轮引擎落地 `flywheel_engine.js`，增量水位自动感知编排，单测全绿） | 常驻维护 · `scripts/slm/*` · `models/zhao_slm_1.5b_lora` · `test_slm_flywheel_req036.js` |
 | REQ-037 | P2 | L3 | `done` | **大V全频道多模态图文对齐与交易知识本体图谱**（P1–P3 Done：批蒸馏全库扫描 + 防游标 `ontology_distill_scanned` + Layer4 只读检索；默认 `--sender xiaozhaolucky` 过滤大V，提炼 1995 张大V纯正卡片并将 `sender_name` 沉淀入 `schema_json`；支持 `--all-senders`；**P4 企微盘中参谋仍冻结** `REJ-008`） | 双Agent协同 · `knowledge:distill` · `ontology_query_engine` · 单测全绿 |
-| REQ-038 | P1 | L3 | `in_progress` | **战法卡归因回测与共振只读雷达**（Sprint 1：T1=`gemini` VL 批跑管道落地+门禁3文本脱敏闭环；T2=`cursor` TSLA/TSLL 子集归因；T3=`gemini` 三点共振雷达规范 [`req038-t3-resonance-radar-spec.md`](./req038-t3-resonance-radar-spec.md) 与核心引擎落地，单测全绿。禁 L2a/下单） | T1/T3 热点：`batch_vision*` / `req038-t3*` / `resonance_radar*`；T2 热点：`card_attribution.js`（互斥守车道）；**读卡须知识 SoR=gcp**（`CHG-026`）；T2 dry-run **candidates=15 / with_level=11 / yahoo_eligible=0**（11 mixed） |
+| REQ-038 | P1 | L3 | `in_progress` | **战法卡归因回测与共振只读雷达**（T2 CHG-028 后 dry-run **candidates=15 / with_level=11 / yahoo_eligible=5 / n_scored=5**，hit_rate_5d=0 / hit_3d=0.6；等 T1 TSLA VL 扩样本） | T1/T3：`batch_vision*` / `resonance_radar*`；T2：`card_attribution.js`；SoR=gcp |
 | REQ-039 | P1 | L0/L3 | `done` | **知识/GPU 产物自动到达规划 SoR**。gcp `ontology_card=4032` / `message_vision_meta=73` / `messages=109159`（ingest 自然增长）。蒸馏 auto-dump；Local-Ops C2 `knowledge.promote.apply` HITL（CHG-027）；禁企微 | `knowledge_promote.js` · HITL `--allow-prod-write` · 禁 wecom |
+| REQ-040 | P2 | L3 | `proposed` | **T2 扩样本**：T1 真图 VL 批出 TSLA/TSLL 点位 → promote → 再跑归因（禁 L2a） | 依赖 REQ-038-T1 批跑；热点仍 `card_attribution*`（cursor） |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |
@@ -91,6 +92,7 @@
 | CHG-025 | `done` | **协议 v0.1.4 Whop 对齐**：status `mode`/`locked`/`free_vram_mb`；`GAME_MODE` 去掉 `retry_after`；缺 owner → `INVALID_PAYLOAD`（HTTP 200）；acquire 透传 `model` | 2026-09-19 `agent:cursor` · `gpu-arbiter.js` · `server.js` · 单测全绿 |
 | CHG-026 | `done` | **运行环境合同**：每种处理冻结 compute vs SoR（gcp-vm / win-host / wsl-gpu / cloud-vl）；LoRA SoR=WSL 不是缺口；知识表 SoR=gcp | 2026-09-19 `agent:cursor` · [`environments.md`](./environments.md) · `environments.json` |
 | CHG-027 | `done` | **Local-Ops catalog HITL C2 `knowledge.promote.apply`**（plan=C0 dump=C1；apply 须 human-approve；禁企微 `/ops promote`；win-host dump+scp，ssh recipe 故意 fail-closed） | 2026-09-19 `agent:cursor` · `catalog.yaml` · `adapters/knowledge.js` · `test_knowledge_promote_adapter_chg027.js` |
+| CHG-028 | `done` | **T2 方向/点位消歧**：结论行优先；拒概率%；异标的近邻价丢弃；TSLA 带 [50,900] | 2026-09-19 `agent:cursor` · `card_attribution.js` · 口径页 · dry-run n_scored=5 |
 
 ---
 

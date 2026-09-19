@@ -16,16 +16,19 @@ Sprint 1 **只做子集实验**。不写 `trade_signals`、不进 L2a、不生�
 | 卡类 | `pattern` / `asset_memory` / `risk_rule`（排除纯 `macro`） |
 | 明确点位 | **正文** = 卡片字段 ∪ 首条源消息 `messages.content` ∪ `schema_json` 文本；若仍抽不出，用同源 `message_vision_meta.support_resistance_json`（VL `ticker` 空或与计价标的相同；拒 100.5/120 测试 fixture）。能抽出 **一个**价位。Yahoo **只打**过了点位门 **且** 方向非 mixed 的子集 |
 | CLI 计数 | `with_level` = 抽出点位（含 `unscored_mixed`）；`yahoo_eligible` = 可打分（非 mixed / 非缺方向） |
-| 价位范围 | TSLA ∈ [20, 900]；TSLL ∈ [1, 200]（滤掉「30分钟」「14B」等） |
-| 方向 | 能判 bullish **或** bearish；两边都强则 `unscored_mixed` |
+| 价位范围 | TSLA ∈ [50, 900]；TSLL ∈ [1, 200]（滤掉「30分钟」「14B」「概率 36.7%」等） |
+| 点位优先 | 优先标的词邻域内的 `支撑位`/`压力位`/`关键区间`/`短线`；线索词命中若紧邻 `%`/`概率` 丢弃；价位旁出现 UPST/CONL 等异标的且无本标的则丢弃 |
+| 方向 | 先读结论行（`先说主结论`/`先说结论`/`结论`/`方向判断`）：区间震荡→无方向；偏弱回落→bearish；偏多→bullish。无结论再关键词计数；强弱 ≥2× 取一侧，否则 `unscored_mixed` |
 | 时间 | 源消息 `messages.created_at` 可解析；否则 `skipped_no_t0` |
 
 **计价标的**：文中优先 TSLL，否则 TSLA（杠杆卡不对齐正股）。
 
 **方向启发式**
 
-- bullish：突破 / 回踩 / 支撑 / 低吸 / 加仓 / 做多 / 反弹 / 企稳 / 不破  
-- bearish：止损 / 跌破 / 降仓 / 减仓 / 砍仓 / 阻力 / 做空 / 弱势  
+- 结论行优先（CHG-028）：`区间震荡`/`观望` → 无方向；`偏弱`/`回落` → bearish；`偏多`/`上涨为主` → bullish  
+- bullish 词：突破 / 回踩 / 支撑 / 低吸 / 加仓 / 做多 / 反弹 / 企稳 / 不破  
+- bearish 词：止损 / 跌破 / 降仓 / 减仓 / 砍仓 / 阻力 / 做空 / 弱势  
+- 双边命中时：一侧计数 ≥ 另一侧 2× 则取强侧，否则 `unscored_mixed`  
 
 `risk_rule` 且含止损/降仓 → 强制 bearish。
 

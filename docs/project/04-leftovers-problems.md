@@ -49,9 +49,9 @@
 | `data/media/zhao` | **441** | 近月 untracked | **568**（本机缺图已上；prod-only 127 保留） | SoR=gcp；不 git add |
 | `models/zhao_slm_1.5b_lora/*.safetensors` | **17MB** 权重 | **gitignore**（只跟踪 tokenizer/config） | **无权重**（仅 config） | **符合 CHG-026**：SoR=wsl-gpu，不上 gcp |
 | `data/gex/latest.json` | 有 | 里程碑可提交 | 有（SCP） | 维持 REQ-024，禁盘中 commit |
-| REQ-038-T2 实跑 | candidates=15 / with_level=11 / yahoo_eligible=0（11 mixed） | 口径在 git | 知识表已 promote | 可打分集空因 mixed，不是 Yahoo |
+| REQ-038-T2 实跑 | candidates=15 / with_level=11 / yahoo_eligible=5 / n_scored=5（CHG-028） | 口径在 git | 知识表已 promote | 可打分集已非空；扩样等 T1 VL（REQ-040） |
 
-**T2 结论**：Yahoo 通。11 张有点位但方向 mixed 不打分；4 张无点位。等 T1 真 TSLA VL。catalog C2 见 **CHG-027 Done**。
+**T2 结论**：Yahoo 通。CHG-028 后首次打出 **5 张 scored**（1 TSLA + 4 TSLL）。仍缺真图 VL 点位扩样。catalog C2 见 **CHG-027 Done**。
 
 合同见 [`environments.md`](./environments.md)。**自动流**（REQ-039）：知识表/媒体走 promote·rsync；禁止整库覆盖；禁止无门禁「同步 1995 张卡」。盘点：`npm run env:inventory`。
 

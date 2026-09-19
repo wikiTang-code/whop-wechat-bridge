@@ -8,6 +8,17 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · CHG-028 T2 消歧 + 首次 scored · Cursor（`agent:cursor`）
+
+| 项 | 事实 |
+|----|------|
+| 根因 | 模型报告双边「支撑/跌破」→ mixed；概率 `36.7%` 被当价；UPST 48 串到 TSLL |
+| 改动 | 结论行优先；拒 `%`/`概率`；异标的距离门；TSLA 带 [50,900] |
+| dry-run | candidates=15 · with_level=11 · **yahoo_eligible=5** · **n_scored=5** |
+| hit | hit_rate_5d=0 · hit_rate_3d=0.6（bearish 2 / bullish 3） |
+| 入队 | **REQ-040 proposed**（T1 VL 扩样后再归因） |
+| 单测 | `test_card_attribution_req038_t2.js` PASS |
+
 ### 2026-09-19 · DEBT-013 / CHG-020 抽审 + REQ-039 二次写入 · Cursor（`agent:cursor`）
 
 **DEBT-013**（`open_session_run.py` / `install_open_session_task.ps1` / `test_open_session_dst.py`）：**accepted-with-gates**。Task 锚定夏令 09:38 ET 最早唤醒，Python `ZoneInfo("America/New_York")` 等到 09:40；EDT/EST/已开盘/force/skip 单测覆盖。Gate：`wait_sec > max_wait_seconds` **fail-open 立即采集**（防挂死；设计路径冬令等待 ~60min < 90min 上限）。人工在 05:00 ET 跑会错点采集——保持观察，不改现测断言。

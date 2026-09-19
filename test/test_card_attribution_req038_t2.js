@@ -218,4 +218,33 @@ const fixtureVl = evaluateCard(
 );
 assert.strictEqual(fixtureVl.status, 'skipped_no_level');
 
+assert.strictEqual(
+  inferDirection({
+    card_type: 'asset_memory',
+    title: 'TSLA',
+    source_text: '先说主结论：预计区间震荡（较高概率）。支撑与跌破都可能。'
+  }),
+  null
+);
+assert.strictEqual(
+  inferDirection({
+    card_type: 'asset_memory',
+    title: 'TSLA',
+    source_text: '先说结论：下周更可能是“偏弱回落”，概率大约 49.5%。支撑位 11.5 跌破止损。'
+  }),
+  'bearish'
+);
+assert.strictEqual(
+  extractExplicitLevel('结论：更可能偏弱回落（概率 36.7%）。支撑位 375.0，压力位 377.5。', 'TSLA'),
+  375
+);
+assert.strictEqual(
+  extractExplicitLevel(
+    'upst 48 低点 有小V\nTSLL 触及历史关键点位\n基本面贷款类',
+    'TSLL'
+  ),
+  null
+);
+assert.strictEqual(extractExplicitLevel('TSLL 止损 12.5 降仓', 'TSLL'), 12.5);
+
 console.log('  ✅ level/direction/windows/event-exclude/db isolation/source_text/ticker-gate PASS');

@@ -13,8 +13,9 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | candidates=15；with_level=11 全 mixed；yahoo_eligible=0 | `card_attribution.js` | Standing |
-| 2 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
+| **1** | **REQ-038-T2** | L3 | CHG-028 后 yahoo_eligible=5 / n_scored=5；等 T1 VL 扩样（REQ-040） | `card_attribution.js` | **Doing** |
+| 2 | **REQ-040** | L3 | T1 TSLA VL→promote→再归因（proposed） | `card_attribution.js` | Queued |
+| 3 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
 
@@ -120,7 +121,7 @@
 | CHG-023 | L2/L3 | WSL AI 切流锁定（Win:8080独占指向WSL llama-server；默认 backend=wsl；废 8081；方案 §7） | `agent:cursor` | Done | `tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js` · 单测全绿 |
 | CHG-024 | L2/L3 | GPU 控制面加固（`:18080` 可达、禁假成功、Wan 拒载、ROCm release 延迟；协议 v0.1.3） | `agent:cursor` | Done | Gemini 抽审通过 |
 | CHG-025 | L2/L3 | 协议 v0.1.4 对齐（status 契约、GAME 无 retry_after、INVALID_PAYLOAD） | `agent:cursor` | Done | `gpu-arbiter.js` · `server.js` |
-| REQ-038 | L3 | 战法卡归因与共振只读雷达（Sprint 1：432张真图VL批跑+TSLA子集归因+共振推送稿） | 双Agent协同 | Doing | Sprint 1 开工；禁进L2a |
+| REQ-038 | L3 | 战法卡归因与共振只读雷达（T2 CHG-028：n_scored=5；REQ-040 等 T1 VL） | 双Agent协同 | Doing | Sprint 1；禁进L2a |
 | REQ-039 | L0/L3 | 知识/GPU 产物到达规划 SoR（表级 promote，禁整库覆盖） | `agent:cursor` | Done | auto-dump + gcp vision_meta=73；CHG-027 catalog HITL |
 | CHG-026 | L0 | 运行环境合同（compute vs SoR） | `agent:cursor` | Done | `environments.md` |
 
@@ -151,7 +152,9 @@
 - [x] 本机点位子集：222 候选 → 源消息抽价后 **with_level=18**（含 NVDL 串味）
 - [x] 标的须正文独立词 + 点位/入场 ∈[0.4,2.5] 后门：**candidates=15**
 - [x] VL 点位：标的须匹配；拒 100.5/120 fixture；`schema_json` 可抽价
-- [x] 口径修正：`with_level`=抽出点位（含 mixed），`yahoo_eligible`=可打分。现 **with_level=11 / yahoo_eligible=0**（11 mixed / 4 no_level）。Sprint 1 可打分集仍空，等 T1 真 TSLA 点位，不是 Yahoo 故障
+- [x] 口径修正：`with_level` / `yahoo_eligible` 分计
+- [x] **CHG-028**：结论行消歧 + 拒概率% + 异标的近邻价丢弃 → dry-run **yahoo_eligible=5 / n_scored=5**（hit_5d=0 / hit_3d=0.6）
+- [ ] REQ-040：T1 真 TSLA VL 扩样本后再跑
 
 ### REQ-014 文档树入库
 
@@ -215,7 +218,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：039/CHG-027 Done 出队。T2 yahoo_eligible=0（11 mixed）。R-A DEBT-013/CHG-020 Done。交叉审修交 Gemini §0.R-B。
+- cursor：CHG-028 Done；T2 dry-run n_scored=5。REQ-040 入队 Queued（等 T1 VL）。039/027 交 Gemini §0.R-B。
 - gemini：REQ-033 队头 #91 CONL · T1 管道已交付（R-A 抽审完）。
 - gemini1：**REQ-036** Standing。
 - Human：REQ-002 Done；Q-001；企微 #91；Q-006 云端离线批已决。

@@ -80,7 +80,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **REQ-038-T2** Standing（yahoo_eligible=0）；**REQ-039 Done** | Standing |
+| **§0.A `agent:cursor`** | **REQ-038-T2** Doing（n_scored=5）；**REQ-040** Queued | Doing |
 | **§0.B `agent:gemini`** | **REQ-033** #91 CONL + **REQ-038-T1/T3**（T1门禁闭环/T3规范与引擎落地） | Active / Review |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | **REQ-002 Done**；Q-001；Q-008 Done；企微 #91 | 等待 / Done |

@@ -8,10 +8,14 @@ export const ATTR_TICKERS = ['TSLA', 'TSLL'];
 export const ATTR_CARD_TYPES = new Set(['pattern', 'asset_memory', 'risk_rule']);
 export const EVENT_ABS_RET = 0.15;
 
-const BULL_RE = /突破|回踩|支撑|低吸|加仓|做多|反弹|企稳|不破/;
-const BEAR_RE = /止损|跌破|降仓|减仓|砍仓|阻力|做空|弱势/;
+const BULL_RE = /突破|回踩|支撑|低吸|加仓|做多|反弹|企稳|不破/g;
+const BEAR_RE = /止损|跌破|降仓|减仓|砍仓|阻力|做空|弱势/g;
 const CUE_PRICE_RE =
   /(?:支撑|阻力|破位|跌破|突破|回踩|止损|加仓|关键位|低点|高点)[^\d$]{0,10}(\$?\d{1,4}(?:\.\d{1,2})?)|(\$?\d{1,4}(?:\.\d{1,2})?)[^\d]{0,10}(?:支撑|阻力|破位|跌破|突破|回踩|止损|加仓|关键位|低点|高点)|\$(\d{1,4}(?:\.\d{1,2})?)/gi;
+const LABELED_LEVEL_RE =
+  /(?:支撑位|压力位|阻力位|关键区间|短线)[^\d$%]{0,8}(\$?\d{1,4}(?:\.\d{1,2})?)/gi;
+const CONCLUSION_LINE_RE =
+  /(?:先说主结论|先说结论|主结论|结论|方向判断)[^\n]{0,80}/g;
 
 function parseJsonArr(raw) {
   if (!raw) return [];
@@ -62,32 +66,129 @@ function parsePriceToken(tok) {
   return Number.isFinite(n) ? n : null;
 }
 
+function inTickerBand(n, ticker) {
+  const lo = ticker === 'TSLL' ? 1 : 50;
+  const hi = ticker === 'TSLL' ? 200 : 900;
+  return n >= lo && n <= hi;
+}
+
+function isPercentContext(src, index, tokenLen) {
+  const after = src.slice(index + tokenLen, index + tokenLen + 3);
+  const before = src.slice(Math.max(0, index - 6), index);
+  return /%/.test(after) || /概率/.test(before);
+}
+
 export function extractExplicitLevel(text, ticker) {
   const src = String(text || '');
-  CUE_PRICE_RE.lastIndex = 0;
-  const hits = [];
-  let m;
-  while ((m = CUE_PRICE_RE.exec(src))) {
-    const n = parsePriceToken(m[1] || m[2] || m[3]);
-    if (n == null) continue;
-    hits.push(n);
+  const want = String(ticker || '').toUpperCase();
+  const windows = [];
+  if (want) {
+    const tre = new RegExp(`(^|[^A-Z0-9])${want}([^A-Z0-9]|$)`, 'gi');
+    let tm;
+    while ((tm = tre.exec(src))) {
+      const start = Math.max(0, tm.index - 20);
+      const end = Math.min(src.length, tm.index + tm[0].length + 120);
+      windows.push(src.slice(start, end));
+    }
   }
-  const lo = ticker === 'TSLL' ? 1 : 20;
-  const hi = ticker === 'TSLL' ? 200 : 900;
-  const ok = hits.filter((n) => n >= lo && n <= hi);
-  if (!ok.length) return null;
-  return ok[0];
+
+  function scan(scope, labeledOnly) {
+    if (labeledOnly) {
+      LABELED_LEVEL_RE.lastIndex = 0;
+      let m;
+      while ((m = LABELED_LEVEL_RE.exec(scope))) {
+        const n = parsePriceToken(m[1]);
+        if (n == null) continue;
+        if (isPercentContext(scope, m.index + m[0].lastIndexOf(m[1]), String(m[1]).length)) continue;
+        if (nearForeignTicker(scope, m.index, want)) continue;
+        if (inTickerBand(n, ticker)) return n;
+      }
+      return null;
+    }
+    LABELED_LEVEL_RE.lastIndex = 0;
+    let m;
+    while ((m = LABELED_LEVEL_RE.exec(scope))) {
+      const n = parsePriceToken(m[1]);
+      if (n == null) continue;
+      if (isPercentContext(scope, m.index + m[0].lastIndexOf(m[1]), String(m[1]).length)) continue;
+      if (nearForeignTicker(scope, m.index, want)) continue;
+      if (inTickerBand(n, ticker)) return n;
+    }
+    CUE_PRICE_RE.lastIndex = 0;
+    while ((m = CUE_PRICE_RE.exec(scope))) {
+      const tok = m[1] || m[2] || m[3];
+      const n = parsePriceToken(tok);
+      if (n == null) continue;
+      const bare = String(tok).replace(/\$/g, '');
+      const tokAt = m.index + Math.max(0, m[0].lastIndexOf(bare));
+      if (isPercentContext(scope, tokAt, bare.length)) continue;
+      if (nearForeignTicker(scope, tokAt, want)) continue;
+      if (inTickerBand(n, ticker)) return n;
+    }
+    return null;
+  }
+
+  for (const scope of windows) {
+    const hit = scan(scope, false);
+    if (hit != null) return hit;
+  }
+  return scan(src, true) ?? scan(src, false);
+}
+
+function nearForeignTicker(src, index, want) {
+  const s = String(src || '');
+  const upper = s.toUpperCase();
+  const foreignRe = /\b(UPST|UPSX|CONL|NVDL|NVDA|SPY|QQQ|AAPL|AMD)\b/g;
+  let bestForeign = Infinity;
+  let fm;
+  while ((fm = foreignRe.exec(upper))) {
+    const d = Math.abs(fm.index - index);
+    if (d < bestForeign) bestForeign = d;
+  }
+  if (!Number.isFinite(bestForeign)) return false;
+  let bestWant = Infinity;
+  if (want) {
+    const wre = new RegExp(`(^|[^A-Z0-9])${want}([^A-Z0-9]|$)`, 'g');
+    let wm;
+    while ((wm = wre.exec(upper))) {
+      const d = Math.abs(wm.index - index);
+      if (d < bestWant) bestWant = d;
+    }
+  }
+  return bestForeign < bestWant;
+}
+
+/** Parse model-report style conclusions before keyword vote (CHG-028). */
+export function extractConclusionDirection(text) {
+  const src = String(text || '');
+  const lines = src.match(CONCLUSION_LINE_RE) || [];
+  const pool = lines.length ? lines.join('\n') : src.slice(0, 400);
+  if (/区间震荡|横盘|方向观望|观望/.test(pool) && !/偏多|偏弱|上涨|下跌|回落|看空|看多/.test(pool)) {
+    return null;
+  }
+  if (/偏弱|回落|看空|下跌为主|预计下跌/.test(pool)) return 'bearish';
+  if (/偏多|看多|预计上涨|上涨为主/.test(pool)) return 'bullish';
+  return undefined;
 }
 
 export function inferDirection(card) {
   const text = blobOf(card);
   const type = String(card.card_type || '');
   if (type === 'risk_rule' && /止损|降仓|砍仓|减仓/.test(text)) return 'bearish';
-  const bull = BULL_RE.test(text);
-  const bear = BEAR_RE.test(text);
-  if (bull && bear) return 'mixed';
-  if (bull) return 'bullish';
-  if (bear) return 'bearish';
+
+  const concluded = extractConclusionDirection(text);
+  if (concluded === null) return null;
+  if (concluded === 'bullish' || concluded === 'bearish') return concluded;
+
+  const bullHits = [...text.matchAll(BULL_RE)].length;
+  const bearHits = [...text.matchAll(BEAR_RE)].length;
+  if (bullHits && bearHits) {
+    if (bullHits >= bearHits * 2) return 'bullish';
+    if (bearHits >= bullHits * 2) return 'bearish';
+    return 'mixed';
+  }
+  if (bullHits) return 'bullish';
+  if (bearHits) return 'bearish';
   return null;
 }
 
@@ -211,7 +312,7 @@ export function extractLevelFromVisionMeta(meta, ticker) {
     .map(Number)
     .filter((n) => Number.isFinite(n));
   if (nums.includes(100.5) && nums.includes(120) && nums.length <= 2) return null;
-  const lo = ticker === 'TSLL' ? 1 : 20;
+  const lo = ticker === 'TSLL' ? 1 : 50;
   const hi = ticker === 'TSLL' ? 200 : 900;
   const ok = nums.filter((n) => n >= lo && n <= hi);
   return ok.length ? ok[0] : null;
