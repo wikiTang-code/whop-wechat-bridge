@@ -22,7 +22,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（常驻流水线：队头 #91 CONL 等待企微点击，独立专属回放群通道已锁定，进度 10.8%） | `follow-replay-engine.js` · `server.js` | **Standing (Active)** |
-| 2 | **REQ-038** | L3 | 战法卡归因回测与共振只读雷达 Sprint 1（真图 VL 批跑 + TSLA/TSLL 子集归因 + 共振推送设计稿） | `tools/knowledge/` · 双Agent协同 | **Doing** |
+| 2 | **REQ-038-T1** | L3 | 432 张真图云端 VL 离线批跑（白名单字段、费用上限、只传图、status=failed；严禁进 L2a） | `tools/knowledge/batch_vision*` · 禁碰 `card_attribution*` | **Doing** |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -194,7 +194,7 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：REQ-038-T2 口径+引擎+单测绿；主库实跑待 `whop_archive.db`。
-- gemini：REQ-033 **正在修** 重启后重新推送交易单反馈失败（Cursor 不碰 `wecom/push` / replay）· REQ-038-T1 VL 规格待收口。
+- cursor：REQ-038-T2 引擎绿；gcp-vm 只读实跑 **candidates=0**。
+- gemini：REQ-033 队头 #91 CONL（专属回放群）· REQ-038 应收成 **T1 VL**（勿占 T2 归因脚本）。
 - gemini1：**REQ-036** Standing。
-- Human：REQ-002 **Done**（已确认 restart）；Q-001；企微 #90；Q-006 选型已决。
+- Human：REQ-002 Done；Q-001；企微 #91；Q-006 云端离线批已决。
