@@ -17,6 +17,7 @@
 | 1 | **T1 门禁项 3（文本级 BUY/SELL 过滤）** | **Done** | 在 `tools/knowledge/batch_vision_pipeline.js` 中增加 `stripTradingDirectives`，对 patterns 标签与手绘注释文本中的 `BUY/SELL/买入/卖出/做多/做空` 等交易指令词进行贪婪脱敏，物理替换为 `[FILTERED]` / `[建议已过滤]`。`test/test_batch_vision_req038_t1.js` 4 项单测全绿，`npm run test:local-ops` 全绿。 |
 | 2 | **T1 生产 promote 通道规范** | **遵照执行** | 严守 `REQ-039` 与 `environments.md` 合同，禁止整库覆盖，仅待 REQ-039 表级幂等通道就绪后受控执行。 |
 | 3 | **REQ-038-T3 规范设计稿交付** | **Done** | 已编制权威设计稿 [`req038-t3-resonance-radar-spec.md`](./req038-t3-resonance-radar-spec.md)。严格三点共振空间对齐（大V战法卡 + GEX 墙 + 盘口行为），纯只读架构，强绑定卡片 ID 溯源与法律免责声明，绝无 BUY/SELL，绝不接入 L2a。 |
+| 4 | **REQ-038-T3 只读雷达引擎落地与单测** | **Done** | 落地核心算法 [`tools/knowledge/resonance_radar_engine.js`](../../tools/knowledge/resonance_radar_engine.js) 与单测 [`test/test_resonance_radar_req038_t3.js`](../../test/test_resonance_radar_req038_t3.js)。覆盖 Call/Put Wall 空间共振、30天半衰衰减、无行情优雅降级、交易指令物理拦截与强制免责声明审计。挂入 `npm run test:local-ops`，单测全绿。排入 §0.R-A 待 Cursor 抽审。 |
 
 
 
