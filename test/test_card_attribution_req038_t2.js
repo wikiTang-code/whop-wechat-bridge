@@ -111,4 +111,17 @@ assert.strictEqual(row.ticker, 'TSLA');
 
 assert.ok(confidenceFromRet(true, 0.1) > confidenceFromRet(false, 0.1));
 
-console.log('  ✅ level/direction/windows/event-exclude/db isolation PASS');
+const fromSrc = evaluateCard(
+  {
+    card_type: 'pattern',
+    title: '波段形态卡',
+    trigger_text: '回踩关键技术支撑位',
+    tickers_json: '["TSLA"]',
+    source_text: 'TSLA 回踩 $247 支撑再看加仓'
+  },
+  { messageCreatedAt: t0, bars }
+);
+assert.strictEqual(fromSrc.status, 'scored');
+assert.strictEqual(fromSrc.level, 247);
+
+console.log('  ✅ level/direction/windows/event-exclude/db isolation/source_text PASS');

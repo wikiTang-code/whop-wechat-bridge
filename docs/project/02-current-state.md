@@ -3,7 +3,9 @@
 > 上级：[`README.md`](./README.md) · 遗留见 [`04`](./04-leftovers-problems.md) · 需求见 [`03`](./03-requirements.md)  
 > **刷新规则**：重大联调/发布后更新本页日期与表格；细节可链到专题方案。
 
-**快照日期**：2026-09-18
+**快照日期**：2026-09-19
+
+权威运行环境：[`environments.md`](./environments.md)（`CHG-026`）。生产双进程健康以 gcp `/health` 为准。
 
 ---
 

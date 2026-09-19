@@ -13,7 +13,7 @@ Sprint 1 **只做子集实验**。不写 `trade_signals`、不进 L2a、不生�
 |------|------|
 | 标的 | `tickers_json` / 标题 / 触发文含 **TSLA 或 TSLL**（大小写不敏感） |
 | 卡类 | `pattern` / `asset_memory` / `risk_rule`（排除纯 `macro`） |
-| 明确点位 | 正文能抽出 **一个**价位，且紧邻线索词：支撑/阻力/突破/跌破/回踩/止损/加仓/关键位/低点/高点；或带 `$` 前缀 |
+| 明确点位 | **正文** = 卡片字段 ∪ 首条源消息 `messages.content`。能抽出 **一个**价位，且紧邻线索词：支撑/阻力/突破/跌破/回踩/止损/加仓/关键位/低点/高点；或带 `$` 前缀。Yahoo 只打过了点位门的子集（不是先 slice 再全 skipped） |
 | 价位范围 | TSLA ∈ [20, 900]；TSLL ∈ [1, 200]（滤掉「30分钟」「14B」等） |
 | 方向 | 能判 bullish **或** bearish；两边都强则 `unscored_mixed` |
 | 时间 | 源消息 `messages.created_at` 可解析；否则 `skipped_no_t0` |

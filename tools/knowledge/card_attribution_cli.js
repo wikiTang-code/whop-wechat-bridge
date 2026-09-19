@@ -44,9 +44,30 @@ const cards = conn.prepare(`
   WHERE card_type IN ('pattern','asset_memory','risk_rule')
 `).all();
 const candidates = selectCandidateCards(cards);
-const msgGet = conn.prepare('SELECT created_at FROM messages WHERE id = ?');
+const msgGet = conn.prepare('SELECT created_at, content FROM messages WHERE id = ?');
+const SKIP_YAHOO = new Set([
+  'skipped_ticker',
+  'skipped_type',
+  'skipped_no_level',
+  'skipped_no_direction',
+  'unscored_mixed'
+]);
 
-const picked = candidates.slice(0, Number.isFinite(limit) ? limit : 200);
+const prepped = candidates.map((card) => {
+  const mid = firstSourceMessageId(card);
+  const msg = mid ? msgGet.get(mid) : null;
+  const card2 = { ...card, source_text: msg?.content || '' };
+  const preview = evaluateCard(card2, { messageCreatedAt: msg?.created_at ?? null, bars: [] });
+  return { card: card2, created: msg?.created_at ?? null, preview };
+});
+const skipCounts = {};
+for (const p of prepped) {
+  const s = p.preview.status || 'unknown';
+  skipCounts[s] = (skipCounts[s] || 0) + 1;
+}
+const withLevel = prepped.filter((p) => !SKIP_YAHOO.has(p.preview.status));
+const picked = withLevel.slice(0, Number.isFinite(limit) ? limit : 200);
+
 const barCache = {};
 async function barsFor(ticker) {
   if (!barCache[ticker]) {
@@ -56,20 +77,10 @@ async function barsFor(ticker) {
 }
 
 const results = [];
-for (const card of picked) {
-  const mid = firstSourceMessageId(card);
-  const created = mid ? msgGet.get(mid)?.created_at : null;
+for (const { card, created, preview } of picked) {
   let bars = [];
-  const preview = evaluateCard(card, { messageCreatedAt: created, bars: [] });
   const ticker = preview.ticker;
-  if (
-    ticker &&
-    preview.status !== 'skipped_ticker' &&
-    preview.status !== 'skipped_type' &&
-    preview.status !== 'skipped_no_level' &&
-    preview.status !== 'skipped_no_direction' &&
-    preview.status !== 'unscored_mixed'
-  ) {
+  if (ticker) {
     try {
       bars = await barsFor(ticker);
     } catch (e) {
@@ -88,7 +99,10 @@ const report = {
   dry,
   persist: persist && !dry,
   spec: 'docs/project/req038-t2-attribution-spec.md',
+  db: dbPath,
   candidates: candidates.length,
+  with_level: withLevel.length,
+  skip_counts: skipCounts,
   evaluated: results.length,
   summary: summarize(results),
   results

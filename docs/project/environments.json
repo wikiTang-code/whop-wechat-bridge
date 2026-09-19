@@ -1,0 +1,141 @@
+{
+  "version": "1.0",
+  "updated": "2026-09-19",
+  "chg": "CHG-026",
+  "req_pipeline": "REQ-039",
+  "hosts": {
+    "win-host": {
+      "role": "control-plane",
+      "desc": "Windows：Local-Ops :18789、GpuArbiter、OpenD、GEX collect、SSH 配方、计划任务"
+    },
+    "wsl-gpu": {
+      "role": "gpu-compute",
+      "desc": "WSL2 ROCm：llama-server :8080、Supervisor :18080、LoRA 训练、14B 蒸馏。gcp-vm 无 GPU，禁止把 GPU 活迁到生产机。"
+    },
+    "gcp-vm": {
+      "role": "production-serving",
+      "desc": "生产：ingest / 企微推送 / 看板 / 跟单回放。消息 SoR。不装 Agent 宿主、不跑 OpenD、不跑 GPU。"
+    },
+    "cloud-vl": {
+      "role": "offline-vision",
+      "desc": "Q-006 云端轻量 VL 离线批；不占本机 14B/OM 显存。"
+    },
+    "git": {
+      "role": "code-artifact",
+      "desc": "只收代码与里程碑 latest.json；禁 db / media 全量 / GEX HTML / LoRA 权重"
+    }
+  },
+  "sqlite_probes": [
+    "messages",
+    "ontology_card",
+    "ontology_distill_scanned",
+    "message_vision_meta",
+    "semantic_cu",
+    "trade_signals",
+    "zhao_positions",
+    "strategy_assets"
+  ],
+  "promote_allowlist": [
+    "ontology_card",
+    "ontology_distill_scanned",
+    "message_vision_meta",
+    "semantic_cu"
+  ],
+  "promote_never": [
+    "messages",
+    "trade_signals",
+    "zhao_positions",
+    "follow_decisions",
+    "strategy_assets"
+  ],
+  "workloads": [
+    {
+      "id": "ingest-archive",
+      "compute": "gcp-vm",
+      "sor": "gcp-vm",
+      "artifact": "whop_archive.db#messages + data/media/zhao",
+      "git": false,
+      "notes": "生产消息与附件真相源。禁止用本机库整文件覆盖。"
+    },
+    {
+      "id": "wecom-push-follow",
+      "compute": "gcp-vm",
+      "sor": "gcp-vm",
+      "artifact": "pm2 ingest+dashboard / follow-replay / wecom",
+      "git": false,
+      "notes": "业务守护只在生产跑。C2 restart 须 HITL。"
+    },
+    {
+      "id": "gex-collect",
+      "compute": "win-host",
+      "sor": "win-host",
+      "artifact": "data/gex/latest.json",
+      "git": "milestone-only",
+      "notes": "OpenD 只在本机。禁止 GCP 拉链。"
+    },
+    {
+      "id": "gex-dashboard-replica",
+      "compute": "win-host",
+      "sor": "gcp-vm",
+      "artifact": "SCP latest.json → gcp 看板",
+      "git": false,
+      "notes": "REQ-004 已有自动配方。这是副本不是采集。"
+    },
+    {
+      "id": "local-ops",
+      "compute": "win-host",
+      "sor": "win-host",
+      "artifact": ":18789 catalog / 企微 /ops 适配",
+      "git": true,
+      "notes": "生产不装 MCP。经白名单 SSH 达 gcp。"
+    },
+    {
+      "id": "llm-infer-14b-1.5b",
+      "compute": "wsl-gpu",
+      "sor": "wsl-gpu",
+      "artifact": "llama-server runtime",
+      "git": false,
+      "notes": "CHG-023：Win :8080 只是桥。服务环境=WSL，不是 gcp。"
+    },
+    {
+      "id": "slm-lora-flywheel",
+      "compute": "wsl-gpu",
+      "sor": "wsl-gpu",
+      "artifact": "models/zhao_slm_1.5b_lora/*.safetensors",
+      "git": "tokenizer-only",
+      "notes": "权重留训练/推理机。不上 git、不必上 gcp（生产无 GPU 不加载 LoRA）。"
+    },
+    {
+      "id": "knowledge-distill",
+      "compute": "wsl-gpu",
+      "sor": "gcp-vm",
+      "artifact": "ontology_card / ontology_distill_scanned",
+      "git": false,
+      "notes": "GPU 在 WSL 跑；入选消息应来自生产 messages 只读快照。写完必须 promote 到 gcp 知识表。禁止只写本机库当结案。"
+    },
+    {
+      "id": "knowledge-vl-batch",
+      "compute": "cloud-vl",
+      "sor": "gcp-vm",
+      "artifact": "message_vision_meta",
+      "git": false,
+      "notes": "读图前先对齐媒体 SoR（gcp data/media）。结果表走 promote，禁止只落本机 getDb()。"
+    },
+    {
+      "id": "knowledge-attribution",
+      "compute": "win-host",
+      "sor": "gcp-vm",
+      "artifact": "card_attribution 只读报告（data/runtime，gitignore）",
+      "git": "spec-only",
+      "notes": "Yahoo 可从本机打；卡片必须读知识 SoR。本机 stub 库不能代表生产胜率。"
+    },
+    {
+      "id": "media-files",
+      "compute": "gcp-vm",
+      "sor": "gcp-vm",
+      "artifact": "data/media/zhao",
+      "git": false,
+      "notes": "ingest 落生产盘。本机多出来的图=漂移，须分类后 rsync，禁止 git add 近月全量。"
+    }
+  ]
+}

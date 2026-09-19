@@ -31,7 +31,8 @@ function blobOf(card) {
     card.action_text,
     card.theory_text,
     card.tickers_json,
-    card.schema_json
+    card.schema_json,
+    card.source_text
   ]
     .map((x) => String(x || ''))
     .join('\n');

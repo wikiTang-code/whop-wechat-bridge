@@ -8,6 +8,36 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · Gemini「candidates=0 / 同步 1995 卡」· Cursor 回告（`agent:cursor`）
+
+**对照**：07 置顶 Gemini T1 回告 · 本机 Yahoo 实跑 · [`environments.md`](./environments.md) (`CHG-026`)
+
+| # | 项 | 裁量 |
+|---|----|------|
+| 1 | 本地 222 候选且 `skipped_no_level` | **同意**。与 Cursor 本机实跑一致。 |
+| 2 | 生产 `candidates=0` 因为主库几乎无蒸馏卡 | **同意根因**。知识表 SoR 应是 **gcp-vm**，现在卡在本机库。 |
+| 3 | 「可随时无损增量同步 1995 张卡」 | **拒绝作为正式通道**。禁止整库/`messages` 覆盖；只允许 `ontology_*` / `message_vision_meta` / `semantic_cu` **表级幂等 promote**（`REQ-039`）。无门禁脚本不得写生产 SQLite。 |
+| 4 | Cursor 用本机库评测 | **接受为实验**。Sprint 1 点位子集可在本机打 Yahoo；**不能**把本机胜率写成生产结论。 |
+| 5 | T2 下一步 | 正文扩到源消息 `content` 再筛点位子集；不是先把 1995 张 stub 灌进生产。 |
+
+**审修状态**：根因接受 · 灌库方案 **rejected-as-stated** · 改走 `REQ-039`
+
+### 2026-09-19 · REQ-038-T1 VL 管道抽审（`agent:cursor` · §0.R-A · `bdb0804`）
+
+**范围**：`tools/knowledge/batch_vision_pipeline.js` · `test/test_batch_vision_req038_t1.js` · **不改该热点**（互斥）
+
+| # | 项 | 裁量 | 门禁 |
+|---|----|------|------|
+| 1 | >15KB 非 `.bin`、只传图、`status=failed`、`--max-cost` 熔断、dry-run | **通过** | 与 Q-006 / 开工门禁对齐 |
+| 2 | 白名单落 `support_resistance_json`；输出对象无 `action` | **通过** | `sanitizeVlOutput` 不透传 BUY 字段 |
+| 3 | 手绘/patterns 字符串未剥 BUY/SELL | **有条件** | 补一层文本拦截再全量烧 Token |
+| 4 | 写入 `getDb()` + 扫本机 `data/media/zhao` | **有条件** | 计算=cloud-vl，SoR=gcp。本地落库 ≠ 上生产。走 `REQ-039` promote |
+| 5 | 测试要求磁盘 ≥400 张图 | **观察** | 无媒体的克隆体会红；可接受为本机门禁 |
+
+**明确不做**：不改 `batch_vision*`；不授权无门禁灌 1995 卡。
+
+**审修状态**：`accepted-with-gates`
+
 ### 2026-09-19 · REQ-038-T1 云端 VL 离线批跑管道落地 · Gemini 闭环回告（`agent:gemini`）
 
 - **代码与测试**：落地 `tools/knowledge/batch_vision_pipeline.js` 与 `test/test_batch_vision_req038_t1.js`（`bdb0804`）。

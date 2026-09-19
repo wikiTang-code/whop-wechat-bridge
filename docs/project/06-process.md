@@ -87,6 +87,7 @@
 | `docs/project/03*.md` | L0 | 追加新行优先；少改历史行 |
 | **`test/**`** | 各车道 | **测试隔离**：新特性优先新建独立文件（如 `test/test_local_ops_p5.js`）；**严禁**两 Agent 同时改同一公共大单测（如 `test_readonly_api_routes.js`） |
 | 生产 HITL / `.env` | human | Agent 不得代行 approve（REJ-007） |
+| **`docs/project/environments.md`** | L0 | **compute vs SoR 合同**（`CHG-026`）；改环境归属须独立 CHG |
 
 ---
 
