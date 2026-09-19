@@ -129,7 +129,7 @@
 
 - [x] 冻结口径 [`req038-t2-attribution-spec.md`](./req038-t2-attribution-spec.md)
 - [x] `card_attribution.js` + 单测（fixture，不打网）
-- [x] CLI `npm run knowledge:attr-tsla`（`--dry-run` / `--persist`）
+- [x] CLI `npm run knowledge:attr-tsla`（`--dry-run` / `--persist`；`card_attribution_cli.js`）
 - [ ] 主库 Yahoo 实跑 JSON 报告（本工作树无 `whop_archive.db`）
 
 ### REQ-014 文档树入库
