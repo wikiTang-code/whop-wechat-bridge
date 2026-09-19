@@ -34,6 +34,7 @@ function setupTestDb() {
       action TEXT NOT NULL,
       price REAL NOT NULL,
       quantity REAL NOT NULL,
+      channel_id TEXT,
       created_at INTEGER NOT NULL
     );
   `);
@@ -70,8 +71,8 @@ db.prepare(`
 `).run();
 
 db.prepare(`
-  INSERT INTO trade_signals (signal_id, ticker, action, price, quantity, created_at)
-  VALUES ('sig_test_1', 'TSLA', 'BUY', 220.0, 100, 1789400000000)
+  INSERT INTO trade_signals (signal_id, ticker, action, price, quantity, channel_id, created_at)
+  VALUES ('sig_test_1', 'TSLA', 'BUY', 220.0, 100, 'forum_feed_1CTr7SqVMzFfuFiiRJLEHN', 1789400000000)
 `).run();
 
 const mockGex = {

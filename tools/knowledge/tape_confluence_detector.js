@@ -26,6 +26,20 @@ const GEX_PATH = path.join(ROOT_DIR, 'data/gex/latest.json');
 export const TAPE_DISCLAIMER =
   '【纯客观盘口微观结构参谋 · 绝非投资建议】本引擎整合做市商GEX伽马分布、大V历史预判图表、真实交割单点位与盘口大单特征，仅用于市场微观机制学术与复盘印证，严禁作为自动交易依据。';
 
+/** 大V赵哥本人唯一真相源身份 (全频道发言采集，但严格物理硬锁用户本人) */
+export const ZHAO_PRIMARY_SENDER_ID = 'user_4yeplXgbguTu4';
+export const ZHAO_PRIMARY_SENDER_NAME = 'xiaozhaolucky';
+
+/** 交易单 (trade_signals) 严格物理准入的两大专属频道 */
+export const TRADE_SIGNAL_CHANNELS = [
+  'forum_feed_1CTr7SqVMzFfuFiiRJLEHN', // 历史股票期权记录区
+  'chat_feed_1CTrCEx44dP13jW3RVkYiS',  // 不用翻墙期权
+];
+
+/** 周哥自研美股工具箱量化参考身份与信号频道 (外部客观量化参谋) */
+export const ZHOU_QUANT_SENDER_ID = 'user_HnSG7BJWMTfDz';
+export const ZHOU_QUANT_CHANNEL_ID = 'chat_feed_1CaEnj8BrNBr95YSbgabYZ'; // 日内波段信号检测
+
 /** 云·光·存 核心主线标的池 (赵哥量化核心仓) */
 export const SECTOR_MAP = {
   CLOUD: ['CRWV', 'IREN', 'NBIS', 'CIFR', 'DELL'],
@@ -226,9 +240,9 @@ export function detectTapeConfluence(params = {}) {
   // --- 维度 3: 赵哥 457 笔真实成交单历史点位佐证 (0 ~ 25分) ---
   try {
     const signals = dbInstance.prepare(`
-      SELECT signal_id, action, price, quantity, created_at 
+      SELECT signal_id, action, price, quantity, created_at, channel_id 
       FROM trade_signals 
-      WHERE ticker = ?
+      WHERE ticker = ? AND (channel_id IS NULL OR channel_id IN ('forum_feed_1CTr7SqVMzFfuFiiRJLEHN', 'chat_feed_1CTrCEx44dP13jW3RVkYiS'))
       ORDER BY created_at DESC 
       LIMIT 20
     `).all(t);
@@ -340,6 +354,33 @@ export function detectTapeConfluence(params = {}) {
     }
     report.observations.push(projMsg);
   }
+
+  // --- 挂载周哥自研美股工具箱量化参考信号 (日内波段信号检测) ---
+  try {
+    const zhouSig = dbInstance
+      .prepare(`
+        SELECT content, created_at 
+        FROM messages 
+        WHERE sender_id = ? AND channel_id = ? AND content LIKE ?
+        ORDER BY created_at DESC LIMIT 1
+      `)
+      .get(ZHOU_QUANT_SENDER_ID, ZHOU_QUANT_CHANNEL_ID, `%标的: ${t}%`);
+
+    if (zhouSig) {
+      const comboMatch = zhouSig.content.match(/命中信号组合:\s*([^\n\r]+)/);
+      const priceMatch = zhouSig.content.match(/(?:卖出价\*|买入价\*|价格):\s*([0-9.]+)/);
+      report.external_quant_reference = {
+        author: 'Mrzhoulucky (周哥美股工具箱)',
+        channel: '日内波段信号检测',
+        signal_combo: comboMatch ? comboMatch[1].trim() : '量化监控中',
+        reference_price: priceMatch ? Number(priceMatch[1]) : null,
+        created_at: new Date(zhouSig.created_at).toISOString(),
+      };
+      report.observations.push(
+        `🤖 [周哥量化工具箱印证] 最新信号: [${report.external_quant_reference.signal_combo}] | 量化参考点位: $${report.external_quant_reference.reference_price || 'N/A'}`
+      );
+    }
+  } catch (_) {}
 
   return report;
 }

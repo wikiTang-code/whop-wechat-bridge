@@ -52,21 +52,27 @@
     "feed_id": "chat_feed_1CaPyASfSWTuruMgL2u3sT",
     "name": "股票分析",
     "channel_class": "analysis",
-    "purpose": "股票分析专区",
-    "is_l2a_primary": false
+    "purpose": "周哥美股工具箱 · 大盘与标的结构分析与高低点预测（高价值参考参谋）",
+    "owner": "Mrzhoulucky",
+    "is_l2a_primary": false,
+    "is_quant_reference": true
   },
   "chat_feed_1CaEnj8BrNBr95YSbgabYZ": {
     "feed_id": "chat_feed_1CaEnj8BrNBr95YSbgabYZ",
     "name": "日内波段信号检测",
     "channel_class": "signal",
-    "purpose": "日内量化信号检测",
-    "is_l2a_primary": false
+    "purpose": "周哥美股工具箱 · 自研量化工具自动日内波段信号与杠杆点位（高胜率参考因子）",
+    "owner": "Mrzhoulucky",
+    "is_l2a_primary": false,
+    "is_quant_reference": true
   },
   "chat_feed_1CaChz8Ru2cjRfAFKi7KbF": {
     "feed_id": "chat_feed_1CaChz8Ru2cjRfAFKi7KbF",
     "name": "每日选股",
     "channel_class": "stock_pick",
-    "purpose": "每日精选股票推荐",
-    "is_l2a_primary": false
+    "purpose": "周哥美股工具箱 · 每日精选股票推荐",
+    "owner": "Mrzhoulucky",
+    "is_l2a_primary": false,
+    "is_quant_reference": true
   }
 }
