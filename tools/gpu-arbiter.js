@@ -75,11 +75,26 @@ class GpuArbiter {
   getStatus() {
     const isLocked = this.state === ArbiterState.TRAINING || this.state === ArbiterState.RENDER_OM || this.state === ArbiterState.GAME;
     let loadedList = [];
+    let usedMb = 0;
     try {
-      loadedList = getLoadedModels().map(m => m.identifier);
+      const models = getLoadedModels();
+      loadedList = models.map(m => m.identifier);
+      for (const m of models) {
+        const bytes = Number(m.sizeBytes) || 0;
+        if (bytes > 0) usedMb += Math.round(bytes / (1024 * 1024));
+      }
     } catch (_) {}
 
+    // ~18 GB usable budget on 7900 XT after desktop reserve (protocol §1)
+    const usableMb = 18432;
+    const free_vram_mb = usedMb > 0 ? Math.max(0, usableMb - usedMb) : null;
+
     return {
+      // v0.1.4 external contract aliases
+      mode: this.state,
+      locked: isLocked,
+      free_vram_mb,
+      // internal / legacy
       state: this.state,
       isTraining: this.state === ArbiterState.TRAINING,
       isGame: this.state === ArbiterState.GAME,
@@ -95,10 +110,13 @@ class GpuArbiter {
       // 向后兼容旧版 /api/gpu/status data
       gpuLock: {
         isLocked,
+        locked: isLocked,
         owner: this.currentOwner,
         acquiredAt: this.lockedAt,
         mode: this.state,
-        restore_pending: this.restorePending
+        restore_pending: this.restorePending,
+        loaded_models: loadedList,
+        free_vram_mb
       }
     };
   }
@@ -263,7 +281,7 @@ class GpuArbiter {
     model = ''
   } = {}) {
     if (!owner) {
-      return { success: false, reason: 'OWNER_REQUIRED', message: 'owner is required' };
+      return { success: false, reason: 'INVALID_PAYLOAD', message: 'owner is required' };
     }
 
     // CHG-024: server-side hard reject oversize / Wan 14B class
@@ -298,7 +316,6 @@ class GpuArbiter {
       return {
         success: false,
         reason: 'GAME_MODE',
-        retry_after: 300,
         message: 'GPU 目前处于游戏模式 (人类独占)，暂不可用'
       };
     }
@@ -436,7 +453,7 @@ class GpuArbiter {
     targetDeepModel = this.defaultDeepModel
   } = {}) {
     if (!owner) {
-      return { success: false, reason: 'OWNER_REQUIRED', message: 'owner is required' };
+      return { success: false, reason: 'INVALID_PAYLOAD', message: 'owner is required' };
     }
 
     // 若从游戏模式退出

@@ -2932,9 +2932,13 @@ global.gpuLock = gpuArbiter.getStatus().gpuLock;
 
 // 申请 GPU 锁 (接入 gpuArbiter 统一真相源，遵循 gpu-resource-protocol v1)
 app.post('/api/gpu/acquire', async (req, res) => {
-  const { owner, purpose, exclusive, vram_mb_estimate, ttl_seconds } = req.body || {};
+  const { owner, purpose, exclusive, vram_mb_estimate, ttl_seconds, model } = req.body || {};
   if (!owner) {
-    return res.status(400).json({ success: false, error: 'owner is required' });
+    return res.status(200).json({
+      success: false,
+      reason: 'INVALID_PAYLOAD',
+      message: 'owner is required'
+    });
   }
 
   const result = await gpuArbiter.acquireExternalLock({
@@ -2942,7 +2946,8 @@ app.post('/api/gpu/acquire', async (req, res) => {
     purpose: purpose || 'local_render',
     exclusive: exclusive !== false,
     vram_mb_estimate: Number(vram_mb_estimate) || 8000,
-    ttl_seconds: Number(ttl_seconds) || 900
+    ttl_seconds: Number(ttl_seconds) || 900,
+    model: model || ''
   });
 
   // 同步更新兼容引用
@@ -2959,7 +2964,11 @@ app.post('/api/gpu/acquire', async (req, res) => {
 app.post('/api/gpu/release', async (req, res) => {
   const { owner, restore } = req.body || {};
   if (!owner) {
-    return res.status(400).json({ success: false, error: 'owner is required' });
+    return res.status(200).json({
+      success: false,
+      reason: 'INVALID_PAYLOAD',
+      message: 'owner is required'
+    });
   }
 
   const result = await gpuArbiter.releaseExternalLock({

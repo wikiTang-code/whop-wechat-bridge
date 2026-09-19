@@ -278,6 +278,10 @@ if (rejRent.success !== false || rejRent.reason !== 'GAME_MODE') {
   console.error('❌ 游戏期间未正确拒绝其他租户:', rejRent);
   process.exit(1);
 }
+if (Object.prototype.hasOwnProperty.call(rejRent, 'retry_after')) {
+  console.error('❌ GAME_MODE 不得带 retry_after（v0.1.4 人类挂起）:', rejRent);
+  process.exit(1);
+}
 // 退出游戏模式
 const exitRes = await gpuArbiter.exitGameMode({ restore: 'deep' });
 if (!exitRes.success) {
@@ -330,9 +334,24 @@ if (gpuArbiter.state === ArbiterState.RENDER_OM) {
 }
 console.log('  ✅ CHG-024 拒载与假成功闭环通过');
 
+// 7. CHG-025 / v0.1.4: status aliases + INVALID_PAYLOAD
+console.log('\n[测试 7] CHG-025 / v0.1.4 status 契约与 INVALID_PAYLOAD...');
+setRuntimeAdapterForTest(mock);
+const st = gpuArbiter.getStatus();
+if (st.mode !== st.state || typeof st.locked !== 'boolean' || !('free_vram_mb' in st)) {
+  console.error('❌ status 缺少 mode/locked/free_vram_mb:', st);
+  process.exit(1);
+}
+const bad = await gpuArbiter.acquireExternalLock({});
+if (bad.success !== false || bad.reason !== 'INVALID_PAYLOAD' || Object.prototype.hasOwnProperty.call(bad, 'retry_after')) {
+  console.error('❌ INVALID_PAYLOAD 契约不符:', bad);
+  process.exit(1);
+}
+console.log('  ✅ status aliases + INVALID_PAYLOAD 通过');
+
 // 恢复适配器单例
 resetRuntimeAdapter();
 
 console.log('\n===========================================================');
-console.log('🎉 GpuArbiter 所有时分复用、跨项目协议与 CHG-022/024 门禁单测全部验证通过！');
+console.log('🎉 GpuArbiter 所有时分复用、跨项目协议与 CHG-022/024/025 门禁单测全部验证通过！');
 console.log('===========================================================');

@@ -8,6 +8,25 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · GPU 协议 v0.1.4 · Cursor 独立审阅签收（`agent:cursor`）
+
+**范围**：权威正文 `C:\Users\86597\.cursor\shared-protocols\gpu-resource-protocol.md` **v0.1.4** · Whop `gpu-arbiter` / `server.js` `/api/gpu/*`  
+**审阅方**：Whop `agent:cursor`  
+**总评**：**接受（`accepted-with-gates`）。§7 不重开。** OM 四项增量全部成立；Cursor 做了三处合同澄清并落地 **CHG-025**。
+
+| # | OM 0.1.4 增量 | 裁量 | 门禁 / 落地 |
+|---|---------------|------|-------------|
+| 1 | 原因分类：可重试 vs 致命 vs GAME | **接受** | 补全可重试：`RENDER_BUSY`/`SUPERVISOR_UNREACHABLE`；**`GAME_MODE` 禁止带 `retry_after`**（原先 300s 会误导成可轮询） |
+| 2 | 心跳仅续 TTL、禁重复 unload | **接受 · 已实现** | 同 owner + `RENDER_OM` 早退路径已满足；单测覆盖 |
+| 3 | Status JSON Schema | **接受 · 有缺口** | CHG-025：补 `mode`/`locked`/`free_vram_mb`（可 null）；保留 `state`/`data.gpuLock` 兼容 |
+| 4 | ROCm `del`+`gc`+`empty_cache`；Mirrored 网关 | **接受 · OM 侧** | 合同 §5.9–5.10；Whop 不代改 OM 仓 |
+
+**合同内自洽修补（Cursor）**：§5.2 原写 GAME「wait」与分类「fast-fail」冲突 → 已改为 TRAIN/RENDER 可等、GAME 快失败。
+
+**审修状态**：**协议签收 Done** · **CHG-025 代码 Done** · 可移交 §0.R-B 抽审
+
+---
+
 ### 2026-09-19 · gemini1 GPU 工程审视 → 合同 v0.1.3 + CHG-024（`agent:cursor`）
 
 **范围**：权威正文 `gpu-resource-protocol.md` **v0.1.3** · `tools/gpu-arbiter.js` · `tools/ai-runtime-adapter.js` · `tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js`  
@@ -22,7 +41,7 @@
 | 4 | TTL 心跳 | **已有 · 写明** | §5.8 每 2–3 min / 每镜 re-acquire（§7.5 未改） |
 | 5 | 服务端拒 Wan 14B | **接受** | `VRAM_EXCEEDED_20GB_BUDGET`（estimate>16GB 或 wan14 类 token） |
 
-**审修状态**：代码 `Done` · 移交 §0.R-B gemini 抽审 **Queued**
+**审修状态**：**`Done`（accepted · Gemini 抽审通过 · 34 项单测全绿）**
 
 ---
 
