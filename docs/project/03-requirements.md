@@ -84,7 +84,7 @@
 | CHG-020 | `done` | **/health 暴露 process.gitCommit + gcp_health_bundle 探测 restart_drift（闭环 Q-002 漏重启发现信号）** | 2026-09-19 `agent:gemini` · `monitoring/health.js` · `test_health_git_commit_q002.js` · 单测全绿 |
 | CHG-021 | `done` | **跨项目 GPU 独占调度协议契约与 GpuArbiter 融合落地**（骨架：v1 HTTP 代理 Arbiter、TTL、release 异步恢复 14B）。**Cursor 2026-09-19 抽审 `accepted-with-gates`**：`monitor.js` 仍改写 `global.gpuLock`；acquire 未按 `vram_mb_estimate`/`exclusive` 探测共存；未显式 keep 1.5B；默认 adapter 仍 `lms` 且 `:18080` 可能不通。残留见 07 置顶。 | 2026-09-19 `agent:gemini` 骨架 · `agent:cursor` 冻结 §7 |
 | CHG-022 | `done` | **闭环 CHG-021 门禁项**（`monitor.js` 接入统一 Arbiter 消除裂痕；`exclusive`/`vram_mb_estimate` ≤4GB 轻量共存决策；卸 14B 显式 keep 1.5B 快车道保活；GAME 模式一秒排空与 CLI 联动；暴露 `restore_pending` 与动态模型状态） | 2026-09-19 `agent:gemini` · `monitor.js` · `tools/gpu-arbiter.js` · `scripts/lms_load.js` · `test/test_gpu_cli_arbiter.js` · 33 项单测全绿 |
-| CHG-023 | `done` | **WSL AI 切流锁定**：Windows `127.0.0.1:8080` ≡ WSL llama-server（portproxy 或 userspace bridge）；默认 `AI_RUNTIME_BACKEND=wsl`；废 8081；开机 `cutover`→`ssh -R 8080`；方案 §7 | 2026-09-19 `agent:cursor` · 自验 `cutoverOk=true` / fingerprint=`wsl_llama` |
+| CHG-023 | `done` | **WSL AI 切流锁定**：Windows `127.0.0.1:8080` 独占指向 WSL `llama-server`；默认 `AI_RUNTIME_BACKEND=wsl`；废 8081 bridge；开机 `cutover`→`ssh -R 8080`；方案 §7 拓扑权威 | 2026-09-19 `agent:cursor` 落地 · `agent:gemini` 抽审通过 · `tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js` · 单测全绿 |
 
 ---
 

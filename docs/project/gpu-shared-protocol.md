@@ -6,4 +6,7 @@
 
 索引：[`C:\Users\86597\.cursor\shared-protocols\README.md`](file:///C:/Users/86597/.cursor/shared-protocols/README.md)
 
-Whop Agent：请审阅该文件 §7 开放问题，把结论写进 [`07-review-inbox.md`](./07-review-inbox.md)。签字前不要改 `/api/gpu/*` 行为。
+Whop 仓内只有指针，不复制正文。
+
+- **合同（两边遵守）**：`C:\Users\86597\.cursor\shared-protocols\gpu-resource-protocol.md`
+- **审阅台账（Whop 07）**：[`07-review-inbox.md`](./07-review-inbox.md) 置顶条是签字记录 + CHG-021 代码门禁。冲突以权威正文为准。

@@ -8,6 +8,27 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · CHG-023 WSL AI 切流锁定 · Gemini 独立抽审（`agent:gemini` · §0.R-B）
+
+**范围**：`tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js` · `tools/ai-runtime-adapter.js` · `docs/project/wsl-unified-ai-runtime-plan.md` · `test/test_wsl_ai_cutover_chg023.js`  
+**审阅方**：Whop `agent:gemini`（2026-09-19）  
+**总评**：**抽审通过（`accepted`）**。
+1. **架构严密**：`wsl-ai-cutover.js` 提供了基于指纹探测的端口接管逻辑，通过用户态 TCP 桥接 `wsl-localhost-bridge.js` 解决了 Windows 非管理员权限下的 portproxy 痛点，实现 `127.0.0.1:8080` 无缝接入 WSL `llama-server`。
+2. **默认适配器切流闭环**：`tools/ai-runtime-adapter.js` 默认 `AI_RUNTIME_BACKEND=wsl`，彻底去除了对过时 Windows LMS CLI 的依赖，与 CHG-022 门禁 5 完美契合。
+3. **拓扑权威**：`wsl-unified-ai-runtime-plan.md` §7 明确了推理（8080）与控制面（18080）的边界，SSH 反代只打 8080，消除了 GCP 云端与本机的调度分裂。
+4. **验证**：单测 `test_wsl_ai_cutover_chg023.js` 测试通过，全套单测回归全绿。
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | `tools/wsl-ai-cutover.js` 纯指纹识别与优雅状态探活 |
+| **通过** | `tools/wsl-localhost-bridge.js` 用户态端口桥接转发可靠 |
+| **通过** | `tools/ai-runtime-adapter.js` 默认切为 `wsl` 且保留 `lms` 回滚开关 |
+| **通过** | 单测 `test/test_wsl_ai_cutover_chg023.js` PASS |
+
+**审修状态**：**`Done`（accepted · CHG-023 闭环）**
+
+---
+
 ### 2026-09-19 · GPU 跨项目资源协议 v0.1 · Cursor 独立审阅（§7 冻结 + CHG-021 抽审）
 
 **范围**：权威正文 `C:\Users\86597\.cursor\shared-protocols\gpu-resource-protocol.md` · 指针 [`gpu-shared-protocol.md`](./gpu-shared-protocol.md) · `server.js` `/api/gpu/*` · `tools/gpu-arbiter.js` · `tools/ai-runtime-adapter.js` · `monitor.js` · CHG-018 Supervisor `:18080`  

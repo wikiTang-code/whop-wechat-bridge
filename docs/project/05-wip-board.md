@@ -62,6 +62,7 @@
 | §0.R-A cursor | **CHG-020 / Q-002 漏重启发现信号与探针抽审** | **Queued** |
 | §0.R-B gemini | **GPU 跨项目资源协议 v0.1-draft**（自签；已被 Cursor 置顶冻结覆盖） | **Done** |
 | §0.R-A cursor | **GPU 协议 v0.1 + CHG-021 抽审**（§7 冻结；骨架 accepted-with-gates） | **Done** |
+| §0.R-B gemini | **CHG-023 WSL AI 切流锁定抽审** | **Done**（通过） |
 
 ### 共享候选池
 
@@ -110,6 +111,7 @@
 | CHG-020 | L2/L4 | 漏重启发现信号与探针闭环（Q-002 Done） | `agent:gemini` | Done | `/health` 暴露 `process.gitCommit`，`gcp_health_bundle` 自动计算 `restart_drift` |
 | CHG-021 | L2/L3 | 跨项目 GPU 独占调度协议契约与 GpuArbiter 融合落地（Whop × OpenMontage 互斥；v1 HTTP 契约、自动恢复 14B） | `agent:gemini` | Done | `server.js` · `tools/gpu-arbiter.js` · 单测全绿 |
 | CHG-022 | L2/L3 | 闭环 CHG-021 门禁项（`monitor.js` 接入 Arbiter、共存决策、卸 14B 显式 keep 1.5B、GAME CLI 联动、暴露 `restore_pending`） | `agent:gemini` | Done | `monitor.js` · `tools/gpu-arbiter.js` · `scripts/lms_load.js` · 33 项单测全绿 |
+| CHG-023 | L2/L3 | WSL AI 切流锁定（Win:8080独占指向WSL llama-server；默认 backend=wsl；废 8081；方案 §7） | `agent:cursor` | Done | `tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js` · 单测全绿 |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 
