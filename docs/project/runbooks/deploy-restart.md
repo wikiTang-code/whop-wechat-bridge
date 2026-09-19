@@ -13,7 +13,9 @@
 | `catalog`/local-ops 本机栈 | 影响本机 `ops:http`，**非**生产 pm2 | 本机 |
 | 依赖/原生模块/环境变量语义变 | **倾向双进程均 restart** | human |
 
-漏重启发现（待 Q-002 强化）：看 `/health` 或 pm2 `uptime`/`git` 与期望 SHA 是否一致。
+漏重启发现（Q-002 已决闭环·`CHG-020`）：
+- `/health` 根子系统 `subsystems.process.gitCommit` 暴露进程启动时加载的代码 SHA；
+- `gcp_health_bundle.sh`（或本机监控）自动对比当前磁盘 `git rev-parse HEAD` 与 `gitCommit`，直接产出 `restart_drift: true/false` 与 `drift_detail`。若 `restart_drift: true` 则代表代码已更新但进程尚未重启。
 
 ## 2. Go / No-Go 最小清单
 

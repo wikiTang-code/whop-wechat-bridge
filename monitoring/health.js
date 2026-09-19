@@ -12,6 +12,28 @@ import { getRouteCoverageSnapshot } from './route-coverage-probe.js';
 import { getTunnelStatus } from './tunnel-launcher.js';
 import { getCachedDataConsistencySnapshot } from './data-consistency-probe.js';
 import { getSoftDegradeSnapshot } from './soft-degrade-registry.js';
+import { execSync } from 'node:child_process';
+
+let cachedProcessGitCommit = null;
+
+/** Returns the git commit SHA active when this process started (CHG-020/Q-002) */
+export function getProcessGitCommit() {
+  if (cachedProcessGitCommit !== null) return cachedProcessGitCommit;
+  if (process.env.GIT_COMMIT_SHA) {
+    cachedProcessGitCommit = process.env.GIT_COMMIT_SHA.trim();
+    return cachedProcessGitCommit;
+  }
+  try {
+    cachedProcessGitCommit = execSync('git rev-parse HEAD', { encoding: 'utf-8', timeout: 3000 }).trim();
+  } catch (_) {
+    cachedProcessGitCommit = 'unknown';
+  }
+  return cachedProcessGitCommit;
+}
+
+export function setProcessGitCommitForTest(sha) {
+  cachedProcessGitCommit = sha;
+}
 
 let aiTunnelGetter = null;
 let ingestHeartbeatDbGetter = null;
@@ -64,6 +86,7 @@ export function buildHealthPayload() {
       pid: process.pid,
       uptimeSec: Math.round(process.uptime()),
       memoryRssMb: Math.round(process.memoryUsage().rss / 1024 / 1024),
+      gitCommit: getProcessGitCommit(),
     },
     eventLoop: {
       status: eventLoop.level || 'unknown',

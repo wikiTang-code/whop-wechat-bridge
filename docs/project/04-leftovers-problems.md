@@ -56,7 +56,7 @@
 | Q | 问题 | 决策人 | 状态 |
 |---|------|--------|------|
 | Q-001 | GEX→GCP：SCP / 制品 / 其它？ | human | **interim 已决：SCP**（`sync_latest_to_gcp.js`）；制品通道可再改 |
-| Q-002 | 漏重启用何信号发现？ | human+L4 | open |
+| Q-002 | 漏重启用何信号发现？ | human+L4 | **Done**（`CHG-020`：`/health` 暴露 `process.gitCommit`，`gcp_health_bundle` 自动计算 `restart_drift` 与 `drift_detail`） |
 | Q-003 | 每次拉链是否 commit `latest.json`？ | — | **已决：否；仅里程碑**（§1.1） |
 | Q-004 | P5 是否加 CI `place_order` grep？ | L5 | decided：单测+load-catalog 硬拒；catalog 文本禁 place_order |
 | Q-005 | 跟单确认通道：企微业务卡片 vs Dashboard 移动页？ | human | **已决：企微业务确认卡片**（盘中 90s 时效；≠ `/ops`） |

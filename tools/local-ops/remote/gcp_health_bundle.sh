@@ -15,7 +15,15 @@ subs = j.get("subsystems") or {}
 compact = {}
 if isinstance(subs, dict):
     for k, v in subs.items():
-        compact[k] = v.get("status") if isinstance(v, dict) else v
+        if k == "process" and isinstance(v, dict):
+            compact[k] = {
+                "status": v.get("status"),
+                "pid": v.get("pid"),
+                "uptimeSec": v.get("uptimeSec"),
+                "gitCommit": v.get("gitCommit")
+            }
+        else:
+            compact[k] = v.get("status") if isinstance(v, dict) else v
 print(json.dumps({"ok": j.get("ok"), "status": j.get("status"), "subsystems": compact}, ensure_ascii=False))
 PY
 )"
@@ -50,10 +58,22 @@ python3 - "$health_json" "$pm2_json" "$sha" "$short" "$branch" <<'PY'
 import json, sys
 health = json.loads(sys.argv[1])
 pm2 = json.loads(sys.argv[2])
+disk_sha = sys.argv[3]
+proc = (health.get("subsystems") or {}).get("process")
+proc_commit = proc.get("gitCommit") if isinstance(proc, dict) else None
+restart_drift = False
+if proc_commit and proc_commit != "unknown" and disk_sha:
+    restart_drift = not disk_sha.startswith(proc_commit) and not proc_commit.startswith(disk_sha)
 print(json.dumps({
     "ok": bool(health.get("ok")),
     "health": health,
     "pm2": pm2,
     "git": {"sha": sys.argv[3], "short": sys.argv[4], "branch": sys.argv[5]},
+    "restart_drift": restart_drift,
+    "drift_detail": {
+        "disk_sha": disk_sha,
+        "process_commit": proc_commit,
+        "restart_drift": restart_drift
+    } if restart_drift else None
 }, ensure_ascii=False))
 PY

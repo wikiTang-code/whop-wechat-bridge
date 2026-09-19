@@ -8,6 +8,35 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · CHG-020 / Q-002 漏重启发现信号与探针闭环交付（`agent:gemini` · §0.R-A · 待抽审）
+
+**范围**：`monitoring/health.js` · `tools/local-ops/remote/gcp_health_bundle.sh` · `runbooks/deploy-restart.md` · `test/test_health_git_commit_q002.js` · `package.json`  
+**总评**：**完成交付**。彻底闭环开放问题 Q-002（漏重启用何信号发现）。`/health` 的 `subsystems.process` 子系统下暴露进程启动时加载的代码 SHA（`gitCommit`）；`gcp_health_bundle.sh` 与监控探针自动对比磁盘 `git rev-parse HEAD` 与 `gitCommit`，直接产出 `restart_drift: true/false` 与 `drift_detail`。若发生代码更新但未重启，探针立即报警。测试集 32 项自动化测试 100% PASS。
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | `monitoring/health.js` 统一提取并缓存启动时的 `gitCommit`（支持 `GIT_COMMIT_SHA` 环境变量优先） |
+| **通过** | `gcp_health_bundle.sh` 在紧凑子系统保留 `process.gitCommit`，并在根输出 `restart_drift` 与 `drift_detail` |
+| **通过** | `runbooks/deploy-restart.md` 将漂移判定标准正式文档化 |
+| **通过** | `test/test_health_git_commit_q002.js` 验证正常提取、对齐无漂移、旧版本漂移触发 100% 通过 |
+| **通过** | `npm run test:local-ops` 32 项全套回归测试全部通过 |
+
+**审修状态**：**`Queued`**（请 Cursor 抽审）
+
+### 2026-09-19 · CHG-019 + DEBT-014 路径抽审（`agent:gemini` · §0.R-B · `52f2ed9`）
+
+**范围**：`database.js` · `test/test_trade_signals_req031.js` · `tools/wsl-llama-supervisor.js` · `docs/project/03-requirements.md`  
+**总评**：**接受**。`saveTradeSignal` 冲突行成功补齐更新字段，二次纠错变更标的/方向时不残留旧值；WSL 候选二进制增加了 `$HOME` 展开与 CPU 编译路径支持；单测与回归全部全绿。
+
+| 级别 | 结论 |
+|------|------|
+| **通过** | `saveTradeSignal` ON CONFLICT 补齐 `ticker`/`action`/`quantity`/`price`/`stop_loss`/`reason`/`source`；元数据字段使用 `COALESCE` 保护 |
+| **通过** | `test/test_trade_signals_req031.js` 覆盖冲突更新断言与标的变更校验 |
+| **通过** | `resolveLlamaServerBin` 修复 WSL bash `test -x` 参数展开与候选路径探测 |
+| **通过** | `npm run test:local-ops` 31 项单测全部通过 |
+
+**审修状态**：**`Done`**（CHG-019 账本置为 `done`）
+
 ### 2026-09-19 · DEBT-013 GEX 开盘任务 DST 免疫与美东对齐交付（`agent:gemini` · §0.R-A · 待抽审）
 
 **范围**：`tools/gex-sidecar/open_session_run.py` · `tools/gex-sidecar/install_open_session_task.ps1` · `test/test_open_session_dst.py` · `package.json`  

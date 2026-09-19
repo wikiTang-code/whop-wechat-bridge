@@ -22,7 +22,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（常驻流水线：队头 #90 CONL 等待企微点击，用户手机端操作即自动级联推进下一笔，进度 10.7%） | `follow-replay-engine.js` · `server.js` | **Standing (Active)** |
-| 2 | — | — | （空位；DEBT-013 GEX 开盘任务 DST 免疫与时区感知对齐闭环交付，自动化测试 31 项 100% PASS） | — | — |
+| 2 | — | — | （空位；CHG-020 / Q-002 漏重启发现信号已闭环，/health 暴露 gitCommit + 漂移判定，32 项单测全绿） | — | — |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -37,6 +37,7 @@
 |----|------|:----:|
 | REQ-002 | 生产 ff | 等待 |
 | Q-001 | GEX→GCP 通道 | interim=SCP（可再改） |
+| Q-002 | 漏重启用何信号发现？ | **Done**（`CHG-020`：`/health` 暴露 `process.gitCommit`，`gcp_health_bundle` 自动计算 `restart_drift`） |
 | Q-006 | REQ-037 视觉模型：本地 VL vs 云端 | open（倾向本地） |
 | Q-007 | CHG-018：关 Windows LM Studio 切流？ | **Done**（Human 2026-09-19 确认已关 LMS 且切流试用 OK） |
 
@@ -58,6 +59,7 @@
 | §0.R-A cursor | **REQ-037 query CLI minConfidence（`a764c25`+fix）** | **Done** |
 | §0.R-A cursor | **DEBT-013 GEX 开盘任务 DST 免疫对齐抽审** | **Queued** |
 | §0.R-B gemini | **CHG-019 + DEBT-014 路径抽审（`52f2ed9`）** | **Done** |
+| §0.R-A cursor | **CHG-020 / Q-002 漏重启发现信号与探针抽审** | **Queued** |
 
 ### 共享候选池
 
@@ -103,6 +105,7 @@
 | CHG-016 | L2 | 看板日期过滤强绑定北京时间 (+08:00) 闭环 | `agent:gemini` | Done | `3dc07c2` · 生产单进程重启生效 |
 | CHG-018 | L2/L3 | 统一 WSL2 AI 运行时（Q-007 Done；DEBT-014 代码路径 Done） | `agent:gemini` / cursor | Done | 装二进制后满血 |
 | DEBT-013 | L2 | GEX 开盘任务夏/冬令时（DST）自动对齐加固 | `agent:gemini` | Done | `open_session_run.py` 美东自适应对齐，Task 锚定最早唤醒，单测全绿 |
+| CHG-020 | L2/L4 | 漏重启发现信号与探针闭环（Q-002 Done） | `agent:gemini` | Done | `/health` 暴露 `process.gitCommit`，`gcp_health_bundle` 自动计算 `restart_drift` |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 
