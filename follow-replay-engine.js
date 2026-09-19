@@ -27,6 +27,13 @@ export function getBaseUrl() {
   if (process.env.PUBLIC_URL) return process.env.PUBLIC_URL;
   if (process.env.TUNNEL_URL) return process.env.TUNNEL_URL;
   try {
+    const runtimeFile = path.join(__dirname, 'data', 'runtime', 'tunnel_url.json');
+    if (fs.existsSync(runtimeFile)) {
+      const parsed = JSON.parse(fs.readFileSync(runtimeFile, 'utf8'));
+      if (parsed?.status === 'ok' && parsed?.url && parsed.url.startsWith('http')) {
+        return parsed.url.trim();
+      }
+    }
     const tunnelFile = path.join(__dirname, 'data', 'tunnel_url.txt');
     if (fs.existsSync(tunnelFile)) {
       const u = fs.readFileSync(tunnelFile, 'utf8').trim();

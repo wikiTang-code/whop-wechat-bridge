@@ -31,6 +31,8 @@ import { createGexReadonlyRouter } from '../monitoring/gex-readonly.js';
 import { refreshRouteCoverageSnapshot } from '../monitoring/route-coverage-probe.js';
 import { refreshDataConsistencySnapshot } from '../monitoring/data-consistency-probe.js';
 
+import followReplayRouter from '../routes/follow_replay_routes.js';
+
 // 必须早于鉴权/业务读取：PM2 sample 不注入 .env，与单体 server.js 对齐
 dotenv.config();
 
@@ -63,6 +65,9 @@ app.use('/gex-html', express.static(path.resolve('data/gex'), { index: false, fa
 app.get('/monitoring', (_req, res) => {
   res.sendFile(path.resolve('public/monitoring.html'));
 });
+
+// 挂载交易单回放校验与纠错路由 (置于写拦截器前，支持微信内一键点击与纠错表单提交)
+app.use(followReplayRouter);
 
 // 全局写操作物理拦截中间件 (拦截非 GET/HEAD/OPTIONS 请求返回 403)
 app.use(readonlyWriteBlockerMiddleware);
