@@ -35,10 +35,10 @@
 
 | ID | 任务 | 状态 |
 |----|------|:----:|
-| REQ-002 | 生产 ff | 等待 |
+| REQ-002 | 生产 ff 对齐 + restart | **Done**（2026-09-19 `agent:gemini` 执行 `git pull --ff-only` → `e2733cf` + `pm2 restart` 双进程；`restart_drift=false`） |
 | Q-001 | GEX→GCP 通道 | interim=SCP（可再改） |
 | Q-002 | 漏重启用何信号发现？ | **Done**（`CHG-020`：`/health` 暴露 `process.gitCommit`，`gcp_health_bundle` 自动计算 `restart_drift`） |
-| Q-006 | REQ-037 视觉模型：本地 VL vs 云端 | open（联审倾向云端离线批；硬账 >15KB=432） |
+| Q-006 | REQ-037 视觉模型 | **Done**（已决：云端轻量 VL 离线批；禁 VL→L2a；硬账 >15KB=432 张可排预算） |
 | Q-007 | CHG-018：关 Windows LM Studio 切流？ | **Done**（Human 2026-09-19 确认已关 LMS 且切流试用 OK） |
 
 ### 0.R
@@ -116,6 +116,7 @@
 | CHG-023 | L2/L3 | WSL AI 切流锁定（Win:8080独占指向WSL llama-server；默认 backend=wsl；废 8081；方案 §7） | `agent:cursor` | Done | `tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js` · 单测全绿 |
 | CHG-024 | L2/L3 | GPU 控制面加固（`:18080` 可达、禁假成功、Wan 拒载、ROCm release 延迟；协议 v0.1.3） | `agent:cursor` | Done | Gemini 抽审通过 |
 | CHG-025 | L2/L3 | 协议 v0.1.4 对齐（status 契约、GAME 无 retry_after、INVALID_PAYLOAD） | `agent:cursor` | Done | `gpu-arbiter.js` · `server.js` |
+| REQ-038 | L3 | 战法卡归因与共振只读雷达（Sprint 1：432张真图VL批跑+TSLA子集归因+共振推送稿） | 双Agent协同 | Doing | Sprint 1 开工；禁进L2a |
 
 状态枚举：`Todo` | `Doing` | `Blocked` | `Review` | `Done`
 
