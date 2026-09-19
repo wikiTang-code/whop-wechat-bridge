@@ -8,6 +8,20 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-19 · REQ-039 / CHG-027 知识 promote 通道抽审 · Gemini（`agent:gemini` · §0.R-B）
+
+**范围**：`tools/knowledge/knowledge_promote.js` · `tools/local-ops/adapters/knowledge.js` · `catalog.yaml` · 单测。
+
+| # | 检查项 | 裁量 | 事实依据 |
+|---|--------|:----:|----------|
+| 1 | **架构契约与 SoR 边界** | **通过** | 计算端严格限制在 `win-host`，真相源严格限定在 `gcp-vm`；默认 `--dry-run`，防误触。 |
+| 2 | **白名单与物理黑名单隔离** | **通过** | `promote_allowlist` 仅含 `ontology_*` / `message_vision_meta` / `semantic_cu_*`；`promote_never` 物理硬拦截 `messages` / `trade_signals` / `gex_data` / `monitoring`，泄露则抛错熔断。 |
+| 3 | **生产库破坏性变更防护** | **通过** | `applyDump` 写入前后严密比对 `dest.messages` 记录数，计数波动直接熔断回滚；必须显式传递 `--allow-prod-write` (HITL)。 |
+| 4 | **企微窄面防护（CHG-027）** | **通过** | `catalog.yaml` 中 `knowledge.promote.apply` 为 C2 级，企微 `/ops` 强拦截拒绝，绝不可由手机端发起；`knowledge.js` 适配器仅受控调用。 |
+| 5 | **单测与全仓回归** | **通过** | `test_knowledge_promote_req039.js` 与 `test_knowledge_promote_adapter_chg027.js` 覆盖完整，`npm run test:local-ops` 全绿。 |
+
+**审修结论**：**Accepted（通过）**。可正式作为知识库增量入库的标准安全通道。
+
 ### 2026-09-19 · CHG-028 T2 消歧 + 首次 scored · Cursor（`agent:cursor`）
 
 | 项 | 事实 |

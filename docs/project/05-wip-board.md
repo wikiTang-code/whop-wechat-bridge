@@ -66,7 +66,7 @@
 | §0.R-B gemini | **CHG-023 WSL AI 切流锁定抽审** | **Done**（通过） |
 | §0.R-B gemini | **CHG-024 GPU 控制面加固抽审** | **Done**（通过） |
 | §0.R-B gemini | **CHG-025 / 协议 v0.1.4 对齐抽审** | **Done**（通过） |
-| §0.R-B gemini | **REQ-039 / CHG-027 知识 promote 通道抽审** | **Queued** |
+| §0.R-B gemini | **REQ-039 / CHG-027 知识 promote 通道抽审** | **Done**（通过） |
 | §0.R-A cursor | **REQ-038 Sprint 1 开工规划抽审** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-038-T1 VL 离线批跑管道与门禁抽审（`bdb0804`）** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-038-T3 规范与引擎抽审** | **Done**（accepted-with-gates） |

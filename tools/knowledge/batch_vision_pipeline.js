@@ -26,7 +26,8 @@ const MEDIA_DIR = path.join(ROOT_DIR, 'data/media/zhao');
 
 export const MIN_VALID_BYTES = 15 * 1024; // > 15KB
 export const VALID_EXTS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.bmp']);
-export const DEFAULT_MODEL = process.env.VL_MODEL || 'gemini-3.6-flash';
+export const DEFAULT_MODEL = process.env.VL_MODEL || 'gemini-flash-latest';
+export const FALLBACK_MODELS = ['gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
 export const EST_COST_PER_IMAGE_USD = 0.0015; // 预估单图费用
 
 /**
@@ -205,8 +206,10 @@ export async function extractImageVl(imageItem, options = {}) {
   "hand_drawn_annotation": "黄色手绘箭头指向 210.5 支撑线"
 }`;
 
-  try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  const candidateModels = [model, ...FALLBACK_MODELS.filter((m) => m !== model)];
+  
+  for (const curModel of candidateModels) {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${curModel}:generateContent`;
     const reqPayload = {
       contents: [
         {
@@ -227,8 +230,10 @@ export async function extractImageVl(imageItem, options = {}) {
       },
     };
 
-    const maxRetries = 3;
+    const maxRetries = 2;
     let attempt = 0;
+    let modelQuotaExhausted = false;
+
     while (attempt <= maxRetries) {
       try {
         const res = await fetch(endpoint, {
@@ -251,30 +256,45 @@ export async function extractImageVl(imageItem, options = {}) {
           return sanitizeVlOutput(parsed);
         }
 
-        if ((res.status === 429 || res.status === 503) && attempt < maxRetries) {
+        const errText = await res.text();
+        if (res.status === 429) {
+          if (errText.includes('Quota exceeded') || errText.includes('RESOURCE_EXHAUSTED')) {
+            console.warn(`  ⚠️ 模型 ${curModel} 免费配额已达硬限，自动切换到备用模型尝试...`);
+            modelQuotaExhausted = true;
+            break;
+          }
+          if (attempt < maxRetries) {
+            attempt++;
+            const waitSec = 20 + attempt * 10;
+            console.warn(`  ⚠️ 触发 429 速率限制，退避等待 ${waitSec} 秒后重试...`);
+            await new Promise((r) => setTimeout(r, waitSec * 1000));
+            continue;
+          }
+        } else if (res.status === 503 && attempt < maxRetries) {
           attempt++;
-          const waitSec = res.status === 429 ? 20 + attempt * 10 : 10;
-          console.warn(`  ⚠️ 触发 ${res.status} 限流/负载，退避等待 ${waitSec} 秒后进行第 ${attempt}/${maxRetries} 次重试...`);
-          await new Promise((r) => setTimeout(r, waitSec * 1000));
+          console.warn(`  ⚠️ 触发 503 高负载，退避等待 10 秒后重试...`);
+          await new Promise((r) => setTimeout(r, 10000));
           continue;
         }
 
-        const errText = await res.text();
         return { ok: false, error: `API_HTTP_${res.status}: ${errText.slice(0, 120)}` };
       } catch (reqErr) {
         if (attempt < maxRetries) {
           attempt++;
-          console.warn(`  ⚠️ 网络请求异常 (${reqErr.message})，等待 10 秒后进行第 ${attempt}/${maxRetries} 次重试...`);
+          console.warn(`  ⚠️ 网络请求异常 (${reqErr.message})，等待 10 秒后重试...`);
           await new Promise((r) => setTimeout(r, 10000));
           continue;
         }
         return { ok: false, error: reqErr.message };
       }
     }
-    return { ok: false, error: 'EXCEEDED_MAX_RETRIES' };
-  } catch (err) {
-    return { ok: false, error: err.message };
+
+    if (!modelQuotaExhausted) {
+      return { ok: false, error: 'EXCEEDED_MAX_RETRIES' };
+    }
   }
+
+  return { ok: false, error: 'ALL_CANDIDATE_MODELS_QUOTA_EXHAUSTED' };
 }
 
 /**

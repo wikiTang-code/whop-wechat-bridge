@@ -85,7 +85,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
 | **§0.H `human`** | **REQ-002 Done**；Q-001；Q-008 Done；企微 #91 | 等待 / Done |
 | **§0.R-A** | T3 / DEBT-013 / CHG-020 抽审 **Done** | Done |
-| **§0.R-B** | **REQ-039 / CHG-027** 抽审 | Queued |
+| **§0.R-B** | **REQ-039 / CHG-027** 抽审 | **Done** |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 
