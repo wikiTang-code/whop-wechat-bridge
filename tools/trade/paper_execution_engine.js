@@ -16,6 +16,7 @@ import {
   getPaperPositions
 } from '../../database.js';
 import * as defaultBroker from '../../brokers/longbridge.js';
+import { evaluatePreTradeRisk } from './paper_risk_guard.js';
 
 export const AUTO_SUBMIT_ENABLED = false; // 硬编码安全门禁，禁止全自动报送柜台
 
@@ -82,7 +83,34 @@ export function createTradeIntent({
     return rejectedIntent;
   }
 
-  // 默认进入 PENDING_HITL，等待人工核准确认
+  // 4. 事前硬风控评估 (Pre-Trade Risk Gate)
+  const riskCheck = evaluatePreTradeRisk({
+    ticker: normTicker,
+    side: normSide,
+    quantity: parsedQty,
+    price_limit: parsedPrice
+  }, { dbInstance });
+
+  if (!riskCheck.passed) {
+    const riskRejectedIntent = {
+      intent_id: intentId,
+      source,
+      ticker: normTicker,
+      side: normSide,
+      quantity: parsedQty,
+      order_type: 'LIMIT',
+      price_limit: parsedPrice,
+      expires_at: expiresAt,
+      evidence,
+      status: 'REJECTED',
+      reject_reason: riskCheck.reject_reason,
+      created_at: now
+    };
+    saveTradeIntent(riskRejectedIntent, dbInstance);
+    console.warn(`[TradeIntent 风控拦截] 意图 [${intentId}] 未通过事前硬风控: ${riskCheck.reject_reason}`);
+    return riskRejectedIntent;
+  }
+
   const intent = {
     intent_id: intentId,
     source,

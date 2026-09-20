@@ -1,4 +1,4 @@
-import { Config, TradeContext, OutsideRTH } from 'longbridge';
+import { Config, TradeContext, OutsideRTH, OrderType, OrderSide, TimeInForceType, Decimal } from 'longbridge';
 import dotenv from 'dotenv';
 import { savePaperPositions } from '../database.js';
 
@@ -103,6 +103,39 @@ export async function getActivePositions() {
 }
 
 /**
+ * 标准化长桥订单状态枚举 (兼容官方整数枚举 5, 15, 14, 16, 11, 1 与字符串)
+ */
+export function normalizeOrderStatus(status) {
+  if (status === null || status === undefined) return 'UNKNOWN';
+  const str = String(status).trim();
+  // 长桥枚举数值对齐:
+  // 5 = Filled
+  // 15 = Canceled
+  // 14 = Rejected
+  // 16 = Expired
+  // 11 = PartialFilled
+  // 1 = NotReported, 7 = New, 6 = WaitToNew
+  if (str === '5' || str.toLowerCase() === 'filled') return 'FILLED';
+  if (str === '15' || str.toLowerCase() === 'canceled' || str.toLowerCase() === 'cancelled') return 'CANCELLED';
+  if (str === '14' || str.toLowerCase() === 'rejected') return 'REJECTED';
+  if (str === '16' || str.toLowerCase() === 'expired') return 'EXPIRED';
+  if (str === '11' || str.toLowerCase() === 'partialfilled') return 'PARTIAL_FILLED';
+  if (str === '1' || str === '6' || str === '7' || str.toLowerCase() === 'new' || str.toLowerCase() === 'notreported') return 'SUBMITTED';
+  return str.toUpperCase();
+}
+
+/**
+ * 标准化长桥买卖方向枚举 (兼容整数 1: Buy, 2: Sell 与字符串)
+ */
+export function normalizeOrderSide(side) {
+  if (side === null || side === undefined) return 'UNKNOWN';
+  const str = String(side).trim();
+  if (str === '1' || str.toLowerCase() === 'buy') return 'BUY';
+  if (str === '2' || str.toLowerCase() === 'sell') return 'SELL';
+  return str.toUpperCase();
+}
+
+/**
  * 当日委托只读（不下单）
  * @returns {Promise<Array<{ order_id: string, ticker: string, side: string, quantity: number, price: number, status: string }>>}
  */
@@ -115,13 +148,14 @@ export async function getTodayOrders() {
     return {
       order_id: String(o.orderId || o.order_id || o.id || ''),
       ticker,
-      side: String(o.side || ''),
+      side: normalizeOrderSide(o.side),
       quantity: parseInt(o.quantity || '0', 10),
       price: parseFloat(o.price || o.submittedPrice || o.submitted_price || '0'),
-      status: String(o.status || ''),
+      status: normalizeOrderStatus(o.status),
     };
   });
 }
+
 
 /**
  * 向长桥柜台提交交易订单（严格限 Paper 模拟盘模式）
@@ -146,17 +180,21 @@ export async function placeOrder({ ticker, action, quantity, price, outsideRth =
   
   console.log(`[长桥模拟盘/Paper] 正在向模拟柜台提交限价委托: [${side}] ${symbol} | 股数: ${quantity} | 限价: $${price} | 跨时段模式: ${outsideRth}`);
   
+  const orderSide = action.toUpperCase() === 'BUY' ? OrderSide.Buy : OrderSide.Sell;
+  const submittedQuantity = new Decimal(quantity.toString());
+  const submittedPrice = new Decimal(price.toString());
+
   const order = await ctx.submitOrder({
     symbol,
-    side,
-    type: 'Limit', // 采用限价委托保证滑点安全
-    price: price.toString(),
-    quantity: quantity,
-    timeInForce: 'Day', // 当日有效单
+    orderType: OrderType.LO, // 限价单 (Limit Order)
+    side: orderSide,
+    submittedQuantity,
+    submittedPrice,
+    timeInForce: TimeInForceType.Day, // 当日有效单
     outsideRth: rthMode
   });
 
-  const orderId = String(order.order_id || order.orderId || `lb_${Date.now()}`);
+  const orderId = String(order.orderId || order.order_id || `lb_${Date.now()}`);
 
   return {
     success: true,
@@ -195,17 +233,18 @@ export async function pollOrderStatus(orderId, { timeoutMs = 15000, intervalMs =
     const matched = orders.find(o => o.order_id === targetId);
 
     if (matched) {
-      const s = (matched.status || '').toLowerCase();
-      if (s === 'filled' || s === 'fill') {
+      const s = normalizeOrderStatus(matched.status);
+      if (s === 'FILLED') {
         return { status: 'FILLED', order: matched };
       }
-      if (s === 'cancelled' || s === 'canceled') {
+      if (s === 'CANCELLED') {
         return { status: 'CANCELLED', order: matched };
       }
-      if (s === 'rejected' || s === 'failed') {
+      if (s === 'REJECTED') {
         return { status: 'REJECTED', order: matched };
       }
     }
+
 
     await new Promise(resolve => setTimeout(resolve, intervalMs));
   }
