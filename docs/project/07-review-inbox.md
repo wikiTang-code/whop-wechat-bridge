@@ -8,6 +8,27 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-20 · CHG-050 `221a559` Grok ACCEPT WITH NOTES（拍板 B · 禁止 C）
+
+**审阅对象**：`221a559` 源码 + `chg050_params_frozen.json` + `chg050_is_oos_summary.json`。
+
+**Grok 总结论**：**CHG-050 方法学补丁按 done-eng 收下。不是 alpha，不是 Walk-Forward。** 认账与 5m OOS 表与落盘一致。SOXL 置换 p 精确值 **0.0796**。
+
+**拍板 B（锁定）**：P2 到此。057 §6 只当反例和口径教材。禁止进规则 / HUD / `AUTO_SUBMIT`。**不要做 C**（滚动多折再救一版期望）。
+
+P0 仍是夜盘 20:00 ET `night_market_kickoff.js` → 真实 `FILLED` + 持仓真源 + 对账。P1 仍是 Intent：`t_arrive, px_zhao, px_arrive, delta, exec_policy`。回测通过不证明柜台。
+
+**数字不加工**：五标的 OOS 三只 ExitA 为负；没有一只置换 p<0.05；SOXL 0.0796 在 5 次检验下更不够。MU OOS 赵哥 BUY=0。CRWV 是唯一 n≥10（16 笔、12 亏）。ExitB 仍小样本（SOXL n=7 PF 5.45；CRWV n=16、14 亏、PF 0.15）。1m 附页不能进任何表头。
+
+**残留（笔记，不挡收口）**
+1. 每标的单独冻参 = 9 格 × 5 票多重选择；IS 全正、OOS 三负，符合过拟合，不是「规则在样本外活了」。
+2. 置换是均匀抽到 bar.time，不是保时段结构；对「盘中扎堆」零假设偏松。够用，不要写成严格因果检验。
+3. `cooldownBars=12` 在 5m=1h、1m=12min，未按周期折算。
+4. 文件名仍叫 `backtest_walk_forward_rigorous.js`（历史名）；057 §4「87.9%」是**已知赵哥单窗口内的形态检出率**，不是 precision，禁止与 §6 混读。
+5. 仓内单测 11/11 只覆盖合成夹具，**不证明 OOS 表**。复现靠 summary `inputHash` + 本地缓存 + 只读库。
+
+---
+
 ### 2026-09-20 · REQ-057 P2 / CHG-050 exploratory IS/OOS（Grok FAIL-CLOSED → Cursor 落地）
 
 **审阅对象**：`scripts/knowledge/backtest_walk_forward_rigorous.js`、`docs/project/057-turning-point-microstructure-report.md`（HEAD `b0b2c88`）及本轮 CHG-050 补丁。

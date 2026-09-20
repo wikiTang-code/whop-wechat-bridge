@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **CHG-050** | L3 | REQ-057 P2：exploratory IS/OOS holdout（日历40/20、分位数k、冻结网格、置换B=200、TP/FP/FN、Top5×5m/1m） | `scripts/knowledge/lib/exploratory_is_oos.js` · `backtest_walk_forward_rigorous.js` | **done-eng (accepted-with-gap)** |
+| **1** | **CHG-050** | L3 | REQ-057 P2 exploratory holdout。Grok `221a559` **ACCEPT WITH NOTES**，拍板 B | `scripts/knowledge/lib/exploratory_is_oos.js` · `backtest_walk_forward_rigorous.js` | **done-eng (accepted-with-gap)** |
 | 2 | **REQ-038-T2** | L3 | n_scored 扩样；03 已由 gemini1 关单 | `card_attribution.js` | **Done** |
 | 3 | **REQ-040** | L3 | T2 扩样本；03=`done` | `batch_vision*` · `card_attribution*` | **Done** |
 | 4 | **REQ-038-T1** | L3 | Cursor 接管空 SR 重提；03=`done` | `batch_vision*` · `multimodal_context_aligner.js` | **Done** |
@@ -62,6 +62,7 @@
 | Q-007 | CHG-018：关 Windows LM Studio 切流？ | **Done**（Human 2026-09-19 确认已关 LMS 且切流试用 OK） |
 | Q-008 | REQ-038-T1 云端 VL API 密钥 | **Done**（Human 配置纯 Free Tier 密钥；实测 SPY K线真图多模态抽取成功，纯免费 0 扣费） |
 | **企微 #91 CONL** | 解锁 §0.B REQ-033 队头回放 | **等待点击**（阻塞 gemini） |
+| **Paper 夜盘 FILLED** | P0：20:00 ET 跑 `night_market_kickoff.js` 1 股 TSLA | **等待时钟**（回测不证明柜台） |
 
 ### 0.X Blocked 感知表（跨 Owner · 强制可见）
 
@@ -71,6 +72,7 @@
 |--------|----------|------------|----------|----------|:----:|
 | **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini1`** | 赵哥 TSLA 图多为聊天截图无 SR | 关联 `source_text` 预富集修复，扩标池至 12 标的，全库评测 166 张（n_scored=147），提纯 108 张黄金战法 | **Cleared** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
+| **Paper 夜盘未开** | 全队列 P0 | **时钟 / human** | 20:00 ET 前不可能真实 FILLED | 周一 08:00 CST 跑 `night_market_kickoff.js` | **Open** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 
 ### 0.R
@@ -104,7 +106,7 @@
 | §0.R-A cursor | **REQ-042 / CHG-034（`779d055`）抽审** | **Done**（accepted-with-gates · 见 07） |
 | §0.R-A gemini1 | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | **Done**（Accepted · 见 07） |
 | §0.R-C gemini1 | **CHG-046 整改验收与六点门禁钉死（Grok 外部审阅）** | **Done**（ACCEPT WITH NOTES · 见 07） |
-| §0.R-A cursor | **REQ-057 Grok 审阅 + CHG-050 P2 holdout 补丁** | **Done**（exploratory；accepted-with-gap · 见 07） |
+| §0.R-A cursor | **REQ-057 Grok 审阅 + CHG-050 P2 holdout 补丁** | **Done**（Grok `221a559` ACCEPT WITH NOTES · 拍板 B · 见 07） |
 
 ### 共享候选池
 

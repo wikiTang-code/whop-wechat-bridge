@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { getReadOnlyArchiveDb } from '../../monitoring/db-readonly.js';
 import {
@@ -26,6 +26,7 @@ import {
 /**
  * REQ-057 P2 / CHG-050
  * Exploratory calendar IS/OOS holdout (not walk-forward, not alpha).
+ * Historical filename kept; METHOD_LABEL = exploratory_is_oos_holdout.
  *
  * Usage:
  *   node scripts/knowledge/backtest_walk_forward_rigorous.js

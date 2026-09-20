@@ -85,17 +85,17 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **CHG-050** REQ-057 P2 exploratory IS/OOS holdout | done-eng (accepted-with-gap) |
+| **§0.A `agent:cursor`** | **CHG-050** Grok ACCEPT WITH NOTES（拍板 B，禁止 C） | done-eng (accepted-with-gap) |
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 
-| **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
-| **§0.X Blocked** | 040=**Cleared**（扩标回测全量收工）；033→human | **见 05 §0.X** |
+| **§0.H `human`** | 企微 **#91 CONL**；Q-001；**Paper 夜盘 FILLED 等待 20:00 ET** | 等待 |
+| **§0.X Blocked** | 040=**Cleared**；033→human；**夜盘时钟** | **见 05 §0.X** |
 | **§0.R-A** | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | Done |
 | **§0.R-A** | **REQ-042/CHG-034** accepted-with-gates | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |
 | **§0.R-C** | **CHG-046 整改验收与六点门禁钉死（ACCEPT WITH NOTES）** | Done |
-| **§0.R-A** | **REQ-057 Grok 审阅 + CHG-050 P2 holdout** | Done |
+| **§0.R-A** | **REQ-057 / CHG-050 Grok ACCEPT WITH NOTES（拍板 B）** | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 
