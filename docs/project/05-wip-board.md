@@ -44,7 +44,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-055 (SLM)** | L3 | 审核进度每10%里程碑自迭代微调与实战对账单机制（响应人令，达成第1轮10.84%里程碑，生成 v1.1.0-audit-10pct 与 055 对账单，单测全绿） | `scripts/slm/flywheel_engine.js` · `test/test_slm_milestone_pipeline.js` · `docs/project/055*` | **done-eng (accepted-with-gap)** |
+| **1** | **REQ-055 (SLM)** | L3 | 审核进度每10%里程碑自迭代微调与实战对账单机制（响应人令，首轮10%已收口，飞轮优雅待机；人令裁决下一次完整微调与模型更新锁定在 20% 里程碑即 166 笔时执行，尚差 76 笔，单测全绿） | `scripts/slm/flywheel_engine.js` · `test/test_slm_milestone_pipeline.js` · `docs/project/055*` | **done-eng (accepted-with-gap)** |
 | 2 | **REQ-054** | L3 | 交易单人工审核增量联动流水线与 DEBT-021 闭环（90笔审核融合/10笔人工纠偏优先覆盖/746对配对重算/90组SLM黄金样本，单测全绿） | `tools/trade/audit_linked_pnl_pipeline.js` · `docs/project/054*` | **done-eng (accepted-with-gap)** |
 | 3 | **REQ-036** | L3 | 大V专有 SLM 数据飞轮（V1闭环，已增量接收 REQ-054/055 提纯的 90 组人机对齐黄金样本，待 WSL GPU 物理重训） | `scripts/slm/*` · `models/zhao_slm_1.5b_lora` | **Standing (Active)** |
 | 4 | **REQ-038-T2/REQ-040** | L3 | T2 高胜率战法黄金提纯与 Golden Playbook 固化（扩标池回测 n_scored=147，提纯 108/175 张战法；雷达已设物理隔离门禁） | `card_attribution*` · `data/runtime/golden_playbook.json` | **done-eng** |

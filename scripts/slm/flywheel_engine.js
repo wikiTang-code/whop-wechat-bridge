@@ -401,16 +401,18 @@ if (isMainModule) {
     const metrics = queryQueueMetrics();
     const state = getFlywheelState();
     const milestoneReport = checkMilestoneTrigger(metrics, state);
+    const nextMilestone = (milestoneReport.lastMilestone || 0) + 10;
+    const targetItems = Math.ceil((metrics.total * nextMilestone) / 100);
+    const remainingItems = Math.max(0, targetItems - metrics.reviewed);
     console.log('===========================================================');
     console.log('📊 [REQ-036/055] SLM 数据飞轮与 10% 里程碑自迭代诊断报告');
     console.log('===========================================================');
     console.log(`当前适配器版本:   ${report.state.version || '未初始化'}`);
     console.log(`上次训练时间:     ${report.state.last_trained_at || '无记录'}`);
     console.log(`当前审核总进度:   ${milestoneReport.reviewedPct}% (${metrics.reviewed}/${metrics.total} 笔)`);
-    console.log(`上次里程碑梯度:   ${report.state.last_milestone_pct || 0}%`);
-    console.log(`当前达成里程碑:   ${milestoneReport.currentMilestone}%`);
-    console.log(`里程碑触发状态:   ${milestoneReport.shouldTrigger ? '🔥 满足里程碑迭代' : '⏳ 积蓄中'}`);
-    console.log(`增量样本积累:     +${report.delta} 笔 (阈值 >= ${report.threshold} 笔)`);
+    console.log(`上次完成里程碑:   ${report.state.last_milestone_pct || 0}%`);
+    console.log(`下次触发里程碑:   ${nextMilestone}% (目标需审达 ${targetItems} 笔，尚差 ${remainingItems} 笔)`);
+    console.log(`里程碑触发状态:   ${milestoneReport.shouldTrigger ? '🔥 满足里程碑迭代' : '⏳ 优雅休眠待机中 (等待 20% 达标)'}`);
     console.log('===========================================================');
     process.exit(0);
   }
