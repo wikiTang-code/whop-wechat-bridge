@@ -72,6 +72,7 @@
 | REQ-049 | P1 | L3 | `done` | **战法本体无监督流形聚类与四态弱检验方案（049 A~D 全生命周期收工）**：吸纳 Grok 审阅意见，严格执行赵哥身份硬锁（1,850张）、物理分桶、无监督流形网格扫描（34稳定簇）、Fail-Closed 校验器拦截伪造点位、四态弱检验（1 supportive, 5 insufficient）、四层正交本体图谱重构，成果与 REQ-038 黄金战法并行隔离保存 | `docs/project/049*` · `scripts/knowledge/*` · 审阅全闭环 |
 | REQ-050 | P1 | L3 | `done` | **战法本体事件驱动自适应窗口短周期微观复验引擎（REQ-049-C2 落地）**：落实 Grok 审阅裁决，突破日K粗筛失配瓶颈；以 $t_0$ 消息时间为锚点，自适应拉取短周期 $[t_0-30\text{m}, t_0+\text{Horizon}]$ 分钟/小时窗口，针对日内时钟敏感战法（10:30分批减、夜盘做T、散户止损大单吞噬、窄硬止损保护）计算微观 MFE/MAE 代理指标，继续执行四态弱检验 | `scripts/knowledge/backtest_adaptive_window_050.js` · `docs/project/050*` |
 | REQ-051 | P1 | L3 | `done` | **近60天黄金窗口真实交易单与战法事件短周期自适应回测集训与前瞻落盘引擎**：落实用户与 Grok 裁定，聚焦免费高频数据完全覆盖的近 60 天黄金期；对齐 898 笔真实实盘交易单（`trade_signals`）与 4,128 张有效卡片，构建 `event_window_bars` 本地窗口持久化表；运行真实成交与时钟战法自适应短周期复验；建立盘中哨兵前瞻累积新样本机制 | `scripts/knowledge/train_recent_60d_microstructure.js` · `docs/project/051-recent-60d-training-report.md` |
+| REQ-052 | P1 | L3 | `done-eng` | **基于真实交易单（$t_0$）的逆向特征挖掘与高置信战术假说提纯引擎（提案A落地）**：落实用户拍板提案 A，不再盲目从 4000 张散文卡碰运气；聚焦近 60 天有确定时点 $t_0$ 的 388 笔真实交易单，反查当时赵哥原话与社群上下文、时区特征（早盘捡漏/尾盘扫单/盘中异动）、以及高频 K 线微观空间，提纯 2~3 个有真金白银交易支撑的高置信战法假说（形成确凿 Trigger / Entry / Exit / StopLoss 规则）；计算真实回测成效，附带完整 Strategic Gap Audit | `scripts/knowledge/reverse_mine_tactics_from_trades.js` · `docs/project/052-reverse-tactical-mining-report.md` |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |
