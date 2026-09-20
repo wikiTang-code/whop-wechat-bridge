@@ -46,7 +46,7 @@ export const SECTOR_MAP = {
   CLOUD: ['CRWV', 'IREN', 'NBIS', 'CIFR', 'DELL'],
   OPTICS: ['LITE', 'COHR'],
   MEMORY: ['DRAM', 'MU', 'WDC', 'SNDK', 'SNXX'],
-  FLAGSHIP: ['TSLA', 'TSLL', 'NVDA', 'INTC', 'QQQ', 'SPY'],
+  FLAGSHIP: ['TSLA', 'TSLL', 'NVDA', 'INTC', 'QQQ', 'SPY', 'SPX'],
 };
 
 /** 正股 ↔ 杠杆做多 ETF 常用战法军火库映射 */
@@ -58,6 +58,7 @@ export const LEVERAGED_ETF_MAP = {
   COIN: { etf: 'CONL', leverage: 2, name: '2倍做多Coinbase', defaultPrice: 3.99 },
   QQQ: { etf: 'TQQQ', leverage: 3, name: '3倍做多纳指', defaultPrice: 78.5 },
   SPY: { etf: 'SPYU', leverage: 4, name: '4倍做多标普', defaultPrice: 33.26 },
+  SPX: { etf: 'UPRO', leverage: 3, name: '3倍做多标普500', defaultPrice: 75.20 },
   WDC: { etf: 'SNXX', leverage: 2, name: '2倍做多闪存存储', defaultPrice: 18.2 },
   SNDK: { etf: 'SNXX', leverage: 2, name: '2倍做多闪存存储', defaultPrice: 18.2 },
   MU: { etf: 'MUU', leverage: 2, name: '2倍做多美光', defaultPrice: 35.7 },
@@ -303,6 +304,10 @@ export function detectTapeConfluence(params = {}) {
       source_db: 'whop_archive.db',
     },
   };
+
+  if (params.isDerivedFromSpy || tapeEvent?.is_derived_from_spy) {
+    report.observations.push('🔄【跨时段指数换算】当前时段 SPX 现价由全天候交易的 SPY 动态等效换算');
+  }
 
   // --- 维度 1: 大盘 GEX 结构比对 (0 ~ 25分) ---
   let gex = gexSnapshot;

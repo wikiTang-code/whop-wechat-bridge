@@ -69,6 +69,14 @@ export function formatRadarAlertMarkdown(radarData, options = {}) {
 > **信号**: \`${q.signal_combo || '监控中'}\` | **参考点**: $${q.reference_price || 'N/A'}`;
   }
 
+  // 4. SPX / SPY 跨时段等效换算及 TradingView 外部参考
+  let spxRefBlock = '';
+  if (t === 'SPX' || radarData.is_derived_from_spy) {
+    spxRefBlock = `\n### 🌐 跨时段指数换算与全天候实时图表
+> ↳ **数据源说明**: 当前时段通过全天候活跃交易的 SPY 现价动态等效折算
+> ↳ **TradingView 实时行情**: [CAPITALCOM:SPX500 全天候实时图表](https://www.tradingview.com/chart/?symbol=CAPITALCOM%3ASPX500)`;
+  }
+
   // 组装最终 Markdown
   return `## ${titlePrefix}
 > **标的**: <font color="info">**${t}**</font> | **现价**: **$${price}**
@@ -80,7 +88,7 @@ export function formatRadarAlertMarkdown(radarData, options = {}) {
 > • **D2 大V多模态**: ${d2.score}/25 | ${d2.details || '形态跟踪中'}${goldenStr}
 > • **D3 真实交割单**: ${d3.score}/25 | ${d3.details || '历史单据比对'}
 > • **D4 盘口大单流**: ${d4.score}/25 | ${d4.details || '逐笔活跃监控'}
-${etfBlock}${quantBlock}
+${etfBlock}${quantBlock}${spxRefBlock}
 
 ─────────────────────
 <font color="comment">🛡️ 纯客观微观结构参谋，100% 隔离实盘下单资金，绝非投资建议。</font>`;

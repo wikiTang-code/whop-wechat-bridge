@@ -30,6 +30,7 @@
 | 6 | **REQ-044** | L3/L5 | 美股时段感知哨兵守护进程 (盘中15~30s持续监测，休市低功耗待机) | `market_session.js` · `live_radar_sentinel.js` | **Done** |
 | 7 | **REQ-045** | L3/L5 | 美股微观结构与四维共振量化决策驾驶舱（含黄金战法矩阵融合与只读 API） | `public/radar_hud.html` · `readonly-api-router.js` | **Done** |
 | 8 | **REQ-046** | L3/L4 | 盘中高置信度四维共振预警企微卡片推送（防抖冷却与客观微观结构呈现） | `radar_alert_pusher.js` | **Done** |
+| 9 | **REQ-047** | L3/L5 | 美股工作日全时段（夜盘/盘前/盘中/尾盘/盘后）全天候在线感知与 SPX/SPY/TradingView 极速多源指数引擎 | `market_session.js` · `index_equivalent_converter.js` | **Done** |
 
 ### 0.C 队列 `agent:gemini1`
 

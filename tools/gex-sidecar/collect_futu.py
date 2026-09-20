@@ -84,20 +84,43 @@ def equity_spot(ctx, owner: str) -> tuple[float, float | None]:
     return last, chg
 
 
-def index_spot(ticker: str) -> tuple[float, float | None]:
+def index_spot(ticker: str, ctx=None) -> tuple[float, float | None]:
+    t = ticker.upper().strip()
     lb = gex.find_longbridge()
-    rows = gex.lb_json(lb, ["quote", f".{ticker}.US"])
-    if not rows:
-        raise RuntimeError(f"{ticker}: 长桥指数现货为空")
-    last = float(rows[0]["last"])
-    prev = float(rows[0].get("prev_close") or 0)
-    chg = ((last - prev) / prev * 100) if prev else None
-    return last, chg
+    try:
+        rows = gex.lb_json(lb, ["quote", f".{t}.US"])
+        if rows and float(rows[0].get("last") or 0) > 0:
+            last = float(rows[0]["last"])
+            prev = float(rows[0].get("prev_close") or 0)
+            chg = ((last - prev) / prev * 100) if prev else None
+            return last, chg
+    except Exception:
+        pass
+
+    # SPX 动态等效换算兜底: 盘前/夜盘/现货不可用时，通过全天候活跃的 SPY 价格换算
+    if t == "SPX":
+        try:
+            spy_last, spy_chg = None, None
+            if ctx:
+                spy_last, spy_chg = equity_spot(ctx, futu_code("SPY"))
+            if not spy_last or spy_last <= 0:
+                spy_rows = gex.lb_json(lb, ["quote", "SPY.US"])
+                if spy_rows and float(spy_rows[0].get("last") or 0) > 0:
+                    spy_last = float(spy_rows[0]["last"])
+                    spy_prev = float(spy_rows[0].get("prev_close") or 0)
+                    spy_chg = ((spy_last - spy_prev) / spy_prev * 100) if spy_prev else None
+            if spy_last and spy_last > 0:
+                spx_equiv = round(spy_last * 10.0, 2)
+                return spx_equiv, spy_chg
+        except Exception:
+            pass
+
+    raise RuntimeError(f"{t}: 长桥指数现货为空且 SPY 兜底不可用")
 
 
 def get_spot(ctx, ticker: str) -> tuple[float, float | None]:
     if ticker in INDEX_TICKERS:
-        return index_spot(ticker)
+        return index_spot(ticker, ctx)
     return equity_spot(ctx, futu_code(ticker))
 
 

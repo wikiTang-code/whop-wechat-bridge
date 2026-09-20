@@ -18,7 +18,7 @@
 
 import dotenv from 'dotenv';
 import { getDb, ensureRadarEventsTable } from '../../database.js';
-import { getUsMarketSession, getNextActiveWaitMs } from './market_session.js';
+import { getUsMarketSession, getNextActiveWaitMs, getRecommendedPollIntervalMs } from './market_session.js';
 import { runOnlineConfluenceScan, getLiveQuoteContext } from './live_tape_feed.js';
 import { pushRadarAlert } from './radar_alert_pusher.js';
 
@@ -190,17 +190,10 @@ export async function runSentinelLoop(options = {}) {
       break;
     }
 
-    // 3. 动态决定下一轮巡检间隔
-    let nextInterval = RTH_INTERVAL_MS;
-    if (customInterval) {
-      nextInterval = customInterval;
-    } else if (marketState.isPowerHour) {
-      nextInterval = POWER_HOUR_INTERVAL_MS; // 尾盘强平 15 秒
-    } else if (!marketState.isRth) {
-      nextInterval = OFF_HOURS_INTERVAL_MS;  // 盘前盘后 60 秒
-    }
+    // 3. 动态决定下一轮巡检间隔 (根据夜盘/盘前/盘中/尾盘自动调频)
+    const nextInterval = customInterval || getRecommendedPollIntervalMs(marketState);
 
-    console.log(`[Sentinel] ⏳ 等待 ${nextInterval / 1000} 秒后开始下一轮感知...\n`);
+    console.log(`[Sentinel] ⏳ 时段 [${marketState.session}] 等待 ${nextInterval / 1000} 秒后开始下一轮感知...\n`);
     await new Promise((resolve) => setTimeout(resolve, nextInterval));
   }
 }

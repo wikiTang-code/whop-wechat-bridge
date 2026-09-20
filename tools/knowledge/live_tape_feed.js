@@ -1,4 +1,4 @@
-﻿/**
+/**
  * tools/knowledge/live_tape_feed.js
  * 自动驾驶感知总线 (Live Sensor Hub) — 驱动四维共振雷达
  *
@@ -57,11 +57,16 @@ export async function getLiveQuoteContext() {
   return sharedQuoteCtx;
 }
 
+import { getUsMarketSession } from './market_session.js';
+import { resolveSpxQuote, resolveSpxQuoteAsync } from './index_equivalent_converter.js';
+
 /**
- * 转换标的代码为长桥 symbol (如 TSLA -> TSLA.US)
+ * 转换标的代码为长桥 symbol (如 TSLA -> TSLA.US, SPX -> .SPX.US)
  */
 export function toLongbridgeSymbol(ticker) {
   const t = String(ticker || '').trim().toUpperCase();
+  if (t.startsWith('.')) return t.endsWith('.US') ? t : `${t}.US`;
+  if (['SPX', 'VIX', 'NDX'].includes(t)) return `.${t}.US`;
   if (t.includes('.')) return t;
   return `${t}.US`;
 }
@@ -108,13 +113,24 @@ export function deriveTapeEventFromDepth(ticker, currentPrice, depth) {
  */
 export async function fetchLiveMarketSensors(tickers = ['TSLA', 'SPY', 'QQQ', 'NVDA'], options = {}) {
   const quoteCtx = options.quoteCtx || await getLiveQuoteContext();
-  const symbols = tickers.map(toLongbridgeSymbol);
+  
+  // 若包含 SPX，确保 SPY 也同步拉取作为基准换算物
+  const normalizedTickers = [...new Set(tickers.map(t => t.toUpperCase()))];
+  const queryTickers = [...normalizedTickers];
+  if (queryTickers.includes('SPX') && !queryTickers.includes('SPY')) {
+    queryTickers.push('SPY');
+  }
+
+  const symbols = queryTickers.map(toLongbridgeSymbol);
 
   // 1. 实时获取正股 Quote
   const quotes = await quoteCtx.quote(symbols);
   const quoteMap = new Map();
   for (const q of (quotes || [])) {
-    const rawTicker = (q.symbol || '').split('.')[0].toUpperCase();
+    let rawTicker = (q.symbol || '').toUpperCase();
+    if (rawTicker.startsWith('.')) rawTicker = rawTicker.slice(1);
+    rawTicker = rawTicker.split('.')[0];
+
     quoteMap.set(rawTicker, {
       ticker: rawTicker,
       symbol: q.symbol,
@@ -127,11 +143,25 @@ export async function fetchLiveMarketSensors(tickers = ['TSLA', 'SPY', 'QQQ', 'N
     });
   }
 
+  // 1.1 SPX 实时通道与动态换算兜底 (优先 TradingView 极速直连 -> 券商盘中 -> SPY 动态换算)
+  const session = options.marketSession || getUsMarketSession(new Date());
+  if (normalizedTickers.includes('SPX')) {
+    const rawSpx = quoteMap.get('SPX') || null;
+    const rawSpy = quoteMap.get('SPY') || null;
+    const resolvedSpx = await resolveSpxQuoteAsync(rawSpx, rawSpy, {
+      isRth: session.isRth,
+      logFallback: options.logFallback ?? false,
+    });
+    if (resolvedSpx) {
+      quoteMap.set('SPX', resolvedSpx);
+    }
+  }
+
   // 2. 依次读取关键标的 Depth 盘口
   const sensors = [];
-  for (const t of tickers) {
+  for (const t of normalizedTickers) {
     const sym = toLongbridgeSymbol(t);
-    const q = quoteMap.get(t.toUpperCase());
+    const q = quoteMap.get(t);
     if (!q || !q.last_price) continue;
 
     let depth = null;
@@ -142,9 +172,10 @@ export async function fetchLiveMarketSensors(tickers = ['TSLA', 'SPY', 'QQQ', 'N
     const tapeEvent = deriveTapeEventFromDepth(t, q.last_price, depth);
 
     sensors.push({
-      ticker: t.toUpperCase(),
+      ticker: t,
       quote: q,
       tape_event: tapeEvent,
+      is_derived_from_spy: q.is_derived_from_spy || false,
     });
   }
 
@@ -176,6 +207,7 @@ export async function runOnlineConfluenceScan(tickers = ['TSLA', 'SPY', 'QQQ', '
       tapeEvent: tape_event,
       gexSnapshot,
       dbInstance,
+      isDerivedFromSpy: sensor.is_derived_from_spy,
     });
 
     // 杠杆做多 ETF 对应折算
@@ -201,6 +233,7 @@ export async function runOnlineConfluenceScan(tickers = ['TSLA', 'SPY', 'QQQ', '
       leveraged_etf: leveragedProjections,
       tape_summary: tape_event?.depth_summary || null,
       detected_at: report.detected_at,
+      is_derived_from_spy: sensor.is_derived_from_spy || false,
     });
   }
 
