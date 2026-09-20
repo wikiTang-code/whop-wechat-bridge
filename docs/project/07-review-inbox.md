@@ -8,6 +8,15 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-20 · REQ-043 自动驾驶感知总线与四维共振在线驱动器就绪 · Gemini（`agent:gemini`）
+
+| 项 | 事实与落地 |
+|----|------------|
+| **生产 GCP VM 资产同步** | 依据人令执行 `knowledge_promote.js --remote --apply --allow-prod-write`，生产 GCP VM 主库知识卡片增至 **4,218 张**，视觉元数据增至 **453 条**；生产 `messages` 保持 109,182 行零污染；生产双进程稳定 online |
+| **自动驾驶感知总线落地** | 落地 `tools/knowledge/live_tape_feed.js`，毫秒级汇聚长桥模拟仓实时现价、正股深度买卖五档盘口（`depth`）与富途 GEX 伽马墙分布 |
+| **实测在线四维共振扫描** | 直连长桥模拟仓实跑 `runOnlineConfluenceScan(['TSLA', 'SPY', 'QQQ', 'NVDA'])` 成功：TSLA 现价 $364.27 命中赵哥 $351 实盘成交单佐证并折算 TSLL (2x) $9.54/$10.68；SPY 紧贴自身 GEX Put Wall ($760) 强支撑；QQQ 联动周哥量化参谋减仓点位 $722.8 |
+| **单测与规范** | 新增单测 `test/test_live_tape_feed.js`；全仓 46+ 套单测 100% 绿灯；纯只读参谋绝不接入 place_order / L2a |
+
 ### 2026-09-19 · Cursor 接管 Gemini 额度耗尽后的 T1/T2（CHG-035/036）
 
 | 项 | 事实 |

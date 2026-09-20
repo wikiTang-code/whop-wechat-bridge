@@ -26,6 +26,7 @@
 | 2 | **REQ-038-T1** | L3 | 432张真图云端VL批跑全部收工；422条视觉元数据+124张纯赵哥图卡，non_zhao=0，promote dump已出 | `batch_vision*` · `data/runtime/knowledge-promote.sqlite` | **Done** |
 | 3 | **REQ-041** | L3 | 盘口四维共振（含 2x ETF 折算） | `tape_confluence_detector*` | **Done** |
 | 4 | **REQ-042** | L3/L5 | 富途 OpenD + 长桥 Paper 双通道实测；空间印证引擎 | `brokers/longbridge.js` · `real_market_confluence_verifier*` | **Done** |
+| 5 | **REQ-043** | L3/L5 | 自动驾驶感知总线 (Live Sensor Hub) 与四维共振实时在线驱动引擎 | `live_tape_feed.js` · `test_live_tape_feed.js` | **Done** |
 
 ### 0.C 队列 `agent:gemini1`
 

@@ -63,6 +63,7 @@
 | REQ-040 | P2 | L3 | `in_progress` | **T2 扩样本**：Gemini 额度耗尽→Cursor 接手；空 SR 重提证实多数「TSLA」为聊天截图；已靠其他标的 mm level 扩到 n_scored=7 | 05 §0.X Partial/Expanding |
 | REQ-041 | P1 | L3 | `done` | **盘口微观大单与四维共振检测引擎（Tape & Block Order Confluence Detector）**：融合 GEX 做市商引力场 + 赵哥多模态预判 + 457笔第一人称真实单佐证 + 尾盘微观大单通吃；**支持正股（Underlying）分析与 2x/多倍做多杠杆 ETF（TSLL, NEBX, LITX, COHX, CONL, TQQQ, SPYU, SNXX, MUU 等）关键点位动态折算**；单测 `test_tape_confluence_detector_req041.js` 100分王炸共振全绿通过 | 纯只读参谋 · `tools/knowledge/tape_confluence_detector.js` · 禁接 L2a / 禁下单 |
 | REQ-042 | P1 | L3/L5 | `done` | **真实券商行情/K线数据空间印证引擎与长桥/富途双通道实测就绪**：落实「量化容不得半点马虎，一切用数据说话」人令；富途 OpenD 127.0.0.1:11111 美股期权全链 (24到期日/单日384合约) + L2 五档盘口 100% 跑通；长桥模拟仓凭证入库 `.env`，解码核验为 `lb_papertrading_20525807`（100% 守牢资金隔离红线），TradeContext/QuoteContext 双通；落地空间印证引擎 `real_market_confluence_verifier.js` 与单测全绿 | `brokers/longbridge.js` · `tools/knowledge/real_market_confluence_verifier.js` · 单测绿灯 |
+| REQ-043 | P1 | L3/L5 | `done` | **自动驾驶感知总线 (Live Sensor Hub) 与四维共振在线决策驱动器**：建立仿自动驾驶感知-融合-决策流水线；毫秒级拉取长桥模拟仓真实正股行情与五档买卖盘口深度（`depth`），融合富途做市商 Gamma 墙与大V纯正战法，驱动四维共振实时自动计算并输出 2x 杠杆做多 ETF 动态折算点位；单测 `test/test_live_tape_feed.js` 全绿通过 | `tools/knowledge/live_tape_feed.js` · `test/test_live_tape_feed.js` · 单测绿灯 |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |
