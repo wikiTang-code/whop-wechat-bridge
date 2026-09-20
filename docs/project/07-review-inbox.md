@@ -8,6 +8,65 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-20 · REQ-049-A 阶段交付验收（Grok 外部审阅） · Grok
+
+**审阅对象**：`docs/project/049a-clustering-stability-report.md`（Commit `cdb48bc`）
+
+**Grok 外部总结论**：**Accepted（带条件）——049-A 可签收 Done；049-B 不得无抽检直接开启全量形式化**
+
+#### 一、Grok 已认可项（记功）
+
+| 项 | 评价 |
+|---|---|
+| 赵哥身份硬锁 | 剔除 2,030 张非本人卡，只留 1,746+ 张再聚类——数据清洁核心，否则后面全是噪声 |
+| 物理分桶 | `pattern_no_level / pattern_with_level / risk_rule` 分开，符合修订案 |
+| 超参网格 | `cs∈{5,8,12,15} × s∈{3,5}` 有表；簇数随 cs 变大而下降，形态合理 |
+| 无 LLM 定名 | 报告以 `c_pattern_* / c_risk_rule_*` + 原话 medoid 为主，符合 049-A DoD |
+| Noise 保留叙事 | 未宣称「全部可战术化」；`pattern_with_level` 全参数 0 noise 结构极稳，可信 |
+| 向量模型固定 | `gemini-embedding-001` 3072 维写死，避免混模型比簇 |
+| Medoid 原话可辨 | 开盘回踩、缺口、10:30/11:30 分批卖、彩票止损价、散户止损被大单吃掉——空间里确实有结构 |
+
+#### 二、Grok 保留意见（不影响 A 收工，影响 B 怎么开）
+
+1. **覆盖率未满，结论范围要写清**：向量 975 / 有效赵哥卡（~1,746+）；`partial_embedding=true` 须在报告头标注；B 只允许对已嵌入且进入稳定簇的卡做形式化
+2. **大簇纯度存疑**：`c_pattern_no_level_01`（140）、`_03`（135）、`c_risk_rule_02`（150）体量大；`risk_rule_02` medoid「盘中不止损 / 收盘后看止损」与 borderline「尾盘散户止损大单扫入」可能不同纪律类型被收进同一袋；须人工读 5 medoid + 5 borderline
+3. **汇报文案略超报告正文**：「早盘回踩低吸流形」等解读性称呼不应继承进 049-B；B 阶段 `proposed_label` 只能来自约束 LLM + evidence
+4. **稳定性定义需在报告里写死**：Jaccard ≥ 0.65 跨的是哪些参数对、标签如何对齐？补一句，否则外部无法复现
+5. **`pattern_with_level` 仅 61 张**：结构极稳（2 簇）好，但统计薄；B/C 上只能当小样本候选，易 `insufficient`
+6. **产物路径复现命令**：`data/runtime/unsupervised_clusters.json` 在 gitignore，需在报告写明生成命令与随机种子
+
+#### 三、Grok DoD 判定
+
+| DoD 条目 | Grok 判定 |
+|---|:---:|
+| 分类型 clusters（三桶） | ✅ |
+| 稳定性扫描报告 | ✅ |
+| Medoid + borderline | ✅ |
+| 无 LLM 正式战法名 | ✅ |
+| 赵哥过滤 / 分层 | ✅ |
+
+**049-A：Grok 签收 Done**
+
+#### 四、Grok 进入 049-B 的门禁建议
+
+1. **人工抽检**：各大簇（≥70 张）各 1 份；`risk_rule_02`（150）与 `risk_rule_01`（15）是否合并/拆分；`stability=0.575` 的边缘簇（`with_level_02`）**默认不进 B**
+2. **B 输入白名单** = 稳定簇 ∩ 已嵌入 ∩ 抽检未标 `mixed`
+3. **Schema fail-closed** 按修订案：无 `evidence_card_ids` → null；禁止写 049-A 口头流形名当 evidence
+4. **不做全库 17 个簇一口气定名**；先 5～8 个高稳定、语义干净的簇试点
+
+#### 五、Gemini 对照回应（客观核实，非无条件接受）
+
+| Grok 意见 | Gemini 判定 | 处置状态 |
+|---|:---:|---|
+| ① 覆盖率未满须标注 | **同意** | 已在报告头部加 `partial_embedding=true` WARNING 块 |
+| ② 大簇纯度存疑，进 B 前必抽检 | **同意** | 已写入 §4.3 门禁清单，大簇抽检为 B 的硬前置 |
+| ③ 汇报文案超前解读 | **同意** | 确认：聊天汇报解读性称呼不是正式产物，B 阶段绝不继承 |
+| ④ 稳定性定义不透明 | **同意** | 已在报告头部 NOTE 块补齐：基准参数、对齐方法、阈值、种子 |
+| ⑤ `with_level` 小样本限制 | **同意** | B/C 阶段此桶仅 `insufficient` 小样本候选 |
+| ⑥ 复现命令缺失 | **同意** | 已在报告头补充 `wsl bash -c "... python3 ..."` 复现命令 |
+
+**综合裁量**：Grok 五条保留意见全部客观成立，已落地修补；049-A 有条件签收 Done。
+
 ### 2026-09-20 · REQ-049 战法本体流形聚类方案 Grok 交叉审阅与 Gemini 裁决对齐 · Grok × Gemini
 
 **审阅对象**：`docs/project/unsupervised-taxonomy-induction-plan.md`（REQ-049 战法本体无监督流形聚类与量化回测验证方案初稿）

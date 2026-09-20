@@ -3,6 +3,20 @@
 > **执行依据**：`docs/project/unsupervised-taxonomy-induction-plan.md` (Commit 9d99723)
 > **向量基准**：`gemini-embedding-001` (3072 维)
 > **分桶原则**：严格执行身份红线 9（纯赵哥本人）与物理分桶（分型与有点位/无点位硬隔离）
+> **Grok 049-A 验收审阅**：见 `docs/project/07-review-inbox.md` §「REQ-049-A 阶段交付验收（Grok）」
+> **外部审阅结论**：**Accepted（带条件）**——可签收 049-A Done；049-B 仅对「抽检未标 mixed 的稳定簇」启动
+
+> [!WARNING]
+> **`partial_embedding = true`**：本报告聚类基于部分向量子集（首批 975 张，赵哥有效卡池总量 1,746+）。结论仅对已嵌入子集成立。全量嵌入完成后需重跑 `run_clustering_049a.py` 更新本报告，方可作为 049-B 的完整基础。
+
+> [!NOTE]
+> **稳定性定义（可复现）**：
+> - 基准参数：`cs=8, s=3`（网格中位值）
+> - 对比组：其余 7 个参数组合
+> - 对齐方法：贪心最大重叠（Greedy max-overlap，每簇选与基准簇 Jaccard 最高的对应簇）
+> - 稳定性阈值：**Jaccard ≥ 0.65**（平均值，取所有对比组的最大 Jaccard 均值）
+> - 随机种子：`UMAP random_state=42`，HDBSCAN 确定性（无随机种子依赖）
+> - 复现命令：`wsl bash -c "cd /mnt/c/Users/86597/.gemini/antigravity/scratch/whop-wechat-bridge && python3 scripts/knowledge/run_clustering_049a.py"`
 
 ---
 
@@ -214,10 +228,68 @@
 
 ---
 
-## 4. 049-A 验收结论与进入 049-B 门禁状态
 
-- [x] **红线硬锁**：已排除 2,030 张群友卡片，100% 只基于赵哥本人发言卡片聚类；
-- [x] **分层隔离**：`pattern` 与 `risk_rule` 物理隔离，`pattern_with_level` 与 `pattern_no_level` 物理隔离；
-- [x] **稳定性网格**：已跑通 UMAP + HDBSCAN 参数扫描，提取出跨参数稳定的核心流形；
-- [x] **纯客观无幻觉**：未调用 LLM 强命名，严格保留 Noise 样本；
-- [ ] **Human 阶段签批**：请用户/架构师核验本报告与无监督簇结构，确认是否进入 `049-B`（约束 LLM 形式化）。
+## 4. 049-A 验收结论（含 Grok 审阅 DoD 对照）
+
+### 4.1 DoD 对照表
+
+| DoD 条目 | Grok 判定 | 事实状态 |
+|---|:---:|---|
+| 分类型 clusters（三桶隔离） | ✅ | `pattern_no_level` / `pattern_with_level` / `risk_rule` 物理分桶，全量聚类 |
+| 稳定性扫描报告（含网格表） | ✅ | 8 参数组合，稳定性 Jaccard 矩阵已输出 |
+| Medoid + borderline 原话摘录 | ✅ | 每簇前 5 medoid + 前 3 borderline 已写入报告 |
+| 无 LLM 正式战法名 | ✅ | 全程仅 `c_bucket_XX` 无监督代号，无 LLM 定名 |
+| 赵哥身份过滤 + 分层 | ✅ | 剔除 2,030 张群友卡，基于 `sender_id='user_4yeplXgbguTu4'` 硬锁 |
+| 稳定性定义可复现（含对齐方法与种子） | ✅（本次补丁） | 见报告头部 NOTE 块，Greedy max-overlap, `random_state=42` |
+| `partial_embedding` 明确标注 | ✅（本次补丁） | 见报告头部 WARNING 块，已写明子集范围与重跑要求 |
+
+**Grok 外部签收状态：`049-A Done（带条件）`**
+
+---
+
+### 4.2 Grok 审阅保留意见与 Gemini 对照回应
+
+> **原则**：不无条件接受，以客观事实为准。
+
+**① 覆盖率问题（Grok 正确，已接受）**
+- 事实：首批嵌入 975 张（pattern ~53%，risk_rule ~93%），本期报告确实基于子集。
+- 处置：已在报告头部加 `partial_embedding=true` 警告，全量嵌入完成后重跑聚类更新报告，方可解锁 049-B 白名单。
+
+**② 大簇语义纯度存疑（Grok 正确，已接受，进 B 前必抽检）**
+- 事实：`c_pattern_no_level_01`（140 张）、`_03`（135 张）、`c_risk_rule_02`（150 张）体量过大，Medoid 与 Borderline 语义跨度大，存在「模板标题主导距离」风险。
+- 处置：进入 049-B 前，须人工读 **每大簇（≥70 张）各 5 medoid + 5 borderline**；不纯则拆子簇或标 `mixed`，`mixed` 标记簇不进 B。
+
+**③ 汇报文案超前解读（Grok 正确，已接受）**
+- 事实：之前聊天汇报中用了「早盘回踩低吸流形」「缺口引力战法流形」等解读性称呼。
+- 处置：正式产物仍坚持报告内 `cluster_id`。049-B 的 `proposed_label` 只能来自约束 LLM + evidence chain，不继承 049-A 的口头称号。
+
+**④ `pattern_with_level` 小样本问题（Grok 正确，接受限制）**
+- 事实：当前 61 张（全量嵌入后约 254 张），结构极稳（0 noise），但统计样本薄。
+- 处置：049-B/C 阶段此桶只作为小样本候选，弱检验结论只能标 `insufficient`，不作为强信号。
+
+**⑤ Jaccard 稳定性定义不透明（Grok 正确，已修补）**
+- 已在报告头部 NOTE 块写明：基准参数 `cs=8,s=3`，贪心最大重叠对齐，阈值 ≥0.65，`random_state=42`。
+
+---
+
+### 4.3 进入 049-B 的门禁清单
+
+> [!IMPORTANT]
+> 以下所有门禁必须全部满足，方可对应簇进入 049-B
+
+- [ ] **全量嵌入完成**：`taxonomy_embeddings_gemini-embedding-001.json` 覆盖全部 1,746+ 有效卡；重跑 `run_clustering_049a.py` 更新本报告
+- [ ] **人工抽检通过**：
+  - `c_pattern_no_level_01`（140）、`_03`（135）：各读 5 medoid + 5 borderline，判定语义是否纯净
+  - `c_risk_rule_02`（150）与 `c_risk_rule_01`（15）是否应合并/拆分
+  - 稳定性 < 0.65 的边缘簇（含 `c_pattern_with_level_02`，stability=0.575）**默认不进 B**
+- [ ] **B 输入白名单确定**：稳定簇 ∩ 已嵌入 ∩ 抽检未标 `mixed` ∩ stability ≥ 0.65
+- [ ] **Schema fail-closed 就绪**：无 `evidence_card_ids` 则置 null；禁止使用 049-A 口头流形名当 evidence
+- [ ] **试点规模控制**：049-B 首批仅 5～8 个语义干净的高稳定簇，不一口气对全库 17 个簇定名
+
+---
+
+### 4.4 Human 签批状态
+
+- [x] **Grok 外部审阅**：Accepted（带条件），2026-09-20
+- [x] **Gemini 内部自查**：全部 DoD 已对照，保留意见已原文回应
+- [ ] **Human 阶段签批**：请用户确认 049-A Done，并授权启动大簇人工抽检（门禁 §4.3）
