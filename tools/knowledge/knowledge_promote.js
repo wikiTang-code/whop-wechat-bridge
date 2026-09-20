@@ -80,14 +80,18 @@ function upsertRows(dest, table, rows) {
   const ph = names.map((n) => `@${n}`).join(',');
   const stmt = dest.prepare(`INSERT OR REPLACE INTO ${t} (${names.join(',')}) VALUES (${ph})`);
   let n = 0;
-  for (const row of rows) {
-    const bound = {};
-    for (const name of names) bound[name] = Object.prototype.hasOwnProperty.call(row, name) ? row[name] : null;
-    stmt.run(bound);
-    n += 1;
-  }
+  const tx = dest.transaction(() => {
+    for (const row of rows) {
+      const bound = {};
+      for (const name of names) bound[name] = Object.prototype.hasOwnProperty.call(row, name) ? row[name] : null;
+      stmt.run(bound);
+      n += 1;
+    }
+  });
+  tx();
   return n;
 }
+
 
 export function dumpAllowlist({ srcPath, dumpPath, spec = loadSpec() } = {}) {
   assertPromoteSafety(spec);

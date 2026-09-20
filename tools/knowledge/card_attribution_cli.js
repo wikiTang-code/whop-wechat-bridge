@@ -130,11 +130,13 @@ const prepped = candidates.map((card) => {
   const sourceSender = msg
     ? { sender_id: msg.sender_id, sender_name: msg.sender_name }
     : null;
+  // CHG-044: enable direction-only mode to capture cards without explicit price level
   const preview = evaluateCard(card, {
     messageCreatedAt: msg?.created_at ?? null,
     bars: [],
     visionMeta,
-    sourceSender
+    sourceSender,
+    allowDirectionOnly: true
   });
   return { card, created: msg?.created_at ?? null, preview, visionMeta, sourceSender };
 });
@@ -143,8 +145,8 @@ for (const p of prepped) {
   const s = p.preview.status || 'unknown';
   skipCounts[s] = (skipCounts[s] || 0) + 1;
 }
-const withLevel = prepped.filter((p) => p.preview.level != null);
-const yahooEligible = withLevel.filter((p) => !SKIP_YAHOO.has(p.preview.status));
+// CHG-044: include direction_only cards in eligible set
+const yahooEligible = prepped.filter((p) => !SKIP_YAHOO.has(p.preview.status));
 const picked = yahooEligible.slice(0, Number.isFinite(limit) ? limit : 500);
 
 const barCache = {};
@@ -167,7 +169,13 @@ for (const { card, created, preview, visionMeta, sourceSender } of picked) {
       continue;
     }
   }
-  const ev = evaluateCard(card, { messageCreatedAt: created, bars, visionMeta, sourceSender });
+  const ev = evaluateCard(card, {
+    messageCreatedAt: created,
+    bars,
+    visionMeta,
+    sourceSender,
+    allowDirectionOnly: true
+  });
   const row = {
     card_id: card.id,
     card_type: card.card_type,
@@ -191,7 +199,8 @@ const report = {
   spec: 'docs/project/req038-t2-attribution-spec.md',
   db: dbPath,
   candidates: candidates.length,
-  with_level: withLevel.length,
+  with_explicit_level: yahooEligible.filter((p) => p.preview.level != null && p.preview.level_source !== 'direction_only').length,
+  with_direction_only: yahooEligible.filter((p) => p.preview.level_source === 'direction_only').length,
   yahoo_eligible: yahooEligible.length,
   skip_counts: skipCounts,
   evaluated: results.length,

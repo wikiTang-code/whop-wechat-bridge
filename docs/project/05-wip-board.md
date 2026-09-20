@@ -32,7 +32,7 @@
 | 8 | **REQ-046** | L3/L4 | 盘中高置信度四维共振预警企微卡片推送（防抖冷却与客观微观结构呈现） | `radar_alert_pusher.js` | **Done** |
 | 9 | **REQ-047** | L3/L5 | 美股工作日全时段（夜盘/盘前/盘中/尾盘/盘后）全天候在线感知与 SPX/SPY/TradingView 极速多源指数引擎 | `market_session.js` · `index_equivalent_converter.js` | **Done** |
 | 10 | **REQ-048** | L3/L5 | 赵哥 M7 七姐妹单边下跌战法探测器 + 首尾时段 5 秒超高频扫盘 (CHG-041) | `m7_breadth_detector.js` · `live_radar_sentinel.js` | **Done** |
-| 11 | **REQ-049** | L3 | 战法本体分层流形聚类与稳定性扫描 (049-A 收工，报告已出，等待 Human 审阅进 049-B) | `scripts/knowledge/*` · `docs/project/049a*` | **Done (049-A)** |
+| 11 | **REQ-049** | L3 | 战法本体约束 LLM 形式化提纯 (049-B 启动 · 6大高稳试点白名单 · Fail-Closed 校验) | `scripts/knowledge/*` · `docs/project/049b*` | **Doing (049-B)** |
 
 ### 0.C 队列 `agent:gemini1`
 
@@ -40,8 +40,8 @@
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-036** | L3 | 大V专有 SLM 数据飞轮（V1闭环，随企微人工纠错 Golden 增量长期常驻维护） | `scripts/slm/*` · `models/zhao_slm_1.5b_lora` | **Standing (Active)** |
 | 2 | **REQ-038-T2/REQ-040** | L3 | T2 高胜率战法黄金提纯与 Golden Playbook 固化（扩标池回测 n_scored=147，提纯 108 张黄金战法已固化） | `card_attribution*` · `data/runtime/golden_playbook.json` | **Done** |
-| 3 | **CHG-039** | L3 | 生产 VM Golden Playbook 部署闭环 + 维度4期权大单扫盘特征库扩充 + bf8d14b 交叉抽审 | `knowledge_promote*` · `tape_confluence_detector*` | **Done** |
-| **4** | **DEBT-017~020** | L3 | 数据资产结构缺陷全盘清账（DEBT-017 344笔配对落库+DEBT-018 118张战法推产+DEBT-019 172张早期心法重蒸馏+DEBT-020 大单时序表，单测全绿） | `tools/trade/*` · `tools/knowledge/*` | **Done** |
+| **4** | **DEBT-017~020** | L3 | 数据资产结构缺陷终极清账大满贯（DEBT-017 713对闭环/1,925笔信号/84%配对率 + DEBT-018 767张打分/485张黄金战法推产/36.1%空头 + DEBT-019 657张深层卡片/1,314组问答对 + DEBT-020大单时序表，全套测试全绿） | `tools/trade/*` · `tools/knowledge/*` | **Done** |
+
 
 ### 0.H Human
 

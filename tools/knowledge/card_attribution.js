@@ -13,6 +13,7 @@ export const ATTR_TICKERS = [
   'QQQ',
   'SPY',
   'NVDA',
+  'NVDL',
   'CRWV',
   'LITE',
   'COHR',
@@ -24,7 +25,16 @@ export const ATTR_TICKERS = [
   'AVGO',
   'MSTR',
   'CONL',
-  'DRAM'
+  'DRAM',
+  'AAPL',
+  'AMZN',
+  'MSFT',
+  'META',
+  'GOOGL',
+  'MARA',
+  'COIN',
+  'INTC',
+  'RDDT'
 ];
 /** Distill types + multimodal VL level cards (CHG-030 incremental consume). */
 export const ATTR_CARD_TYPES = new Set(['pattern', 'asset_memory', 'risk_rule', 'level']);
@@ -74,18 +84,27 @@ function blobOf(card) {
 }
 
 export function cardTickers(card) {
-  const blob = mentionBlob(card).toUpperCase();
-  const found = [];
+  const set = new Set();
+  // 1. 优先从结构化 tickers_json 提取
+  const structured = parseJsonArr(card.tickers_json);
+  for (const s of structured) {
+    const sym = String(s || '').toUpperCase();
+    if (ATTR_TICKERS.includes(sym)) set.add(sym);
+  }
+  // 2. 文本中正则匹配兜底
+  const blob = blobOf(card).toUpperCase();
   for (const t of ATTR_TICKERS) {
     const re = new RegExp(`(^|[^A-Z0-9])${t}([^A-Z0-9]|$)`);
-    if (re.test(blob)) found.push(t);
+    if (re.test(blob)) set.add(t);
   }
-  return found;
+  return Array.from(set);
 }
 
 export function pricingTicker(tickers) {
   if (tickers.includes('TSLL')) return 'TSLL';
   if (tickers.includes('TSLA')) return 'TSLA';
+  if (tickers.includes('NVDL')) return 'NVDL';
+  if (tickers.includes('NVDA')) return 'NVDA';
   for (const t of ATTR_TICKERS) {
     if (tickers.includes(t)) return t;
   }
@@ -101,17 +120,24 @@ function parsePriceToken(tok) {
 function inTickerBand(n, ticker) {
   const t = String(ticker || '').toUpperCase();
   if (t === 'TSLL' || t === 'CONL') return n >= 1 && n <= 200;
+  if (t === 'NVDL') return n >= 5 && n <= 300;
   if (t === 'SOXL' || t === 'IREN' || t === 'PLTR') return n >= 5 && n <= 200;
+  if (t === 'MARA' || t === 'INTC' || t === 'RDDT') return n >= 3 && n <= 150;
   if (t === 'NBIS' || t === 'DRAM') return n >= 10 && n <= 500;
   if (t === 'TSLA' || t === 'SPY' || t === 'QQQ' || t === 'NVDA') return n >= 50 && n <= 900;
+  if (t === 'AAPL' || t === 'AMZN' || t === 'GOOGL') return n >= 30 && n <= 400;
+  if (t === 'META' || t === 'MSFT') return n >= 100 && n <= 800;
+  if (t === 'COIN') return n >= 30 && n <= 600;
   if (t === 'LITE' || t === 'COHR' || t === 'ARM') return n >= 20 && n <= 350;
   if (t === 'MU' || t === 'AMD') return n >= 30 && n <= 400;
   if (t === 'AVGO') return n >= 50 && n <= 500;
   if (t === 'SMCI') return n >= 15 && n <= 1500;
   if (t === 'MSTR') return n >= 50 && n <= 3000;
+
   if (t === 'CRWV') return n >= 1 && n <= 500;
   return n >= 1 && n <= 5000;
 }
+
 
 function isPercentContext(src, index, tokenLen) {
   const after = src.slice(index + tokenLen, index + tokenLen + 3);
@@ -378,7 +404,10 @@ export function extractLevelFromVisionMeta(meta, ticker) {
   return ok.length ? ok[0] : null;
 }
 
-export function evaluateCard(card, { messageCreatedAt, bars, visionMeta, sourceSender } = {}) {
+export function evaluateCard(
+  card,
+  { messageCreatedAt, bars, visionMeta, sourceSender, allowDirectionOnly = false } = {}
+) {
   const tickers = cardTickers(card);
   const ticker = pricingTicker(tickers);
   if (!ticker) return { status: 'skipped_ticker' };
@@ -395,20 +424,29 @@ export function evaluateCard(card, { messageCreatedAt, bars, visionMeta, sourceS
   }
   let level = extractExplicitLevel(levelBlob(card), ticker);
   if (level == null) level = extractLevelFromVisionMeta(visionMeta, ticker);
-  if (level == null) return { status: 'skipped_no_level', ticker };
-  const direction = inferDirection(card);
-  if (!direction) return { status: 'skipped_no_direction', ticker, level };
-  if (direction === 'mixed') return { status: 'unscored_mixed', ticker, level };
 
-  if (messageCreatedAt == null) return { status: 'skipped_no_t0', ticker, level, direction };
+  let levelSource = 'explicit';
+  if (level == null) {
+    if (!allowDirectionOnly) return { status: 'skipped_no_level', ticker };
+    levelSource = 'direction_only';
+  }
+
+  const direction = inferDirection(card);
+  if (!direction) return { status: 'skipped_no_direction', ticker, level: level ?? null };
+  if (direction === 'mixed') return { status: 'unscored_mixed', ticker, level: level ?? null };
+
+  if (messageCreatedAt == null) return { status: 'skipped_no_t0', ticker, level: level ?? null, direction };
   const t0Date = etCalendarDate(messageCreatedAt);
   const scored = scoreCardAgainstBars({ direction, t0Date, bars });
-  if (scored.status === 'scored' && scored.entry_px) {
+
+  // Only apply level-mismatch guard when we have an explicit level
+  if (levelSource === 'explicit' && scored.status === 'scored' && scored.entry_px && level != null) {
     const ratio = level / scored.entry_px;
     if (!(ratio >= 0.4 && ratio <= 2.5)) {
       return {
         ticker,
         level,
+        level_source: levelSource,
         direction,
         t0_et: t0Date,
         ...scored,
@@ -417,7 +455,16 @@ export function evaluateCard(card, { messageCreatedAt, bars, visionMeta, sourceS
       };
     }
   }
-  return { ticker, level, direction, t0_et: t0Date, ...scored };
+
+  const effectiveLevel = level ?? (scored.entry_px ?? null);
+  return {
+    ticker,
+    level: effectiveLevel,
+    level_source: levelSource,
+    direction,
+    t0_et: t0Date,
+    ...scored
+  };
 }
 
 export function selectCandidateCards(rows) {

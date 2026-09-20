@@ -72,7 +72,7 @@ for (const m of testMsgs) {
 console.log('  ✅ 2. 测试专属消息与大V身份隔离数据注入完成');
 
 // 3. 执行生命周期分析验证
-const analysisRes = analyzeTradeLifecycles(db);
+const analysisRes = analyzeTradeLifecycles(db, { outDir: false });
 assert.strictEqual(analysisRes.total_channel_messages, 5, '专属频道赵哥发言应为 5 条 (排除群友与非专属频道)');
 assert.strictEqual(analysisRes.completed_round_trips, 2, '应成功配对 2 对 TSLL 闭环交易');
 assert.strictEqual(analysisRes.orphan_sells_count, 1, '应有 1 笔 NVDA 孤立卖出');
@@ -82,16 +82,16 @@ assert.strictEqual(analysisRes.sample_closed_trades[0].sell_price, 12.0);
 console.log('  ✅ 3. FIFO 闭环配对与大V过滤单测断言通过');
 
 // 4. 执行落库与幂等性验证
-const dryRes = syncPairedTradesToSignals(db, { apply: false });
+const dryRes = syncPairedTradesToSignals(db, { apply: false, outDir: false });
 assert.strictEqual(dryRes.signals_count, 4, '预计应生成 4 笔信号 (2对 x 2)');
 assert.strictEqual(dryRes.final_trade_signals_count, 0, 'Dry-run 不应写入数据');
 
-const applyRes = syncPairedTradesToSignals(db, { apply: true });
+const applyRes = syncPairedTradesToSignals(db, { apply: true, outDir: false });
 assert.strictEqual(applyRes.inserted_count, 4, 'Apply 应成功写入 4 笔信号');
 assert.strictEqual(applyRes.final_trade_signals_count, 4, '写入后总数应为 4');
 
 // 再次执行测试幂等性
-const reApplyRes = syncPairedTradesToSignals(db, { apply: true });
+const reApplyRes = syncPairedTradesToSignals(db, { apply: true, outDir: false });
 assert.strictEqual(reApplyRes.inserted_count, 0, '重复执行新增应为 0');
 assert.strictEqual(reApplyRes.skipped_count, 4, '重复执行应全部幂等跳过');
 assert.strictEqual(reApplyRes.final_trade_signals_count, 4, '数据总数保持不变');
@@ -109,6 +109,28 @@ assert.strictEqual(sellSignal.price, 12.0);
 assert(sellSignal.reason.includes('对应买入'), '卖出单备注应关联买入单据');
 
 console.log('  ✅ 4. 幂等落库与关联字段完整性单测通过');
-
 db.close();
+
+// 5. 生产真实数据库门禁指标断言 (DEBT-017 Gate)
+import fs from 'fs';
+import path from 'path';
+import { DB_PATH } from '../tools/trade/historical_signals_lifecycle_analyzer.js';
+
+if (fs.existsSync(DB_PATH)) {
+  const realDb = new Database(DB_PATH, { readonly: true });
+  const countRow = realDb.prepare('SELECT count(*) as c FROM trade_signals').get();
+  assert.ok(countRow.c >= 1500, `DEBT-017 门禁：trade_signals 笔数应 >= 1,500 笔，实测: ${countRow.c}`);
+  
+  const reportPath = path.resolve('data/runtime/trade_lifecycle_summary.json');
+  assert.ok(fs.existsSync(reportPath), 'trade_lifecycle_summary.json 诊断报告必须存在');
+  const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  const pairRate = report.lifecycle_pairing_ratio_pct;
+  assert.ok(pairRate >= 70, `DEBT-017 门禁：开平仓配对闭环率应 >= 70%，实测: ${pairRate}%`);
+  
+  console.log(`  ✅ 5. DEBT-017 核心门禁通过: trade_signals ${countRow.c} 笔 (>=1500), 闭环率 ${pairRate}% (>=70%)`);
+  realDb.close();
+}
+
 console.log('🎉 [Test DEBT-017] 历史交易单生命周期配对与信号同步单测全部 PASS！\n');
+
+

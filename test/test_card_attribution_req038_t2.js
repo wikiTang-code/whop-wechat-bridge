@@ -128,14 +128,15 @@ assert.strictEqual(fromSrc.level, 247);
 const hitch = evaluateCard(
   {
     card_type: 'asset_memory',
-    title: 'NVDL 标的机构行为与股性特征画像',
+    title: 'BILI 标的机构行为与股性特征画像',
     trigger_text: '回踩支撑加仓',
-    tickers_json: '["NVDL","TSLL"]',
-    source_text: 'NVDL 机构盘'
+    tickers_json: '["BILI"]',
+    source_text: 'BILI 机构盘'
   },
   { messageCreatedAt: t0, bars }
 );
 assert.strictEqual(hitch.status, 'skipped_ticker');
+
 
 const tsllBars = bars.map((b) => ({
   ...b,
@@ -276,7 +277,8 @@ const gapReport = listT2VisionGaps([
     status: 'ok',
     support_resistance_json: JSON.stringify({ support: [10], resistance: [11] })
   },
-  { id: 'v3', message_id: 'm3', ticker: 'AAPL', status: 'ok', support_resistance_json: null },
+  { id: 'v3', message_id: 'm3', ticker: 'BILI', status: 'ok', support_resistance_json: null },
+
   { id: 'v4', message_id: 'm4', ticker: 'TSLA', status: 'failed', support_resistance_json: null }
 ]);
 assert.strictEqual(gapReport.with_sr, 1);

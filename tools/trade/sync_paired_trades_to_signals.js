@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 /**
  * tools/trade/sync_paired_trades_to_signals.js
  * [DEBT-017] 历史交易信号闭环配对同步落库引擎
@@ -26,8 +26,9 @@ export function syncPairedTradesToSignals(db, options = {}) {
   console.log('===========================================================');
 
   // 1. 运行生命周期分析器获取闭环交易单
-  const summary = analyzeTradeLifecycles(db);
+  const summary = analyzeTradeLifecycles(db, options);
   const samplePairs = summary.sample_closed_trades || [];
+
 
   // 获取完整闭环交易单对（通过重新提取或者内部分析）
   const ZHAO_SENDER_ID = 'user_4yeplXgbguTu4';
@@ -37,9 +38,39 @@ export function syncPairedTradesToSignals(db, options = {}) {
     'chat_feed_1CTrCEx44dP13jW3RVkYiS'
   ];
 
-  const BUY_REGEX = /(?:买入|开仓|加仓|建仓|低吸|做多|追|抄底|买点|入场)/i;
-  const SELL_REGEX = /(?:卖出|平仓|减仓|止盈|止损|砍仓|走人|清仓|落袋|出掉|割肉)/i;
-  const TICKER_REGEX = /\b(TSLA|TSLL|NVDA|NVDL|SPY|QQQ|IREN|NBIS|CRWV|LITE|COHR|MU|DRAM|AMD|PLTR|SMCI|ARM|AVGO|MSTR|CONL|SOXL|AAPL|AMZN|MSFT|META|GOOGL)\b/gi;
+  const BUY_REGEX = /(?:买入|开仓|加仓|建仓|低吸|做多|追|抄底|买点|入场|买call|买put|开call|开put|上了|上车|干了|打了|买了|加了|接了|打底|试仓|小仓位)/i;
+  const SELL_REGEX = /(?:卖出|平仓|减仓|止盈|止损|砍仓|走人|清仓|落袋|出掉|割肉|出call|出put|收米|获利|离场|分批走|保本|卖了|走了|清了|出了|减了|止了|跑了|止血|出本|翻倍出)/i;
+  
+  const TICKER_MAP = [
+    [/TSLL|特斯拉两倍|特斯拉双倍/i, 'TSLL'],
+    [/TSLA|特斯拉/i, 'TSLA'],
+    [/NVDL|英伟达两倍|英伟达双倍/i, 'NVDL'],
+    [/NVDA|英伟达/i, 'NVDA'],
+    [/SOXL|半导体三倍|半导体/i, 'SOXL'],
+    [/QQQ|纳指/i, 'QQQ'],
+    [/SPY|标普/i, 'SPY'],
+    [/IREN/i, 'IREN'],
+    [/NBIS/i, 'NBIS'],
+    [/CRWV/i, 'CRWV'],
+    [/LITE/i, 'LITE'],
+    [/COHR/i, 'COHR'],
+    [/MU|美光/i, 'MU'],
+    [/AMD/i, 'AMD'],
+    [/PLTR/i, 'PLTR'],
+    [/SMCI|超微/i, 'SMCI'],
+    [/ARM/i, 'ARM'],
+    [/AVGO|博通/i, 'AVGO'],
+    [/MSTR|微策/i, 'MSTR'],
+    [/CONL|COIN|coinbase|币安/i, 'CONL'],
+    [/AAPL|苹果/i, 'AAPL'],
+    [/AMZN|亚马逊/i, 'AMZN'],
+    [/MSFT|微软/i, 'MSFT'],
+    [/META/i, 'META'],
+    [/GOOGL|谷歌/i, 'GOOGL'],
+    [/MARA/i, 'MARA'],
+    [/INTC|英特尔/i, 'INTC'],
+    [/RDDT/i, 'RDDT']
+  ];
   const PRICE_REGEX = /(?:\$|@|\bat\b|\b价格\b|\b现价\b|\b成本\b)?\s*(\d{1,4}(?:\.\d{1,2})?)/i;
 
   const placeholders = EXCLUSIVE_CHANNELS.map(() => '?').join(',');
@@ -58,11 +89,15 @@ export function syncPairedTradesToSignals(db, options = {}) {
     const isSell = SELL_REGEX.test(text);
     if (!isBuy && !isSell) continue;
 
-    TICKER_REGEX.lastIndex = 0;
-    const tickerMatches = text.match(TICKER_REGEX);
-    if (!tickerMatches || !tickerMatches.length) continue;
+    let ticker = null;
+    for (const [re, sym] of TICKER_MAP) {
+      if (re.test(text)) {
+        ticker = sym;
+        break;
+      }
+    }
+    if (!ticker) continue;
 
-    const ticker = tickerMatches[0].toUpperCase();
     const action = isBuy && !isSell ? 'BUY' : isSell && !isBuy ? 'SELL' : (text.indexOf('买') < text.indexOf('卖') ? 'BUY' : 'SELL');
 
     let price = null;

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 /**
  * tools/trade/historical_signals_lifecycle_analyzer.js
  * [DEBT-017] 历史交易信号开平仓生命周期配对分析器
@@ -23,10 +23,11 @@ const EXCLUSIVE_CHANNELS = [
 
 export const DB_PATH = process.env.SQLITE_PATH || (fs.existsSync('whop_archive.db') ? 'whop_archive.db' : 'data/whop_bridge.db');
 
-export function analyzeTradeLifecycles(db = new Database(DB_PATH, { readonly: true })) {
+export function analyzeTradeLifecycles(db = new Database(DB_PATH, { readonly: true }), options = {}) {
   console.log('===========================================================');
   console.log('🔍 [DEBT-017] 专属交易频道历史交易单生命周期配对分析');
   console.log('===========================================================');
+
 
   // 1. 查询两大专属频道中赵哥的所有原始消息
   const placeholders = EXCLUSIVE_CHANNELS.map(() => '?').join(',');
@@ -41,10 +42,40 @@ export function analyzeTradeLifecycles(db = new Database(DB_PATH, { readonly: tr
   const messages = db.prepare(query).all(...EXCLUSIVE_CHANNELS, ZHAO_SENDER_ID);
   console.log(`📊 专属频道赵哥原始发言总数: ${messages.length} 条`);
 
-  // 2. 提取交易动作与要素
-  const BUY_REGEX = /(?:买入|开仓|加仓|建仓|低吸|做多|追|抄底|买点|入场)/i;
-  const SELL_REGEX = /(?:卖出|平仓|减仓|止盈|止损|砍仓|走人|清仓|落袋|出掉|割肉)/i;
-  const TICKER_REGEX = /\b(TSLA|TSLL|NVDA|NVDL|SPY|QQQ|IREN|NBIS|CRWV|LITE|COHR|MU|DRAM|AMD|PLTR|SMCI|ARM|AVGO|MSTR|CONL|SOXL|AAPL|AMZN|MSFT|META|GOOGL)\b/gi;
+  // 2. 提取交易动作与要素 (扩展期权、暗语与多空执行词库)
+  const BUY_REGEX = /(?:买入|开仓|加仓|建仓|低吸|做多|追|抄底|买点|入场|买call|买put|开call|开put|上了|上车|干了|打了|买了|加了|接了|打底|试仓|小仓位)/i;
+  const SELL_REGEX = /(?:卖出|平仓|减仓|止盈|止损|砍仓|走人|清仓|落袋|出掉|割肉|出call|出put|收米|获利|离场|分批走|保本|卖了|走了|清了|出了|减了|止了|跑了|止血|出本|翻倍出)/i;
+  
+  const TICKER_MAP = [
+    [/TSLL|特斯拉两倍|特斯拉双倍/i, 'TSLL'],
+    [/TSLA|特斯拉/i, 'TSLA'],
+    [/NVDL|英伟达两倍|英伟达双倍/i, 'NVDL'],
+    [/NVDA|英伟达/i, 'NVDA'],
+    [/SOXL|半导体三倍|半导体/i, 'SOXL'],
+    [/QQQ|纳指/i, 'QQQ'],
+    [/SPY|标普/i, 'SPY'],
+    [/IREN/i, 'IREN'],
+    [/NBIS/i, 'NBIS'],
+    [/CRWV/i, 'CRWV'],
+    [/LITE/i, 'LITE'],
+    [/COHR/i, 'COHR'],
+    [/MU|美光/i, 'MU'],
+    [/AMD/i, 'AMD'],
+    [/PLTR/i, 'PLTR'],
+    [/SMCI|超微/i, 'SMCI'],
+    [/ARM/i, 'ARM'],
+    [/AVGO|博通/i, 'AVGO'],
+    [/MSTR|微策/i, 'MSTR'],
+    [/CONL|COIN|coinbase|币安/i, 'CONL'],
+    [/AAPL|苹果/i, 'AAPL'],
+    [/AMZN|亚马逊/i, 'AMZN'],
+    [/MSFT|微软/i, 'MSFT'],
+    [/META/i, 'META'],
+    [/GOOGL|谷歌/i, 'GOOGL'],
+    [/MARA/i, 'MARA'],
+    [/INTC|英特尔/i, 'INTC'],
+    [/RDDT/i, 'RDDT']
+  ];
   const PRICE_REGEX = /(?:\$|@|\bat\b|\b价格\b|\b现价\b|\b成本\b)?\s*(\d{1,4}(?:\.\d{1,2})?)/i;
 
   const rawSignals = [];
@@ -56,11 +87,15 @@ export function analyzeTradeLifecycles(db = new Database(DB_PATH, { readonly: tr
 
     if (!isBuy && !isSell) continue;
 
-    TICKER_REGEX.lastIndex = 0;
-    const tickerMatches = text.match(TICKER_REGEX);
-    if (!tickerMatches || !tickerMatches.length) continue;
+    let ticker = null;
+    for (const [re, sym] of TICKER_MAP) {
+      if (re.test(text)) {
+        ticker = sym;
+        break;
+      }
+    }
+    if (!ticker) continue;
 
-    const ticker = tickerMatches[0].toUpperCase();
     const action = isBuy && !isSell ? 'BUY' : isSell && !isBuy ? 'SELL' : (text.indexOf('买') < text.indexOf('卖') ? 'BUY' : 'SELL');
 
     // 提取价格
@@ -163,19 +198,22 @@ export function analyzeTradeLifecycles(db = new Database(DB_PATH, { readonly: tr
     generated_at: new Date().toISOString()
   };
 
-  const outDir = path.resolve('data/runtime');
-  fs.mkdirSync(outDir, { recursive: true });
-  const outPath = path.join(outDir, 'trade_lifecycle_summary.json');
-  fs.writeFileSync(outPath, JSON.stringify(summary, null, 2), 'utf8');
+  const outDir = options.outDir === false ? null : (options.outDir || path.resolve('data/runtime'));
+  if (outDir) {
+    fs.mkdirSync(outDir, { recursive: true });
+    const outPath = path.join(outDir, 'trade_lifecycle_summary.json');
+    fs.writeFileSync(outPath, JSON.stringify(summary, null, 2), 'utf8');
+    console.log(`📁 完整诊断报告已落盘至: ${outPath}\n`);
+  }
 
   console.log(`✅ 生命周期闭环配对单数: ${closedTrades.length} 对`);
   console.log(`⚠️ 孤立开仓单 (未平仓): ${orphanBuys.length} 笔`);
   console.log(`⚠️ 孤立平仓单 (无前序开仓关联): ${orphanSells.length} 笔`);
-  console.log(`📈 开平仓配对闭环率: ${pairedRatio}%`);
-  console.log(`📁 完整诊断报告已落盘至: ${outPath}\n`);
+  console.log(`📈 开平仓配对闭环率: ${pairedRatio}%\n`);
 
   return summary;
 }
+
 
 if (process.argv[1] && process.argv[1].endsWith('historical_signals_lifecycle_analyzer.js')) {
   analyzeTradeLifecycles();
