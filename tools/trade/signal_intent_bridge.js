@@ -14,6 +14,7 @@
 import { getDb, getPaperPositions, saveTradeIntent } from '../../database.js';
 import { createTradeIntent } from './paper_execution_engine.js';
 import { evaluatePreTradeRisk } from './paper_risk_guard.js';
+import { evaluateHardRules } from './hard_rules_engine.js';
 
 // 治理红线：大V身份与专属频道
 export const ZHAO_SENDER_ID = 'user_4yeplXgbguTu4';
@@ -28,9 +29,10 @@ export const ALLOWED_CHANNELS = [
  * @param {object} [options]
  * @param {object} [options.dbInstance]
  * @param {boolean} [options.bypassChannelCheck=false] 回测或演练模式下是否放行非标准频道
+ * @param {object} [options.quantReference] 周哥量化与GEX参考数据 (如 { zhouSignal: 'BEARISH' })
  * @returns {{ success: boolean, intent: object|null, reason: string }}
  */
-export function convertSignalToTradeIntent(signal, { dbInstance = null, bypassChannelCheck = false } = {}) {
+export function convertSignalToTradeIntent(signal, { dbInstance = null, bypassChannelCheck = false, quantReference = {} } = {}) {
   const db = dbInstance || getDb();
 
   // 1. 发送者身份绝对硬锁 (红线 9)
@@ -70,25 +72,31 @@ export function convertSignalToTradeIntent(signal, { dbInstance = null, bypassCh
   const price = parseFloat(signal.price) || 0;
   let quantity = parseInt(signal.quantity, 10) || 1;
 
-  // 4. 关键硬门禁: 卖单底仓核验 (SELL Without Inventory Guard)
-  // 如果是卖单，检查本地第一真源持仓 broker_paper_positions
-  if (side === 'SELL') {
-    const currentPositions = getPaperPositions(db);
-    const existing = currentPositions.find(p => p.ticker === ticker && p.quantity > 0);
+  // 4. 读取持仓并执行 8 大实战硬规则集审计 (Gap 3)
+  const currentPositions = getPaperPositions(db);
+  const existingPos = currentPositions.find(p => p.ticker === ticker && p.quantity > 0);
 
-    if (!existing || existing.quantity <= 0) {
-      return {
-        success: false,
-        intent: null,
-        reason: `REJECTED_NO_UNDERLYING_POSITION: 标的 ${ticker} 当前模拟盘底仓为 0。此前买入开仓未跟，不可盲目做空或平仓`
-      };
-    }
+  const hardRulesResult = evaluateHardRules({
+    ticker,
+    side,
+    price,
+    quantity,
+    currentPosition: existingPos,
+    quantReference
+  });
 
-    // 若卖出数量超过现有底仓，截断至当前最大可用底仓 (防裸空)
-    if (quantity > existing.quantity) {
-      console.warn(`[Signal-Intent Bridge] 卖出数量 ${quantity} 超过当前底仓 ${existing.quantity}，自动裁剪至底仓量`);
-      quantity = existing.quantity;
-    }
+  if (!hardRulesResult.passed) {
+    return {
+      success: false,
+      intent: null,
+      reason: hardRulesResult.rejectReasons.join('; ')
+    };
+  }
+
+  // 卖单数量裁剪 (若规则引擎发出超底仓警告，截断至底仓量)
+  if (side === 'SELL' && existingPos && quantity > existingPos.quantity) {
+    console.warn(`[Signal-Intent Bridge] 卖出数量 ${quantity} 超过当前底仓 ${existingPos.quantity}，自动裁剪至底仓量`);
+    quantity = existingPos.quantity;
   }
 
   // 5. 走统一事前硬风控引擎
@@ -118,7 +126,9 @@ export function convertSignalToTradeIntent(signal, { dbInstance = null, bypassCh
       { speaker_id: signal.speaker_id || ZHAO_SENDER_ID },
       { channel_id: signal.channel_id || 'audited_pool' },
       { raw_text: signal.reason || signal.raw_text || '' },
-      { risk_notional: riskCheck.details?.notional }
+      { risk_notional: riskCheck.details?.notional },
+      { hard_rules_warnings: hardRulesResult.warnings },
+      { hard_rules_verdict: hardRulesResult.verdict }
     ],
     expires_in_sec: 1800
   }, { dbInstance: db });
