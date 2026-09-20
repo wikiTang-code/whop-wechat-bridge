@@ -31,8 +31,8 @@
 | DEBT-001 | 生产 gcp-vm ff 对齐 | REQ-002 | **Done**（Human 2026-09-19 确认 pull + pm2 restart） |
 | DEBT-014 | **CHG-018/023 Supervisor+切流**：CPU `llama-server` + Win bridge 已满血可用；HIP 编译仍缺完整 ROCm | CHG-018/023 | **P3 残留**（HIP） |
 | DEBT-015 | **知识资产只在本机、未进生产库**（见 §2.2） | REQ-039 表级 promote **Done**（gcp `ontology_card=4032` / `message_vision_meta=73`，`messages=109159` 仅 ingest 增长） | **Done** |
-| DEBT-017 | **历史交易信号底池标准化回放与生命周期断链**（713对真实开平仓闭环落库，`trade_signals` 达 1,925 笔，闭环配对率 84.0%，单测 `test:trade-lifecycle` 全绿） | `tools/trade/*` · `trade_lifecycle_summary.json` | **Done** |
-| DEBT-018 | **黄金战法库标的覆盖与多空时域分布失衡**（拓标Top 30并支持方向信号；`n_scored` 达 767 张，提纯 485 张黄金战法推产，空头占比 36.1%，单测 `test:golden-playbook` 全绿，详见 §2.3.2） | `card_attribution*` · `golden_playbook.json` | **Done** |
+| DEBT-017 | **历史交易信号底池标准化回放与生命周期断链**（713对真实开平仓闭环落库，`trade_signals` 达 1,925 笔，配对率 84.0%，经抽检时序与标的一致性 100% 达标，单测 `test:trade-lifecycle` 全绿） | `tools/trade/*` · `trade_lifecycle_summary.json` · `sample_audit_report.json` | **Done** |
+| DEBT-018 | **黄金战法库标的覆盖与多空时域分布失衡**（拓标Top 30并支持方向信号；`n_scored` 达 767 张，提纯 485 张战法分级管理：175张 `golden_level` 独占雷达顶格加权、310张 `golden_direction` 隔离为宏观参考，空头占比 36.1%，经抽检点位真实性 100% 达标，单测 `test:golden-playbook` 全绿，详见 §2.3.2） | `card_attribution*` · `golden_playbook.json` · `sample_audit_report.json` | **Done** |
 | DEBT-019 | **早期历史长文本发言细颗粒度重蒸馏盲区**（扫描 830 篇长文，提纯 657 张深层策略/心法卡片入库，生成 1,314 组 SLM 微调问答对，单测 `test:long-article-distill` 全绿） | `tools/knowledge/long_article_distill.js` · `slm_qa_pairs.json` | **Done** |
 | DEBT-020 | **微观盘口大单流高频持久化缺口与海外低延迟迁移**（`tape_block_events` 表与持久化引擎落地，单测全绿；海外低延迟部署待实施，详见 §2.3.4） | `tape_confluence_detector.js` · `tape_block_events` | **P2 结构就绪 (Partial)** |
 
@@ -99,7 +99,12 @@
 - **增量补全路径与门禁**：
   - **步骤 1**：扩展 `card_attribution_cli.js` 标的池至 Top 30（新增 AAPL, AMZN, MSFT, META, GOOGL, PLTR, SMCI, MARA, RIOT 等）；
   - **步骤 2**：强化看跌阻力位、假突破反手做空、跳空缺口反抽战法的特征识别算法，提高空头样本权重；
-  - **门禁指标**：归因打分卡片 `n_scored` 扩充至 ≥600 张；`golden_playbook.json` 扩充至 ≥250 张，且空头战法占比提升至 ≥20%。
+  - **门禁指标与清账事实**：归因打分卡片 `n_scored` 扩充至 **767 张**（超额达成门禁 ≥600）；固化战法 **485 张**（空头占比 36.1%）；
+  - **Grok 外部审阅整改闭环（CHG-046）**：
+    1. **质量分级隔离**：杜绝战法粗细混淆，结构体显式标注 `tier: 'golden_level'`（175 张，含显式点位与归因胜率）与 `tier: 'golden_direction'`（310 张，宏观多空方向信号）；
+    2. **四维雷达物理门禁**：`tape_confluence_detector.js` 严格硬锁：**仅 `golden_level` 享受 D2 顶格加权（25分）**；`golden_direction` 降档为纯方向情绪参考（最高 15 分，绝不顶格），严防虚假共振；
+    3. **双重抽检验真**：落盘 `data/runtime/sample_audit_report.json`，完成 DEBT-017 配对 8 组（时序/标的/大V硬锁 100% 通过）与 DEBT-018 战法 20 张（点位/胜率 100% 真实）抽检。
+
 
 ---
 

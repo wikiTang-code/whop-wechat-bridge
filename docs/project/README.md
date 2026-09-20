@@ -82,13 +82,14 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **T1 接管 + T2 n_scored=7**（CHG-035/036） | Doing |
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~048 Done** + **REQ-049 四态弱检验 (049-C Done · 待进 049-D)** | Active / Done (049-C) |
-| **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 + **CHG-039** Done + **DEBT-017~020 终极清账大满贯 (Done · 767打分/485战法/1925信号/657卡片/1314问答对)** | Done |
+| **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 + **CHG-039** Done + **DEBT-017~020 清账与战法分级隔离 (Done · 767打分/485战法分级/1925信号/657卡片/1314问答对/经抽检验真)** | Done |
 
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
 | **§0.X Blocked** | 040=**Cleared**（扩标回测全量收工）；033→human | **见 05 §0.X** |
 | **§0.R-A** | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | Done |
 | **§0.R-A** | **REQ-042/CHG-034** accepted-with-gates | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |
+| **§0.R-C** | **DEBT-017~020 / CHG-044~045 外部审阅（Grok）与分级整改** | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 

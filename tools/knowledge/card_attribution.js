@@ -749,10 +749,17 @@ export function extractGoldenPlaybook(results, { minHit5 = 0.6, minHit3 = 0.7 } 
 
   return passing.map((r) => {
     const levels = extractTriggerLevels(r, r.visionMeta);
+    // 质量分级 (Grok 审阅门禁):
+    // - golden_level: 具备显式精准支撑/阻力点位，可用于量化雷达顶格加权 (原108张硬门禁标准)
+    // - golden_direction: 仅具备多空方向倾向，仅供大盘情绪/HUD展示，严禁与高精点位同等加权
+    const isExplicit = r.level_source === 'explicit' && r.level != null;
+    const tier = isExplicit ? 'golden_level' : 'golden_direction';
+
     return {
       card_id: r.card_id,
       ticker: r.ticker,
       card_type: r.card_type,
+      tier,
       title: r.title,
       trigger_levels: levels,
       hit_rate_3d: r.hit_3d ? 1.0 : 0.0,
@@ -769,4 +776,11 @@ export function extractGoldenPlaybook(results, { minHit5 = 0.6, minHit3 = 0.7 } 
     };
   });
 }
+
+/** 生产共振雷达专用过滤门禁：默认仅放行高精点位级战法 (golden_level) */
+export function filterRadarPlaybook(playbook = [], { allowDirectionOnly = false } = {}) {
+  if (allowDirectionOnly) return playbook;
+  return playbook.filter((card) => card.tier === 'golden_level');
+}
+
 

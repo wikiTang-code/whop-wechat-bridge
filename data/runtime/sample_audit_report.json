@@ -1,0 +1,95 @@
+{
+  "ok": true,
+  "audit_time": "2026-09-20T06:26:22.318Z",
+  "debt017_pairing_audit": {
+    "sample_size": 8,
+    "passed_count": 8,
+    "pass_rate_pct": 100,
+    "samples": [
+      {
+        "index": 1,
+        "ticker": "CONL",
+        "buy_time": "2026-06-05 13:35",
+        "sell_time": "2026-06-05 13:35",
+        "buy_price": 5.1,
+        "sell_price": 5.1,
+        "pass": true
+      },
+      {
+        "index": 2,
+        "ticker": "CONL",
+        "buy_time": "2026-06-05 13:35",
+        "sell_time": "2026-06-05 13:35",
+        "buy_price": 5.1,
+        "sell_price": 5.1,
+        "pass": true
+      },
+      {
+        "index": 3,
+        "ticker": "CRWV",
+        "buy_time": "2026-02-27 14:35",
+        "sell_time": "2026-02-27 14:35",
+        "buy_price": 79.5,
+        "sell_price": 79.5,
+        "pass": true
+      },
+      {
+        "index": 4,
+        "ticker": "CRWV",
+        "buy_time": "2026-02-27 14:35",
+        "sell_time": "2026-02-27 14:35",
+        "buy_price": 79.5,
+        "sell_price": 79.5,
+        "pass": true
+      },
+      {
+        "index": 5,
+        "ticker": "IREN",
+        "buy_time": "2025-12-02 19:12",
+        "sell_time": "2025-12-02 19:12",
+        "buy_price": 43.5,
+        "sell_price": 43.5,
+        "pass": true
+      },
+      {
+        "index": 6,
+        "ticker": "IREN",
+        "buy_time": "2025-12-02 19:12",
+        "sell_time": "2025-12-02 19:12",
+        "buy_price": 43.5,
+        "sell_price": 43.5,
+        "pass": true
+      },
+      {
+        "index": 7,
+        "ticker": "IREN",
+        "buy_time": "2026-02-02 17:47",
+        "sell_time": "2026-02-02 17:47",
+        "buy_price": 0,
+        "sell_price": 0,
+        "pass": true
+      },
+      {
+        "index": 8,
+        "ticker": "TSLL",
+        "buy_time": "2026-03-09 20:05",
+        "sell_time": "2026-03-09 20:05",
+        "buy_price": 13.55,
+        "sell_price": 13.55,
+        "pass": true
+      }
+    ]
+  },
+  "debt018_playbook_audit": {
+    "golden_level": {
+      "count": 175,
+      "sample_size": 10,
+      "pass_rate_pct": 100
+    },
+    "golden_direction": {
+      "count": 310,
+      "sample_size": 10,
+      "pass_rate_pct": 100
+    }
+  }
+}

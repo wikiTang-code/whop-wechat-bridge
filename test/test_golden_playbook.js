@@ -6,10 +6,12 @@ import {
   extractTriggerLevels,
   generateRuleSummary,
   extractGoldenPlaybook,
+  filterRadarPlaybook,
   isZhaoSender,
   ZHAO_SENDER_ID,
   ATTR_TICKERS
 } from '../tools/knowledge/card_attribution.js';
+
 
 console.log('🧪 [REQ-038-T2/REQ-040] golden playbook unit and contract tests');
 
@@ -117,8 +119,10 @@ for (const card of playbook) {
   assert.ok(typeof card.ticker === 'string' && tickerSet.has(card.ticker), `Unknown ticker: ${card.ticker}`);
   assert.ok(validTypes.has(card.card_type), `Invalid card_type: ${card.card_type}`);
   assert.ok(typeof card.title === 'string' && card.title.length > 0, 'title must be non-empty string');
+  assert.ok(card.tier === 'golden_level' || card.tier === 'golden_direction', `Invalid tier: ${card.tier}`);
 
   // trigger_levels validation
+
   assert.ok(typeof card.trigger_levels === 'object' && card.trigger_levels !== null, 'trigger_levels must be object');
   assert.ok(Array.isArray(card.trigger_levels.support), 'trigger_levels.support must be array');
   assert.ok(Array.isArray(card.trigger_levels.resistance), 'trigger_levels.resistance must be array');
@@ -162,6 +166,12 @@ for (const card of playbook) {
   }
 }
 
+const radarPlaybook = filterRadarPlaybook(playbook);
+assert.ok(radarPlaybook.length > 0 && radarPlaybook.length < playbook.length, 'Radar filter should isolate strict level subset');
+assert.ok(radarPlaybook.every((c) => c.tier === 'golden_level'), 'All radar cards must be golden_level');
+console.log(`  ✅ Radar filter contract PASS: ${radarPlaybook.length} golden_level cards isolated for radar weighting`);
+
 if (db) db.close();
 
 console.log(`  ✅ Golden Playbook contract PASS (${playbook.length} cards verified, non_zhao=0, fields intact)`);
+

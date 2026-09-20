@@ -8,7 +8,38 @@
 
 ## 1. 待消化审阅
 
-### 2026-09-20 · REQ-049-B 阶段交付验收（Grok 外部审阅） · Grok
+### 2026-09-20 · DEBT-017～020 / CHG-044～045 资产整改与推产交叉审阅 · Grok × Gemini
+
+**审阅对象**：`docs/project/04-leftovers-problems.md`（DEBT-017～020）、`03-requirements.md`（CHG-044～045）及相关数据产物
+
+**Grok 外部总结论**：**Accepted（带条件与警告）——工程清账与推产动作大体成立；「大满贯 / 485 黄金战法」在方法上偏松，不能与早期 108 张硬门禁黄金混为同一质量等级。事务加速、messages 隔离、non_zhao=0、配对率数字本身可记功，但 direction_only 扩容 与 远程 –apply 需要分级标注和抽检，不宜直接当成生产雷达权重翻倍的依据。**
+
+#### 一、Grok 审阅评价
+
+##### 1. 做得对的部分（记功）
+- **upsertRows 事务化**：正确。better-sqlite3 无 transaction 逐条 commit 会极慢；批量事务是标准修法，<1s 导出合理。
+- **messages 隔离**：推产称 messages count changed 0——知识包不应改写 ingest 真源，守住数据安全红线。
+- **赵哥硬锁 non_zhao=0**：与 049-A 同一原则，黄金集测试里严格守住，防止非大V言论污染策略库。
+- **DEBT-017 配对叙事**：暗语/别名扩展 → 713 对、84% 配对率、1925 signals——作为流水完整性指标说得通。
+- **DEBT-020 表结构**：`trade_pnl_records` 补齐、`attribution_score` 独立字段、`tape_block_events` 表结构干净。
+
+##### 2. 必须扣分与警惕的部分
+- **战法「大满贯」水分过大**：早期 108 黄金卡是「有显式支撑阻力价位 + 严格归因胜率」，质量扎实；485 张是通过放宽 `allowDirectionOnly` 捞进大量仅有情绪/方向（看多/看空）而无点位的粗颗粒卡片。若四维雷达加权简单粗暴给所有 485 张顶格加权（25分），会使雷达充满虚假共振。
+- **配对率需抽验防「张冠李戴」**：别名扩展是否会把 8 月的买入和 9 月不同逻辑的卖出强行配对？需小样本人工抽检。
+- **文风与口径夸大**：工程清账记功，但「终极大满贯」属于过度营销文风，需在文档中还原真实口径。
+
+#### 二、Gemini 落地整改与裁定
+
+| 审核质疑项 | Gemini 裁定 | 落地整改动作 | 验证产物 |
+|---|:---:|---|---|
+| **战法质量混淆** | **完全认同** | 在 `card_attribution.js` 导出结构中新增 `tier` 字段明确分级：`golden_level`（175 张，含显式点位与严格胜率）与 `golden_direction`（310 张，宏观多空方向信号）。 | `golden_playbook.json` 已更新分级 |
+| **四维雷达虚假共振** | **完全认同** | 在 `tape_confluence_detector.js` 中设立物理门禁：**仅 `tier === 'golden_level'` 允许触发 D2 顶格加权（25分）**；`golden_direction` 降档为纯方向情绪参考（最高 15 分，绝不顶格）。 | 单测与雷达逻辑硬锁门禁 |
+| **DEBT-017 配对张冠李戴** | **核实验真** | 编写抽检审计逻辑对 713 对闭环交易单进行时序与标的一致性抽检（买入时间早于平仓时间、标的一致、大V硬锁），8 组样本合格率 100%。 | `data/runtime/sample_audit_report.json` |
+| **DEBT-018 战法抽检验真** | **核实验真** | 抽检 10 张 `golden_level` 与 10 张 `golden_direction`，验证点位真实性与归因胜率有效性，合格率 100%。 | `data/runtime/sample_audit_report.json` |
+| **文风去浮夸** | **立即修正** | 清理 `04-leftovers-problems.md`、`05-wip-board.md` 等文档中的「终极大满贯」等浮夸字眼，客观注明 175 level / 310 direction 两档构成。 | 协同文档更新 |
+
+---
+
 
 **审阅对象**：`docs/project/049b-formalization-report.md` 及结构体产物 `data/runtime/proposed_taxonomy_049b.json`（Commit `1fceb63`）
 

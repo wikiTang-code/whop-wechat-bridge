@@ -40,7 +40,7 @@
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-036** | L3 | 大V专有 SLM 数据飞轮（V1闭环，随企微人工纠错 Golden 增量长期常驻维护） | `scripts/slm/*` · `models/zhao_slm_1.5b_lora` | **Standing (Active)** |
 | 2 | **REQ-038-T2/REQ-040** | L3 | T2 高胜率战法黄金提纯与 Golden Playbook 固化（扩标池回测 n_scored=147，提纯 108 张黄金战法已固化） | `card_attribution*` · `data/runtime/golden_playbook.json` | **Done** |
-| **4** | **DEBT-017~020** | L3 | 数据资产结构缺陷终极清账大满贯（DEBT-017 713对闭环/1,925笔信号/84%配对率 + DEBT-018 767张打分/485张黄金战法推产/36.1%空头 + DEBT-019 657张深层卡片/1,314组问答对 + DEBT-020大单时序表，全套测试全绿） | `tools/trade/*` · `tools/knowledge/*` | **Done** |
+| **4** | **DEBT-017~020** | L3 | 数据资产结构缺陷清账与战法分级隔离（DEBT-017 713对闭环/84%配对/经抽检验真 + DEBT-018 战法分级: 175张 level 独占雷达顶格加权、310张 direction 隔离为宏观参考 + DEBT-019 657张深层卡片/1,314组问答对 + DEBT-020 大单时序表落地，抽检与单测全绿） | `tools/trade/*` · `tools/knowledge/*` | **Done** |
 
 
 ### 0.H Human
@@ -95,6 +95,7 @@
 | §0.R-A cursor | **REQ-038-T1 VL 离线批跑管道与门禁抽审（`bdb0804`）** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-042 / CHG-034（`779d055`）抽审** | **Done**（accepted-with-gates · 见 07） |
 | §0.R-A gemini1 | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | **Done**（Accepted · 见 07） |
+| §0.R-C gemini1 | **DEBT-017~020 / CHG-044~045 外部审阅（Grok）与分级整改** | **Done**（Accepted-with-gates · 见 07） |
 
 ### 共享候选池
 

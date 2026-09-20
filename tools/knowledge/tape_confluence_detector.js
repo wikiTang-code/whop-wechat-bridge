@@ -411,22 +411,35 @@ export function detectTapeConfluence(params = {}) {
         }
 
         if (bestGoldenLvl && minGoldenDist <= 0.03) {
-          isGoldenPlaybook = true;
-          bestLevel = bestGoldenLvl;
-          goldenMeta = bestGoldenCard;
-          report.dimensions.d2_zhao_outlook.score = 25; // 黄金战法直接顶格满分
-          report.dimensions.d2_zhao_outlook.is_golden_playbook = true;
-          report.dimensions.d2_zhao_outlook.golden_stats = {
-            card_id: bestGoldenCard.card_id,
-            hit_rate_3d: bestGoldenCard.hit_rate_3d,
-            hit_rate_5d: bestGoldenCard.hit_rate_5d,
-            confidence: bestGoldenCard.confidence,
-          };
-          const hit3dStr = (bestGoldenCard.hit_rate_3d * 100).toFixed(0);
-          const hit5dStr = (bestGoldenCard.hit_rate_5d * 100).toFixed(0);
-          const confStr = ((bestGoldenCard.confidence || 0) * 100).toFixed(1);
-          report.dimensions.d2_zhao_outlook.details = `🌟【高胜率黄金战法认证】[${bestGoldenCard.card_id}] 点位 $${bestGoldenLvl} (空间偏差 ${(minGoldenDist * 100).toFixed(2)}% | 3D胜率 ${hit3dStr}% | 5D胜率 ${hit5dStr}% | 置信度 ${confStr}%)`;
-          report.observations.push(report.dimensions.d2_zhao_outlook.details);
+          const isStrictLevel = !bestGoldenCard.tier || bestGoldenCard.tier === 'golden_level';
+
+          if (isStrictLevel) {
+            // 纯血高精点位黄金战法：顶格加权 25 分
+            isGoldenPlaybook = true;
+            bestLevel = bestGoldenLvl;
+            goldenMeta = bestGoldenCard;
+            report.dimensions.d2_zhao_outlook.score = 25;
+            report.dimensions.d2_zhao_outlook.is_golden_playbook = true;
+            report.dimensions.d2_zhao_outlook.tier = 'golden_level';
+            report.dimensions.d2_zhao_outlook.golden_stats = {
+              card_id: bestGoldenCard.card_id,
+              tier: 'golden_level',
+              hit_rate_3d: bestGoldenCard.hit_rate_3d,
+              hit_rate_5d: bestGoldenCard.hit_rate_5d,
+              confidence: bestGoldenCard.confidence,
+            };
+            const hit3dStr = (bestGoldenCard.hit_rate_3d * 100).toFixed(0);
+            const hit5dStr = (bestGoldenCard.hit_rate_5d * 100).toFixed(0);
+            const confStr = ((bestGoldenCard.confidence || 0) * 100).toFixed(1);
+            report.dimensions.d2_zhao_outlook.details = `🌟【高胜率黄金战法认证 · golden_level】[${bestGoldenCard.card_id}] 点位 $${bestGoldenLvl} (空间偏差 ${(minGoldenDist * 100).toFixed(2)}% | 3D胜率 ${hit3dStr}% | 5D胜率 ${hit5dStr}% | 置信度 ${confStr}%)`;
+            report.observations.push(report.dimensions.d2_zhao_outlook.details);
+          } else {
+            // 方向观点战法 (golden_direction)：仅做观点印证参考，最高 15 分，禁给 25 分顶格加权
+            report.dimensions.d2_zhao_outlook.score = Math.min(15, Math.max(report.dimensions.d2_zhao_outlook.score, 15));
+            report.dimensions.d2_zhao_outlook.tier = 'golden_direction';
+            report.dimensions.d2_zhao_outlook.details = `💡【大V宏观方向参考 · golden_direction】[${bestGoldenCard.card_id}] 参考入场 $${bestGoldenLvl} (多空方向印证，非显式点位)`;
+            report.observations.push(report.dimensions.d2_zhao_outlook.details);
+          }
         }
       } catch (_) {}
     }
