@@ -32,7 +32,7 @@
 | 8 | **REQ-046** | L3/L4 | 盘中高置信度四维共振预警企微卡片推送（防抖冷却与客观微观结构呈现） | `radar_alert_pusher.js` | **Done** |
 | 9 | **REQ-047** | L3/L5 | 美股工作日全时段（夜盘/盘前/盘中/尾盘/盘后）全天候在线感知与 SPX/SPY/TradingView 极速多源指数引擎 | `market_session.js` · `index_equivalent_converter.js` | **Done** |
 | 10 | **REQ-048** | L3/L5 | 赵哥 M7 七姐妹单边下跌战法探测器 + 首尾时段 5 秒超高频扫盘 (CHG-041) | `m7_breadth_detector.js` · `live_radar_sentinel.js` | **Done** |
-| 11 | **REQ-049** | L3 | 战法本体无监督流形聚类与形式化验证方案（约束修订版；049-A分层聚类待启动） | `unsupervised-taxonomy-induction-plan.md` | **Accepted (Ready 049-A)** |
+| 11 | **REQ-049** | L3 | 战法本体分层流形聚类与稳定性扫描 (049-A 启动，唯一SoR=text-embedding-004) | `scripts/knowledge/taxonomy_clustering_049a.js` | **Doing (049-A)** |
 
 ### 0.C 队列 `agent:gemini1`
 

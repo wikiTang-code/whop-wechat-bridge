@@ -27,18 +27,16 @@
 **禁止**将 `pattern` 与 `macro`、`asset_memory`、`risk_rule` 混进同一个聚类空间中跑。
 优先对核心交易形态 `pattern`（2,265 张）独立建库；对 `risk_rule`（585 张）单独聚类分析保护逻辑。
 
-针对每张卡片构建两部分特征：
-1. **纯净文本内容**：`card_type | title | trigger_text | action_text | theory_text | vision_summary`；
-2. **结构化离散特征**：
-   - 标的族（TSLA族 / 科技巨头M7 / 中小盘 / 大盘指数）；
-   - 时段桶（早盘 09:30-10:30 / 盘中 10:30-15:00 / 尾盘 15:00-16:00 / 盘前盘后夜盘）；
-   - 意图方向（long / short / neutral / unknown）；
-   - `has_price_level`（Boolean 标有具体点位）；
-   - `vision_tags`（若由真图 OCR 提取）。
+**物理切片分桶（优于简单拼接）**：
+- 聚类前按分桶键物理切片：`bucket_key = f"{card_type}_{has_price_level}"`（如 `pattern_with_level` / `pattern_no_level`）；
+- 样本量极小桶（$N < 15$）直接归入 `insufficient` 候选池，严禁强行聚类制造数学伪簇。
 
-### 1.2 向量嵌入标准
-- 统一固定模型与版本：使用 **Gemini text-embedding-004** 或本地 **BGE-M3**（单模型定死，严禁两套向量混跑比簇）；
-- 缓存路径：`data/runtime/taxonomy_embeddings_{model}_{card_type}.npy`。
+针对每张卡片构建纯净文本特征：
+- `text_payload = f"{card_type} | {title} | {trigger_text} | {action_text} | {theory_text} | {vision_summary}"`
+
+### 1.2 向量嵌入标准（唯一 SoR）
+- **写死主 SoR 模型**：正式聚类主模型锁定为 **`Gemini text-embedding-004` (768维)**；（离线测试降级备用为本地 `BAAI/bge-m3`，但生产聚类主 SoR 严禁混用跨模型向量）；
+- 缓存路径：`data/runtime/taxonomy_embeddings_text-embedding-004_{bucket_key}.npy`。
 
 ### 1.3 聚类与稳定性扫描
 - **UMAP 作用定位**：用于流形空间可视化与辅助参考；正式主标签在高维空间进行密度拟合；
@@ -110,12 +108,16 @@
 
 ### 3.2 回测与因果隔离规范
 - **时点因果对齐**：事件触发时点严格锁定为原始消息 `created_at`（美东时间），行情数据绝对只取该时点之后；
-- **微观分层采样**：针对开盘首小时与尾盘强平，结合富途 OpenD 分钟级 K 线验证；日间常规战法以日 K 极值与 MAE 为基准；
-- **披露多重检验风险**：对参与测试的所有簇进行 Bonferroni 修正或 FDR（False Discovery Rate）披露，防止白噪声伪战法。
+- **回测精度分级硬约束**：
+  - 日 K 回测结果一律在报告中显式标记为 `coarse`（粗筛辅助参考）；
+  - **关键红线**：凡语义依赖「早盘回踩 (09:30-10:30)」与「尾盘强平 (15:00-16:00)」等日内时段敏感模式的簇，**若无富途 OpenD 分钟级 K 线抽验支持，严禁标记为 `supportive`**；
+  - 报告必须完整披露分钟数据来源（OpenD）与时间窗口，避免数据口径混淆；
+- **样本外切分规范**：严格按时间先后进行 $60\% \text{ (样本内 In-Sample)} \ / \ 40\% \text{ (样本外 Out-of-Sample)}$ 切分，检验跨周期稳定性；
+- **多重检验风险披露**：报告中披露参与测试簇总数与校正前后显著性水平（FDR / Bonferroni 风险度），严禁未校正抢标 `supportive`。
 
 ### 3.3 四态结论标签（替代二元晋级）
 回测输出绝不使用“正式黄金晋级”或“强制淘汰”，而是输出科学的四态标签：
-- 🟢 **`supportive`**：在样本外区间方向与效应依然显著一致，且有效样本 $n ge 20$；
+- 🟢 **`supportive`**：在样本外区间方向与效应依然显著一致，且有效样本 $n \ge 20$（时钟敏感型必须有分钟抽验支撑）；
 - 🟡 **`inconclusive`**：统计效应微弱，在不同时间切片下表现不稳定；
 - 🔴 **`contradictory`**：实际市场走势与卡片逻辑方向显著相反；
 - ⚪ **`insufficient`**：样本数过小（$n < 15$）或缺少可交易数值点位。
