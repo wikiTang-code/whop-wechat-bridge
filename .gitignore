@@ -112,6 +112,7 @@ dry_*.js
 !public/index.html
 !public/monitoring.html
 !public/follow-correct.html
+!public/radar_hud.html
 !data/gex/*.html
 *.txt
 !tools/gex-sidecar/requirements.txt

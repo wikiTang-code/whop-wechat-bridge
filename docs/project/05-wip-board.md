@@ -28,6 +28,7 @@
 | 4 | **REQ-042** | L3/L5 | 富途 OpenD + 长桥 Paper 双通道实测；空间印证引擎 | `brokers/longbridge.js` · `real_market_confluence_verifier*` | **Done** |
 | 5 | **REQ-043** | L3/L5 | 自动驾驶感知总线 (Live Sensor Hub) 与四维共振实时在线驱动引擎 | `live_tape_feed.js` · `test_live_tape_feed.js` | **Done** |
 | 6 | **REQ-044** | L3/L5 | 美股时段感知哨兵守护进程 (盘中15~30s持续监测，休市低功耗待机) | `market_session.js` · `live_radar_sentinel.js` | **Done** |
+| 7 | **REQ-045** | L3/L5 | 美股微观结构与四维共振量化决策驾驶舱（含黄金战法矩阵融合与只读 API） | `public/radar_hud.html` · `readonly-api-router.js` | **Done** |
 
 ### 0.C 队列 `agent:gemini1`
 

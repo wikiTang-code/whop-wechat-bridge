@@ -66,6 +66,11 @@ app.get('/monitoring', (_req, res) => {
   res.sendFile(path.resolve('public/monitoring.html'));
 });
 
+// REQ-045: 智能驾驶态势感知车机大屏 HUD
+app.get(['/radar', '/hud'], (_req, res) => {
+  res.sendFile(path.resolve('public/radar_hud.html'));
+});
+
 // 挂载交易单回放校验与纠错路由 (置于写拦截器前，支持微信内一键点击与纠错表单提交)
 app.use(followReplayRouter);
 

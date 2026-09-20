@@ -65,6 +65,7 @@
 | REQ-042 | P1 | L3/L5 | `done` | **真实券商行情/K线数据空间印证引擎与长桥/富途双通道实测就绪**：落实「量化容不得半点马虎，一切用数据说话」人令；富途 OpenD 127.0.0.1:11111 美股期权全链 (24到期日/单日384合约) + L2 五档盘口 100% 跑通；长桥模拟仓凭证入库 `.env`，解码核验为 `lb_papertrading_20525807`（100% 守牢资金隔离红线），TradeContext/QuoteContext 双通；落地空间印证引擎 `real_market_confluence_verifier.js` 与单测全绿 | `brokers/longbridge.js` · `tools/knowledge/real_market_confluence_verifier.js` · 单测绿灯 |
 | REQ-043 | P1 | L3/L5 | `done` | **自动驾驶感知总线 (Live Sensor Hub) 与四维共振在线决策驱动器**：建立仿自动驾驶感知-融合-决策流水线；毫秒级拉取长桥模拟仓真实正股行情与五档买卖盘口深度（`depth`），融合富途做市商 Gamma 墙与大V纯正战法，驱动四维共振实时自动计算并输出 2x 杠杆做多 ETF 动态折算点位；单测 `test/test_live_tape_feed.js` 全绿通过 | `tools/knowledge/live_tape_feed.js` · `test/test_live_tape_feed.js` · 单测绿灯 |
 | REQ-044 | P1 | L3/L5 | `done` | **美股交易时段感知哨兵守护进程与低功耗休市待机机制**：落实人令「默认不间断持续监测，除美股休市时间」；落地 `market_session.js` 精准识别 ET 时区工作日盘前、RTH 盘中、15:30 尾盘强平窗口与周末/夜间休市；守护进程 `live_radar_sentinel.js` 盘中 15~30 秒不间断巡检，休市自动待机防空耗，高共振自动写入 `confluence_radar_events`；单测全绿 | `market_session.js` · `live_radar_sentinel.js` · `test/test_live_radar_sentinel.js` · 单测绿灯 |
+| REQ-045 | P1 | L3/L5 | `done` | **美股微观结构与四维共振量化决策驾驶舱（含高胜率战法矩阵）与只读 API**：全面规范为金融量化专业命名；共振检测器全面挂载 gemini2 固化的 108 张黄金战法（`golden_playbook.json`）并实现优先加权（历史 3D/5D 胜率回测指标入显）；在 `scripts/web_runner.js` 暴露 `/api/radar/latest`、`/api/radar/events` 与 `/hud` 页面；打造极简暗黑金融微观决策座舱；单测 `test/test_radar_hud_api.js` 全绿 | `tools/knowledge/*` · `public/radar_hud.html` · `monitoring/readonly-api-router.js` · 单测全绿 |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |
@@ -105,6 +106,7 @@
 | CHG-035 | `done` | **Cursor 接管 T1**：aligner 脏卡 DELETE；`--reprocess-empty-sr` 重提赵哥空 SR；VL prompt 强制读 Y 轴；证实多数 TSLA「图」为聊天截图 | 2026-09-19 `agent:cursor` · `batch_vision*` · `multimodal_context_aligner.js` |
 | CHG-036 | `done` | **T2 扩标的**：ATTR_TICKERS+=SOXL/IREN/NBIS/QQQ/SPY/NVDA；分标的价带；persist **n_scored=7** | 2026-09-19 `agent:cursor` · `card_attribution*` · 口径页 |
 | CHG-037 | `done` | **T2 扩标池全量回测与 Golden Playbook 固化**：扩展 TSLA/TSLL/SPY/QQQ/NVDA/IREN/NBIS/CRWV/LITE/COHR/MU 等 12 标的；修复 `enrichedCards` 候选集丢失赵哥卡片根因；全量回测 n_scored=147；门禁提纯固化 `data/runtime/golden_playbook.json` (108张)；新增 `test/test_golden_playbook.js` 契约单测 | 2026-09-20 `agent:gemini1` · `card_attribution*` · `package.json` |
+| CHG-038 | `done` | **消费 gemini2 固化的 Golden Playbook 产物，四维共振雷达与 Web 驾驶舱全面融合高胜率战法矩阵**：命名规范化为「美股微观结构与四维共振量化决策驾驶舱」，暴露 `/api/radar/latest`、`/api/radar/events` 与 `/hud`；通过全套回归单测与 API 单测 | 2026-09-20 `agent:gemini` · `tools/knowledge/*` · `public/radar_hud.html` · 单测全绿 |
 
 ---
 

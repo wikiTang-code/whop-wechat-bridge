@@ -22,6 +22,7 @@ import { getDb } from '../../database.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '../../');
 const GEX_PATH = path.join(ROOT_DIR, 'data/gex/latest.json');
+export const GOLDEN_PLAYBOOK_PATH = path.join(ROOT_DIR, 'data/runtime/golden_playbook.json');
 
 export const TAPE_DISCLAIMER =
   '【纯客观盘口微观结构参谋 · 绝非投资建议】本引擎整合做市商GEX伽马分布、大V历史预判图表、真实交割单点位与盘口大单特征，仅用于市场微观机制学术与复盘印证，严禁作为自动交易依据。';
@@ -187,53 +188,114 @@ export function detectTapeConfluence(params = {}) {
 
   // --- 维度 2: 赵哥大盘与标的多模态走势预判 (0 ~ 25分) ---
   let bestLevel = null;
+  let isGoldenPlaybook = false;
+  let goldenMeta = null;
+
   try {
-    const cards = dbInstance.prepare(`
-      SELECT id, title, trigger_text, action_text, schema_json, created_at 
-      FROM ontology_card 
-      WHERE tickers_json LIKE ? OR title LIKE ?
-      ORDER BY created_at DESC 
-      LIMIT 15
-    `).all(`%"${t}"%`, `%${t}%`);
-
-    let bestDist = Infinity;
-    let matchedCard = null;
-
-    for (const card of cards) {
-      let sr = null;
+    // 2.1 优先检索黄金战法提纯库 (Golden Playbook，经过历史胜率实测筛选)
+    if (fs.existsSync(GOLDEN_PLAYBOOK_PATH)) {
       try {
-        if (card.schema_json) {
-          const parsed = JSON.parse(card.schema_json);
-          sr = parsed.support_resistance;
-          if (!sr && parsed.support_resistance_json) {
-            sr = typeof parsed.support_resistance_json === 'string'
-              ? JSON.parse(parsed.support_resistance_json)
-              : parsed.support_resistance_json;
+        const goldenCards = JSON.parse(fs.readFileSync(GOLDEN_PLAYBOOK_PATH, 'utf8'));
+        // 匹配当前标的或者关联标的 (例如 TSLA ↔ TSLL)
+        const relevantGolden = goldenCards.filter((c) => {
+          const cTicker = (c.ticker || '').toUpperCase();
+          if (cTicker === t) return true;
+          if (t === 'TSLA' && cTicker === 'TSLL') return true;
+          if (t === 'TSLL' && cTicker === 'TSLA') return true;
+          return false;
+        });
+
+        let minGoldenDist = Infinity;
+        let bestGoldenCard = null;
+        let bestGoldenLvl = null;
+
+        for (const gc of relevantGolden) {
+          const lvls = [
+            ...(gc.trigger_levels?.support || []),
+            ...(gc.trigger_levels?.resistance || []),
+          ];
+          for (const lvl of lvls) {
+            if (typeof lvl === 'number' && lvl > 0) {
+              const dist = Math.abs(currentPrice - lvl) / lvl;
+              if (dist < minGoldenDist) {
+                minGoldenDist = dist;
+                bestGoldenLvl = lvl;
+                bestGoldenCard = gc;
+              }
+            }
           }
         }
-      } catch (_) {}
 
-      const levels = [...(sr?.support || []), ...(sr?.resistance || [])];
-      for (const lvl of levels) {
-        if (typeof lvl === 'number' && lvl > 0) {
-          const dist = Math.abs(currentPrice - lvl) / lvl;
-          if (dist < bestDist) {
-            bestDist = dist;
-            bestLevel = lvl;
-            matchedCard = card;
+        if (bestGoldenLvl && minGoldenDist <= 0.03) {
+          isGoldenPlaybook = true;
+          bestLevel = bestGoldenLvl;
+          goldenMeta = bestGoldenCard;
+          report.dimensions.d2_zhao_outlook.score = 25; // 黄金战法直接顶格满分
+          report.dimensions.d2_zhao_outlook.is_golden_playbook = true;
+          report.dimensions.d2_zhao_outlook.golden_stats = {
+            card_id: bestGoldenCard.card_id,
+            hit_rate_3d: bestGoldenCard.hit_rate_3d,
+            hit_rate_5d: bestGoldenCard.hit_rate_5d,
+            confidence: bestGoldenCard.confidence,
+          };
+          const hit3dStr = (bestGoldenCard.hit_rate_3d * 100).toFixed(0);
+          const hit5dStr = (bestGoldenCard.hit_rate_5d * 100).toFixed(0);
+          const confStr = ((bestGoldenCard.confidence || 0) * 100).toFixed(1);
+          report.dimensions.d2_zhao_outlook.details = `🌟【高胜率黄金战法认证】[${bestGoldenCard.card_id}] 点位 $${bestGoldenLvl} (空间偏差 ${(minGoldenDist * 100).toFixed(2)}% | 3D胜率 ${hit3dStr}% | 5D胜率 ${hit5dStr}% | 置信度 ${confStr}%)`;
+          report.observations.push(report.dimensions.d2_zhao_outlook.details);
+        }
+      } catch (_) {}
+    }
+
+    // 2.2 若未命中黄金战法，平滑降级至全库 4,218 张卡片检索
+    if (!isGoldenPlaybook) {
+      const cards = dbInstance.prepare(`
+        SELECT id, title, trigger_text, action_text, schema_json, created_at 
+        FROM ontology_card 
+        WHERE tickers_json LIKE ? OR title LIKE ?
+        ORDER BY created_at DESC 
+        LIMIT 15
+      `).all(`%"${t}"%`, `%${t}%`);
+
+      let bestDist = Infinity;
+      let matchedCard = null;
+
+      for (const card of cards) {
+        let sr = null;
+        try {
+          if (card.schema_json) {
+            const parsed = JSON.parse(card.schema_json);
+            sr = parsed.support_resistance;
+            if (!sr && parsed.support_resistance_json) {
+              sr = typeof parsed.support_resistance_json === 'string'
+                ? JSON.parse(parsed.support_resistance_json)
+                : parsed.support_resistance_json;
+            }
+          }
+        } catch (_) {}
+
+        const levels = [...(sr?.support || []), ...(sr?.resistance || [])];
+        for (const lvl of levels) {
+          if (typeof lvl === 'number' && lvl > 0) {
+            const dist = Math.abs(currentPrice - lvl) / lvl;
+            if (dist < bestDist) {
+              bestDist = dist;
+              bestLevel = lvl;
+              matchedCard = card;
+            }
           }
         }
       }
-    }
 
-    if (bestLevel && bestDist <= 0.03) {
-      const outlookScore = bestDist <= 0.01 ? 25 : (bestDist <= 0.02 ? 20 : 15);
-      report.dimensions.d2_zhao_outlook.score = outlookScore;
-      report.dimensions.d2_zhao_outlook.details = `命中大V多模态战法卡 [${matchedCard.id}] 预测点位 ${bestLevel} (空间偏差 ${(bestDist * 100).toFixed(2)}%)`;
-      report.observations.push(report.dimensions.d2_zhao_outlook.details);
-    } else if (cards.length > 0) {
-      report.dimensions.d2_zhao_outlook.score = 12;
-      report.dimensions.d2_zhao_outlook.details = `命中大V该标的相关卡片 ${cards.length} 张 (形态跟踪中)`;
+      if (bestLevel && bestDist <= 0.03) {
+        const outlookScore = bestDist <= 0.01 ? 25 : (bestDist <= 0.02 ? 20 : 15);
+        report.dimensions.d2_zhao_outlook.score = outlookScore;
+        report.dimensions.d2_zhao_outlook.details = `命中大V多模态战法卡 [${matchedCard.id}] 预测点位 ${bestLevel} (空间偏差 ${(bestDist * 100).toFixed(2)}%)`;
+        report.observations.push(report.dimensions.d2_zhao_outlook.details);
+      } else if (cards.length > 0) {
+        report.dimensions.d2_zhao_outlook.score = 12;
+        report.dimensions.d2_zhao_outlook.details = `命中大V该标的相关卡片 ${cards.length} 张 (形态跟踪中)`;
+      }
     }
   } catch (_) {}
 

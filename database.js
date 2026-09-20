@@ -136,6 +136,26 @@ export function markDistillScanned(items, dbInstance = null) {
   tx(items);
 }
 
+/** REQ-043 / REQ-041: 四维共振雷达在线感知事件落库 (仅用于客观参谋与态势呈现) */
+export function ensureRadarEventsTable(conn) {
+  if (!conn) throw new Error('ensureRadarEventsTable requires db connection');
+  conn.prepare(`
+    CREATE TABLE IF NOT EXISTS confluence_radar_events (
+      id TEXT PRIMARY KEY,
+      ticker TEXT NOT NULL,
+      current_price REAL NOT NULL,
+      confluence_score INTEGER NOT NULL,
+      confluence_level TEXT NOT NULL,
+      dimensions_json TEXT,
+      observations_json TEXT,
+      leveraged_etf_json TEXT,
+      created_at INTEGER NOT NULL
+    )
+  `).run();
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_radar_events_ticker ON confluence_radar_events (ticker)').run(); } catch (_) {}
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_radar_events_ts ON confluence_radar_events (created_at)').run(); } catch (_) {}
+}
+
 // 权威频道登记册加载器 (全系统唯一频道来源)
 let channelRegistryMap = null;
 function getChannelRegistryMap() {

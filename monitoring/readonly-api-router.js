@@ -29,6 +29,9 @@ import {
 } from '../database.js';
 import { getUnifiedPortfolio, getUnifiedPositions } from '../trading.js';
 import { getReadOnlyArchiveDb } from './db-readonly.js';
+import { getUsMarketSession } from '../tools/knowledge/market_session.js';
+import { fetchLatestOrComputeRadar, getLatestRadarSnapshot } from '../tools/knowledge/live_radar_sentinel.js';
+import { TAPE_DISCLAIMER } from '../tools/knowledge/tape_confluence_detector.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -712,3 +715,73 @@ readonlyRouter.get('/api/system/monitor', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
+// GET /api/radar/latest (获取当前标的四维共振态势快照与美股交易时段)
+readonlyRouter.get('/api/radar/latest', async (req, res) => {
+  try {
+    const db = getReadOnlyArchiveDb();
+    const session = getUsMarketSession(new Date());
+    const snapshot = await fetchLatestOrComputeRadar({ dbInstance: db });
+    res.json({
+      success: true,
+      market_session: session,
+      updated_at: snapshot.updated_at || Date.now(),
+      disclaimer: TAPE_DISCLAIMER,
+      data: snapshot.results || [],
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/radar/events (获取历史四维共振事件流)
+readonlyRouter.get('/api/radar/events', (req, res) => {
+  try {
+    const db = getReadOnlyArchiveDb();
+    const ticker = req.query.ticker ? req.query.ticker.toUpperCase() : null;
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '20', 10)));
+
+    let rows = [];
+    try {
+      if (ticker) {
+        rows = db.prepare(`
+          SELECT * FROM confluence_radar_events
+          WHERE ticker = ?
+          ORDER BY created_at DESC
+          LIMIT ?
+        `).all(ticker, limit);
+      } else {
+        rows = db.prepare(`
+          SELECT * FROM confluence_radar_events
+          ORDER BY created_at DESC
+          LIMIT ?
+        `).all(limit);
+      }
+    } catch (_) {
+      rows = [];
+    }
+
+    const formatted = rows.map((r) => ({
+      id: r.id,
+      ticker: r.ticker,
+      current_price: r.current_price,
+      confluence_score: r.confluence_score,
+      confluence_level: r.confluence_level,
+      dimensions: r.dimensions_json ? JSON.parse(r.dimensions_json) : {},
+      observations: r.observations_json ? JSON.parse(r.observations_json) : [],
+      leveraged_etf: r.leveraged_etf_json ? JSON.parse(r.leveraged_etf_json) : null,
+      created_at: r.created_at,
+      created_at_iso: new Date(r.created_at).toISOString(),
+    }));
+
+    res.json({
+      success: true,
+      count: formatted.length,
+      disclaimer: TAPE_DISCLAIMER,
+      data: formatted,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+

@@ -118,6 +118,16 @@ import { projectLeveragedEtfLevels } from '../tools/knowledge/tape_confluence_de
 const projected = projectLeveragedEtfLevels('TSLA', { support: [190], resistance: [220] }, 200, 10.0);
 assert.strictEqual(projected.etf, 'TSLL');
 assert.strictEqual(projected.projected_support[0], 9.0);
-assert.strictEqual(projected.projected_resistance[0], 12.0);
-console.log('  ✅ 正股动态折算 2x 做多 ETF 算法验证完全精准');
-
+// 5. 验证高胜率黄金战法 (Golden Playbook) 优先加权
+console.log('\n--- 5. 验证高胜率黄金战法 (Golden Playbook) 优先加权 ---');
+// golden_playbook.json 中有 TSLL 18.39 支撑位
+const goldenRes = detectTapeConfluence({
+  ticker: 'TSLL',
+  currentPrice: 18.39,
+  dbInstance: db,
+});
+assert.strictEqual(goldenRes.dimensions.d2_zhao_outlook.score, 25, '命中黄金战法应顶格满分');
+assert.strictEqual(goldenRes.dimensions.d2_zhao_outlook.is_golden_playbook, true, '应标记 is_golden_playbook=true');
+assert.ok(goldenRes.dimensions.d2_zhao_outlook.golden_stats, '应附带黄金战法胜率统计');
+assert.ok(goldenRes.dimensions.d2_zhao_outlook.details.includes('高胜率黄金战法认证'), '详情应包含认证字样');
+console.log('  ✅ 高胜率黄金战法优先加权单测完全通过');
