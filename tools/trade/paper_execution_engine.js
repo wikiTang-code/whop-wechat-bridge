@@ -235,13 +235,36 @@ async function trackIntentLifecycle(intentId, orderId, { broker, dbInstance, tim
       console.warn(`[TradeIntent Tracker] 柜台已拒单 (REJECTED): [${intentId}]`);
       updateTradeIntent(intentId, { status: 'REJECTED', reject_reason: 'BROKER_REJECTED' }, dbInstance);
     } else if (pollRes.status === 'TIMEOUT') {
-      console.warn(`[TradeIntent Tracker] 订单等待成交超时 (${timeoutMs}ms)，触发自动撤单: [${intentId}]`);
+      console.warn(`[TradeIntent Tracker] 订单等待成交超时 (${timeoutMs}ms)，执行撤单前终态终验: [${intentId}]`);
+      
+      // 竞态防御：撤单前先终查一次委托与持仓，避免误撤已成交但回报延迟的单子
+      let alreadyFilled = false;
+      try {
+        if (typeof broker.getTodayOrders === 'function') {
+          const checkOrders = await broker.getTodayOrders();
+          const target = checkOrders.find(o => String(o.order_id) === String(orderId));
+          if (target && target.status === 'FILLED') {
+            alreadyFilled = true;
+          }
+        }
+      } catch (_) {}
+
+      if (alreadyFilled) {
+        console.log(`[TradeIntent Tracker] 终态终验发现订单实际已成交 (FILLED)，解除撤单锁定: [${intentId}]`);
+        updateTradeIntent(intentId, { status: 'FILLED' }, dbInstance);
+        if (typeof broker.syncPaperPositions === 'function') {
+          await broker.syncPaperPositions();
+        }
+        return getTradeIntent(intentId, dbInstance);
+      }
+
+      // 真正未成交，执行安全撤单
       try {
         if (typeof broker.cancelOrder === 'function') {
           await broker.cancelOrder(orderId);
         }
       } catch (cancelErr) {
-        console.error(`[TradeIntent Tracker] 自动撤单请求异常:`, cancelErr.message);
+        console.warn(`[TradeIntent Tracker] 自动撤单请求反馈:`, cancelErr.message);
       }
       updateTradeIntent(intentId, {
         status: 'CANCELLED',
@@ -251,6 +274,7 @@ async function trackIntentLifecycle(intentId, orderId, { broker, dbInstance, tim
   } catch (e) {
     console.error(`[TradeIntent Tracker] 状态机轮询发生未捕获异常:`, e.message);
   }
+
 
   return getTradeIntent(intentId, dbInstance);
 }

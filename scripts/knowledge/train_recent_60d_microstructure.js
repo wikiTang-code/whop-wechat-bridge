@@ -391,7 +391,10 @@ function generateReport(data, reportPath) {
   fs.writeFileSync(reportPath, lines.join('\n'), 'utf8');
 }
 
-main().catch(err => {
-  console.error('Fatal execution error:', err);
-  process.exit(1);
-});
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  main().catch(err => {
+    console.error('Fatal execution error:', err);
+    process.exit(1);
+  });
+}
+

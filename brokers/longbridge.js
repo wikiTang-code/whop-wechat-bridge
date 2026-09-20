@@ -78,11 +78,24 @@ export async function getAccountBalances() {
  */
 export async function getActivePositions() {
   const ctx = await getContext();
-  const positions = await ctx.stockPositions();
+  let rawPositions = [];
+  try {
+    const raw = await ctx.stockPositions();
+    if (Array.isArray(raw)) {
+      rawPositions = raw;
+    } else if (raw && Array.isArray(raw.channels)) {
+      rawPositions = raw.channels;
+    } else if (raw && Array.isArray(raw.positions)) {
+      rawPositions = raw.positions;
+    }
+  } catch (err) {
+    console.warn('[长桥模拟盘/Paper] 获取持仓异常，安全降级为空列表:', err.message);
+    return [];
+  }
   
-  if (!Array.isArray(positions)) return [];
+  if (!Array.isArray(rawPositions)) return [];
   
-  return positions.map(pos => {
+  return rawPositions.map(pos => {
     // 长桥 symbol 格式如 "TSLA.US"，需要分割提取出股票代码
     const ticker = (pos.symbol || '').split('.')[0] || '';
     const quantity = parseInt(pos.quantity || '0', 10);
@@ -93,6 +106,7 @@ export async function getActivePositions() {
     
     return {
       ticker,
+
       quantity,
       average_entry_price: avgPrice,
       current_price: currentPrice,
