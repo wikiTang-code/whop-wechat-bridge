@@ -21,6 +21,7 @@ import { getDb, ensureRadarEventsTable } from '../../database.js';
 import { getUsMarketSession, getNextActiveWaitMs, getRecommendedPollIntervalMs } from './market_session.js';
 import { runOnlineConfluenceScan, getLiveQuoteContext } from './live_tape_feed.js';
 import { pushRadarAlert } from './radar_alert_pusher.js';
+import { appendForwardEventWindowBar, ensureEventWindowBarsTable } from '../../scripts/knowledge/train_recent_60d_microstructure.js';
 
 dotenv.config();
 
@@ -86,6 +87,7 @@ process.on('SIGTERM', () => {
 export async function runSentinelLoop(options = {}) {
   const db = options.dbInstance || getDb();
   ensureRadarEventsTable(db);
+  ensureEventWindowBarsTable(db);
 
   const tickers = options.tickers || DEFAULT_TICKERS;
   console.log('================================================================================');
@@ -179,6 +181,16 @@ export async function runSentinelLoop(options = {}) {
           pushRadarAlert(res).catch((err) => {
             console.warn(`     ⚠️ [预警推送告警] ${res.ticker} 企微推送异常:`, err.message);
           });
+
+          // 路径3: 盘中前瞻滚雪球 (自动累积微观 15m 高频事件切片样本)
+          appendForwardEventWindowBar(db, {
+            eventId,
+            symbol: res.ticker,
+            t0: Date.now(),
+            interval: '15m'
+          }).then((cnt) => {
+            if (cnt > 0) console.log(`     📥 [前瞻高频落盘] ${res.ticker} 切片已增量存储至 event_window_bars (${cnt} 根)`);
+          }).catch(() => {});
         }
       }
     } catch (scanErr) {

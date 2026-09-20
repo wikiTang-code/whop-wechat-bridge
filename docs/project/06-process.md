@@ -4,16 +4,32 @@
 
 ---
 
-## 1. 需求生命周期
+## 1. 需求生命周期与双重门禁（Dual-Gate DoD）
 
 ```
 发现 → 04 记债/问题（可选）→ 03 登记 REQ/CHG/REJ
     → human/联审 accepted
     → 05 入列本 Agent 高优队列（§0.A/§0.B）/认领
-    → 实现 + 自测
-    → commit（带 REQ-NNN）→ 03 done + 05 出队 + 接续
+    → 实现 + 自测（Engineering DoD 通过 → done-eng）
+    → 战略与实战对账（Strategic Gap Audit → 暴露差距与决策选项）
+    → commit（带 REQ-NNN）→ 03/05 标明 done-eng 或 done-strat
     → （累计≥N 或专题包关闭）移交对方 §0.R 审修 → 07 意见 → 修复闭环
 ```
+
+### 1.0 双重交付门禁（Dual-Gate DoD 细则）
+
+1. **工程门禁（Engineering DoD）**：
+   - 代码实现完整、无 Syntax 错误、单测 `test:local-ops` 100% 绿灯；
+   - 静态资产/切片/数据落盘规范，无脏数据；
+   - 满足此项仅可记为 `done-eng`（代码调通），**严禁直接宣称实战可用或圆满完成**。
+2. **战略门禁（Strategic DoD）**：
+   - 对照最初战略 North Star（如样本量 $N$、微观胜率、盈亏比、实盘指导可用性）；
+   - 凡主观或客观处于 `insufficient`、样本缺失或未通过统计显著性检验时，战略门禁为 **Gap Pending**；
+   - 必须在报告与汇报中附带标准 `Strategic Gap Audit` 章节，由 Human 拍板是追加攻坚、接受现状（`accepted-with-gap`）、还是转入下一战略阶段。
+3. **状态机细化（看板禁止只写空洞的 Done）**：
+   - `done-eng`：工程与单测完成，但存在客观实战 Gap，等待战略决策；
+   - `done-strat`：战略指标达标，或 Human 明确签收接受 Gap；
+   - `accepted-with-gap`：经联审/Human 确认接受现状缺口，转入下一阶段。
 
 ### 1.1 高优队列流转与接续 SOP（双 Agent · 长期固定）
 

@@ -57,6 +57,11 @@
     - ② **「不用翻墙期权」** (`chat_feed_1CTrCEx44dP13jW3RVkYiS`)  
     其他任何频道（讨论区/闲聊区/分析区等）的消息一律不得作为正式交易单采集。
 11. **周哥「美股工具箱」量化参考定位**：周哥（`Mrzhoulucky` / `user_HnSG7BJWMTfDz`）自研量化工具及「美股工具箱」（「日内波段信号检测」、「股票分析」、「每日选股」等）给出的波段点位与多空判断准确度高，**作为系统重要的外部客观量化参考参谋（Quantitative Reference）**，用于共振雷达印证与大盘高低点校验，严禁与赵哥实盘交易单混淆。
+12. **双重交付门禁与战略差距对账（Dual-Gate DoD & Strategic Gap Audit · 强制红线）**：
+    - **双重门禁分立**：工程完成（`done-eng`，代码跑通/测试绿灯/文件落盘）**绝不等于**战略完成（`done-strat`，具备实战指导与统计置信）。凡处于大面积 `insufficient` 或样本未达统计显著时，**严禁宣称“圆满收工”**，状态必须标为 `done-eng` 或 `accepted-with-gap`。
+    - **强制战略对账段（Strategic Gap Audit）**：凡阶段性交付、REQ 关单或向用户汇报，**必须且强制包含**《战略目标与实战对账单》（含：最初 North Star、当前与实战差距、系统暗伤与盲区、A/B/C 下一步提案与 Human 拍板）。无此段落禁止关单。
+    - **汇报话术黑名单**：严禁单方面使用「圆满完成」、「大满贯」、「100% 满血」、「已可实盘指导」等浮夸词汇（除非 Strategic DoD 显式 pass 且经 Human 确认）。
+    - **严禁过度解读 MFE**：`MFE ≥ 2%` 仅代表短窗内曾存在向上脉冲空间（描述性事实），未扣成本滑点、未统一定义出场、未做空头对称检验前，**绝对禁止直接充当 Alpha 胜率或作为雷达自动加权依据**。
 
 ## 7. 开干 / 收工（与本仓库绑定）
 
@@ -65,9 +70,9 @@
 | 开工 | `git pull` 后重读 `05` **§0 全文**（含 **§0.X Blocked**）与 `README` 队列镜像；只认领**本 Agent 队列**；互斥见 `06` |
 | 新需求/变更 | 先写 `03-requirements.md` |
 | 审阅结论 | 写 `07-review-inbox.md`，落地必须进 `03` |
-| 收工 | 更新 `05`（本队列出队）并**同步刷新 README 队列表**；03=`done`；接续前再次重读 §0 |
+| 收工 | 运行 `tools/ops/system_readiness_audit.js` 刷新 `readiness-latest.md`；更新 `05`（标明 `done-eng` 或 `done-strat`）并**同步刷新 README 队列表**；输出含 `Strategic Gap Audit` 的交付报告；接续前再次重读 §0 |
 
-**落地后 Git（长期默认，勿等用户再催）**：REQ/CHG 代码或文档落地且自检通过后，Agent **自动**（1）回写 `docs/project/`（含最新队列镜像）（2）独立 commit（带 REQ/CHG 号；禁夹带 `.env` / GEX HTML / `scratch`）（3）`git push origin HEAD`。生产 ff / C2 仍须 human（REQ-002 / HITL）。
+**落地后 Git（长期默认，勿等用户再催）**：REQ/CHG 代码或文档落地且自检通过后，Agent **自动**（1）回写 `docs/project/`（含最新队列镜像与 readiness 审计）（2）独立 commit（带 REQ/CHG 号；禁夹带 `.env` / GEX HTML / `scratch`）（3）`git push origin HEAD`。生产 ff / C2 仍须 human（REQ-002 / HITL）。
 
 **双队列**：§0.A=`agent:cursor` · §0.B=`agent:gemini`；同一 REQ/热点互斥（`CHG-011`）。  
 **交叉审修**：出队满阈值或专题包关闭 → 对方 §0.R（`CHG-012`）；结论进 07，修复进 03。  
