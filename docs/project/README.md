@@ -81,7 +81,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **T1 接管 + T2 n_scored=7**（CHG-035/036） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~048 Done** + **REQ-049 分层流形聚类 (Doing 049-A)** | Active / Doing |
+| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~048 Done** + **REQ-049 分层流形聚类 (049-A Done · 等待 Human 进 049-B)** | Active / Done (049-A) |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 + **CHG-039** Done + **DEBT-017~020** 资产补全落地 Done | Done |
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
 | **§0.X Blocked** | 040=**Cleared**（扩标回测全量收工）；033→human | **见 05 §0.X** |
