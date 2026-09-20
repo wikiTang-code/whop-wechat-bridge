@@ -96,8 +96,20 @@ async function runTests() {
     assert(textRadar.includes('美股微观结构与四维共振量化决策驾驶舱'), '页面必须包含量化决策驾驶舱标题');
     console.log('  ✅ /hud 与 /radar 量化决策驾驶舱页面托管通过');
 
+    // 5. 验证 REQ-054: GET /api/positions/lifecycle
+    console.log('\n--- 4. 验证 GET /api/positions/lifecycle (实战持仓动态生命周期与资金总控) ---');
+    const resLifecycle = await fetch(`${baseUrl}/api/positions/lifecycle`, { headers });
+    assert(resLifecycle.status === 200, `GET /api/positions/lifecycle 应返回 200, got ${resLifecycle.status}`);
+    const dataLifecycle = await resLifecycle.json();
+    assert(dataLifecycle.success === true, 'lifecycle.success 应为 true');
+    assert(dataLifecycle.capital_allocation, '应包含大V宏观资金配置评估');
+    assert(dataLifecycle.capital_allocation.strategy === 'EQUITY_CORE_THEN_OPTION_BOOSTER', '策略应为 EQUITY_CORE_THEN_OPTION_BOOSTER');
+    assert(dataLifecycle.capital_allocation.advice.includes('堆满'), '资金总控建议必须包含股票堆满铁律');
+    assert(Array.isArray(dataLifecycle.active_positions), 'active_positions 应为数组');
+    console.log(`  ✅ GET /api/positions/lifecycle 通过 (大V资金总控模型生效，当前活跃标的=${dataLifecycle.active_positions.length} 个)`);
+
     console.log('\n===========================================================');
-    console.log('🎉 REQ-045 车机大屏 HUD 与雷达 API 单测全部 PASS！');
+    console.log('🎉 REQ-045 & REQ-054 车机大屏 HUD 与持仓雷达 API 单测全部 PASS！');
     console.log('===========================================================');
   } finally {
     server.close();

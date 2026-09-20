@@ -81,7 +81,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **T1 接管 + T2 n_scored=7**（CHG-035/036） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~052 Done/done-eng** + **REQ-053 done-eng (持仓动态状态机TAC-001~003与51套单测全绿 · 见 053 报告)** | Active / done-eng |
+| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-055 done-eng (雷达HUD驾驶舱大V宏观资金分配与实战做T控制台全息打通 · 见 055 报告)** | Active / done-eng |
 | **§0.C `agent:gemini2`** | **REQ-054** done-eng (人工审核增量联动流水线/DEBT-021闭环/90组SLM黄金语料 · 见 054 报告) + **REQ-036** Active | done-eng (accepted-with-gap) |
 
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |

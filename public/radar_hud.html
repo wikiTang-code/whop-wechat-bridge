@@ -493,6 +493,219 @@
       margin-bottom: 4px;
     }
 
+    /* 宏观资金分配总控看板 */
+    .capital-banner {
+      background: rgba(16, 21, 30, 0.9);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      border-radius: 10px;
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .capital-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .capital-tag {
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 5px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .capital-stats {
+      display: flex;
+      gap: 18px;
+      font-size: 0.82rem;
+      align-items: center;
+    }
+
+    .capital-stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .capital-stat-item .label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+    }
+
+    .capital-stat-item .val {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .capital-advice {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.45;
+      flex: 1;
+      min-width: 320px;
+      border-left: 2px solid rgba(0, 240, 255, 0.2);
+      padding-left: 14px;
+    }
+
+    /* 战术持仓生命周期控制台 */
+    .lifecycle-section {
+      margin-bottom: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .section-header h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .lifecycle-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .pos-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 10px 14px;
+      transition: all 0.2s ease;
+    }
+
+    .pos-card:hover {
+      border-color: rgba(0, 240, 255, 0.4);
+      background: rgba(0, 240, 255, 0.02);
+    }
+
+    .pos-card.breakeven-locked {
+      border-left: 3px solid var(--accent-green);
+    }
+
+    .pos-card.dip-bought {
+      border-left: 3px solid var(--accent-gold);
+    }
+
+    .pos-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .pos-sym {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      font-family: var(--font-mono);
+    }
+
+    .pos-state-badge {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 240, 255, 0.12);
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    .pos-state-badge.green {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--accent-green);
+    }
+
+    .pos-state-badge.gold {
+      background: rgba(255, 184, 0, 0.15);
+      color: var(--accent-gold);
+    }
+
+    .pos-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+    }
+
+    .pos-row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .pos-label {
+      color: var(--text-muted);
+    }
+
+    .pos-val {
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .pos-val.stop { color: var(--accent-red); }
+    .pos-val.profit { color: var(--accent-green); }
+    .pos-val.target { color: var(--accent-gold); }
+
+    .pos-action-note {
+      margin-top: 6px;
+      padding-top: 4px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.08);
+      font-size: 0.7rem;
+      color: #94a3b8;
+      line-height: 1.35;
+    }
+
+    /* 标的卡片上的持仓标记 */
+    .ticker-pos-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      color: var(--accent-cyan);
+      font-family: var(--font-mono);
+      margin-top: 4px;
+    }
+
     /* 底部更新提示 */
     .footer-bar {
       margin-top: 20px;
@@ -540,6 +753,41 @@
       <span>🛡️ <strong>【纯客观盘口态势参谋 · 绝非投资建议】</strong>本驾驶舱纯只读运行，100% 隔离实盘下单资金通道。数据仅用于学术复盘与微观机制印证，交易决策完全由驾驶员自主把控。</span>
       <span id="last-update-time" style="font-family: var(--font-mono); font-size: 0.75rem;">更新: --</span>
     </div>
+
+    <!-- 大V宏观资金分配总控看板 (赵哥铁律: 正股堆满再一成/融资买期权) -->
+    <div id="capital-banner" class="capital-banner">
+      <div class="capital-left">
+        <span class="capital-tag">📊 宏观资金模型</span>
+        <div class="capital-stats">
+          <div class="capital-stat-item">
+            <span class="label">正股底仓</span>
+            <span id="cap-equity-pct" class="val">--%</span>
+          </div>
+          <div class="capital-stat-item">
+            <span class="label">期权仓位</span>
+            <span id="cap-option-pct" class="val">--%</span>
+          </div>
+          <div class="capital-stat-item">
+            <span class="label">现金缓冲</span>
+            <span id="cap-cash-pct" class="val">--%</span>
+          </div>
+        </div>
+      </div>
+      <div id="capital-advice-text" class="capital-advice">
+        正在读取大V资金分配模型...（铁律：股票堆满再一成或者融资买期权，底仓优先，末端期权杠杆冲刺）
+      </div>
+    </div>
+
+    <!-- 动态战术持仓与做T控制台 -->
+    <section class="lifecycle-section">
+      <div class="section-header">
+        <h2>💼 大V实战持仓生命周期与做T控制台 (TAC-001~003 状态机)</h2>
+        <span class="section-sub">动态保本损锁定 · 高抛低吸差价锚定 · 纯只读参谋 (DEBT-021 待审重算中)</span>
+      </div>
+      <div id="positions-lifecycle-container" class="lifecycle-container">
+        <div style="color: var(--text-muted); font-size: 0.8rem; padding: 10px;">正在推演活跃持仓生命周期...</div>
+      </div>
+    </section>
 
     <!-- 核心网格布局 -->
     <div class="dashboard-grid">
@@ -617,6 +865,107 @@
       }
     }
 
+    // 全局活跃持仓映射表 (用于标的卡片联动)
+    let activePositionsCache = new Map();
+
+    // 状态机中文展示映射
+    const STATE_LABELS = {
+      'INITIAL_1_6TH': { text: '1/6 首单低吸', cls: 'pos-state-badge' },
+      'HALF_PROFIT_TAKEN_BREAKEVEN': { text: '🛡️ 半仓止盈 · 保本损锁定', cls: 'pos-state-badge green' },
+      'T_DIP_BOUGHT': { text: '⚡ 低吸加回做T', cls: 'pos-state-badge gold' },
+      'CLOSED': { text: '已平仓闭环', cls: 'pos-state-badge' }
+    };
+
+    // 渲染宏观资金分配看板
+    function renderCapitalAllocation(capital) {
+      if (!capital) return;
+      const eqEl = document.getElementById('cap-equity-pct');
+      const opEl = document.getElementById('cap-option-pct');
+      const caEl = document.getElementById('cap-cash-pct');
+      const advEl = document.getElementById('capital-advice-text');
+
+      if (eqEl) eqEl.textContent = `${(capital.equityAlloc * 100).toFixed(0)}%`;
+      if (opEl) opEl.textContent = `${(capital.optionAlloc * 100).toFixed(0)}%`;
+      if (caEl) caEl.textContent = `${(capital.cashAlloc * 100).toFixed(0)}%`;
+
+      if (advEl) {
+        let statusBadge = '🟢 【策略合规】';
+        if (capital.riskLevel === 'CRITICAL_LEVERAGE') {
+          statusBadge = '🔴 【严重超配】';
+        } else if (capital.riskLevel === 'OPTION_OVERWEIGHT') {
+          statusBadge = '🟡 【期权偏重】';
+        }
+        advEl.innerHTML = `<strong>${statusBadge}</strong> ${capital.advice} <span style="color: var(--accent-gold); margin-left: 8px;">(大V铁律：股票堆满再一成或者融资买期权)</span>`;
+      }
+    }
+
+    // 渲染战术持仓生命周期控制台
+    function renderPositionLifecycle(positions) {
+      const container = document.getElementById('positions-lifecycle-container');
+      if (!positions || !positions.length) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; padding: 10px;">近 30 天暂无活跃跟踪持仓</div>';
+        return;
+      }
+
+      // 更新全局持仓映射
+      activePositionsCache.clear();
+      for (const p of positions) {
+        activePositionsCache.set(p.ticker.toUpperCase(), p);
+      }
+
+      container.innerHTML = positions.map(p => {
+        const stateCfg = STATE_LABELS[p.tactical_state] || { text: p.tactical_state, cls: 'pos-state-badge' };
+        const isBreakeven = p.tactical_state === 'HALF_PROFIT_TAKEN_BREAKEVEN';
+        const isDip = p.tactical_state === 'T_DIP_BOUGHT';
+        const cardCls = isBreakeven ? 'pos-card breakeven-locked' : (isDip ? 'pos-card dip-bought' : 'pos-card');
+
+        // 保本损与硬止损
+        const beStopStr = p.breakeven_stop ? `$${p.breakeven_stop.toFixed(2)}` : '未上移';
+        const hardStopStr = p.hard_stop_loss ? `$${p.hard_stop_loss.toFixed(2)}` : '未设';
+
+        // 做T差价建议 (若有最近高抛，给出回调目标)
+        let tAdviceHtml = '';
+        if (p.last_sell_ref) {
+          const dipTarget = (p.last_sell_ref * 0.96).toFixed(2);
+          tAdviceHtml = `
+            <div class="pos-row">
+              <span class="pos-label">高抛基准 / 接回参考:</span>
+              <span class="pos-val target">$${p.last_sell_ref.toFixed(2)} → 回调目标 ~$${dipTarget} (-4%)</span>
+            </div>
+          `;
+        }
+
+        const note = p.recent_action || '根据成交单与战法规则自动流转';
+
+        return `
+          <div class="${cardCls}">
+            <div class="pos-header">
+              <span class="pos-sym">${p.ticker}</span>
+              <span class="${stateCfg.cls}">${stateCfg.text}</span>
+            </div>
+            <div class="pos-details">
+              <div class="pos-row">
+                <span class="pos-label">战术持仓均价:</span>
+                <span class="pos-val">$${p.avg_cost.toFixed(2)}</span>
+              </div>
+              <div class="pos-row">
+                <span class="pos-label">动态保本止损线:</span>
+                <span class="pos-val ${isBreakeven ? 'profit' : ''}">${beStopStr}</span>
+              </div>
+              <div class="pos-row">
+                <span class="pos-label">初始硬止损 (-5%):</span>
+                <span class="pos-val stop">${hardStopStr}</span>
+              </div>
+              ${tAdviceHtml}
+            </div>
+            <div class="pos-action-note">
+              📌 ${note}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     // 渲染标的卡片
     function renderCards(tickers) {
       const container = document.getElementById('cards-container');
@@ -631,6 +980,15 @@
         const cardClass = isWangzha ? 'ticker-card wangzha' : 'ticker-card';
         const circleClass = isWangzha ? 'score-circle wangzha' : (isHigh ? 'score-circle high' : 'score-circle normal');
         const statusText = isWangzha ? '🔥 王炸共振触发' : (isHigh ? '⚡ 高置信共振' : '常规微观监控');
+
+        // 检查是否有活跃持仓状态
+        const posInfo = activePositionsCache.get(item.ticker.toUpperCase());
+        let posPillHtml = '';
+        if (posInfo) {
+          const stText = STATE_LABELS[posInfo.tactical_state]?.text || posInfo.tactical_state;
+          const beText = posInfo.breakeven_stop ? `保本损 $${posInfo.breakeven_stop.toFixed(2)}` : `均价 $${posInfo.avg_cost.toFixed(2)}`;
+          posPillHtml = `<div class="ticker-pos-pill">💼 活跃持仓: ${stText} · ${beText}</div>`;
+        }
 
         // 检查是否命中黄金战法
         const isGolden = item.dimensions?.d2_zhao_outlook?.is_golden_playbook;
@@ -676,6 +1034,8 @@
               </div>
               <div class="ticker-price">$${Number(item.current_price).toFixed(2)}</div>
             </div>
+
+            ${posPillHtml}
 
             <div class="confluence-meter">
               <div class="${circleClass}">
@@ -742,10 +1102,16 @@
     // 核心数据拉取
     async function fetchRadarData() {
       try {
-        const [latestRes, eventsRes] = await Promise.all([
-          fetch('/api/radar/latest').then(r => r.json()),
-          fetch('/api/radar/events?limit=15').then(r => r.json())
+        const [latestRes, eventsRes, lifecycleRes] = await Promise.all([
+          fetch('/api/radar/latest').then(r => r.json()).catch(() => ({ success: false })),
+          fetch('/api/radar/events?limit=15').then(r => r.json()).catch(() => ({ success: false })),
+          fetch('/api/positions/lifecycle').then(r => r.json()).catch(() => ({ success: false }))
         ]);
+
+        if (lifecycleRes.success) {
+          renderCapitalAllocation(lifecycleRes.capital_allocation);
+          renderPositionLifecycle(lifecycleRes.active_positions);
+        }
 
         if (latestRes.success) {
           renderSessionBadge(latestRes.market_session);
@@ -757,7 +1123,7 @@
           renderEvents(eventsRes.data);
         }
       } catch (err) {
-        console.warn('获取雷达态势失败:', err);
+        console.warn('获取雷达与持仓态势失败:', err);
       }
     }
 

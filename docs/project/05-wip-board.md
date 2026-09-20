@@ -37,6 +37,8 @@
 | 13 | **REQ-051** | L3 | 近60天黄金窗口真实交易单与战法事件短周期回测集训与前瞻落盘 (898笔实盘信号+4128张卡片全面对齐) | `scripts/knowledge/train_recent_60d_microstructure.js` · `docs/project/051-recent-60d-training-report.md` | **done-eng** |
 | 14 | **REQ-052** | L3 | 基于真实交易单(t0)的逆向特征挖掘与高置信战术假说提纯 (提案A落地 · 388真实成交反查语境与分时结构) | `scripts/knowledge/reverse_mine_tactics_from_trades.js` · `docs/project/052-reverse-tactical-mining-report.md` | **done-eng** |
 | 15 | **REQ-053** | L3 | 实战战术持仓动态生命周期状态机 (TAC-001/002/003工程化 · 1/6分批/半仓止盈/做T加回) | `tools/trade/position_lifecycle_manager.js` · `test/test_position_lifecycle_manager.js` | **done-eng** |
+| 16 | **REQ-055** | L3 | 实战持仓动态生命周期做T控制台与宏观资金总控雷达 HUD 驾驶舱全息打通 (大V铁律: 股票堆满再一成/融资买期权 · 前端+只读API联动) | `public/radar_hud.html` · `monitoring/readonly-api-router.js` · `test/test_radar_hud_api.js` | **done-eng** |
+
 
 ### 0.C 队列 `agent:gemini2` (数据资产治理 / 人工审核联动 / SLM飞轮)
 

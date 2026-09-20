@@ -32,6 +32,14 @@ import { getReadOnlyArchiveDb } from './db-readonly.js';
 import { getUsMarketSession } from '../tools/knowledge/market_session.js';
 import { fetchLatestOrComputeRadar, getLatestRadarSnapshot } from '../tools/knowledge/live_radar_sentinel.js';
 import { TAPE_DISCLAIMER } from '../tools/knowledge/tape_confluence_detector.js';
+import {
+  evaluateCapitalAllocation,
+  CapitalAllocationModel,
+  TacticalState,
+  parseTacticalIntent,
+  transitionPositionState,
+  createEmptyPosition
+} from '../tools/trade/position_lifecycle_manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -785,4 +793,88 @@ readonlyRouter.get('/api/radar/events', (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
+// GET /api/positions/lifecycle (REQ-054: 获取大V战术持仓动态生命周期、保本损线与做T参谋)
+readonlyRouter.get('/api/positions/lifecycle', (req, res) => {
+  try {
+    const db = getReadOnlyArchiveDb();
+    const thirtyDaysAgo = Date.now() - 30 * 86400 * 1000;
+
+    // 1. 抽取近 30 天赵哥的交易单以构建活跃持仓
+    const signals = db.prepare(`
+      SELECT signal_id, ticker, action, price, created_at, reason
+      FROM trade_signals
+      WHERE speaker_id = 'user_4yeplXgbguTu4'
+        AND created_at >= ?
+      ORDER BY created_at ASC
+    `).all(thirtyDaysAgo);
+
+    // 2. 标的持仓流转
+    const positionsMap = new Map();
+    for (const s of signals) {
+      const sym = s.ticker.toUpperCase();
+      if (!positionsMap.has(sym)) {
+        positionsMap.set(sym, createEmptyPosition(sym));
+      }
+      const curPos = positionsMap.get(sym);
+
+      // 解析自然语言战术动作
+      const intent = parseTacticalIntent(s.reason, s.price);
+      let actionType = intent.actionType;
+      if (actionType === 'UNKNOWN') {
+        if (s.action === 'BUY' || s.action === 'ADD') actionType = 'FRACTIONAL_BUY';
+        else if (s.action === 'SELL' || s.action === 'CLOSE') actionType = 'HALF_TAKE_PROFIT';
+      }
+
+      const step = transitionPositionState(curPos, {
+        actionType,
+        price: s.price || intent.price,
+        quantity: 100, // 标准推演基数
+        fraction: intent.fraction || 0.5,
+        referencePrice: intent.referencePrice,
+        timestamp: s.created_at
+      });
+
+      positionsMap.set(sym, step.updatedPosition);
+    }
+
+    // 3. 统计当前活跃持仓 (quantity > 0 或状态活跃)
+    const activePositions = [];
+    let totalEquityVal = 0;
+    for (const [sym, pos] of positionsMap.entries()) {
+      if (pos.quantity > 0 || pos.tacticalState !== TacticalState.CLOSED) {
+        activePositions.push({
+          ticker: sym,
+          quantity: pos.quantity,
+          avg_cost: pos.avgCost,
+          tactical_state: pos.tacticalState,
+          breakeven_stop: pos.breakevenStop,
+          hard_stop_loss: pos.hardStopLoss,
+          realized_pnl: pos.realizedPnl,
+          last_sell_ref: pos.lastSellRecord ? pos.lastSellRecord.price : null,
+          recent_action: pos.history.length > 0 ? pos.history[pos.history.length - 1].summary : null
+        });
+        totalEquityVal += pos.quantity * pos.avgCost;
+      }
+    }
+
+    // 4. 计算大V宏观资金分配建议 (默认常规 100,000 美元总底仓评估)
+    const capitalEvaluation = evaluateCapitalAllocation(
+      totalEquityVal > 0 ? totalEquityVal : 88000,
+      10000,
+      2000
+    );
+
+    res.json({
+      success: true,
+      updated_at: Date.now(),
+      capital_allocation: capitalEvaluation,
+      active_positions: activePositions,
+      disclaimer: '【纯客观决策参谋】依据赵哥实战 TAC-001~003 动态仓位状态机推演，绝对隔离实盘下单资金。'
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 

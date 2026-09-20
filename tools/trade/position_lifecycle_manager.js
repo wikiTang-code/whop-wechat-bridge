@@ -24,6 +24,50 @@ export const TacticalState = {
 };
 
 /**
+ * [TAC-000] 大V宏观资金分配总控模型
+ * 铁律: "股票堆满再一成或者融资买期权"
+ * 正股压舱底（90%~100% 仓位）+ 顶层一成/融资期权做杠杆爆破，严禁开局直接重仓期权
+ */
+export const CapitalAllocationModel = {
+  STRATEGY_NAME: 'EQUITY_CORE_THEN_OPTION_BOOSTER',
+  EQUITY_TARGET_RATIO: 1.0,         // 股票堆满目标 (100%)
+  OPTION_MAX_RATIO: 0.10,          // 股票堆满后再配最多一成 (10%) 期权或融资
+  DESCRIPTION: '股票堆满再一成或者融资买期权。正股负责吃稳大波段与分时做T，期权仅作为尾部小仓位非线性加速器。'
+};
+
+/**
+ * 计算大盘总控资金配置建议
+ */
+export function evaluateCapitalAllocation(currentEquityValue, currentCash, currentOptionValue = 0) {
+  const totalNetAsset = currentEquityValue + currentCash + currentOptionValue;
+  const equityRatio = totalNetAsset > 0 ? (currentEquityValue / totalNetAsset) : 0;
+  const optionRatio = totalNetAsset > 0 ? (currentOptionValue / totalNetAsset) : 0;
+
+  let advice = '';
+  let status = 'BALANCED';
+
+  if (equityRatio < 0.85) {
+    status = 'EQUITY_UNDERWEIGHT';
+    advice = `【正股未满仓】当前股票仓位 ${(equityRatio * 100).toFixed(1)}% < 85%，赵哥铁律要求“股票堆满再考虑期权”，当前阶段严禁大买期权，主力资金应聚焦高贝塔正股/2x战车分批低吸！`;
+  } else if (optionRatio > 0.12) {
+    status = 'OPTION_OVERWEIGHT';
+    advice = `【期权超配预警】期权持仓占比 ${(optionRatio * 100).toFixed(1)}% 超过一成，违背“股票堆满后仅用一成或融资轻度参与期权”铁律，极易遭遇时间价值归零杀伤，建议减持期权锁定利润！`;
+  } else {
+    status = 'OPTIMAL';
+    advice = `【最优配比】股票已堆满 (${(equityRatio * 100).toFixed(1)}%)，期权处于轻度进攻位 (${(optionRatio * 100).toFixed(1)}% ≤ 10%)，符合赵哥最高胜率攻守矩阵。`;
+  }
+
+  return {
+    strategy: CapitalAllocationModel.STRATEGY_NAME,
+    totalNetAsset,
+    equityRatio,
+    optionRatio,
+    status,
+    advice
+  };
+}
+
+/**
  * 创建空白标的持仓状态
  */
 export function createEmptyPosition(ticker) {
@@ -38,6 +82,27 @@ export function createEmptyPosition(ticker) {
     lastSellRecord: null,    // 最近一笔卖出单 (供做T差价对比)
     history: []              // 事件流水
   };
+}
+
+/**
+ * 内存全局持仓注册表 (供 HUD 实时读取与参谋展示)
+ */
+const globalPositions = new Map();
+
+export function getOrCreatePosition(ticker) {
+  const sym = ticker.toUpperCase();
+  if (!globalPositions.has(sym)) {
+    globalPositions.set(sym, createEmptyPosition(sym));
+  }
+  return globalPositions.get(sym);
+}
+
+export function getAllActivePositions() {
+  const result = [];
+  for (const [ticker, pos] of globalPositions.entries()) {
+    result.push(pos);
+  }
+  return result;
 }
 
 /**
