@@ -96,7 +96,7 @@
 | §0.R-A cursor | **REQ-038-T1 VL 离线批跑管道与门禁抽审（`bdb0804`）** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-042 / CHG-034（`779d055`）抽审** | **Done**（accepted-with-gates · 见 07） |
 | §0.R-A gemini1 | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | **Done**（Accepted · 见 07） |
-| §0.R-C gemini1 | **DEBT-017~020 / CHG-044~045 外部审阅（Grok）与分级整改** | **Done**（Accepted-with-gates · 见 07） |
+| §0.R-C gemini1 | **CHG-046 整改验收与六点门禁钉死（Grok 外部审阅）** | **Done**（ACCEPT WITH NOTES · 见 07） |
 
 ### 共享候选池
 

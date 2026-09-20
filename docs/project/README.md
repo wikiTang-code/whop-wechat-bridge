@@ -89,7 +89,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | **§0.R-A** | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | Done |
 | **§0.R-A** | **REQ-042/CHG-034** accepted-with-gates | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |
-| **§0.R-C** | **DEBT-017~020 / CHG-044~045 外部审阅（Grok）与分级整改** | Done |
+| **§0.R-C** | **CHG-046 整改验收与六点门禁钉死（ACCEPT WITH NOTES）** | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 

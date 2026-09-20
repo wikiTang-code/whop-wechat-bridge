@@ -103,7 +103,8 @@
   - **Grok 外部审阅整改闭环（CHG-046）**：
     1. **质量分级隔离**：杜绝战法粗细混淆，结构体显式标注 `tier: 'golden_level'`（175 张，含显式点位与归因胜率）与 `tier: 'golden_direction'`（310 张，宏观多空方向信号）；
     2. **四维雷达物理门禁**：`tape_confluence_detector.js` 严格硬锁：**仅 `golden_level` 享受 D2 顶格加权（25分）**；`golden_direction` 降档为纯方向情绪参考（最高 15 分，绝不顶格），严防虚假共振；
-    3. **双重抽检验真**：落盘 `data/runtime/sample_audit_report.json`，完成 DEBT-017 配对 8 组（时序/标的/大V硬锁 100% 通过）与 DEBT-018 战法 20 张（点位/胜率 100% 真实）抽检。
+    3. **双重抽检验真**：落盘 `data/runtime/sample_audit_report.json`，完成 DEBT-017 配对 8 组（时序/标的/大V硬锁 100% 通过）与 DEBT-018 战法 20 张（点位/胜率 100% 真实）抽检；
+    4. **六大收紧点钉死（ACCEPT WITH NOTES）**：① tier 为消费端加权准入权限而非绝对 Alpha；② 抽检定性为工程 Smoke 验收，非统计完备，建立持续抽样协议；③ ≤3% 空间偏差定义写死（基准成交价/中间价 vs 战法 level，杠杆 ETF 经 Beta 动态折算）；④ direction 维度硬锁封顶 15 分且防叠加；⑤ 推产严格受限 C2 HITL；⑥ REQ-049 保持 `proposed_pilot` 物理隔离。
 
 
 ---

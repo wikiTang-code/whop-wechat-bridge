@@ -132,7 +132,27 @@ assert.strictEqual(goldenRes.dimensions.d2_zhao_outlook.score, 25, '命中黄金
 assert.strictEqual(goldenRes.dimensions.d2_zhao_outlook.is_golden_playbook, true, '应标记 is_golden_playbook=true');
 assert.ok(goldenRes.dimensions.d2_zhao_outlook.golden_stats, '应附带黄金战法胜率统计');
 assert.ok(goldenRes.dimensions.d2_zhao_outlook.details.includes('高胜率黄金战法认证'), '详情应包含认证字样');
-console.log('  ✅ 高胜率黄金战法优先加权单测完全通过');
+assert.strictEqual(goldenRes.dimensions.d2_zhao_outlook.tier, 'golden_level');
+
+// 5.1 验证空间偏差超出 ±3% 门禁时绝对阻断 25 分顶格加权
+const oobRes = detectTapeConfluence({
+  ticker: 'TSLL',
+  currentPrice: 50.0, // TSLL 最高点位未及 50.0，偏差巨大 (>50%)
+  dbInstance: db,
+});
+assert.notStrictEqual(oobRes.dimensions.d2_zhao_outlook.score, 25, '偏差超出 3% 空间门禁不应触发 25 分顶格加权');
+assert.strictEqual(!!oobRes.dimensions.d2_zhao_outlook.is_golden_playbook, false, '偏差超出 3% 不应标记黄金战法');
+
+// 5.2 验证 golden_direction 命中时严格封顶 15 分，严禁多条叠加或突破 15 分
+const dirRes = detectTapeConfluence({
+  ticker: 'MU',
+  currentPrice: 949.13, // 命中 MU golden_direction 战法
+  dbInstance: db,
+});
+assert.strictEqual(dirRes.dimensions.d2_zhao_outlook.score, 15, 'golden_direction 维度严格封顶 15 分，禁止顶格 25 分');
+assert.strictEqual(dirRes.dimensions.d2_zhao_outlook.tier, 'golden_direction');
+assert.ok(dirRes.dimensions.d2_zhao_outlook.details.includes('golden_direction'));
+console.log('  ✅ 高胜率黄金战法优先加权、≤3%空间门禁与direction封顶单测完全通过');
 
 // 6. 验证扩充后的期权大单 Block Trade / 扫盘特征库
 console.log('\n--- 6. 验证期权大单 Block Trade / 扫盘特征库 (Dimension 4 Pattern Registry) ---');

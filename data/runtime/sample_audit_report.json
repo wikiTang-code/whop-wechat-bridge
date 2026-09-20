@@ -1,6 +1,9 @@
 {
   "ok": true,
   "audit_time": "2026-09-20T06:26:22.318Z",
+  "audit_scope": "smoke_verification",
+  "statistical_completeness": false,
+  "statement": "本报告为工程冒烟抽检验真，非全量统计学完备；tier 是雷达消费端加权准入权限，非实盘绝对Alpha保证。",
   "debt017_pairing_audit": {
     "sample_size": 8,
     "passed_count": 8,

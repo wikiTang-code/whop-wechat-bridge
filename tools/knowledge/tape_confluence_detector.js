@@ -410,6 +410,16 @@ export function detectTapeConfluence(params = {}) {
           }
         }
 
+        /**
+         * 空间偏差计算规范（Spatial Tolerance Specification - CHG-046 / Grok 审阅对齐）：
+         * 1. 基准现价（currentPrice）：标的当前最新市场成交价或买卖中间价（Mid-price = (Bid + Ask) / 2）；
+         * 2. 战法点位（level）：卡片中声明的显式支撑位（support）或阻力位（resistance）；
+         * 3. 偏差比率公式：dist = Math.abs(currentPrice - level) / level；
+         * 4. 门禁阈值：dist <= 0.03（即相对偏差绝对值在 ±3.00% 空间窗口内）；
+         * 5. 杠杆 ETF（如 TSLA -> TSLL）空间对齐：
+         *    若直接评测 TSLL，则 currentPrice 与 level 均为 TSLL 自身价格；
+         *    若从正股 TSLA 投影，必须先经 projectLeveragedEtfLevels() 动态 Beta 折算到杠杆 ETF 价格空间后再计算偏差。
+         */
         if (bestGoldenLvl && minGoldenDist <= 0.03) {
           const isStrictLevel = !bestGoldenCard.tier || bestGoldenCard.tier === 'golden_level';
 
@@ -434,17 +444,18 @@ export function detectTapeConfluence(params = {}) {
             report.dimensions.d2_zhao_outlook.details = `🌟【高胜率黄金战法认证 · golden_level】[${bestGoldenCard.card_id}] 点位 $${bestGoldenLvl} (空间偏差 ${(minGoldenDist * 100).toFixed(2)}% | 3D胜率 ${hit3dStr}% | 5D胜率 ${hit5dStr}% | 置信度 ${confStr}%)`;
             report.observations.push(report.dimensions.d2_zhao_outlook.details);
           } else {
-            // 方向观点战法 (golden_direction)：仅做观点印证参考，最高 15 分，禁给 25 分顶格加权
-            report.dimensions.d2_zhao_outlook.score = Math.min(15, Math.max(report.dimensions.d2_zhao_outlook.score, 15));
+            // 方向观点战法 (golden_direction)：仅做观点印证参考，维度严格封顶 15 分，禁给 25 分顶格加权，禁多条叠加
+            report.dimensions.d2_zhao_outlook.score = 15;
             report.dimensions.d2_zhao_outlook.tier = 'golden_direction';
-            report.dimensions.d2_zhao_outlook.details = `💡【大V宏观方向参考 · golden_direction】[${bestGoldenCard.card_id}] 参考入场 $${bestGoldenLvl} (多空方向印证，非显式点位)`;
+            report.dimensions.d2_zhao_outlook.details = `💡【大V宏观方向参考 · golden_direction】[${bestGoldenCard.card_id}] 参考入场 $${bestGoldenLvl} (多空方向印证，非显式点位，D2封顶15分)`;
             report.observations.push(report.dimensions.d2_zhao_outlook.details);
+            isGoldenPlaybook = true; // 锁定已命中战法，防止后续普通卡片覆盖或叠加
           }
         }
       } catch (_) {}
     }
 
-    // 2.2 若未命中黄金战法，平滑降级至全库 4,218 张卡片检索
+    // 2.2 若未命中黄金战法（既无 level 也无 direction），平滑降级至全库 4,218 张卡片检索
     if (!isGoldenPlaybook) {
       const cards = dbInstance.prepare(`
         SELECT id, title, trigger_text, action_text, schema_json, created_at 

@@ -8,7 +8,32 @@
 
 ## 1. 待消化审阅
 
-### 2026-09-20 · REQ-049-C 弱检验回测审阅与自适应周期深度裁决 · Grok × Gemini
+### 2026-09-20 · CHG-046 落地验收审阅与门禁钉死（ACCEPT WITH NOTES） · Grok × Gemini
+
+**审阅对象**：`tools/knowledge/card_attribution.js`、`tools/knowledge/tape_confluence_detector.js`、`data/runtime/sample_audit_report.json`（Commit `070af87`）
+
+**Grok 外部总结论**：**ACCEPT WITH NOTES——方向正确，核心门禁（tier 分级 + 雷达加权隔离）可接受；抽检与「175/310」口径还需再钉死，避免新的虚假精确。相对上一轮「485 一锅端」的风险，这次整改是对症的。DEBT-018 消费侧整改阶段性过关，不必为此停掉 049-D 收口，但 049 与 direction 仍不得自动进入顶格加权。**
+
+#### 一、已对齐审阅意见的核心落地（记功）
+- **level / direction 明确分档**：`tier: golden_level`（175张）与 `golden_direction`（310张）结构落地。
+- **雷达杜绝全员顶格加权**：仅 `golden_level` 且空间偏差 ≤3% 获 25 分顶格加权；`golden_direction` 降档参考，从物理层杜绝虚假共振。
+- **抽检真实性动作闭环**：落盘 `data/runtime/sample_audit_report.json`，完成时序、标的与大V硬锁校验。
+- **文风去浮夸**：全面清理各文档中“大满贯”等浮夸口径。
+- **单测全绿**：`test:golden-playbook`、`test:tape-confluence`、`test:local-ops` 全部 100% 绿灯。
+
+#### 二、六大收紧点 Gemini 逐项落地与客观钉死
+
+| 收紧核实点 | 审阅要求 | Gemini 落地对齐与硬规则锁定 | 状态 |
+|---|---|---|:---:|
+| **1. 权限定位非神化** | 避免「另一套 60% 神话」，明确多重检验与样本窗口径 | **写入合同**：`tier` 仅代表系统消费侧的**顶格加权使用权限（Permission Gate）**，绝非实盘绝对 Alpha 保证；175 张 `golden_level` 包含早期 108 张硬点位 + Top 30 拓标新增点位，评测基于历史日 K 窗口，严禁当作未来胜率神化。 | **已钉死** |
+| **2. 抽检规模与定性** | 8 组配对 + 20 张卡适合冒烟，不适合宣称统计完备；建立持续抽样协议 | **明确定性**：在 `sample_audit_report.json` 显式标注 `audit_scope: 'smoke_verification'`、`statistical_completeness: false`，定义为工程冒烟核验；确立后续知识包 Promote 前必须通过持续抽检门禁协议。 | **已钉死** |
+| **3. ≤3% 空间偏差定义** | 明确是相对哪张价、哪一帧 mid、是否对 2x ETF 做标的折算 | **写入规范与单测**：基准现价采用最新成交价或中间价 `(Bid+Ask)/2`；相对战法支撑/阻力点位计算比率偏差 `Math.abs(px - lvl)/lvl <= 0.03`；若为 TSLL 等杠杆 ETF，正股投影必须先调用 `projectLeveragedEtfLevels()` 完成动态 Beta 空间映射。单测已增加超出 3% 绝对拒权断言。 | **已钉死** |
+| **4. direction 叠加封顶** | 防止多条 direction 叠加突破 15 分接近 level | **硬锁代码**：`tape_confluence_detector.js` 明确将 `golden_direction` 锁定封顶在 15 分，并锁定 `isGoldenPlaybook = true`，严禁多条 direction 累加，严禁被普通卡片覆盖为高分，实现 level 与 direction 物理隔离。单测已验证通过。 | **已钉死** |
+| **5. 推产与 HITL** | 确认 golden_playbook 仍走 C2/审计 | **审计一致**：`golden_playbook.json` 部署严格遵循 `knowledge_promote.js --golden` 通道，由 Human 独立管控 C2 权限；禁止任何 Agent 自治下单或越权改写生产 ingest 消息。 | **已钉死** |
+| **6. 与 REQ-049 的关系** | 049 试点仍是 proposed_pilot，不得因 046 的 level 门禁被误读为「049 已可加权」 | **绝对红线**：049 属于流形聚类探索试点，状态死锁为 `proposed_pilot`；046 仅约束 038 黄金战法集内部的消费方式，049 战法绝不自动进入生产四维雷达加权。 | **已钉死** |
+
+---
+
 
 **审阅对象**：`docs/project/049c-weak-backtest-report.md` 及结构体产物 `data/runtime/backtest_taxonomy_049c.json`（Commit `c1ca40b`）
 
