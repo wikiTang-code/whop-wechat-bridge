@@ -35,6 +35,7 @@
 | DEBT-018 | **黄金战法库标的覆盖与多空时域分布失衡**（拓标Top 30并支持方向信号；`n_scored` 达 767 张，提纯 485 张战法分级管理：175张 `golden_level` 独占雷达顶格加权、310张 `golden_direction` 隔离为宏观参考，空头占比 36.1%，经抽检点位真实性 100% 达标，单测 `test:golden-playbook` 全绿，详见 §2.3.2） | `card_attribution*` · `golden_playbook.json` · `sample_audit_report.json` | **Done** |
 | DEBT-019 | **早期历史长文本发言细颗粒度重蒸馏盲区**（扫描 830 篇长文，提纯 657 张深层策略/心法卡片入库，生成 1,314 组 SLM 微调问答对，单测 `test:long-article-distill` 全绿） | `tools/knowledge/long_article_distill.js` · `slm_qa_pairs.json` | **Done** |
 | DEBT-020 | **微观盘口大单流高频持久化缺口与海外低延迟迁移**（`tape_block_events` 表与持久化引擎落地，单测全绿；海外低延迟部署待实施，详见 §2.3.4） | `tape_confluence_detector.js` · `tape_block_events` | **P2 结构就绪 (Partial)** |
+| DEBT-021 | **交易单人工审核未完工与利润重算联动债**（当前近60天 265 对配对与 63.8% 净胜率基于自动化粗配对，用户企微人工审核 #91 CONL 及后续队列仍在进行中；**严禁将当前利润视作绝对定论**，必须随用户人工审核进度增加建立重跑配对与盈亏重算机制） | `REQ-033` · `REQ-052` · `sync_paired_trades_to_signals.js` | **P1 跟踪 (Active)** |
 
 
 ### 2.2 本机 vs git vs 生产（2026-09-19 Cursor 盘点）
