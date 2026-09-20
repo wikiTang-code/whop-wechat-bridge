@@ -264,11 +264,97 @@ export function evaluateHardRules(ctx) {
   const hasWarn = warnings.length > 0;
   const verdict = hasReject ? RuleVerdict.REJECT : (hasWarn ? RuleVerdict.WARN : RuleVerdict.PASS);
 
+  // 辅助检测微观转弯形态 (若传入了分时 bars)
+  let turningPoint = null;
+  if (Array.isArray(ctx.recentBars) && ctx.recentBars.length >= 3) {
+    if (side === 'SELL') {
+      turningPoint = detectSpikeTurnDown(ctx.recentBars);
+    } else if (side === 'BUY') {
+      turningPoint = detectPlungeTurnUp(ctx.recentBars);
+    }
+  }
+
   return {
     verdict,
     passed: !hasReject,
     rejectReasons,
     warnings,
-    ruleAudit
+    ruleAudit,
+    turningPoint
   };
 }
+
+/**
+ * 微观形态 A: 检测「异动直线拉升后见顶转弯回落」 (Spike & Trailing Retracement)
+ * 用于判断是否触发高位阶梯半仓止盈卖出
+ * @param {Array<{high: number, low: number, open: number, close: number}>} bars 连续分时K线
+ * @param {Object} [options]
+ * @param {number} [options.minSpikePercent=3.5] 最小直线脉冲拉升幅度 (默认 +3.5%)
+ * @param {number} [options.minDropPercent=0.8] 见顶后最小回撤触发阈值 (默认 -0.8% ~ -1.5%)
+ */
+export function detectSpikeTurnDown(bars, { minSpikePercent = 3.5, minDropPercent = 0.8 } = {}) {
+  if (!Array.isArray(bars) || bars.length < 3) return { detected: false };
+
+  const highestIndex = bars.reduce((maxI, b, i, arr) => b.high > arr[maxI].high ? i : maxI, 0);
+  const peakBar = bars[highestIndex];
+  const startBar = bars[0];
+
+  const spikeRatio = ((peakBar.high - startBar.open) / startBar.open) * 100;
+  const latestBar = bars[bars.length - 1];
+  const dropFromPeak = ((peakBar.high - latestBar.close) / peakBar.high) * 100;
+
+  // 判定条件: 曾出现短线急拉，且最新价格自高点回落超过阈值 (形态向下转弯)
+  const isSpike = spikeRatio >= minSpikePercent;
+  const isTurnDown = dropFromPeak >= minDropPercent && latestBar.close < peakBar.close;
+
+  return {
+    detected: isSpike && isTurnDown,
+    isSpike,
+    isTurnDown,
+    peakPrice: peakBar.high,
+    currentPrice: latestBar.close,
+    spikePercent: spikeRatio,
+    dropFromPeakPercent: dropFromPeak,
+    description: isSpike && isTurnDown
+      ? `检测到异动直线拉升 (+${spikeRatio.toFixed(1)}%) 并自高点回落 -${dropFromPeak.toFixed(1)}%，向下转弯确认，触发挂单卖出`
+      : '未检测到完整直线冲高向下拐头'
+  };
+}
+
+/**
+ * 微观形态 B: 检测「急跌跳水后探底转弯企稳拉起」 (Plunge & Reversal Hook)
+ * 用于判断是否触发早盘跳水回踩右侧低吸买入
+ * @param {Array<{high: number, low: number, open: number, close: number}>} bars 连续分时K线
+ * @param {Object} [options]
+ * @param {number} [options.minPlungePercent=2.5] 最小跳水急跌幅度 (默认 -2.5%)
+ * @param {number} [options.minReboundPercent=0.8] 探底后最小反抽拉起阈值 (默认 +0.8% ~ +1.2%)
+ */
+export function detectPlungeTurnUp(bars, { minPlungePercent = 2.5, minReboundPercent = 0.8 } = {}) {
+  if (!Array.isArray(bars) || bars.length < 3) return { detected: false };
+
+  const lowestIndex = bars.reduce((minI, b, i, arr) => b.low < arr[minI].low ? i : minI, 0);
+  const troughBar = bars[lowestIndex];
+  const startBar = bars[0];
+
+  const plungeRatio = ((startBar.open - troughBar.low) / startBar.open) * 100;
+  const latestBar = bars[bars.length - 1];
+  const reboundFromTrough = ((latestBar.close - troughBar.low) / troughBar.low) * 100;
+
+  // 判定条件: 曾出现急跌探底，且最新价格自低点拉起超过阈值 (形态向上转弯)
+  const isPlunge = plungeRatio >= minPlungePercent;
+  const isTurnUp = reboundFromTrough >= minReboundPercent && latestBar.close > troughBar.close;
+
+  return {
+    detected: isPlunge && isTurnUp,
+    isPlunge,
+    isTurnUp,
+    troughPrice: troughBar.low,
+    currentPrice: latestBar.close,
+    plungePercent: plungeRatio,
+    reboundPercent: reboundFromTrough,
+    description: isPlunge && isTurnUp
+      ? `检测到急跌跳水 (-${plungeRatio.toFixed(1)}%) 并在低点止跌拉起 +${reboundFromTrough.toFixed(1)}%，向上转弯确认，触发低吸买入`
+      : '未检测到完整急跌探底向上拐头'
+  };
+}
+
