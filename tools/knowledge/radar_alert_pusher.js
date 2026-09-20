@@ -95,7 +95,10 @@ export async function pushRadarAlert(radarData, options = {}) {
     cooldownMs = DEFAULT_COOLDOWN_MS,
     force = false,
     dryRun = false,
-    webhookUrl = process.env.WECHAT_ALERT_WEBHOOK_URL || process.env.WECHAT_WORK_WEBHOOK_URL,
+    webhookUrl =
+      process.env.WECHAT_QUANT_RADAR_WEBHOOK_URL ||
+      process.env.WECHAT_ALERT_WEBHOOK_URL ||
+      process.env.WECHAT_WORK_WEBHOOK_URL,
     fetchImpl = fetch,
     nowFn = () => Date.now(),
   } = options;

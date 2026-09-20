@@ -95,6 +95,7 @@ readonlyRouter.get('/api/config', (req, res) => {
       MONITOR_INTERVAL_MINUTES: process.env.MONITOR_INTERVAL_MINUTES || '15',
       WECHAT_WORK_WEBHOOK_URL_MASKED: maskSecret(process.env.WECHAT_WORK_WEBHOOK_URL),
       WECHAT_ALERT_WEBHOOK_URL_MASKED: maskSecret(process.env.WECHAT_ALERT_WEBHOOK_URL),
+      WECHAT_QUANT_RADAR_WEBHOOK_URL_MASKED: maskSecret(process.env.WECHAT_QUANT_RADAR_WEBHOOK_URL),
       WHOP_WEBHOOK_SECRET_MASKED: maskSecret(process.env.WHOP_WEBHOOK_SECRET),
       WHOP_USER_TOKEN_MASKED: maskSecret(process.env.WHOP_USER_TOKEN),
       LAST_SYNC_TIME: lastSync,
