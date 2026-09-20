@@ -82,6 +82,8 @@ scripts/watchdog/.watchdog_state
 data/runtime/*
 !data/runtime/req038-t2-attribution.json
 !data/runtime/golden_playbook.json
+!data/runtime/chg050_params_frozen.json
+!data/runtime/chg050_is_oos_summary.json
 
 
 # One-off debug/test scripts

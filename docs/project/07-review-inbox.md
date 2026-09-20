@@ -8,6 +8,38 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-20 · REQ-057 P2 / CHG-050 exploratory IS/OOS（Grok FAIL-CLOSED → Cursor 落地）
+
+**审阅对象**：`scripts/knowledge/backtest_walk_forward_rigorous.js`、`docs/project/057-turning-point-microstructure-report.md`（HEAD `b0b2c88`）及本轮 CHG-050 补丁。
+
+**Grok 总结论（签收）**：**这轮把「±2h = 79% 共振」戳破，方向对；但脚本和 057 仍不够格叫 Walk-Forward，更不是 alpha。数字按 exploratory 记账。禁止再用「工业级」。**
+
+#### 可写入 07 的（已锁）
+- 宽窗 79% 作废；SOXL 过滤后 30m precision 为个位数到十几、recall <10%（旧稿）；固定 2h 扣费后旧 IS 为负期望。
+- 角色不变：Layer1 evidence，HITL，禁止 `AUTO_SUBMIT`。
+
+#### 不得写入规则/HUD/自动开仓的
+- 38.2% 移动止盈、OOS PF 22、量能吸筹、Walk-Forward 已过关。
+
+#### Cursor CHG-050 落地对照
+
+| P2 条目 | 落地 |
+|---|---|
+| 删「工业级」；§7 标 `deprecated_wide_window` | 057 §6/§7 已改 |
+| 交易日 40/20；IS 预登记网格；`params_frozen.json`；OOS 只读 | `chooseSplitDays` + `chg050_params_frozen.json` |
+| k=过去 100 根 ATR/C 分位数；下轨用 i-1 | `exploratory_is_oos.js` |
+| 最近邻；TP/FP/FN；时间单位断言失败 exit≠0 | 单测覆盖 |
+| 置换 B=200 | 写入 summary；SOXL 5m OOS p=0.08，其余不拒绝零假设 |
+| Top5 × {5m,1m}；TSLA 优化器非主结果 | 1m 仅 Yahoo ~7 会话，标 `short_window_proportional` |
+| jsonl + 汇总 + 冻结参数；输入哈希 | summary/frozen 入库；jsonl gitignored |
+| ExitB 报 n/盈亏笔/均盈均亏/MaxDD，禁止只报 PF | `publicExitStats` |
+
+**本轮数字仍是 exploratory**：5m OOS n 多为 3–7（CRWV=16）；IREN/CRWV/COHR ExitA 为负；1m 不能支撑规则。状态：`done-eng (accepted-with-gap)`，**不是** `done-strat`。
+
+P0 不变：夜盘 20:00 ET 才可能 FILLED。Intent 仍缺 `t_arrive/px_zhao/px_arrive/delta/exec_policy`。
+
+---
+
 ### 2026-09-20 · CHG-049 / REQ-055 补丁与股性盘感落地审阅 (ACCEPT WITH NOTES) · Grok × Human × Gemini
 
 **审阅对象**：`public/radar_hud.html`、`monitoring/readonly-api-router.js`、`tools/trade/position_lifecycle_manager.js`、`tools/knowledge/stock_elasticity_analyzer.js`、`test/test_radar_hud_api.js` (Commit `f23531b` 及本轮细化)

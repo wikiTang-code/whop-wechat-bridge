@@ -6,6 +6,7 @@ import { getReadOnlyArchiveDb } from '../../monitoring/db-readonly.js';
  * scripts/knowledge/optimize_tsla_micro_alpha.js
  * 
  * [TSLA/TSLL 5m 高频微观 Alpha 算法优化与寻优引擎]
+ * CHG-050: 本脚本不是近 60 天主结果。主评测只跑 Top5 (IREN/SOXL/MU/CRWV/COHR) × {5m,1m}。
  * 1. 抓取与载入近 60 天 TSLA/TSLL 4,681 根真实 5m 高频 K 线;
  * 2. 跑三代算法对照:
  *    - V1 基线: 固定通道 + 简单收缩

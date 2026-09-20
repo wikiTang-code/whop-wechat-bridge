@@ -1,0 +1,138 @@
+{
+  "method": "exploratory_is_oos_holdout",
+  "chg": "CHG-050",
+  "frozen_constants": {
+    "cooldownBars": 12,
+    "trailRetrace": 0.382,
+    "pulseAtrMult": 1,
+    "costBpsRoundTrip": 0.001,
+    "lookbackAtr": 100,
+    "emaPeriod": 26,
+    "atrPeriod": 14,
+    "volEmaPeriod": 20,
+    "confirmConvention": "close_confirm_next_open_fill",
+    "isObjective": "exitA_avgNet_minN8_tie_precision30",
+    "isDays": 40,
+    "oosDays": 20
+  },
+  "grid": [
+    {
+      "atrPctile": 0.7,
+      "volMult": 1
+    },
+    {
+      "atrPctile": 0.7,
+      "volMult": 1.2
+    },
+    {
+      "atrPctile": 0.7,
+      "volMult": 1.5
+    },
+    {
+      "atrPctile": 0.8,
+      "volMult": 1
+    },
+    {
+      "atrPctile": 0.8,
+      "volMult": 1.2
+    },
+    {
+      "atrPctile": 0.8,
+      "volMult": 1.5
+    },
+    {
+      "atrPctile": 0.9,
+      "volMult": 1
+    },
+    {
+      "atrPctile": 0.9,
+      "volMult": 1.2
+    },
+    {
+      "atrPctile": 0.9,
+      "volMult": 1.5
+    }
+  ],
+  "by_run": {
+    "IREN_5m": {
+      "params": {
+        "atrPctile": 0.8,
+        "volMult": 1.2
+      },
+      "selection": "exitA_avgNet_minN8_tie_precision30",
+      "isEligible": true
+    },
+    "SOXL_5m": {
+      "params": {
+        "atrPctile": 0.8,
+        "volMult": 1
+      },
+      "selection": "exitA_avgNet_minN8_tie_precision30",
+      "isEligible": true
+    },
+    "MU_5m": {
+      "params": {
+        "atrPctile": 0.8,
+        "volMult": 1.2
+      },
+      "selection": "exitA_avgNet_minN8_tie_precision30",
+      "isEligible": true
+    },
+    "CRWV_5m": {
+      "params": {
+        "atrPctile": 0.7,
+        "volMult": 1
+      },
+      "selection": "exitA_avgNet_minN8_tie_precision30",
+      "isEligible": true
+    },
+    "COHR_5m": {
+      "params": {
+        "atrPctile": 0.9,
+        "volMult": 1.2
+      },
+      "selection": "exitA_avgNet_minN8_tie_precision30",
+      "isEligible": true
+    },
+    "IREN_1m": {
+      "params": {
+        "atrPctile": 0.7,
+        "volMult": 1.5
+      },
+      "selection": "exitA_avgNet_minN8_tie_precision30",
+      "isEligible": true
+    },
+    "SOXL_1m": {
+      "params": {
+        "atrPctile": 0.7,
+        "volMult": 1.2
+      },
+      "selection": "exitA_avgNet_minN8_tie_precision30",
+      "isEligible": true
+    },
+    "MU_1m": {
+      "params": {
+        "atrPctile": 0.7,
+        "volMult": 1
+      },
+      "selection": "exitA_avgNet_minN8_tie_precision30",
+      "isEligible": true
+    },
+    "CRWV_1m": {
+      "params": {
+        "atrPctile": 0.7,
+        "volMult": 1.5
+      },
+      "selection": "exitA_avgNet_minN8_tie_precision30",
+      "isEligible": true
+    },
+    "COHR_1m": {
+      "params": {
+        "atrPctile": 0.7,
+        "volMult": 1.5
+      },
+      "selection": "exitA_avgNet_minN8_tie_precision30",
+      "isEligible": true
+    }
+  }
+}

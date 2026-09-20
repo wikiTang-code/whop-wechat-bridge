@@ -31,7 +31,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── req038-t2-attribution-spec.md      ← REQ-038-T2 胜率口径（冻结）
 ├── req038-t3-resonance-radar-spec.md  ← REQ-038-T3 三点共振只读雷达规范（只读/禁下单）
 ├── 056-paper-trading-execution-loop-report.md   ← REQ-056 长桥Paper模拟执行闭环报告 (accepted-with-gap)
-├── 057-turning-point-microstructure-report.md   ← REQ-057 微观转弯战法与独立Alpha严密回测 (accepted-with-gap)
+├── 057-turning-point-microstructure-report.md   ← REQ-057 微观转弯；CHG-050 exploratory holdout (accepted-with-gap)
 ├── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2/P3 Done）
 ├── wsl-unified-ai-runtime-plan.md     ← CHG-018 Done（Q-007；DEBT-014 代码路径 Done）
 └── gpu-shared-protocol.md             ← 跨仓库 GPU 协议指针（正文在 ~/.cursor/shared-protocols/；Cursor 2026-09-19 冻结 §7）
@@ -85,8 +85,8 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **T1 接管 + T2 n_scored=7**（CHG-035/036） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng (微观转弯战法量化与落地 · 见 057 报告)** | Active / done-eng (accepted-with-gap) |
+| **§0.A `agent:cursor`** | **CHG-050** REQ-057 P2 exploratory IS/OOS holdout | done-eng (accepted-with-gap) |
+| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
@@ -95,6 +95,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | **§0.R-A** | **REQ-042/CHG-034** accepted-with-gates | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |
 | **§0.R-C** | **CHG-046 整改验收与六点门禁钉死（ACCEPT WITH NOTES）** | Done |
+| **§0.R-A** | **REQ-057 Grok 审阅 + CHG-050 P2 holdout** | Done |
 
 **交叉审修 / 自主跑队**：`CHG-012` / `CHG-014`。
 

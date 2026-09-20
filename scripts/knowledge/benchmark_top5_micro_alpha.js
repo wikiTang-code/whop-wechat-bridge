@@ -13,10 +13,8 @@ import { getReadOnlyArchiveDb } from '../../monitoring/db-readonly.js';
  * 4. CRWV (70笔)
  * 5. COHR (67笔)
  * 
- * 原则:
- * - 算法独立干净，100% 只读盘口行情 (OHLCV + ATR + 动能)
- * - 全标的统一数学逻辑，基于波动率分位数自适应，零人工硬编码特调
- */
+ * Deprecated for primary claims: ±2h zhao match is `deprecated_wide_window` (CHG-050).
+ * Do not cite 79% resonance as a main result. Use scripts/knowledge/backtest_walk_forward_rigorous.js.
 
 const TOP5_TICKERS = ['IREN', 'SOXL', 'MU', 'CRWV', 'COHR'];
 

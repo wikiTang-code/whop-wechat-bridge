@@ -13,10 +13,11 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-038-T2** | L3 | CHG-036 扩样后 **n_scored=7** hit5≈3/7（+SPY/QQQ/IREN） | `card_attribution.js` | **Doing** |
-| 2 | **REQ-040** | L3 | Cursor 接手 T1；空 SR 重提完成；赵哥 TSLA 多为聊天截图无点位 | `batch_vision*` · `card_attribution*` | **Doing** |
-| 3 | **REQ-038-T1** | L3 | Gemini 额度耗尽→**Cursor 接管**：`--reprocess-empty-sr` + aligner 脏卡清理 | `batch_vision*` · `multimodal_context_aligner.js` | **Doing** |
-| 4 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
+| **1** | **CHG-050** | L3 | REQ-057 P2：exploratory IS/OOS holdout（日历40/20、分位数k、冻结网格、置换B=200、TP/FP/FN、Top5×5m/1m） | `scripts/knowledge/lib/exploratory_is_oos.js` · `backtest_walk_forward_rigorous.js` | **done-eng (accepted-with-gap)** |
+| 2 | **REQ-038-T2** | L3 | n_scored 扩样；03 已由 gemini1 关单 | `card_attribution.js` | **Done** |
+| 3 | **REQ-040** | L3 | T2 扩样本；03=`done` | `batch_vision*` · `card_attribution*` | **Done** |
+| 4 | **REQ-038-T1** | L3 | Cursor 接管空 SR 重提；03=`done` | `batch_vision*` · `multimodal_context_aligner.js` | **Done** |
+| 5 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
 
@@ -37,7 +38,7 @@
 | 13 | **REQ-051** | L3 | 近60天黄金窗口真实交易单与战法事件短周期回测集训与前瞻落盘 (898笔实盘信号+4128张卡片全面对齐) | `scripts/knowledge/train_recent_60d_microstructure.js` · `docs/project/051-recent-60d-training-report.md` | **done-eng** |
 | 14 | **REQ-052** | L3 | 基于真实交易单(t0)的逆向特征挖掘与高置信战术假说提纯 (提案A落地 · 388真实成交反查语境与分时结构) | `scripts/knowledge/reverse_mine_tactics_from_trades.js` · `docs/project/052-reverse-tactical-mining-report.md` | **done-eng** |
 | 17 | **REQ-056** | L1/L5 | 长桥模拟盘（Paper Trading）执行闭环与 TradeIntent 最小执行状态机工程落地（Phase 0 Week 1 · 状态机/撤单/轮询/持仓SoR/HUD双轨闭环全通） | `brokers/longbridge.js` · `tools/trade/paper_execution_engine.js` · `database.js` | **done-eng (accepted-with-gap)** |
-| 18 | **REQ-057** | L3/L5 | 赵哥微观转弯战法量化与独立纯净 Alpha 引擎（8大方法学硬伤清算 · 工业级 Walk-Forward 回测 · Top5 标的 2.3 万根 5m 真实回测 · 见 057 报告） | `tools/trade/turning_detector.js` · `scripts/knowledge/*` · `docs/project/057*` | **done-eng (accepted-with-gap)** |
+| 18 | **REQ-057** | L3/L5 | 赵哥微观转弯战法量化与独立检测器（P2=CHG-050 exploratory holdout，禁止称工业级 Walk-Forward；见 057） | `tools/trade/turning_detector.js` · `scripts/knowledge/*` · `docs/project/057*` | **done-eng (accepted-with-gap)** |
 
 ### 0.C 队列 `agent:gemini2` (数据资产治理 / 人工审核联动 / SLM飞轮)
 
@@ -103,6 +104,7 @@
 | §0.R-A cursor | **REQ-042 / CHG-034（`779d055`）抽审** | **Done**（accepted-with-gates · 见 07） |
 | §0.R-A gemini1 | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | **Done**（Accepted · 见 07） |
 | §0.R-C gemini1 | **CHG-046 整改验收与六点门禁钉死（Grok 外部审阅）** | **Done**（ACCEPT WITH NOTES · 见 07） |
+| §0.R-A cursor | **REQ-057 Grok 审阅 + CHG-050 P2 holdout 补丁** | **Done**（exploratory；accepted-with-gap · 见 07） |
 
 ### 共享候选池
 
@@ -154,10 +156,11 @@
 | CHG-023 | L2/L3 | WSL AI 切流锁定（Win:8080独占指向WSL llama-server；默认 backend=wsl；废 8081；方案 §7） | `agent:cursor` | Done | `tools/wsl-ai-cutover.js` · `tools/wsl-localhost-bridge.js` · 单测全绿 |
 | CHG-024 | L2/L3 | GPU 控制面加固（`:18080` 可达、禁假成功、Wan 拒载、ROCm release 延迟；协议 v0.1.3） | `agent:cursor` | Done | Gemini 抽审通过 |
 | CHG-025 | L2/L3 | 协议 v0.1.4 对齐（status 契约、GAME 无 retry_after、INVALID_PAYLOAD） | `agent:cursor` | Done | `gpu-arbiter.js` · `server.js` |
-| REQ-038 | L3 | 战法卡归因（CHG-030 增量；n_scored=6） | 双Agent协同 | Doing | 见 §0.X Partial |
+| REQ-038 | L3 | 战法卡归因（gemini1 关单；n_scored=147 / golden 108） | 双Agent协同 | Done | 见 03 |
 | REQ-039 | L0/L3 | 知识/GPU 产物到达规划 SoR（表级 promote，禁整库覆盖） | `agent:cursor` | Done | Gemini Accepted · CHG-027 |
-| REQ-040 | L3 | T2 扩样（增量消费 T1） | `agent:cursor` | Doing | 已吃首张 TSLL VL level |
+| REQ-040 | L3 | T2 扩样（gemini1 关单） | `agent:cursor` | Done | 03=`done` |
 | CHG-026 | L0 | 运行环境合同（compute vs SoR） | `agent:cursor` | Done | `environments.md` |
+| CHG-050 | L3 | REQ-057 P2 exploratory IS/OOS holdout | `agent:cursor` | done-eng | accepted-with-gap · 见 057/07 |
 | CHG-027 | L4/L0 | Local-Ops knowledge.promote HITL C2 | `agent:cursor` | Done | Gemini Accepted |
 | CHG-028 | L3 | T2 方向/点位消歧 | `agent:cursor` | Done | n_scored=5 |
 
