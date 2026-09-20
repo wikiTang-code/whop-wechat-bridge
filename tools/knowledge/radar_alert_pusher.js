@@ -32,7 +32,18 @@ export function formatRadarAlertMarkdown(radarData, options = {}) {
   const timeStr = formatBeijingTime(nowTs);
 
   const isWangzha = score >= 75 || level === 'WANGZHA_CONFLUENCE';
-  const titlePrefix = isWangzha ? '🔥【四维共振预警 · 王炸共振触发】' : '⚡【四维共振预警 · 高置信度共振】';
+  const obsText = (radarData.observations || []).join(' ');
+  const isOpeningHour = obsText.includes('早盘回踩') || radarData.market_session?.isOpeningHour;
+  const isPowerHour = obsText.includes('尾盘窗口') || radarData.market_session?.isPowerHour;
+
+  let sessionBadge = '';
+  if (isOpeningHour) {
+    sessionBadge = ' 🌅[早盘回踩黄金时区]';
+  } else if (isPowerHour) {
+    sessionBadge = ' ⏱️[尾盘强平黄金时区]';
+  }
+
+  const titlePrefix = (isWangzha ? '🔥【四维共振预警 · 王炸共振触发】' : '⚡【四维共振预警 · 高置信度共振】') + sessionBadge;
 
   // 1. 维度分解提取
   const d = radarData.dimensions || {};

@@ -8,7 +8,9 @@
  * - 夜盘交易 (Overnight Trading): 20:00 - 次日 04:00 ET (含周日夜盘美东 20:00 开市)
  * - 盘前交易 (Pre-Market): 周一至周五 04:00 - 09:30 ET
  * - 常规交易 (Regular / RTH): 周一至周五 09:30 - 16:00 ET
- *   - 黄金强平窗口 (Power Hour): 15:30 - 16:00 ET (赵哥核心低吸/大单扫盘窗口)
+ *   - 早盘回踩捡漏窗口 (Opening Dip): 09:30 - 10:30 ET (开盘剧烈博弈、急跌回踩捡漏窗口，15s高频)
+ *   - 盘中常规观察时段: 10:30 - 15:00 ET (30s巡检)
+ *   - 尾盘强平扫单窗口 (Power Hour): 15:00 - 16:00 ET (三点到四点机构强平扫盘与抢跑窗口，15s高频)
  * - 盘后交易 (After-Hours / Post-Market): 周一至周五 16:00 - 20:00 ET
  */
 
@@ -117,18 +119,29 @@ export function getUsMarketSession(date = new Date()) {
 
   // 4. 工作日 常规盘中时段 (09:30 - 16:00 ET)
   if (et.timeNum >= 930 && et.timeNum < 1600) {
-    const isPowerHour = et.timeNum >= 1530;
+    const isOpeningHour = et.timeNum >= 930 && et.timeNum < 1030; // 09:30 - 10:30 开盘回踩捡漏黄金窗口
+    const isPowerHour = et.timeNum >= 1500;                       // 15:00 - 16:00 尾盘强平扫单黄金窗口 (三点到四点)
+    let sessionName = 'REGULAR_TRADING';
+    let desc = `常规盘中交易时段 (${et.timeStr} ET)`;
+
+    if (isOpeningHour) {
+      sessionName = 'REGULAR_OPENING_HOUR';
+      desc = `常规盘中 · 早盘回踩捡漏黄金窗口 (${et.timeStr} ET)`;
+    } else if (isPowerHour) {
+      sessionName = 'REGULAR_POWER_HOUR';
+      desc = `常规盘中 · 尾盘强平扫单黄金窗口 (${et.timeStr} ET)`;
+    }
+
     return {
-      session: isPowerHour ? 'REGULAR_POWER_HOUR' : 'REGULAR_TRADING',
+      session: sessionName,
       isOpen: true,
       isRth: true,
+      isOpeningHour,
       isPowerHour,
       isPreMarket: false,
       isPostMarket: false,
       isOvernight: false,
-      description: isPowerHour
-        ? `常规盘中 · 尾盘强平扫单黄金窗口 (${et.timeStr} ET)`
-        : `常规盘中交易时段 (${et.timeStr} ET)`,
+      description: desc,
       et,
     };
   }
@@ -184,11 +197,12 @@ export function getRecommendedPollIntervalMs(session) {
   if (!session || !session.isOpen) {
     return 15 * 60 * 1000; // 休市时段 15 分钟
   }
-  if (session.isPowerHour) {
-    return 15 * 1000;      // 尾盘强平 15 秒高频
+  // 开盘首小时 (09:30-10:30 回踩抢筹) 与 尾盘半小时 (15:30-16:00 强平扫盘) 均为 15 秒极速高频
+  if (session.isOpeningHour || session.isPowerHour) {
+    return 15 * 1000;
   }
   if (session.isRth) {
-    return 30 * 1000;      // 常规盘中 30 秒
+    return 30 * 1000;      // 盘中常规 30 秒
   }
   if (session.isPreMarket || session.isPostMarket) {
     return 45 * 1000;      // 盘前盘后 45 秒

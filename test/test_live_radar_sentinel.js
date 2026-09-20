@@ -17,15 +17,24 @@ const rthDate = new Date('2026-07-15T14:30:00Z'); // 14:30 UTC = 10:30 EDT
 const rthSession = getUsMarketSession(rthDate);
 assert.strictEqual(rthSession.isOpen, true, '盘中应判定为开市');
 assert.strictEqual(rthSession.isRth, true, '应判定为常规交易时段 RTH');
-assert.strictEqual(rthSession.isPowerHour, false, '10:30 不是尾盘强平时段');
 console.log(`  ✅ RTH 盘中时段校验通过: ${rthSession.description}`);
 
-// 2. 验证尾盘黄金强平时段 (夏令时 7月周三 15:35 ET)
-console.log('\n--- 2. 验证尾盘黄金强平窗口 (15:30 - 16:00 ET) ---');
-const powerHourDate = new Date('2026-07-15T19:35:00Z'); // 19:35 UTC = 15:35 EDT
+// 1b. 验证开盘首小时回踩捡漏黄金时段 (夏令时 7月周三 09:45 ET)
+console.log('\n--- 1b. 验证早盘回踩捡漏黄金窗口 (09:30 - 10:30 ET) ---');
+const openingDate = new Date('2026-07-15T13:45:00Z'); // 13:45 UTC = 09:45 EDT
+const openingSession = getUsMarketSession(openingDate);
+assert.strictEqual(openingSession.isOpen, true, '早盘回踩应判定为开市');
+assert.strictEqual(openingSession.session, 'REGULAR_OPENING_HOUR');
+assert.strictEqual(openingSession.isOpeningHour, true, '09:45 必须判定为 isOpeningHour');
+console.log(`  ✅ 早盘回踩黄金窗口校验通过: ${openingSession.description}`);
+
+// 2. 验证尾盘强平扫单时段 (夏令时 7月周三 15:15 ET，属于盘中最后一个小时 15:00 - 16:00 ET)
+console.log('\n--- 2. 验证盘中最后一个小时尾盘强平窗口 (15:00 - 16:00 ET) ---');
+const powerHourDate = new Date('2026-07-15T19:15:00Z'); // 19:15 UTC = 15:15 EDT
 const powerSession = getUsMarketSession(powerHourDate);
 assert.strictEqual(powerSession.isOpen, true, '尾盘应判定为开市');
-assert.strictEqual(powerSession.isPowerHour, true, '15:35 必须判定为 isPowerHour');
+assert.strictEqual(powerSession.session, 'REGULAR_POWER_HOUR');
+assert.strictEqual(powerSession.isPowerHour, true, '15:15 必须判定为 isPowerHour (三点到四点)');
 console.log(`  ✅ 尾盘强平窗口校验通过: ${powerSession.description}`);
 
 // 3. 验证周末休市判定 (周日 12:00 ET)
@@ -69,10 +78,11 @@ assert.strictEqual(sundayOvernightSession.isOpen, true, '周日夜盘应开启�
 assert.strictEqual(sundayOvernightSession.session, 'OVERNIGHT_TRADING');
 console.log(`  ✅ 周日夜盘开启校验通过: ${sundayOvernightSession.description}`);
 
-// 3c. 验证动态轮询间隔
+// 3c. 验证动态轮询间隔 (盘中首尾两小时均为 15 秒高频)
 import { getRecommendedPollIntervalMs } from '../tools/knowledge/market_session.js';
-assert.strictEqual(getRecommendedPollIntervalMs(powerSession), 15000, '尾盘应为 15 秒高频');
-assert.strictEqual(getRecommendedPollIntervalMs(rthSession), 30000, '常规盘中应为 30 秒');
+assert.strictEqual(getRecommendedPollIntervalMs(openingSession), 15000, '盘中第一个小时 (09:30-10:30) 应为 15 秒极速高频');
+assert.strictEqual(getRecommendedPollIntervalMs(powerSession), 15000, '盘中最后一个小时 (15:00-16:00) 应为 15 秒极速高频');
+assert.strictEqual(getRecommendedPollIntervalMs(rthSession), 30000, '盘中常规时段 (10:30-15:00) 应为 30 秒');
 assert.strictEqual(getRecommendedPollIntervalMs(preSession), 45000, '盘前应为 45 秒');
 assert.strictEqual(getRecommendedPollIntervalMs(postSession), 45000, '盘后应为 45 秒');
 assert.strictEqual(getRecommendedPollIntervalMs(overnightSession), 60000, '夜盘应为 60 秒');

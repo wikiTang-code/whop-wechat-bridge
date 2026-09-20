@@ -128,7 +128,13 @@ export const TAPE_BLOCK_PATTERNS = {
     id: 'POWER_HOUR_SQUEEZE',
     name: '尾盘强平V反窗口 (Power Hour Squeeze)',
     weight: 8,
-    description: '美东 15:15~15:55 尾盘窗口，0DTE 期权强平回补与做市商 Gamma 逼空'
+    description: '美东 15:00~16:00 尾盘强平扫单窗口，0DTE 期权强平回补与做市商 Gamma 逼空'
+  },
+  OPENING_PULLBACK_DIP: {
+    id: 'OPENING_PULLBACK_DIP',
+    name: '早盘回踩捡漏吸筹 (Opening Pullback Dip)',
+    weight: 8,
+    description: '美东 09:30~10:30 开盘剧烈博弈时区，大跌探底、支撑回踩确认或主力急跌诱空洗盘吸筹'
   },
   RETAIL_PANIC_ABSORPTION: {
     id: 'RETAIL_PANIC_ABSORPTION',
@@ -213,14 +219,23 @@ export function evaluateTapeBlockFlow(tapeEvent) {
     flowSentiment = 'BULLISH';
   }
 
-  // 4. 尾盘强平 V 反窗口 (美东 15:15 ~ 15:55)
+  // 4. 尾盘强平 V 反窗口 (美东 15:00 ~ 16:00 三点到四点)
   if (tapeEvent.time_et) {
     const [hh, mm] = String(tapeEvent.time_et).split(':').map(Number);
-    if (hh === 15 && mm >= 15 && mm <= 55) {
+    if (hh === 15) {
       const pat = TAPE_BLOCK_PATTERNS.POWER_HOUR_SQUEEZE;
       score += pat.weight;
       matchedPatterns.push({ id: pat.id, name: pat.name, weight: pat.weight });
-      observations.push(`⏱️【尾盘窗口】命中大V特定尾盘窗口 [${tapeEvent.time_et} ET]: 0DTE 期权强平 Delta 回补拉升区`);
+      observations.push(`⏱️【尾盘强平时区】命中机构强平与尾盘扫单窗口 [${tapeEvent.time_et} ET]: 0DTE 期权强平 Delta 回补拉升区`);
+    }
+
+    // 4b. 早盘回踩捡漏吸筹窗口 (美东 09:30 ~ 10:30)
+    const timeNum = hh * 100 + mm;
+    if (timeNum >= 930 && timeNum <= 1030) {
+      const pat = TAPE_BLOCK_PATTERNS.OPENING_PULLBACK_DIP;
+      score += pat.weight;
+      matchedPatterns.push({ id: pat.id, name: pat.name, weight: pat.weight });
+      observations.push(`🌅【早盘回踩】命中开盘捡漏吸筹黄金时区 [${tapeEvent.time_et} ET]: 波动加剧回踩支撑确认`);
     }
   }
 
