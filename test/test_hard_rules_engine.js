@@ -158,10 +158,10 @@ describe('Gap 3: 8 大实战硬规则集策略引擎单测 (Audited Hard Rules)'
   it('微观转弯 A: 检测异动直线拉升见顶回落 (Spike & Turn Down)', () => {
     // 模拟 K 线: 100 -> 101 -> 106 (直线急拉 +6%) -> 104.8 (高位回落 -1.13% 向下转弯)
     const mockBars = [
-      { open: 100.0, high: 101.0, low: 99.5, close: 100.5 },
-      { open: 100.5, high: 103.0, low: 100.2, close: 102.8 },
-      { open: 102.8, high: 106.0, low: 102.5, close: 105.8 }, // 见顶
-      { open: 105.8, high: 105.9, low: 104.5, close: 104.8 }  // 回撤 1.13% 转弯
+      { open: 100.0, high: 101.0, low: 99.5, close: 100.5, time: 1000 },
+      { open: 100.5, high: 103.0, low: 100.2, close: 102.8, time: 2000 },
+      { open: 102.8, high: 106.0, low: 102.5, close: 105.8, time: 3000 }, // 见顶
+      { open: 105.8, high: 105.9, low: 104.5, close: 104.8, time: 4000 }  // 回撤 1.13% 转弯
     ];
 
     const res = evaluateHardRules({
@@ -175,19 +175,19 @@ describe('Gap 3: 8 大实战硬规则集策略引擎单测 (Audited Hard Rules)'
 
     assert.equal(res.passed, true);
     assert.ok(res.turningPoint);
-    assert.equal(res.turningPoint.detected, true);
-    assert.equal(res.turningPoint.isSpike, true);
-    assert.equal(res.turningPoint.isTurnDown, true);
-    assert.ok(res.turningPoint.description.includes('向下转弯确认'));
+    assert.equal(res.turningPoint.type, 'spike_turn_down');
+    assert.equal(res.turningPoint.version, 'turning_v1');
+    assert.equal(res.turningPoint.confirm.is_confirmed, true);
+    assert.ok(res.turningPoint.confirm.retrace_from_extreme >= 0.008);
   });
 
   it('微观转弯 B: 检测急跌跳水探底企稳拉起 (Plunge & Turn Up)', () => {
     // 模拟 K 线: 100 -> 98 -> 96 (急跌 -4%) -> 97.2 (低点止跌拉起 +1.25% 向上转弯)
     const mockBars = [
-      { open: 100.0, high: 100.2, low: 98.5, close: 98.8 },
-      { open: 98.8, high: 99.0, low: 96.5, close: 96.8 },
-      { open: 96.8, high: 97.0, low: 96.0, close: 96.2 }, // 探底 96.0
-      { open: 96.2, high: 97.5, low: 96.1, close: 97.2 }  // 低位反弹 +1.25% 拐头向上
+      { open: 100.0, high: 100.2, low: 98.5, close: 98.8, time: 1000 },
+      { open: 98.8, high: 99.0, low: 96.5, close: 96.8, time: 2000 },
+      { open: 96.8, high: 97.0, low: 96.0, close: 96.2, time: 3000 }, // 探底 96.0
+      { open: 96.2, high: 97.5, low: 96.1, close: 97.2, time: 4000 }  // 低位反弹 +1.25% 拐头向上
     ];
 
     const res = evaluateHardRules({
@@ -200,9 +200,9 @@ describe('Gap 3: 8 大实战硬规则集策略引擎单测 (Audited Hard Rules)'
 
     assert.equal(res.passed, true);
     assert.ok(res.turningPoint);
-    assert.equal(res.turningPoint.detected, true);
-    assert.equal(res.turningPoint.isPlunge, true);
-    assert.equal(res.turningPoint.isTurnUp, true);
-    assert.ok(res.turningPoint.description.includes('向上转弯确认'));
+    assert.equal(res.turningPoint.type, 'plunge_turn_up');
+    assert.equal(res.turningPoint.version, 'turning_v1');
+    assert.equal(res.turningPoint.confirm.is_confirmed, true);
+    assert.ok(res.turningPoint.confirm.retrace_from_extreme >= 0.008);
   });
 });
