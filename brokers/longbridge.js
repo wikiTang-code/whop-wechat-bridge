@@ -1,4 +1,4 @@
-import { Config, TradeContext } from 'longbridge';
+import { Config, TradeContext, OutsideRTH } from 'longbridge';
 import dotenv from 'dotenv';
 import { savePaperPositions } from '../database.js';
 
@@ -127,7 +127,7 @@ export async function getTodayOrders() {
  * 向长桥柜台提交交易订单（严格限 Paper 模拟盘模式）
  * @returns {Promise<{ success: boolean, orderId: string, status: string, raw: any }>}
  */
-export async function placeOrder({ ticker, action, quantity, price }) {
+export async function placeOrder({ ticker, action, quantity, price, outsideRth = 'AnyTime' }) {
   assertPaperMode();
   const ctx = await getContext();
   
@@ -135,7 +135,16 @@ export async function placeOrder({ ticker, action, quantity, price }) {
   const symbol = `${ticker.toUpperCase()}.US`;
   const side = action.toUpperCase() === 'BUY' ? 'Buy' : 'Sell';
   
-  console.log(`[长桥模拟盘/Paper] 正在向模拟柜台提交限价委托: [${side}] ${symbol} | 股数: ${quantity} | 限价: $${price}`);
+  // 映射 OutsideRTH 枚举 (支持盘前 Pre-market、常规 RTH、盘后 Post-market 与夜盘 Overnight)
+  let rthMode = OutsideRTH.AnyTime;
+  const normRth = String(outsideRth || '').toLowerCase();
+  if (normRth === 'overnight') {
+    rthMode = OutsideRTH.Overnight;
+  } else if (normRth === 'rthonly') {
+    rthMode = OutsideRTH.RTHOnly;
+  }
+  
+  console.log(`[长桥模拟盘/Paper] 正在向模拟柜台提交限价委托: [${side}] ${symbol} | 股数: ${quantity} | 限价: $${price} | 跨时段模式: ${outsideRth}`);
   
   const order = await ctx.submitOrder({
     symbol,
@@ -143,7 +152,8 @@ export async function placeOrder({ ticker, action, quantity, price }) {
     type: 'Limit', // 采用限价委托保证滑点安全
     price: price.toString(),
     quantity: quantity,
-    timeInForce: 'Day' // 当日有效单
+    timeInForce: 'Day', // 当日有效单
+    outsideRth: rthMode
   });
 
   const orderId = String(order.order_id || order.orderId || `lb_${Date.now()}`);
@@ -155,6 +165,7 @@ export async function placeOrder({ ticker, action, quantity, price }) {
     raw: order
   };
 }
+
 
 /**
  * 撤销模拟盘委托订单

@@ -145,12 +145,13 @@ export async function confirmAndSubmitIntent(intentId, {
   try {
     console.log(`[TradeIntent] 人工确认通过，正在向柜台报送: [${intentId}] ${intent.side} ${intent.ticker} ${intent.quantity}股 @ $${intent.price_limit}`);
     
-    // 向模拟柜台下单
+    // 向模拟柜台下单 (透传全时段 outsideRth 参数)
     const submitRes = await broker.placeOrder({
       ticker: intent.ticker,
       action: intent.side,
       quantity: intent.quantity,
-      price: intent.price_limit
+      price: intent.price_limit,
+      outsideRth: intent.outside_rth || 'AnyTime'
     });
 
     const orderId = String(submitRes.orderId || '');
