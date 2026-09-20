@@ -8,6 +8,25 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-20 · REQ-049-B 阶段交付验收（Grok 外部审阅） · Grok
+
+**审阅对象**：`docs/project/049b-formalization-report.md` 及结构体产物 `data/runtime/proposed_taxonomy_049b.json`（Commit `1fceb63`）
+
+**Grok 外部总结论**：**Accepted——流程门禁基本合格，可以记 049-B Pilot Done，准予启动 049-C 弱检验回测**
+
+#### 一、核心审阅评价
+1. **试点白名单执行到位**：严守门禁，仅对 6 个高稳定（稳定性 0.87~1.0）核心流形进行形式化，未对全库 34 簇一刀切冒进。
+2. **Fail-Closed 校验器实战有效**：在 `c_pattern_with_level_06` 与 `c_risk_rule_08` 中精准拦截剔除了 LLM 企图伪造的点位（650, 7238, 12.35, 12.1），严守量化无虚假数值底线。
+3. **证据链强绑定**：全部战法均严格绑定 2~4 个簇内真实卡片 ID，无凭空捏造。
+4. **生产隔离完备**：打上 `status: 'proposed_pilot'`，HUD 生产真源（REQ-038）未受任何越权污染。
+
+#### 二、进入 049-C 的执行要求
+1. **弱检验定位**：禁止二元晋级或宣称绝对 Alpha，严格输出四态弱检验标签（`supportive / inconclusive / contradictory / insufficient`）。
+2. **事件时间锁死**：基准时间严格为消息发送时间戳，禁止事后按当日最低价作弊。
+3. **时钟敏感性抽验**：开盘回踩、尾盘抢 V 等时钟敏感战法由分钟 K 抽验，缺少高频数据处诚实标记为 `insufficient` 或 `coarse`。
+
+---
+
 ### 2026-09-20 · REQ-049-A 阶段交付验收（Grok 外部审阅） · Grok
 
 **审阅对象**：`docs/project/049a-clustering-stability-report.md`（Commit `cdb48bc`）
