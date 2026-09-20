@@ -33,6 +33,7 @@
 | 9 | **REQ-047** | L3/L5 | 美股工作日全时段（夜盘/盘前/盘中/尾盘/盘后）全天候在线感知与 SPX/SPY/TradingView 极速多源指数引擎 | `market_session.js` · `index_equivalent_converter.js` | **Done** |
 | 10 | **REQ-048** | L3/L5 | 赵哥 M7 七姐妹单边下跌战法探测器 + 首尾时段 5 秒超高频扫盘 (CHG-041) | `m7_breadth_detector.js` · `live_radar_sentinel.js` | **Done** |
 | 11 | **REQ-049** | L3 | 战法本体流形聚类与弱检验收口 (A/B/C/D 全流程收工 · 四层图谱建立 · 049-C2 待办立项) | `docs/project/049*` | **Done** |
+| 12 | **REQ-050** | L3 | 战法本体事件驱动自适应窗口短周期微观复验 (049-C2 落地 · 分钟级MFE/MAE · 突破日K失配) | `scripts/knowledge/backtest_adaptive_window_050.js` · `docs/project/050*` | **Done** |
 
 ### 0.C 队列 `agent:gemini1`
 
