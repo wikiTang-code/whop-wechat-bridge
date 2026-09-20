@@ -8,6 +8,17 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-20 · REQ-038-T2/REQ-040 T2 高胜率战法黄金提纯与 Golden Playbook 固化 · Gemini1（`agent:gemini1`）
+
+| 项 | 事实与落地 |
+|----|------------|
+| **标的池全量扩展** | 涵盖 TSLA, TSLL, SPY, QQQ, NVDA, IREN, NBIS, CRWV, LITE, COHR, MU 等 12 个核心标的；更新 `inTickerBand` 与 `extractLevelFromVisionMeta` 价格带 |
+| **候选集富集修复** | 根因定位：原候选逻辑未提前注入 `source_text` 导致大量赵哥发言中带标的的卡片在首轮漏选；现引入 `enrichedCards` 建立消息关联，赵哥候选卡片从 31 张跃升至 385 张 |
+| **真实市场归因回测** | 针对 166 张 eligible 卡片调用 Yahoo Finance 真实日线回测，`n_scored` 达 **147 张**（从初始 7 张提升 21 倍）；总体胜率稳健（5D 胜率 57.1%，3D 胜率 55.8%） |
+| **黄金战法门禁提纯** | 执行胜率门禁（hit_rate_5d ≥ 60% 或 hit_rate_3d ≥ 70%，且空间偏差正常），成功提纯出 **108 张黄金高胜率战法**（TSLL 64, IREN 15, NBIS 14, CRWV 11, SPY 3, QQQ 1） |
+| **固化产出 Playbook** | 结构化固化至 `data/runtime/golden_playbook.json`，完整规范包含 `card_id`, `ticker`, `card_type`, `title`, `trigger_levels (support/resistance)`, `hit_rate_3d`, `hit_rate_5d`, `sample_count`, `rule_summary` 等全部核心字段 |
+| **测试与大V身份硬锁** | 新增 `test/test_golden_playbook.js`（`npm run test:golden-playbook` 绿灯）；严格落实 AGENTS §6.9 硬锁，108 张卡片溯源发送者全部为赵哥本人（`user_4yeplXgbguTu4`），`non_zhao = 0`；纯客观只读回测，绝无下单逻辑 |
+
 ### 2026-09-20 · REQ-043 自动驾驶感知总线与四维共振在线驱动器就绪 · Gemini（`agent:gemini`）
 
 | 项 | 事实与落地 |

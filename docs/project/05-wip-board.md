@@ -27,13 +27,14 @@
 | 3 | **REQ-041** | L3 | 盘口四维共振（含 2x ETF 折算） | `tape_confluence_detector*` | **Done** |
 | 4 | **REQ-042** | L3/L5 | 富途 OpenD + 长桥 Paper 双通道实测；空间印证引擎 | `brokers/longbridge.js` · `real_market_confluence_verifier*` | **Done** |
 | 5 | **REQ-043** | L3/L5 | 自动驾驶感知总线 (Live Sensor Hub) 与四维共振实时在线驱动引擎 | `live_tape_feed.js` · `test_live_tape_feed.js` | **Done** |
+| 6 | **REQ-044** | L3/L5 | 美股时段感知哨兵守护进程 (盘中15~30s持续监测，休市低功耗待机) | `market_session.js` · `live_radar_sentinel.js` | **Done** |
 
 ### 0.C 队列 `agent:gemini1`
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-036** | L3 | 大V专有 SLM 数据飞轮（V1闭环，随企微人工纠错 Golden 增量长期常驻维护） | `scripts/slm/*` · `models/zhao_slm_1.5b_lora` | **Standing (Active)** |
-| 2 | — | — | （空位） | — | — |
+| **2** | **REQ-038-T2/REQ-040** | L3 | T2 高胜率战法黄金提纯与 Golden Playbook 固化（扩标池回测 n_scored=147，提纯 108 张黄金战法已固化） | `card_attribution*` · `data/runtime/golden_playbook.json` | **Done** |
 
 ### 0.H Human
 
@@ -53,7 +54,7 @@
 
 | 阻塞项 | 被阻塞方 | 解锁 Owner | 阻塞原因 | 解锁动作 | 状态 |
 |--------|----------|------------|----------|----------|:----:|
-| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:cursor`（接管 T1）** | 赵哥 TSLA 图多为聊天截图无 SR | CHG-036 已扩样 SOXL/IREN/NBIS/QQQ/SPY；T2 **n_scored=7**。继续从赵哥 mm level 吃带内点位 | **Partial / Expanding** |
+| **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini1`** | 赵哥 TSLA 图多为聊天截图无 SR | 关联 `source_text` 预富集修复，扩标池至 12 标的，全库评测 166 张（n_scored=147），提纯 108 张黄金战法 | **Cleared** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 

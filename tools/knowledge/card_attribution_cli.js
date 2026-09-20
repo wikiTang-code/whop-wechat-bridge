@@ -16,7 +16,8 @@ import {
   saveAttributionRow,
   fetchYahooDailyBars,
   listT2VisionGaps,
-  listT2OntologyLevelGaps
+  listT2OntologyLevelGaps,
+  extractGoldenPlaybook
 } from './card_attribution.js';
 
 const args = process.argv.slice(2);
@@ -24,12 +25,17 @@ const dry = args.includes('--dry-run');
 const persist = args.includes('--persist');
 const gapsOnly = args.includes('--gaps');
 const limitIdx = args.indexOf('--limit');
-const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : 200;
+const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : 500;
 const outIdx = args.indexOf('--out');
 const outPath =
   outIdx >= 0
     ? args[outIdx + 1]
     : path.resolve('data/runtime/req038-t2-attribution.json');
+const goldenIdx = args.indexOf('--golden');
+const goldenPath =
+  goldenIdx >= 0
+    ? args[goldenIdx + 1]
+    : path.resolve('data/runtime/golden_playbook.json');
 
 const dbPath =
   process.env.SQLITE_PATH ||
@@ -86,7 +92,7 @@ const cards = conn.prepare(`
   SELECT * FROM ontology_card
   WHERE card_type IN ('pattern','asset_memory','risk_rule','level')
 `).all();
-const candidates = selectCandidateCards(cards);
+
 let visGet = null;
 try {
   visGet = conn.prepare(
@@ -95,31 +101,42 @@ try {
 } catch {
   visGet = null;
 }
+
+const enrichedCards = cards.map((card) => {
+  const mid = firstSourceMessageId(card);
+  const msg = mid ? msgGet.get(mid) : null;
+  return {
+    ...card,
+    source_text: msg?.content || '',
+    _msg: msg
+  };
+});
+
+const candidates = selectCandidateCards(enrichedCards);
+
 const SKIP_YAHOO = new Set([
   'skipped_ticker',
   'skipped_type',
   'skipped_no_level',
   'skipped_no_direction',
   'unscored_mixed',
-  'skipped_non_zhao',
-  'skipped_ticker'
+  'skipped_non_zhao'
 ]);
 
 const prepped = candidates.map((card) => {
+  const msg = card._msg;
   const mid = firstSourceMessageId(card);
-  const msg = mid ? msgGet.get(mid) : null;
   const visionMeta = mid && visGet ? visGet.get(mid) : null;
-  const card2 = { ...card, source_text: msg?.content || '' };
   const sourceSender = msg
     ? { sender_id: msg.sender_id, sender_name: msg.sender_name }
     : null;
-  const preview = evaluateCard(card2, {
+  const preview = evaluateCard(card, {
     messageCreatedAt: msg?.created_at ?? null,
     bars: [],
     visionMeta,
     sourceSender
   });
-  return { card: card2, created: msg?.created_at ?? null, preview, visionMeta, sourceSender };
+  return { card, created: msg?.created_at ?? null, preview, visionMeta, sourceSender };
 });
 const skipCounts = {};
 for (const p of prepped) {
@@ -128,7 +145,7 @@ for (const p of prepped) {
 }
 const withLevel = prepped.filter((p) => p.preview.level != null);
 const yahooEligible = withLevel.filter((p) => !SKIP_YAHOO.has(p.preview.status));
-const picked = yahooEligible.slice(0, Number.isFinite(limit) ? limit : 200);
+const picked = yahooEligible.slice(0, Number.isFinite(limit) ? limit : 500);
 
 const barCache = {};
 async function barsFor(ticker) {
@@ -151,10 +168,21 @@ for (const { card, created, preview, visionMeta, sourceSender } of picked) {
     }
   }
   const ev = evaluateCard(card, { messageCreatedAt: created, bars, visionMeta, sourceSender });
-  const row = { card_id: card.id, card_type: card.card_type, title: card.title, ...ev };
+  const row = {
+    card_id: card.id,
+    card_type: card.card_type,
+    title: card.title,
+    action_text: card.action_text,
+    trigger_text: card.trigger_text,
+    theory_text: card.theory_text,
+    visionMeta,
+    ...ev
+  };
   results.push(row);
   if (persist && !dry) saveAttributionRow(conn, card.id, ev);
 }
+
+const goldenPlaybook = extractGoldenPlaybook(results);
 
 const report = {
   ok: true,
@@ -168,6 +196,7 @@ const report = {
   skip_counts: skipCounts,
   evaluated: results.length,
   summary: summarize(results),
+  golden_playbook_count: goldenPlaybook.length,
   results
 };
 
@@ -177,14 +206,26 @@ if (outPath && !dry) {
   report.out = outPath;
 }
 
+if (goldenPath && !dry) {
+  fs.mkdirSync(path.dirname(goldenPath), { recursive: true });
+  fs.writeFileSync(goldenPath, JSON.stringify(goldenPlaybook, null, 2), 'utf8');
+  report.golden_out = goldenPath;
+}
+
 console.log(
   JSON.stringify(
     dry
-      ? { ...report, results: results.slice(0, 12) }
+      ? {
+          ...report,
+          golden_sample: goldenPlaybook.slice(0, 3),
+          results: results.slice(0, 12)
+        }
       : {
           ok: report.ok,
           summary: report.summary,
           out: report.out,
+          golden_out: report.golden_out,
+          golden_playbook_count: report.golden_playbook_count,
           evaluated: report.evaluated,
           candidates: report.candidates
         },

@@ -75,8 +75,9 @@ scripts/*
 !scripts/check_persona_queue_status.js
 !scripts/inspect_stuck_persona_task.js
 scripts/watchdog/.watchdog_state
-scripts/watchdog/.*state*
-data/runtime/
+data/runtime/*
+!data/runtime/req038-t2-attribution.json
+!data/runtime/golden_playbook.json
 
 
 # One-off debug/test scripts

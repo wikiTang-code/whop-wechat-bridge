@@ -4,7 +4,20 @@
  * Does not write trade_signals / L2a / BUY-SELL.
  */
 
-export const ATTR_TICKERS = ['TSLA', 'TSLL', 'SOXL', 'IREN', 'NBIS', 'QQQ', 'SPY', 'NVDA'];
+export const ATTR_TICKERS = [
+  'TSLA',
+  'TSLL',
+  'SOXL',
+  'IREN',
+  'NBIS',
+  'QQQ',
+  'SPY',
+  'NVDA',
+  'CRWV',
+  'LITE',
+  'COHR',
+  'MU'
+];
 /** Distill types + multimodal VL level cards (CHG-030 incremental consume). */
 export const ATTR_CARD_TYPES = new Set(['pattern', 'asset_memory', 'risk_rule', 'level']);
 export const EVENT_ABS_RET = 0.15;
@@ -83,6 +96,9 @@ function inTickerBand(n, ticker) {
   if (t === 'SOXL' || t === 'IREN') return n >= 5 && n <= 200;
   if (t === 'NBIS') return n >= 20 && n <= 500;
   if (t === 'TSLA' || t === 'SPY' || t === 'QQQ' || t === 'NVDA') return n >= 50 && n <= 900;
+  if (t === 'LITE' || t === 'COHR') return n >= 20 && n <= 300;
+  if (t === 'MU') return n >= 30 && n <= 300;
+  if (t === 'CRWV') return n >= 1 && n <= 500;
   return n >= 1 && n <= 5000;
 }
 
@@ -333,8 +349,20 @@ export function extractLevelFromVisionMeta(meta, ticker) {
     .map(Number)
     .filter((n) => Number.isFinite(n));
   if (nums.includes(100.5) && nums.includes(120) && nums.length <= 2) return null;
-  const lo = ticker === 'TSLL' ? 1 : ticker === 'SOXL' || ticker === 'IREN' ? 5 : ticker === 'NBIS' ? 20 : 50;
-  const hi = ticker === 'TSLL' || ticker === 'SOXL' || ticker === 'IREN' ? 200 : ticker === 'NBIS' ? 500 : 900;
+  const lo =
+    ticker === 'TSLL' || ticker === 'CRWV'
+      ? 1
+      : ticker === 'SOXL' || ticker === 'IREN'
+        ? 5
+        : ticker === 'NBIS' || ticker === 'LITE' || ticker === 'COHR' || ticker === 'MU'
+          ? 20
+          : 50;
+  const hi =
+    ticker === 'TSLL' || ticker === 'SOXL' || ticker === 'IREN' || ticker === 'LITE' || ticker === 'COHR' || ticker === 'MU'
+      ? 300
+      : ticker === 'NBIS' || ticker === 'CRWV'
+        ? 500
+        : 900;
   const ok = nums.filter((n) => n >= lo && n <= hi);
   return ok.length ? ok[0] : null;
 }
@@ -598,3 +626,89 @@ export async function fetchYahooDailyBars(ticker, { period1, period2 } = {}) {
   }
   return bars;
 }
+
+export function extractTriggerLevels(ev, visionMeta) {
+  let support = [];
+  let resistance = [];
+  if (visionMeta) {
+    let sr = visionMeta.support_resistance_json || visionMeta.support_resistance;
+    if (typeof sr === 'string') {
+      try {
+        sr = JSON.parse(sr);
+      } catch {}
+    }
+    if (sr && typeof sr === 'object') {
+      if (Array.isArray(sr.support)) {
+        support = sr.support.map(Number).filter(Number.isFinite);
+      }
+      if (Array.isArray(sr.resistance)) {
+        resistance = sr.resistance.map(Number).filter(Number.isFinite);
+      }
+    }
+  }
+  if (!support.length && !resistance.length && ev.level != null) {
+    if (ev.direction === 'bullish') {
+      support = [ev.level];
+    } else if (ev.direction === 'bearish') {
+      resistance = [ev.level];
+    } else {
+      support = [ev.level];
+    }
+  }
+  return { support, resistance };
+}
+
+export function generateRuleSummary(card, ev, levels) {
+  const t = ev.ticker || '未知标的';
+  const dir =
+    ev.direction === 'bullish'
+      ? '看多做多'
+      : ev.direction === 'bearish'
+        ? '看空做空/止损'
+        : '波段操作';
+  const supStr = levels.support.length ? `支撑位 $${levels.support.join(', $')}` : '';
+  const resStr = levels.resistance.length ? `阻力位 $${levels.resistance.join(', $')}` : '';
+  const pts = [supStr, resStr].filter(Boolean).join('；');
+
+  const action = card.action_text
+    ? card.action_text.slice(0, 100)
+    : card.trigger_text
+      ? card.trigger_text.slice(0, 100)
+      : card.title;
+  const win3Str = ev.hit_3d ? '3D达标' : '3D未达标';
+  const win5Str = ev.hit_5d ? '5D达标' : '5D未达标';
+
+  return `【${t} ${card.title}】方向：${dir}。${pts ? `关键位：${pts}。` : ''}操作要领：${action}。实测表现：${win3Str}，${win5Str}（置信度 ${(Number(ev.confidence || 0) * 100).toFixed(1)}%）。`;
+}
+
+export function extractGoldenPlaybook(results, { minHit5 = 0.6, minHit3 = 0.7 } = {}) {
+  const scored = (results || []).filter((r) => r.status === 'scored');
+  const passing = scored.filter((r) => {
+    const hit3 = r.hit_3d ? 1 : 0;
+    const hit5 = r.hit_5d ? 1 : 0;
+    return hit5 >= minHit5 || hit3 >= minHit3;
+  });
+
+  return passing.map((r) => {
+    const levels = extractTriggerLevels(r, r.visionMeta);
+    return {
+      card_id: r.card_id,
+      ticker: r.ticker,
+      card_type: r.card_type,
+      title: r.title,
+      trigger_levels: levels,
+      hit_rate_3d: r.hit_3d ? 1.0 : 0.0,
+      hit_rate_5d: r.hit_5d ? 1.0 : 0.0,
+      sample_count: 1,
+      rule_summary: r.rule_summary || generateRuleSummary(r, r, levels),
+      direction: r.direction,
+      t0_et: r.t0_et,
+      entry_date: r.entry_date,
+      entry_px: r.entry_px,
+      close_ret_3d: r.close_ret_3d,
+      close_ret_5d: r.close_ret_5d,
+      confidence: r.confidence
+    };
+  });
+}
+

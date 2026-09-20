@@ -1,0 +1,2497 @@
+[
+  {
+    "card_id": "ocard_distill_asset_post_1CUNkqL8aZt1vxmXpxg8Em",
+    "ticker": "TSLL",
+    "card_type": "asset_memory",
+    "title": "TSLL 标的机构行为与股性特征画像",
+    "trigger_levels": {
+      "support": [
+        18.39
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL TSLL 标的机构行为与股性特征画像】方向：看多做多。关键位：支撑位 $18.39。操作要领：结合标的历史脾性与控盘特征进行操作，避免盲目追涨杀跌，多看多周期结构确认。实测表现：3D达标，5D未达标（置信度 22.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-22",
+    "entry_date": "2025-10-23",
+    "entry_px": 19.979738235473633,
+    "close_ret_3d": 0.04807230683474595,
+    "close_ret_5d": -0.04521659239397058,
+    "confidence": 0.22391703803014712
+  },
+  {
+    "card_id": "ocard_distill_asset_post_1CUNkcSu5TcdNFh9uQmCj3",
+    "ticker": "TSLL",
+    "card_type": "asset_memory",
+    "title": "TSLL 标的机构行为与股性特征画像",
+    "trigger_levels": {
+      "support": [
+        18.39
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL TSLL 标的机构行为与股性特征画像】方向：看多做多。关键位：支撑位 $18.39。操作要领：结合标的历史脾性与控盘特征进行操作，避免盲目追涨杀跌，多看多周期结构确认。实测表现：3D达标，5D未达标（置信度 22.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-22",
+    "entry_date": "2025-10-23",
+    "entry_px": 19.979738235473633,
+    "close_ret_3d": 0.04807230683474595,
+    "close_ret_5d": -0.04521659239397058,
+    "confidence": 0.22391703803014712
+  },
+  {
+    "card_id": "ocard_distill_asset_post_1CUNkbex7QXtdJhBXbM9jN",
+    "ticker": "TSLL",
+    "card_type": "asset_memory",
+    "title": "TSLL 标的机构行为与股性特征画像",
+    "trigger_levels": {
+      "support": [
+        18.39
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL TSLL 标的机构行为与股性特征画像】方向：看多做多。关键位：支撑位 $18.39。操作要领：结合标的历史脾性与控盘特征进行操作，避免盲目追涨杀跌，多看多周期结构确认。实测表现：3D达标，5D未达标（置信度 22.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-22",
+    "entry_date": "2025-10-23",
+    "entry_px": 19.979738235473633,
+    "close_ret_3d": 0.04807230683474595,
+    "close_ret_5d": -0.04521659239397058,
+    "confidence": 0.22391703803014712
+  },
+  {
+    "card_id": "ocard_distill_asset_post_1CTzMpfmdKaGUkowS5DTtF",
+    "ticker": "TSLL",
+    "card_type": "asset_memory",
+    "title": "NVDL 标的机构行为与股性特征画像",
+    "trigger_levels": {
+      "support": [
+        16.88
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL NVDL 标的机构行为与股性特征画像】方向：看多做多。关键位：支撑位 $16.88。操作要领：结合标的历史脾性与控盘特征进行操作，避免盲目追涨杀跌，多看多周期结构确认。实测表现：3D未达标，5D达标（置信度 80.6%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-10",
+    "entry_date": "2025-10-13",
+    "entry_px": 18.91465950012207,
+    "close_ret_3d": -0.0326797273576801,
+    "close_ret_5d": 0.05128203059698411,
+    "confidence": 0.8064101529849206
+  },
+  {
+    "card_id": "ocard_distill_asset_post_1CTzMou3LM6qoHMCoJM2SL",
+    "ticker": "TSLL",
+    "card_type": "asset_memory",
+    "title": "NVDL 标的机构行为与股性特征画像",
+    "trigger_levels": {
+      "support": [
+        16.88
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL NVDL 标的机构行为与股性特征画像】方向：看多做多。关键位：支撑位 $16.88。操作要领：结合标的历史脾性与控盘特征进行操作，避免盲目追涨杀跌，多看多周期结构确认。实测表现：3D未达标，5D达标（置信度 80.6%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-10",
+    "entry_date": "2025-10-13",
+    "entry_px": 18.91465950012207,
+    "close_ret_3d": -0.0326797273576801,
+    "close_ret_5d": 0.05128203059698411,
+    "confidence": 0.8064101529849206
+  },
+  {
+    "card_id": "card_mm_vmeta_post_1CYwt12vEEWQgLSBSsyfVE_0",
+    "ticker": "SPY",
+    "card_type": "level",
+    "title": "[多模态] SPY 震荡走势/盘中反弹",
+    "trigger_levels": {
+      "support": [
+        673.664,
+        674.09
+      ],
+      "resistance": [
+        676.22,
+        678.135
+      ]
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【SPY [多模态] SPY 震荡走势/盘中反弹】方向：看空做空/止损。关键位：支撑位 $673.664, $674.09；阻力位 $676.22, $678.135。操作要领：重点跟踪 SPY 震荡走势/盘中反弹。关注关键支撑与阻力区间反应，做好仓位与风险管理。。实测表现：3D未达标，5D达标（置信度 59.7%）。",
+    "direction": "bearish",
+    "t0_et": "2026-03-11",
+    "entry_date": "2026-03-12",
+    "entry_px": 660.89794921875,
+    "close_ret_3d": 0.007101396434036067,
+    "close_ret_5d": -0.009398556651218026,
+    "confidence": 0.5969927832560902
+  },
+  {
+    "card_id": "card_mm_vmeta_post_1CZrqUSWq94zLcsEgVYtYd_0",
+    "ticker": "TSLL",
+    "card_type": "level",
+    "title": "[多模态] TSLL 单边下跌/底部V型反弹",
+    "trigger_levels": {
+      "support": [
+        10
+      ],
+      "resistance": [
+        10.8,
+        11.4
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL [多模态] TSLL 单边下跌/底部V型反弹】方向：看多做多。关键位：支撑位 $10；阻力位 $10.8, $11.4。操作要领：重点跟踪 TSLL 单边下跌/底部V型反弹。关注关键支撑与阻力区间反应，做好仓位与风险管理。。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-04-08",
+    "entry_date": "2026-04-09",
+    "entry_px": 10.36854076385498,
+    "close_ret_3d": 0.10430627537031834,
+    "close_ret_5d": 0.2507177248254102,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "card_mm_vmeta_post_1CaHKvZJin4o1TqKnMKw6Q_0",
+    "ticker": "QQQ",
+    "card_type": "level",
+    "title": "[多模态] QQQ 双底/V型反转",
+    "trigger_levels": {
+      "support": [
+        643.37
+      ],
+      "resistance": [
+        650.2
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【QQQ [多模态] QQQ 双底/V型反转】方向：看多做多。关键位：支撑位 $643.37；阻力位 $650.2。操作要领：重点跟踪 QQQ 双底/V型反转。关注关键支撑与阻力区间反应，做好仓位与风险管理。。实测表现：3D达标，5D达标（置信度 59.9%）。",
+    "direction": "bullish",
+    "t0_et": "2026-04-21",
+    "entry_date": "2026-04-22",
+    "entry_px": 654.390869140625,
+    "close_ret_3d": 0.013921321004258802,
+    "close_ret_5d": 0.00986089684877367,
+    "confidence": 0.5993044842438684
+  },
+  {
+    "card_id": "card_mm_vmeta_post_1CbTUayc44sNzPweAjd3QW_0",
+    "ticker": "IREN",
+    "card_type": "level",
+    "title": "[多模态] IREN 缺口回补",
+    "trigger_levels": {
+      "support": [
+        46
+      ],
+      "resistance": [
+        65.61
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【IREN [多模态] IREN 缺口回补】方向：看多做多。关键位：支撑位 $46；阻力位 $65.61。操作要领：重点跟踪 IREN 缺口回补。关注关键支撑与阻力区间反应，做好仓位与风险管理。。实测表现：3D达标，5D未达标（置信度 27.9%）。",
+    "direction": "bullish",
+    "t0_et": "2026-05-27",
+    "entry_date": "2026-05-28",
+    "entry_px": 64.05000305175781,
+    "close_ret_3d": 0.039812573003356055,
+    "close_ret_5d": -0.034192073958787206,
+    "confidence": 0.279039630206064
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CeTQ6AVLzmvg7FjvPe2TZ",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        230
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $230。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D未达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-08-27",
+    "entry_date": "2026-08-28",
+    "entry_px": 209.17999267578125,
+    "close_ret_3d": -0.024333093585005905,
+    "close_ret_5d": 0.08227367490418569,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CeTQ5dgVmy3jTYMQAYckX",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        230
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $230。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D未达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-08-27",
+    "entry_date": "2026-08-28",
+    "entry_px": 209.17999267578125,
+    "close_ret_3d": -0.024333093585005905,
+    "close_ret_5d": 0.08227367490418569,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CbDtC8LuZpVBXQAas1NpF",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        13.03
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $13.03。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-05-20",
+    "entry_date": "2026-05-21",
+    "entry_px": 14.605256080627441,
+    "close_ret_3d": 0.10597835899197894,
+    "close_ret_5d": 0.08152175935820183,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1Caa9ZKwj9f92BzkPZDYNs",
+    "ticker": "IREN",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        42
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $42。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-04-30",
+    "entry_date": "2026-05-01",
+    "entry_px": 45.65999984741211,
+    "close_ret_3d": 0.3355234285155724,
+    "close_ret_5d": 0.34034167690449757,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1Caa9W1VjDYe9ZudQrxkbB",
+    "ticker": "IREN",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        42
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $42。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-04-30",
+    "entry_date": "2026-05-01",
+    "entry_px": 45.65999984741211,
+    "close_ret_3d": 0.3355234285155724,
+    "close_ret_5d": 0.34034167690449757,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CZrpe7smb2tBEDFbYha5j",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        10.07
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $10.07。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-04-08",
+    "entry_date": "2026-04-09",
+    "entry_px": 10.36854076385498,
+    "close_ret_3d": 0.10430627537031834,
+    "close_ret_5d": 0.2507177248254102,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CZrpddtYqcPyogV3s1evF",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        10.07
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $10.07。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-04-08",
+    "entry_date": "2026-04-09",
+    "entry_px": 10.36854076385498,
+    "close_ret_3d": 0.10430627537031834,
+    "close_ret_5d": 0.2507177248254102,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CYwPFUyefyQvPUq2BbMEF",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        15.2
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $15.2。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-03-11",
+    "entry_date": "2026-03-12",
+    "entry_px": 13.843753814697266,
+    "close_ret_3d": 0.018492131702533277,
+    "close_ret_5d": -0.07752489145251784,
+    "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CYwPEh4DESNVmU1TNgzAo",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        15.2
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $15.2。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-03-11",
+    "entry_date": "2026-03-12",
+    "entry_px": 13.843753814697266,
+    "close_ret_3d": 0.018492131702533277,
+    "close_ret_5d": -0.07752489145251784,
+    "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CYwNstdVZGbmjJtbCsUqN",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        15.05
+      ]
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看空做空/止损。关键位：阻力位 $15.05。操作要领：分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本。实测表现：3D未达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2026-03-11",
+    "entry_date": "2026-03-12",
+    "entry_px": 13.843753814697266,
+    "close_ret_3d": 0.018492131702533277,
+    "close_ret_5d": -0.07752489145251784,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CYwNqWxnM1JSMTKc2eJDv",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        15.05
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $15.05。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-03-11",
+    "entry_date": "2026-03-12",
+    "entry_px": 13.843753814697266,
+    "close_ret_3d": 0.018492131702533277,
+    "close_ret_5d": -0.07752489145251784,
+    "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CYiNxV8ERBYjz7s15h1pZ",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        15.05
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看空做空/止损。关键位：阻力位 $15.05。操作要领：分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本。实测表现：3D达标，5D达标（置信度 81.9%）。",
+    "direction": "bearish",
+    "t0_et": "2026-03-04",
+    "entry_date": "2026-03-05",
+    "entry_px": 14.631448745727539,
+    "close_ret_3d": -0.032301459518219944,
+    "close_ret_5d": -0.05383574413711323,
+    "confidence": 0.8191787206855662
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CYiNx2eyoTWMfpd4F9G4Y",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        15.05
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看空做空/止损。关键位：阻力位 $15.05。操作要领：分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本。实测表现：3D达标，5D达标（置信度 81.9%）。",
+    "direction": "bearish",
+    "t0_et": "2026-03-04",
+    "entry_date": "2026-03-05",
+    "entry_px": 14.631448745727539,
+    "close_ret_3d": -0.032301459518219944,
+    "close_ret_5d": -0.05383574413711323,
+    "confidence": 0.8191787206855662
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CYhrDQgUu5RCmPmHoUciz",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        14.05
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看空做空/止损。关键位：阻力位 $14.05。操作要领：分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本。实测表现：3D达标，5D达标（置信度 81.9%）。",
+    "direction": "bearish",
+    "t0_et": "2026-03-04",
+    "entry_date": "2026-03-05",
+    "entry_px": 14.631448745727539,
+    "close_ret_3d": -0.032301459518219944,
+    "close_ret_5d": -0.05383574413711323,
+    "confidence": 0.8191787206855662
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CYKV4P5Y9pQYoXpvdAkzu",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        15.05
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $15.05。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 62.2%）。",
+    "direction": "bullish",
+    "t0_et": "2026-02-20",
+    "entry_date": "2026-02-23",
+    "entry_px": 14.306524276733398,
+    "close_ret_3d": 0.04404679325597116,
+    "close_ret_5d": 0.014452842579911085,
+    "confidence": 0.6222642128995555
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CYKV3SzSPLJuBZZzkT5NG",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        15.05
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $15.05。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 62.2%）。",
+    "direction": "bullish",
+    "t0_et": "2026-02-20",
+    "entry_date": "2026-02-23",
+    "entry_px": 14.306524276733398,
+    "close_ret_3d": 0.04404679325597116,
+    "close_ret_5d": 0.014452842579911085,
+    "confidence": 0.6222642128995555
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CWVYbAkPm4amEMRkK1zPC",
+    "ticker": "IREN",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        39.6
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $39.6。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-26",
+    "entry_date": "2025-12-29",
+    "entry_px": 39.40999984741211,
+    "close_ret_3d": 0.0834813734652522,
+    "close_ret_5d": 0.16493275882178993,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CWVYZnYGiMAEmnriqco6N",
+    "ticker": "IREN",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        39.6
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $39.6。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-26",
+    "entry_date": "2025-12-29",
+    "entry_px": 39.40999984741211,
+    "close_ret_3d": 0.0834813734652522,
+    "close_ret_5d": 0.16493275882178993,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CW3UPtKawRXGk35XdiCZ2",
+    "ticker": "CRWV",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        78.3
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【CRWV 波段战法与量价形态应对卡】方向：看空做空/止损。关键位：阻力位 $78.3。操作要领：分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bearish",
+    "t0_et": "2025-12-12",
+    "entry_date": "2025-12-15",
+    "entry_px": 72.3499984741211,
+    "close_ret_3d": -0.06454731537576641,
+    "close_ret_5d": 0.17249486689896165,
+    "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CW1Pi4ZLiAZpjmf87mazV",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.5
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.5。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-11",
+    "entry_date": "2025-12-12",
+    "entry_px": 19.870128631591797,
+    "close_ret_3d": 0.031065103809201133,
+    "close_ret_5d": 0.09023668440255839,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CW1PhdYWaqukw7S29qUyF",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.5
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.5。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-11",
+    "entry_date": "2025-12-12",
+    "entry_px": 19.870128631591797,
+    "close_ret_3d": 0.031065103809201133,
+    "close_ret_5d": 0.09023668440255839,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVzBND4h8hgSyg9hmE1Fc",
+    "ticker": "IREN",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        41
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 波段战法与量价形态应对卡】方向：看空做空/止损。关键位：阻力位 $41。操作要领：分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2025-12-10",
+    "entry_date": "2025-12-11",
+    "entry_px": 43.939998626708984,
+    "close_ret_3d": -0.16727352534902873,
+    "close_ret_5d": -0.18525260910455577,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVzBMnh1bTnDL7b45C9Mm",
+    "ticker": "IREN",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        41
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 波段战法与量价形态应对卡】方向：看空做空/止损。关键位：阻力位 $41。操作要领：分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2025-12-10",
+    "entry_date": "2025-12-11",
+    "entry_px": 43.939998626708984,
+    "close_ret_3d": -0.16727352534902873,
+    "close_ret_5d": -0.18525260910455577,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVzB5EBEaysu6eEWYjCkc",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        18.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $18.8。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-10",
+    "entry_date": "2025-12-11",
+    "entry_px": 18.860944747924805,
+    "close_ret_3d": 0.19636363893777542,
+    "close_ret_5d": 0.16051951713529378,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVzB4vDwGDbmASkSeZuWH",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        18.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $18.8。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-10",
+    "entry_date": "2025-12-11",
+    "entry_px": 18.860944747924805,
+    "close_ret_3d": 0.19636363893777542,
+    "close_ret_5d": 0.16051951713529378,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVyj9Z8cngfobDtx1Nnht",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        25.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $25.8。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-10",
+    "entry_date": "2025-12-11",
+    "entry_px": 18.860944747924805,
+    "close_ret_3d": 0.19636363893777542,
+    "close_ret_5d": 0.16051951713529378,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVyj8tfEGwntf2FL1NRb2",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        25.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $25.8。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-10",
+    "entry_date": "2025-12-11",
+    "entry_px": 18.860944747924805,
+    "close_ret_3d": 0.19636363893777542,
+    "close_ret_5d": 0.16051951713529378,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVomiDsq9oKcGNhPU1ESn",
+    "ticker": "CRWV",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        87
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【CRWV 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $87。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-05",
+    "entry_date": "2025-12-08",
+    "entry_px": 86.23999786376953,
+    "close_ret_3d": 0.013218917183291934,
+    "close_ret_5d": -0.16106214904585237,
+    "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVomhpAnhC5R4sAb3UEVw",
+    "ticker": "CRWV",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        87
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【CRWV 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $87。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-05",
+    "entry_date": "2025-12-08",
+    "entry_px": 86.23999786376953,
+    "close_ret_3d": 0.013218917183291934,
+    "close_ret_5d": -0.16106214904585237,
+    "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVmt8yeNnhT6fw39co8xr",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.6
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.6。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D未达标，5D达标（置信度 61.9%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-04",
+    "entry_date": "2025-12-05",
+    "entry_px": 19.599353790283203,
+    "close_ret_3d": -0.017178965610732733,
+    "close_ret_5d": 0.013815498419281314,
+    "confidence": 0.6190774920964066
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVmt8dqs8CasMWZ73UXYw",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.6
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.6。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D未达标，5D达标（置信度 61.9%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-04",
+    "entry_date": "2025-12-05",
+    "entry_px": 19.599353790283203,
+    "close_ret_3d": -0.017178965610732733,
+    "close_ret_5d": 0.013815498419281314,
+    "confidence": 0.6190774920964066
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVjwZ12Ch8ZPF5LrL8bcU",
+    "ticker": "IREN",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        40
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【IREN 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $40。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 18.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-03",
+    "entry_date": "2025-12-04",
+    "entry_px": 46.45000076293945,
+    "close_ret_3d": 0.00839611158757192,
+    "close_ret_5d": -0.0540366435953451,
+    "confidence": 0.1798167820232745
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVjwY3HiErRTp2Wz5fsYa",
+    "ticker": "IREN",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        40
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【IREN 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $40。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 18.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-03",
+    "entry_date": "2025-12-04",
+    "entry_px": 46.45000076293945,
+    "close_ret_3d": 0.00839611158757192,
+    "close_ret_5d": -0.0540366435953451,
+    "confidence": 0.1798167820232745
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CViT521nW5wgEyis9K681",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        17.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $17.8。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D未达标，5D达标（置信度 63.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-02",
+    "entry_date": "2025-12-03",
+    "entry_px": 18.943187713623047,
+    "close_ret_3d": -0.034638630339299925,
+    "close_ret_5d": 0.016864608889165522,
+    "confidence": 0.6343230444458277
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CViT4nSsrqVvgnbNq2cca",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        17.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $17.8。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D未达标，5D达标（置信度 63.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-02",
+    "entry_date": "2025-12-03",
+    "entry_px": 18.943187713623047,
+    "close_ret_3d": -0.034638630339299925,
+    "close_ret_5d": 0.016864608889165522,
+    "confidence": 0.6343230444458277
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CViB467E8LDTg2KAfBwMc",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        17.5
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $17.5。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 63.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-02",
+    "entry_date": "2025-12-03",
+    "entry_px": 18.943187713623047,
+    "close_ret_3d": -0.034638630339299925,
+    "close_ret_5d": 0.016864608889165522,
+    "confidence": 0.6343230444458277
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CViB3t41uVAQnksQkXNxA",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        17.5
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $17.5。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 63.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-02",
+    "entry_date": "2025-12-03",
+    "entry_px": 18.943187713623047,
+    "close_ret_3d": -0.034638630339299925,
+    "close_ret_5d": 0.016864608889165522,
+    "confidence": 0.6343230444458277
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVi44CCVeEd7ofK1JBbQ2",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        18.1
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $18.1。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D未达标，5D达标（置信度 63.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-02",
+    "entry_date": "2025-12-03",
+    "entry_px": 18.943187713623047,
+    "close_ret_3d": -0.034638630339299925,
+    "close_ret_5d": 0.016864608889165522,
+    "confidence": 0.6343230444458277
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVi43zD3zzz6wM7zswvpn",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        18.1
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $18.1。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D未达标，5D达标（置信度 63.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-02",
+    "entry_date": "2025-12-03",
+    "entry_px": 18.943187713623047,
+    "close_ret_3d": -0.034638630339299925,
+    "close_ret_5d": 0.016864608889165522,
+    "confidence": 0.6343230444458277
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVi3hVTXyjw4DRUqraqos",
+    "ticker": "CRWV",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        78
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【CRWV 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $78。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-02",
+    "entry_date": "2025-12-03",
+    "entry_px": 79.36000061035156,
+    "close_ret_3d": 0.08669351311119522,
+    "close_ret_5d": 0.11088713437597875,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVi3h5ujzNB3tqZi4wFBE",
+    "ticker": "CRWV",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        78
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【CRWV 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $78。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-12-02",
+    "entry_date": "2025-12-03",
+    "entry_px": 79.36000061035156,
+    "close_ret_3d": 0.08669351311119522,
+    "close_ret_5d": 0.11088713437597875,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVUdhazaP5MWJEa22tfbH",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        17
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $17。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-25",
+    "entry_date": "2025-11-26",
+    "entry_px": 17.336057662963867,
+    "close_ret_3d": 0.009873929031595896,
+    "close_ret_5d": 0.12835997719022818,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVUdgZimUV4DiFCaUCmyb",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        17
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $17。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-25",
+    "entry_date": "2025-11-26",
+    "entry_px": 17.336057662963867,
+    "close_ret_3d": 0.009873929031595896,
+    "close_ret_5d": 0.12835997719022818,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVKKfFDCnN7WytBuEj1kg",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        18.1
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $18.1。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-20",
+    "entry_date": "2025-11-21",
+    "entry_px": 14.673362731933594,
+    "close_ret_3d": 0.18146453404545504,
+    "close_ret_5d": 0.19831502854257876,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVKKev89eRkBdjpQqYssu",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        18.1
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $18.1。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-20",
+    "entry_date": "2025-11-21",
+    "entry_px": 14.673362731933594,
+    "close_ret_3d": 0.18146453404545504,
+    "close_ret_5d": 0.19831502854257876,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVHUMY6aAPjqHSGtKcPtU",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        98
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $98。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-19",
+    "entry_date": "2025-11-20",
+    "entry_px": 84.63999938964844,
+    "close_ret_3d": 0.050094493080633073,
+    "close_ret_5d": 0.12086487985235905,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVHUMHwjc97yVSk4FQva9",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        98
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $98。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-19",
+    "entry_date": "2025-11-20",
+    "entry_px": 84.63999938964844,
+    "close_ret_3d": 0.050094493080633073,
+    "close_ret_5d": 0.12086487985235905,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CV6aQQwYnJJij9AiWsUg1",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        35.5
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $35.5。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 43.3%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-13",
+    "entry_date": "2025-11-14",
+    "entry_px": 83.54000091552734,
+    "close_ret_3d": 0.13801769993940494,
+    "close_ret_5d": -0.003351673165289948,
+    "confidence": 0.43324163417355027
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CV6aPivJuFGVcs7PVwrzi",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        35.5
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $35.5。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 43.3%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-13",
+    "entry_date": "2025-11-14",
+    "entry_px": 83.54000091552734,
+    "close_ret_3d": 0.13801769993940494,
+    "close_ret_5d": -0.003351673165289948,
+    "confidence": 0.43324163417355027
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CV4CeV8UDzN2toLPkR1iG",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        98
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $98。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 22.5%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-12",
+    "entry_date": "2025-11-13",
+    "entry_px": 88.62999725341797,
+    "close_ret_3d": 0.02155030713414252,
+    "close_ret_5d": -0.04501859401350328,
+    "confidence": 0.22490702993248363
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CV4CeDQ4eKWLGQhvKW3DH",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        98
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $98。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 22.5%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-12",
+    "entry_date": "2025-11-13",
+    "entry_px": 88.62999725341797,
+    "close_ret_3d": 0.02155030713414252,
+    "close_ret_5d": -0.04501859401350328,
+    "confidence": 0.22490702993248363
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUzW2K9f1MP662E5GJ6KA",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        110.5
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看空做空/止损。关键位：阻力位 $110.5。操作要领：分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2025-11-10",
+    "entry_date": "2025-11-11",
+    "entry_px": 102.22000122070312,
+    "close_ret_3d": -0.18274310391411375,
+    "close_ret_5d": -0.11426335517212038,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUzW1yQBsHVtZc1L8K6Qy",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        110.5
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看空做空/止损。关键位：阻力位 $110.5。操作要领：分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2025-11-10",
+    "entry_date": "2025-11-11",
+    "entry_px": 102.22000122070312,
+    "close_ret_3d": -0.18274310391411375,
+    "close_ret_5d": -0.11426335517212038,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUruXRVhC9eqTFSaD6re9",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        20
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $20。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-06",
+    "entry_date": "2025-11-07",
+    "entry_px": 17.944677352905273,
+    "close_ret_3d": 0.0021196450450187143,
+    "close_ret_5d": -0.12135680029047069,
+    "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUruX7PUpChBC4SFrptKg",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        20
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $20。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-06",
+    "entry_date": "2025-11-07",
+    "entry_px": 17.944677352905273,
+    "close_ret_3d": 0.0021196450450187143,
+    "close_ret_5d": -0.12135680029047069,
+    "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUSdbdCds7a9BZmdgiETe",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        21
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $21。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-24",
+    "entry_date": "2025-10-27",
+    "entry_px": 20.207971572875977,
+    "close_ret_3d": -0.0560001291199822,
+    "close_ret_5d": 0.06541163554148333,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUSSuTxRBZ8EQqouYGTiR",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.8。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-24",
+    "entry_date": "2025-10-27",
+    "entry_px": 20.207971572875977,
+    "close_ret_3d": -0.0560001291199822,
+    "close_ret_5d": 0.06541163554148333,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUSStxpyWGeGnoFiCfqzJ",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.8。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-24",
+    "entry_date": "2025-10-27",
+    "entry_px": 20.207971572875977,
+    "close_ret_3d": -0.0560001291199822,
+    "close_ret_5d": 0.06541163554148333,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUQErL2VQXoZJhjLoYP6s",
+    "ticker": "CRWV",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        271
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【CRWV 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $271。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 59.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-23",
+    "entry_date": "2025-10-24",
+    "entry_px": 132.5500030517578,
+    "close_ret_3d": 0.05567702341841296,
+    "close_ret_5d": 0.008751441987190356,
+    "confidence": 0.5937572099359518
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUQEqpxenkFQQVpLnhmnE",
+    "ticker": "CRWV",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        271
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【CRWV 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $271。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 59.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-23",
+    "entry_date": "2025-10-24",
+    "entry_px": 132.5500030517578,
+    "close_ret_3d": 0.05567702341841296,
+    "close_ret_5d": 0.008751441987190356,
+    "confidence": 0.5937572099359518
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUNkqL8aZt1vxmXpxg8Em",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        18.39
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $18.39。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 22.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-22",
+    "entry_date": "2025-10-23",
+    "entry_px": 19.979738235473633,
+    "close_ret_3d": 0.04807230683474595,
+    "close_ret_5d": -0.04521659239397058,
+    "confidence": 0.22391703803014712
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUNkcSu5TcdNFh9uQmCj3",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        18.39
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $18.39。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 22.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-22",
+    "entry_date": "2025-10-23",
+    "entry_px": 19.979738235473633,
+    "close_ret_3d": 0.04807230683474595,
+    "close_ret_5d": -0.04521659239397058,
+    "confidence": 0.22391703803014712
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUNkbex7QXtdJhBXbM9jN",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        18.39
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $18.39。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 22.4%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-22",
+    "entry_date": "2025-10-23",
+    "entry_px": 19.979738235473633,
+    "close_ret_3d": 0.04807230683474595,
+    "close_ret_5d": -0.04521659239397058,
+    "confidence": 0.22391703803014712
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CULYcgiH97K42wvuBm8Tv",
+    "ticker": "CRWV",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        270
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【CRWV 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $270。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-21",
+    "entry_date": "2025-10-22",
+    "entry_px": 121.52999877929688,
+    "close_ret_3d": 0.11955894779266729,
+    "close_ret_5d": 0.15140289707317023,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUJbFGukG2RaAtejbmeXF",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        130
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $130。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-20",
+    "entry_date": "2025-10-21",
+    "entry_px": 104.27999877929688,
+    "close_ret_3d": 0.12447260748827871,
+    "close_ret_5d": 0.16829692421555809,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUJZrGqPRXyAn1JbSBQ2b",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        21.7
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $21.7。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-20",
+    "entry_date": "2025-10-21",
+    "entry_px": 19.456707000732422,
+    "close_ret_3d": -0.04252195733756514,
+    "close_ret_5d": 0.07624637312053673,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUCx7NsZkbfrVTFeE7dY1",
+    "ticker": "NBIS",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        112
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $112。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-17",
+    "entry_date": "2025-10-20",
+    "entry_px": 109,
+    "close_ret_3d": -0.026055012274225908,
+    "close_ret_5d": 0.15073394775390625,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUCx2BWmLo5Qdk213MftW",
+    "ticker": "CRWV",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        128
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【CRWV 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $128。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-17",
+    "entry_date": "2025-10-20",
+    "entry_px": 127.05999755859375,
+    "close_ret_3d": -0.029277516859605224,
+    "close_ret_5d": 0.07083267883622968,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CU978zYoeJi4sgxvRd5vF",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.95
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.95。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-15",
+    "entry_date": "2025-10-16",
+    "entry_px": 18.296533584594727,
+    "close_ret_3d": 0.06340946555660887,
+    "close_ret_5d": 0.09199582221935887,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CU977pdnbn6U75ZuDuw9R",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.95
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.95。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-15",
+    "entry_date": "2025-10-16",
+    "entry_px": 18.296533584594727,
+    "close_ret_3d": 0.06340946555660887,
+    "close_ret_5d": 0.09199582221935887,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CU94BQxavH9twacA2qV3D",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.77
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.77。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-15",
+    "entry_date": "2025-10-16",
+    "entry_px": 18.296533584594727,
+    "close_ret_3d": 0.06340946555660887,
+    "close_ret_5d": 0.09199582221935887,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CU94BA4vpBEwgk7on7bPC",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.77
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.77。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-15",
+    "entry_date": "2025-10-16",
+    "entry_px": 18.296533584594727,
+    "close_ret_3d": 0.06340946555660887,
+    "close_ret_5d": 0.09199582221935887,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CU6FRo4ge37hpkR4RZ1bo",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.1
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.1。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-13",
+    "entry_date": "2025-10-14",
+    "entry_px": 18.35359001159668,
+    "close_ret_3d": 0.04507768041521554,
+    "close_ret_5d": 0.06010360852774532,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CU6FRbDfgZfUHWhAKsDx6",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.1
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.1。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-13",
+    "entry_date": "2025-10-14",
+    "entry_px": 18.35359001159668,
+    "close_ret_3d": 0.04507768041521554,
+    "close_ret_5d": 0.06010360852774532,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CU5JEhP1fvJrmRrJQA75u",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        18.5
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $18.5。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-13",
+    "entry_date": "2025-10-14",
+    "entry_px": 18.35359001159668,
+    "close_ret_3d": 0.04507768041521554,
+    "close_ret_5d": 0.06010360852774532,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CU5JESWeRWkpTsKibRi7r",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        18.5
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $18.5。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-13",
+    "entry_date": "2025-10-14",
+    "entry_px": 18.35359001159668,
+    "close_ret_3d": 0.04507768041521554,
+    "close_ret_5d": 0.06010360852774532,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CTzMpfmdKaGUkowS5DTtF",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        16.88
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $16.88。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 80.6%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-10",
+    "entry_date": "2025-10-13",
+    "entry_px": 18.91465950012207,
+    "close_ret_3d": -0.0326797273576801,
+    "close_ret_5d": 0.05128203059698411,
+    "confidence": 0.8064101529849206
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CTzMou3LM6qoHMCoJM2SL",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        16.88
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $16.88。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 80.6%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-10",
+    "entry_date": "2025-10-13",
+    "entry_px": 18.91465950012207,
+    "close_ret_3d": -0.0326797273576801,
+    "close_ret_5d": 0.05128203059698411,
+    "confidence": 0.8064101529849206
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CTyjMSyc5EhBQUEoyF3x6",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.2
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.2。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 80.6%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-10",
+    "entry_date": "2025-10-13",
+    "entry_px": 18.91465950012207,
+    "close_ret_3d": -0.0326797273576801,
+    "close_ret_5d": 0.05128203059698411,
+    "confidence": 0.8064101529849206
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CTyjM8XHiBN7Uvax5cz2J",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.2
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.2。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D未达标，5D达标（置信度 80.6%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-10",
+    "entry_date": "2025-10-13",
+    "entry_px": 18.91465950012207,
+    "close_ret_3d": -0.0326797273576801,
+    "close_ret_5d": 0.05128203059698411,
+    "confidence": 0.8064101529849206
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CTx7USeEW46LGJEX3G1ST",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.9
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.9。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-09",
+    "entry_date": "2025-10-10",
+    "entry_px": 17.079299926757812,
+    "close_ret_3d": 0.10467708202113979,
+    "close_ret_5d": 0.12305114137382978,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CTx7TzQQ5FrTvcG4qLuJ7",
+    "ticker": "TSLL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        19.9
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $19.9。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-09",
+    "entry_date": "2025-10-10",
+    "entry_px": 17.079299926757812,
+    "close_ret_3d": 0.10467708202113979,
+    "close_ret_5d": 0.12305114137382978,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CeTQ6AVLzmvg7FjvPe2TZ",
+    "ticker": "NBIS",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        230
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $230。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bearish",
+    "t0_et": "2026-08-27",
+    "entry_date": "2026-08-28",
+    "entry_px": 209.17999267578125,
+    "close_ret_3d": -0.024333093585005905,
+    "close_ret_5d": 0.08227367490418569,
+    "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CeTQ5dgVmy3jTYMQAYckX",
+    "ticker": "NBIS",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        230
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【NBIS 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $230。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bearish",
+    "t0_et": "2026-08-27",
+    "entry_date": "2026-08-28",
+    "entry_px": 209.17999267578125,
+    "close_ret_3d": -0.024333093585005905,
+    "close_ret_5d": 0.08227367490418569,
+    "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CcBLQztSGoi369Hug6DXr",
+    "ticker": "TSLL",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        12.1
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $12.1。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D未达标（置信度 34.7%）。",
+    "direction": "bearish",
+    "t0_et": "2026-06-18",
+    "entry_date": "2026-06-22",
+    "entry_px": 13.36500072479248,
+    "close_ret_3d": -0.14852229724681765,
+    "close_ret_5d": 0.020576102028946552,
+    "confidence": 0.34711948985526725
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbcdmVnaHP14J9pPN6Ju1",
+    "ticker": "TSLL",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        14.7
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $14.7。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2026-06-01",
+    "entry_date": "2026-06-02",
+    "entry_px": 14.892995834350586,
+    "close_ret_3d": -0.1525649447076215,
+    "close_ret_5d": -0.13257824863774959,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbcdkjEFnn2kHXD8vuJWv",
+    "ticker": "TSLL",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        14.7
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $14.7。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2026-06-01",
+    "entry_date": "2026-06-02",
+    "entry_px": 14.892995834350586,
+    "close_ret_3d": -0.1525649447076215,
+    "close_ret_5d": -0.13257824863774959,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbcdD7NmQtWcrAMEryokJ",
+    "ticker": "IREN",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        58
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $58。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2026-06-01",
+    "entry_date": "2026-06-02",
+    "entry_px": 66.5999984741211,
+    "close_ret_3d": -0.1839339381480618,
+    "close_ret_5d": -0.18888886343211642,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbcdCJLzxjhXbGKVriZkn",
+    "ticker": "IREN",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        58
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $58。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2026-06-01",
+    "entry_date": "2026-06-02",
+    "entry_px": 66.5999984741211,
+    "close_ret_3d": -0.1839339381480618,
+    "close_ret_5d": -0.18888886343211642,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbX2JV98paQk99f4a9GjZ",
+    "ticker": "CRWV",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        99
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【CRWV 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $99。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2026-05-29",
+    "entry_date": "2026-06-01",
+    "entry_px": 124.81999969482422,
+    "close_ret_3d": -0.13451370739126478,
+    "close_ret_5d": -0.17985897294608866,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbX2HkutVvzydNtHtYVL9",
+    "ticker": "CRWV",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        99
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【CRWV 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $99。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2026-05-29",
+    "entry_date": "2026-06-01",
+    "entry_px": 124.81999969482422,
+    "close_ret_3d": -0.13451370739126478,
+    "close_ret_5d": -0.17985897294608866,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbX2FAyqW4MfvvSTf7H19",
+    "ticker": "TSLL",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        14.8
+      ]
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $14.8。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D未达标，5D达标（置信度 76.1%）。",
+    "direction": "bearish",
+    "t0_et": "2026-05-29",
+    "entry_date": "2026-06-01",
+    "entry_px": 14.357205390930176,
+    "close_ret_3d": 0.011748419305939395,
+    "close_ret_5d": -0.04215622565323962,
+    "confidence": 0.7607811282661981
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbX2EUkJihwSPUcJjdrXg",
+    "ticker": "TSLL",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        14.8
+      ]
+    },
+    "hit_rate_3d": 0,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【TSLL 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $14.8。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D未达标，5D达标（置信度 76.1%）。",
+    "direction": "bearish",
+    "t0_et": "2026-05-29",
+    "entry_date": "2026-06-01",
+    "entry_px": 14.357205390930176,
+    "close_ret_3d": 0.011748419305939395,
+    "close_ret_5d": -0.04215622565323962,
+    "confidence": 0.7607811282661981
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbX2AZ2W3KvFg2vRdkY33",
+    "ticker": "IREN",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        59.5
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $59.5。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2026-05-29",
+    "entry_date": "2026-06-01",
+    "entry_px": 65.33000183105469,
+    "close_ret_3d": -0.05311497204112514,
+    "close_ret_5d": -0.0939844333729537,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbX29f9ewQ7zcEZmmybxn",
+    "ticker": "IREN",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        59.5
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $59.5。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2026-05-29",
+    "entry_date": "2026-06-01",
+    "entry_px": 65.33000183105469,
+    "close_ret_3d": -0.05311497204112514,
+    "close_ret_5d": -0.0939844333729537,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbRjkHxhhDcygQpsd9TFQ",
+    "ticker": "IREN",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        58
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $58。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 72.4%）。",
+    "direction": "bearish",
+    "t0_et": "2026-05-26",
+    "entry_date": "2026-05-27",
+    "entry_px": 67.83999633789062,
+    "close_ret_3d": -0.03699874177961937,
+    "close_ret_5d": -0.03478763426228115,
+    "confidence": 0.7239381713114058
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CbRjjf619XeGGB8egHQwW",
+    "ticker": "IREN",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        58
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【IREN 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $58。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 72.4%）。",
+    "direction": "bearish",
+    "t0_et": "2026-05-26",
+    "entry_date": "2026-05-27",
+    "entry_px": 67.83999633789062,
+    "close_ret_3d": -0.03699874177961937,
+    "close_ret_5d": -0.03478763426228115,
+    "confidence": 0.7239381713114058
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CYgNhzHiDM4BhbtcZUnok",
+    "ticker": "SPY",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        668
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【SPY 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $668。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 61.4%）。",
+    "direction": "bearish",
+    "t0_et": "2026-03-03",
+    "entry_date": "2026-03-04",
+    "entry_px": 679.8201293945312,
+    "close_ret_3d": -0.010012683408670342,
+    "close_ret_5d": -0.012844207034672595,
+    "confidence": 0.614221035173363
+  },
+  {
+    "card_id": "ocard_distill_risk_post_1CYgNhZTFHzpYsA3KKja6M",
+    "ticker": "SPY",
+    "card_type": "risk_rule",
+    "title": "交易风控与仓位防踩踏纪律守则",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        668
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【SPY 交易风控与仓位防踩踏纪律守则】方向：看空做空/止损。关键位：阻力位 $668。操作要领：严格执行纪律减仓止损，防范风险扩大，严禁盲目追高。实测表现：3D达标，5D达标（置信度 61.4%）。",
+    "direction": "bearish",
+    "t0_et": "2026-03-03",
+    "entry_date": "2026-03-04",
+    "entry_px": 679.8201293945312,
+    "close_ret_3d": -0.010012683408670342,
+    "close_ret_5d": -0.012844207034672595,
+    "confidence": 0.614221035173363
+  }
+]

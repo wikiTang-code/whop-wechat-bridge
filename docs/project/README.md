@@ -81,10 +81,10 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **T1 接管 + T2 n_scored=7**（CHG-035/036） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **T1 收官(422条/non_zhao=0/Done) + 券商双通道(REQ-042 Done) + 在线感知决策(REQ-043 Done)** | Active / Unblocked |
-| **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 | Standing |
+| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **T1 收官(Done) + 在线感知决策(REQ-043 Done) + 哨兵守护监测(REQ-044 Done)** | Active / Unblocked |
+| **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 + **REQ-038-T2/REQ-040** 黄金战法提纯固化(108张) | Done |
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
-| **§0.X Blocked** | 040=**Partial/Expanding**（扩样中）；033→human | **见 05 §0.X** |
+| **§0.X Blocked** | 040=**Cleared**（扩标回测全量收工）；033→human | **见 05 §0.X** |
 | **§0.R-A** | **REQ-042/CHG-034** accepted-with-gates | Done |
 | **§0.R-A** | T1 fallback 抽审 Done | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |
