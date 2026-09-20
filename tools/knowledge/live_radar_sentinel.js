@@ -25,9 +25,9 @@ import { pushRadarAlert } from './radar_alert_pusher.js';
 dotenv.config();
 
 const DEFAULT_TICKERS = ['TSLA', 'SPY', 'QQQ', 'NVDA', 'IREN', 'NBIS', 'CRWV'];
-const RTH_INTERVAL_MS = 30 * 1000;         // 常规盘中 30 秒
-const POWER_HOUR_INTERVAL_MS = 15 * 1000;  // 尾盘强平 15 秒
-const OFF_HOURS_INTERVAL_MS = 60 * 1000;   // 盘前盘后 60 秒
+const RTH_INTERVAL_MS = 15 * 1000;         // 常规盘中 15 秒
+const HIGH_FREQ_INTERVAL_MS = 5 * 1000;    // 开盘首小时与尾盘强平 5 秒超高频扫盘
+const OFF_HOURS_INTERVAL_MS = 45 * 1000;   // 盘前盘后 45 秒
 
 // 命令行参数解析
 const args = process.argv.slice(2);

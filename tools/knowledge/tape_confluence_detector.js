@@ -324,6 +324,14 @@ export function detectTapeConfluence(params = {}) {
     report.observations.push('🔄【跨时段指数换算】当前时段 SPX 现价由全天候交易的 SPY 动态等效换算');
   }
 
+  const m7Breadth = params.m7Breadth || null;
+  if (m7Breadth) {
+    report.m7_breadth = m7Breadth;
+    if (m7Breadth.is_unilateral_downtrend) {
+      report.observations.push(m7Breadth.playbook_advice || `🚨【赵哥战法 · 七姐妹单边下跌】开盘首小时 M7 普跌 (${m7Breadth.down_count}/7)，当天易走单边下跌模式！早盘严禁接飞刀，策略推迟至尾盘三点强平再买/捡漏！`);
+    }
+  }
+
   // --- 维度 1: 大盘 GEX 结构比对 (0 ~ 25分) ---
   let gex = gexSnapshot;
   if (!gex && fs.existsSync(GEX_PATH)) {

@@ -59,6 +59,7 @@ export async function getLiveQuoteContext() {
 
 import { getUsMarketSession } from './market_session.js';
 import { resolveSpxQuote, resolveSpxQuoteAsync } from './index_equivalent_converter.js';
+import { MAGNIFICENT_SEVEN, evaluateM7Breadth } from './m7_breadth_detector.js';
 
 /**
  * 转换标的代码为长桥 symbol (如 TSLA -> TSLA.US, SPX -> .SPX.US)
@@ -121,6 +122,13 @@ export async function fetchLiveMarketSensors(tickers = ['TSLA', 'SPY', 'QQQ', 'N
     queryTickers.push('SPY');
   }
 
+  // 自动纳入七姐妹标的以便评估宏观单边走势
+  for (const m7 of MAGNIFICENT_SEVEN) {
+    if (!queryTickers.includes(m7)) {
+      queryTickers.push(m7);
+    }
+  }
+
   const symbols = queryTickers.map(toLongbridgeSymbol);
 
   // 1. 实时获取正股 Quote
@@ -157,6 +165,9 @@ export async function fetchLiveMarketSensors(tickers = ['TSLA', 'SPY', 'QQQ', 'N
     }
   }
 
+  // 1.2 评估七姐妹盘面广度与单边下跌态势 (赵哥核心战法: 开盘首小时七姐妹普跌则单边阴跌至尾盘)
+  const m7Breadth = evaluateM7Breadth(quoteMap, { marketSession: session });
+
   // 2. 依次读取关键标的 Depth 盘口
   const sensors = [];
   for (const t of normalizedTickers) {
@@ -176,6 +187,7 @@ export async function fetchLiveMarketSensors(tickers = ['TSLA', 'SPY', 'QQQ', 'N
       quote: q,
       tape_event: tapeEvent,
       is_derived_from_spy: q.is_derived_from_spy || false,
+      m7_breadth: m7Breadth,
     });
   }
 
@@ -208,6 +220,7 @@ export async function runOnlineConfluenceScan(tickers = ['TSLA', 'SPY', 'QQQ', '
       gexSnapshot,
       dbInstance,
       isDerivedFromSpy: sensor.is_derived_from_spy,
+      m7Breadth: sensor.m7_breadth,
     });
 
     // 杠杆做多 ETF 对应折算
@@ -234,6 +247,7 @@ export async function runOnlineConfluenceScan(tickers = ['TSLA', 'SPY', 'QQQ', '
       tape_summary: tape_event?.depth_summary || null,
       detected_at: report.detected_at,
       is_derived_from_spy: sensor.is_derived_from_spy || false,
+      m7_breadth: sensor.m7_breadth || null,
     });
   }
 

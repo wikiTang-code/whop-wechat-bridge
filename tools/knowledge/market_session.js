@@ -197,12 +197,12 @@ export function getRecommendedPollIntervalMs(session) {
   if (!session || !session.isOpen) {
     return 15 * 60 * 1000; // 休市时段 15 分钟
   }
-  // 开盘首小时 (09:30-10:30 回踩抢筹) 与 尾盘半小时 (15:30-16:00 强平扫盘) 均为 15 秒极速高频
+  // 开盘首小时 (09:30-10:30 回踩捡漏) 与 尾盘最后一个小时 (15:00-16:00 强平扫盘) 均为 5 秒超高频极速扫盘
   if (session.isOpeningHour || session.isPowerHour) {
-    return 15 * 1000;
+    return 5 * 1000;
   }
   if (session.isRth) {
-    return 30 * 1000;      // 盘中常规 30 秒
+    return 15 * 1000;      // 盘中常规观察时段 (10:30-15:00) 提速至 15 秒
   }
   if (session.isPreMarket || session.isPostMarket) {
     return 45 * 1000;      // 盘前盘后 45 秒

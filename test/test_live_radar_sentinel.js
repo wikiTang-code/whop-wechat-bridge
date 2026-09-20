@@ -78,11 +78,11 @@ assert.strictEqual(sundayOvernightSession.isOpen, true, '周日夜盘应开启�
 assert.strictEqual(sundayOvernightSession.session, 'OVERNIGHT_TRADING');
 console.log(`  ✅ 周日夜盘开启校验通过: ${sundayOvernightSession.description}`);
 
-// 3c. 验证动态轮询间隔 (盘中首尾两小时均为 15 秒高频)
+// 3c. 验证动态轮询间隔 (盘中首尾两黄金小时均为 5 秒超高频)
 import { getRecommendedPollIntervalMs } from '../tools/knowledge/market_session.js';
-assert.strictEqual(getRecommendedPollIntervalMs(openingSession), 15000, '盘中第一个小时 (09:30-10:30) 应为 15 秒极速高频');
-assert.strictEqual(getRecommendedPollIntervalMs(powerSession), 15000, '盘中最后一个小时 (15:00-16:00) 应为 15 秒极速高频');
-assert.strictEqual(getRecommendedPollIntervalMs(rthSession), 30000, '盘中常规时段 (10:30-15:00) 应为 30 秒');
+assert.strictEqual(getRecommendedPollIntervalMs(openingSession), 5000, '盘中第一个小时 (09:30-10:30) 应为 5 秒超高频');
+assert.strictEqual(getRecommendedPollIntervalMs(powerSession), 5000, '盘中最后一个小时 (15:00-16:00) 应为 5 秒超高频');
+assert.strictEqual(getRecommendedPollIntervalMs(rthSession), 15000, '盘中常规时段 (10:30-15:00) 应为 15 秒');
 assert.strictEqual(getRecommendedPollIntervalMs(preSession), 45000, '盘前应为 45 秒');
 assert.strictEqual(getRecommendedPollIntervalMs(postSession), 45000, '盘后应为 45 秒');
 assert.strictEqual(getRecommendedPollIntervalMs(overnightSession), 60000, '夜盘应为 60 秒');
