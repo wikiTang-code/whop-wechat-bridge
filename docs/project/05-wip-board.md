@@ -38,13 +38,14 @@
 | 14 | **REQ-052** | L3 | 基于真实交易单(t0)的逆向特征挖掘与高置信战术假说提纯 (提案A落地 · 388真实成交反查语境与分时结构) | `scripts/knowledge/reverse_mine_tactics_from_trades.js` · `docs/project/052-reverse-tactical-mining-report.md` | **done-eng** |
 | 15 | **REQ-053** | L3 | 实战战术持仓动态生命周期状态机 (TAC-001/002/003工程化 · 1/6分批/半仓止盈/做T加回) | `tools/trade/position_lifecycle_manager.js` · `test/test_position_lifecycle_manager.js` | **done-eng** |
 
-### 0.C 队列 `agent:gemini1`
+### 0.C 队列 `agent:gemini2` (数据资产治理 / 人工审核联动 / SLM飞轮)
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-036** | L3 | 大V专有 SLM 数据飞轮（V1闭环，随企微人工纠错 Golden 增量长期常驻维护） | `scripts/slm/*` · `models/zhao_slm_1.5b_lora` | **Standing (Active)** |
-| 2 | **REQ-038-T2/REQ-040** | L3 | T2 高胜率战法黄金提纯与 Golden Playbook 固化（扩标池回测 n_scored=147，提纯 108/175 张战法；雷达已设物理隔离门禁） | `card_attribution*` · `data/runtime/golden_playbook.json` | **done-eng** |
-| **4** | **DEBT-017~020** | L3 | 数据资产结构缺陷清账与战法分级隔离（DEBT-017 713对闭环/84%配对/经抽检验真 + DEBT-018 战法分级: 175张 level 独占雷达顶格加权、310张 direction 隔离为宏观参考 + DEBT-019 657张深层卡片/1,314组问答对 + DEBT-020 大单时序表落地，抽检与单测全绿） | `tools/trade/*` · `tools/knowledge/*` | **done-eng (accepted-with-gap)** |
+| **1** | **REQ-054** | L3 | 交易单人工审核增量联动流水线与 DEBT-021 闭环（90笔审核融合/10笔人工纠偏优先覆盖/746对配对重算/90组SLM黄金样本，单测全绿） | `tools/trade/audit_linked_pnl_pipeline.js` · `docs/project/054*` | **done-eng (accepted-with-gap)** |
+| 2 | **REQ-036** | L3 | 大V专有 SLM 数据飞轮（V1闭环，已增量接收 REQ-054 提纯的 90 组人机对齐黄金样本，待 WSL GPU 物理重训） | `scripts/slm/*` · `models/zhao_slm_1.5b_lora` | **Standing (Active)** |
+| 3 | **REQ-038-T2/REQ-040** | L3 | T2 高胜率战法黄金提纯与 Golden Playbook 固化（扩标池回测 n_scored=147，提纯 108/175 张战法；雷达已设物理隔离门禁） | `card_attribution*` · `data/runtime/golden_playbook.json` | **done-eng** |
+| 4 | **DEBT-017~020** | L3 | 数据资产结构缺陷清账与战法分级隔离（DEBT-017 713对闭环/84%配对/经抽检验真 + DEBT-018 战法分级: 175张 level 独占雷达顶格加权、310张 direction 隔离为宏观参考 + DEBT-019 657张深层卡片/1,314组问答对 + DEBT-020 大单时序表落地，抽检与单测全绿） | `tools/trade/*` · `tools/knowledge/*` | **done-eng (accepted-with-gap)** |
 
 
 ### 0.H Human

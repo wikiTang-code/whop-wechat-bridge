@@ -82,7 +82,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **T1 接管 + T2 n_scored=7**（CHG-035/036） | Doing |
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~052 Done/done-eng** + **REQ-053 done-eng (持仓动态状态机TAC-001~003与51套单测全绿 · 见 053 报告)** | Active / done-eng |
-| **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 + **CHG-039** Done + **DEBT-017~020 清账与战法分级隔离 (done-eng · 767打分/485战法分级/1925信号/657卡片/1314问答对/经抽检验真)** | done-eng (accepted-with-gap) |
+| **§0.C `agent:gemini2`** | **REQ-054** done-eng (人工审核增量联动流水线/DEBT-021闭环/90组SLM黄金语料 · 见 054 报告) + **REQ-036** Active | done-eng (accepted-with-gap) |
 
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
 | **§0.X Blocked** | 040=**Cleared**（扩标回测全量收工）；033→human | **见 05 §0.X** |
