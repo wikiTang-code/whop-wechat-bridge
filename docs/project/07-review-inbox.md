@@ -8,6 +8,19 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-20 · Gemini2 方案A (生产VM Golden Playbook部署) + 方案B (期权大单扫盘库) 交叉审阅 · Gemini（§0.R-B 抽审）
+
+**审阅对象**：Gemini2 交付内容及提交 `f67af5a`（`tools/knowledge/knowledge_promote.js` · `test/test_knowledge_promote_req039.js` · `tools/knowledge/tape_confluence_detector.js` · `test/test_tape_confluence_detector_req041.js`）
+
+| # | 检查项 | 裁量 | 事实依据与技术细节 |
+|---|--------|:----:|--------------------|
+| 1 | **生产 VM 黄金战法部署通道安全性** | **通过** | `knowledge_promote.js` 扩展 `planGoldenPlaybook` 与 `promoteGoldenPlaybook`；严格落实 `--allow-prod-write` 生产写硬门禁，无标记抛出 `REFUSED`；实测远端写入 108 张卡片（93,639 字节）及全量归因回测快照（147 条），远端核验无误；`test_knowledge_promote_req039.js` 单测防误触断言通过。 |
+| 2 | **期权大单 Block/Sweep 特征库完备性** | **通过** | `tape_confluence_detector.js` 注册 `TAPE_BLOCK_PATTERNS` 7 大特征（Sweep 扫盘、Jumbo 大宗、尾盘窗口、恐慌吸收、买单量比失衡、价外 Gamma、异动流）；`evaluateTapeBlockFlow` 权重上限严密（顶格 25 分），多空偏向与资金量可解释性高，无事件时优雅降级为 10 分中性。 |
+| 3 | **资金隔离与只读安全红线** | **通过** | 部署代码仅操作离线快照与知识库，特征库仅作为只读参谋特征输入，绝不向实盘接口下单，100% 遵守 AGENTS §6.3 资金隔离红线。 |
+| 4 | **全量单测与回归验证** | **通过** | 全套单测 `npm run test:local-ops`（49套）与专项 `npm run test:golden-playbook` 100% 绿灯秒级全过。 |
+
+**审阅结论**：**Accepted（通过）**。生产部署方案严谨，特征库设计专业，各项门禁与红线完备，准予全量合流入库。
+
 ### 2026-09-20 · Commit bf8d14b 量化驾驶舱与黄金战法加权逻辑交叉审阅 · Gemini1（§0.R-A 抽审）
 
 **审阅范围**：Commit `bf8d14b`（`tools/knowledge/live_radar_sentinel.js` · `tools/knowledge/tape_confluence_detector.js` · `monitoring/readonly-api-router.js` · `public/radar_hud.html` · `test/test_radar_hud_api.js` · `test/test_live_radar_sentinel.js`）
