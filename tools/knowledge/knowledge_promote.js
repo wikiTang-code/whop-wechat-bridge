@@ -269,6 +269,79 @@ export function planMedia({ spawnSsh = ssh } = {}) {
   };
 }
 
+export function planGoldenPlaybook({ localPath = path.join(ROOT, 'data/runtime/golden_playbook.json') } = {}) {
+  if (!fs.existsSync(localPath)) {
+    return { ok: false, error: `local golden playbook missing: ${localPath}` };
+  }
+  const stat = fs.statSync(localPath);
+  let count = 0;
+  try {
+    const arr = JSON.parse(fs.readFileSync(localPath, 'utf8'));
+    count = Array.isArray(arr) ? arr.length : (arr.cards?.length || 0);
+  } catch (e) {
+    return { ok: false, error: `invalid json: ${e.message}` };
+  }
+  return {
+    ok: true,
+    dry: true,
+    localFile: localPath,
+    sizeBytes: stat.size,
+    count,
+    remoteTarget: `${REMOTE_REPO}/data/runtime/golden_playbook.json`,
+    sor: 'gcp-vm'
+  };
+}
+
+export function promoteGoldenPlaybook({
+  allowProdWrite = false,
+  localFile = path.join(ROOT, 'data/runtime/golden_playbook.json'),
+  remoteTarget = `${REMOTE_REPO}/data/runtime/golden_playbook.json`,
+  syncAttribution = true
+} = {}) {
+  if (!allowProdWrite) {
+    throw new Error('REFUSED: golden playbook promote requires --allow-prod-write');
+  }
+  if (!fs.existsSync(localFile)) {
+    throw new Error(`local golden playbook missing: ${localFile}`);
+  }
+  const plan = planGoldenPlaybook({ localPath: localFile });
+  if (!plan.ok) throw new Error(plan.error);
+
+  const mk = ssh([`mkdir -p ${REMOTE_REPO}/data/runtime`]);
+  if (mk.status !== 0) throw new Error(`remote mkdir failed: ${(mk.stderr || mk.stdout || '').slice(0, 300)}`);
+
+  const s = scp(localFile, remoteTarget, 120000);
+  if (s.status !== 0) throw new Error(`scp golden_playbook failed: ${(s.stderr || s.stdout || '').slice(0, 300)}`);
+
+  let attrSynced = false;
+  const attrLocal = path.join(ROOT, 'data/runtime/req038-t2-attribution.json');
+  if (syncAttribution && fs.existsSync(attrLocal)) {
+    const s2 = scp(attrLocal, `${REMOTE_REPO}/data/runtime/req038-t2-attribution.json`, 120000);
+    attrSynced = s2.status === 0;
+  }
+
+  const v = ssh([
+    `node -e 'const fs=require("fs"); const d=JSON.parse(fs.readFileSync("${remoteTarget}","utf8")); console.log(JSON.stringify({ remoteCount: Array.isArray(d)?d.length:0, size: fs.statSync("${remoteTarget}").size }));'`
+  ]);
+  let remoteMeta = null;
+  if (v.status === 0) {
+    try {
+      remoteMeta = JSON.parse(v.stdout.trim());
+    } catch {}
+  }
+
+  return {
+    ok: true,
+    promoted: true,
+    file: 'data/runtime/golden_playbook.json',
+    localCount: plan.count,
+    localBytes: plan.sizeBytes,
+    remoteCount: remoteMeta?.remoteCount ?? plan.count,
+    attributionSynced: attrSynced,
+    sor: 'gcp-vm'
+  };
+}
+
 function main() {
   const args = process.argv.slice(2);
   const spec = loadSpec();
@@ -284,6 +357,18 @@ function main() {
   if (!srcPath) {
     console.error(JSON.stringify({ ok: false, error: 'local sqlite missing' }));
     process.exit(1);
+  }
+
+  const golden = args.includes('--golden') || args.includes('--playbook');
+  if (golden && !wantApply) {
+    const plan = planGoldenPlaybook();
+    console.log(JSON.stringify(plan, null, 2));
+    return;
+  }
+  if (golden && wantApply) {
+    const result = promoteGoldenPlaybook({ allowProdWrite });
+    console.log(JSON.stringify(result, null, 2));
+    return;
   }
 
   if (media && !wantApply) {
@@ -343,8 +428,22 @@ function main() {
       console.error(JSON.stringify({ ok: false, step: 'remote-apply', error: (apply.stderr || apply.stdout || '').slice(0, 800) }));
       process.exit(1);
     }
+    let goldenResult = null;
+    if (fs.existsSync(path.join(ROOT, 'data/runtime/golden_playbook.json'))) {
+      try {
+        goldenResult = promoteGoldenPlaybook({ allowProdWrite });
+      } catch (e) {
+        goldenResult = { ok: false, error: e.message };
+      }
+    }
     const start = String(apply.stdout || '').indexOf('{');
-    console.log(start >= 0 ? apply.stdout.slice(start) : apply.stdout);
+    let remotePayload = {};
+    try {
+      remotePayload = JSON.parse(start >= 0 ? apply.stdout.slice(start) : apply.stdout);
+    } catch {
+      remotePayload = { raw: apply.stdout };
+    }
+    console.log(JSON.stringify({ ...remotePayload, goldenPlaybook: goldenResult }, null, 2));
     return;
   }
 

@@ -9,6 +9,9 @@ import {
   getSector,
   TAPE_DISCLAIMER,
   SECTOR_MAP,
+  projectLeveragedEtfLevels,
+  TAPE_BLOCK_PATTERNS,
+  evaluateTapeBlockFlow
 } from '../tools/knowledge/tape_confluence_detector.js';
 
 console.log('===========================================================');
@@ -112,7 +115,6 @@ assert.ok(fullRes.leveraged_etf_projection, 'TSLA 应自动挂载 TSLL 杠杆折
 assert.strictEqual(fullRes.leveraged_etf_projection.etf, 'TSLL');
 assert.strictEqual(fullRes.leveraged_etf_projection.leverage, 2);
 
-import { projectLeveragedEtfLevels } from '../tools/knowledge/tape_confluence_detector.js';
 // 正股 TSLA 现价 200，支撑 190 (-5%)，阻力 220 (+10%)
 // TSLL 现价 10.0，折算 2x 后: 支撑应为 10 * (1 - 10%) = 9.0，阻力应为 10 * (1 + 20%) = 12.0
 const projected = projectLeveragedEtfLevels('TSLA', { support: [190], resistance: [220] }, 200, 10.0);
@@ -131,3 +133,41 @@ assert.strictEqual(goldenRes.dimensions.d2_zhao_outlook.is_golden_playbook, true
 assert.ok(goldenRes.dimensions.d2_zhao_outlook.golden_stats, '应附带黄金战法胜率统计');
 assert.ok(goldenRes.dimensions.d2_zhao_outlook.details.includes('高胜率黄金战法认证'), '详情应包含认证字样');
 console.log('  ✅ 高胜率黄金战法优先加权单测完全通过');
+
+// 6. 验证扩充后的期权大单 Block Trade / 扫盘特征库
+console.log('\n--- 6. 验证期权大单 Block Trade / 扫盘特征库 (Dimension 4 Pattern Registry) ---');
+assert.ok(TAPE_BLOCK_PATTERNS.INSTITUTIONAL_SWEEP, '必须存在 INSTITUTIONAL_SWEEP 模式定义');
+assert.ok(TAPE_BLOCK_PATTERNS.JUMBO_BLOCK_TRADE, '必须存在 JUMBO_BLOCK_TRADE 模式定义');
+assert.ok(TAPE_BLOCK_PATTERNS.POWER_HOUR_SQUEEZE, '必须存在 POWER_HOUR_SQUEEZE 模式定义');
+assert.ok(TAPE_BLOCK_PATTERNS.OTM_GAMMA_BURST, '必须存在 OTM_GAMMA_BURST 模式定义');
+
+// 6.1 测试机构激进跨所扫盘 + 价外暴量异动
+const sweepEvent = {
+  is_sweep: true,
+  premium_usd: 850000,
+  is_otm: true,
+  aggressor: 'BUY',
+  imbalance_ratio: 2.3,
+  time_et: '15:35'
+};
+const evRes = evaluateTapeBlockFlow(sweepEvent);
+assert.strictEqual(evRes.score, 25, '强特征叠加应满分25分');
+assert.strictEqual(evRes.flow_sentiment, 'BULLISH');
+assert.ok(evRes.matched_patterns.some((p) => p.id === 'INSTITUTIONAL_SWEEP'), '应识别机构扫盘');
+assert.ok(evRes.matched_patterns.some((p) => p.id === 'OTM_GAMMA_BURST'), '应识别价外Gamma异动');
+assert.ok(evRes.matched_patterns.some((p) => p.id === 'POWER_HOUR_SQUEEZE'), '应识别尾盘强平时空窗口');
+assert.ok(evRes.matched_patterns.some((p) => p.id === 'DEPTH_LIQUIDITY_IMBALANCE'), '应识别买盘深度倾斜');
+
+// 6.2 测试空头卖出扫盘识别
+const bearSweep = {
+  is_sweep: true,
+  premium_usd: 1200000,
+  aggressor: 'SELL',
+  time_et: '10:15'
+};
+const bearRes = evaluateTapeBlockFlow(bearSweep);
+assert.strictEqual(bearRes.flow_sentiment, 'BEARISH');
+assert.ok(bearRes.matched_patterns.some((p) => p.id === 'INSTITUTIONAL_SWEEP'));
+assert.ok(bearRes.matched_patterns.some((p) => p.id === 'JUMBO_BLOCK_TRADE'));
+
+console.log('  ✅ 期权大单 Block Trade / 扫盘特征库识别精度单测完全通过');

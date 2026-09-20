@@ -66,6 +66,7 @@
 | REQ-043 | P1 | L3/L5 | `done` | **自动驾驶感知总线 (Live Sensor Hub) 与四维共振在线决策驱动器**：建立仿自动驾驶感知-融合-决策流水线；毫秒级拉取长桥模拟仓真实正股行情与五档买卖盘口深度（`depth`），融合富途做市商 Gamma 墙与大V纯正战法，驱动四维共振实时自动计算并输出 2x 杠杆做多 ETF 动态折算点位；单测 `test/test_live_tape_feed.js` 全绿通过 | `tools/knowledge/live_tape_feed.js` · `test/test_live_tape_feed.js` · 单测绿灯 |
 | REQ-044 | P1 | L3/L5 | `done` | **美股交易时段感知哨兵守护进程与低功耗休市待机机制**：落实人令「默认不间断持续监测，除美股休市时间」；落地 `market_session.js` 精准识别 ET 时区工作日盘前、RTH 盘中、15:30 尾盘强平窗口与周末/夜间休市；守护进程 `live_radar_sentinel.js` 盘中 15~30 秒不间断巡检，休市自动待机防空耗，高共振自动写入 `confluence_radar_events`；单测全绿 | `market_session.js` · `live_radar_sentinel.js` · `test/test_live_radar_sentinel.js` · 单测绿灯 |
 | REQ-045 | P1 | L3/L5 | `done` | **美股微观结构与四维共振量化决策驾驶舱（含高胜率战法矩阵）与只读 API**：全面规范为金融量化专业命名；共振检测器全面挂载 gemini2 固化的 108 张黄金战法（`golden_playbook.json`）并实现优先加权（历史 3D/5D 胜率回测指标入显）；在 `scripts/web_runner.js` 暴露 `/api/radar/latest`、`/api/radar/events` 与 `/hud` 页面；打造极简暗黑金融微观决策座舱；单测 `test/test_radar_hud_api.js` 全绿 | `tools/knowledge/*` · `public/radar_hud.html` · `monitoring/readonly-api-router.js` · 单测全绿 |
+| REQ-046 | P1 | L3/L4 | `done` | **盘中高置信度四维共振预警企微卡片推送（Confluence Radar Alert Pusher）**：当四维共振打分达到王炸/高共振（或命中黄金战法），自动向企微告警群/应用推送微观结构深度预警卡片；具备标的级防抖与防刷屏冷却窗口；100% 只读参谋，严禁下单指令与 L2a 接入 | `tools/knowledge/radar_alert_pusher.js` · 单测全绿 |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |

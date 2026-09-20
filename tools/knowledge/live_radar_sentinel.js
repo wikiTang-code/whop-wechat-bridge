@@ -20,6 +20,7 @@ import dotenv from 'dotenv';
 import { getDb, ensureRadarEventsTable } from '../../database.js';
 import { getUsMarketSession, getNextActiveWaitMs } from './market_session.js';
 import { runOnlineConfluenceScan, getLiveQuoteContext } from './live_tape_feed.js';
+import { pushRadarAlert } from './radar_alert_pusher.js';
 
 dotenv.config();
 
@@ -173,6 +174,11 @@ export async function runSentinelLoop(options = {}) {
             created_at: Date.now(),
           });
           console.log(`     📝 [事件沉淀] 高分共振已落库: ${eventId}`);
+
+          // REQ-046: 盘中高置信度共振预警企微卡片推送 (防抖防刷屏)
+          pushRadarAlert(res).catch((err) => {
+            console.warn(`     ⚠️ [预警推送告警] ${res.ticker} 企微推送异常:`, err.message);
+          });
         }
       }
     } catch (scanErr) {

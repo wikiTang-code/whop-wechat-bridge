@@ -9,7 +9,9 @@ import Database from 'better-sqlite3';
 import {
   dumpAllowlist,
   applyDump,
-  planPromote
+  planPromote,
+  planGoldenPlaybook,
+  promoteGoldenPlaybook
 } from '../tools/knowledge/knowledge_promote.js';
 import { loadSpec } from '../tools/knowledge/env_inventory.js';
 import {
@@ -108,5 +110,21 @@ assert.strictEqual(dest2.prepare('SELECT COUNT(*) AS c FROM messages').get().c, 
 assert.strictEqual(dest2.prepare('SELECT ticker FROM trade_signals WHERE id=9').get().ticker, 'KEEP');
 assert.strictEqual(dest2.prepare('SELECT title FROM ontology_card WHERE id=\'c1\'').get().title, 'TSLA');
 dest2.close();
+
+// Test planGoldenPlaybook and safety refusal
+const mockPlaybookFile = path.join(dir, 'golden_playbook.json');
+fs.writeFileSync(mockPlaybookFile, JSON.stringify([{ card_id: 'c1', ticker: 'TSLL' }]));
+const gpPlan = planGoldenPlaybook({ localPath: mockPlaybookFile });
+assert.strictEqual(gpPlan.ok, true);
+assert.strictEqual(gpPlan.count, 1);
+assert.ok(gpPlan.sizeBytes > 0);
+
+let gpRefused = false;
+try {
+  promoteGoldenPlaybook({ allowProdWrite: false, localFile: mockPlaybookFile });
+} catch (e) {
+  gpRefused = /REFUSED/.test(e.message);
+}
+assert.ok(gpRefused, 'must refuse promoteGoldenPlaybook without allowProdWrite');
 
 console.log('✅ [REQ-039] knowledge promote PASS');

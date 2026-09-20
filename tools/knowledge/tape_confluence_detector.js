@@ -106,6 +106,162 @@ export function getSector(ticker) {
 }
 
 /**
+ * 期权大单 Block Trade / 扫盘特征库 (Dimension 4 Pattern Registry)
+ */
+export const TAPE_BLOCK_PATTERNS = {
+  INSTITUTIONAL_SWEEP: {
+    id: 'INSTITUTIONAL_SWEEP',
+    name: '机构激进跨所扫盘 (Aggressive Sweep)',
+    min_amount_usd: 500000,
+    weight: 12,
+    description: '跨交易所多路吃尽盘口，不计滑点快速建仓'
+  },
+  JUMBO_BLOCK_TRADE: {
+    id: 'JUMBO_BLOCK_TRADE',
+    name: '巨额大宗交易 (Jumbo Block Trade)',
+    min_amount_usd: 1000000,
+    weight: 10,
+    description: '单笔百万美金以上主力资金建仓或大宗暗池对倒吸筹'
+  },
+  POWER_HOUR_SQUEEZE: {
+    id: 'POWER_HOUR_SQUEEZE',
+    name: '尾盘强平V反窗口 (Power Hour Squeeze)',
+    weight: 8,
+    description: '美东 15:15~15:55 尾盘窗口，0DTE 期权强平回补与做市商 Gamma 逼空'
+  },
+  RETAIL_PANIC_ABSORPTION: {
+    id: 'RETAIL_PANIC_ABSORPTION',
+    name: '恐慌盘通吃吸纳 (Retail Panic Absorption)',
+    weight: 6,
+    description: '散户止损盘被单笔大单瞬间吸纳，盘口呈现 V 型企稳'
+  },
+  DEPTH_LIQUIDITY_IMBALANCE: {
+    id: 'DEPTH_LIQUIDITY_IMBALANCE',
+    name: '买盘深度压倒性倾斜 (Order Book Imbalance)',
+    weight: 6,
+    description: '买单深度挂单量与比率显著占优，主力真金白银托盘'
+  },
+  OTM_GAMMA_BURST: {
+    id: 'OTM_GAMMA_BURST',
+    name: '价外期权暴量异动 (OTM Gamma Burst)',
+    weight: 7,
+    description: '价外期权瞬间成交量远超持仓量，做市商短线对冲需求激增'
+  },
+  UNUSUAL_OPTION_FLOW: {
+    id: 'UNUSUAL_OPTION_FLOW',
+    name: '期权异动资金定向流入 (Unusual Option Flow)',
+    weight: 7,
+    description: '大额异动资金集中买入单一方向期权合约'
+  }
+};
+
+/**
+ * 评估微观盘口超级大单与期权扫盘特征
+ */
+export function evaluateTapeBlockFlow(tapeEvent) {
+  let score = 0;
+  const observations = [];
+  const matchedPatterns = [];
+  let flowSentiment = 'NEUTRAL';
+  let totalFlowUsd = 0;
+
+  if (!tapeEvent) {
+    return {
+      score: 10,
+      matched_patterns: [],
+      flow_sentiment: 'NEUTRAL',
+      total_flow_usd: 0,
+      details: '常规微观盘口活跃度监控中',
+      observations: ['常规微观盘口活跃度监控中']
+    };
+  }
+
+  // 提取资金量
+  const amountUsd =
+    Number(tapeEvent.block_buy_usd || tapeEvent.block_amount_usd || tapeEvent.premium_usd || tapeEvent.notional_usd) || 0;
+  totalFlowUsd = amountUsd;
+
+  // 1. 机构激进跨所扫盘 (Sweep)
+  const isSweep = Boolean(tapeEvent.is_sweep || tapeEvent.sweep_trade || tapeEvent.order_type === 'SWEEP');
+  if (isSweep) {
+    const pat = TAPE_BLOCK_PATTERNS.INSTITUTIONAL_SWEEP;
+    score += pat.weight;
+    matchedPatterns.push({ id: pat.id, name: pat.name, weight: pat.weight });
+    observations.push(`⚡【机构扫盘】检测到激进跨所连环吃单 (${pat.description})`);
+    flowSentiment = tapeEvent.aggressor === 'SELL' ? 'BEARISH' : 'BULLISH';
+  }
+
+  // 2. 超级巨额大宗 (Jumbo Block Trade >= $1M)
+  if (amountUsd >= 1000000) {
+    const pat = TAPE_BLOCK_PATTERNS.JUMBO_BLOCK_TRADE;
+    score += pat.weight;
+    matchedPatterns.push({ id: pat.id, name: pat.name, weight: pat.weight });
+    observations.push(`💰【巨额大宗】单笔大资金注入 ($${(amountUsd / 1e6).toFixed(2)}M)`);
+    if (flowSentiment === 'NEUTRAL') flowSentiment = 'BULLISH';
+  } else if (amountUsd >= 500000 && !isSweep) {
+    score += 6;
+    observations.push(`检测到单笔大资金建仓 ($${(amountUsd / 1e3).toFixed(0)}K)`);
+  }
+
+  // 3. 恐慌盘通吃吸纳
+  if (tapeEvent.retail_panic) {
+    const pat = TAPE_BLOCK_PATTERNS.RETAIL_PANIC_ABSORPTION;
+    score += pat.weight;
+    matchedPatterns.push({ id: pat.id, name: pat.name, weight: pat.weight });
+    observations.push(`🧲【恐慌吸收】微观特征符合: 散户恐慌止损盘被单笔主力资金一把通吃扫入`);
+    flowSentiment = 'BULLISH';
+  }
+
+  // 4. 尾盘强平 V 反窗口 (美东 15:15 ~ 15:55)
+  if (tapeEvent.time_et) {
+    const [hh, mm] = String(tapeEvent.time_et).split(':').map(Number);
+    if (hh === 15 && mm >= 15 && mm <= 55) {
+      const pat = TAPE_BLOCK_PATTERNS.POWER_HOUR_SQUEEZE;
+      score += pat.weight;
+      matchedPatterns.push({ id: pat.id, name: pat.name, weight: pat.weight });
+      observations.push(`⏱️【尾盘窗口】命中大V特定尾盘窗口 [${tapeEvent.time_et} ET]: 0DTE 期权强平 Delta 回补拉升区`);
+    }
+  }
+
+  // 5. 盘口深度买卖倾斜 (Depth Imbalance)
+  const ratio = Number(tapeEvent.imbalance_ratio) || 0;
+  if (ratio >= 1.8) {
+    const pat = TAPE_BLOCK_PATTERNS.DEPTH_LIQUIDITY_IMBALANCE;
+    score += pat.weight;
+    matchedPatterns.push({ id: pat.id, name: pat.name, weight: pat.weight });
+    observations.push(`📊【盘口倾斜】买卖五档挂单比达 ${ratio.toFixed(1)}x，买方厚度压倒性占优`);
+  }
+
+  // 6. 价外期权暴量异动 (OTM Gamma)
+  if (tapeEvent.is_otm || tapeEvent.otm_gamma_burst) {
+    const pat = TAPE_BLOCK_PATTERNS.OTM_GAMMA_BURST;
+    score += pat.weight;
+    matchedPatterns.push({ id: pat.id, name: pat.name, weight: pat.weight });
+    observations.push(`🎯【期权Gamma异动】价外期权异动换手，做市商短线逼空对冲风险高`);
+  }
+
+  // 7. 期权异动大单流入
+  if (tapeEvent.unusual_option_flow || tapeEvent.unusual_option) {
+    const pat = TAPE_BLOCK_PATTERNS.UNUSUAL_OPTION_FLOW;
+    score += pat.weight;
+    matchedPatterns.push({ id: pat.id, name: pat.name, weight: pat.weight });
+    observations.push(`🌊【期权异动流入】大量期权 Smart Money 集中入场`);
+  }
+
+  // 兜底基础分保证
+  const finalScore = Math.min(25, Math.max(tapeEvent ? 8 : 10, score));
+
+  return {
+    score: finalScore,
+    matched_patterns: matchedPatterns,
+    flow_sentiment: flowSentiment,
+    total_flow_usd: totalFlowUsd,
+    details: observations.join('; '),
+    observations
+  };
+}
+
+/**
  * 盘口大单微观检测器核心实现
  */
 export function detectTapeConfluence(params = {}) {
@@ -335,39 +491,19 @@ export function detectTapeConfluence(params = {}) {
     }
   } catch (_) {}
 
-  // --- 维度 4: 盘口微观超级大单通吃检测 (0 ~ 25分) ---
-  let tapeScore = 0;
-  const tapeObs = [];
+  // --- 维度 4: 盘口微观超级大单与期权扫盘检测 (0 ~ 25分) ---
+  const d4Result = evaluateTapeBlockFlow(tapeEvent);
+  report.dimensions.d4_tape_block_flow = {
+    score: d4Result.score,
+    max: 25,
+    matched_patterns: d4Result.matched_patterns,
+    flow_sentiment: d4Result.flow_sentiment,
+    total_flow_usd: d4Result.total_flow_usd,
+    details: d4Result.details
+  };
 
-  if (tapeEvent) {
-    // 1. 超级大单溢价吞没 (Block Buy Sweep)
-    if (tapeEvent.block_buy_usd && tapeEvent.block_buy_usd >= 1000000) {
-      tapeScore += 12;
-      tapeObs.push(`检测到单笔超大资金买单 ($${(tapeEvent.block_buy_usd / 1e6).toFixed(2)}M)`);
-      if (tapeEvent.retail_panic) {
-        tapeScore += 5;
-        tapeObs.push('微观特征符合: 散户恐慌止损盘被大单单笔一把通吃扫入');
-      }
-    }
-
-    // 2. 尾盘时空窗口 (美东 15:00~15:50 强平 V 反点)
-    if (tapeEvent.time_et) {
-      const [hh, mm] = tapeEvent.time_et.split(':').map(Number);
-      if (hh === 15 && mm >= 25 && mm <= 55) {
-        tapeScore += 8;
-        tapeObs.push(`命中大V特定尾盘窗口 [${tapeEvent.time_et} ET]: 0DTE期权强平Delta回补拉升区`);
-      }
-    }
-  } else {
-    // 缺省/模拟默认微观分
-    tapeScore = 10;
-    tapeObs.push('常规微观盘口活跃度监控中');
-  }
-
-  report.dimensions.d4_tape_block_flow.score = Math.min(25, tapeScore);
-  report.dimensions.d4_tape_block_flow.details = tapeObs.join('; ');
-  if (tapeObs.length && tapeScore > 10) {
-    report.observations.push(tapeObs.join('; '));
+  if (d4Result.observations && d4Result.observations.length && d4Result.score > 10) {
+    report.observations.push(...d4Result.observations);
   }
 
   // 计算总置信度 (0 ~ 100)
