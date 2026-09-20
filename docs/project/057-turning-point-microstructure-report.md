@@ -188,8 +188,10 @@ ExitB（38.2% 回吐）只作假说对照，完整 n/盈亏笔/均盈/均亏/Max
 
 ## 9. 下一步工作顺序 (Roadmap)
 
-1. **P0（未做、不可被回测替代）**：美东周日 20:00 ET / 北京周一 08:00 CST 跑 `night_market_kickoff.js`，1 股 TSLA，等真实 `FILLED`；
-2. **P1 Intent 字段**：`t_arrive`, `px_zhao`, `px_arrive`, `delta`, `exec_policy`；
-3. **禁止 C**：滚动多折再救一版期望。禁止把 38.2% 止盈、OOS PF、量能吸筹写进规则/HUD。
+次序见 [`dual-track-operating-contract.md`](./dual-track-operating-contract.md)（CHG-051）。
+
+1. **P0**：夜盘 20:00 ET `night_market_kickoff.js`，限价必须是当时盘口而非口播/默认 390，1 股 TSLA，等 `FILLED`；
+2. **P1 Intent**：`t_arrive`, `px_zhao`, `px_arrive`, `delta`, `exec_policy∈{A,B,C}`；
+3. **P3 参考轨**：现成检测器只播 `REFERENCE_ONLY`；禁止 C 救期望，禁止发令枪。
 
 

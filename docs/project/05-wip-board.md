@@ -13,11 +13,12 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **CHG-050** | L3 | REQ-057 P2 exploratory holdout。Grok `221a559` **ACCEPT WITH NOTES**，拍板 B | `scripts/knowledge/lib/exploratory_is_oos.js` · `backtest_walk_forward_rigorous.js` | **done-eng (accepted-with-gap)** |
-| 2 | **REQ-038-T2** | L3 | n_scored 扩样；03 已由 gemini1 关单 | `card_attribution.js` | **Done** |
-| 3 | **REQ-040** | L3 | T2 扩样本；03=`done` | `batch_vision*` · `card_attribution*` | **Done** |
-| 4 | **REQ-038-T1** | L3 | Cursor 接管空 SR 重提；03=`done` | `batch_vision*` · `multimodal_context_aligner.js` | **Done** |
-| 5 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
+| **1** | **CHG-051** | L0 | 三角色合同：跟单执行 vs 周哥QQQ模拟仓 vs 自研参考轨；P0 仍是夜盘 FILLED | `docs/project/dual-track-operating-contract.md` | **accepted** |
+| 2 | **CHG-050** | L3 | REQ-057 P2 exploratory holdout。Grok `221a559` ACCEPT WITH NOTES，拍板 B | `scripts/knowledge/lib/exploratory_is_oos.js` | **done-eng (accepted-with-gap)** |
+| 3 | **REQ-038-T2** | L3 | n_scored 扩样；03 已由 gemini1 关单 | `card_attribution.js` | **Done** |
+| 4 | **REQ-040** | L3 | T2 扩样本；03=`done` | `batch_vision*` · `card_attribution*` | **Done** |
+| 5 | **REQ-038-T1** | L3 | Cursor 接管空 SR 重提；03=`done` | `batch_vision*` · `multimodal_context_aligner.js` | **Done** |
+| 6 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
 

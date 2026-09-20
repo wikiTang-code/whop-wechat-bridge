@@ -25,6 +25,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── 05-wip-board.md                    ← 谁在做、做到哪（WIP 看板）
 ├── 06-process.md                      ← 开发流程框架 + 文档维护 SOP
 ├── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
+├── dual-track-operating-contract.md   ← CHG-051 跟单 / 周哥QQQ模拟仓 / 自研参考轨（accepted）
 ├── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
 ├── environments.md                    ← CHG-026 运行环境合同（compute vs SoR）
 ├── environments.json                  ← 同上，机器可读
@@ -85,7 +86,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **CHG-050** Grok ACCEPT WITH NOTES（拍板 B，禁止 C） | done-eng (accepted-with-gap) |
+| **§0.A `agent:cursor`** | **CHG-051** 三角色合同（P0=夜盘 FILLED；参考轨=P3） | accepted |
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 

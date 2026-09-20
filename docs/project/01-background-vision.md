@@ -57,6 +57,8 @@
 | 在 gcp-vm 部署 MCP/Agent 宿主 | 资源与边界；`REJ-006` |
 | GCP 上跑 GEX OpenD 拉链 | 同上 |
 | 用自然语言替换 `/ops` 作为主路径 | 延迟与不确定；伤害盘中体验 |
+| 把 CHG-050 / 转弯检测器当发令枪或 `AUTO_SUBMIT` | 未过置换；`CHG-051` |
+| 把赵哥口播价写成我方成交价 | 成交后广播；评估必须用 `t_arrive` |
 
 ---
 
@@ -91,7 +93,13 @@
 2. **客观量化参考参谋：周哥 (`Mrzhoulucky`)**
    - 物理 ID：`user_HnSG7BJWMTfDz`；
    - 阵地：**「美股工具箱」**（「日内波段信号检测」`chat_feed_1CaEnj8...`、「股票分析」`chat_feed_1CaPyASf...` 等）；
-   - 定位：周哥自研量化工具自动发布的波段、点位与分析，作为共振雷达的重要外部量化参考（`DEBT-016` 暂缓后补），严禁混入赵哥实盘交易单。
+   - 定位：持续播 QQQ（及选股）**模拟仓**——短/中线批次、买入卖出价、累计盈亏、自报胜率。这是可验证的 L2b 参考频道（`hint_only`），**不是**赵哥实盘跟单，**禁止**写入 `trade_signals` / L2a。
+   - 已有隔离回放：`data/runs/mrzhou_strategy/QQQ_HINT_REPLAY.md`（须带牛市窗声明）。
+
+3. **自研参考播报（CHG-051 · 不是第三条大V）**
+   - 角色对齐周哥**模拟仓频道**（持续播、可回测、默认为 `REFERENCE_ONLY`），不是对齐赵哥成交后广播；
+   - 特征只许 OHLCV / 波动 / 量能；禁止把大V文本写进检测器；
+   - **不替代**赵哥跟单执行链。次序与禁令见 [`dual-track-operating-contract.md`](./dual-track-operating-contract.md)。
 
 ---
 

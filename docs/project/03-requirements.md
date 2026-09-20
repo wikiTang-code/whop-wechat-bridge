@@ -131,6 +131,7 @@
 | REQ-054 | `done-eng` | **交易单人工审核增量联动流水线与 DEBT-021 闭环（支持人工纠偏优先覆盖与 SLM 黄金语料沉淀）**：落实 DEBT-021 要求，消除“粗提快照当定论”暗伤；落地 `tools/trade/audit_linked_pnl_pipeline.js`，扫描 `follow_replay_queue`（进度 10.84%），实现人工纠偏权威优先覆盖（10笔权威单覆盖机器粗提）并剔除 74 笔非交易讨论；重算闭环 746 对配对（总体胜率 52.46%、盈亏比 17.99，已审核样本胜率 57.14%）；提纯沉淀 90 组高价值人机对齐微调问答对至 `slm_audit_golden_pairs.json`；支持 `--apply` 同步至 `trade_signals`；单测 `test:audit-linked-pnl` 绿灯，全仓 52 套单测 100% PASS | 2026-09-20 `agent:gemini2` · `tools/trade/audit_linked_pnl_pipeline.js` · `test/test_audit_linked_pnl_pipeline.js` · `docs/project/054*` |
 | CHG-048 | `done` | **大V宏观资金分配模型（股票堆满再一成/融资买期权）与只读路由 `GET /api/positions/lifecycle` 接入**：落实用户最新实情指示，将赵哥宏观资金纪律封装入 `CapitalAllocationModel`；在 `monitoring/readonly-api-router.js` 扩展只读持仓生命周期接口，支持返回活跃标的战术状态、保本止损线、硬止损线及做T差价建议；单测 `test/test_radar_hud_api.js` 全绿 | 2026-09-20 `agent:gemini` · `tools/trade/position_lifecycle_manager.js` · `monitoring/readonly-api-router.js` · `test/test_radar_hud_api.js` |
 | CHG-050 | `done-eng` | **REQ-057 P2 exploratory IS/OOS holdout**（禁止称 Walk-Forward/工业级/alpha）。Grok 对 `221a559` **ACCEPT WITH NOTES**，拍板 **B**：§6 当反例，禁止进规则/HUD/`AUTO_SUBMIT`；**拒绝 C**（滚动多折救期望）。残留见 04 DEBT-022 / 057 §6.3。单测夹具 11/11 **不证明** OOS 表 | 2026-09-20 `agent:cursor` · Grok 2026-09-20 收下 · `scripts/knowledge/lib/exploratory_is_oos.js` · `docs/project/057*` · `data/runtime/chg050_*` |
+| CHG-051 | `accepted` | **三角色运行合同**：跟单执行（赵哥到达价 A/B/C）≠ 周哥 QQQ **模拟仓参考频道**（可验证、hint_only、不进 trade_signals）≠ 自研 REFERENCE_ONLY 播报。赵哥单=成交后广播。CHG-050 冻结为负对照。次序：`FILLED` → Intent → delta 账本 → 再谈自研参考轨 | 2026-09-20 `agent:cursor` · [`dual-track-operating-contract.md`](./dual-track-operating-contract.md) |
 | REQ-055 | `done-eng` | **启发式资金纪律可视化与实战持仓状态推演 HUD 驾驶舱打通（接受审阅意见收敛）**：消除雷达静态看盘与动态持仓断层；在 `public/radar_hud.html` 增设大V口述资金纪律感知看板（正股底仓/期权/现金合规预警）与推演持仓做T控制台（TAC-001~003 状态机流转展示、保本损锁定、高抛做T回调接回点位建议）；标的共振卡片实时联动活跃持仓状态；通过 Dual-Gate DoD 审计，报告落盘 `docs/project/055-position-lifecycle-hud-report.md` | 2026-09-20 `agent:gemini` · `public/radar_hud.html` · `monitoring/readonly-api-router.js` · `test/test_radar_hud_api.js` · `docs/project/055*` |
 | REQ-056 | P1 | L1/L5 | `in_progress` | **长桥模拟盘（Paper Trading）执行闭环与 TradeIntent 最小执行状态机工程落地（Phase 0）**：锁定 Grok 终审规范，落实三域物理隔离与统一不可变 TradeIntent 契约；`auto_submit=false` 门禁硬锁定；`brokers/longbridge.js` 改造为纯 Paper 模式与撤单/状态轮询；落地持仓第一真源 `broker_paper_positions` 与推演持仓双轨对账；单测与断言覆盖 | 2026-09-20 `agent:gemini` · `brokers/longbridge.js` · `tools/trade/paper_execution_engine.js` · `database.js` · `monitoring/readonly-api-router.js` · `test/test_paper_execution_engine.js` |
 
@@ -164,6 +165,7 @@
 | REJ-009 | 告警或 Agent 触发生产 C2 | 巩固 REJ-002/004 |
 | REJ-010 | 多 Agent 无协议大段并行改总控文档 | 仅允许 06 并发协议内追加 |
 | REJ-011 | 用滚动多折 Walk-Forward「再救一版」CHG-050 期望 | Grok 2026-09-20 拍板 B：P2 到此，§6 当反例；C 会变成新的过拟合叙事 |
+| REJ-012 | 把赵哥口播/成交价当成我方成交价，或把 Layer1 检测器当发令枪 | 赵哥单是成交后广播；CHG-051：评估必须用 `t_arrive`；检测器未过置换 |
 
 ---
 

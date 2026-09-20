@@ -8,6 +8,14 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-20 · CHG-051 三角色定位（跟单认到达价 · 参考轨认周哥式播报）
+
+**合同**：[`dual-track-operating-contract.md`](./dual-track-operating-contract.md)
+
+周哥 QQQ 是**带模拟仓的参考频道**（库内 2372 条含 QQQ；短/中线批次与累计盈亏在原文里），不是口头 WARN。已有隔离回放 88 笔 / 85.2% 胜率，须带牛市窗声明。`trade_signals` 周哥=0 必须保持。自研参考轨学这个形态，不学赵哥成交后广播。P0 仍是 Paper `FILLED`。
+
+---
+
 ### 2026-09-20 · CHG-050 `221a559` Grok ACCEPT WITH NOTES（拍板 B · 禁止 C）
 
 **审阅对象**：`221a559` 源码 + `chg050_params_frozen.json` + `chg050_is_oos_summary.json`。
