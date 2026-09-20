@@ -838,12 +838,13 @@ readonlyRouter.get('/api/positions/lifecycle', (req, res) => {
       positionsMap.set(sym, step.updatedPosition);
     }
 
-    // 3. 统计当前活跃持仓 (quantity > 0 或状态活跃)
-    const activePositions = [];
+    // 3. 统计当前活跃推演持仓 (按最近操作时间排序，收敛为焦点短列表，防过度膨胀)
+    const allSimulatedPositions = [];
     let totalEquityVal = 0;
     for (const [sym, pos] of positionsMap.entries()) {
       if (pos.quantity > 0 || pos.tacticalState !== TacticalState.CLOSED) {
-        activePositions.push({
+        const lastAction = pos.history.length > 0 ? pos.history[pos.history.length - 1] : null;
+        allSimulatedPositions.push({
           ticker: sym,
           quantity: pos.quantity,
           avg_cost: pos.avgCost,
@@ -852,13 +853,25 @@ readonlyRouter.get('/api/positions/lifecycle', (req, res) => {
           hard_stop_loss: pos.hardStopLoss,
           realized_pnl: pos.realizedPnl,
           last_sell_ref: pos.lastSellRecord ? pos.lastSellRecord.price : null,
-          recent_action: pos.history.length > 0 ? pos.history[pos.history.length - 1].summary : null
+          recent_action: lastAction ? lastAction.summary : null,
+          last_action_time: lastAction ? lastAction.timestamp : 0,
+          source: 'heuristic', // 明确标注启发式推演
+          sources: {
+            avg_cost: 'heuristic',
+            breakeven_stop: 'heuristic',
+            hard_stop_loss: 'heuristic',
+            tactical_state: 'heuristic'
+          }
         });
         totalEquityVal += pos.quantity * pos.avgCost;
       }
     }
 
-    // 4. 计算大V宏观资金分配建议 (默认常规 100,000 美元总底仓评估)
+    // 按最近操作时间倒序排列，优先展示焦点活跃标的 (限制前 8 个，其余折叠)
+    allSimulatedPositions.sort((a, b) => b.last_action_time - a.last_action_time);
+    const activePositions = allSimulatedPositions.slice(0, 8);
+
+    // 4. 计算大V宏观资金分配建议 (启发式推演，标注非券商对账)
     const capitalEvaluation = evaluateCapitalAllocation(
       totalEquityVal > 0 ? totalEquityVal : 88000,
       10000,
@@ -868,9 +881,12 @@ readonlyRouter.get('/api/positions/lifecycle', (req, res) => {
     res.json({
       success: true,
       updated_at: Date.now(),
+      mode: 'simulated_heuristic',
+      is_broker_reconciled: false,
       capital_allocation: capitalEvaluation,
+      total_simulated_positions_count: allSimulatedPositions.length,
       active_positions: activePositions,
-      disclaimer: '【纯客观决策参谋】依据赵哥实战 TAC-001~003 动态仓位状态机推演，绝对隔离实盘下单资金。'
+      disclaimer: '【纯客观决策参谋 · 启发式推演】基于大V历史口述与未全量对账流水推演，非券商真实持仓事实，100% 隔离实盘下单。'
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

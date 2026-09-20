@@ -24,37 +24,49 @@ export const TacticalState = {
 };
 
 /**
- * [TAC-000] 大V宏观资金分配总控模型
- * 铁律: "股票堆满再一成或者融资买期权"
- * 正股压舱底（90%~100% 仓位）+ 顶层一成/融资期权做杠杆爆破，严禁开局直接重仓期权
+ * [REQ-055 审阅整改] 数据来源三层标注枚举
+ * 彻底区分: 已审核成交(audited_fill) vs 口述纪律引用(zhao_quote) vs 启发式推演(heuristic)
  */
-export const CapitalAllocationModel = {
-  STRATEGY_NAME: 'EQUITY_CORE_THEN_OPTION_BOOSTER',
-  EQUITY_TARGET_RATIO: 1.0,         // 股票堆满目标 (100%)
-  OPTION_MAX_RATIO: 0.10,          // 股票堆满后再配最多一成 (10%) 期权或融资
-  DESCRIPTION: '股票堆满再一成或者融资买期权。正股负责吃稳大波段与分时做T，期权仅作为尾部小仓位非线性加速器。'
+export const DataSourceType = {
+  AUDITED_FILL: 'audited_fill',     // 来自人工已审核成交单
+  ZHAO_QUOTE: 'zhao_quote',         // 来自大V口述发言/发言引用
+  HEURISTIC: 'heuristic'            // 算法推演/默认参数 (严禁冒充真源)
 };
 
 /**
- * 计算大盘总控资金配置建议
+ * [TAC-000] 大V宏观资金分配总控模型 (启发式参考)
+ * 来源: zhao_quote (大V多次口述 "股票堆满再一成或者融资买期权")
+ * 正股压舱底（建议 80%~90%）+ 顶层一成/融资期权做杠杆爆破，严禁开局直接重仓期权
+ */
+export const CapitalAllocationModel = {
+  STRATEGY_NAME: 'EQUITY_CORE_THEN_OPTION_BOOSTER',
+  EQUITY_TARGET_RATIO: 0.85,        // 启发式建议正股占比 (85%~90%)
+  OPTION_MAX_RATIO: 0.10,          // 口述纪律: 股票堆满后再配最多一成 (10%) 期权或融资
+  SOURCE: DataSourceType.ZHAO_QUOTE,
+  DESCRIPTION: '【启发式口述参考】股票堆满再一成或者融资买期权。正股负责吃稳大波段与分时做T，期权仅作为尾部小仓位非线性加速器。'
+};
+
+/**
+ * 计算大盘总控资金配置建议 (启发式推演)
  */
 export function evaluateCapitalAllocation(currentEquityValue, currentCash, currentOptionValue = 0) {
   const totalNetAsset = currentEquityValue + currentCash + currentOptionValue;
   const equityRatio = totalNetAsset > 0 ? (currentEquityValue / totalNetAsset) : 0;
   const optionRatio = totalNetAsset > 0 ? (currentOptionValue / totalNetAsset) : 0;
+  const cashRatio = totalNetAsset > 0 ? (currentCash / totalNetAsset) : 0;
 
   let advice = '';
   let status = 'BALANCED';
 
-  if (equityRatio < 0.85) {
+  if (equityRatio < 0.80) {
     status = 'EQUITY_UNDERWEIGHT';
-    advice = `【正股未满仓】当前股票仓位 ${(equityRatio * 100).toFixed(1)}% < 85%，赵哥铁律要求“股票堆满再考虑期权”，当前阶段严禁大买期权，主力资金应聚焦高贝塔正股/2x战车分批低吸！`;
+    advice = `【正股未满仓】当前股票仓位 ${(equityRatio * 100).toFixed(1)}% < 80%，大V口述建议“股票堆满再考虑期权”，当前阶段严禁大买期权，主力资金宜聚焦高贝塔正股/2x战车分批低吸！`;
   } else if (optionRatio > 0.12) {
     status = 'OPTION_OVERWEIGHT';
-    advice = `【期权超配预警】期权持仓占比 ${(optionRatio * 100).toFixed(1)}% 超过一成，违背“股票堆满后仅用一成或融资轻度参与期权”铁律，极易遭遇时间价值归零杀伤，建议减持期权锁定利润！`;
+    advice = `【期权超配预警】期权持仓占比 ${(optionRatio * 100).toFixed(1)}% 超过一成，违背“股票堆满后仅用一成或融资轻度参与期权”纪律，极易遭遇时间价值归零杀伤，建议减持期权锁定利润！`;
   } else {
     status = 'OPTIMAL';
-    advice = `【最优配比】股票已堆满 (${(equityRatio * 100).toFixed(1)}%)，期权处于轻度进攻位 (${(optionRatio * 100).toFixed(1)}% ≤ 10%)，符合赵哥最高胜率攻守矩阵。`;
+    advice = `【最优配比】股票已堆满 (${(equityRatio * 100).toFixed(1)}%)，期权处于轻度进攻位 (${(optionRatio * 100).toFixed(1)}% ≤ 10%)，符合大V口述攻守矩阵。`;
   }
 
   return {
@@ -62,25 +74,36 @@ export function evaluateCapitalAllocation(currentEquityValue, currentCash, curre
     totalNetAsset,
     equityRatio,
     optionRatio,
+    cashRatio,
     status,
-    advice
+    advice,
+    source: DataSourceType.HEURISTIC,
+    isBrokerReconciled: false,
+    disclaimer: '【启发式推演 · 非券商实盘对账】基于口述纪律估算，不代表券商真实持仓'
   };
 }
 
 /**
- * 创建空白标的持仓状态
+ * 创建空白标的推演持仓状态
  */
-export function createEmptyPosition(ticker) {
+export function createEmptyPosition(ticker, source = DataSourceType.HEURISTIC) {
   return {
     ticker: ticker.toUpperCase(),
     quantity: 0,
     avgCost: 0,
     realizedPnl: 0,
-    breakevenStop: null,     // 保本止损线
-    hardStopLoss: null,      // 硬止损线 (-5%)
+    breakevenStop: null,     // 保本止损线 (启发式推演)
+    hardStopLoss: null,      // 硬止损线 (-5% 启发式规则)
     tacticalState: TacticalState.EMPTY,
     lastSellRecord: null,    // 最近一笔卖出单 (供做T差价对比)
-    history: []              // 事件流水
+    history: [],             // 事件流水
+    source: source,          // 默认为 heuristic
+    sources: {
+      avgCost: source,
+      breakevenStop: DataSourceType.HEURISTIC,
+      hardStopLoss: DataSourceType.HEURISTIC,
+      tacticalState: DataSourceType.HEURISTIC
+    }
   };
 }
 
@@ -171,32 +194,32 @@ export function transitionPositionState(position, action) {
 
   switch (actionType) {
     case 'FRACTIONAL_BUY': {
-      // TAC-001: 分批买入
+      // 异动分批低吸/建仓 (不设固定死板百分比，以盘口异动为准；默认值仅供兼容推演)
       const buyQty = quantity;
       if (pos.quantity === 0) {
-        // 初始建仓 (1/6 仓试探)
+        // 初始异动试探仓
         pos.quantity = buyQty;
         pos.avgCost = price;
         pos.tacticalState = TacticalState.INITIAL_PROBE;
-        pos.hardStopLoss = Number((price * 0.95).toFixed(2)); // -5% 硬止损
+        pos.hardStopLoss = action.stopLoss || Number((price * 0.95).toFixed(2)); // 兼容回退，实盘以盘口为准
         pos.breakevenStop = null;
-        eventSummary = `【TAC-001 初始试探建仓】买入 ${buyQty} 股 @ $${price}，硬止损设为 $${pos.hardStopLoss}`;
+        eventSummary = `【盘口异动 · 分批建仓】买入 ${buyQty} 股 @ $${price}，等待盘口异动与共振态势`;
       } else {
-        // 二次/多次加仓，平摊综合成本
+        // 异动分批加仓，动态平摊持仓均价
         const totalCost = pos.quantity * pos.avgCost + buyQty * price;
         pos.quantity += buyQty;
         pos.avgCost = Number((totalCost / pos.quantity).toFixed(2));
         pos.tacticalState = TacticalState.SCALED_IN;
-        pos.hardStopLoss = Number((pos.avgCost * 0.95).toFixed(2));
-        eventSummary = `【TAC-001 分批加仓】加仓 ${buyQty} 股 @ $${price}，综合成本调整为 $${pos.avgCost}`;
+        pos.hardStopLoss = action.stopLoss || Number((pos.avgCost * 0.95).toFixed(2));
+        eventSummary = `【盘口异动 · 分批加仓】加仓 ${buyQty} 股 @ $${price}，综合成本动态调整为 $${pos.avgCost}`;
       }
       break;
     }
 
     case 'HALF_TAKE_PROFIT': {
-      // TAC-002: 直线拉升半仓止盈 + 锁定保本损
+      // 脉冲拉升分批止盈/减仓
       if (pos.quantity <= 0) {
-        eventSummary = `【跳过】当前标的无底仓，无法执行半仓止盈`;
+        eventSummary = `【跳过】当前标的无底仓，无法执行分批减仓`;
         break;
       }
       const sellQty = Math.floor(pos.quantity * (fraction || 0.5));
@@ -204,13 +227,13 @@ export function transitionPositionState(position, action) {
       pos.realizedPnl += pnl;
       pos.quantity -= sellQty;
       
-      // 核心战术精髓: 剩余半仓立即将止损点提升至开仓均价 (保本损)，决不让盈利变亏损！
+      // 核心原则: 分批出掉后，若有底仓，以成本价作为保本心理锚点，不设死板止损
       pos.breakevenStop = pos.avgCost;
       pos.hardStopLoss = pos.avgCost;
       pos.tacticalState = TacticalState.HALF_LOCKED;
       pos.lastSellRecord = { price, quantity: sellQty, timestamp };
 
-      eventSummary = `【TAC-002 半仓止盈锁利】卖出 ${sellQty} 股 @ $${price}，锁定利润 $${pnl}；剩余 ${pos.quantity} 股开启保本损 ($${pos.breakevenStop})`;
+      eventSummary = `【脉冲异动 · 分批止盈】卖出 ${sellQty} 股 @ $${price}，锁定利润 $${pnl}；剩余 ${pos.quantity} 股以均价 $${pos.avgCost} 为保本锚点`;
       break;
     }
 

@@ -754,38 +754,38 @@
       <span id="last-update-time" style="font-family: var(--font-mono); font-size: 0.75rem;">更新: --</span>
     </div>
 
-    <!-- 大V宏观资金分配总控看板 (赵哥铁律: 正股堆满再一成/融资买期权) -->
+    <!-- 大V口述资金纪律感知看板 (启发式参考 · 非券商实盘对账) -->
     <div id="capital-banner" class="capital-banner">
       <div class="capital-left">
-        <span class="capital-tag">📊 宏观资金模型</span>
+        <span class="capital-tag">📊 口述资金纪律感知 (启发式)</span>
         <div class="capital-stats">
           <div class="capital-stat-item">
-            <span class="label">正股底仓</span>
+            <span class="label">正股底仓估算</span>
             <span id="cap-equity-pct" class="val">--%</span>
           </div>
           <div class="capital-stat-item">
-            <span class="label">期权仓位</span>
+            <span class="label">期权仓位估算</span>
             <span id="cap-option-pct" class="val">--%</span>
           </div>
           <div class="capital-stat-item">
-            <span class="label">现金缓冲</span>
+            <span class="label">现金缓冲估算</span>
             <span id="cap-cash-pct" class="val">--%</span>
           </div>
         </div>
       </div>
       <div id="capital-advice-text" class="capital-advice">
-        正在读取大V资金分配模型...（铁律：股票堆满再一成或者融资买期权，底仓优先，末端期权杠杆冲刺）
+        正在读取口述资金配置估算...（非券商实盘对账 · 启发式参考: “股票堆满再一成或者融资买期权”）
       </div>
     </div>
 
-    <!-- 动态战术持仓与做T控制台 -->
+    <!-- 重点标的推演持仓与做T参谋控制台 -->
     <section class="lifecycle-section">
       <div class="section-header">
-        <h2>💼 大V实战持仓生命周期与做T控制台 (TAC-001~003 状态机)</h2>
-        <span class="section-sub">动态保本损锁定 · 高抛低吸差价锚定 · 纯只读参谋 (DEBT-021 待审重算中)</span>
+        <h2>💼 重点标的推演持仓与做T参谋 (启发式状态机)</h2>
+        <span class="section-sub">保本损仅供推演参考 · 来源: [heuristic] 启发式 · 严禁当作券商实盘事实</span>
       </div>
       <div id="positions-lifecycle-container" class="lifecycle-container">
-        <div style="color: var(--text-muted); font-size: 0.8rem; padding: 10px;">正在推演活跃持仓生命周期...</div>
+        <div style="color: var(--text-muted); font-size: 0.8rem; padding: 10px;">正在推演焦点活跃标的生命周期...</div>
       </div>
     </section>
 
@@ -884,26 +884,26 @@
       const caEl = document.getElementById('cap-cash-pct');
       const advEl = document.getElementById('capital-advice-text');
 
-      if (eqEl) eqEl.textContent = `${(capital.equityAlloc * 100).toFixed(0)}%`;
-      if (opEl) opEl.textContent = `${(capital.optionAlloc * 100).toFixed(0)}%`;
-      if (caEl) caEl.textContent = `${(capital.cashAlloc * 100).toFixed(0)}%`;
+      if (eqEl) eqEl.textContent = `${(capital.equityRatio != null ? capital.equityRatio * 100 : (capital.equityAlloc || 0) * 100).toFixed(0)}%`;
+      if (opEl) opEl.textContent = `${(capital.optionRatio != null ? capital.optionRatio * 100 : (capital.optionAlloc || 0) * 100).toFixed(0)}%`;
+      if (caEl) caEl.textContent = `${(capital.cashRatio != null ? capital.cashRatio * 100 : (capital.cashAlloc || 0) * 100).toFixed(0)}%`;
 
       if (advEl) {
-        let statusBadge = '🟢 【策略合规】';
-        if (capital.riskLevel === 'CRITICAL_LEVERAGE') {
-          statusBadge = '🔴 【严重超配】';
-        } else if (capital.riskLevel === 'OPTION_OVERWEIGHT') {
-          statusBadge = '🟡 【期权偏重】';
+        let statusBadge = '🟢 【启发式合规】';
+        if (capital.status === 'OPTION_OVERWEIGHT' || capital.riskLevel === 'OPTION_OVERWEIGHT') {
+          statusBadge = '🟡 【期权超配告警】';
+        } else if (capital.status === 'EQUITY_UNDERWEIGHT') {
+          statusBadge = '⚪ 【正股未满】';
         }
-        advEl.innerHTML = `<strong>${statusBadge}</strong> ${capital.advice} <span style="color: var(--accent-gold); margin-left: 8px;">(大V铁律：股票堆满再一成或者融资买期权)</span>`;
+        advEl.innerHTML = `<strong>${statusBadge}</strong> ${capital.advice} <span style="color: var(--accent-gold); margin-left: 8px;">[来源: zhao_quote 口述引用 · 非券商实盘]</span>`;
       }
     }
 
-    // 渲染战术持仓生命周期控制台
+    // 渲染战术持仓生命周期控制台 (收敛展示焦点短列表 + 来源标注)
     function renderPositionLifecycle(positions) {
       const container = document.getElementById('positions-lifecycle-container');
       if (!positions || !positions.length) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; padding: 10px;">近 30 天暂无活跃跟踪持仓</div>';
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; padding: 10px;">近 7 天暂无焦点推演持仓 (未审核流水重算中)</div>';
         return;
       }
 
@@ -919,44 +919,44 @@
         const isDip = p.tactical_state === 'T_DIP_BOUGHT';
         const cardCls = isBreakeven ? 'pos-card breakeven-locked' : (isDip ? 'pos-card dip-bought' : 'pos-card');
 
-        // 保本损与硬止损
-        const beStopStr = p.breakeven_stop ? `$${p.breakeven_stop.toFixed(2)}` : '未上移';
-        const hardStopStr = p.hard_stop_loss ? `$${p.hard_stop_loss.toFixed(2)}` : '未设';
+        // 保本参考锚点 (不设死板固定百分比，各股股性不同)
+        const beStopStr = p.breakeven_stop ? `$${p.breakeven_stop.toFixed(2)}` : '动态随动';
 
-        // 做T差价建议 (若有最近高抛，给出回调目标)
+        // 做T差价参考 (不猜死板跌幅，以盘口异动大单为接回触发依据)
         let tAdviceHtml = '';
         if (p.last_sell_ref) {
-          const dipTarget = (p.last_sell_ref * 0.96).toFixed(2);
           tAdviceHtml = `
             <div class="pos-row">
-              <span class="pos-label">高抛基准 / 接回参考:</span>
-              <span class="pos-val target">$${p.last_sell_ref.toFixed(2)} → 回调目标 ~$${dipTarget} (-4%)</span>
+              <span class="pos-label">高抛卖出点位:</span>
+              <span class="pos-val target">$${p.last_sell_ref.toFixed(2)} (等盘口异动回踩放量再接回)</span>
             </div>
           `;
         }
 
-        const note = p.recent_action || '根据成交单与战法规则自动流转';
+        const note = p.recent_action || '异动分批进出流水 (推演)';
 
         return `
           <div class="${cardCls}">
             <div class="pos-header">
               <span class="pos-sym">${p.ticker}</span>
-              <span class="${stateCfg.cls}">${stateCfg.text}</span>
+              <div>
+                <span class="${stateCfg.cls}">${stateCfg.text}</span>
+                <span style="font-size: 0.65rem; color: var(--text-muted); margin-left: 4px;">[推演]</span>
+              </div>
             </div>
             <div class="pos-details">
               <div class="pos-row">
-                <span class="pos-label">战术持仓均价:</span>
+                <span class="pos-label">推演加权均价:</span>
                 <span class="pos-val">$${p.avg_cost.toFixed(2)}</span>
               </div>
               <div class="pos-row">
-                <span class="pos-label">动态保本止损线:</span>
+                <span class="pos-label">保本参考锚点:</span>
                 <span class="pos-val ${isBreakeven ? 'profit' : ''}">${beStopStr}</span>
               </div>
-              <div class="pos-row">
-                <span class="pos-label">初始硬止损 (-5%):</span>
-                <span class="pos-val stop">${hardStopStr}</span>
-              </div>
               ${tAdviceHtml}
+              <div class="pos-row" style="color: var(--accent-cyan); font-size: 0.68rem; margin-top: 2px;">
+                <span>⚡ 纪律原则: 各股股性不同 · 异动分批进出 · 以盘口数据说话</span>
+              </div>
             </div>
             <div class="pos-action-note">
               📌 ${note}
@@ -981,13 +981,13 @@
         const circleClass = isWangzha ? 'score-circle wangzha' : (isHigh ? 'score-circle high' : 'score-circle normal');
         const statusText = isWangzha ? '🔥 王炸共振触发' : (isHigh ? '⚡ 高置信共振' : '常规微观监控');
 
-        // 检查是否有活跃持仓状态
+        // 检查是否有活跃推演持仓状态 (纯上下文展示，严禁修改共振得分)
         const posInfo = activePositionsCache.get(item.ticker.toUpperCase());
         let posPillHtml = '';
         if (posInfo) {
           const stText = STATE_LABELS[posInfo.tactical_state]?.text || posInfo.tactical_state;
-          const beText = posInfo.breakeven_stop ? `保本损 $${posInfo.breakeven_stop.toFixed(2)}` : `均价 $${posInfo.avg_cost.toFixed(2)}`;
-          posPillHtml = `<div class="ticker-pos-pill">💼 活跃持仓: ${stText} · ${beText}</div>`;
+          const beText = posInfo.breakeven_stop ? `推演保本损 $${posInfo.breakeven_stop.toFixed(2)}` : `推演均价 $${posInfo.avg_cost.toFixed(2)}`;
+          posPillHtml = `<div class="ticker-pos-pill">💼 推演跟踪: ${stText} · ${beText}</div>`;
         }
 
         // 检查是否命中黄金战法

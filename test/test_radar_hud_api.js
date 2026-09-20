@@ -96,20 +96,28 @@ async function runTests() {
     assert(textRadar.includes('美股微观结构与四维共振量化决策驾驶舱'), '页面必须包含量化决策驾驶舱标题');
     console.log('  ✅ /hud 与 /radar 量化决策驾驶舱页面托管通过');
 
-    // 5. 验证 REQ-054: GET /api/positions/lifecycle
-    console.log('\n--- 4. 验证 GET /api/positions/lifecycle (实战持仓动态生命周期与资金总控) ---');
+    // 5. 验证 REQ-054 & CHG-049: GET /api/positions/lifecycle (启发式推演持仓与来源三层标注)
+    console.log('\n--- 4. 验证 GET /api/positions/lifecycle (启发式推演持仓与来源分层) ---');
     const resLifecycle = await fetch(`${baseUrl}/api/positions/lifecycle`, { headers });
     assert(resLifecycle.status === 200, `GET /api/positions/lifecycle 应返回 200, got ${resLifecycle.status}`);
     const dataLifecycle = await resLifecycle.json();
     assert(dataLifecycle.success === true, 'lifecycle.success 应为 true');
+    assert(dataLifecycle.mode === 'simulated_heuristic', 'mode 必须为 simulated_heuristic');
+    assert(dataLifecycle.is_broker_reconciled === false, 'is_broker_reconciled 必须为 false (明确非券商对账)');
     assert(dataLifecycle.capital_allocation, '应包含大V宏观资金配置评估');
     assert(dataLifecycle.capital_allocation.strategy === 'EQUITY_CORE_THEN_OPTION_BOOSTER', '策略应为 EQUITY_CORE_THEN_OPTION_BOOSTER');
-    assert(dataLifecycle.capital_allocation.advice.includes('堆满'), '资金总控建议必须包含股票堆满铁律');
+    assert(dataLifecycle.capital_allocation.advice.includes('堆满'), '资金总控建议必须包含股票堆满口述');
     assert(Array.isArray(dataLifecycle.active_positions), 'active_positions 应为数组');
-    console.log(`  ✅ GET /api/positions/lifecycle 通过 (大V资金总控模型生效，当前活跃标的=${dataLifecycle.active_positions.length} 个)`);
+    assert(dataLifecycle.active_positions.length <= 8, `活跃推演持仓应收窄至 <= 8 个焦点标的, got ${dataLifecycle.active_positions.length}`);
+    if (dataLifecycle.active_positions.length > 0) {
+      const p0 = dataLifecycle.active_positions[0];
+      assert(p0.source === 'heuristic', '持仓 source 必须显式标注为 heuristic');
+      assert(p0.sources && p0.sources.avg_cost === 'heuristic', 'avg_cost 必须标注来源为 heuristic');
+    }
+    console.log(`  ✅ GET /api/positions/lifecycle 通过 (模式=simulated_heuristic, 活跃焦点标的=${dataLifecycle.active_positions.length} 个, 来源分层精准)`);
 
     console.log('\n===========================================================');
-    console.log('🎉 REQ-045 & REQ-054 车机大屏 HUD 与持仓雷达 API 单测全部 PASS！');
+    console.log('🎉 REQ-045, REQ-055 & CHG-049 车机大屏 HUD 与持仓雷达 API 单测全部 PASS！');
     console.log('===========================================================');
   } finally {
     server.close();
