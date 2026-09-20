@@ -1,0 +1,19 @@
+{ 梯子 ATR 增强版 — 量化回测用主图口径 }
+{ 参数: N1=26, N2=89, ATRN=14, K1=0.8, K2=1.2 }
+{ 说明: 与原版 EMA(H)/EMA(L) 包络不同；本版用收盘价中轴 ± ATR，无未来函数 }
+
+TR:=MAX(MAX(H-L,ABS(H-REF(C,1))),ABS(L-REF(C,1)));
+ATR:=MA(TR,14);
+
+MID_S:=EMA(C,26);
+MID_L:=EMA(C,89);
+
+A: MID_S + 0.8*ATR, COLORBLUE;
+B: MID_S - 0.8*ATR, COLORBLUE;
+A1: MID_L + 1.2*ATR, COLORYELLOW;
+B1: MID_L - 1.2*ATR, COLORYELLOW;
+
+{ 挤压态: 短长中轴过近 }
+IS_SQUEEZE:=ABS(MID_S-MID_L)<0.3*ATR;
+
+DRAWKLINE(H,O,L,C);
