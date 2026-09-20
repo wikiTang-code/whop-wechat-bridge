@@ -44,10 +44,11 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-054** | L3 | 交易单人工审核增量联动流水线与 DEBT-021 闭环（90笔审核融合/10笔人工纠偏优先覆盖/746对配对重算/90组SLM黄金样本，单测全绿） | `tools/trade/audit_linked_pnl_pipeline.js` · `docs/project/054*` | **done-eng (accepted-with-gap)** |
-| 2 | **REQ-036** | L3 | 大V专有 SLM 数据飞轮（V1闭环，已增量接收 REQ-054 提纯的 90 组人机对齐黄金样本，待 WSL GPU 物理重训） | `scripts/slm/*` · `models/zhao_slm_1.5b_lora` | **Standing (Active)** |
-| 3 | **REQ-038-T2/REQ-040** | L3 | T2 高胜率战法黄金提纯与 Golden Playbook 固化（扩标池回测 n_scored=147，提纯 108/175 张战法；雷达已设物理隔离门禁） | `card_attribution*` · `data/runtime/golden_playbook.json` | **done-eng** |
-| 4 | **DEBT-017~020** | L3 | 数据资产结构缺陷清账与战法分级隔离（DEBT-017 713对闭环/84%配对/经抽检验真 + DEBT-018 战法分级: 175张 level 独占雷达顶格加权、310张 direction 隔离为宏观参考 + DEBT-019 657张深层卡片/1,314组问答对 + DEBT-020 大单时序表落地，抽检与单测全绿） | `tools/trade/*` · `tools/knowledge/*` | **done-eng (accepted-with-gap)** |
+| **1** | **REQ-055 (SLM)** | L3 | 审核进度每10%里程碑自迭代微调与实战对账单机制（响应人令，达成第1轮10.84%里程碑，生成 v1.1.0-audit-10pct 与 055 对账单，单测全绿） | `scripts/slm/flywheel_engine.js` · `test/test_slm_milestone_pipeline.js` · `docs/project/055*` | **done-eng (accepted-with-gap)** |
+| 2 | **REQ-054** | L3 | 交易单人工审核增量联动流水线与 DEBT-021 闭环（90笔审核融合/10笔人工纠偏优先覆盖/746对配对重算/90组SLM黄金样本，单测全绿） | `tools/trade/audit_linked_pnl_pipeline.js` · `docs/project/054*` | **done-eng (accepted-with-gap)** |
+| 3 | **REQ-036** | L3 | 大V专有 SLM 数据飞轮（V1闭环，已增量接收 REQ-054/055 提纯的 90 组人机对齐黄金样本，待 WSL GPU 物理重训） | `scripts/slm/*` · `models/zhao_slm_1.5b_lora` | **Standing (Active)** |
+| 4 | **REQ-038-T2/REQ-040** | L3 | T2 高胜率战法黄金提纯与 Golden Playbook 固化（扩标池回测 n_scored=147，提纯 108/175 张战法；雷达已设物理隔离门禁） | `card_attribution*` · `data/runtime/golden_playbook.json` | **done-eng** |
+| 5 | **DEBT-017~020** | L3 | 数据资产结构缺陷清账与战法分级隔离（DEBT-017 713对闭环/84%配对/经抽检验真 + DEBT-018 战法分级: 175张 level 独占雷达顶格加权、310张 direction 隔离为宏观参考 + DEBT-019 657张深层卡片/1,314组问答对 + DEBT-020 大单时序表落地，抽检与单测全绿） | `tools/trade/*` · `tools/knowledge/*` | **done-eng (accepted-with-gap)** |
 
 
 ### 0.H Human

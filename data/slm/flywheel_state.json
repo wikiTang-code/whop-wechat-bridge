@@ -1,7 +1,19 @@
 {
-  "version": "v1.0.0",
-  "last_trained_at": null,
-  "last_trained_corrected_count": 0,
-  "total_iterations": 0,
-  "history": []
+  "version": "v1.1.0-audit-10pct",
+  "last_trained_at": "2026-09-20T07:41:07.028Z",
+  "last_trained_corrected_count": 10,
+  "last_milestone_pct": 10,
+  "total_iterations": 1,
+  "history": [
+    {
+      "iteration": 1,
+      "version": "v1.1.0-audit-10pct",
+      "milestone_pct": 10,
+      "timestamp": "2026-09-20T07:41:07.028Z",
+      "duration_seconds": 0,
+      "corrected_count_at_train": 10,
+      "dataset_samples": 1030,
+      "dpo_pairs": 17
+    }
+  ]
 }
