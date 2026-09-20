@@ -814,31 +814,35 @@
       </div>
     </header>
 
-    <!-- 安全免责说明 -->
+    <!-- 安全免责说明与对账边界常驻警示 -->
     <div class="disclaimer-banner">
       <span>🛡️ <strong>【纯客观盘口态势参谋 · 绝非投资建议】</strong>本驾驶舱纯只读运行，100% 隔离实盘下单资金通道。数据仅用于学术复盘与微观机制印证，交易决策完全由驾驶员自主把控。</span>
       <span id="last-update-time" style="font-family: var(--font-mono); font-size: 0.75rem;">更新: --</span>
+    </div>
+    <div style="background: rgba(255, 184, 0, 0.08); border: 1px dashed rgba(255, 184, 0, 0.3); border-radius: 6px; padding: 6px 12px; margin-bottom: 14px; font-size: 0.72rem; color: #fbbf24; display: flex; justify-content: space-between; align-items: center;">
+      <span>⚠️ <strong>[非券商实盘对账 · 启发式推演常驻声明]</strong> 当前持仓成本依赖人工审核进度 (DEBT-021 进行中)；名义杠杆敞口定义: (∑ q_i × p_i × leverage_i) / 估算总净值。严禁作为真实成交事实。</span>
+      <span style="color: var(--text-muted);">状态: accepted-with-gap</span>
     </div>
 
     <!-- 大V口述资金纪律感知看板 (启发式参考 · 非券商实盘对账) -->
     <div id="capital-banner" class="capital-banner">
       <div class="capital-left">
-        <span class="capital-tag">📊 口述资金纪律感知 (启发式)</span>
+        <span class="capital-tag">📊 口述资金纪律感知 (估算)</span>
         <div class="capital-stats">
           <div class="capital-stat-item">
-            <span class="label">1x 普通正股</span>
+            <span class="label">1x 普通正股 (估算)</span>
             <span id="cap-equity1x-pct" class="val">--%</span>
           </div>
           <div class="capital-stat-item">
-            <span class="label">2x 战车 (名义暴露折算)</span>
+            <span class="label">2x 战车 (名义折算)</span>
             <span id="cap-leveraged2x-pct" class="val">--%</span>
           </div>
           <div class="capital-stat-item">
-            <span class="label">期权仓位</span>
+            <span class="label">期权仓位 (估算)</span>
             <span id="cap-option-pct" class="val">--%</span>
           </div>
           <div class="capital-stat-item">
-            <span class="label">现金缓冲</span>
+            <span class="label">现金缓冲 (估算)</span>
             <span id="cap-cash-pct" class="val">--%</span>
           </div>
         </div>
@@ -1022,6 +1026,16 @@
 
         const note = p.recent_action || '异动分批进出流水 (推演)';
         const batchCount = p.batches && p.batches.length ? p.batches.length : 1;
+        let batchRowsHtml = '';
+        if (p.batches && p.batches.length > 0) {
+          const recentBatches = p.batches.slice(-2);
+          batchRowsHtml = `
+            <div style="font-size: 0.65rem; color: #94a3b8; background: rgba(0,0,0,0.25); padding: 4px 6px; border-radius: 4px; margin-top: 4px; border: 1px dashed rgba(255,255,255,0.06);">
+              <span style="color: var(--text-muted);">分批进出流水 (最近):</span>
+              ${recentBatches.map((b, i) => `<div style="font-family: var(--font-mono);">• 批次 ${i+1}: $${Number(b.price || p.avg_cost).toFixed(2)} · ${b.shares || '按比例'}股 [${b.source || '推演'}]</div>`).join('')}
+            </div>
+          `;
+        }
 
         return `
           <div class="${cardCls}">
@@ -1042,6 +1056,7 @@
                 <span class="pos-val ${isBreakeven ? 'profit' : ''}">${beStopStr}</span>
               </div>
               ${tAdviceHtml}
+              ${batchRowsHtml}
               <div class="pos-row" style="color: var(--accent-cyan); font-size: 0.68rem; margin-top: 2px;">
                 <span>⚡ 纪律原则: 各股股性不同 · 异动分批进出 · 以盘口数据说话</span>
               </div>
@@ -1143,7 +1158,10 @@
         let elasticityHtml = '';
         const ep = item.elasticity_profile;
         if (ep) {
-          elasticityHtml = `<span class="elasticity-pill ${ep.badge_class || ''}" title="${ep.reason || ''}">${ep.badge_label || ''}</span>`;
+          const tradeCount = ep.zhao_recent_trades || 0;
+          const mentionCount = ep.zhao_recent_mentions || 0;
+          const statsLabel = `${tradeCount}单/${mentionCount}提`;
+          elasticityHtml = `<span class="elasticity-pill ${ep.badge_class || ''}" title="${ep.stats_desc || ''} · ${ep.note || ''}">${ep.badge_label || ''} <span style="font-size: 0.62rem; opacity: 0.85; margin-left: 2px;">(${statsLabel})</span></span>`;
         }
 
         const d1 = item.dimensions?.d1_gex_structure?.score || 0;

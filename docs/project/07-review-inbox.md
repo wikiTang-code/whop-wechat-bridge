@@ -8,6 +8,25 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-20 · CHG-049 / REQ-055 补丁与股性盘感落地审阅 (ACCEPT WITH NOTES) · Grok × Human × Gemini
+
+**审阅对象**：`public/radar_hud.html`、`monitoring/readonly-api-router.js`、`tools/trade/position_lifecycle_manager.js`、`tools/knowledge/stock_elasticity_analyzer.js`、`test/test_radar_hud_api.js` (Commit `f23531b` 及本轮细化)
+
+**Grok 外部总结论**：**ACCEPT WITH NOTES——门禁对账基本对齐，done-eng (accepted-with-gap) 判定合理。P0 该落地的（2x 名义敞口、焦点收敛、来源分层、打分隔离、废除统一固定 %）方向完全正确；战略缺口仍集中在 DEBT-021 成本真源，不要用「盘中观察 1～2 日」冒充战略完成。**
+
+#### 签收要点与落实对账：
+1. **股性徽章：时变频次落地（已完成）**：徽章旁与 Tooltip 明确展示 `14D交易: n笔 | 14D提及: m次`，杜绝静态死名单嫌疑，随大V审美迁移自适应；
+2. **「异动分批」实打实展示流水（已完成）**：持仓卡片中展示最近分批进出流水明细（价、量、时间、source），拒绝空心化口号；
+3. **notionalExposureRatio 公式明确（已完成）**：严格定义为 `(1x*1.0 + 2x*2.0 + option*5.0 Delta近似) / 估算总净值`，UI 标题与各项指标明确标注「估算」；
+4. **常驻非券商实盘声明（已完成）**：HUD 顶部增加常驻免责与对账声明横幅，明确标明推演持仓与 DEBT-021 进行中；
+5. **抽检项全部 100% PASS**：
+   - 抽检 1：2x 战车与期权名义杠杆暴露计算（PASS）；
+   - 抽检 2：API 顶级与持仓项 source 显式三层标注（PASS）；
+   - 抽检 3：标的时变股性统计频次属性（PASS）；
+   - 核心红线：四维共振客观打分物理隔离，持仓状态不改动评分（PASS）。
+
+---
+
 ### 2026-09-20 · REQ-055 落地审阅与持仓推演去神化收紧 · Grok × Human × Gemini
 
 **审阅对象**：`public/radar_hud.html`、`monitoring/readonly-api-router.js`、`tools/trade/position_lifecycle_manager.js`、`docs/project/055-position-lifecycle-hud-report.md` (Commit `9dc9dc5`)

@@ -111,9 +111,29 @@ async function runTests() {
     assert(dataLifecycle.capital_allocation.notionalExposureRatio !== undefined, '必须披露 notionalExposureRatio 名义杠杆暴露');
     assert(Array.isArray(dataLifecycle.collapsed_positions), 'collapsed_positions 必须为数组');
 
+    // 抽检项 1: 2x 战车与期权名义暴露计算核实 (公式: 1x*1.0 + 2x*2.0 + option*5.0 Delta近似)
+    const cap = dataLifecycle.capital_allocation;
+    const calcNotional = (cap.equity1xRatio || 0) * 1.0 + (cap.leveraged2xRatio || 0) * 2.0 + (cap.optionRatio || 0) * 5.0;
+    assert(Math.abs(cap.notionalExposureRatio - calcNotional) < 0.05, `名义杠杆敞口计算需符合公式 (1x + 2x*2 + option*5), got ${cap.notionalExposureRatio}, expected ~${calcNotional}`);
+    console.log(`  ✅ 抽检1通过: 名义暴露计算精确 (1x: ${(cap.equity1xRatio*100).toFixed(0)}%, 2x: ${(cap.leveraged2xRatio*100).toFixed(0)}%, option: ${(cap.optionRatio*100).toFixed(0)}% -> 名义敞口: ${(cap.notionalExposureRatio*100).toFixed(0)}%)`);
+
+    // 抽检项 2: source 标签显式三层标注
+    assert(dataLifecycle.source === 'heuristic' || dataLifecycle.source === 'zhao_quote', '接口顶级 source 必须显式标注');
+    if (dataLifecycle.active_positions.length > 0) {
+      const p0 = dataLifecycle.active_positions[0];
+      assert(['heuristic', 'audited_fill', 'zhao_quote'].includes(p0.source), `持仓项 source 必须为合法三层类型之一: ${p0.source}`);
+    }
+    console.log('  ✅ 抽检2通过: source 标签在 API 与持仓数据中显式三层分层');
+
+    // 抽检项 3: 标的时变股性统计频次属性
+    const cardData0 = dataLatest.data[0];
+    if (cardData0 && cardData0.elasticity_profile) {
+      assert(cardData0.elasticity_profile.stats_desc !== undefined, 'elasticity_profile 必须包含 stats_desc 客观频次说明');
+      console.log(`  ✅ 抽检3通过: 标的时变股性包含客观统计频次 (${cardData0.elasticity_profile.stats_desc})`);
+    }
+
     // 6. 核心红线验证: 持仓推演绝对不改动四维共振打分 (防火墙物理隔离)
     console.log('\n--- 5. 核心红线验证: 四维共振客观打分与持仓推演物理隔离 ---');
-    const cardData0 = dataLatest.data[0];
     assert(cardData0, '必须能获取到标的共振数据');
     const dSum = (cardData0.dimensions.d1_gex_structure?.score || 0) +
                  (cardData0.dimensions.d2_zhao_outlook?.score || 0) +

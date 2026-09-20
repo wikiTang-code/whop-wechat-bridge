@@ -73,13 +73,13 @@ export function analyzeStockElasticity(ticker, { dbInstance = null } = {}) {
     }
   }
 
-  // 动态温度判定 (依据客观统计，杜绝永久死名单)
+  // 动态温度判定 (完全依赖 14D 客观统计，杜绝手写固定黑白名单)
   let temperatureTag = 'NORMAL';
-  let badgeLabel = '📊 常规监控';
+  let badgeLabel = '📊 常规赛道';
   let badgeClass = 'normal';
 
   const isHot = recentTradesCount >= 2 || recentMentionsCount >= 5;
-  const isDormant = (sym === 'TSLA' || sym === 'NVDA' || sym === 'TSLL' || sym === 'NVDL') && recentTradesCount === 0;
+  const isZeroActivity = recentTradesCount === 0 && recentMentionsCount <= 2;
 
   if (sectorInfo.baseElasticity === 'HIGH' || sectorInfo.baseElasticity === 'VERY_HIGH') {
     if (isHot || recentTradesCount >= 1) {
@@ -91,11 +91,13 @@ export function analyzeStockElasticity(ticker, { dbInstance = null } = {}) {
       badgeLabel = '⚡ 高弹性爆发池';
       badgeClass = 'elastic';
     }
-  } else if (isDormant) {
+  } else if (isZeroActivity) {
     temperatureTag = 'DORMANT';
-    badgeLabel = '⏸ 股性钝化待机';
+    badgeLabel = '⏸ 阶段钝化待机';
     badgeClass = 'dormant';
   }
+
+  const statsDesc = `14D交易: ${recentTradesCount}笔 | 14D提及: ${recentMentionsCount}次`;
 
   return {
     ticker: sym,
@@ -104,6 +106,7 @@ export function analyzeStockElasticity(ticker, { dbInstance = null } = {}) {
     temperature_tag: temperatureTag,
     badge_label: badgeLabel,
     badge_class: badgeClass,
+    stats_desc: statsDesc,
     zhao_recent_trades: recentTradesCount,
     zhao_recent_mentions: recentMentionsCount,
     note: sectorInfo.note,

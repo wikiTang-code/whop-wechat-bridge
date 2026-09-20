@@ -901,6 +901,12 @@ readonlyRouter.get('/api/positions/lifecycle', (req, res) => {
       success: true,
       updated_at: Date.now(),
       mode: 'simulated_heuristic',
+      source: 'heuristic',
+      sources: {
+        capital_allocation: 'zhao_quote_heuristic',
+        active_positions: 'heuristic',
+        collapsed_positions: 'heuristic'
+      },
       is_broker_reconciled: false,
       capital_allocation: capitalEvaluation,
       total_simulated_positions_count: allSimulatedPositions.length,
