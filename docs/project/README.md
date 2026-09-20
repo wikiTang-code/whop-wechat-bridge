@@ -81,7 +81,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **T1 接管 + T2 n_scored=7**（CHG-035/036） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~048 Done** + **REQ-049 战法本体约束LLM形式化 (Doing 049-B · 6大高稳试点)** | Active / Doing (049-B) |
+| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~048 Done** + **REQ-049 战法本体形式化 (049-B Done · 待进 049-C)** | Active / Done (049-B) |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 + **CHG-039** Done + **DEBT-017~020 终极清账大满贯 (Done · 767打分/485战法/1925信号/657卡片/1314问答对)** | Done |
 
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
