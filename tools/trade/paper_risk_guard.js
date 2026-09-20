@@ -21,6 +21,8 @@ export const RISK_CONFIG = {
   MAX_DAILY_SUBMITTED_ORDERS: 30,
   // 允许的最大滑点/限价偏离幅度 (10%)
   MAX_PRICE_DEVIATION_RATIO: 0.10,
+  // 账户日内最大亏损熔断门槛 (美元)
+  MAX_DAILY_DRAWDOWN_USD: 1000.0,
   // 禁止资产类型特征正则 (期权/权证/牛熊证格式拦截)
   DISALLOWED_TICKER_PATTERNS: [
     /\d{6}[CP]\d+/i,        // 如 TSLA260918C00250000 标准美股期权 OCC 格式
@@ -95,18 +97,41 @@ export function evaluatePreTradeRisk(intent, { dbInstance = null } = {}) {
     }
   }
 
-  // 5. 持仓集中度检查 (针对开仓 BUY 方向)
+  // 5. 卖单底仓硬核校验 (严禁无底仓做空 / 前面开仓未跟则平仓硬阻断)
+  const currentPositions = getPaperPositions(dbInstance);
+  if (side === 'SELL') {
+    const existingPos = currentPositions.find(p => p.ticker === ticker && p.quantity > 0);
+    if (!existingPos) {
+      result.passed = false;
+      result.reject_reason = `RISK_NO_UNDERLYING_POSITION: 标的 ${ticker} 当前持仓为 0，严禁无底仓卖出 (历史开仓未跟入，卖单不可执行)`;
+      return result;
+    }
+    if (existingPos.quantity < qty) {
+      result.passed = false;
+      result.reject_reason = `RISK_INSUFFICIENT_POSITION: 标的 ${ticker} 当前持仓 ${existingPos.quantity} 股，不足以卖出 ${qty} 股`;
+      return result;
+    }
+  }
+
+  // 6. 持仓集中度检查与账户级日内亏损熔断 (针对开仓 BUY 方向)
   if (side === 'BUY') {
-    const currentPositions = getPaperPositions(dbInstance);
     const hasTicker = currentPositions.some(p => p.ticker === ticker && p.quantity > 0);
     if (!hasTicker && currentPositions.length >= RISK_CONFIG.MAX_ACTIVE_POSITION_COUNT) {
       result.passed = false;
       result.reject_reason = `RISK_MAX_POSITIONS_REACHED: 当前持仓标的数已达上限 (${currentPositions.length}/${RISK_CONFIG.MAX_ACTIVE_POSITION_COUNT})，禁止新增开仓`;
       return result;
     }
+
+    // 账户级日内未实现浮亏熔断 (单日浮亏超过门槛则阻断新开仓)
+    const totalUnrealizedPnl = currentPositions.reduce((acc, p) => acc + (parseFloat(p.unrealized_pnl) || 0), 0);
+    if (totalUnrealizedPnl < -Math.abs(RISK_CONFIG.MAX_DAILY_DRAWDOWN_USD)) {
+      result.passed = false;
+      result.reject_reason = `RISK_ACCOUNT_CIRCUIT_BREAKER_TRIGGERED: 当前账户浮动亏损 $${totalUnrealizedPnl.toFixed(2)} 已触及日内最大容忍回撤限额 (-$${RISK_CONFIG.MAX_DAILY_DRAWDOWN_USD})，全局禁止新开仓`;
+      return result;
+    }
   }
 
-  // 6. 日内下单频次保护
+  // 7. 日内下单频次保护
   const todayIntents = listTradeIntents({ limit: 100 }, dbInstance);
   const submittedCount = todayIntents.filter(it => it.status === 'SUBMITTED' || it.status === 'FILLED').length;
   if (submittedCount >= RISK_CONFIG.MAX_DAILY_SUBMITTED_ORDERS) {
