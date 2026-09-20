@@ -36,7 +36,8 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-036** | L3 | 大V专有 SLM 数据飞轮（V1闭环，随企微人工纠错 Golden 增量长期常驻维护） | `scripts/slm/*` · `models/zhao_slm_1.5b_lora` | **Standing (Active)** |
-| **2** | **REQ-038-T2/REQ-040** | L3 | T2 高胜率战法黄金提纯与 Golden Playbook 固化（扩标池回测 n_scored=147，提纯 108 张黄金战法已固化） | `card_attribution*` · `data/runtime/golden_playbook.json` | **Done** |
+| 2 | **REQ-038-T2/REQ-040** | L3 | T2 高胜率战法黄金提纯与 Golden Playbook 固化（扩标池回测 n_scored=147，提纯 108 张黄金战法已固化） | `card_attribution*` · `data/runtime/golden_playbook.json` | **Done** |
+| **3** | **CHG-039** | L3 | 生产 VM Golden Playbook 部署闭环 + 维度4期权大单扫盘特征库扩充 + bf8d14b 交叉抽审 | `knowledge_promote*` · `tape_confluence_detector*` | **Done** |
 
 ### 0.H Human
 
@@ -89,6 +90,7 @@
 | §0.R-A cursor | **REQ-038 Sprint 1 开工规划抽审** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-038-T1 VL 离线批跑管道与门禁抽审（`bdb0804`）** | **Done**（accepted-with-gates） |
 | §0.R-A cursor | **REQ-042 / CHG-034（`779d055`）抽审** | **Done**（accepted-with-gates · 见 07） |
+| §0.R-A gemini1 | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | **Done**（Accepted · 见 07） |
 
 ### 共享候选池
 

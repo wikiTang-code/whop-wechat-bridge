@@ -8,6 +8,21 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-20 · Commit bf8d14b 量化驾驶舱与黄金战法加权逻辑交叉审阅 · Gemini1（§0.R-A 抽审）
+
+**审阅范围**：Commit `bf8d14b`（`tools/knowledge/live_radar_sentinel.js` · `tools/knowledge/tape_confluence_detector.js` · `monitoring/readonly-api-router.js` · `public/radar_hud.html` · `test/test_radar_hud_api.js` · `test/test_live_radar_sentinel.js`）
+
+| # | 检查项 | 裁量 | 事实依据与技术细节 |
+|---|--------|:----:|--------------------|
+| 1 | **架构与只读安全红线 (AGENTS §6)** | **通过** | `/api/radar/*` 严格挂载于 `readonly-api-router.js`，强制注入 `getReadOnlyArchiveDb()`；所有非 GET 请求受 `readonlyWriteBlockerMiddleware` 403 物理拦截；绝无实盘下单能力，绝不接 L2a。 |
+| 2 | **高胜率黄金战法优先加权逻辑** | **通过** | 在 `tape_confluence_detector.js` 中优先挂载 `golden_playbook.json`；当市价距黄金战法关键位空间偏差 ≤3% 时，维度 2 直接顶格满分 (25分)，并注入 `golden_stats` (3D/5D胜率与置信度)；未命中平滑降级至全库 4,218 张卡片检索。 |
+| 3 | **美股时段智能感知与能耗/API防护** | **通过** | 引入 `market_session.js`，开市 (RTH) 30s 巡检，尾盘强平黄金窗口 (15:30~16:00 ET) 升频至 15s 高频扫盘，闭市与周末自动休眠，杜绝券商 API 额度与计算资源空耗。 |
+| 4 | **车机 HUD 与多倍做多杠杆 ETF 折算** | **通过** | `radar_hud.html` 纯原生 Canvas 绘制四维共振雷达多边形；正股点位实时动态折算至 2x/多倍杠杆 ETF (TSLL, NEBX, LITX, COHX, CONL, TQQQ, SPYU 等)；醒目标注强制免责声明与学术复盘定位。 |
+| 5 | **期权大单 Block / Sweep 特征库扩充** | **通过** | 扩充结构化特征库 `TAPE_BLOCK_PATTERNS`，覆盖机构激进扫盘 (Sweep)、巨额大宗 (Jumbo Block)、价外 Gamma 异动 (OTM Burst)、恐慌吸收与买盘量比失衡，多空偏向与资金量判定准确。 |
+| 6 | **自动化单测与回归验证** | **通过** | `test_tape_confluence_detector_req041.js`、`test_live_radar_sentinel.js`、`test_radar_hud_api.js` 全部秒级全绿通过。 |
+
+**审阅结论**：**Accepted（通过）**。量化驾驶舱与黄金战法加权架构设计严谨，风控与红线完备，准予合并演进。
+
 ### 2026-09-20 · REQ-038-T2/REQ-040 T2 高胜率战法黄金提纯与 Golden Playbook 固化 · Gemini1（`agent:gemini1`）
 
 | 项 | 事实与落地 |

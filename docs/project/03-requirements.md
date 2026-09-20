@@ -108,6 +108,7 @@
 | CHG-036 | `done` | **T2 扩标的**：ATTR_TICKERS+=SOXL/IREN/NBIS/QQQ/SPY/NVDA；分标的价带；persist **n_scored=7** | 2026-09-19 `agent:cursor` · `card_attribution*` · 口径页 |
 | CHG-037 | `done` | **T2 扩标池全量回测与 Golden Playbook 固化**：扩展 TSLA/TSLL/SPY/QQQ/NVDA/IREN/NBIS/CRWV/LITE/COHR/MU 等 12 标的；修复 `enrichedCards` 候选集丢失赵哥卡片根因；全量回测 n_scored=147；门禁提纯固化 `data/runtime/golden_playbook.json` (108张)；新增 `test/test_golden_playbook.js` 契约单测 | 2026-09-20 `agent:gemini1` · `card_attribution*` · `package.json` |
 | CHG-038 | `done` | **消费 gemini2 固化的 Golden Playbook 产物，四维共振雷达与 Web 驾驶舱全面融合高胜率战法矩阵**：命名规范化为「美股微观结构与四维共振量化决策驾驶舱」，暴露 `/api/radar/latest`、`/api/radar/events` 与 `/hud`；通过全套回归单测与 API 单测 | 2026-09-20 `agent:gemini` · `tools/knowledge/*` · `public/radar_hud.html` · 单测全绿 |
+| CHG-039 | `done` | **生产 VM Golden Playbook 自动部署通道 + 维度4期权大单扫盘特征库扩充 + bf8d14b 交叉抽审**：`knowledge_promote.js` 扩展支持 `--golden` 部署 `golden_playbook.json` 至生产 VM `data/runtime/`；`tape_confluence_detector.js` 扩充 `TAPE_BLOCK_PATTERNS` 期权跨所扫盘与巨额大宗识别模型；完成主干 `bf8d14b` 交叉抽审并在 07 回写意见 | 2026-09-20 `agent:gemini1` · `knowledge_promote*` · `tape_confluence_detector*` |
 
 ---
 
