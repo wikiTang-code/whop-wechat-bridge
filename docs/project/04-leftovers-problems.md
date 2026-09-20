@@ -31,11 +31,10 @@
 | DEBT-001 | 生产 gcp-vm ff 对齐 | REQ-002 | **Done**（Human 2026-09-19 确认 pull + pm2 restart） |
 | DEBT-014 | **CHG-018/023 Supervisor+切流**：CPU `llama-server` + Win bridge 已满血可用；HIP 编译仍缺完整 ROCm | CHG-018/023 | **P3 残留**（HIP） |
 | DEBT-015 | **知识资产只在本机、未进生产库**（见 §2.2） | REQ-039 表级 promote **Done**（gcp `ontology_card=4032` / `message_vision_meta=73`，`messages=109159` 仅 ingest 增长） | **Done** |
-| DEBT-016 | **周哥「美股工具箱」量化资产与日内波段信号深度建模**（定位已确立为客观量化参考参谋；暂缓后补，当前全力把赵哥完整学会） | `config/channel_registry.json` · `tape_confluence_detector.js` | **P3 暂缓 (Backlog)** |
-| DEBT-017 | **历史交易信号底池标准化回放与生命周期断链**（底池 2,321 笔 vs 落库 457 笔；平仓关联与非核心标的期权要素缺失，详见 §2.3.1） | `follow_replay_queue` · `trade_review_pool` · `trade_signals` | **P2 待做 (Backlog)** |
-| DEBT-018 | **黄金战法库标的覆盖与多空时域分布失衡**（当前仅 12 标的 108 张，空头战法不足 8%，全库 4,000+ 卡片未评分，详见 §2.3.2） | `card_attribution*` · `golden_playbook.json` | **P2 待做 (Backlog)** |
+| DEBT-017 | **历史交易信号底池标准化回放与生命周期断链**（落地 `historical_signals_lifecycle_analyzer.js`；摸清 8,379 条专属发言，完成 172 对闭环配对与 484 笔孤立平仓底账，详见 §2.3.1） | `tools/trade/*` · `trade_lifecycle_summary.json` | **P2 部分闭环 (Partial)** |
+| DEBT-018 | **黄金战法库标的覆盖与多空时域分布失衡**（扩评标的池并强化空头；n_scored 达 173，提纯 118 张战法推产，空头占比 23.7% 达标，详见 §2.3.2） | `card_attribution*` · `golden_playbook.json` | **P2 部分闭环 (Partial)** |
 | DEBT-019 | **早期历史长文本发言细颗粒度重蒸馏盲区**（2025-08~12 早期长文复盘切窗粗糙，深层理念与心法未结构化，详见 §2.3.3） | `ontology-card-distill.js` · `whop_archive.db` | **P3 待做 (Backlog)** |
-| DEBT-020 | **微观盘口大单流高频持久化缺口与海外低延迟迁移**（缺少 Tick 级大单回测库，国内端网络抖动，详见 §2.3.4） | `live_radar_sentinel.js` · `index_equivalent_converter.js` | **P2 规划中 (Proposed)** |
+| DEBT-020 | **微观盘口大单流高频持久化缺口与海外低延迟迁移**（`tape_block_events` 表与持久化引擎落地，单测全绿；海外低延迟部署待实施，详见 §2.3.4） | `tape_confluence_detector.js` · `tape_block_events` | **P2 结构就绪 (Partial)** |
 
 ### 2.2 本机 vs git vs 生产（2026-09-19 Cursor 盘点）
 

@@ -673,6 +673,82 @@ export function scanSectorsConfluence(options = {}) {
   return results;
 }
 
+/**
+ * [DEBT-020] 初始化微观盘口大单持久化表结构
+ */
+export function initTapeBlockTable(db) {
+  if (!db) return;
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS tape_block_events (
+      id TEXT PRIMARY KEY,
+      ticker TEXT NOT NULL,
+      event_time INTEGER NOT NULL,
+      time_et TEXT,
+      price REAL,
+      size INTEGER,
+      premium_usd REAL,
+      sentiment TEXT,
+      pattern TEXT,
+      source TEXT DEFAULT 'realtime',
+      raw_json TEXT,
+      created_at INTEGER NOT NULL
+    )
+  `).run();
+  db.prepare(`
+    CREATE INDEX IF NOT EXISTS idx_tape_block_ticker_time 
+    ON tape_block_events (ticker, event_time DESC)
+  `).run();
+}
+
+/**
+ * [DEBT-020] 微观盘口超级大单与扫盘流幂等持久化落盘
+ */
+export function persistTapeBlockEvent(db, event) {
+  if (!db || !event || !event.ticker) return { ok: false, error: 'invalid args' };
+  initTapeBlockTable(db);
+  const now = Date.now();
+  const id = event.id || `tape_${event.ticker}_${event.event_time || now}_${Math.random().toString(36).slice(2, 8)}`;
+  const stmt = db.prepare(`
+    INSERT OR IGNORE INTO tape_block_events (
+      id, ticker, event_time, time_et, price, size, premium_usd, sentiment, pattern, source, raw_json, created_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  const res = stmt.run(
+    id,
+    event.ticker.toUpperCase(),
+    event.event_time || now,
+    event.time_et || null,
+    Number(event.price) || null,
+    Number(event.size) || null,
+    Number(event.premium_usd || event.block_buy_usd || 0),
+    event.sentiment || event.flow_sentiment || 'NEUTRAL',
+    event.pattern || null,
+    event.source || 'realtime',
+    typeof event.raw_json === 'string' ? event.raw_json : JSON.stringify(event),
+    now
+  );
+  return { ok: true, id, changes: res.changes };
+}
+
+/**
+ * [DEBT-020] 查询标的历史持久化盘口大单记录
+ */
+export function queryRecentTapeBlocks(db, ticker, limit = 20) {
+  if (!db || !ticker) return [];
+  try {
+    initTapeBlockTable(db);
+    return db.prepare(`
+      SELECT * FROM tape_block_events 
+      WHERE ticker = ? 
+      ORDER BY event_time DESC 
+      LIMIT ?
+    `).all(ticker.toUpperCase(), limit);
+  } catch (_) {
+    return [];
+  }
+}
+
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   scanSectorsConfluence();
 }
+

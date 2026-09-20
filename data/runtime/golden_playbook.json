@@ -19,8 +19,8 @@
     "entry_date": "2025-10-23",
     "entry_px": 19.979738235473633,
     "close_ret_3d": 0.04807230683474595,
-    "close_ret_5d": -0.04521659239397058,
-    "confidence": 0.22391703803014712
+    "close_ret_5d": -0.045216687858115834,
+    "confidence": 0.22391656070942084
   },
   {
     "card_id": "ocard_distill_asset_post_1CUNkcSu5TcdNFh9uQmCj3",
@@ -42,8 +42,8 @@
     "entry_date": "2025-10-23",
     "entry_px": 19.979738235473633,
     "close_ret_3d": 0.04807230683474595,
-    "close_ret_5d": -0.04521659239397058,
-    "confidence": 0.22391703803014712
+    "close_ret_5d": -0.045216687858115834,
+    "confidence": 0.22391656070942084
   },
   {
     "card_id": "ocard_distill_asset_post_1CUNkbex7QXtdJhBXbM9jN",
@@ -65,8 +65,8 @@
     "entry_date": "2025-10-23",
     "entry_px": 19.979738235473633,
     "close_ret_3d": 0.04807230683474595,
-    "close_ret_5d": -0.04521659239397058,
-    "confidence": 0.22391703803014712
+    "close_ret_5d": -0.045216687858115834,
+    "confidence": 0.22391656070942084
   },
   {
     "card_id": "ocard_distill_asset_post_1CTzMpfmdKaGUkowS5DTtF",
@@ -87,9 +87,9 @@
     "t0_et": "2025-10-10",
     "entry_date": "2025-10-13",
     "entry_px": 18.91465950012207,
-    "close_ret_3d": -0.0326797273576801,
-    "close_ret_5d": 0.05128203059698411,
-    "confidence": 0.8064101529849206
+    "close_ret_3d": -0.032679828197382466,
+    "close_ret_5d": 0.05128192975728196,
+    "confidence": 0.8064096487864099
   },
   {
     "card_id": "ocard_distill_asset_post_1CTzMou3LM6qoHMCoJM2SL",
@@ -110,9 +110,9 @@
     "t0_et": "2025-10-10",
     "entry_date": "2025-10-13",
     "entry_px": 18.91465950012207,
-    "close_ret_3d": -0.0326797273576801,
-    "close_ret_5d": 0.05128203059698411,
-    "confidence": 0.8064101529849206
+    "close_ret_3d": -0.032679828197382466,
+    "close_ret_5d": 0.05128192975728196,
+    "confidence": 0.8064096487864099
   },
   {
     "card_id": "card_mm_vmeta_post_1CYwt12vEEWQgLSBSsyfVE_0",
@@ -136,10 +136,10 @@
     "direction": "bearish",
     "t0_et": "2026-03-11",
     "entry_date": "2026-03-12",
-    "entry_px": 660.89794921875,
-    "close_ret_3d": 0.007101396434036067,
-    "close_ret_5d": -0.009398556651218026,
-    "confidence": 0.5969927832560902
+    "entry_px": 660.8978881835938,
+    "close_ret_3d": 0.0071014894417338326,
+    "close_ret_5d": -0.009398557519192385,
+    "confidence": 0.596992787595962
   },
   {
     "card_id": "card_mm_vmeta_post_1CZrqUSWq94zLcsEgVYtYd_0",
@@ -262,6 +262,52 @@
     "close_ret_3d": -0.024333093585005905,
     "close_ret_5d": 0.08227367490418569,
     "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CbRmttgbDA75B7XHFtRXM",
+    "ticker": "CONL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        6.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【CONL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $6.8。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-05-26",
+    "entry_date": "2026-05-27",
+    "entry_px": 6.389999866485596,
+    "close_ret_3d": 0.09546168173081604,
+    "close_ret_5d": -0.1314553510644625,
+    "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CbRmsyXacDqEEvkHDiM4d",
+    "ticker": "CONL",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        6.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【CONL 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $6.8。操作要领：回补关键缺口前谨慎追涨，确认缺口有效支撑后方可分批低吸。实测表现：3D达标，5D未达标（置信度 15.0%）。",
+    "direction": "bullish",
+    "t0_et": "2026-05-26",
+    "entry_date": "2026-05-27",
+    "entry_px": 6.389999866485596,
+    "close_ret_3d": 0.09546168173081604,
+    "close_ret_5d": -0.1314553510644625,
+    "confidence": 0.15000000000000002
   },
   {
     "card_id": "ocard_distill_pat_post_1CbDtC8LuZpVBXQAas1NpF",
@@ -672,9 +718,9 @@
     "direction": "bullish",
     "t0_et": "2025-12-11",
     "entry_date": "2025-12-12",
-    "entry_px": 19.870128631591797,
-    "close_ret_3d": 0.031065103809201133,
-    "close_ret_5d": 0.09023668440255839,
+    "entry_px": 19.870126724243164,
+    "close_ret_3d": 0.031065106791164032,
+    "close_ret_5d": 0.09023678905521004,
     "confidence": 0.8500000000000001
   },
   {
@@ -695,9 +741,9 @@
     "direction": "bullish",
     "t0_et": "2025-12-11",
     "entry_date": "2025-12-12",
-    "entry_px": 19.870128631591797,
-    "close_ret_3d": 0.031065103809201133,
-    "close_ret_5d": 0.09023668440255839,
+    "entry_px": 19.870126724243164,
+    "close_ret_3d": 0.031065106791164032,
+    "close_ret_5d": 0.09023678905521004,
     "confidence": 0.8500000000000001
   },
   {
@@ -902,10 +948,10 @@
     "direction": "bullish",
     "t0_et": "2025-12-04",
     "entry_date": "2025-12-05",
-    "entry_px": 19.599353790283203,
-    "close_ret_3d": -0.017178965610732733,
-    "close_ret_5d": 0.013815498419281314,
-    "confidence": 0.6190774920964066
+    "entry_px": 19.59935188293457,
+    "close_ret_3d": -0.01717886996561302,
+    "close_ret_5d": 0.013815499763763173,
+    "confidence": 0.6190774988188159
   },
   {
     "card_id": "ocard_distill_pat_post_1CVmt8dqs8CasMWZ73UXYw",
@@ -925,10 +971,10 @@
     "direction": "bullish",
     "t0_et": "2025-12-04",
     "entry_date": "2025-12-05",
-    "entry_px": 19.599353790283203,
-    "close_ret_3d": -0.017178965610732733,
-    "close_ret_5d": 0.013815498419281314,
-    "confidence": 0.6190774920964066
+    "entry_px": 19.59935188293457,
+    "close_ret_3d": -0.01717886996561302,
+    "close_ret_5d": 0.013815499763763173,
+    "confidence": 0.6190774988188159
   },
   {
     "card_id": "ocard_distill_pat_post_1CVjwZ12Ch8ZPF5LrL8bcU",
@@ -994,10 +1040,10 @@
     "direction": "bullish",
     "t0_et": "2025-12-02",
     "entry_date": "2025-12-03",
-    "entry_px": 18.943187713623047,
-    "close_ret_3d": -0.034638630339299925,
-    "close_ret_5d": 0.016864608889165522,
-    "confidence": 0.6343230444458277
+    "entry_px": 18.943185806274414,
+    "close_ret_3d": -0.034638533139140004,
+    "close_ret_5d": 0.016864711275075717,
+    "confidence": 0.6343235563753786
   },
   {
     "card_id": "ocard_distill_pat_post_1CViT4nSsrqVvgnbNq2cca",
@@ -1017,10 +1063,10 @@
     "direction": "bullish",
     "t0_et": "2025-12-02",
     "entry_date": "2025-12-03",
-    "entry_px": 18.943187713623047,
-    "close_ret_3d": -0.034638630339299925,
-    "close_ret_5d": 0.016864608889165522,
-    "confidence": 0.6343230444458277
+    "entry_px": 18.943185806274414,
+    "close_ret_3d": -0.034638533139140004,
+    "close_ret_5d": 0.016864711275075717,
+    "confidence": 0.6343235563753786
   },
   {
     "card_id": "ocard_distill_pat_post_1CViB467E8LDTg2KAfBwMc",
@@ -1040,10 +1086,10 @@
     "direction": "bullish",
     "t0_et": "2025-12-02",
     "entry_date": "2025-12-03",
-    "entry_px": 18.943187713623047,
-    "close_ret_3d": -0.034638630339299925,
-    "close_ret_5d": 0.016864608889165522,
-    "confidence": 0.6343230444458277
+    "entry_px": 18.943185806274414,
+    "close_ret_3d": -0.034638533139140004,
+    "close_ret_5d": 0.016864711275075717,
+    "confidence": 0.6343235563753786
   },
   {
     "card_id": "ocard_distill_pat_post_1CViB3t41uVAQnksQkXNxA",
@@ -1063,10 +1109,10 @@
     "direction": "bullish",
     "t0_et": "2025-12-02",
     "entry_date": "2025-12-03",
-    "entry_px": 18.943187713623047,
-    "close_ret_3d": -0.034638630339299925,
-    "close_ret_5d": 0.016864608889165522,
-    "confidence": 0.6343230444458277
+    "entry_px": 18.943185806274414,
+    "close_ret_3d": -0.034638533139140004,
+    "close_ret_5d": 0.016864711275075717,
+    "confidence": 0.6343235563753786
   },
   {
     "card_id": "ocard_distill_pat_post_1CVi44CCVeEd7ofK1JBbQ2",
@@ -1086,10 +1132,10 @@
     "direction": "bullish",
     "t0_et": "2025-12-02",
     "entry_date": "2025-12-03",
-    "entry_px": 18.943187713623047,
-    "close_ret_3d": -0.034638630339299925,
-    "close_ret_5d": 0.016864608889165522,
-    "confidence": 0.6343230444458277
+    "entry_px": 18.943185806274414,
+    "close_ret_3d": -0.034638533139140004,
+    "close_ret_5d": 0.016864711275075717,
+    "confidence": 0.6343235563753786
   },
   {
     "card_id": "ocard_distill_pat_post_1CVi43zD3zzz6wM7zswvpn",
@@ -1109,10 +1155,10 @@
     "direction": "bullish",
     "t0_et": "2025-12-02",
     "entry_date": "2025-12-03",
-    "entry_px": 18.943187713623047,
-    "close_ret_3d": -0.034638630339299925,
-    "close_ret_5d": 0.016864608889165522,
-    "confidence": 0.6343230444458277
+    "entry_px": 18.943185806274414,
+    "close_ret_3d": -0.034638533139140004,
+    "close_ret_5d": 0.016864711275075717,
+    "confidence": 0.6343235563753786
   },
   {
     "card_id": "ocard_distill_pat_post_1CVi3hVTXyjw4DRUqraqos",
@@ -1178,9 +1224,9 @@
     "direction": "bullish",
     "t0_et": "2025-11-25",
     "entry_date": "2025-11-26",
-    "entry_px": 17.336057662963867,
-    "close_ret_3d": 0.009873929031595896,
-    "close_ret_5d": 0.12835997719022818,
+    "entry_px": 17.336061477661133,
+    "close_ret_3d": 0.009873706814841343,
+    "close_ret_5d": 0.1283597289013234,
     "confidence": 0.8500000000000001
   },
   {
@@ -1201,9 +1247,55 @@
     "direction": "bullish",
     "t0_et": "2025-11-25",
     "entry_date": "2025-11-26",
-    "entry_px": 17.336057662963867,
-    "close_ret_3d": 0.009873929031595896,
-    "close_ret_5d": 0.12835997719022818,
+    "entry_px": 17.336061477661133,
+    "close_ret_3d": 0.009873706814841343,
+    "close_ret_5d": 0.1283597289013234,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVTQH8mPJ9Y1uvvS5D5t1",
+    "ticker": "PLTR",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        162.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【PLTR 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $162.8。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-24",
+    "entry_date": "2025-11-25",
+    "entry_px": 163.5500030517578,
+    "close_ret_3d": 0.02409050668228585,
+    "close_ret_5d": 0.07661264778657073,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CVTQGpMfAKM4s6jFYH2bL",
+    "ticker": "PLTR",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        162.8
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【PLTR 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $162.8。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-24",
+    "entry_date": "2025-11-25",
+    "entry_px": 163.5500030517578,
+    "close_ret_3d": 0.02409050668228585,
+    "close_ret_5d": 0.07661264778657073,
     "confidence": 0.8500000000000001
   },
   {
@@ -1225,8 +1317,8 @@
     "t0_et": "2025-11-20",
     "entry_date": "2025-11-21",
     "entry_px": 14.673362731933594,
-    "close_ret_3d": 0.18146453404545504,
-    "close_ret_5d": 0.19831502854257876,
+    "close_ret_3d": 0.18146479401975912,
+    "close_ret_5d": 0.19831489855542683,
     "confidence": 0.8500000000000001
   },
   {
@@ -1248,8 +1340,8 @@
     "t0_et": "2025-11-20",
     "entry_date": "2025-11-21",
     "entry_px": 14.673362731933594,
-    "close_ret_3d": 0.18146453404545504,
-    "close_ret_5d": 0.19831502854257876,
+    "close_ret_3d": 0.18146479401975912,
+    "close_ret_5d": 0.19831489855542683,
     "confidence": 0.8500000000000001
   },
   {
@@ -1455,8 +1547,8 @@
     "t0_et": "2025-11-06",
     "entry_date": "2025-11-07",
     "entry_px": 17.944677352905273,
-    "close_ret_3d": 0.0021196450450187143,
-    "close_ret_5d": -0.12135680029047069,
+    "close_ret_3d": 0.0021197513355135644,
+    "close_ret_5d": -0.12135669399997595,
     "confidence": 0.15000000000000002
   },
   {
@@ -1478,9 +1570,78 @@
     "t0_et": "2025-11-06",
     "entry_date": "2025-11-07",
     "entry_px": 17.944677352905273,
-    "close_ret_3d": 0.0021196450450187143,
-    "close_ret_5d": -0.12135680029047069,
+    "close_ret_3d": 0.0021197513355135644,
+    "close_ret_5d": -0.12135669399997595,
     "confidence": 0.15000000000000002
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUpxegQEhsZoLBWcpceAt",
+    "ticker": "PLTR",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        179
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【PLTR 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $179。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D未达标（置信度 36.7%）。",
+    "direction": "bullish",
+    "t0_et": "2025-11-05",
+    "entry_date": "2025-11-06",
+    "entry_px": 175.0500030517578,
+    "close_ret_3d": 0.09088833695938403,
+    "close_ret_5d": -0.01662384239575798,
+    "confidence": 0.3668807880212101
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUpjxT8s4qyec2wj2uDBa",
+    "ticker": "MSTR",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        245
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【MSTR 波段战法与量价形态应对卡】方向：看空做空/止损。关键位：阻力位 $245。操作要领：分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2025-11-05",
+    "entry_date": "2025-11-06",
+    "entry_px": 237.1999969482422,
+    "close_ret_3d": -0.024662693591868123,
+    "close_ret_5d": -0.12082632390742853,
+    "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUpjxBzqGbMeL3saUvqNV",
+    "ticker": "MSTR",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [],
+      "resistance": [
+        245
+      ]
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【MSTR 波段战法与量价形态应对卡】方向：看空做空/止损。关键位：阻力位 $245。操作要领：分批卖出部分持仓锁定利润，回踩支撑位后接回底仓降低持仓成本。实测表现：3D达标，5D达标（置信度 85.0%）。",
+    "direction": "bearish",
+    "t0_et": "2025-11-05",
+    "entry_date": "2025-11-06",
+    "entry_px": 237.1999969482422,
+    "close_ret_3d": -0.024662693591868123,
+    "close_ret_5d": -0.12082632390742853,
+    "confidence": 0.8500000000000001
   },
   {
     "card_id": "ocard_distill_pat_post_1CUSdbdCds7a9BZmdgiETe",
@@ -1501,8 +1662,8 @@
     "t0_et": "2025-10-24",
     "entry_date": "2025-10-27",
     "entry_px": 20.207971572875977,
-    "close_ret_3d": -0.0560001291199822,
-    "close_ret_5d": 0.06541163554148333,
+    "close_ret_3d": -0.056000223505934144,
+    "close_ret_5d": 0.06541154115553138,
     "confidence": 0.8500000000000001
   },
   {
@@ -1524,8 +1685,8 @@
     "t0_et": "2025-10-24",
     "entry_date": "2025-10-27",
     "entry_px": 20.207971572875977,
-    "close_ret_3d": -0.0560001291199822,
-    "close_ret_5d": 0.06541163554148333,
+    "close_ret_3d": -0.056000223505934144,
+    "close_ret_5d": 0.06541154115553138,
     "confidence": 0.8500000000000001
   },
   {
@@ -1547,8 +1708,8 @@
     "t0_et": "2025-10-24",
     "entry_date": "2025-10-27",
     "entry_px": 20.207971572875977,
-    "close_ret_3d": -0.0560001291199822,
-    "close_ret_5d": 0.06541163554148333,
+    "close_ret_3d": -0.056000223505934144,
+    "close_ret_5d": 0.06541154115553138,
     "confidence": 0.8500000000000001
   },
   {
@@ -1617,8 +1778,8 @@
     "entry_date": "2025-10-23",
     "entry_px": 19.979738235473633,
     "close_ret_3d": 0.04807230683474595,
-    "close_ret_5d": -0.04521659239397058,
-    "confidence": 0.22391703803014712
+    "close_ret_5d": -0.045216687858115834,
+    "confidence": 0.22391656070942084
   },
   {
     "card_id": "ocard_distill_pat_post_1CUNkcSu5TcdNFh9uQmCj3",
@@ -1640,8 +1801,8 @@
     "entry_date": "2025-10-23",
     "entry_px": 19.979738235473633,
     "close_ret_3d": 0.04807230683474595,
-    "close_ret_5d": -0.04521659239397058,
-    "confidence": 0.22391703803014712
+    "close_ret_5d": -0.045216687858115834,
+    "confidence": 0.22391656070942084
   },
   {
     "card_id": "ocard_distill_pat_post_1CUNkbex7QXtdJhBXbM9jN",
@@ -1663,8 +1824,8 @@
     "entry_date": "2025-10-23",
     "entry_px": 19.979738235473633,
     "close_ret_3d": 0.04807230683474595,
-    "close_ret_5d": -0.04521659239397058,
-    "confidence": 0.22391703803014712
+    "close_ret_5d": -0.045216687858115834,
+    "confidence": 0.22391656070942084
   },
   {
     "card_id": "ocard_distill_pat_post_1CULYcgiH97K42wvuBm8Tv",
@@ -1688,6 +1849,75 @@
     "close_ret_3d": 0.11955894779266729,
     "close_ret_5d": 0.15140289707317023,
     "confidence": 0.8500000000000001
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CULYWJSC2RXvKZoKUca5z",
+    "ticker": "MSTR",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        305
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【MSTR 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $305。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D未达标（置信度 35.3%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-21",
+    "entry_date": "2025-10-22",
+    "entry_px": 280.80999755859375,
+    "close_ret_3d": 0.05277592483553373,
+    "close_ret_5d": -0.019408184375252047,
+    "confidence": 0.3529590781237398
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CULYVyBG4ZLsztoZQhuvb",
+    "ticker": "MSTR",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        305
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 0,
+    "sample_count": 1,
+    "rule_summary": "【MSTR 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $305。操作要领：依据量价形态制定高抛低吸、突破跟进或回踩低吸战术。实测表现：3D达标，5D未达标（置信度 35.3%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-21",
+    "entry_date": "2025-10-22",
+    "entry_px": 280.80999755859375,
+    "close_ret_3d": 0.05277592483553373,
+    "close_ret_5d": -0.019408184375252047,
+    "confidence": 0.3529590781237398
+  },
+  {
+    "card_id": "ocard_distill_pat_post_1CUJf9miTNKPfpDVreEPZw",
+    "ticker": "PLTR",
+    "card_type": "pattern",
+    "title": "波段战法与量价形态应对卡",
+    "trigger_levels": {
+      "support": [
+        174
+      ],
+      "resistance": []
+    },
+    "hit_rate_3d": 1,
+    "hit_rate_5d": 1,
+    "sample_count": 1,
+    "rule_summary": "【PLTR 波段战法与量价形态应对卡】方向：看多做多。关键位：支撑位 $174。操作要领：观察回踩企稳信号分批左侧试仓，跌破止损点果断离场。实测表现：3D达标，5D达标（置信度 77.3%）。",
+    "direction": "bullish",
+    "t0_et": "2025-10-20",
+    "entry_date": "2025-10-21",
+    "entry_px": 181.50999450683594,
+    "close_ret_3d": 0.017189193269790293,
+    "close_ret_5d": 0.04457061231619952,
+    "confidence": 0.7728530615809976
   },
   {
     "card_id": "ocard_distill_pat_post_1CUJbFGukG2RaAtejbmeXF",
@@ -1799,9 +2029,9 @@
     "direction": "bullish",
     "t0_et": "2025-10-15",
     "entry_date": "2025-10-16",
-    "entry_px": 18.296533584594727,
-    "close_ret_3d": 0.06340946555660887,
-    "close_ret_5d": 0.09199582221935887,
+    "entry_px": 18.296531677246094,
+    "close_ret_3d": 0.0634095764132796,
+    "close_ret_5d": 0.09199593605605627,
     "confidence": 0.8500000000000001
   },
   {
@@ -1822,9 +2052,9 @@
     "direction": "bullish",
     "t0_et": "2025-10-15",
     "entry_date": "2025-10-16",
-    "entry_px": 18.296533584594727,
-    "close_ret_3d": 0.06340946555660887,
-    "close_ret_5d": 0.09199582221935887,
+    "entry_px": 18.296531677246094,
+    "close_ret_3d": 0.0634095764132796,
+    "close_ret_5d": 0.09199593605605627,
     "confidence": 0.8500000000000001
   },
   {
@@ -1845,9 +2075,9 @@
     "direction": "bullish",
     "t0_et": "2025-10-15",
     "entry_date": "2025-10-16",
-    "entry_px": 18.296533584594727,
-    "close_ret_3d": 0.06340946555660887,
-    "close_ret_5d": 0.09199582221935887,
+    "entry_px": 18.296531677246094,
+    "close_ret_3d": 0.0634095764132796,
+    "close_ret_5d": 0.09199593605605627,
     "confidence": 0.8500000000000001
   },
   {
@@ -1868,9 +2098,9 @@
     "direction": "bullish",
     "t0_et": "2025-10-15",
     "entry_date": "2025-10-16",
-    "entry_px": 18.296533584594727,
-    "close_ret_3d": 0.06340946555660887,
-    "close_ret_5d": 0.09199582221935887,
+    "entry_px": 18.296531677246094,
+    "close_ret_3d": 0.0634095764132796,
+    "close_ret_5d": 0.09199593605605627,
     "confidence": 0.8500000000000001
   },
   {
@@ -1891,9 +2121,9 @@
     "direction": "bullish",
     "t0_et": "2025-10-13",
     "entry_date": "2025-10-14",
-    "entry_px": 18.35359001159668,
-    "close_ret_3d": 0.04507768041521554,
-    "close_ret_5d": 0.06010360852774532,
+    "entry_px": 18.353588104248047,
+    "close_ret_3d": 0.04507778902217985,
+    "close_ret_5d": 0.06010371869623965,
     "confidence": 0.8500000000000001
   },
   {
@@ -1914,9 +2144,9 @@
     "direction": "bullish",
     "t0_et": "2025-10-13",
     "entry_date": "2025-10-14",
-    "entry_px": 18.35359001159668,
-    "close_ret_3d": 0.04507768041521554,
-    "close_ret_5d": 0.06010360852774532,
+    "entry_px": 18.353588104248047,
+    "close_ret_3d": 0.04507778902217985,
+    "close_ret_5d": 0.06010371869623965,
     "confidence": 0.8500000000000001
   },
   {
@@ -1937,9 +2167,9 @@
     "direction": "bullish",
     "t0_et": "2025-10-13",
     "entry_date": "2025-10-14",
-    "entry_px": 18.35359001159668,
-    "close_ret_3d": 0.04507768041521554,
-    "close_ret_5d": 0.06010360852774532,
+    "entry_px": 18.353588104248047,
+    "close_ret_3d": 0.04507778902217985,
+    "close_ret_5d": 0.06010371869623965,
     "confidence": 0.8500000000000001
   },
   {
@@ -1960,9 +2190,9 @@
     "direction": "bullish",
     "t0_et": "2025-10-13",
     "entry_date": "2025-10-14",
-    "entry_px": 18.35359001159668,
-    "close_ret_3d": 0.04507768041521554,
-    "close_ret_5d": 0.06010360852774532,
+    "entry_px": 18.353588104248047,
+    "close_ret_3d": 0.04507778902217985,
+    "close_ret_5d": 0.06010371869623965,
     "confidence": 0.8500000000000001
   },
   {
@@ -1984,9 +2214,9 @@
     "t0_et": "2025-10-10",
     "entry_date": "2025-10-13",
     "entry_px": 18.91465950012207,
-    "close_ret_3d": -0.0326797273576801,
-    "close_ret_5d": 0.05128203059698411,
-    "confidence": 0.8064101529849206
+    "close_ret_3d": -0.032679828197382466,
+    "close_ret_5d": 0.05128192975728196,
+    "confidence": 0.8064096487864099
   },
   {
     "card_id": "ocard_distill_pat_post_1CTzMou3LM6qoHMCoJM2SL",
@@ -2007,9 +2237,9 @@
     "t0_et": "2025-10-10",
     "entry_date": "2025-10-13",
     "entry_px": 18.91465950012207,
-    "close_ret_3d": -0.0326797273576801,
-    "close_ret_5d": 0.05128203059698411,
-    "confidence": 0.8064101529849206
+    "close_ret_3d": -0.032679828197382466,
+    "close_ret_5d": 0.05128192975728196,
+    "confidence": 0.8064096487864099
   },
   {
     "card_id": "ocard_distill_pat_post_1CTyjMSyc5EhBQUEoyF3x6",
@@ -2030,9 +2260,9 @@
     "t0_et": "2025-10-10",
     "entry_date": "2025-10-13",
     "entry_px": 18.91465950012207,
-    "close_ret_3d": -0.0326797273576801,
-    "close_ret_5d": 0.05128203059698411,
-    "confidence": 0.8064101529849206
+    "close_ret_3d": -0.032679828197382466,
+    "close_ret_5d": 0.05128192975728196,
+    "confidence": 0.8064096487864099
   },
   {
     "card_id": "ocard_distill_pat_post_1CTyjM8XHiBN7Uvax5cz2J",
@@ -2053,9 +2283,9 @@
     "t0_et": "2025-10-10",
     "entry_date": "2025-10-13",
     "entry_px": 18.91465950012207,
-    "close_ret_3d": -0.0326797273576801,
-    "close_ret_5d": 0.05128203059698411,
-    "confidence": 0.8064101529849206
+    "close_ret_3d": -0.032679828197382466,
+    "close_ret_5d": 0.05128192975728196,
+    "confidence": 0.8064096487864099
   },
   {
     "card_id": "ocard_distill_pat_post_1CTx7USeEW46LGJEX3G1ST",
@@ -2075,9 +2305,9 @@
     "direction": "bullish",
     "t0_et": "2025-10-09",
     "entry_date": "2025-10-10",
-    "entry_px": 17.079299926757812,
-    "close_ret_3d": 0.10467708202113979,
-    "close_ret_5d": 0.12305114137382978,
+    "entry_px": 17.07929801940918,
+    "close_ret_3d": 0.10467709371106348,
+    "close_ret_5d": 0.12305126679175138,
     "confidence": 0.8500000000000001
   },
   {
@@ -2098,9 +2328,9 @@
     "direction": "bullish",
     "t0_et": "2025-10-09",
     "entry_date": "2025-10-10",
-    "entry_px": 17.079299926757812,
-    "close_ret_3d": 0.10467708202113979,
-    "close_ret_5d": 0.12305114137382978,
+    "entry_px": 17.07929801940918,
+    "close_ret_3d": 0.10467709371106348,
+    "close_ret_5d": 0.12305126679175138,
     "confidence": 0.8500000000000001
   },
   {
@@ -2466,10 +2696,10 @@
     "direction": "bearish",
     "t0_et": "2026-03-03",
     "entry_date": "2026-03-04",
-    "entry_px": 679.8201293945312,
-    "close_ret_3d": -0.010012683408670342,
-    "close_ret_5d": -0.012844207034672595,
-    "confidence": 0.614221035173363
+    "entry_px": 679.8201904296875,
+    "close_ret_3d": -0.010012772291041583,
+    "close_ret_5d": -0.01284438544414912,
+    "confidence": 0.6142219272207456
   },
   {
     "card_id": "ocard_distill_risk_post_1CYgNhZTFHzpYsA3KKja6M",
@@ -2489,9 +2719,9 @@
     "direction": "bearish",
     "t0_et": "2026-03-03",
     "entry_date": "2026-03-04",
-    "entry_px": 679.8201293945312,
-    "close_ret_3d": -0.010012683408670342,
-    "close_ret_5d": -0.012844207034672595,
-    "confidence": 0.614221035173363
+    "entry_px": 679.8201904296875,
+    "close_ret_3d": -0.010012772291041583,
+    "close_ret_5d": -0.01284438544414912,
+    "confidence": 0.6142219272207456
   }
 ]

@@ -16,7 +16,15 @@ export const ATTR_TICKERS = [
   'CRWV',
   'LITE',
   'COHR',
-  'MU'
+  'MU',
+  'AMD',
+  'PLTR',
+  'SMCI',
+  'ARM',
+  'AVGO',
+  'MSTR',
+  'CONL',
+  'DRAM'
 ];
 /** Distill types + multimodal VL level cards (CHG-030 incremental consume). */
 export const ATTR_CARD_TYPES = new Set(['pattern', 'asset_memory', 'risk_rule', 'level']);
@@ -29,10 +37,10 @@ export function isZhaoSender(row) {
   return String(row?.sender_id || '') === ZHAO_SENDER_ID;
 }
 
-const BULL_RE = /突破|回踩|支撑|低吸|加仓|做多|反弹|企稳|不破/g;
-const BEAR_RE = /止损|跌破|降仓|减仓|砍仓|阻力|做空|弱势/g;
+const BULL_RE = /突破|回踩|支撑|低吸|加仓|做多|反弹|企稳|不破|看涨|买入|开仓|看多|金叉|买点|建仓/g;
+const BEAR_RE = /止损|跌破|降仓|减仓|砍仓|阻力|压力|做空|弱势|看跌|承压|破位|清仓|反抽走|走人|卖出|空头|杀跌|暴跌|回调|下行/g;
 const CUE_PRICE_RE =
-  /(?:支撑|阻力|破位|跌破|突破|回踩|止损|加仓|关键位|低点|高点)[^\d$]{0,10}(\$?\d{1,4}(?:\.\d{1,2})?)|(\$?\d{1,4}(?:\.\d{1,2})?)[^\d]{0,10}(?:支撑|阻力|破位|跌破|突破|回踩|止损|加仓|关键位|低点|高点)|\$(\d{1,4}(?:\.\d{1,2})?)/gi;
+  /(?:支撑|阻力|压力|破位|跌破|突破|回踩|止损|加仓|关键位|低点|高点)[^\d$]{0,10}(\$?\d{1,4}(?:\.\d{1,2})?)|(\$?\d{1,4}(?:\.\d{1,2})?)[^\d]{0,10}(?:支撑|阻力|压力|破位|跌破|突破|回踩|止损|加仓|关键位|低点|高点)|\$(\d{1,4}(?:\.\d{1,2})?)/gi;
 const LABELED_LEVEL_RE =
   /(?:支撑位|压力位|阻力位|关键区间|短线)[^\d$%]{0,8}(\$?\d{1,4}(?:\.\d{1,2})?)/gi;
 const CONCLUSION_LINE_RE =
@@ -92,12 +100,15 @@ function parsePriceToken(tok) {
 
 function inTickerBand(n, ticker) {
   const t = String(ticker || '').toUpperCase();
-  if (t === 'TSLL') return n >= 1 && n <= 200;
-  if (t === 'SOXL' || t === 'IREN') return n >= 5 && n <= 200;
-  if (t === 'NBIS') return n >= 20 && n <= 500;
+  if (t === 'TSLL' || t === 'CONL') return n >= 1 && n <= 200;
+  if (t === 'SOXL' || t === 'IREN' || t === 'PLTR') return n >= 5 && n <= 200;
+  if (t === 'NBIS' || t === 'DRAM') return n >= 10 && n <= 500;
   if (t === 'TSLA' || t === 'SPY' || t === 'QQQ' || t === 'NVDA') return n >= 50 && n <= 900;
-  if (t === 'LITE' || t === 'COHR') return n >= 20 && n <= 300;
-  if (t === 'MU') return n >= 30 && n <= 300;
+  if (t === 'LITE' || t === 'COHR' || t === 'ARM') return n >= 20 && n <= 350;
+  if (t === 'MU' || t === 'AMD') return n >= 30 && n <= 400;
+  if (t === 'AVGO') return n >= 50 && n <= 500;
+  if (t === 'SMCI') return n >= 15 && n <= 1500;
+  if (t === 'MSTR') return n >= 50 && n <= 3000;
   if (t === 'CRWV') return n >= 1 && n <= 500;
   return n >= 1 && n <= 5000;
 }

@@ -41,7 +41,7 @@
 | **1** | **REQ-036** | L3 | 大V专有 SLM 数据飞轮（V1闭环，随企微人工纠错 Golden 增量长期常驻维护） | `scripts/slm/*` · `models/zhao_slm_1.5b_lora` | **Standing (Active)** |
 | 2 | **REQ-038-T2/REQ-040** | L3 | T2 高胜率战法黄金提纯与 Golden Playbook 固化（扩标池回测 n_scored=147，提纯 108 张黄金战法已固化） | `card_attribution*` · `data/runtime/golden_playbook.json` | **Done** |
 | 3 | **CHG-039** | L3 | 生产 VM Golden Playbook 部署闭环 + 维度4期权大单扫盘特征库扩充 + bf8d14b 交叉抽审 | `knowledge_promote*` · `tape_confluence_detector*` | **Done** |
-| **4** | **DEBT-017~020** | L3 | 数据资产结构问题与不足全盘建档（底数/缺陷/影响/路径/门禁细则落地 04 §2.3） | `docs/project/04-leftovers-problems.md` | **Done** |
+| **4** | **DEBT-017~020** | L3 | 数据资产结构缺陷补全落地（黄金战法扩标提纯118张推产+大单归档表单测全绿+交易单生命周期配对172对落账） | `tools/trade/*` · `tools/knowledge/*` | **Done** |
 
 ### 0.H Human
 
