@@ -34,6 +34,7 @@
 | 10 | **REQ-048** | L3/L5 | 赵哥 M7 七姐妹单边下跌战法探测器 + 首尾时段 5 秒超高频扫盘 (CHG-041) | `m7_breadth_detector.js` · `live_radar_sentinel.js` | **Done** |
 | 11 | **REQ-049** | L3 | 战法本体流形聚类与弱检验收口 (A/B/C/D 全流程收工 · 四层图谱建立 · 049-C2 待办立项) | `docs/project/049*` | **Done** |
 | 12 | **REQ-050** | L3 | 战法本体事件驱动自适应窗口短周期微观复验 (049-C2 落地 · 分钟级MFE/MAE · 突破日K失配) | `scripts/knowledge/backtest_adaptive_window_050.js` · `docs/project/050*` | **Done** |
+| 13 | **REQ-051** | L3 | 近60天黄金窗口真实交易单与战法事件短周期回测集训与前瞻落盘 (898笔实盘信号+4128张卡片全面对齐) | `scripts/knowledge/train_recent_60d_microstructure.js` · `docs/project/051-recent-60d-training-report.md` | **Done** |
 
 ### 0.C 队列 `agent:gemini1`
 

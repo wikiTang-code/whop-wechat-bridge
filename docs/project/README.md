@@ -81,7 +81,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **T1 接管 + T2 n_scored=7**（CHG-035/036） | Doing |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~050 Done** + **REQ-050 自适应短周期复验 (Done · 049-C2 落地)** | Active / Done |
+| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~051 Done**（REQ-051 近60天高频集训与前瞻落盘收工 · 388真实信号+1124卡片切片落库） | Active / Done |
 | **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 + **CHG-039** Done + **DEBT-017~020 清账与战法分级隔离 (Done · 767打分/485战法分级/1925信号/657卡片/1314问答对/经抽检验真)** | Done |
 
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
