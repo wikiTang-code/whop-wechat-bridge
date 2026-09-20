@@ -32,6 +32,10 @@
 | DEBT-014 | **CHG-018/023 Supervisor+切流**：CPU `llama-server` + Win bridge 已满血可用；HIP 编译仍缺完整 ROCm | CHG-018/023 | **P3 残留**（HIP） |
 | DEBT-015 | **知识资产只在本机、未进生产库**（见 §2.2） | REQ-039 表级 promote **Done**（gcp `ontology_card=4032` / `message_vision_meta=73`，`messages=109159` 仅 ingest 增长） | **Done** |
 | DEBT-016 | **周哥「美股工具箱」量化资产与日内波段信号深度建模**（定位已确立为客观量化参考参谋；暂缓后补，当前全力把赵哥完整学会） | `config/channel_registry.json` · `tape_confluence_detector.js` | **P3 暂缓 (Backlog)** |
+| DEBT-017 | **历史交易信号底池标准化回放与晋级欠账**：`trade_signals` 当前仅 457 笔，而历史审核底池 `trade_review_pool` 有 2,321 笔、`follow_replay_queue` 有 830 笔、两大专属频道发言 8,382 条；需分批回放与清洗晋级，增量补齐 | `follow_replay_queue` · `trade_review_pool` · `trade_signals` | **P2 待做 (Backlog)** |
+| DEBT-018 | **黄金战法库标的覆盖局限性**：`golden_playbook.json` 目前仅基于 12 个核心重仓标的提纯 108 张，尚未扩展到全标的与其他潜在高胜率战法 | `card_attribution*` · `golden_playbook.json` | **P2 待做 (Backlog)** |
+| DEBT-019 | **早期历史长文本发言细颗粒度重蒸馏盲区**：4,156 张本体卡主要基于 2026 年以来的 3,154 组切窗单元；2025 年底最早期长尾长文本发言尚未完成细颗粒度重蒸馏 | `ontology-card-distill.js` · `whop_archive.db` | **P3 待做 (Backlog)** |
+| DEBT-020 | **盘口超低延迟采集端海外 GCP 迁移实施评估**：长桥 OpenAPI 盘口深度（纯云端API/低资源）与 TradingView 极速行情直连强烈建议迁移至海外 GCP VM，以获得极致低延迟（<30ms）与 24H 连续监控；富途 OpenD 维持盘前快照 SCP 同步的隔离策略 | `live_radar_sentinel.js` · `index_equivalent_converter.js` | **P2 规划中 (Proposed)** |
 
 ### 2.2 本机 vs git vs 生产（2026-09-19 Cursor 盘点）
 

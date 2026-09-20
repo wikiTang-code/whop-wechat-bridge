@@ -69,6 +69,7 @@
 | REQ-046 | P1 | L3/L4 | `done` | **盘中高置信度四维共振预警企微卡片推送（Confluence Radar Alert Pusher）**：当四维共振打分达到王炸/高共振（或命中黄金战法），自动向企微告警群/应用推送微观结构深度预警卡片；具备标的级防抖与防刷屏冷却窗口；100% 只读参谋，严禁下单指令与 L2a 接入 | `tools/knowledge/radar_alert_pusher.js` · 单测全绿 |
 | REQ-047 | P1 | L3/L5 | `done` | **美股工作日全时段（夜盘/盘前/盘中/尾盘/盘后）全天候在线感知与 SPX/SPY/TradingView 极速多源指数引擎**：突破盘中限制，实现工作日全天候 24H 持续监控（含周日夜盘）；解决 SPX 夜盘/盘外停止更新痛点，实现 TradingView 直接极速直连、券商盘中直通与 SPY 动态等效折算（`SPX ≈ SPY * ratio`）三级阶梯；自动动态调频；单测 `test_spx_spy_converter.js` 与全仓 50 套单测全绿 | `market_session.js` · `index_equivalent_converter.js` · `live_tape_feed.js` · `live_radar_sentinel.js` · 单测全绿 |
 | REQ-048 | P1 | L3/L5 | `done` | **赵哥科技七姐妹（M7）盘口广度与单边下跌战法探测器（M7 Breadth & Unilateral Downtrend Playbook Detector）**：落地真实大V战法（原单 `post_1CVX4DWL2PiXoXG51a4vES`）；开盘首小时 M7 普跌（跌数≥5）判定为单边下跌，早盘严禁接飞刀，推迟至尾盘三点到四点（15:00~16:00）强平再买/捡漏；单测 `test_m7_breadth_detector.js` 100% 绿灯 | `tools/knowledge/m7_breadth_detector.js` · `test/test_m7_breadth_detector.js` · 单测全绿 |
+| REQ-049 | P1 | L3 | `proposed` | **基于 4,156 张本体卡片与历史交易流水的无监督流形聚类、大模型形式化归纳与量化回测验证全新战术体系（Unsupervised Taxonomy Induction & Empirical Backtest Validation）**：彻底废弃旧 7 大人工硬编码分类，采用 UMAP+HDBSCAN 密度聚类自动发现自然族群，由 Gemini 1.5 Pro 归纳本体定义与失效边界，并经真实历史行情 3D/5D 胜率回测淘汰伪概念；方案文档已就绪 | `docs/project/unsupervised-taxonomy-induction-plan.md` |
 | CHG-016 | P1 | L2 | `done` | **看板日期过滤强绑定北京时间 (+08:00) 闭环**：解决宿主机 UTC 8小时漂移，消除次日混入并补齐凌晨发言；生产单进程热载生效 | `database.js` · `test/test_date_filter_timezone.js` |
 
 | ID | 状态 | 摘要 |
