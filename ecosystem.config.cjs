@@ -19,6 +19,25 @@ module.exports = {
       error_file: './logs/error.log',
       out_file: './logs/out.log',
       merge_logs: true
+    },
+    {
+      name: 'radar-sentinel',
+      script: 'tools/knowledge/live_radar_sentinel.js',
+      interpreter: 'node',
+      instances: 1,
+      exec_mode: 'fork',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '500M',
+      restart_delay: 5000,
+      max_restarts: 10,
+      env: {
+        NODE_ENV: 'production'
+      },
+      log_date_format: 'YYYY-MM-DD HH:mm:ss',
+      error_file: './logs/radar_error.log',
+      out_file: './logs/radar_out.log',
+      merge_logs: true
     }
   ]
 };
