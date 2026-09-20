@@ -156,6 +156,160 @@ export function ensureRadarEventsTable(conn) {
   try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_radar_events_ts ON confluence_radar_events (created_at)').run(); } catch (_) {}
 }
 
+/** REQ-056: 长桥模拟盘执行闭环与 TradeIntent 最小执行状态机表结构 */
+export function ensurePaperTradingTables(conn) {
+  if (!conn) throw new Error('ensurePaperTradingTables requires db connection');
+  conn.prepare(`
+    CREATE TABLE IF NOT EXISTS trade_intents (
+      intent_id TEXT PRIMARY KEY,
+      source TEXT NOT NULL,
+      ticker TEXT NOT NULL,
+      side TEXT NOT NULL,
+      quantity INTEGER NOT NULL,
+      order_type TEXT NOT NULL DEFAULT 'LIMIT',
+      price_limit REAL NOT NULL,
+      expires_at TEXT,
+      evidence_json TEXT,
+      status TEXT NOT NULL DEFAULT 'DRAFT',
+      broker_order_id TEXT,
+      reject_reason TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `).run();
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_trade_intents_status ON trade_intents (status)').run(); } catch (_) {}
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_trade_intents_ticker ON trade_intents (ticker)').run(); } catch (_) {}
+  try { conn.prepare('CREATE INDEX IF NOT EXISTS idx_trade_intents_created ON trade_intents (created_at DESC)').run(); } catch (_) {}
+
+  conn.prepare(`
+    CREATE TABLE IF NOT EXISTS broker_paper_positions (
+      ticker TEXT PRIMARY KEY,
+      quantity INTEGER NOT NULL,
+      average_entry_price REAL NOT NULL,
+      current_price REAL NOT NULL,
+      market_value REAL NOT NULL,
+      unrealized_pnl REAL NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `).run();
+}
+
+export function saveTradeIntent(intent, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  ensurePaperTradingTables(conn);
+  const now = Date.now();
+  const stmt = conn.prepare(`
+    INSERT INTO trade_intents (
+      intent_id, source, ticker, side, quantity, order_type, price_limit,
+      expires_at, evidence_json, status, broker_order_id, reject_reason,
+      created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  stmt.run(
+    intent.intent_id,
+    intent.source,
+    intent.ticker,
+    intent.side,
+    intent.quantity,
+    intent.order_type || 'LIMIT',
+    intent.price_limit,
+    intent.expires_at || null,
+    typeof intent.evidence === 'object' ? JSON.stringify(intent.evidence) : (intent.evidence_json || null),
+    intent.status || 'DRAFT',
+    intent.broker_order_id || null,
+    intent.reject_reason || null,
+    intent.created_at || now,
+    now
+  );
+  return intent;
+}
+
+export function updateTradeIntent(intentId, updates, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  ensurePaperTradingTables(conn);
+  const allowed = ['status', 'broker_order_id', 'reject_reason', 'price_limit', 'quantity'];
+  const fields = [];
+  const values = [];
+  for (const [k, v] of Object.entries(updates)) {
+    if (allowed.includes(k)) {
+      fields.push(`${k} = ?`);
+      values.push(v);
+    }
+  }
+  if (fields.length === 0) return;
+  fields.push('updated_at = ?');
+  values.push(Date.now());
+  values.push(intentId);
+  conn.prepare(`UPDATE trade_intents SET ${fields.join(', ')} WHERE intent_id = ?`).run(...values);
+}
+
+export function getTradeIntent(intentId, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  ensurePaperTradingTables(conn);
+  const row = conn.prepare('SELECT * FROM trade_intents WHERE intent_id = ?').get(intentId);
+  if (!row) return null;
+  return {
+    ...row,
+    evidence: row.evidence_json ? JSON.parse(row.evidence_json) : []
+  };
+}
+
+export function listTradeIntents({ status, limit = 50 } = {}, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  ensurePaperTradingTables(conn);
+  let sql = 'SELECT * FROM trade_intents';
+  const params = [];
+  if (status) {
+    sql += ' WHERE status = ?';
+    params.push(status);
+  }
+  sql += ' ORDER BY created_at DESC LIMIT ?';
+  params.push(limit);
+  const rows = conn.prepare(sql).all(...params);
+  return rows.map(r => ({
+    ...r,
+    evidence: r.evidence_json ? JSON.parse(r.evidence_json) : []
+  }));
+}
+
+export function savePaperPositions(positions, dbInstance = null) {
+  const conn = dbInstance || getDb();
+  ensurePaperTradingTables(conn);
+  const now = Date.now();
+  const upsert = conn.prepare(`
+    INSERT INTO broker_paper_positions (
+      ticker, quantity, average_entry_price, current_price, market_value, unrealized_pnl, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(ticker) DO UPDATE SET
+      quantity = excluded.quantity,
+      average_entry_price = excluded.average_entry_price,
+      current_price = excluded.current_price,
+      market_value = excluded.market_value,
+      unrealized_pnl = excluded.unrealized_pnl,
+      updated_at = excluded.updated_at
+  `);
+  const tx = conn.transaction((items) => {
+    for (const p of items) {
+      upsert.run(
+        p.ticker,
+        p.quantity,
+        p.average_entry_price,
+        p.current_price,
+        p.market_value,
+        p.unrealized_pnl,
+        now
+      );
+    }
+  });
+  tx(positions);
+}
+
+export function getPaperPositions(dbInstance = null) {
+  const conn = dbInstance || getDb();
+  ensurePaperTradingTables(conn);
+  return conn.prepare('SELECT * FROM broker_paper_positions ORDER BY market_value DESC').all();
+}
+
 // 权威频道登记册加载器 (全系统唯一频道来源)
 let channelRegistryMap = null;
 function getChannelRegistryMap() {
@@ -269,6 +423,7 @@ export function initDb() {
     ensureSemanticCuTables(db);
     ensureOntologyCardTable(db);
     ensureDistillScannedTable(db);
+    ensurePaperTradingTables(db);
     console.log('[initDb] Database already initialized and ready (0ms).');
     return;
   }

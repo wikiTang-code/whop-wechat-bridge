@@ -44,8 +44,17 @@ import {
   getNewsSummaries,
   getLatestNewsSummary,
   getZhaoPositions,
-  getFollowDecisions
+  getFollowDecisions,
+  listTradeIntents,
+  getPaperPositions
 } from './database.js';
+import {
+  createTradeIntent,
+  confirmAndSubmitIntent,
+  cancelTradeIntent,
+  getPaperIntentSummary
+} from './tools/trade/paper_execution_engine.js';
+import { syncPaperPositions } from './brokers/longbridge.js';
 import { generatePersonaPlaybook, getPersonaStatus, processPersonaTask, resumePersonaPlaybook, forceUpdatePersonaStatus } from './persona-engine.js';
 import { processNewsTask, generateNewsSummary, ensureCurrentWeekNews } from './news-engine.js';
 import {
@@ -1628,6 +1637,102 @@ app.post('/api/follow/correct-submit', async (req, res) => {
       return res.status(result.code || 400).json(result);
     }
     res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ==========================================================================
+// REQ-056: 长桥模拟盘 (Paper Trading) 执行闭环与 HITL 确认接口
+// ==========================================================================
+
+// POST /api/paper/intents/create - 创建交易意图 (默认状态 PENDING_HITL)
+app.post('/api/paper/intents/create', async (req, res) => {
+  try {
+    const { ticker, side, quantity, price_limit, source, evidence, expires_in_sec } = req.body || {};
+    const intent = createTradeIntent({
+      ticker,
+      side,
+      quantity,
+      price_limit,
+      source: source || 'manual_ops',
+      evidence: evidence || [],
+      expires_in_sec: expires_in_sec || 900
+    });
+    res.json({ success: true, intent });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/paper/intents/confirm - HITL 人工确认报送模拟柜台
+app.post('/api/paper/intents/confirm', async (req, res) => {
+  try {
+    const { intent_id, timeout_ms } = req.body || {};
+    if (!intent_id) {
+      return res.status(400).json({ success: false, error: '缺少 intent_id 参数' });
+    }
+    const result = await confirmAndSubmitIntent(intent_id, {
+      timeoutMs: timeout_ms || 15000,
+      awaitFinalStatus: false
+    });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/paper/intents/cancel - 人工放弃或撤销意图
+app.post('/api/paper/intents/cancel', async (req, res) => {
+  try {
+    const { intent_id, reason } = req.body || {};
+    if (!intent_id) {
+      return res.status(400).json({ success: false, error: '缺少 intent_id 参数' });
+    }
+    const result = await cancelTradeIntent(intent_id, reason || 'MANUAL_DISCARD');
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/paper/sync-positions - 触发模拟盘真实持仓拉取与真源落库
+app.post('/api/paper/sync-positions', async (req, res) => {
+  try {
+    const positions = await syncPaperPositions();
+    res.json({ success: true, count: positions.length, positions });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/paper/intents - 获取意图列表
+app.get('/api/paper/intents', (req, res) => {
+  try {
+    const status = req.query.status ? String(req.query.status).toUpperCase() : undefined;
+    const limit = req.query.limit ? Math.min(parseInt(req.query.limit, 10) || 50, 200) : 50;
+    const intents = listTradeIntents({ status, limit });
+    res.json({ success: true, count: intents.length, data: intents });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/paper/positions - 获取模拟盘持仓第一真源
+app.get('/api/paper/positions', (req, res) => {
+  try {
+    const positions = getPaperPositions();
+    res.json({ success: true, source: 'broker_paper', count: positions.length, data: positions });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/paper/summary - 获取模拟盘意图统计摘要
+app.get('/api/paper/summary', (req, res) => {
+  try {
+    const summary = getPaperIntentSummary();
+    res.json({ success: true, mode: process.env.BROKER_MODE || 'paper', data: summary });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

@@ -25,8 +25,11 @@ import {
   getNewsSummaries,
   getLatestNewsSummary,
   getLatestPersonaPlaybook,
-  getDailyApiCount
+  getDailyApiCount,
+  listTradeIntents,
+  getPaperPositions
 } from '../database.js';
+import { getPaperIntentSummary } from '../tools/trade/paper_execution_engine.js';
 import { getUnifiedPortfolio, getUnifiedPositions } from '../trading.js';
 import { getReadOnlyArchiveDb } from './db-readonly.js';
 import { getUsMarketSession } from '../tools/knowledge/market_session.js';
@@ -920,6 +923,64 @@ readonlyRouter.get('/api/positions/lifecycle', (req, res) => {
         source: p.source
       })),
       disclaimer: '【纯客观决策参谋 · 启发式推演】基于大V历史口述与未全量对账流水推演，已披露 2x 战车名义杠杆暴露，非券商真实持仓事实，100% 隔离实盘下单。'
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * REQ-056: 模拟盘执行意图只读列表与详情
+ * GET /api/paper/intents
+ */
+readonlyRouter.get('/api/paper/intents', (req, res) => {
+  try {
+    const status = req.query.status ? String(req.query.status).toUpperCase() : undefined;
+    const limit = req.query.limit ? Math.min(parseInt(req.query.limit, 10) || 50, 200) : 50;
+    const intents = listTradeIntents({ status, limit }, getReadOnlyArchiveDb());
+    res.json({
+      success: true,
+      count: intents.length,
+      status_filter: status || 'ALL',
+      data: intents
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * REQ-056: 模拟盘第一持仓真源 (broker_paper_positions)
+ * GET /api/paper/positions
+ */
+readonlyRouter.get('/api/paper/positions', (req, res) => {
+  try {
+    const positions = getPaperPositions(getReadOnlyArchiveDb());
+    res.json({
+      success: true,
+      source: 'broker_paper',
+      mode: process.env.BROKER_MODE || 'paper',
+      is_broker_reconciled: true,
+      count: positions.length,
+      data: positions,
+      disclaimer: '【长桥模拟盘第一真源 · broker_paper】基于模拟柜台实际成交回报更新，真实反映当前模拟仓位。'
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * REQ-056: 模拟盘意图统计摘要
+ * GET /api/paper/summary
+ */
+readonlyRouter.get('/api/paper/summary', (req, res) => {
+  try {
+    const summary = getPaperIntentSummary(getReadOnlyArchiveDb());
+    res.json({
+      success: true,
+      mode: process.env.BROKER_MODE || 'paper',
+      data: summary
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
