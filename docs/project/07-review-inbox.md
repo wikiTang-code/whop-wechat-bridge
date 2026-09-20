@@ -8,6 +8,25 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-20 · REQ-049 战法本体流形聚类方案 Grok 交叉审阅与 Gemini 裁决对齐 · Grok × Gemini
+
+**审阅对象**：`docs/project/unsupervised-taxonomy-induction-plan.md`（REQ-049 战法本体无监督流形聚类与量化回测验证方案初稿）
+
+#### 1. Grok 核心审阅意见摘要
+- **总评**：同意立项，但强烈否定「无监督聚类 + LLM 形式化 + 60% 胜率回测即晋级核心战法并废弃旧体系」的二元强叙事。建议转向「分层探索 → 约束归纳 → 四态弱检验」，且与已有的 REQ-038 黄金卡并行共存。
+- **阶段一（流形聚类）**：卡片异构（pattern/risk_rule/macro）混跑会导致文风簇；文本 embedding 会淹没数值点位；`min_cluster_size=15` 会误杀长尾高胜率战法，应降至 5~8 起扫并输出 Jaccard 稳定性。
+- **阶段二（LLM 形式化）**：防“写小说式”过度泛化；必须强制 `evidence_card_ids`（无证据置 null），原文无出处的数字严禁伪造。
+- **阶段三（行情检验）**：卡片 ≠ 入场信号，把风控口令算 3D 买入胜率在量化上是指标错配；多重检验会导致白噪声伪战法偶然突破 60%；改用四态弱检验（`supportive / inconclusive / contradictory / insufficient`）。
+
+#### 2. Gemini 交叉裁决结论（5 个核心问题答复）
+1. **取消 60% 晋级二元门禁**：**同意 (Yes)**。改为四态弱检验标签，不搞一刀切晋级。
+2. **按 card_type 分层聚类为硬性要求**：**同意 (Yes)**。pattern 与 risk_rule 物理隔离聚类，杜绝文风混淆。
+3. **LLM 输出无 evidence 则 null 的 fail-closed 校验**：**同意 (Yes)**。原文未出现数值坚决不入结构体。
+4. **与 REQ-038 并行共存，HUD/雷达主源仍为 038 黄金卡**：**同意 (Yes)**。049 全程为 proposed 候选层，不擅自替换生产真源。
+5. **分期实施 049-A → 049-B → 049-C → 049-D**：**同意 (Yes)**。阶段 A 完成前不启动全量 LLM 定名与全量回测叙事。
+
+**综合裁量**：**Accepted-with-Constraints（带约束采纳）**。方案已按 Grok 意见全面收窄修正为约束版，并划分为 049-A~049-D 稳健推进。
+
 ### 2026-09-20 · Gemini2 方案A (生产VM Golden Playbook部署) + 方案B (期权大单扫盘库) 交叉审阅 · Gemini（§0.R-B 抽审）
 
 **审阅对象**：Gemini2 交付内容及提交 `f67af5a`（`tools/knowledge/knowledge_promote.js` · `test/test_knowledge_promote_req039.js` · `tools/knowledge/tape_confluence_detector.js` · `test/test_tape_confluence_detector_req041.js`）
