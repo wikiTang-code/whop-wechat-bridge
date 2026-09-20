@@ -82,7 +82,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **T1 接管 + T2 n_scored=7**（CHG-035/036） | Doing |
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~048 Done** + **REQ-049 战法本体流形聚类方案待审 (Proposed)** | Active / Review |
-| **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 + **CHG-039** 生产Playbook部署+维度4大单扩充+bf8d14b抽审 | Done |
+| **§0.C `agent:gemini1`** | **REQ-036** SLM 飞轮 + **CHG-039** Done + **DEBT-017~020** 资产问题建档 Done | Done |
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001 | 等待 |
 | **§0.X Blocked** | 040=**Cleared**（扩标回测全量收工）；033→human | **见 05 §0.X** |
 | **§0.R-A** | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | Done |
