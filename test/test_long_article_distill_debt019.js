@@ -1,4 +1,4 @@
-﻿import assert from 'assert';
+import assert from 'assert';
 import Database from 'better-sqlite3';
 import { distillEarlyLongArticles } from '../tools/knowledge/long_article_distill.js';
 
@@ -91,8 +91,8 @@ for (const m of testMsgs) {
 
 console.log('  ✅ 2. 测试消息注入完成 (含大V硬锁与时间边界)');
 
-// 3. 执行重蒸馏测试
-const dryRes = distillEarlyLongArticles(db, { persist: false, minLength: 50 });
+// 3. 执行重蒸馏测试 (指定 outDir: false 避免覆盖真实生产产物)
+const dryRes = distillEarlyLongArticles(db, { persist: false, minLength: 50, outDir: false });
 assert.strictEqual(dryRes.processed_messages_count, 2, '应仅命中赵哥 2025 年的 2 条长文 (过滤群友与2026年)');
 assert(dryRes.extracted_cards_count >= 3, '应提取出多张深层策略与心法卡片');
 
@@ -104,15 +104,33 @@ assert(cardTypes.has('macro'), '必须包含 macro 宏观映射卡');
 console.log('  ✅ 3. 深层心法提取与三类核心卡片模式匹配通过');
 
 // 4. 执行落库与幂等性校验
-const persistRes1 = distillEarlyLongArticles(db, { persist: true, minLength: 50 });
+const persistRes1 = distillEarlyLongArticles(db, { persist: true, minLength: 50, outDir: false });
 assert.strictEqual(persistRes1.persisted_count, dryRes.extracted_cards_count, '首次落库数量应与提取数量一致');
 assert.strictEqual(persistRes1.final_card_count, dryRes.extracted_cards_count);
 
-const persistRes2 = distillEarlyLongArticles(db, { persist: true, minLength: 50 });
+const persistRes2 = distillEarlyLongArticles(db, { persist: true, minLength: 50, outDir: false });
 assert.strictEqual(persistRes2.persisted_count, 0, '重复执行新增应为 0');
 assert.strictEqual(persistRes2.skipped_count, dryRes.extracted_cards_count, '重复执行应全部幂等跳过');
 assert.strictEqual(persistRes2.final_card_count, dryRes.extracted_cards_count, '总卡片数保持不变');
 console.log('  ✅ 4. 幂等入库与状态机校验通过');
 
+// 5. 生产真实运行时产物门禁指标校验 (DEBT-019 Gate)
+import fs from 'fs';
+import path from 'path';
+
+const runtimeCardsPath = path.resolve('data/runtime/early_long_article_cards.json');
+const runtimeQaPath = path.resolve('data/runtime/slm_qa_pairs.json');
+
+assert.ok(fs.existsSync(runtimeCardsPath), 'early_long_article_cards.json 产物必须存在');
+assert.ok(fs.existsSync(runtimeQaPath), 'slm_qa_pairs.json 产物必须存在');
+
+const runtimeCards = JSON.parse(fs.readFileSync(runtimeCardsPath, 'utf8'));
+const runtimeQa = JSON.parse(fs.readFileSync(runtimeQaPath, 'utf8'));
+
+assert.ok(runtimeCards.length >= 300, `DEBT-019 门禁：提纯深层卡片应 >= 300 张，实测: ${runtimeCards.length}`);
+assert.ok(runtimeQa.length >= 500, `DEBT-019 门禁：SLM 问答对训练集应 >= 500 组，实测: ${runtimeQa.length}`);
+console.log(`  ✅ 5. DEBT-019 核心门禁通过: 深层卡片 ${runtimeCards.length} 张 (>=300), 问答对 ${runtimeQa.length} 组 (>=500)`);
+
 db.close();
 console.log('🎉 [Test DEBT-019] 早期历史长文重蒸馏与深层心法提取单测全部 PASS！\n');
+
