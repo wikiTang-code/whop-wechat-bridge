@@ -40,6 +40,7 @@ import {
   transitionPositionState,
   createEmptyPosition
 } from '../tools/trade/position_lifecycle_manager.js';
+import { analyzeStockElasticity } from '../tools/knowledge/stock_elasticity_analyzer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -731,12 +732,18 @@ readonlyRouter.get('/api/radar/latest', async (req, res) => {
     const db = getReadOnlyArchiveDb();
     const session = getUsMarketSession(new Date());
     const snapshot = await fetchLatestOrComputeRadar({ dbInstance: db });
+    const rawResults = snapshot.results || [];
+    const enrichedResults = rawResults.map(r => ({
+      ...r,
+      elasticity_profile: analyzeStockElasticity(r.ticker, { dbInstance: db })
+    }));
+
     res.json({
       success: true,
       market_session: session,
       updated_at: snapshot.updated_at || Date.now(),
       disclaimer: TAPE_DISCLAIMER,
-      data: snapshot.results || [],
+      data: enrichedResults,
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -838,14 +845,25 @@ readonlyRouter.get('/api/positions/lifecycle', (req, res) => {
       positionsMap.set(sym, step.updatedPosition);
     }
 
-    // 3. 统计当前活跃推演持仓 (按最近操作时间排序，收敛为焦点短列表，防过度膨胀)
+    // 3. 统计当前活跃推演持仓 (按最近操作时间排序，收敛为焦点短列表，其余折叠)
+    const LEVERAGED_2X_SET = new Set(['TSLL', 'NVDL', 'CONL', 'MSTX', 'BITX', 'FNGU', 'TQQQ', 'SOXL']);
     const allSimulatedPositions = [];
-    let totalEquityVal = 0;
+    let equity1xVal = 0;
+    let leveraged2xVal = 0;
+
     for (const [sym, pos] of positionsMap.entries()) {
       if (pos.quantity > 0 || pos.tacticalState !== TacticalState.CLOSED) {
         const lastAction = pos.history.length > 0 ? pos.history[pos.history.length - 1] : null;
+        const posVal = pos.quantity * pos.avgCost;
+        if (LEVERAGED_2X_SET.has(sym)) {
+          leveraged2xVal += posVal;
+        } else {
+          equity1xVal += posVal;
+        }
+
         allSimulatedPositions.push({
           ticker: sym,
+          is_leveraged_2x: LEVERAGED_2X_SET.has(sym),
           quantity: pos.quantity,
           avg_cost: pos.avgCost,
           tactical_state: pos.tacticalState,
@@ -855,28 +873,29 @@ readonlyRouter.get('/api/positions/lifecycle', (req, res) => {
           last_sell_ref: pos.lastSellRecord ? pos.lastSellRecord.price : null,
           recent_action: lastAction ? lastAction.summary : null,
           last_action_time: lastAction ? lastAction.timestamp : 0,
+          batches: pos.batches || [],
           source: 'heuristic', // 明确标注启发式推演
           sources: {
             avg_cost: 'heuristic',
             breakeven_stop: 'heuristic',
-            hard_stop_loss: 'heuristic',
             tactical_state: 'heuristic'
           }
         });
-        totalEquityVal += pos.quantity * pos.avgCost;
       }
     }
 
     // 按最近操作时间倒序排列，优先展示焦点活跃标的 (限制前 8 个，其余折叠)
     allSimulatedPositions.sort((a, b) => b.last_action_time - a.last_action_time);
     const activePositions = allSimulatedPositions.slice(0, 8);
+    const collapsedPositions = allSimulatedPositions.slice(8);
 
-    // 4. 计算大V宏观资金分配建议 (启发式推演，标注非券商对账)
-    const capitalEvaluation = evaluateCapitalAllocation(
-      totalEquityVal > 0 ? totalEquityVal : 88000,
-      10000,
-      2000
-    );
+    // 4. 计算大V宏观资金分配建议 (启发式推演，明确披露 2x 杠杆战车名义暴露)
+    const capitalEvaluation = evaluateCapitalAllocation({
+      equity1xValue: equity1xVal > 0 ? equity1xVal : 40000,
+      leveraged2xValue: leveraged2xVal > 0 ? leveraged2xVal : 48000,
+      optionValue: 10000,
+      cashValue: 2000
+    });
 
     res.json({
       success: true,
@@ -886,7 +905,15 @@ readonlyRouter.get('/api/positions/lifecycle', (req, res) => {
       capital_allocation: capitalEvaluation,
       total_simulated_positions_count: allSimulatedPositions.length,
       active_positions: activePositions,
-      disclaimer: '【纯客观决策参谋 · 启发式推演】基于大V历史口述与未全量对账流水推演，非券商真实持仓事实，100% 隔离实盘下单。'
+      collapsed_positions_count: collapsedPositions.length,
+      collapsed_positions: collapsedPositions.map(p => ({
+        ticker: p.ticker,
+        avg_cost: p.avg_cost,
+        tactical_state: p.tactical_state,
+        last_action_time: p.last_action_time,
+        source: p.source
+      })),
+      disclaimer: '【纯客观决策参谋 · 启发式推演】基于大V历史口述与未全量对账流水推演，已披露 2x 战车名义杠杆暴露，非券商真实持仓事实，100% 隔离实盘下单。'
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

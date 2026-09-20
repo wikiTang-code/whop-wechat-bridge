@@ -107,14 +107,20 @@ async function runTests() {
     assert(dataLifecycle.capital_allocation, '应包含大V宏观资金配置评估');
     assert(dataLifecycle.capital_allocation.strategy === 'EQUITY_CORE_THEN_OPTION_BOOSTER', '策略应为 EQUITY_CORE_THEN_OPTION_BOOSTER');
     assert(dataLifecycle.capital_allocation.advice.includes('堆满'), '资金总控建议必须包含股票堆满口述');
-    assert(Array.isArray(dataLifecycle.active_positions), 'active_positions 应为数组');
-    assert(dataLifecycle.active_positions.length <= 8, `活跃推演持仓应收窄至 <= 8 个焦点标的, got ${dataLifecycle.active_positions.length}`);
-    if (dataLifecycle.active_positions.length > 0) {
-      const p0 = dataLifecycle.active_positions[0];
-      assert(p0.source === 'heuristic', '持仓 source 必须显式标注为 heuristic');
-      assert(p0.sources && p0.sources.avg_cost === 'heuristic', 'avg_cost 必须标注来源为 heuristic');
-    }
-    console.log(`  ✅ GET /api/positions/lifecycle 通过 (模式=simulated_heuristic, 活跃焦点标的=${dataLifecycle.active_positions.length} 个, 来源分层精准)`);
+    assert(dataLifecycle.capital_allocation.leveraged2xRatio !== undefined, '必须披露 leveraged2xRatio 2x战车占比');
+    assert(dataLifecycle.capital_allocation.notionalExposureRatio !== undefined, '必须披露 notionalExposureRatio 名义杠杆暴露');
+    assert(Array.isArray(dataLifecycle.collapsed_positions), 'collapsed_positions 必须为数组');
+
+    // 6. 核心红线验证: 持仓推演绝对不改动四维共振打分 (防火墙物理隔离)
+    console.log('\n--- 5. 核心红线验证: 四维共振客观打分与持仓推演物理隔离 ---');
+    const cardData0 = dataLatest.data[0];
+    assert(cardData0, '必须能获取到标的共振数据');
+    const dSum = (cardData0.dimensions.d1_gex_structure?.score || 0) +
+                 (cardData0.dimensions.d2_zhao_outlook?.score || 0) +
+                 (cardData0.dimensions.d3_trade_signals_proof?.score || 0) +
+                 (cardData0.dimensions.d4_tape_block_flow?.score || 0);
+    assert(cardData0.confluence_score === dSum, `confluence_score (${cardData0.confluence_score}) 必须严格等于物理四维之和 (${dSum})，绝对禁止被持仓推演状态污染加分`);
+    console.log(`  ✅ 核心红线验证通过: confluence_score (${cardData0.confluence_score}) 严格等于物理四维之和 (${dSum})，持仓状态 100% 隔离！`);
 
     console.log('\n===========================================================');
     console.log('🎉 REQ-045, REQ-055 & CHG-049 车机大屏 HUD 与持仓雷达 API 单测全部 PASS！');

@@ -47,44 +47,87 @@ export const CapitalAllocationModel = {
 };
 
 /**
- * 计算大盘总控资金配置建议 (启发式推演)
+ * 计算大盘总控资金配置建议 (启发式推演 · 披露 2x 杠杆战车名义暴露)
+ * 来源: zhao_quote (口述引用 "股票堆满再一成或者融资买期权")
+ * @param {Object} params
+ * @param {number} params.equity1xValue - 1x 普通正股持仓市值
+ * @param {number} params.leveraged2xValue - 2x 杠杆战车持仓市值 (TSLL, CONL, NVDL 等)
+ * @param {number} params.optionValue - 期权市值
+ * @param {number} params.cashValue - 现金缓冲
  */
-export function evaluateCapitalAllocation(currentEquityValue, currentCash, currentOptionValue = 0) {
-  const totalNetAsset = currentEquityValue + currentCash + currentOptionValue;
-  const equityRatio = totalNetAsset > 0 ? (currentEquityValue / totalNetAsset) : 0;
-  const optionRatio = totalNetAsset > 0 ? (currentOptionValue / totalNetAsset) : 0;
-  const cashRatio = totalNetAsset > 0 ? (currentCash / totalNetAsset) : 0;
+export function evaluateCapitalAllocation({
+  equity1xValue = 0,
+  leveraged2xValue = 0,
+  optionValue = 0,
+  cashValue = 2000
+} = {}) {
+  // 支持旧版参数兼容 (若传入数值参数)
+  if (typeof arguments[0] === 'number') {
+    const rawEq = arguments[0];
+    const rawCash = arguments[1] || 2000;
+    const rawOpt = arguments[2] || 0;
+    // 启发式拆分: 默认约 60% 为 2x 战车 (大V极偏好 2x TSLL/CONL/NVDL)
+    return evaluateCapitalAllocation({
+      equity1xValue: rawEq * 0.4,
+      leveraged2xValue: rawEq * 0.6,
+      optionValue: rawOpt,
+      cashValue: rawCash
+    });
+  }
+
+  const totalEquityValue = equity1xValue + leveraged2xValue;
+  const totalNetAsset = totalEquityValue + cashValue + optionValue;
+  
+  const equityRatio = totalNetAsset > 0 ? (totalEquityValue / totalNetAsset) : 0;
+  const equity1xRatio = totalNetAsset > 0 ? (equity1xValue / totalNetAsset) : 0;
+  const leveraged2xRatio = totalNetAsset > 0 ? (leveraged2xValue / totalNetAsset) : 0;
+  const optionRatio = totalNetAsset > 0 ? (optionValue / totalNetAsset) : 0;
+  const cashRatio = totalNetAsset > 0 ? (cashValue / totalNetAsset) : 0;
+
+  // 核心风控: 计算名义杠杆暴露 (2x 战车按 200% 名义折算，期权按估算 5x Delta 杠杆折算)
+  const notionalLeveragedExposure = equity1xValue + (leveraged2xValue * 2.0) + (optionValue * 5.0);
+  const notionalExposureRatio = totalNetAsset > 0 ? (notionalLeveragedExposure / totalNetAsset) : 0;
 
   let advice = '';
   let status = 'BALANCED';
 
   if (equityRatio < 0.80) {
     status = 'EQUITY_UNDERWEIGHT';
-    advice = `【正股未满仓】当前股票仓位 ${(equityRatio * 100).toFixed(1)}% < 80%，大V口述建议“股票堆满再考虑期权”，当前阶段严禁大买期权，主力资金宜聚焦高贝塔正股/2x战车分批低吸！`;
+    advice = `【正股未满仓】当前股票仓位 ${(equityRatio * 100).toFixed(1)}% < 80%，大V口述建议“股票堆满再考虑期权”，当前阶段主力资金宜聚焦高贝塔正股/2x战车分批低吸！`;
   } else if (optionRatio > 0.12) {
     status = 'OPTION_OVERWEIGHT';
-    advice = `【期权超配预警】期权持仓占比 ${(optionRatio * 100).toFixed(1)}% 超过一成，违背“股票堆满后仅用一成或融资轻度参与期权”纪律，极易遭遇时间价值归零杀伤，建议减持期权锁定利润！`;
+    advice = `【期权超配预警】期权持仓占比 ${(optionRatio * 100).toFixed(1)}% 超过一成，违背“股票堆满后仅用一成或融资轻度参与期权”纪律，建议减持期权锁定利润！`;
   } else {
     status = 'OPTIMAL';
-    advice = `【最优配比】股票已堆满 (${(equityRatio * 100).toFixed(1)}%)，期权处于轻度进攻位 (${(optionRatio * 100).toFixed(1)}% ≤ 10%)，符合大V口述攻守矩阵。`;
+    advice = `【最优配比】股票已堆满 (${(equityRatio * 100).toFixed(1)}%)，其中 2x 战车占比 ${(leveraged2xRatio * 100).toFixed(1)}% (实际名义暴露 ${(notionalExposureRatio * 100).toFixed(0)}%)，期权处于轻度进攻位 (${(optionRatio * 100).toFixed(1)}% ≤ 10%)。`;
   }
 
   return {
     strategy: CapitalAllocationModel.STRATEGY_NAME,
     totalNetAsset,
+    totalEquityValue,
+    equity1xValue,
+    leveraged2xValue,
+    optionValue,
+    cashValue,
     equityRatio,
+    equity1xRatio,
+    leveraged2xRatio,
     optionRatio,
     cashRatio,
+    notionalLeveragedExposure,
+    notionalExposureRatio,
     status,
     advice,
     source: DataSourceType.HEURISTIC,
+    quoteReference: 'zhao_quote: "股票堆满再一成或者融资买期权"',
     isBrokerReconciled: false,
-    disclaimer: '【启发式推演 · 非券商实盘对账】基于口述纪律估算，不代表券商真实持仓'
+    disclaimer: '【基于信号估算 · 非券商实盘对账】已披露 2x 杠杆战车名义暴露，不代表券商真实对账持仓'
   };
 }
 
 /**
- * 创建空白标的推演持仓状态
+ * 创建空白标的推演持仓状态 (包含分批流水)
  */
 export function createEmptyPosition(ticker, source = DataSourceType.HEURISTIC) {
   return {
@@ -92,12 +135,13 @@ export function createEmptyPosition(ticker, source = DataSourceType.HEURISTIC) {
     quantity: 0,
     avgCost: 0,
     realizedPnl: 0,
-    breakevenStop: null,     // 保本止损线 (启发式推演)
-    hardStopLoss: null,      // 硬止损线 (-5% 启发式规则)
+    breakevenStop: null,     // 保本心理参考锚点 (不设死板止损)
+    hardStopLoss: null,      // 兼容字段
     tacticalState: TacticalState.EMPTY,
-    lastSellRecord: null,    // 最近一笔卖出单 (供做T差价对比)
-    history: [],             // 事件流水
-    source: source,          // 默认为 heuristic
+    lastSellRecord: null,    // 最近一笔卖出单 (供做T对比)
+    batches: [],             // 分批建仓/加仓/减仓明细流水 [ { price, quantity, timestamp, source } ]
+    history: [],             // 事件文本流水
+    source: source,          // 默认为 heuristic，经审核覆盖后升为 audited_fill
     sources: {
       avgCost: source,
       breakevenStop: DataSourceType.HEURISTIC,
@@ -286,6 +330,15 @@ export function transitionPositionState(position, action) {
     default:
       eventSummary = `【未识别动作】${actionType}`;
   }
+
+  if (!pos.batches) pos.batches = [];
+  pos.batches.push({
+    actionType,
+    price,
+    quantity,
+    timestamp,
+    source: action.source || DataSourceType.HEURISTIC
+  });
 
   pos.history.push({
     actionType,
