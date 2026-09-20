@@ -30,9 +30,14 @@ docs/project/                          ← 你在这里（总索引）
 ├── environments.json                  ← 同上，机器可读
 ├── req038-t2-attribution-spec.md      ← REQ-038-T2 胜率口径（冻结）
 ├── req038-t3-resonance-radar-spec.md  ← REQ-038-T3 三点共振只读雷达规范（只读/禁下单）
+├── 056-paper-trading-execution-loop-report.md   ← REQ-056 长桥Paper模拟执行闭环报告 (accepted-with-gap)
+├── 057-turning-point-microstructure-report.md   ← REQ-057 微观转弯战法与独立Alpha严密回测 (accepted-with-gap)
 ├── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2/P3 Done）
 ├── wsl-unified-ai-runtime-plan.md     ← CHG-018 Done（Q-007；DEBT-014 代码路径 Done）
 └── gpu-shared-protocol.md             ← 跨仓库 GPU 协议指针（正文在 ~/.cursor/shared-protocols/；Cursor 2026-09-19 冻结 §7）
+
+独立量化研究子树：
+research/ladder-chaodi/                ← 富途「梯子」通道 + 「抄底」MACD背离全量前复权回测与规格归档
 
 专题权威方案（不重复当总进度，只被引用）：
 docs/local-ops-mcp-skill-plan.md       ← Local-Ops / 企微 / MCP
