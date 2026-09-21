@@ -35,7 +35,7 @@
 | 报告 | `docs/project/058-delayed-follow-e-v0-report.md` | 049–057 编号报告惯例；**未**新建平行 `research/delayed-follow/`（梯子子树是另一类公式归档） |
 | jsonl | `data/runs/delayed_follow_e_v0/` | L2a `data/runs/` 惯例；Yahoo `bars/` 与全量 `events.jsonl` gitignore |
 | CI 夹具 | `test/fixtures/delayed_follow_e_v0/` + `test/test_delayed_follow_e_v0.js` | `node --test`，对齐 CHG-050 |
-| 账本 | 优先只读 `trade_signals`（`getReadOnlyArchiveDb`）；本环境无 SQLite 则只读 L2a jsonl | `ASSET_USAGE`：1195/incr01 **只读**；`db-readonly.js` |
+| 账本 | 默认 `message_clock`：只读 archive + JOIN `messages.created_at`；缺则 fail-closed。L2a 仅 `--allow-session-anchor-counterexample` | `ASSET_USAGE`：1195/incr01 **只读**；`db-readonly.js` |
 
 **语义合同（用户）优先于命名习惯**：CHG-051 / 01 的 live Intent 字段叫 `t_arrive`；历史没有观测到达，故本 v0 只写 `t_arrive_hat`。
 
