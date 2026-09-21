@@ -6,7 +6,7 @@ Modes (open_session_config.json):
   notify_then_auto  — WeCom preview, wait, skip if flag file exists, then run
   ask_console       — Y/N in terminal (manual only)
 
-Default schedule target: ~09:40 America/New_York via Task Scheduler.
+Default schedule target: ~09:35 America/New_York via Task Scheduler.
 """
 from __future__ import annotations
 
@@ -52,20 +52,20 @@ def load_config(path: Path) -> dict:
     cfg.setdefault("ask_wait_seconds", 300)
     cfg.setdefault("skip_flag_path", "data/gex/.skip_open_session")
     cfg.setdefault("webhook_env", "WECHAT_WORK_WEBHOOK_URL")
-    cfg.setdefault("target_eastern_time", "09:40")
+    cfg.setdefault("target_eastern_time", "09:35")
     cfg.setdefault("max_et_wait_seconds", 5400)
     return cfg
 
 
 def wait_for_eastern_market(
-    target_et_str: str = "09:40",
+    target_et_str: str = "09:35",
     max_wait_seconds: int = 5400,
     skip: Path | None = None,
     dry_run: bool = False,
     force: bool = False,
     now_fn: callable = None,
 ) -> bool:
-    """Align execution with US Eastern market time (e.g. 09:40 America/New_York).
+    """Align execution with US Eastern market time (e.g. 09:35 America/New_York).
     Immunizes Windows Task Scheduler from seasonal DST shifts (EDT vs EST).
     Returns True if proceeded to market run, False if aborted via skip_flag.
     """
@@ -222,7 +222,7 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true", help="Print plan only; do not call OpenD")
     ap.add_argument("--force", action="store_true", help="Ignore skip flag and ask_wait")
     ap.add_argument("--no-wait-et", action="store_true", help="Skip waiting for Eastern market open time alignment")
-    ap.add_argument("--target-et", type=str, default="", help="Override target Eastern time (HH:MM, default 09:40)")
+    ap.add_argument("--target-et", type=str, default="", help="Override target Eastern time (HH:MM, default 09:35)")
     args = ap.parse_args()
 
     cfg = load_config(args.config)
@@ -232,7 +232,7 @@ def main() -> int:
     wait_sec = int(cfg.get("ask_wait_seconds") or 0)
     skip = skip_path(cfg)
     webhook = resolve_webhook(cfg)
-    target_et = (args.target_et or str(cfg.get("target_eastern_time") or "09:40")).strip()
+    target_et = (args.target_et or str(cfg.get("target_eastern_time") or "09:35")).strip()
     max_wait = int(cfg.get("max_et_wait_seconds") or 5400)
 
     print(f"[open_session] mode={mode} zero_dte={zero} matrix={matrix} wait={wait_sec}s target_et={target_et}")

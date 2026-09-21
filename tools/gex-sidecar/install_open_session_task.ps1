@@ -1,10 +1,10 @@
-# Register weekday GEX open-session Task Scheduler job at 09:40 Eastern Time.
+# Register weekday GEX open-session Task Scheduler job at 09:35 Eastern Time.
 # Usage (from repo root):
 #   powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1
 #   powershell -File tools/gex-sidecar/install_open_session_task.ps1 -Uninstall
 #
 # Hosts not on US Eastern: trigger StartBoundary is converted to *current* local wall-clock
-# equivalent of Eastern 09:40 (re-run this script after DST transitions).
+# equivalent of Eastern 09:33 wake (re-run this script after DST transitions).
 
 param(
   [switch]$Uninstall,
@@ -47,12 +47,12 @@ if not defined LONGBRIDGE_REGION set LONGBRIDGE_REGION=global
 "@
 Set-Content -Path $Wrapper -Value $WrapperBody -Encoding ASCII
 
-# Convert Eastern 09:38 (EDT Summer earliest anchor) to local wall-clock for CalendarTrigger.
-# In Summer (EDT UTC-4), 09:38 ET = 13:38 UTC. In Winter (EST UTC-5), 09:38 ET = 14:38 UTC.
-# Anchoring to Summer 13:38 UTC ensures the task triggers early enough in all seasons,
-# and open_session_run.py automatically detects America/New_York DST offset and waits until 09:40 ET (DEBT-013).
+# Convert Eastern 09:33 (EDT Summer earliest anchor) to local wall-clock for CalendarTrigger.
+# In Summer (EDT UTC-4), 09:33 ET = 13:33 UTC. In Winter (EST UTC-5), 09:33 ET = 14:33 UTC.
+# Anchoring to Summer 13:33 UTC ensures the task triggers early enough in all seasons,
+# and open_session_run.py waits until 09:35 ET (CHG-058 / DEBT-013).
 $localTz = [System.TimeZoneInfo]::Local
-$summerRefUtc = [DateTime]::SpecifyKind([DateTime]"2026-07-01 13:38:00", [DateTimeKind]::Utc)
+$summerRefUtc = [DateTime]::SpecifyKind([DateTime]"2026-07-01 13:33:00", [DateTimeKind]::Utc)
 $summerLocal = [System.TimeZoneInfo]::ConvertTimeFromUtc($summerRefUtc, $localTz)
 $localHHmm = $summerLocal.ToString("HH:mm")
 
@@ -67,7 +67,7 @@ $xml = @"
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>Whop GEX open-session collect Mon-Fri ~09:40 Eastern (REQ-003, DEBT-013 DST-immune). Earliest local wall=$localHHmm; python handles DST alignment automatically.</Description>
+    <Description>Whop GEX open-session collect Mon-Fri ~09:35 Eastern (REQ-003, CHG-058, DEBT-013 DST-immune). Earliest local wall=$localHHmm; python waits until 09:35 ET.</Description>
   </RegistrationInfo>
   <Triggers>
     <CalendarTrigger>
@@ -119,7 +119,7 @@ Register-ScheduledTask -TaskName $TaskName -Xml $xml -Force | Out-Null
 
 Write-Host ""
 Write-Host "Installed task: $TaskName"
-  Write-Host "  Target: Mon-Fri Eastern 09:40 (DST-immune: local wall=$localHHmm, auto-aligns EDT/EST via open_session_run.py)"
+  Write-Host "  Target: Mon-Fri Eastern 09:35 (DST-immune: local wall=$localHHmm, auto-aligns EDT/EST via open_session_run.py)"
   Write-Host "  StartBoundary: $startBoundary"
   Write-Host "  Wrapper: $Wrapper"
   Write-Host "  Config: $Config"

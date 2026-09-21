@@ -15,7 +15,7 @@ Windows 定时拉链，产出 `data/gex/latest.json` 与 HTML。**不要把拉�
 
 ## 采集状态（v1 已跑通）
 
-`data/gex/latest.json` 是 **2026-09-05 23:49 富途 OpenD 成功拉链**（`source=futu-opend`，`errors=[]`，SPY/QQQ/SPX 覆盖 102/102，TSLA 五到期日矩阵）。不要把同日更早、**未入库**的长桥 `collect.py` 空快照（OPRA OpenAPI 未开通）当成现状。
+`data/gex/latest.json` 当前里程碑是 **2026-09-21T21:56:07 富途 OpenD**（`source=futu-opend`，`errors=[]`，SPY/QQQ/SPX `0dte` + CHG-057 九标的矩阵）。不要把更早、**未入库**的长桥 `collect.py` 空快照（OPRA OpenAPI 未开通）当成现状。
 
 ## 环境
 
@@ -44,7 +44,7 @@ token 在 `~/.longbridge`，不要提交。长桥 OpenAPI 的 OPRA 是另一张�
 $env:PYTHONIOENCODING='utf-8'
 $env:LONGBRIDGE_REGION='global'
 python tools/gex-sidecar/collect_futu.py
-# 默认: --zero-dte SPY,QQQ,SPX --matrix TSLA --expiries 5
+# 默认: --zero-dte SPY,QQQ,SPX --matrix TSLA,IREN,CRWV,MU,COHR,SOXL,COIN,NVDA,LITE --expiries 5
 
 python tools/gex-sidecar/summarize.py
 ```
@@ -57,7 +57,7 @@ python tools/gex-sidecar/collect.py
 
 ## 开盘自动采集（本机）
 
-推荐：**美东 09:40 工作日**（开盘后约 10 分钟墙更稳）。
+推荐：**美东 09:35 工作日**（开盘后约 5 分钟；OI 为 T+1，不必为「墙更稳」再等到 09:40）。
 
 ```powershell
 copy tools\gex-sidecar\open_session_config.example.json tools\gex-sidecar\open_session_config.json

@@ -84,7 +84,9 @@ export async function getActivePositions() {
     if (Array.isArray(raw)) {
       rawPositions = raw;
     } else if (raw && Array.isArray(raw.channels)) {
-      rawPositions = raw.channels;
+      rawPositions = raw.channels.flatMap((ch) =>
+        Array.isArray(ch?.positions) ? ch.positions : []
+      );
     } else if (raw && Array.isArray(raw.positions)) {
       rawPositions = raw.positions;
     }
@@ -113,7 +115,7 @@ export async function getActivePositions() {
       market_value: marketValue,
       unrealized_pnl: unrealizedPnl
     };
-  });
+  }).filter((p) => p.ticker);
 }
 
 /**

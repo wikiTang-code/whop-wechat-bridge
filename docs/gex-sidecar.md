@@ -6,13 +6,13 @@
 
 ## 采集状态（v1 已跑通）
 
-入库的 `data/gex/latest.json` **不是空壳**。它是 2026-09-05 23:49 用 `collect_futu.py` 在本机富途 OpenD 上跑通的快照：
+入库的 `data/gex/latest.json` **不是空壳**。当前里程碑是 **2026-09-21T21:56:07** 本机富途 OpenD 拉链（CHG-057 九标的矩阵；`errors=[]`）：
 
 - `source`: `futu-opend`（不是 longbridge-cli）
 - `errors`: `[]`
-- `zero_dte`: SPY / QQQ / SPX 均有 ladder，期权覆盖 102/102
-- `matrix`: 赵哥高频正股（CHG-057 默认 TSLA/IREN/CRWV/MU/COHR/SOXL/COIN/NVDA/LITE）× 5 个到期日；2× 票看正股墙（TSLL→TSLA、CONL→COIN、NVDL→NVDA）
-- `kind`: `nearest`（周末代理，到期 2026-09-08，**不是** 0DTE）
+- `zero_dte`: SPY / QQQ / SPX，`kind=0dte`（周一 RTH）
+- `matrix`: 赵哥高频正股 TSLA/IREN/CRWV/MU/COHR/SOXL/COIN/NVDA/LITE × 5 个到期日；2× 票看正股墙（TSLL→TSLA、CONL→COIN、NVDL→NVDA）
+- 赵哥同日点位对照：[`docs/project/chg057-gex-zhao-corroboration-20260921.md`](./project/chg057-gex-zhao-corroboration-20260921.md)
 
 同日更早的空文件 `snapshot_20260905_181759.json` / `182010.json` 是长桥 **OpenAPI OPRA 未开通** 时 `collect.py` 的失败日志（`zero_dte: {}` + errors）。它们**没有进 git**，不能当成当前采集状态。长桥 CLI 现在只用来补 `.SPX.US` 现货；期权链走富途 API 商店 OPRA（`us_option=LV1`），不是 App 行情那张 $2.99。
 
@@ -47,13 +47,13 @@ Dashboard **已挂只读消费**（v1）：
 
 ## 开盘本机自动采集
 
-推荐时刻：**美东 09:40（开盘后约 10 分钟）周一至周五**。
+推荐时刻：**美东 09:35（开盘后约 5 分钟）周一至周五**（CHG-058）。OI 是 T+1，再等 10 分钟不会刷新库存；赵哥今日首簇在 09:32–09:39。
 
 1. 复制配置：`tools/gex-sidecar/open_session_config.example.json` → `open_session_config.json`（已 gitignore）
-2. 改 `mode` / `zero_dte` / `matrix`（默认 SPY,QQQ,SPX + 赵哥高频正股矩阵）
+2. 改 `mode` / `zero_dte` / `matrix`（默认 SPY,QQQ,SPX + 赵哥高频正股矩阵；目标 09:35 ET）
 3. 试跑：`python tools/gex-sidecar/open_session_run.py --dry-run`
 4. 安装计划任务：`powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1`  
-   - 安装器把 **美东 09:40** 换算成**本机墙钟**（如中国夏令对应 21:40）写入触发器。  
+   - 安装器把 **美东 09:33 唤醒** 换算成**本机墙钟**（中国夏令约 21:33），Python 等到 09:35 ET。  
    - **每次美国 DST 切换后请重跑安装器**。  
    - 验证：`Get-ScheduledTask -TaskName WhopGexOpenSession0940ET | Format-List TaskName,State`
 

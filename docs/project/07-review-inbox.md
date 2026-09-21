@@ -8,6 +8,12 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-21 · GEX×赵哥开盘簇对照（Grok · CHG-057/058）
+
+**对象**：[`chg057-gex-zhao-corroboration-20260921.md`](./chg057-gex-zhao-corroboration-20260921.md) + [`data/gex/latest.json`](../../data/gex/latest.json)（`generated_at=2026-09-21T21:56:07`）+ [`chg057-zhao-rth-20260921.json`](./chg057-zhao-rth-20260921.json)。
+
+L2 参谋，不拦截、不下单。King=Put Wall / Floor=Call Wall。OI=T+1。赵哥 6 笔 09:32–09:39 ET；矩阵缺 NBIS/WDC/DRAM。跟单本笔 IREN 46.5=policy C。请比对墙与口播，勿把 MFE/穿过 Floor 写成 alpha。
+
 ### 2026-09-21 · REQ-058 Appendix B 1m resolution diagnostic（Grok · CHG-053）
 
 **对象**：`058-delayed-follow-e-v0-report.md` Appendix B。**不是**主校准表；主基线仍是 Appendix A / 5m N=196。

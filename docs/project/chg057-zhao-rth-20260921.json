@@ -1,0 +1,73 @@
+{
+  "as_of": "2026-09-21",
+  "source": "gcp-vm messages readonly",
+  "sender_id": "user_4yeplXgbguTu4",
+  "channels": [
+    "forum_feed_1CTr7SqVMzFfuFiiRJLEHN",
+    "chat_feed_1CTrCEx44dP13jW3RVkYiS"
+  ],
+  "trade_signals_today": 0,
+  "note": "同一口播在两专属频道各落一条；下表已去重。px_zhao=口播成交锚，不是我方成交价。",
+  "prints": [
+    {
+      "et": "2026-09-21 09:32:08",
+      "ticker": "WDC",
+      "side": "SELL",
+      "px_zhao": 453,
+      "text": "453出掉一半453的wdc",
+      "message_id": "post_1CfGfiz6heVUCJ87WGSW91",
+      "poll_delta_s": 28.2,
+      "gex_underlying": null
+    },
+    {
+      "et": "2026-09-21 09:33:14",
+      "ticker": "DRAM",
+      "side": "SELL",
+      "px_zhao": 61.4,
+      "text": "61.4出掉59.5的dram",
+      "message_id": "post_1CfGfopSXbuoVUBctZ6Tju",
+      "poll_delta_s": 11.7,
+      "gex_underlying": null
+    },
+    {
+      "et": "2026-09-21 09:36:11",
+      "ticker": "SPYU",
+      "side": "SELL",
+      "px_zhao": 34.58,
+      "text": "34.58出掉34.58的spyu",
+      "message_id": "post_1CfGg2v5KTWiyJLoXCr7q1",
+      "poll_delta_s": 10.8,
+      "gex_underlying": "SPX"
+    },
+    {
+      "et": "2026-09-21 09:37:56",
+      "ticker": "NBIS",
+      "side": "BUY",
+      "px_zhao": 222.5,
+      "text": "222.5加了6分之一常规仓nbis",
+      "message_id": "post_1CfGgAdBYeaG5p16RCUvm3",
+      "poll_delta_s": 30.1,
+      "gex_underlying": null
+    },
+    {
+      "et": "2026-09-21 09:38:49",
+      "ticker": "CRWV",
+      "side": "BUY",
+      "px_zhao": 82.5,
+      "text": "82.5加了6分之一常规仓crwv",
+      "message_id": "post_1CfGgEXmHwnQRbTG3TV5AR",
+      "poll_delta_s": 14.6,
+      "gex_underlying": "CRWV"
+    },
+    {
+      "et": "2026-09-21 09:39:10",
+      "ticker": "IREN",
+      "side": "BUY",
+      "px_zhao": 46.5,
+      "text": "46.5加了6分之一常规仓iren",
+      "message_id": "post_1CfGgG6VcLzVTz1SeiXh8S",
+      "poll_delta_s": 32.8,
+      "gex_underlying": "IREN"
+    }
+  ]
+}

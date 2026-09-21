@@ -50,10 +50,10 @@
 
 | 项 | 状态 | 事实 |
 |----|:----:|------|
-| OpenD 采集 | ✅ | **最新快照 `2026-09-14T18:49:27`**；futu-opend；**SPY 102/102**（同批 QQQ/SPX + matrix TSLA） |
+| OpenD 采集 | ✅ | **最新里程碑 `2026-09-21T21:56:07`**；futu-opend；`errors=[]`；SPY/QQQ/SPX `0dte` + matrix 九标的（CHG-057） |
 | `/api/gex/latest` | ✅ | PR #12；无 ladder |
 | UI 摘要 + 规则引擎 | ✅ | King/Floor/Regime |
-| 开盘计划任务脚本 | ✅ | **已挂载** `WhopGexOpenSession0940ET`（美东09:40→本地墙钟；DST 后重装） |
+| 开盘计划任务脚本 | ✅ | **已挂载** `WhopGexOpenSession0940ET`（CHG-058：美东 **09:35**→本地墙钟；DST 免疫） |
 | Git 中的 json | 📌 | 仅里程碑提交（Q-003）；盘中勿例行 commit |
 | 铁律 | 🔒 | 不在 GCP 拉链；不用于自动下单 |
 
@@ -81,9 +81,9 @@
 | 项 | 值 |
 |----|-----|
 | 分支 | `main` |
-| HEAD / vs origin | 以 `git log -1` / `git status -sb` 为准；**CHG-056b** collect_1s dotenv + subscribe isFirstPush fallback（GCP dirty diff；#21 夹具不复称为 live；无非夹具 live bar）；**CHG-056** 1s OHLCV 采集器（trades-only，`longbridge_trade_agg`，非 done-strat）；CHG-055 规划合同 + REQ-059 轨2 双账本脚手架（`done-eng`，**done-strat 未过**）；REQ-058 E-docs closed；CHG-054 ingest 落库观测 `t_arrive`（不回填） |
+| HEAD / vs origin | 以 `git log -1` / `git status -sb` 为准；**CHG-058** 开盘 GEX 09:35 ET；**CHG-057** 九标的矩阵 + 2026-09-21 里程碑 `latest.json`；**CHG-056b** collect_1s dotenv + isFirstPush；**CHG-056** 1s OHLCV（非 done-strat）；REQ-059 轨2 `done-eng` / **done-strat 未过** |
 | 本机 OpenD `11111` | **2026-09-19 实测满血**：期权 24 到期日 / 单日 384 合约 + L2 五档（REQ-042） |
-| 长桥 Paper | 本机凭证+`BROKER_MODE=paper`；RTH quote 通（IREN ask 2026-09-21 09:52 ET）。跟单试单 **未报送**（IREN 口播 46.5 vs ask 47.67 = policy C）；**FILLED 未过**。禁 catalog 下单 |
+| 长桥 Paper | **2026-09-21 counter_smoke FILLED**：IREN 1 股 @ 47.075，订单 `1286688240727810048`，持仓 1。跟单 IREN 46.5=**C**（未绑 46.5、未写 `zhao_follow`）。禁 catalog 下单 |
 | 券商互补 | 期权链/GEX→富途；正股模拟对账→长桥 |
 | 本机 `ops:http` `18789` + ssh -R | 联调日已通；靠自启任务保活 |
 | 企微可信 IP | 应以 **GCP 公网** 为准 |
