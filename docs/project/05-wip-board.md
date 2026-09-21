@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **CHG-056** | L5 | 长桥 quote/trade → 进程内 1s OHLCV hot jsonl（5 标的；禁 1s K 线 API / Yahoo 插值 / Depth / systemd 声称 live）。**GCP 部署=Gemini after merge**。**`done-strat` 未过** | `scripts/market/collect_1s_ohlcv.js` · `scripts/market/lib/ohlcv_1s.js` | **done-eng** |
+| **1** | **CHG-056** | L5 | 长桥 **trades-only** → 1s OHLCV hot jsonl（空秒不写行；`source=longbridge_trade_agg`；禁 Period.Second / 1m·5m 插值）。**GCP 部署=Gemini after merge**。**`done-strat` 未过** | `scripts/market/collect_1s_ohlcv.js` · `scripts/market/lib/ohlcv_1s.js` | **done-eng** |
 | 2 | **REQ-059** | L3 | 轨 2 双账本最小集（S 风格 × R-precursor；冻结 4 条 OHLCV；夹具离线路径）。**`done-strat` 未过** | `scripts/knowledge/lib/dual_ledger_track2.js` · `059-dual-ledger-track2-report.md` | **done-eng** |
 | 3 | **CHG-055** | L0 | 规划合同 2026-09-21 落盘（HEAD≈e1656af；下一刀=只切轨2；Cloud≠全量 archive） | `docs/project/09-development-plan-contract-20260921.md` | **accepted** |
 | 4 | **CHG-054** | L1 | ingest 落库：观测 `t_arrive` 真写入（first-see / poll-seen；禁回填；只读校验脚本）。**E-docs closed** | `database.js` · `monitor.js` · `scripts/trade/check_observed_t_arrive.js` | **done-eng** |
@@ -177,7 +177,7 @@
 | CHG-054 | L1 | 观测 `t_arrive` ingest 落库（first-see；只读校验） | `agent:cursor` | done-eng | E-docs closed；不回填；禁口播/K线 |
 | CHG-055 | L0 | 开发规划合同 2026-09-21（HEAD≈e1656af；下一刀=轨2） | `agent:cursor` | accepted | `09-development-plan-contract-20260921.md` |
 | REQ-059 | L3 | 轨 2 双账本最小集（S×R；夹具路径；非 done-strat） | `agent:cursor` | done-eng | `dual_ledger_track2.js` · `059-*`；禁 HUD/20/40 |
-| CHG-056 | L5 | 长桥 quote/trade 进程内 1s OHLCV hot jsonl（5 标的；禁 1s K 线 / Yahoo 插值 / Depth） | `agent:cursor` | done-eng | `scripts/market/*` · 部署=Gemini after merge；非 done-strat |
+| CHG-056 | L5 | 长桥 trades-only 1s OHLCV hot jsonl（空秒不写行；`longbridge_trade_agg`） | `agent:cursor` | done-eng | `scripts/market/*` · 部署=Gemini after merge；非 done-strat |
 | CHG-027 | L4/L0 | Local-Ops knowledge.promote HITL C2 | `agent:cursor` | Done | Gemini Accepted |
 | CHG-028 | L3 | T2 方向/点位消歧 | `agent:cursor` | Done | n_scored=5 |
 
@@ -246,7 +246,7 @@
 
 | ID | Owner | 日 | 结果 |
 |----|-------|-----|------|
-| CHG-056 | `agent:cursor` | 2026-09-21 | quote/trade→1s OHLCV 采集器+夹具 12/12；非 done-strat；GCP 部署=Gemini after merge |
+| CHG-056 | `agent:cursor` | 2026-09-21 | trades-only 1s OHLCV（Grok 钉死：空秒不写；source=longbridge_trade_agg）；非 done-strat；GCP 部署=Gemini after merge |
 | REQ-059 / CHG-055 | `agent:cursor` | 2026-09-21 | 规划合同落盘 + 轨2 双账本脚手架（夹具 13/13；非 done-strat） |
 | CHG-015 | `agent:gemini1` | 2026-09-15 | LM Studio 显存守卫与绝对防重加载机制落地，tools/lms-guard.js + 单测通过 |
 | REQ-036 | `agent:gemini1` | 2026-09-15 | 1030组SFT/DPO训练集导出+Unsloth微调配方+端侧双轨抽取器+100%Benchmark |

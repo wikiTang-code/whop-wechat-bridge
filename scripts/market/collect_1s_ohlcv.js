@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * CHG-056 — collect 1s OHLCV from Longbridge quote/trade push.
+ * CHG-056 — collect 1s OHLCV from Longbridge trade push only.
  *
  *   node scripts/market/collect_1s_ohlcv.js --symbols IREN,SOXL,MU,CRWV,COHR --out-root data/market/hot
  *   node scripts/market/collect_1s_ohlcv.js --dry-run
  *   node scripts/market/collect_1s_ohlcv.js --once --fixture test/fixtures/market_1s/ticks.jsonl --out-root /tmp/hot
  *
- * Live: subscribe Quote+Trade, aggregate in process. Never candlestick=1s.
- * Disconnect → reconnect; do not backfill fake history.
- * GCP deploy after merge = Gemini. This script does not install systemd.
+ * Live: subscribe Trade (OHLC) + optional Quote heartbeat. Never candlestick=1s / Period.Second.
+ * Empty seconds: no row. Disconnect → reconnect; do not backfill.
+ * Collector does not call rclone. GCP deploy after merge = Gemini.
  */
 
 import fs from 'fs';
@@ -113,7 +113,7 @@ function attachPushHandlers(ctx, onTick) {
         onTick({ disconnect: true, error: err });
         return;
       }
-      onTick({ kind: 'push_quote', event });
+      onTick({ kind: 'heartbeat', event });
     });
   }
 }
@@ -122,15 +122,13 @@ function eventSymbol(event) {
   return event?.symbol || event?.data?.symbol || '';
 }
 
-function ingestPush(agg, writer, persistOpts, push) {
-  const { tickFromQuote, ticksFromPushTrades } = persistOpts.helpers;
-  let ticks = [];
-  if (push.kind === 'push_trades') {
-    ticks = ticksFromPushTrades(eventSymbol(push.event), push.event?.data || push.event);
-  } else if (push.kind === 'push_quote') {
-    const t = tickFromQuote(eventSymbol(push.event), push.event?.data || push.event);
-    if (t) ticks = [t];
+function ingestPush(agg, persistOpts, push) {
+  const { ticksFromPushTrades } = persistOpts.helpers;
+  if (push.kind === 'heartbeat' || push.kind === 'push_quote') {
+    return;
   }
+  if (push.kind !== 'push_trades') return;
+  const ticks = ticksFromPushTrades(eventSymbol(push.event), push.event?.data || push.event);
   const bars = [];
   for (const tick of ticks) bars.push(...agg.ingest(tick));
   if (bars.length) persistBars(bars, persistOpts);
@@ -158,7 +156,7 @@ export async function replayFixture(opts) {
 
 export async function runLiveSession(opts, deps = {}) {
   const createContext = deps.createContext || createLiveQuoteContext;
-  const { tickFromQuote, ticksFromPushTrades } = await import('./lib/ohlcv_1s.js');
+  const { ticksFromPushTrades } = await import('./lib/ohlcv_1s.js');
   const agg = new SecondBarAggregator();
   const writer = new DayJsonlWriter({ outRoot: opts.outRoot, repoRoot: ROOT });
   const persistOpts = {
@@ -167,10 +165,10 @@ export async function runLiveSession(opts, deps = {}) {
     manifestPath: opts.manifestPath,
     writer,
     source: MANIFEST_SOURCE,
-    helpers: { tickFromQuote, ticksFromPushTrades }
+    helpers: { ticksFromPushTrades }
   };
   const lbSymbols = opts.symbols.map(toLongbridgeSymbol);
-  const subTypes = [SUB_TYPE_QUOTE, SUB_TYPE_TRADE];
+  const subTypes = [SUB_TYPE_TRADE, SUB_TYPE_QUOTE];
   assertQuoteTradeSubTypes(subTypes);
 
   let stop = false;
@@ -192,7 +190,7 @@ export async function runLiveSession(opts, deps = {}) {
       connect: async () => {
         const { ctx, SubType } = await createContext();
         const types = SubType
-          ? [SubType.Quote, SubType.Trade]
+          ? [SubType.Trade, SubType.Quote]
           : subTypes;
         assertQuoteTradeSubTypes(types.map((t) => (typeof t === 'number' ? t : Number(t))));
         let disconnected = null;
@@ -204,7 +202,7 @@ export async function runLiveSession(opts, deps = {}) {
             disconnect(push.error);
             return;
           }
-          ingestPush(agg, writer, persistOpts, push);
+          ingestPush(agg, persistOpts, push);
         });
         await ctx.subscribe(lbSymbols, types);
         const started = Date.now();

@@ -25,7 +25,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── 05-wip-board.md                    ← 谁在做、做到哪（WIP 看板）
 ├── 06-process.md                      ← 开发流程框架 + 文档维护 SOP
 ├── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
-├── chg056-market-1s-ohlcv.md          ← CHG-056 1s OHLCV hot 采集（quote/trade 聚合；非 alpha）
+├── chg056-market-1s-ohlcv.md          ← CHG-056 1s OHLCV hot 采集（trades-only；非 alpha）
 ├── 09-development-plan-contract-20260921.md ← CHG-055 规划合同（轨0–5；下一刀=轨2）
 ├── dual-track-operating-contract.md   ← CHG-051 跟单 / 周哥QQQ模拟仓 / 自研参考轨（accepted）
 ├── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
@@ -91,7 +91,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **CHG-056** 长桥 quote/trade → 1s OHLCV hot jsonl（done-eng；GCP 部署=Gemini after merge；非 done-strat）· **REQ-059** 轨2 双账本脚手架（done-eng；非 done-strat）· **CHG-055** 规划合同 accepted · **CHG-054** ingest 落库观测 `t_arrive`（done-eng）· **CHG-053** Appendix B 1m diagnostic（done-eng；非主表）· **CHG-052** 观测 `t_arrive` ingest（done-eng · #16=`e54ffd70`）· **REQ-058** Appendix A 5m N=196 主校准（**done-strat 未过**）· CHG-051 accepted | done-eng |
+| **§0.A `agent:cursor`** | **CHG-056** 长桥 trades-only → 1s OHLCV hot jsonl（done-eng；`longbridge_trade_agg`；GCP 部署=Gemini after merge；非 done-strat）· **REQ-059** 轨2 双账本脚手架（done-eng；非 done-strat）· **CHG-055** 规划合同 accepted · **CHG-054** ingest 落库观测 `t_arrive`（done-eng）· **CHG-053** Appendix B 1m diagnostic（done-eng；非主表）· **CHG-052** 观测 `t_arrive` ingest（done-eng · #16=`e54ffd70`）· **REQ-058** Appendix A 5m N=196 主校准（**done-strat 未过**）· CHG-051 accepted | done-eng |
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 

@@ -1,7 +1,8 @@
 /**
- * CHG-056 — in-process 1s OHLCV from quote/trade ticks.
- * Longbridge Period min is Min_1; never call candlestick=1s.
- * No Yahoo interpolation, no depth/ten-level, no fake gap fill.
+ * CHG-056 — in-process 1s OHLCV from trades only.
+ * Longbridge Period min is Min_1; never call candlestick=1s / Period.Second.
+ * Quote may heartbeat; never fill OHLC from quote/bid/ask mid.
+ * Empty seconds: no row. No 1m/5m interpolation. No rclone in-process.
  */
 
 import crypto from 'crypto';
@@ -9,7 +10,7 @@ import fs from 'fs';
 import path from 'path';
 
 export const CHG_ID = 'CHG-056';
-export const MANIFEST_SOURCE = 'longbridge_quote_trade_agg';
+export const MANIFEST_SOURCE = 'longbridge_trade_agg';
 export const DEFAULT_SYMBOLS = Object.freeze(['IREN', 'SOXL', 'MU', 'CRWV', 'COHR']);
 export const MAX_SYMBOLS = 5;
 export const BAR_MS = 1000;
@@ -28,7 +29,10 @@ export const BANNED_QUOTE_CTX_METHODS = Object.freeze([
 ]);
 
 const FORBIDDEN_1S = new Error(
-  'FORBIDDEN_1S_CANDLESTICK: Longbridge Period min is Min_1; aggregate from quote/trade push only'
+  'FORBIDDEN_1S_CANDLESTICK: Longbridge Period min is Min_1; no Period.Second; aggregate from trades only'
+);
+const FORBIDDEN_INTERPOLATE = new Error(
+  'FORBIDDEN_INTERPOLATE_1S: do not expand 1m/5m/Yahoo bars into 1s'
 );
 
 export function toNumber(value) {
@@ -106,21 +110,33 @@ export function assertQuoteTradeSubTypes(subTypes) {
       throw new Error('FORBIDDEN_BROKERS: broker queue subscribe is out of scope');
     }
   }
-  const ok = list.some((t) => t === SUB_TYPE_QUOTE || t === 'Quote' || Number(t) === SUB_TYPE_QUOTE)
-    || list.some((t) => t === SUB_TYPE_TRADE || t === 'Trade' || Number(t) === SUB_TYPE_TRADE);
-  if (!ok) {
-    throw new Error('SUBTYPES_REQUIRED: subscribe Quote and/or Trade only');
+  const hasTrade = list.some((t) => t === SUB_TYPE_TRADE || t === 'Trade' || Number(t) === SUB_TYPE_TRADE);
+  if (!hasTrade) {
+    throw new Error('SUBTYPES_REQUIRED: Trade subscribe is required for 1s OHLCV');
   }
   return true;
 }
 
 export function assertNoOneSecondCandlestick(period) {
   if (period == null) return true;
-  const raw = typeof period === 'string' ? period.trim().toLowerCase() : period;
-  if (raw === 0 || raw === '0' || raw === '1s' || raw === 's1' || raw === 'second' || raw === 'sec') {
+  const raw = String(period).trim().toLowerCase();
+  if (
+    raw === '0'
+    || raw === '1s'
+    || raw === 's1'
+    || raw === 'sec'
+    || raw === 'second'
+    || raw.includes('period.second')
+    || raw === 'min_0'
+  ) {
     throw FORBIDDEN_1S;
   }
+  if (period === 0) throw FORBIDDEN_1S;
   return true;
+}
+
+export function expandMinuteBarsTo1s(_bars) {
+  throw FORBIDDEN_INTERPOLATE;
 }
 
 export function wrapQuoteContextNoOneSecond(ctx) {
@@ -152,18 +168,38 @@ export function tickFromTrade(symbol, trade) {
   };
 }
 
-export function tickFromQuote(symbol, quote) {
-  const price = toNumber(quote?.lastDone ?? quote?.price ?? quote?.last_done);
+export function quoteHeartbeat(symbol, quote) {
   const tsMs = toMs(quote?.timestamp ?? quote?.tsMs ?? quote?.time);
-  if (!Number.isFinite(price) || !Number.isFinite(tsMs)) return null;
   return {
+    kind: 'heartbeat',
     symbol: fromLongbridgeSymbol(symbol || quote?.symbol),
-    tsMs,
-    price,
-    volume: 0,
-    n_trades: 0,
+    tsMs: Number.isFinite(tsMs) ? tsMs : null,
     source: 'quote'
   };
+}
+
+export function tickFromQuote(symbol, quote) {
+  return quoteHeartbeat(symbol, quote);
+}
+
+export function isQuoteOrMid(raw) {
+  if (!raw || typeof raw !== 'object') return false;
+  const src = String(raw.source || raw.kind || '').toLowerCase();
+  if (src === 'quote' || src === 'heartbeat' || src === 'bid' || src === 'ask' || src === 'mid') return true;
+  if (raw.mid != null && src !== 'trade') return true;
+  if ((raw.bid != null || raw.ask != null) && src !== 'trade' && raw.volume == null) return true;
+  return false;
+}
+
+export function isTradeTick(tick) {
+  return Boolean(
+    tick
+    && tick.source !== 'quote'
+    && tick.kind !== 'heartbeat'
+    && Number.isFinite(tick.price)
+    && Number.isFinite(tick.tsMs)
+    && tick.symbol
+  );
 }
 
 export function ticksFromPushTrades(symbol, payload) {
@@ -173,12 +209,11 @@ export function ticksFromPushTrades(symbol, payload) {
 
 export function normalizeTick(raw) {
   if (!raw || typeof raw !== 'object') return null;
-  if (raw.kind === 'quote' || raw.source === 'quote') {
-    return tickFromQuote(raw.symbol, raw);
-  }
+  if (isQuoteOrMid(raw)) return null;
   if (raw.kind === 'trade' || raw.source === 'trade' || raw.price != null) {
     const tick = tickFromTrade(raw.symbol, raw);
     if (tick && raw.n_trades != null) tick.n_trades = Number(raw.n_trades) || 0;
+    if (tick) tick.source = 'trade';
     return tick;
   }
   return null;
@@ -212,19 +247,18 @@ export class SecondBarAggregator {
 
   ingest(tick) {
     const flushed = [];
-    const normalized = (tick && Number.isFinite(tick.price) && Number.isFinite(tick.tsMs) && tick.symbol)
+    if (isQuoteOrMid(tick)) return flushed;
+    const normalized = (tick && Number.isFinite(tick.price) && Number.isFinite(tick.tsMs) && tick.symbol && tick.source !== 'quote')
       ? {
         symbol: tick.symbol,
         tsMs: tick.tsMs,
         price: tick.price,
         volume: tick.volume || 0,
-        n_trades: Number.isFinite(tick.n_trades)
-          ? tick.n_trades
-          : (tick.source === 'quote' ? 0 : 1),
-        source: tick.source
+        n_trades: Number.isFinite(tick.n_trades) ? tick.n_trades : 1,
+        source: 'trade'
       }
       : normalizeTick(tick);
-    if (!normalized || !normalized.symbol || !Number.isFinite(normalized.price) || !Number.isFinite(normalized.tsMs)) {
+    if (!isTradeTick(normalized)) {
       return flushed;
     }
     const sec = floorToSecondMs(normalized.tsMs);
@@ -294,6 +328,9 @@ export class DayJsonlWriter {
     const tsMs = bar.ts * 1000;
     const date = calendarDateEt(tsMs);
     const filePath = dayFilePath(this.outRoot, bar.symbol, date);
+    if (!bar || !Number.isFinite(bar.n_trades) || bar.n_trades < 1) {
+      return { skipped: true, reason: 'no_trade', path: filePath, date };
+    }
     const key = `${bar.symbol}|${date}`;
     const prev = this.lastTs.get(key);
     if (prev != null && bar.ts < prev) {
@@ -428,14 +465,8 @@ export async function runWithReconnect(opts) {
   return { attempts: attempt, ok: false, lastError };
 }
 
-export function rcloneCopyExample(symbol, dateStr) {
-  const [y, m] = String(dateStr).split('-');
-  return `rclone copy data/market/hot/${symbol}/1s/${dateStr}.jsonl gdrive:whop-market/${y}/${m}/${symbol}/1s/`;
-}
-
 export function dryRunPlan(opts) {
   const symbols = opts.symbols || DEFAULT_SYMBOLS;
-  const date = opts.date || calendarDateEt(Date.now());
   return {
     chg: CHG_ID,
     mode: 'dry-run',
@@ -443,16 +474,17 @@ export function dryRunPlan(opts) {
     outRoot: opts.outRoot,
     manifestPath: opts.manifestPath,
     source: MANIFEST_SOURCE,
+    agg: 'trades_only',
+    quote: 'heartbeat_only',
+    empty_seconds: 'no_row',
     period_min: 'Min_1',
+    period_second: 'forbidden',
     candlestick_1s: 'forbidden',
+    interpolate_1m_5m: 'forbidden',
     backfill: 'forbidden',
     depth: 'forbidden',
-    yahoo_1s: 'forbidden',
+    rclone_in_collector: false,
     systemd_storage_claim: 'forbidden',
-    rclone_installed: false,
-    rclone_example: rcloneCopyExample(symbols[0], date),
-    hot_retention: 'gcp 60-90d (operator after merge; Gemini deploys)',
-    paper_filled: 'separate lane',
     cold_path: null
   };
 }

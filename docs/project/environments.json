@@ -135,7 +135,7 @@
       "sor": "gcp-vm",
       "artifact": "data/market/hot/{SYM}/1s/YYYY-MM-DD.jsonl + data/manifest/market_1s.jsonl",
       "git": "code-and-fixtures-only",
-      "notes": "CHG-056：Quote+Trade 进程内聚合；禁 1s candlestick API、Yahoo 插值、Depth、systemd 声称 live。cold_path 现为空。部署=Gemini after merge。"
+      "notes": "CHG-056：OHLC 只聚合 trades；Quote 心跳不填空秒。禁 1s candlestick / Period.Second / 1m·5m 插值。采集进程不接 rclone。cold_path 现为空。部署=Gemini after merge。"
     },
     {
       "id": "media-files",

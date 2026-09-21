@@ -11,7 +11,7 @@
 | `date` | `YYYY-MM-DD`（America/New_York） |
 | `n_rows` | jsonl 行数 |
 | `sha256` | 日文件哈希 |
-| `source` | 固定 `longbridge_quote_trade_agg` |
+| `source` | 固定 `longbridge_trade_agg` |
 | `cold_path` | 现为 `null`（rclone 未装；冷路径以后再填） |
 
-CHG-056：真实行情在 `data/market/`（gitignore）。冷拷贝只允许操作员本机执行 `rclone copy … gdrive:whop-market/YYYY/MM/{SYM}/1s/`，禁止把 `rclone.conf` 提交进仓。
+CHG-056：真实行情在 `data/market/`（gitignore）。采集进程不调用 rclone。hot 有文件后，操作员才可 `rclone copy … gdrive:whop-market/YYYY/MM/{SYM}/1s/`，禁止提交 `rclone.conf`。
