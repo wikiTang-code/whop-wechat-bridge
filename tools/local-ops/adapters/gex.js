@@ -6,14 +6,17 @@ import {
   buildGexLatestPayload,
   computeAgeAndStale,
   readGexLatestFile,
+  GEX_MATRIX_ALLOW,
+  GEX_MATRIX_DEFAULT,
 } from '../../../monitoring/gex-readonly.js';
 
 const ZERO_DTE_ALLOW = new Set(['SPY', 'QQQ', 'SPX', 'VIX', 'NDX']);
-const MATRIX_ALLOW = new Set(['TSLA', 'NVDA', 'SPY', 'QQQ']);
+const MATRIX_ALLOW = new Set(GEX_MATRIX_ALLOW);
 const HTML_ALLOW = Object.freeze({
   heatseeker: 'heatseeker_gex.html',
-  matrix_TSLA: 'gex_matrix_TSLA.html',
-  matrix_NVDA: 'gex_matrix_NVDA.html',
+  ...Object.fromEntries(
+    [...MATRIX_ALLOW].map((t) => [`matrix_${t}`, `gex_matrix_${t}.html`]),
+  ),
 });
 const SKIP_FLAG = path.join('data', 'gex', '.skip_open_session');
 
@@ -80,7 +83,7 @@ export function createGexAdapter({
   readLatest,
   spawnImpl = spawn,
   openImpl,
-  collectTimeoutMs = 10 * 60 * 1000,
+  collectTimeoutMs = 15 * 60 * 1000,
 } = {}) {
   const load = readLatest || ((dir) => readGexLatestFile(dir));
   const opener = openImpl || ((target) => defaultOpen(target, spawnImpl));
@@ -106,7 +109,7 @@ export function createGexAdapter({
     const skipMatrix = args.skip_matrix === true;
     const matrix = skipMatrix
       ? []
-      : parseTickerList(args.matrix, MATRIX_ALLOW, ['TSLA']);
+      : parseTickerList(args.matrix, MATRIX_ALLOW, [...GEX_MATRIX_DEFAULT]);
     const expiries = args.expiries == null ? 5 : Number(args.expiries);
     if (!Number.isInteger(expiries) || expiries < 1 || expiries > 10) {
       throw new Error('expiries must be integer 1..10');

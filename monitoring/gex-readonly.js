@@ -7,13 +7,30 @@ import fs from 'fs/promises';
 import path from 'path';
 import express from 'express';
 
+/** Zhao freq 2x/3x → optionable underlying for GEX corroboration (CHG-057). */
 export const GEX_UNDERLYING_MAP = Object.freeze({
   TSLL: 'TSLA',
   TSLA: 'TSLA',
+  CONL: 'COIN',
+  COIN: 'COIN',
+  NVDL: 'NVDA',
+  NVDA: 'NVDA',
+  SOXL: 'SOXL',
+  IREN: 'IREN',
+  CRWV: 'CRWV',
+  MU: 'MU',
+  COHR: 'COHR',
+  LITE: 'LITE',
   SPY: 'SPY',
   QQQ: 'QQQ',
   SPX: 'SPX',
 });
+
+/** Open-session default matrix. Levered fills map via GEX_UNDERLYING_MAP. */
+export const GEX_MATRIX_DEFAULT = Object.freeze([
+  'TSLA', 'IREN', 'CRWV', 'MU', 'COHR', 'SOXL', 'COIN', 'NVDA', 'LITE',
+]);
+export const GEX_MATRIX_ALLOW = Object.freeze([...GEX_MATRIX_DEFAULT, 'SPY', 'QQQ']);
 
 export const GEX_OI_AS_OF = 'yesterday_close';
 export const STALE_RTH_MS = 60 * 60 * 1000;
@@ -216,28 +233,37 @@ export function buildGexAnalysis({ index = {}, matrix = {}, focus = {}, session,
   const qqq = index?.QQQ || null;
   const spx = index?.SPX || null;
 
-  if (tsla) {
-    const spot = tsla.spot;
-    const vsFloor = wallVsSpot(spot, tsla.floor);
-    const vsKing = wallVsSpot(spot, tsla.king);
-    const bias = columnBias(tsla.column_totals);
-    let tslaLine = `TSLA 现货 ${fmtStrikeShort(spot)}`;
-    if (tsla.floor?.strike != null) {
-      tslaLine += `；Floor ${fmtStrikeShort(tsla.floor.strike)}`;
-      if (vsFloor === 'below') tslaLine += '（现价在正 GEX 墙下方）';
-      else if (vsFloor === 'above') tslaLine += '（现价在 Floor 上方）';
-      else if (vsFloor === 'at') tslaLine += '（贴着 Floor）';
+  const matrixTickers = Object.keys(matrix || {});
+  if (matrixTickers.length) {
+    for (const sym of matrixTickers) {
+      const item = matrix[sym];
+      if (!item) continue;
+      const spot = item.spot;
+      const vsFloor = wallVsSpot(spot, item.floor);
+      const vsKing = wallVsSpot(spot, item.king);
+      let line = `${sym} 现货 ${fmtStrikeShort(spot)}`;
+      if (item.floor?.strike != null) {
+        line += `；Floor ${fmtStrikeShort(item.floor.strike)}`;
+        if (vsFloor === 'below') line += '（现价在正 GEX 墙下方）';
+        else if (vsFloor === 'above') line += '（现价在 Floor 上方）';
+        else if (vsFloor === 'at') line += '（贴着 Floor）';
+      }
+      if (item.king?.strike != null) {
+        line += `；King ${fmtStrikeShort(item.king.strike)}`;
+        if (vsKing === 'below') line += '（现价在 King 下方）';
+        else if (vsKing === 'above') line += '（现价已越过 King）';
+        else if (vsKing === 'at') line += '（贴着 King）';
+      }
+      bullets.push(line);
     }
-    if (tsla.king?.strike != null) {
-      tslaLine += `；King ${fmtStrikeShort(tsla.king.strike)}`;
-      if (vsKing === 'below') tslaLine += '（现价在 King 下方）';
-      else if (vsKing === 'above') tslaLine += '（现价已越过 King）';
-      else if (vsKing === 'at') tslaLine += '（贴着 King）';
-    }
-    bullets.push(tslaLine);
-    if (bias) {
-      const side = bias.sum < 0 ? '多到期日列合计偏负（净卖压墙更重）' : '多到期日列合计偏正（正 GEX 列更重）';
-      bullets.push(`TSLA 矩阵：${side}；负列 ${bias.negDays}/${bias.days} 个到期日`);
+    const focusItem = matrix[underlying] || matrix.TSLA || matrix[matrixTickers[0]];
+    if (focusItem) {
+      const bias = columnBias(focusItem.column_totals);
+      if (bias) {
+        const label = matrix[underlying] ? underlying : (matrix.TSLA ? 'TSLA' : matrixTickers[0]);
+        const side = bias.sum < 0 ? '多到期日列合计偏负（净卖压墙更重）' : '多到期日列合计偏正（正 GEX 列更重）';
+        bullets.push(`${label} 矩阵：${side}；负列 ${bias.negDays}/${bias.days} 个到期日`);
+      }
     }
   } else {
     bullets.push(`${underlying} 矩阵暂无（本机采集后才会出现）`);
@@ -335,8 +361,13 @@ export function buildGexLatestPayload(raw, { now = Date.now(), symbol = 'TSLA', 
   }
 
   const matrix = {};
-  const tsla = summarizeMatrix(raw.matrix?.TSLA);
-  if (tsla) matrix.TSLA = tsla;
+  const rawMatrix = raw.matrix && typeof raw.matrix === 'object' ? raw.matrix : {};
+  const preferred = GEX_MATRIX_DEFAULT.filter((t) => rawMatrix[t]);
+  const extras = Object.keys(rawMatrix).filter((t) => !preferred.includes(t)).sort();
+  for (const ticker of [...preferred, ...extras]) {
+    const summary = summarizeMatrix(rawMatrix[ticker]);
+    if (summary) matrix[ticker] = summary;
+  }
 
   const analysis = buildGexAnalysis({
     index,

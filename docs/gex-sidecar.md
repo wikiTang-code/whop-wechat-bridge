@@ -11,7 +11,7 @@
 - `source`: `futu-opend`（不是 longbridge-cli）
 - `errors`: `[]`
 - `zero_dte`: SPY / QQQ / SPX 均有 ladder，期权覆盖 102/102
-- `matrix`: TSLA × 5 个到期日
+- `matrix`: 赵哥高频正股（CHG-057 默认 TSLA/IREN/CRWV/MU/COHR/SOXL/COIN/NVDA/LITE）× 5 个到期日；2× 票看正股墙（TSLL→TSLA、CONL→COIN、NVDL→NVDA）
 - `kind`: `nearest`（周末代理，到期 2026-09-08，**不是** 0DTE）
 
 同日更早的空文件 `snapshot_20260905_181759.json` / `182010.json` 是长桥 **OpenAPI OPRA 未开通** 时 `collect.py` 的失败日志（`zero_dte: {}` + errors）。它们**没有进 git**，不能当成当前采集状态。长桥 CLI 现在只用来补 `.SPX.US` 现货；期权链走富途 API 商店 OPRA（`us_option=LV1`），不是 App 行情那张 $2.99。
@@ -50,7 +50,7 @@ Dashboard **已挂只读消费**（v1）：
 推荐时刻：**美东 09:40（开盘后约 10 分钟）周一至周五**。
 
 1. 复制配置：`tools/gex-sidecar/open_session_config.example.json` → `open_session_config.json`（已 gitignore）
-2. 改 `mode` / `zero_dte` / `matrix`（默认 SPY,QQQ,SPX + TSLA）
+2. 改 `mode` / `zero_dte` / `matrix`（默认 SPY,QQQ,SPX + 赵哥高频正股矩阵）
 3. 试跑：`python tools/gex-sidecar/open_session_run.py --dry-run`
 4. 安装计划任务：`powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1`  
    - 安装器把 **美东 09:40** 换算成**本机墙钟**（如中国夏令对应 21:40）写入触发器。  

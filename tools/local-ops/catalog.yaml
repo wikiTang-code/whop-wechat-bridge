@@ -50,7 +50,7 @@ capabilities:
     class: C1
     where: local
     adapter: gex
-    description: Run Futu OpenD GEX collect on Windows. Enum tickers only.
+    description: Run Futu OpenD GEX collect on Windows. Enum tickers only. Default matrix=Zhao-freq underlyings (CHG-057).
   - id: gex.skip_open_session
     class: C1
     where: local

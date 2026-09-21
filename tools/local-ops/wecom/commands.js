@@ -68,7 +68,7 @@ export function parseOpsCommand(text) {
       id: 'gex.collect',
       args: {},
       async: true,
-      ack: '已启动 gex.collect（默认 zero-dte SPY/QQQ/SPX + matrix TSLA）。',
+      ack: '已启动 gex.collect（默认 zero-dte SPY/QQQ/SPX + matrix 赵哥高频正股）。',
     };
   }
 

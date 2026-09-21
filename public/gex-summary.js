@@ -189,7 +189,7 @@
       focusNote = '焦点 ' + escapeHtml(underlying);
     }
 
-    const tsla = data.matrix && data.matrix.TSLA ? data.matrix.TSLA : null;
+    const matrixMap = data.matrix && typeof data.matrix === 'object' ? data.matrix : {};
     const spy = data.index && data.index.SPY ? data.index.SPY : null;
     const qqq = data.index && data.index.QQQ ? data.index.QQQ : null;
     const spx = data.index && data.index.SPX ? data.index.SPX : null;
@@ -202,17 +202,24 @@
     statusBits.push('OI 截至昨日收盘（T+1）');
     statusBits.push('不是买卖指令');
 
-    let tslaBlock = '';
-    if (tsla) {
-      tslaBlock =
-        '<div class="gex-chip gex-chip-focus">' +
-          '<div class="gex-chip-title">TSLA</div>' +
-          '<div>现货 ' + fmtStrike(tsla.spot) + '</div>' +
-          '<div>' + escapeHtml(wallLine('Floor', tsla.floor)) + '</div>' +
-          '<div>' + escapeHtml(wallLine('King', tsla.king)) + '</div>' +
+    const matrixChips = Object.keys(matrixMap).map(function (sym) {
+      const item = matrixMap[sym];
+      if (!item) return '';
+      const focusCls = (underlying && sym === underlying) ? ' gex-chip-focus' : '';
+      return (
+        '<div class="gex-chip' + focusCls + '">' +
+          '<div class="gex-chip-title">' + escapeHtml(sym) + '</div>' +
+          '<div>现货 ' + fmtStrike(item.spot) + '</div>' +
+          '<div>' + escapeHtml(wallLine('Floor', item.floor)) + '</div>' +
+          '<div>' + escapeHtml(wallLine('King', item.king)) + '</div>' +
           '<div class="gex-muted">列合计 / 到期日见「详情与热图」</div>' +
-        '</div>';
-    }
+        '</div>'
+      );
+    }).join('');
+
+    const matrixDetails = Object.keys(matrixMap).map(function (sym) {
+      return detailExtras(sym, matrixMap[sym], true);
+    }).join('');
 
     const detailBody =
       '<div class="gex-detail-lead">' +
@@ -234,7 +241,7 @@
       '</div>' +
       (col.note ? '<div class="gex-detail-note">' + escapeHtml(col.note) + '</div>' : '') +
       '<div class="gex-detail-grid">' +
-        detailExtras('TSLA', tsla, true) +
+        matrixDetails +
         detailExtras('SPY', spy, false) +
         detailExtras('QQQ', qqq, false) +
         detailExtras('SPX', spx, false) +
@@ -254,7 +261,7 @@
       (focusNote ? '<div class="gex-focus">' + focusNote + '</div>' : '') +
       analysisHtml(data.analysis) +
       '<div class="gex-summary-grid">' +
-        tslaBlock +
+        matrixChips +
         indexChip('SPY', spy) +
         indexChip('QQQ', qqq) +
         indexChip('SPX', spx) +

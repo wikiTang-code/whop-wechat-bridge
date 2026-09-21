@@ -55,21 +55,26 @@ function formatGexSummarize(data) {
       + ` | ${x.regime || '-'}`,
     );
   }
-  const tsla = d.matrix?.TSLA;
-  if (tsla) {
+  const mx = d.matrix && typeof d.matrix === 'object' ? d.matrix : {};
+  const mxKeys = Object.keys(mx);
+  if (mxKeys.length) {
     lines.push('');
-    lines.push(
-      `个股 TSLA：现货 ${tsla.spot ?? '-'}`
-      + ` | KING ${tsla.king?.strike ?? '-'}`
-      + ` | FLOOR ${tsla.floor?.strike ?? '-'}`
-      + ` | ${tsla.regime || '-'}`,
-    );
+    for (const sym of mxKeys) {
+      const row = mx[sym];
+      if (!row) continue;
+      lines.push(
+        `个股 ${sym}：现货 ${row.spot ?? '-'}`
+        + ` | KING ${row.king?.strike ?? '-'}`
+        + ` | FLOOR ${row.floor?.strike ?? '-'}`
+        + ` | ${row.regime || '-'}`,
+      );
+    }
   } else if (d.focus?.underlying || d.focus?.query) {
     lines.push('');
     lines.push(`个股焦点：${d.focus.underlying || d.focus.query}`);
   }
   lines.push('');
-  lines.push('读法：正 gamma 偏粘；KING≈阻力、FLOOR≈支撑。对齐赵哥价位再看，勿单独当信号。');
+  lines.push('读法：正 gamma 偏粘；KING≈Put Wall/下方墙，FLOOR≈Call Wall/上方墙。对齐赵哥价位再看，勿单独当信号。');
   return clip(lines);
 }
 

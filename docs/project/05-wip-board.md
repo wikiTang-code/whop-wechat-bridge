@@ -13,7 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **CHG-056b** | L5 | collect_1s **live 订阅补丁**：dotenv + `subscribe(..., true)` isFirstPush（GCP-verified NAPI）失败回退两参。不改 `ohlcv_1s.js` / `brokers/longbridge.js`。夹具验收在 #21，不复称为 live。**阶段 A 四条验收全绿（2026-09-21）**：pm2 online ≥ 1h、热区行随成交增加、pm2 restart 追加同一 jsonl、git 无行情大文件。**阶段 B（rclone）待拍板** | `scripts/market/collect_1s_ohlcv.js` | **done-eng (stageA-passed)** |
+| **1** | **CHG-057** | L3 | GEX 矩阵扩赵哥高频正股（TSLA+IREN/CRWV/MU/COHR/SOXL/COIN/NVDA/LITE；2×映正股）。L2 映证，不拦截不下单 | `collect_futu.py` · `gex-readonly.js` · `adapters/gex.js` | **done-eng** |
+| 1a | **CHG-056b** | L5 | collect_1s **live 订阅补丁**：dotenv + `subscribe(..., true)` isFirstPush（GCP-verified NAPI）失败回退两参。不改 `ohlcv_1s.js` / `brokers/longbridge.js`。夹具验收在 #21，不复称为 live。**阶段 A 四条验收全绿（2026-09-21）**：pm2 online ≥ 1h、热区行随成交增加、pm2 restart 追加同一 jsonl、git 无行情大文件。**阶段 B（rclone）待拍板** | `scripts/market/collect_1s_ohlcv.js` | **done-eng (stageA-passed)** |
 | 1b | **CHG-056** | L5 | 长桥 **trades-only** → 1s OHLCV hot jsonl（空秒不写行；`source=longbridge_trade_agg`；禁 Period.Second / 1m·5m 插值）。**GCP 常驻 pm2 `market-1s` @ `3614cef`**，Top5 盘前累计 1000+ bars/标的（SOXL 1476 行、IREN 473 行，2026-09-21 07:00 ET）。**阶段 B（rclone冷档）待拍板** | `scripts/market/collect_1s_ohlcv.js` · `scripts/market/lib/ohlcv_1s.js` | **done-eng (stageA-passed)** |
 | 2 | **REQ-059** | L3 | 轨 2 双账本最小集（S 风格 × R-precursor；冻结 4 条 OHLCV；夹具离线路径）。**`done-strat` 未过** | `scripts/knowledge/lib/dual_ledger_track2.js` · `059-dual-ledger-track2-report.md` | **done-eng** |
 | 3 | **CHG-055** | L0 | 规划合同 2026-09-21 落盘（HEAD≈e1656af；下一刀=只切轨2；Cloud≠全量 archive） | `docs/project/09-development-plan-contract-20260921.md` | **accepted** |
@@ -21,7 +22,7 @@
 | 5 | **CHG-053** | L0 | REQ-058 Appendix B 1m resolution diagnostic（docs-only；**不是**主校准表） | `docs/project/058-delayed-follow-e-v0-report.md` | **done-eng** |
 | 6 | **CHG-052** | L1 | 前瞻观测 `t_arrive` ingest（新行；禁口播→`px_arrive`；历史仍 `t_arrive_hat`；#16=`e54ffd70`） | `tools/trade/observed_arrival.js` · `database.js` | **done-eng** |
 | 7 | **REQ-058** | L3 | Plan B `message_clock` + Appendix A 主校准（5m N=196，门禁 passed）+ Appendix B 1m 诊断（n_scored=33）；**`done-strat` 未过** | `docs/project/058-delayed-follow-e-v0-report.md` | **done-eng (accepted-with-gap)** |
-| 8 | **CHG-051** | L0 | 三角色合同：跟单执行 vs 周哥QQQ模拟仓 vs 自研参考轨；P0 仍是夜盘 FILLED | `docs/project/dual-track-operating-contract.md` | **accepted** |
+| 8 | **CHG-051** | L0 | 三角色合同：跟单执行 vs 周哥QQQ模拟仓 vs 自研参考轨；P0 仍是 Paper `FILLED`。**2026-09-21 RTH 跟单观察**：钉 IREN BUY 46.5，ask 47.67→**policy C**（251bp），未贴 ask 追、未造 FILLED | `docs/project/dual-track-operating-contract.md` | **accepted** |
 | 9 | **CHG-050** | L3 | REQ-057 P2 exploratory holdout。Grok `221a559` ACCEPT WITH NOTES，拍板 B | `scripts/knowledge/lib/exploratory_is_oos.js` | **done-eng (accepted-with-gap)** |
 | 10 | **REQ-038-T2** | L3 | n_scored 扩样；03 已由 gemini1 关单 | `card_attribution.js` | **Done** |
 | 11 | **REQ-040** | L3 | T2 扩样本；03=`done` | `batch_vision*` · `card_attribution*` | **Done** |
@@ -71,7 +72,7 @@
 | Q-007 | CHG-018：关 Windows LM Studio 切流？ | **Done**（Human 2026-09-19 确认已关 LMS 且切流试用 OK） |
 | Q-008 | REQ-038-T1 云端 VL API 密钥 | **Done**（Human 配置纯 Free Tier 密钥；实测 SPY K线真图多模态抽取成功，纯免费 0 扣费） |
 | **企微 #91 CONL** | 解锁 §0.B REQ-033 队头回放 | **等待点击**（阻塞 gemini） |
-| **Paper 夜盘 FILLED** | P0：20:00 ET 跑 `night_market_kickoff.js` 1 股 TSLA | **等待时钟**（回测不证明柜台） |
+| **Paper FILLED** | P0：RTH 已开。2026-09-21 09:52 ET 跟单试单：IREN 1 股因 **policy C** 未报送；`FILLED=否`（未造单）。柜台凭证在本机，长桥 quote 通 | **未过**（C 弃单；非时钟） |
 
 ### 0.X Blocked 感知表（跨 Owner · 强制可见）
 
@@ -81,7 +82,7 @@
 |--------|----------|------------|----------|----------|:----:|
 | **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini1`** | 赵哥 TSLA 图多为聊天截图无 SR | 关联 `source_text` 预富集修复，扩标池至 12 标的，全库评测 166 张（n_scored=147），提纯 108 张黄金战法 | **Cleared** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
-| **Paper 夜盘未开** | 全队列 P0 | **时钟 / human** | 20:00 ET 前不可能真实 FILLED | 周一 08:00 CST 跑 `night_market_kickoff.js` | **Open** |
+| **Paper FILLED** | 全队列 P0 | **human / 下一笔 A\|B** | 夜盘时钟已过。RTH 最新三笔买单（IREN/CRWV/NBIS）到达后 ask 相对口播均 >40bp → C；底仓 0 不能卖 | Human 若要「C 也贴 ask 成交」再令；否则等下一笔 A/B | **Open** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 
 ### 0.R
@@ -280,7 +281,6 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**已增量开工**（CHG-029/030）：收 VL `level` → n_scored=6 hit5=1；promote gcp vision_meta=158。T2/040=Doing。请 gemini 优先产出带 SR 的 TSLA/TSLL ok 行。
-- gemini：033 仍等 Human #91；T1 继续跑——**不必等全量**，有 TSLA SR 即促 cursor 再消费。
-- gemini1：**REQ-036** Standing。
-- Human：REQ-002 Done；Q-001；企微 #91；Q-006 云端离线批已决。
+- cursor：**CHG-057** GEX 矩阵扩赵哥高频正股 `done-eng`（L2 映证，不拦截不下单）。本会话 RTH 跟单观察：IREN BUY 46.5 = **policy C**，Paper **未报送 / FILLED=否**。
+- gemini：033 仍等 Human #91。
+- Human：企微 #91；Q-001；若要 C 也贴 ask 成交 Paper 1 股，需再令。

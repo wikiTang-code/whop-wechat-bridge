@@ -91,12 +91,12 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **CHG-056b** collect_1s dotenv + subscribe isFirstPush fallback（done-eng；GCP dirty diff；#21 夹具不复称为 live；无非夹具 live bar；非 done-strat）· **CHG-056** 长桥 trades-only → 1s OHLCV hot jsonl（done-eng；`longbridge_trade_agg`；夹具 #21/`969a175`；GCP 部署=Gemini after merge；非 done-strat）· **REQ-059** 轨2 双账本脚手架（done-eng；非 done-strat）· **CHG-055** 规划合同 accepted · **CHG-054** ingest 落库观测 `t_arrive`（done-eng）· **CHG-053** Appendix B 1m diagnostic（done-eng；非主表）· **CHG-052** 观测 `t_arrive` ingest（done-eng · #16=`e54ffd70`）· **REQ-058** Appendix A 5m N=196 主校准（**done-strat 未过**）· CHG-051 accepted | done-eng |
+| **§0.A `agent:cursor`** | **CHG-057** GEX 矩阵扩赵哥高频正股（done-eng；非 done-strat）· **CHG-056b** collect_1s dotenv + subscribe isFirstPush fallback（done-eng） | done-eng |
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 
-| **§0.H `human`** | 企微 **#91 CONL**；Q-001；**Paper 夜盘 FILLED 等待 20:00 ET** | 等待 |
-| **§0.X Blocked** | 040=**Cleared**；033→human；**夜盘时钟** | **见 05 §0.X** |
+| **§0.H `human`** | 企微 **#91 CONL**；Q-001；**Paper FILLED 未过**（2026-09-21 RTH IREN=C 未报送） | 等待 |
+| **§0.X Blocked** | 040=**Cleared**；033→human；**Paper FILLED**（C 弃单，非时钟） | **见 05 §0.X** |
 | **§0.R-A** | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | Done |
 | **§0.R-A** | **REQ-042/CHG-034** accepted-with-gates | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |

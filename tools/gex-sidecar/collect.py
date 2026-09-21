@@ -66,15 +66,19 @@ def lb_env() -> dict:
 
 
 def lb_json(lb: str, args: list[str]) -> list:
-    r = subprocess.run(
-        [lb, *args, "--format", "json"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        env=lb_env(),
-    )
     cmd = "longbridge " + " ".join(args)
+    try:
+        r = subprocess.run(
+            [lb, *args, "--format", "json"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=lb_env(),
+            timeout=45,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(f"{cmd} 超时 45s") from exc
     if r.returncode != 0:
         err = (r.stderr or r.stdout or "").strip()[:400]
         raise RuntimeError(f"{cmd} 退出码 {r.returncode}: {err}")

@@ -23,7 +23,7 @@
 | **跟单轨** | 赵哥开口才动 | 专属频道 + `sender_id` 硬锁 | Intent：`t_arrive, px_zhao, px_arrive, delta, exec_policy∈{A,B,C}` | HITL 后可以（Paper） |
 | **周哥 QQQ 模拟仓** | 他工具箱持续播 | 「日内波段信号检测」等频道原文 | 短/中线模拟仓、买入卖出价、累计盈亏；L2b `hint_only` | **否**（可验证，不跟单、不进 L2a） |
 | **自研参考轨** | 赵哥不开口也播 | 只许 OHLCV / 波动 / 量能 | `status=REFERENCE_ONLY` 卡片 | **否** |
-| **GEX** | sidecar | `latest.json` | 结构加减分、WARN | **否**（不硬拦） |
+| **GEX** | sidecar | `latest.json` 矩阵含赵哥高频正股（CHG-057） | 结构加减分、WARN | **否**（不硬拦） |
 
 周哥 QQQ 播报是**带模拟仓的参考频道**，不是口头多空。本机已有隔离回放：[`data/runs/mrzhou_strategy/QQQ_HINT_REPLAY.md`](../../data/runs/mrzhou_strategy/QQQ_HINT_REPLAY.md)（2026-04-21～06-26，88 笔已平，75/13，名义胜率 85.2%，同期 QQQ 买持 +9.7%——牛市窗，不能当全天候 alpha）。群里自报胜率/盈利率**可以、也应该对照这条频道账**，但 `trade_signals` 必须保持 0 条周哥单（硬隔离）。
 

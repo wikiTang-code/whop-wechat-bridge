@@ -31,6 +31,13 @@ OWNER = {
     "QQQ": "US.QQQ",
     "TSLA": "US.TSLA",
     "NVDA": "US.NVDA",
+    "IREN": "US.IREN",
+    "CRWV": "US.CRWV",
+    "MU": "US.MU",
+    "COHR": "US.COHR",
+    "SOXL": "US.SOXL",
+    "COIN": "US.COIN",
+    "LITE": "US.LITE",
     "SPX": "US..SPX",
     "VIX": "US..VIX",
     "NDX": "US..NDX",
@@ -38,8 +45,38 @@ OWNER = {
 INDEX_TICKERS = {"SPX", "VIX", "NDX"}
 SNAP_BATCH = 80
 SNAP_GAP = 0.6
+CHAIN_GAP = 3.5
 DEFAULT_ZERO_DTE = ("SPY", "QQQ", "SPX")
-DEFAULT_MATRIX = ("TSLA",)
+# CHG-057: Zhao-freq underlyings (TSLL→TSLA, CONL→COIN, NVDL→NVDA).
+DEFAULT_MATRIX = ("TSLA", "IREN", "CRWV", "MU", "COHR", "SOXL", "COIN", "NVDA", "LITE")
+_last_chain_mono = 0.0
+
+
+def throttle_chain(gap: float = CHAIN_GAP) -> None:
+    """Futu OpenD option-chain quota: 10 calls / 30s."""
+    global _last_chain_mono
+    now = time.monotonic()
+    wait = gap - (now - _last_chain_mono)
+    if wait > 0:
+        time.sleep(wait)
+    _last_chain_mono = time.monotonic()
+
+
+def futu_chain_call(fn, what: str, tries: int = 4):
+    last = None
+    for i in range(tries):
+        throttle_chain()
+        ret, data = fn()
+        if ret == RET_OK:
+            return data
+        msg = str(data)
+        last = msg
+        if "频率太高" in msg or "每30秒" in msg:
+            print(f"  .. {what} 限频，等 31s ({i + 1}/{tries})", flush=True)
+            time.sleep(31)
+            continue
+        raise RuntimeError(f"{what}: {data}")
+    raise RuntimeError(f"{what}: {last}")
 
 
 def futu_code(ticker: str) -> str:
@@ -56,7 +93,7 @@ def must_ok(ret, data, what: str):
 
 
 def list_future_expiries(ctx, owner: str) -> list[str]:
-    data = must_ok(*ctx.get_option_expiration_date(owner), f"expiry {owner}")
+    data = futu_chain_call(lambda: ctx.get_option_expiration_date(owner), f"expiry {owner}")
     today = date.today().isoformat()
     exps = sorted({str(x) for x in data["strike_time"].tolist() if str(x) >= today})
     if not exps:
@@ -125,7 +162,7 @@ def get_spot(ctx, ticker: str) -> tuple[float, float | None]:
 
 
 def chain_for_expiry(ctx, owner: str, exp: str):
-    return must_ok(*ctx.get_option_chain(owner, start=exp, end=exp), f"chain {owner} {exp}")
+    return futu_chain_call(lambda: ctx.get_option_chain(owner, start=exp, end=exp), f"chain {owner} {exp}")
 
 
 def windowed_contracts(chain, spot: float, width: int) -> list[dict]:

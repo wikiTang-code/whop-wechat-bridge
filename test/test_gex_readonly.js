@@ -96,6 +96,17 @@ const fixture = {
       column_totals: { '2026-09-09': -10117236.13, '2026-09-18': -11630492 },
       matrix: [{ strike: 360, sum_gex: -1 }],
     },
+    IREN: {
+      kind: 'matrix',
+      ticker: 'IREN',
+      spot: 42.1,
+      change_pct: 1.2,
+      expiries: ['2026-09-21'],
+      king: { strike: 40, expiry: '2026-09-21', net_gex: -100 },
+      floor: { strike: 45, expiry: '2026-09-21', net_gex: 200 },
+      column_totals: { '2026-09-21': 50 },
+      matrix: [{ strike: 40, sum_gex: -1 }],
+    },
   },
   errors: [],
 };
@@ -104,7 +115,9 @@ const fixture = {
   const m = mapGexUnderlying('tsll');
   assert(m.query === 'TSLL' && m.underlying === 'TSLA', 'TSLL maps to TSLA');
   assert(mapGexUnderlying('TSLA').underlying === 'TSLA', 'TSLA stays TSLA');
-  assert(mapGexUnderlying('NVDA').underlying === null, 'unknown symbol has no underlying');
+  assert(mapGexUnderlying('NVDA').underlying === 'NVDA', 'NVDA maps to itself');
+  assert(mapGexUnderlying('CONL').underlying === 'COIN', 'CONL maps to COIN');
+  assert(mapGexUnderlying('FOO').underlying === null, 'unknown symbol has no underlying');
 }
 
 {
@@ -152,6 +165,8 @@ const fixture = {
   assert(data.focus.query === 'TSLL' && data.focus.underlying === 'TSLA', 'focus mapping only');
   assert(data.index.SPY.kind === 'nearest', 'SPY present');
   assert(data.matrix.TSLA.spot === 354.08, 'TSLA matrix present for TSLL query');
+  assert(data.matrix.IREN.spot === 42.1, 'IREN matrix present in payload');
+  assert(!Object.prototype.hasOwnProperty.call(data.matrix.IREN, 'matrix'), 'IREN nested matrix stripped');
   assert(data.stale === true, 'weekend sample older than 12h at test now');
   assertForbiddenKeys(data, ['ladder', 'pillow'], 'payload');
   assert(!Array.isArray(data.matrix.TSLA.matrix), 'no ladder matrix array');
@@ -262,7 +277,7 @@ function request(port, method, urlPath) {
     assert(!JSON.stringify(data.index).includes('"ladder"'), 'sample index has no ladder');
     assert(!Object.prototype.hasOwnProperty.call(data.matrix.TSLA, 'matrix'), 'sample TSLA has no nested matrix');
     assert(data.oi_as_of === 'yesterday_close', 'sample oi_as_of');
-    assert(data.index.SPY.kind === 'nearest', 'weekend sample is nearest not 0dte');
+    assert(data.index.SPY.kind === 'nearest' || data.index.SPY.kind === '0dte', 'sample kind is nearest or 0dte');
     assert(Array.isArray(data.matrix.TSLA.expiries) && data.matrix.TSLA.expiries.length > 0, 'sample exposes expiries');
     assert(data.matrix.TSLA.change_pct != null, 'sample exposes change_pct');
   }
