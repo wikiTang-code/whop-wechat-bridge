@@ -34,7 +34,7 @@ import {
   ticksFromPushTrades,
   wrapQuoteContextNoOneSecond
 } from '../scripts/market/lib/ohlcv_1s.js';
-import { main, parseCliArgs } from '../scripts/market/collect_1s_ohlcv.js';
+import { main, parseCliArgs, runLiveSession } from '../scripts/market/collect_1s_ohlcv.js';
 
 const ROOT = path.resolve('.');
 const SCRIPT = path.resolve('scripts/market/collect_1s_ohlcv.js');
@@ -276,6 +276,48 @@ describe('CHG-056 1s OHLCV aggregator', () => {
     fs.rmSync(tmp, { recursive: true, force: true });
   });
 
+  it('live subscribe tries isFirstPush then falls back to two-arg (GCP-verified NAPI)', async () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'chg056b-sub-'));
+    const baseOpts = {
+      symbols: ['IREN'],
+      outRoot: path.join(tmp, 'hot'),
+      manifestPath: path.join(tmp, 'manifest.jsonl'),
+      once: true,
+      idleMs: 5,
+      heartbeatMs: 1,
+      backoffMs: 1,
+      maxAttempts: 1
+    };
+    const threeArgCalls = [];
+    await runLiveSession(baseOpts, {
+      createContext: async () => ({
+        ctx: {
+          subscribe: async (...args) => {
+            threeArgCalls.push(args.length);
+            assert.equal(args[2], true);
+          }
+        },
+        SubType: { Trade: 3, Quote: 0 }
+      })
+    });
+    assert.equal(threeArgCalls[0], 3);
+
+    const fallbackCalls = [];
+    await runLiveSession(baseOpts, {
+      createContext: async () => ({
+        ctx: {
+          subscribe: async (...args) => {
+            fallbackCalls.push(args.length);
+            if (args.length === 3) throw new Error('subscribe_arity');
+          }
+        },
+        SubType: { Trade: 3, Quote: 0 }
+      })
+    });
+    assert.deepEqual(fallbackCalls, [3, 2]);
+    fs.rmSync(tmp, { recursive: true, force: true });
+  });
+
   it('collector never calls 1s candles or rclone; gitignore pins data/market/', () => {
     const gi = fs.readFileSync(path.join(ROOT, '.gitignore'), 'utf8');
     assert.match(gi, /^data\/market\/$/m);
@@ -292,5 +334,9 @@ describe('CHG-056 1s OHLCV aggregator', () => {
     assert.equal(BANNED_QUOTE_CTX_METHODS.includes('subscribeCandlesticks'), true);
     const plan = dryRunPlan(parseCliArgs(['--symbols', 'IREN,SOXL,MU,CRWV,COHR']));
     assert.equal(plan.rclone_in_collector, false);
+    assert.match(cli, /import dotenv from 'dotenv'/);
+    assert.match(cli, /dotenv\.config\(\)/);
+    assert.match(cli, /ctx\.subscribe\(lbSymbols, types, true\).*isFirstPush \(GCP-verified\)/);
+    assert.match(cli, /await ctx\.subscribe\(lbSymbols, types\);/);
   });
 });

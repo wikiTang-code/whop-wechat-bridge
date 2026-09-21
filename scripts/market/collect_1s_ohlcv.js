@@ -13,6 +13,8 @@
 
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config();
 import { fileURLToPath } from 'url';
 import {
   CHG_ID,
@@ -204,7 +206,11 @@ export async function runLiveSession(opts, deps = {}) {
           }
           ingestPush(agg, persistOpts, push);
         });
-        await ctx.subscribe(lbSymbols, types);
+        try {
+          await ctx.subscribe(lbSymbols, types, true); // Longbridge NAPI: 3rd arg isFirstPush (GCP-verified)
+        } catch (subErr) {
+          await ctx.subscribe(lbSymbols, types);
+        }
         const started = Date.now();
         while (!stop) {
           if (disconnected) throw disconnected;

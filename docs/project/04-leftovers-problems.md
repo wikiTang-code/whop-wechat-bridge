@@ -39,7 +39,7 @@
 | DEBT-022 | **CHG-050 残留笔记（不挡收口）**：每标的单独冻参=多重选择；置换未保时段结构；cooldown=12 未按周期折算；历史文件名仍含 walk_forward；§4 检出率≠§6 precision；单测不证明 OOS 表。Grok 明确不要用滚动多折救期望（REJ-011） | `exploratory_is_oos.js` · 057 §6.3 | **P3 笔记** |
 | DEBT-023 | **REQ-058 假设到达时钟（不挡 done-eng）**：历史仍无观测 `t_arrive`（Appendix A = `t_arrive_hat` / `message_clock` 5m N=196 主校准；校准门禁 passed，`done-strat` 未过）。Appendix B = 1m resolution diagnostic（`n_scored=33`，Yahoo 约 7 个会话；不是 196 笔 1m 全样本；禁止与 5m 的 196 笔逐格当「同一批更精细」）。CHG-052 仅给**新** ingest 打观测 `t_arrive`（#16=`e54ffd70`），禁止回填历史。禁止把 C-rate / bar open 当成交秒或 alpha；禁止用 Appendix A/B 改 20/40 / HUD | `backtest_delayed_follow_e_v0.js` · 058 Appendix A/B · `observed_arrival.js` | **P3 笔记** |
 | DEBT-024 | **REQ-059 轨 2 G2 未过（不挡 done-eng）**：Cloud 只交夹具路径。全量 60d 须本机/GCP 读 `whop_archive.db` 后把摘要粘回 059。禁止把夹具 PF 当战略门禁；禁止合并 S/R 为一个头条 | `dual_ledger_track2.js` · 059 报告 · 09 合同 | **P3 笔记** |
-| DEBT-025 | **CHG-056 1s hot 未上 GCP**（不挡 Cloud done-eng）：trades-only 采集器与夹具已入库。无 live 成交推送、采集进程不接 rclone、`cold_path=null`。合并后由 **Gemini 部署**。空秒不写行；禁止 1m/5m 插值 1s | `collect_1s_ohlcv.js` · `chg056-market-1s-ohlcv.md` | **P2 部署** |
+| DEBT-025 | **CHG-056 1s hot 未上 GCP live**（不挡 Cloud done-eng）：采集器+夹具在 #21/`969a175`；CHG-056b 只补 dotenv + subscribe isFirstPush fallback。当前 hot IREN/SOXL 为夹具行，**尚无非夹具 live bar**。采集进程不接 rclone、`cold_path=null`。合并后由 **Gemini 部署**。空秒不写行；禁止 1m/5m 插值 1s | `collect_1s_ohlcv.js` · `chg056-market-1s-ohlcv.md` | **P2 部署** |
 | DEBT-LLM-L2 | **禁止 LLM / L2a 文本 / 战法卡进入 OHLCV 检测器**（方法债；不是「AI 扫单」项目）。解冻须独立 REQ | 09 合同 §5 | **冻** |
 
 
