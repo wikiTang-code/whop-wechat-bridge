@@ -66,6 +66,8 @@ scripts/*
 !scripts/trade/**
 !scripts/knowledge/
 !scripts/knowledge/**
+!scripts/market/
+!scripts/market/**
 !scripts/lms_load.js
 !scripts/game_mode.bat
 !scripts/work_mode.bat
@@ -99,6 +101,15 @@ data/runs/dual_ledger_track2/style_ledger_s.jsonl
 data/runs/dual_ledger_track2/expectancy_ledger_r.jsonl
 data/runs/dual_ledger_track2/summary.json
 !data/runs/dual_ledger_track2/README.md
+
+# CHG-056 1s OHLCV hot store (real ticks). Tiny fixtures live in test/fixtures/market_1s/
+data/market/
+data/manifest/market_1s.jsonl
+
+# Never commit rclone tokens / config (cold copy is operator-side; rclone is not in this repo)
+rclone.conf
+.rclone.conf
+**/.rclone.conf
 
 
 # One-off debug/test scripts

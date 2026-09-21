@@ -130,6 +130,14 @@
       "notes": "Yahoo 可从本机打；卡片必须读知识 SoR。本机 stub 库不能代表生产胜率。"
     },
     {
+      "id": "market-1s-ohlcv-hot",
+      "compute": "gcp-vm",
+      "sor": "gcp-vm",
+      "artifact": "data/market/hot/{SYM}/1s/YYYY-MM-DD.jsonl + data/manifest/market_1s.jsonl",
+      "git": "code-and-fixtures-only",
+      "notes": "CHG-056：OHLC 只聚合 trades；Quote 心跳不填空秒。禁 1s candlestick / Period.Second / 1m·5m 插值。采集进程不接 rclone。cold_path 现为空。部署=Gemini after merge。"
+    },
+    {
       "id": "media-files",
       "compute": "gcp-vm",
       "sor": "gcp-vm",

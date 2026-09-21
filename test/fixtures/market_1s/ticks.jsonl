@@ -1,0 +1,7 @@
+{"symbol":"IREN","source":"trade","tsMs":1789999200000,"price":42.1,"volume":100}
+{"symbol":"IREN","source":"trade","tsMs":1789999200500,"price":42.25,"volume":50}
+{"symbol":"IREN","source":"trade","tsMs":1789999200999,"price":42.15,"volume":10}
+{"symbol":"IREN","source":"trade","tsMs":1789999201000,"price":42.2,"volume":20}
+{"symbol":"IREN","source":"quote","tsMs":1789999204000,"lastDone":42.3}
+{"symbol":"SOXL","source":"trade","tsMs":1789999200000,"price":30.0,"volume":5}
+{"symbol":"SOXL","source":"quote","tsMs":1789999200400,"lastDone":30.1}
