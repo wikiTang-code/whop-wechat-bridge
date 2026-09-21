@@ -23,13 +23,16 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import {
+  ARCHIVE_MESSAGES_EMPTY,
   ARCHIVE_MISSING,
   BAR_TZ,
   CREATED_AT_MISSING,
+  EVENTS_FILE_MISSING,
   FROZEN_DEFAULTS,
   METHOD_LABEL,
   REQ_ID,
   STATUS_BANNER,
+  T_MSG_KIND_MESSAGE_CLOCK,
   TOP5_TICKERS,
   TRADE_SIGNAL_CHANNELS,
   ZHAO_SPEAKER_ID,
@@ -143,41 +146,72 @@ async function loadSqliteEvents(dbPath, symbols) {
   }
   try {
     if (!hasMessagesCreatedAtColumn(db)) throw new Error(CREATED_AT_MISSING);
+    let nMessages = 0;
+    try {
+      nMessages = Number(db.prepare('SELECT COUNT(*) AS n FROM messages').get()?.n) || 0;
+    } catch {
+      nMessages = 0;
+    }
+    if (nMessages <= 0) throw new Error(ARCHIVE_MESSAGES_EMPTY);
     const rows = db.prepare(sqliteZhaoQuery()).all(
       ZHAO_SPEAKER_ID,
       TRADE_SIGNAL_CHANNELS[0],
       TRADE_SIGNAL_CHANNELS[1]
     );
+    const events = loadZhaoEventsFromSqliteRows(rows, { symbols });
     return {
-      events: loadZhaoEventsFromSqliteRows(rows, { symbols }),
+      events,
       source: `sqlite-ro:${rel(abs)}#messages.created_at`,
-      speaker_lock: ZHAO_SPEAKER_ID
+      speaker_lock: ZHAO_SPEAKER_ID,
+      db_path: abs,
+      n_messages: nMessages,
+      n_events: events.length
     };
   } finally {
     if (close) db.close();
   }
 }
 
-async function resolveEvents(opts) {
-  const archiveExists = fs.existsSync(opts.dbPath);
-  let hasCreatedAt = false;
-  if (archiveExists && !opts.eventsPath) {
-    hasCreatedAt = await probeMessagesCreatedAt(opts.dbPath);
+function countJsonlRecords(lines) {
+  let n = 0;
+  for (const line of lines || []) {
+    const s = String(line).trim();
+    if (!s || s.startsWith('#')) continue;
+    n += 1;
   }
-  const clock = resolveTrack2Source({
-    eventsPath: opts.eventsPath,
+  return n;
+}
+
+async function resolveEvents(opts) {
+  const dbAbs = path.resolve(opts.dbPath);
+  if (opts.eventsPath) {
+    const absEvents = path.isAbsolute(opts.eventsPath)
+      ? opts.eventsPath
+      : path.resolve(ROOT, opts.eventsPath);
+    if (!fs.existsSync(absEvents)) throw new Error(EVENTS_FILE_MISSING);
+    const lines = readJsonl(absEvents);
+    const events = loadZhaoEventsFromJsonlLines(lines, { symbols: opts.symbols });
+    return {
+      events,
+      source: `jsonl:${opts.eventsPath}`,
+      speaker_lock: ZHAO_SPEAKER_ID,
+      t_msg_kind: T_MSG_KIND_MESSAGE_CLOCK,
+      db_path: null,
+      n_messages: countJsonlRecords(lines),
+      n_events: events.length
+    };
+  }
+  const archiveExists = fs.existsSync(dbAbs);
+  let hasCreatedAt = false;
+  if (archiveExists) {
+    hasCreatedAt = await probeMessagesCreatedAt(dbAbs);
+  }
+  resolveTrack2Source({
+    eventsPath: null,
     archiveExists,
     hasMessagesCreatedAt: hasCreatedAt
   });
-  if (opts.eventsPath) {
-    return {
-      events: loadZhaoEventsFromJsonlLines(readJsonl(opts.eventsPath), { symbols: opts.symbols }),
-      source: `jsonl:${opts.eventsPath}`,
-      speaker_lock: ZHAO_SPEAKER_ID,
-      t_msg_kind: clock.t_msg_kind
-    };
-  }
-  return loadSqliteEvents(opts.dbPath, opts.symbols);
+  return loadSqliteEvents(dbAbs, opts.symbols);
 }
 
 function loadBarsFromDir(dir, symbol) {
@@ -233,13 +267,20 @@ async function main() {
     ? 0
     : Number(opts.lookbackDays);
   printBanner();
-  fs.mkdirSync(opts.outDir, { recursive: true });
 
   const pack = await resolveEvents(opts);
   const events = filterLookback(pack.events, lookbackDays);
-  console.log(`events source: ${pack.source}`);
+  const dbPath = pack.db_path ?? null;
+  const nMessages = pack.n_messages;
+  const nEvents = events.length;
+  console.log(`db_path=${dbPath}`);
+  console.log(`n_messages=${nMessages}`);
+  console.log(`n_events=${nEvents}`);
+  console.log(`events_source=${pack.source}`);
   console.log(`speaker lock: ${pack.speaker_lock}`);
-  console.log(`N Zhao BUY/SELL after lookback=${lookbackDays || 'all'}d: ${events.length} / raw ${pack.events.length}`);
+  console.log(`N Zhao BUY/SELL after lookback=${lookbackDays || 'all'}d: ${nEvents} / raw ${pack.events.length}`);
+
+  fs.mkdirSync(opts.outDir, { recursive: true });
 
   const styleAll = [];
   const rAll = [];
@@ -278,10 +319,13 @@ async function main() {
   const summary = {
     ...emptySummaryShell(),
     command: `node scripts/knowledge/backtest_dual_ledger_track2.js --bar ${opts.bar} --symbols ${opts.symbols.join(',')}`,
+    db_path: dbPath,
+    n_messages: nMessages,
+    n_events: nEvents,
     events_source: pack.source,
     speaker_lock: pack.speaker_lock,
     lookback_days: lookbackDays || 'all',
-    n_zhao_events: events.length,
+    n_zhao_events: nEvents,
     bars: barMeta,
     per_symbol: perSymbol,
     ledger_S: {

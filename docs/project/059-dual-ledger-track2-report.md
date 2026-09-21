@@ -9,7 +9,7 @@
 
 ## 0. 横幅（先读）
 
-本刀只交 **轨 2 脚手架**。Cloud / CI **没有** `whop_archive.db` 时只跑夹具。全量 60d 必须在**本机或 GCP** 跑，把 summary **粘回本节**；禁止在无库环境编造 N / PF。
+本刀只交 **轨 2 脚手架**。Cloud / CI **没有** `whop_archive.db` 时只跑夹具。全量 60d 必须在**本机或 GCP** 跑，把 summary **粘回本节**；禁止在无库环境编造 N / PF。**GCP 生产 archive 是主跑；本机 deep-extract 是另一张表/另一本账，禁止混池。** (GCP production archive is the primary run; local deep-extract is a separate table/ledger and must not be pooled.)
 
 两本账**禁止**合成一个 PF 头条：
 
@@ -51,7 +51,7 @@ node scripts/knowledge/backtest_dual_ledger_track2.js \
   --out-dir data/runs/dual_ledger_track2
 ```
 
-产出：`style_ledger_s.jsonl` · `expectancy_ledger_r.jsonl` · `summary.json`。
+产出：`style_ledger_s.jsonl` · `expectancy_ledger_r.jsonl` · `summary.json`（必含 `db_path` / `n_messages` / `n_events` / `events_source`）。缺库非零退出，禁止静默空成功。
 
 ### 2.2 本机 / GCP（有 `whop_archive.db`）
 

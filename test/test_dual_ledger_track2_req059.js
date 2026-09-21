@@ -243,13 +243,28 @@ describe('REQ-059 Track 2 dual ledger', () => {
     const sum = JSON.parse(fs.readFileSync(path.join(outDir, 'summary.json'), 'utf8'));
     assert.equal(sum.banner.status, 'REFERENCE_ONLY');
     assert.equal(sum.banner.chg050_sibling, 'negative_control');
+    assert.equal(sum.db_path, null);
+    assert.equal(typeof sum.n_messages, 'number');
+    assert.ok(sum.n_messages >= 4);
+    assert.equal(typeof sum.n_events, 'number');
+    assert.equal(sum.n_events, 4);
+    assert.match(String(sum.events_source), /jsonl:/);
+    assert.equal(Object.hasOwn(sum, 'db_path'), true);
+    assert.equal(Object.hasOwn(sum, 'n_messages'), true);
+    assert.equal(Object.hasOwn(sum, 'n_events'), true);
+    assert.equal(Object.hasOwn(sum, 'events_source'), true);
     assert.ok(sum.ledger_S);
     assert.ok(sum.ledger_R);
     assert.equal(Object.hasOwn(sum, 'profitFactor'), false);
     assertLedgersNotMerged(sum);
+    assert.match(run.stdout, /db_path=/);
+    assert.match(run.stdout, /n_messages=/);
+    assert.match(run.stdout, /n_events=/);
+    assert.match(run.stdout, /events_source=/);
   });
 
   it('CLI missing archive without --events exits nonzero', () => {
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 't2dl-nodb-'));
     const missing = spawnSync(
       process.execPath,
       [
@@ -260,12 +275,40 @@ describe('REQ-059 Track 2 dual ledger', () => {
         '--symbols',
         'IREN',
         '--lookback-days',
-        'all'
+        'all',
+        '--out-dir',
+        outDir
       ],
       { encoding: 'utf8' }
     );
     assert.notEqual(missing.status, 0);
-    assert.match(`${missing.stderr || ''}${missing.stdout || ''}`, /TRACK2_FAIL_CLOSED/);
+    const text = `${missing.stderr || ''}${missing.stdout || ''}`;
+    assert.match(text, /TRACK2_FAIL_CLOSED/);
+    assert.match(text, /readonly archive missing/);
+    assert.equal(fs.existsSync(path.join(outDir, 'summary.json')), false);
+    assert.equal(fs.existsSync(path.join(outDir, 'style_ledger_s.jsonl')), false);
+  });
+
+  it('CLI missing --events file exits nonzero (no silent empty success)', () => {
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 't2dl-noev-'));
+    const run = spawnSync(
+      process.execPath,
+      [
+        SCRIPT,
+        '--events',
+        path.join(os.tmpdir(), 'no-such-events.jsonl'),
+        '--no-fetch',
+        '--symbols',
+        'IREN',
+        '--out-dir',
+        outDir
+      ],
+      { encoding: 'utf8' }
+    );
+    assert.notEqual(run.status, 0);
+    assert.match(`${run.stderr || ''}${run.stdout || ''}`, /TRACK2_FAIL_CLOSED/);
+    assert.match(`${run.stderr || ''}${run.stdout || ''}`, /events jsonl missing/);
+    assert.equal(fs.existsSync(path.join(outDir, 'summary.json')), false);
   });
 
   it('CLI missing messages.created_at exits nonzero', () => {
@@ -292,5 +335,33 @@ describe('REQ-059 Track 2 dual ledger', () => {
     );
     assert.notEqual(run.status, 0);
     assert.match(`${run.stderr || ''}${run.stdout || ''}`, /messages\.created_at unavailable/);
+  });
+
+  it('CLI archive with zero messages exits nonzero (no silent empty success)', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 't2dl-empty-'));
+    const dbPath = path.join(dir, 'whop_archive.db');
+    const outDir = path.join(dir, 'out');
+    const db = new Database(dbPath);
+    db.exec(`
+      CREATE TABLE messages (id TEXT PRIMARY KEY, created_at INTEGER);
+      CREATE TABLE trade_signals (
+        signal_id TEXT PRIMARY KEY,
+        message_id TEXT,
+        channel_id TEXT,
+        speaker_id TEXT,
+        ticker TEXT,
+        action TEXT,
+        price REAL
+      );
+    `);
+    db.close();
+    const run = spawnSync(
+      process.execPath,
+      [SCRIPT, '--db', dbPath, '--no-fetch', '--symbols', 'IREN', '--lookback-days', 'all', '--out-dir', outDir],
+      { encoding: 'utf8' }
+    );
+    assert.notEqual(run.status, 0);
+    assert.match(`${run.stderr || ''}${run.stdout || ''}`, /archive messages empty/);
+    assert.equal(fs.existsSync(path.join(outDir, 'summary.json')), false);
   });
 });

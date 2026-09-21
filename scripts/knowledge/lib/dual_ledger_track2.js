@@ -57,6 +57,10 @@ export const ARCHIVE_MISSING =
   'TRACK2_FAIL_CLOSED: readonly archive missing; use --events fixtures or run on machine/GCP with whop_archive.db';
 export const CREATED_AT_MISSING =
   'TRACK2_FAIL_CLOSED: messages.created_at unavailable; refusing silent session_anchor fallback';
+export const EVENTS_FILE_MISSING =
+  'TRACK2_FAIL_CLOSED: --events jsonl missing; refusing silent empty success';
+export const ARCHIVE_MESSAGES_EMPTY =
+  'TRACK2_FAIL_CLOSED: archive messages empty; refusing silent empty success';
 export const ORAL_ENTRY_FORBIDDEN = 'oral price leakage: entry must not be px_zhao/oral';
 export const MERGED_PF_FORBIDDEN = 'ledgers must not merge into one PF headline';
 export const WINDOW_2H_BANNED = 'style window ±2h banned (CHG-050 wide-window negative control)';
@@ -814,10 +818,14 @@ export function emptySummaryShell() {
     t_msg_kind: T_MSG_KIND_MESSAGE_CLOCK,
     style_windows_min: STYLE_WINDOWS_MIN,
     banned_style_window_min: BANNED_STYLE_WINDOW_MIN,
+    db_path: null,
+    n_messages: null,
+    n_events: null,
+    events_source: null,
     ledger_S: { note: 'style only' },
     ledger_R: { note: 'expectancy precursor only; ignore Zhao' },
     archive_note:
-      'Cloud/CI: fixtures only. Full 60d archive run is on machine/GCP with whop_archive.db; paste summaries back into 059 report.'
+      'Cloud/CI: fixtures only. Full 60d archive run is on machine/GCP with whop_archive.db; paste summaries back into 059 report. GCP production archive is the primary run; local deep-extract is a separate table/ledger and must not be pooled.'
   };
 }
 
