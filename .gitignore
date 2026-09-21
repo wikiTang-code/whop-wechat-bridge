@@ -85,6 +85,14 @@ data/runtime/*
 !data/runtime/chg050_params_frozen.json
 !data/runtime/chg050_is_oos_summary.json
 
+# REQ-058 delayed-follow Yahoo bar caches (large); keep README + fixture sample
+data/runs/delayed_follow_e_v0/bars/
+data/runs/delayed_follow_e_v0/events.jsonl
+data/runs/delayed_follow_e_v0/summary.json
+!data/runs/delayed_follow_e_v0/README.md
+!data/runs/delayed_follow_e_v0/fixture_events.jsonl
+!data/runs/delayed_follow_e_v0/fixture_summary.json
+
 
 # One-off debug/test scripts
 /test_*.js

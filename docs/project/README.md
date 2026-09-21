@@ -5,7 +5,7 @@
 
 | 字段 | 值 |
 |------|-----|
-| 最后审阅 | 2026-09-19 |
+| 最后审阅 | 2026-09-20 |
 | 审阅基准 HEAD | 以 `git log -1` 为准；**每次同步必重读 §0 队列**（`CHG-013`） |
 | Agent 治理真相源 | 根目录 [`AGENTS.md`](../../AGENTS.md)（Claude→`CLAUDE.md` 指针；Cursor→`.cursor/rules/agent-governance.mdc`） |
 | 权威方案 | [`../local-ops-mcp-skill-plan.md`](../local-ops-mcp-skill-plan.md) · [`../system-hardening-and-monitoring-plan.md`](../system-hardening-and-monitoring-plan.md) · [`../gex-sidecar.md`](../gex-sidecar.md) · [`zhao-knowledge-multimodal-plan.md`](./zhao-knowledge-multimodal-plan.md) · [`wsl-unified-ai-runtime-plan.md`](./wsl-unified-ai-runtime-plan.md) · [`gpu-shared-protocol.md`](./gpu-shared-protocol.md)（指针） |
@@ -33,6 +33,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── req038-t3-resonance-radar-spec.md  ← REQ-038-T3 三点共振只读雷达规范（只读/禁下单）
 ├── 056-paper-trading-execution-loop-report.md   ← REQ-056 长桥Paper模拟执行闭环报告 (accepted-with-gap)
 ├── 057-turning-point-microstructure-report.md   ← REQ-057 微观转弯；CHG-050 exploratory holdout (accepted-with-gap)
+├── 058-delayed-follow-e-v0-report.md            ← REQ-058 延迟跟单假设到达 Δ 扫（done-eng；非 alpha）
 ├── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2/P3 Done）
 ├── wsl-unified-ai-runtime-plan.md     ← CHG-018 Done（Q-007；DEBT-014 代码路径 Done）
 └── gpu-shared-protocol.md             ← 跨仓库 GPU 协议指针（正文在 ~/.cursor/shared-protocols/；Cursor 2026-09-19 冻结 §7）
@@ -86,7 +87,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **CHG-051** 三角色合同（P0=夜盘 FILLED；参考轨=P3） | accepted |
+| **§0.A `agent:cursor`** | **REQ-058** Plan B `message_clock` fail-closed（done-eng）· CHG-051 合同仍 accepted | done-eng / accepted |
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 

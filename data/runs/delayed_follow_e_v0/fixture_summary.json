@@ -1,0 +1,165 @@
+{
+  "banner": {
+    "hypothesized_arrival": true,
+    "observed_t_arrive": false,
+    "autonomous_alpha": false,
+    "zhao_own_pnl": false,
+    "invented_t_fill": false,
+    "timezone": "America/New_York",
+    "premarket_included": false,
+    "premarket_note": "Yahoo includePrePost=false (RTH bars only; premarket not included/aligned).",
+    "bar_interval": "5m",
+    "bar_range": "60d",
+    "yahoo_1m_note": "Yahoo 1m typically only ~7 sessions; 5m ~60d is the v0 default."
+  },
+  "policy": {
+    "policy_id": "delayed_follow_abc_stub_v0",
+    "policy_status": "provisional",
+    "slip_ref": "px_zhao",
+    "px_arrive_source": "bar_open_containing_t_arrive_hat",
+    "A_ADVERSE_SLIP_MAX_BPS": 20,
+    "B_ADVERSE_SLIP_MAX_BPS": 40,
+    "EXIT_HORIZON_BARS": 12,
+    "COST_BPS_ROUND_TRIP": 10,
+    "notes": [
+      "Thresholds cite follow_execution_spec FIRE/REJECT 20/40bp (FOLLOW_SPEC).",
+      "CHG-051 B is limited-slip chase, not SIZE_DOWN; this stub fills A/B at px_arrive full size.",
+      "Not live Intent. Not wired to HUD / L2a / place_order.",
+      "A/B fill price = hypothesized bar open, never oral px_zhao.",
+      "Bar range (high/low) is not used as fill evidence."
+    ]
+  },
+  "method": "delayed_follow_e_v0_hypothesized_arrival",
+  "command": "node scripts/knowledge/backtest_delayed_follow_e_v0.js --delta-mins 0,1,3,5 --bar 5m --symbols IREN,SOXL,MU,CRWV,COHR",
+  "events_source": "jsonl:test/fixtures/delayed_follow_e_v0/events.jsonl",
+  "speaker_lock": "as-provided-jsonl",
+  "lookback_days": "all",
+  "n_events": 7,
+  "n_events_per_symbol": {
+    "IREN": 3,
+    "SOXL": 1,
+    "MU": 1,
+    "COHR": 1,
+    "CRWV": 1
+  },
+  "bars": {
+    "IREN": {
+      "n_bars": 24,
+      "source": "file:test/fixtures/delayed_follow_e_v0/bars/IREN.json",
+      "first": "2026-07-15T11:30:00.000Z",
+      "last": "2026-07-15T13:25:00.000Z"
+    },
+    "SOXL": {
+      "n_bars": 24,
+      "source": "file:test/fixtures/delayed_follow_e_v0/bars/SOXL.json",
+      "first": "2026-07-15T11:30:00.000Z",
+      "last": "2026-07-15T13:25:00.000Z"
+    },
+    "MU": {
+      "n_bars": 24,
+      "source": "file:test/fixtures/delayed_follow_e_v0/bars/MU.json",
+      "first": "2026-07-15T11:30:00.000Z",
+      "last": "2026-07-15T13:25:00.000Z"
+    },
+    "CRWV": {
+      "n_bars": 24,
+      "source": "file:test/fixtures/delayed_follow_e_v0/bars/CRWV.json",
+      "first": "2026-07-15T11:30:00.000Z",
+      "last": "2026-07-15T13:25:00.000Z"
+    },
+    "COHR": {
+      "n_bars": 24,
+      "source": "file:test/fixtures/delayed_follow_e_v0/bars/COHR.json",
+      "first": "2026-07-15T11:30:00.000Z",
+      "last": "2026-07-15T13:25:00.000Z"
+    }
+  },
+  "stats": {
+    "n_rows": 28,
+    "n_events": 7,
+    "per_symbol": {
+      "IREN": {
+        "n_events": 3,
+        "n_rows": 12
+      },
+      "SOXL": {
+        "n_events": 1,
+        "n_rows": 4
+      },
+      "MU": {
+        "n_events": 1,
+        "n_rows": 4
+      },
+      "CRWV": {
+        "n_events": 1,
+        "n_rows": 4
+      },
+      "COHR": {
+        "n_events": 1,
+        "n_rows": 4
+      }
+    },
+    "per_delta": {
+      "0": {
+        "n_rows": 7,
+        "n_scored": 6,
+        "n_A": 3,
+        "n_B": 2,
+        "n_C": 1,
+        "n_no_bar": 1,
+        "A_rate": 0.5,
+        "B_rate": 0.3333333333333333,
+        "C_rate": 0.16666666666666666,
+        "mean_slip_bps": 19.26,
+        "median_slip_bps": 20,
+        "mean_residual_after_costs_bps": 37.83,
+        "median_residual_after_costs_bps": 42.1
+      },
+      "1": {
+        "n_rows": 7,
+        "n_scored": 6,
+        "n_A": 3,
+        "n_B": 2,
+        "n_C": 1,
+        "n_no_bar": 1,
+        "A_rate": 0.5,
+        "B_rate": 0.3333333333333333,
+        "C_rate": 0.16666666666666666,
+        "mean_slip_bps": 19.26,
+        "median_slip_bps": 20,
+        "mean_residual_after_costs_bps": 37.83,
+        "median_residual_after_costs_bps": 42.1
+      },
+      "3": {
+        "n_rows": 7,
+        "n_scored": 6,
+        "n_A": 3,
+        "n_B": 2,
+        "n_C": 1,
+        "n_no_bar": 1,
+        "A_rate": 0.5,
+        "B_rate": 0.3333333333333333,
+        "C_rate": 0.16666666666666666,
+        "mean_slip_bps": 19.26,
+        "median_slip_bps": 20,
+        "mean_residual_after_costs_bps": 37.83,
+        "median_residual_after_costs_bps": 42.1
+      },
+      "5": {
+        "n_rows": 7,
+        "n_scored": 6,
+        "n_A": 2,
+        "n_B": 2,
+        "n_C": 2,
+        "n_no_bar": 1,
+        "A_rate": 0.3333333333333333,
+        "B_rate": 0.3333333333333333,
+        "C_rate": 0.3333333333333333,
+        "mean_slip_bps": 29.38,
+        "median_slip_bps": 31.25,
+        "mean_residual_after_costs_bps": 31.8,
+        "median_residual_after_costs_bps": 32.23
+      }
+    }
+  }
+}
