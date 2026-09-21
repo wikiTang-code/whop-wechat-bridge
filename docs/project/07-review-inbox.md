@@ -8,6 +8,14 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-21 · REQ-058 Appendix A + CHG-052（Grok 拍板后落地）
+
+**对象**：`058-delayed-follow-e-v0-report.md` Appendix A；ingest `t_arrive`。
+
+Grok 收下 **message_clock** 校准表（`arrival_kind=hypothesized`）：N=196 BUY / 60d / IREN,SOXL,MU,CRWV,COHR；exit 0；`--db whop_archive.db --t-msg-kind message_clock`。Δ0 A 53.7% C 39.5% med 17bp；Δ1 50.6/42.0/20；Δ3 42.5/48.1/33；Δ5 32.5/56.3/54。校准门禁 **passed**；**`done-strat` 未过**。L2a ~87% C 对本钟作废。禁改 20/40、禁 HUD、禁宣称跟单可复制。CHG-052 只给新行观测 `t_arrive`，不回填、不证明 fill。
+
+---
+
 ### 2026-09-20 · CHG-051 三角色定位（跟单认到达价 · 参考轨认周哥式播报）
 
 **合同**：[`dual-track-operating-contract.md`](./dual-track-operating-contract.md)
