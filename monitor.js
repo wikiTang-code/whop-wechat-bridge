@@ -5,6 +5,7 @@ import http from 'http';
 import https from 'https';
 import crypto from 'crypto';
 import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions, getLatestPersonaPlaybook, updateMessageAttachments, saveTradeSignal } from './database.js';
+import { stampPollSeenOnNewMessages } from './tools/trade/observed_arrival.js';
 
 import { executeOrder, getUnifiedPortfolio, processFollowDecision } from './trading.js';
 import { getMarketContextForTickers, fetchTickerKlineData } from './kline.js';
@@ -1240,7 +1241,7 @@ ${messagesText}`;
           parse_status: 'ok',
           source: 'ai_extract',
           created_at: latestMsgTime,
-          t_arrive: Date.now()
+          t_arrive: latestMsg.poll_seen_at || latestMsg.t_arrive
         });
       } catch (sigErr) {
         console.error('[REQ-031] 写入 trade_signals 失败:', sigErr.message);
@@ -1552,7 +1553,8 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
 
       // Filter out messages that are already in the DB to count actual new ones
       const actuallyNewMessages = normalizedMessages.filter(msg => !isMessageArchived(msg.id));
-      
+      stampPollSeenOnNewMessages(actuallyNewMessages);
+
       // 行业标准正方案：在消息写入 SQLite 的同一秒，同步抓取活签下载附件并落盘！
       for (const msg of actuallyNewMessages) {
         try {

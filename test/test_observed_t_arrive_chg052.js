@@ -10,12 +10,17 @@ import {
   ensureObservedArrivalColumns,
   saveTradeIntent,
   getTradeIntent,
-  saveTradeSignal
+  saveTradeSignal,
+  lookupPollSeenMs
 } from '../database.js';
 import { createTradeIntent } from '../tools/trade/paper_execution_engine.js';
 import { convertSignalToTradeIntent, ZHAO_SENDER_ID, ALLOWED_CHANNELS } from '../tools/trade/signal_intent_bridge.js';
-import { stampObservedArrival, resolveObservedPxArrive } from '../tools/trade/observed_arrival.js';
+import { stampObservedArrival, resolveObservedPxArrive, stampPollSeenOnNewMessages } from '../tools/trade/observed_arrival.js';
 import { sweepEvent, ZHAO_SPEAKER_ID } from '../scripts/knowledge/lib/delayed_follow_e_v0.js';
+import { checkObservedTArrive, EXIT_NO_DB, EXIT_SCHEMA, EXIT_OK } from '../scripts/trade/check_observed_t_arrive.js';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 const T0 = Date.UTC(2026, 8, 18, 14, 0, 0);
 
@@ -208,5 +213,111 @@ describe('CHG-052 observed t_arrive ingest', () => {
     assert.equal(stamped.px_zhao, 50);
     assert.equal(stamped.px_arrive, null);
     assert.equal(stamped.t_arrive_kind, 'observed');
+  });
+
+  it('persist-layer saveTradeIntent strips oral px_arrive and still writes t_arrive', () => {
+    const before = Date.now();
+    saveTradeIntent({
+      intent_id: 'intent_oral_persist',
+      source: 'test',
+      ticker: 'SOXL',
+      side: 'BUY',
+      quantity: 1,
+      price_limit: 12,
+      status: 'DRAFT',
+      created_at: before,
+      px_zhao: 12,
+      px_arrive: 12,
+      px_arrive_source: 'oral'
+    }, db);
+    const saved = getTradeIntent('intent_oral_persist', db);
+    assert.ok(saved.t_arrive >= before);
+    assert.equal(saved.px_zhao, 12);
+    assert.equal(saved.px_arrive, null);
+    assert.equal(saved.px_arrive_source, null);
+  });
+
+  it('first-see poll_seen_at is persisted and used as t_arrive (not later now)', () => {
+    const seen = 1_710_000_000_000;
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS messages (
+        id TEXT PRIMARY KEY,
+        channel_id TEXT,
+        sender_id TEXT,
+        sender_name TEXT,
+        content TEXT,
+        created_at INTEGER,
+        poll_seen_at INTEGER
+      )
+    `).run();
+    ensureObservedArrivalColumns(db);
+    db.prepare(`
+      INSERT INTO messages (id, channel_id, sender_id, sender_name, content, created_at, poll_seen_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run('msg_poll_1', 'chat_feed_1CTrCEx44dP13jW3RVkYiS', 'user_4yeplXgbguTu4', 'xiaozhaolucky', 'buy iren', seen - 5000, seen);
+    assert.equal(lookupPollSeenMs(db, 'msg_poll_1'), seen);
+
+    const id = saveTradeSignal({
+      signal_id: 'sig_from_poll',
+      message_id: 'msg_poll_1',
+      ticker: 'IREN',
+      action: 'BUY',
+      price: 10,
+      created_at: seen - 5000
+    }, db);
+    const row = db.prepare('SELECT * FROM trade_signals WHERE signal_id = ?').get(id);
+    assert.equal(row.t_arrive, seen);
+    assert.notEqual(row.t_arrive, row.created_at);
+  });
+
+  it('historical manual_correct does not invent t_arrive (no backfill)', () => {
+    const id = saveTradeSignal({
+      signal_id: 'sig_hist_corr',
+      ticker: 'MU',
+      action: 'SELL',
+      price: 88,
+      source: 'manual_correct',
+      created_at: T0
+    }, db);
+    const row = db.prepare('SELECT * FROM trade_signals WHERE signal_id = ?').get(id);
+    assert.equal(row.t_arrive, null);
+    assert.equal(row.price, 88);
+  });
+
+  it('stampPollSeenOnNewMessages keeps existing poll-seen', () => {
+    const first = 1_700_000_111_000;
+    const msgs = [{ id: 'a' }, { id: 'b', poll_seen_at: first }];
+    const stampedAt = stampPollSeenOnNewMessages(msgs, 1_700_000_222_000);
+    assert.equal(stampedAt, 1_700_000_222_000);
+    assert.equal(msgs[0].poll_seen_at, 1_700_000_222_000);
+    assert.equal(msgs[1].poll_seen_at, first);
+  });
+
+  it('readonly check helper fail-closed without DB and without t_arrive column', () => {
+    const missing = checkObservedTArrive({ dbPath: path.join(os.tmpdir(), `no-such-chg054-${Date.now()}.db`) });
+    assert.equal(missing.ok, false);
+    assert.equal(missing.exitCode, EXIT_NO_DB);
+
+    const tmp = path.join(os.tmpdir(), `chg054-check-${Date.now()}.db`);
+    const tmpDb = new Database(tmp);
+    tmpDb.prepare('CREATE TABLE trade_signals (signal_id TEXT PRIMARY KEY, ticker TEXT, created_at INTEGER)').run();
+    tmpDb.prepare('CREATE TABLE trade_intents (intent_id TEXT PRIMARY KEY, ticker TEXT, created_at INTEGER)').run();
+    tmpDb.close();
+    const noCol = checkObservedTArrive({ dbPath: tmp });
+    assert.equal(noCol.ok, false);
+    assert.equal(noCol.exitCode, EXIT_SCHEMA);
+
+    const okDb = new Database(tmp);
+    okDb.exec('ALTER TABLE trade_signals ADD COLUMN t_arrive INTEGER');
+    okDb.exec('ALTER TABLE trade_intents ADD COLUMN t_arrive INTEGER');
+    okDb.prepare('INSERT INTO trade_signals (signal_id, ticker, created_at, t_arrive) VALUES (?, ?, ?, ?)').run('s1', 'IREN', Date.now(), 123);
+    okDb.prepare('INSERT INTO trade_intents (intent_id, ticker, created_at, t_arrive) VALUES (?, ?, ?, ?)').run('i1', 'SOXL', Date.now(), null);
+    okDb.close();
+    const ok = checkObservedTArrive({ dbPath: tmp, limit: 5 });
+    assert.equal(ok.ok, true);
+    assert.equal(ok.exitCode, EXIT_OK);
+    assert.equal(ok.trade_signals.with_t_arrive, 1);
+    assert.equal(ok.trade_intents.without_t_arrive, 1);
+    fs.unlinkSync(tmp);
   });
 });
