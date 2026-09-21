@@ -6,6 +6,7 @@ import https from 'https';
 import crypto from 'crypto';
 import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions, getLatestPersonaPlaybook, updateMessageAttachments, saveTradeSignal } from './database.js';
 import { stampPollSeenOnNewMessages } from './tools/trade/observed_arrival.js';
+import { persistZhaoFilledPrints } from './tools/trade/zhao_print_persist.js';
 
 import { executeOrder, getUnifiedPortfolio, processFollowDecision } from './trading.js';
 import { getMarketContextForTickers, fetchTickerKlineData } from './kline.js';
@@ -1591,6 +1592,11 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
     if (allNewMessages.length > 0) {
       allNewMessages.sort((a, b) => a.created_at - b.created_at);
       await saveMessages(allNewMessages);
+      try {
+        persistZhaoFilledPrints(allNewMessages);
+      } catch (persistErr) {
+        console.error('[CHG-059] Zhao print persist failed:', persistErr.message);
+      }
     }
 
     // 🏛️ 中断上半部 (Top Half / ISR): 全频道一视同仁快速打标分发 + 丢入下半部队列 (耗时 < 10ms，绝不调模型)

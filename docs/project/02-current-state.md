@@ -81,9 +81,9 @@
 | 项 | 值 |
 |----|-----|
 | 分支 | `main` |
-| HEAD / vs origin | 以 `git log -1` / `git status -sb` 为准；**CHG-058** 开盘 GEX 09:35 ET；**CHG-057** 九标的矩阵 + 2026-09-21 里程碑 `latest.json`；**CHG-056b** collect_1s dotenv + isFirstPush；**CHG-056** 1s OHLCV（非 done-strat）；REQ-059 轨2 `done-eng` / **done-strat 未过** |
+| HEAD / vs origin | 以 `git log -1` / `git status -sb` 为准；**CHG-059** 赵哥点位 persist（代码；GCP 未 ingest）；**CHG-058** 开盘 GEX 09:35 ET；**CHG-057** 九标的矩阵 + 2026-09-21 里程碑 `latest.json`；**CHG-056b** collect_1s dotenv + isFirstPush；**CHG-056** 1s OHLCV（非 done-strat）；REQ-059 轨2 `done-eng` / **done-strat 未过** |
 | 本机 OpenD `11111` | **2026-09-19 实测满血**：期权 24 到期日 / 单日 384 合约 + L2 五档（REQ-042） |
-| 长桥 Paper | **2026-09-21 counter_smoke FILLED**：IREN 1 股 @ 47.075，订单 `1286688240727810048`，持仓 1。跟单 IREN 46.5=**C**（未绑 46.5、未写 `zhao_follow`）。禁 catalog 下单 |
+| 长桥 Paper | **两本账分开**：① 柜台烟测 `counter_smoke` IREN 1 股 **FILLED** `1286688240727810048` @ 47.075，持仓 **1**（后续卖按库存）。② 跟单 IREN 46.5=**C**，无 `zhao_follow`。`AUTO_SUBMIT=false`。禁 catalog 下单 |
 | 券商互补 | 期权链/GEX→富途；正股模拟对账→长桥 |
 | 本机 `ops:http` `18789` + ssh -R | 联调日已通；靠自启任务保活 |
 | 企微可信 IP | 应以 **GCP 公网** 为准 |

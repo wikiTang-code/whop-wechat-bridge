@@ -93,12 +93,12 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **CHG-058** GEX 开盘 09:35 ET（done-eng）· **CHG-057** 矩阵扩赵哥高频正股（done-eng） | done-eng |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
+| **§0.A `agent:cursor`** | **CHG-059** 信号落表（done-eng · GCP 未 ingest）· **CHG-058** GEX 09:35 · **CHG-057** 矩阵扩正股 | done-eng |
+| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 accepted-with-gap：烟测 FILLED** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001；**Paper 烟测 FILLED 过**（跟单本笔仍 C） | 等待 |
-| **§0.X Blocked** | 040=**Cleared**；033→human；**跟单 FILLED** 等下一笔 A/B；**DEBT-026** 信号链 | **见 05 §0.X** |
+| **§0.X Blocked** | 040=**Cleared**；033→human；**跟单 FILLED** 等下一笔 A/B；**DEBT-026** GCP 未 ingest | **见 05 §0.X** |
 | **§0.R-A** | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | Done |
 | **§0.R-A** | **REQ-042/CHG-034** accepted-with-gates | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |
