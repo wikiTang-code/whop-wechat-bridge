@@ -35,6 +35,7 @@
 | **知识蒸馏** | **wsl-gpu** | **gcp-vm** 知识表 | `ontology_*` | **已有** `knowledge:promote`（HITL `--allow-prod-write`） |
 | 云端 VL 批 | **cloud-vl** | **gcp-vm** `message_vision_meta` | 白名单字段 | 读 gcp 媒体；结果表走 promote |
 | 战法卡归因 | win-host（Yahoo） | **gcp-vm** 知识表 | `data/runtime/*.json` | 先有 SoR 卡再打分 |
+| **1s OHLCV hot（CHG-056）** | **gcp-vm**（合并后 Gemini 挂采集） | **gcp-vm** `data/market/hot/`（60–90d） | jsonl + `data/manifest/market_1s.jsonl` | **未部署**；Cloud 只交脚本。冷归档日后 `rclone copy`；禁仓内 rclone.conf；禁 systemd 宣称已 live |
 
 蒸馏的**输入**也必须是生产 `messages` 只读快照（或正式 replica），禁止长期拿过期本机库当语料还当结案。
 
