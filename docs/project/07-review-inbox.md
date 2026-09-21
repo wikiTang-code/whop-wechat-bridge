@@ -8,6 +8,16 @@
 
 ## 1. 待消化审阅
 
+### 2026-09-21 · REQ-058 Appendix B 1m resolution diagnostic（Grok · CHG-053）
+
+**对象**：`058-delayed-follow-e-v0-report.md` Appendix B。**不是**主校准表；主基线仍是 Appendix A / 5m N=196。
+
+n_scored=33，Yahoo 约 7 个会话；不是 196 笔 1m 全样本。禁止与 5m 的 196 笔逐格当「同一批更精细」。`arrival_kind=hypothesized`；A 仍是 stub。阈值 / HUD / done-strat 仍冻。merge #16 = `e54ffd70`；CHG-052 observed `t_arrive` for new rows only。
+
+1m median slip 不是单调的（0→1→3→5：28 / 88 / 53 / 59）。N=33 时 88bp 那格噪声很大，只能说「0m 与 1m 被拆开了」，不要写成「每多等 1 分钟滑点稳定变差」。并箱假说在 5m 上成立；1m 只说明那一档被掩盖，不是新的工业校准。
+
+---
+
 ### 2026-09-21 · REQ-058 Appendix A + CHG-052（Grok 拍板后落地）
 
 **对象**：`058-delayed-follow-e-v0-report.md` Appendix A；ingest `t_arrive`。

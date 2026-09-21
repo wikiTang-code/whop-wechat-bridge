@@ -13,14 +13,15 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **CHG-052** | L1 | 前瞻观测 `t_arrive` ingest（新行；禁口播→`px_arrive`；历史仍 `t_arrive_hat`） | `tools/trade/observed_arrival.js` · `database.js` | **done-eng** |
-| 2 | **REQ-058** | L3 | Plan B `message_clock` + Appendix A 校准表（校准门禁 passed；**`done-strat` 未过**） | `docs/project/058-delayed-follow-e-v0-report.md` | **done-eng (accepted-with-gap)** |
-| 3 | **CHG-051** | L0 | 三角色合同：跟单执行 vs 周哥QQQ模拟仓 vs 自研参考轨；P0 仍是夜盘 FILLED | `docs/project/dual-track-operating-contract.md` | **accepted** |
-| 4 | **CHG-050** | L3 | REQ-057 P2 exploratory holdout。Grok `221a559` ACCEPT WITH NOTES，拍板 B | `scripts/knowledge/lib/exploratory_is_oos.js` | **done-eng (accepted-with-gap)** |
-| 5 | **REQ-038-T2** | L3 | n_scored 扩样；03 已由 gemini1 关单 | `card_attribution.js` | **Done** |
-| 6 | **REQ-040** | L3 | T2 扩样本；03=`done` | `batch_vision*` · `card_attribution*` | **Done** |
-| 7 | **REQ-038-T1** | L3 | Cursor 接管空 SR 重提；03=`done` | `batch_vision*` · `multimodal_context_aligner.js` | **Done** |
-| 8 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
+| **1** | **CHG-053** | L0 | REQ-058 Appendix B 1m resolution diagnostic（docs-only；**不是**主校准表） | `docs/project/058-delayed-follow-e-v0-report.md` | **done-eng** |
+| 2 | **CHG-052** | L1 | 前瞻观测 `t_arrive` ingest（新行；禁口播→`px_arrive`；历史仍 `t_arrive_hat`；#16=`e54ffd70`） | `tools/trade/observed_arrival.js` · `database.js` | **done-eng** |
+| 3 | **REQ-058** | L3 | Plan B `message_clock` + Appendix A 主校准（5m N=196，门禁 passed）+ Appendix B 1m 诊断（n_scored=33）；**`done-strat` 未过** | `docs/project/058-delayed-follow-e-v0-report.md` | **done-eng (accepted-with-gap)** |
+| 4 | **CHG-051** | L0 | 三角色合同：跟单执行 vs 周哥QQQ模拟仓 vs 自研参考轨；P0 仍是夜盘 FILLED | `docs/project/dual-track-operating-contract.md` | **accepted** |
+| 5 | **CHG-050** | L3 | REQ-057 P2 exploratory holdout。Grok `221a559` ACCEPT WITH NOTES，拍板 B | `scripts/knowledge/lib/exploratory_is_oos.js` | **done-eng (accepted-with-gap)** |
+| 6 | **REQ-038-T2** | L3 | n_scored 扩样；03 已由 gemini1 关单 | `card_attribution.js` | **Done** |
+| 7 | **REQ-040** | L3 | T2 扩样本；03=`done` | `batch_vision*` · `card_attribution*` | **Done** |
+| 8 | **REQ-038-T1** | L3 | Cursor 接管空 SR 重提；03=`done` | `batch_vision*` · `multimodal_context_aligner.js` | **Done** |
+| 9 | **DEBT-014** | L3 | HIP 满血暂缓 | `/root/llama.cpp/build-cpu` | Standing |
 
 ### 0.B 队列 `agent:gemini`
 
@@ -166,8 +167,9 @@
 | REQ-040 | L3 | T2 扩样（gemini1 关单） | `agent:cursor` | Done | 03=`done` |
 | CHG-026 | L0 | 运行环境合同（compute vs SoR） | `agent:cursor` | Done | `environments.md` |
 | CHG-050 | L3 | REQ-057 P2 exploratory IS/OOS holdout | `agent:cursor` | done-eng | accepted-with-gap · 见 057/07 |
-| REQ-058 | L3 | 延迟跟单历史回测 v0 + Appendix A `message_clock` 校准 | `agent:cursor` | done-eng | 校准门禁 passed；**done-strat 未过**；禁 HUD/20/40 |
-| CHG-052 | L1 | 前瞻观测 `t_arrive` ingest（新行 only） | `agent:cursor` | done-eng | 禁口播/K线→`px_arrive`；不回填历史 |
+| REQ-058 | L3 | 延迟跟单历史回测 v0 + Appendix A 5m N=196 主校准 + Appendix B 1m 诊断 | `agent:cursor` | done-eng | 校准门禁 passed；B=`n_scored=33` 非主表；**done-strat 未过**；禁 HUD/20/40 |
+| CHG-052 | L1 | 前瞻观测 `t_arrive` ingest（新行 only） | `agent:cursor` | done-eng | 禁口播/K线→`px_arrive`；不回填历史；#16=`e54ffd70` |
+| CHG-053 | L0 | REQ-058 Appendix B 1m resolution diagnostic（docs-only） | `agent:cursor` | done-eng | 不是主校准；禁与 5m N=196 逐格并读 |
 | CHG-027 | L4/L0 | Local-Ops knowledge.promote HITL C2 | `agent:cursor` | Done | Gemini Accepted |
 | CHG-028 | L3 | T2 方向/点位消歧 | `agent:cursor` | Done | n_scored=5 |
 
