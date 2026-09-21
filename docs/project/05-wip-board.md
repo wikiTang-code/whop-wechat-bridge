@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-059** | L3 | 轨 2 双账本最小集（S 风格 × R-precursor；冻结 4 条 OHLCV；夹具离线路径）。**`done-strat` 未过** | `scripts/knowledge/lib/dual_ledger_track2.js` · `059-dual-ledger-track2-report.md` | **done-eng** |
+| **1** | **REQ-059** | L3 | 轨 2 双账本（S×R；GCP G2 已粘；**负对照** · CHG-050 兄弟）。`hint_only`；轨 3 未开；`T2R-*` 未改；**`done-strat` 未过** | `059-dual-ledger-track2-report.md` | **done-eng + 负对照** |
 | 2 | **CHG-055** | L0 | 规划合同 2026-09-21 落盘（HEAD≈e1656af；下一刀=只切轨2；Cloud≠全量 archive） | `docs/project/09-development-plan-contract-20260921.md` | **accepted** |
 | 3 | **CHG-054** | L1 | ingest 落库：观测 `t_arrive` 真写入（first-see / poll-seen；禁回填；只读校验脚本）。**E-docs closed** | `database.js` · `monitor.js` · `scripts/trade/check_observed_t_arrive.js` | **done-eng** |
 | 4 | **CHG-053** | L0 | REQ-058 Appendix B 1m resolution diagnostic（docs-only；**不是**主校准表） | `docs/project/058-delayed-follow-e-v0-report.md` | **done-eng** |
@@ -175,7 +175,7 @@
 | CHG-053 | L0 | REQ-058 Appendix B 1m resolution diagnostic（docs-only） | `agent:cursor` | done-eng | 不是主校准；禁与 5m N=196 逐格并读 |
 | CHG-054 | L1 | 观测 `t_arrive` ingest 落库（first-see；只读校验） | `agent:cursor` | done-eng | E-docs closed；不回填；禁口播/K线 |
 | CHG-055 | L0 | 开发规划合同 2026-09-21（HEAD≈e1656af；下一刀=轨2） | `agent:cursor` | accepted | `09-development-plan-contract-20260921.md` |
-| REQ-059 | L3 | 轨 2 双账本最小集（S×R；夹具路径；非 done-strat） | `agent:cursor` | done-eng | `dual_ledger_track2.js` · `059-*`；禁 HUD/20/40 |
+| REQ-059 | L3 | 轨 2 双账本（S×R；GCP G2 已粘；负对照；轨 3 未开；非 done-strat） | `agent:cursor` | done-eng | `059-*` §2.3；禁 HUD/20/40/`T2R-*` 改参 |
 | CHG-027 | L4/L0 | Local-Ops knowledge.promote HITL C2 | `agent:cursor` | Done | Gemini Accepted |
 | CHG-028 | L3 | T2 方向/点位消歧 | `agent:cursor` | Done | n_scored=5 |
 
@@ -244,7 +244,7 @@
 
 | ID | Owner | 日 | 结果 |
 |----|-------|-----|------|
-| REQ-059 / CHG-055 | `agent:cursor` | 2026-09-21 | 规划合同落盘 + 轨2 双账本脚手架（夹具 13/13；非 done-strat） |
+| REQ-059 / CHG-055 | `agent:cursor` | 2026-09-21 | 规划合同 + 轨2 脚手架（#19=`d902722`）+ GCP G2 负对照摘要已粘（hint_only；轨 3 未开；非 done-strat） |
 | CHG-015 | `agent:gemini1` | 2026-09-15 | LM Studio 显存守卫与绝对防重加载机制落地，tools/lms-guard.js + 单测通过 |
 | REQ-036 | `agent:gemini1` | 2026-09-15 | 1030组SFT/DPO训练集导出+Unsloth微调配方+端侧双轨抽取器+100%Benchmark |
 | REQ-030 / CHG-010 | `agent:gemini` | 2026-09-15 | monitor.js 移除假跟单后缀，发言通知与交易解耦 |
