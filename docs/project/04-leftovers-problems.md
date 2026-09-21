@@ -37,7 +37,7 @@
 | DEBT-020 | **微观盘口大单流高频持久化缺口与海外低延迟迁移**（`tape_block_events` 表与持久化引擎落地，单测全绿；海外低延迟部署待实施，详见 §2.3.4） | `tape_confluence_detector.js` · `tape_block_events` | **P2 结构就绪 (Partial)** |
 | DEBT-021 | **交易单人工审核未完工与利润重算联动债**（当前企微人工审核进行中；**严禁将未完工利润视作绝对定论**；已通过 `REQ-054` 落地 `audit_linked_pnl_pipeline.js` 联动流水线，实现人工纠偏权威优先覆盖、动态 FIFO 配对与胜率重算，并自动沉淀 90 组 SLM 微调问答对，单测 `test:audit-linked-pnl` 全绿） | `tools/trade/audit_linked_pnl_pipeline.js` · `054-audit-linked-pnl-report.md` | **Done (REQ-054)** |
 | DEBT-022 | **CHG-050 残留笔记（不挡收口）**：每标的单独冻参=多重选择；置换未保时段结构；cooldown=12 未按周期折算；历史文件名仍含 walk_forward；§4 检出率≠§6 precision；单测不证明 OOS 表。Grok 明确不要用滚动多折救期望（REJ-011） | `exploratory_is_oos.js` · 057 §6.3 | **P3 笔记** |
-| DEBT-023 | **REQ-058 假设到达时钟（不挡 done-eng）**：历史无观测 `t_arrive`；L2a jsonl 仅 `et_date`/`et_session` → `t_msg_kind=session_anchor`（09:30 ET 桶使 Δ=0/1/3 同 bar）；jsonl 无 `speaker_id`（频道假定赵哥）。禁止把 C-rate / bar open 当成交秒或 alpha。有 `whop_archive.db` 后应用 `created_at` + `speaker_id=` 硬锁重跑 | `backtest_delayed_follow_e_v0.js` · 058 §7 | **P3 笔记** |
+| DEBT-023 | **REQ-058 假设到达时钟（不挡 done-eng）**：无观测 `t_arrive`。Plan B 已去掉静默 L2a：`message_clock` 缺 archive / `messages.created_at` fail-closed。L2a `session_anchor` 仅 `--allow-session-anchor-counterexample`（`not_for_strategy`）。Windows 对根目录 `whop_archive.db` 重跑仍待 Human。禁止把 C-rate / bar open 当成交秒或 alpha | `backtest_delayed_follow_e_v0.js` · 058 §7 | **P3 笔记** |
 
 
 ### 2.2 本机 vs git vs 生产（2026-09-19 Cursor 盘点）

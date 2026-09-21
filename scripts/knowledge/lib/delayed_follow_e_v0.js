@@ -20,6 +20,19 @@ export const DEFAULT_UNIVERSE = Object.freeze(['IREN', 'SOXL', 'MU', 'CRWV', 'CO
 export const DEFAULT_DELTA_MINS = Object.freeze([0, 1, 3, 5]);
 export const BAR_TZ = 'America/New_York';
 export const METHOD_LABEL = 'delayed_follow_e_v0_hypothesized_arrival';
+export const NEAR_END_BANNER = '近端 = 到达字段 + 真时钟校准';
+export const T_MSG_KIND_MESSAGE_CLOCK = 'message_clock';
+export const T_MSG_KIND_SESSION_ANCHOR = 'session_anchor';
+export const FIVE_MIN_COALESCE_NOTE =
+  '5m coalesce: Δ=0,1,3 typically share the same 5m bar; Δ=5 may step into the next bar open (bin edge, not fill-second inference). Second-level Δ is not implemented (--delta-secs reserved).';
+export const MESSAGE_CLOCK_FAIL_ARCHIVE =
+  'MESSAGE_CLOCK_FAIL_CLOSED: readonly archive missing; refusing silent L2a session_anchor fallback';
+export const MESSAGE_CLOCK_FAIL_CREATED_AT =
+  'MESSAGE_CLOCK_FAIL_CLOSED: messages.created_at unavailable; refusing silent L2a session_anchor fallback';
+export const SESSION_ANCHOR_FLAG_REQUIRED =
+  'session_anchor requires --allow-session-anchor-counterexample (not_for_strategy); refusing unlabeled L2a clock';
+export const SILENT_MESSAGE_CLOCK_FORBIDDEN =
+  't_msg_kind required; refusing silent message_clock';
 
 /**
  * Provisional A/B/C stub. Thresholds sit in ONE place.
@@ -168,10 +181,8 @@ export function isAllowedChannel(channelId) {
 
 export function isZhaoSpeaker(row) {
   const id = row?.speaker_id || row?.sender_id || '';
-  if (id) return id === ZHAO_SPEAKER_ID;
-  const name = String(row?.speaker_name || row?.sender_name || '').toLowerCase();
-  if (name) return name === ZHAO_SPEAKER_NAME;
-  return false;
+  if (!id) return false;
+  return id === ZHAO_SPEAKER_ID;
 }
 
 export function normalizeSide(action) {
@@ -337,7 +348,7 @@ export function buildEventRow({
     t_msg: tMsg,
     t_msg_iso: new Date(tMsg).toISOString(),
     t_msg_et: formatInTz(tMsg),
-    t_msg_kind: buyEvent.t_msg_kind || 'message_clock',
+    t_msg_kind: requireTMsgKind(buyEvent.t_msg_kind),
     t_msg_tz: BAR_TZ,
     px_zhao: pxZhao,
     delta_min: Number(deltaMin),
@@ -364,6 +375,7 @@ export function buildEventRow({
     policy_status: policy.policy_status,
     speaker_id: buyEvent.speaker_id || null,
     channel_id: buyEvent.channel_id || null,
+    not_for_strategy: Boolean(buyEvent.not_for_strategy),
     claims_not_made: [
       'not_observed_t_arrive',
       'not_autonomous_alpha',
@@ -373,6 +385,15 @@ export function buildEventRow({
     ]
   };
   return row;
+}
+
+export function requireTMsgKind(kind) {
+  if (!kind) throw new Error(SILENT_MESSAGE_CLOCK_FORBIDDEN);
+  const k = String(kind);
+  if (k !== T_MSG_KIND_MESSAGE_CLOCK && k !== T_MSG_KIND_SESSION_ANCHOR) {
+    throw new Error(`invalid t_msg_kind: ${kind}`);
+  }
+  return k;
 }
 
 export function sweepEvent(buyEvent, bars, deltaMins, opts = {}) {
@@ -456,10 +477,9 @@ export function summarizeRows(rows) {
 }
 
 export function assertNoOralPriceLeakage(row) {
-  if (row.px_arrive != null && Number(row.px_arrive) === Number(row.px_zhao) && row.exec_policy !== 'NO_BAR') {
-    if (row.px_arrive_source === 'px_zhao' || row.px_arrive_source === 'oral') {
-      throw new Error('oral price leakage: px_arrive sourced from px_zhao');
-    }
+  const src = String(row.px_arrive_source || '');
+  if (src === 'px_zhao' || src === 'oral' || /oral|px_zhao/.test(src)) {
+    throw new Error('oral price leakage: px_arrive sourced from px_zhao');
   }
   if (Object.prototype.hasOwnProperty.call(row, 't_fill')) {
     throw new Error('forbidden field t_fill');
@@ -480,8 +500,7 @@ function parseL2aActions(obj) {
 }
 
 export function buyEventFromNormalized(raw, symbols) {
-  if (raw.speaker_id && raw.speaker_id !== ZHAO_SPEAKER_ID) return null;
-  if (raw.sender_id && raw.sender_id !== ZHAO_SPEAKER_ID) return null;
+  if (!isZhaoSpeaker(raw)) return null;
   const symbol = String(raw.symbol || raw.ticker || '').toUpperCase();
   if (symbols && !symbols.includes(symbol)) return null;
   const side = normalizeSide(raw.side || raw.action);
@@ -490,16 +509,19 @@ export function buyEventFromNormalized(raw, symbols) {
   if (!Number.isFinite(px) || px <= 0) return null;
   const tMsg = toMillis(raw.t_msg ?? raw.created_at ?? raw.msg_created_at);
   if (!Number.isFinite(tMsg)) return null;
+  const kind = raw.t_msg_kind || T_MSG_KIND_MESSAGE_CLOCK;
+  if (kind !== T_MSG_KIND_MESSAGE_CLOCK) return null;
   return {
     event_id: raw.event_id || raw.signal_id || `${symbol}_${tMsg}_${px}`,
     symbol,
     side,
     t_msg: tMsg,
-    t_msg_kind: raw.t_msg_kind || 'message_clock',
+    t_msg_kind: T_MSG_KIND_MESSAGE_CLOCK,
     px_zhao: px,
-    speaker_id: raw.speaker_id || raw.sender_id || null,
+    speaker_id: raw.speaker_id || raw.sender_id,
     channel_id: raw.channel_id || raw.channel || null,
-    source: raw.source || 'jsonl'
+    source: raw.source || 'jsonl',
+    not_for_strategy: false
   };
 }
 
@@ -530,14 +552,20 @@ export function extractBuysFromL2aRecord(obj, symbols) {
       channel_id: channel || TRADE_SIGNAL_CHANNELS[0],
       source: 'l2a_ledger',
       et_date: etDate,
-      et_session: obj.et_session || 'regular'
+      et_session: obj.et_session || 'regular',
+      not_for_strategy: true
     });
   }
   return out;
 }
 
-export function loadBuyEventsFromJsonlLines(lines, { symbols, requireZhaoLock = false } = {}) {
+function isL2aShaped(obj) {
+  return Boolean(obj.parsed || (obj.et_date && (obj.channel || obj.channel_id)));
+}
+
+export function loadBuyEventsFromJsonlLines(lines, { symbols, clockKind = T_MSG_KIND_MESSAGE_CLOCK } = {}) {
   const events = [];
+  const kind = requireTMsgKind(clockKind);
   for (const line of lines) {
     const s = String(line).trim();
     if (!s || s.startsWith('#')) continue;
@@ -547,12 +575,14 @@ export function loadBuyEventsFromJsonlLines(lines, { symbols, requireZhaoLock = 
     } catch {
       continue;
     }
-    if (obj.parsed || (obj.et_date && (obj.channel || obj.channel_id))) {
-      events.push(...extractBuysFromL2aRecord(obj, symbols));
+    if (isL2aShaped(obj)) {
+      if (kind === T_MSG_KIND_SESSION_ANCHOR) {
+        events.push(...extractBuysFromL2aRecord(obj, symbols));
+      }
       continue;
     }
-    if (obj.speaker_id && obj.speaker_id !== ZHAO_SPEAKER_ID) continue;
-    if (obj.sender_id && obj.sender_id !== ZHAO_SPEAKER_ID) continue;
+    if (kind !== T_MSG_KIND_MESSAGE_CLOCK) continue;
+    if (!isZhaoSpeaker(obj)) continue;
     const ev = buyEventFromNormalized(obj, symbols);
     if (ev) {
       if (!isAllowedChannel(ev.channel_id)) continue;
@@ -565,7 +595,8 @@ export function loadBuyEventsFromJsonlLines(lines, { symbols, requireZhaoLock = 
 export function loadBuyEventsFromSqliteRows(rows, { symbols } = {}) {
   const events = [];
   for (const row of rows || []) {
-    if (row.speaker_id && row.speaker_id !== ZHAO_SPEAKER_ID) continue;
+    if (!row.speaker_id) continue;
+    if (!isZhaoSpeaker(row)) continue;
     if (row.channel_id && !isAllowedChannel(row.channel_id)) continue;
     const ev = buyEventFromNormalized(
       {
@@ -574,8 +605,8 @@ export function loadBuyEventsFromSqliteRows(rows, { symbols } = {}) {
         action: row.action,
         px_zhao: row.price,
         t_msg: row.created_at,
-        t_msg_kind: 'message_clock',
-        speaker_id: row.speaker_id || ZHAO_SPEAKER_ID,
+        t_msg_kind: T_MSG_KIND_MESSAGE_CLOCK,
+        speaker_id: row.speaker_id,
         channel_id: row.channel_id,
         source: 'trade_signals'
       },
@@ -588,14 +619,70 @@ export function loadBuyEventsFromSqliteRows(rows, { symbols } = {}) {
 
 export function sqliteBuyQuery() {
   return `
-    SELECT signal_id, ticker, action, price, created_at, speaker_id, channel_id, message_id
-    FROM trade_signals
-    WHERE speaker_id = ?
-      AND action IN ('BUY', 'ADD', 'OPEN')
-      AND price > 0
-      AND channel_id IN (?, ?)
-    ORDER BY created_at ASC
+    SELECT ts.signal_id, ts.ticker, ts.action, ts.price,
+           m.created_at AS created_at,
+           ts.speaker_id, ts.channel_id, ts.message_id
+    FROM trade_signals ts
+    INNER JOIN messages m ON m.id = ts.message_id
+    WHERE ts.speaker_id = ?
+      AND ts.speaker_id IS NOT NULL
+      AND ts.action IN ('BUY', 'ADD', 'OPEN')
+      AND ts.price > 0
+      AND ts.channel_id IN (?, ?)
+      AND m.created_at IS NOT NULL
+    ORDER BY m.created_at ASC
   `;
+}
+
+export function hasMessagesCreatedAtColumn(db) {
+  if (!db) return false;
+  try {
+    const cols = db.prepare(`PRAGMA table_info(messages)`).all();
+    return Array.isArray(cols) && cols.some((c) => c.name === 'created_at');
+  } catch {
+    return false;
+  }
+}
+
+export function resolveClockSource({
+  tMsgKind,
+  allowSessionAnchorCounterexample = false,
+  eventsPath = null,
+  archiveExists = false,
+  hasMessagesCreatedAt = false
+} = {}) {
+  const kind = tMsgKind ? requireTMsgKind(tMsgKind) : T_MSG_KIND_MESSAGE_CLOCK;
+  if (eventsPath) {
+    if (kind === T_MSG_KIND_SESSION_ANCHOR && !allowSessionAnchorCounterexample) {
+      throw new Error(SESSION_ANCHOR_FLAG_REQUIRED);
+    }
+    return {
+      source: kind === T_MSG_KIND_SESSION_ANCHOR ? 'jsonl_session_anchor_counterexample' : 'jsonl',
+      t_msg_kind: kind,
+      not_for_strategy: kind === T_MSG_KIND_SESSION_ANCHOR
+    };
+  }
+  if (kind === T_MSG_KIND_SESSION_ANCHOR) {
+    if (!allowSessionAnchorCounterexample) {
+      throw new Error(SESSION_ANCHOR_FLAG_REQUIRED);
+    }
+    return {
+      source: 'l2a_session_anchor_counterexample',
+      t_msg_kind: T_MSG_KIND_SESSION_ANCHOR,
+      not_for_strategy: true
+    };
+  }
+  if (!archiveExists) {
+    throw new Error(MESSAGE_CLOCK_FAIL_ARCHIVE);
+  }
+  if (!hasMessagesCreatedAt) {
+    throw new Error(MESSAGE_CLOCK_FAIL_CREATED_AT);
+  }
+  return {
+    source: 'sqlite_messages_created_at',
+    t_msg_kind: T_MSG_KIND_MESSAGE_CLOCK,
+    not_for_strategy: false
+  };
 }
 
 function dedupeBuys(events) {

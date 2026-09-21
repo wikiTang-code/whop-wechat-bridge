@@ -3,9 +3,11 @@
  * REQ-058 — delayed-follow E-layer v0 historical backtest (research only).
  *
  *   node scripts/knowledge/backtest_delayed_follow_e_v0.js \
- *     --delta-mins 0,1,3,5 --bar 5m --symbols IREN,SOXL,MU,CRWV,COHR
+ *     --t-msg-kind message_clock --delta-mins 0,1,3,5 --bar 5m \
+ *     --symbols IREN,SOXL,MU,CRWV,COHR --db whop_archive.db
  *
- * One command writes event jsonl + summary.json.
+ * --t-msg-kind message_clock (default): fail-closed if archive or messages.created_at missing.
+ * L2a session_anchor only with --allow-session-anchor-counterexample (not_for_strategy).
  * Does NOT invent t_fill. t_arrive_hat is hypothesized, not observed t_arrive.
  * Not wired to HUD / L2a / place_order.
  */
@@ -18,15 +20,22 @@ import {
   DEFAULT_DELTA_MINS,
   DEFAULT_UNIVERSE,
   DELAYED_FOLLOW_POLICY,
+  FIVE_MIN_COALESCE_NOTE,
   METHOD_LABEL,
+  NEAR_END_BANNER,
+  T_MSG_KIND_MESSAGE_CLOCK,
+  T_MSG_KIND_SESSION_ANCHOR,
   TRADE_SIGNAL_CHANNELS,
   ZHAO_SPEAKER_ID,
   assertNoOralPriceLeakage,
   filterLookback,
+  hasMessagesCreatedAtColumn,
   loadBuyEventsFromJsonlLines,
   loadBuyEventsFromSqliteRows,
   parseDeltaMins,
   parseSymbols,
+  requireTMsgKind,
+  resolveClockSource,
   sqliteBuyQuery,
   summarizeRows,
   sweepEvent,
@@ -57,8 +66,10 @@ function hasFlag(flag) {
 }
 
 function parseArgs() {
+  const tMsgKind = requireTMsgKind(argVal('--t-msg-kind', T_MSG_KIND_MESSAGE_CLOCK));
   return {
     deltaMins: parseDeltaMins(argVal('--delta-mins', DEFAULT_DELTA_MINS.join(','))),
+    deltaSecsReserved: argVal('--delta-secs', null),
     bar: String(argVal('--bar', '5m')),
     symbols: parseSymbols(argVal('--symbols', DEFAULT_UNIVERSE.join(','))),
     eventsPath: argVal('--events', null),
@@ -68,6 +79,8 @@ function parseArgs() {
     includePrepost: hasFlag('--include-prepost'),
     lookbackDays: argVal('--lookback-days', '60'),
     range: argVal('--range', null),
+    tMsgKind,
+    allowSessionAnchorCounterexample: hasFlag('--allow-session-anchor-counterexample'),
     outDir: path.resolve(ROOT, argVal('--out-dir', 'data/runs/delayed_follow_e_v0'))
   };
 }
@@ -89,12 +102,19 @@ function loadL2aEvents(symbols) {
     const abs = path.resolve(ROOT, p);
     if (!fs.existsSync(abs)) continue;
     used.push(p);
-    events.push(...loadBuyEventsFromJsonlLines(readJsonl(abs), { symbols }));
+    events.push(
+      ...loadBuyEventsFromJsonlLines(readJsonl(abs), {
+        symbols,
+        clockKind: T_MSG_KIND_SESSION_ANCHOR
+      })
+    );
   }
   return {
     events,
     source: used.length ? `l2a:${used.join(',')}` : 'none',
-    speaker_lock: `${ZHAO_SPEAKER_ID} (assumed: trade-channel L2A ledger; jsonl has no speaker_id)`
+    speaker_lock: `${ZHAO_SPEAKER_ID} (assumed: trade-channel L2A ledger; jsonl has no speaker_id)`,
+    t_msg_kind: T_MSG_KIND_SESSION_ANCHOR,
+    not_for_strategy: true
   };
 }
 
@@ -106,13 +126,22 @@ async function loadSqliteEvents(dbPath, symbols) {
   if (abs === defaultAbs) {
     const { getReadOnlyArchiveDb } = await import('../../monitoring/db-readonly.js');
     db = getReadOnlyArchiveDb(abs);
-    if (!db) throw new Error('readonly archive db unavailable');
+    if (!db) {
+      throw new Error(
+        'MESSAGE_CLOCK_FAIL_CLOSED: readonly archive missing; refusing silent L2a session_anchor fallback'
+      );
+    }
   } else {
     const { default: Database } = await import('better-sqlite3');
     db = new Database(abs, { readonly: true, timeout: 2000 });
     close = true;
   }
   try {
+    if (!hasMessagesCreatedAtColumn(db)) {
+      throw new Error(
+        'MESSAGE_CLOCK_FAIL_CLOSED: messages.created_at unavailable; refusing silent L2a session_anchor fallback'
+      );
+    }
     const rows = db.prepare(sqliteBuyQuery()).all(
       ZHAO_SPEAKER_ID,
       TRADE_SIGNAL_CHANNELS[0],
@@ -120,8 +149,10 @@ async function loadSqliteEvents(dbPath, symbols) {
     );
     return {
       events: loadBuyEventsFromSqliteRows(rows, { symbols }),
-      source: `sqlite-ro:${rel(abs)}`,
-      speaker_lock: ZHAO_SPEAKER_ID
+      source: `sqlite-ro:${rel(abs)}#messages.created_at`,
+      speaker_lock: ZHAO_SPEAKER_ID,
+      t_msg_kind: T_MSG_KIND_MESSAGE_CLOCK,
+      not_for_strategy: false
     };
   } finally {
     if (close) db.close();
@@ -129,24 +160,57 @@ async function loadSqliteEvents(dbPath, symbols) {
 }
 
 async function resolveEvents(opts) {
+  const archiveExists = fs.existsSync(opts.dbPath);
+  let hasCreatedAt = false;
+  if (archiveExists && opts.tMsgKind === T_MSG_KIND_MESSAGE_CLOCK && !opts.eventsPath) {
+    hasCreatedAt = await probeMessagesCreatedAt(opts.dbPath);
+  }
+  const clock = resolveClockSource({
+    tMsgKind: opts.tMsgKind,
+    allowSessionAnchorCounterexample: opts.allowSessionAnchorCounterexample,
+    eventsPath: opts.eventsPath,
+    archiveExists,
+    hasMessagesCreatedAt: hasCreatedAt
+  });
   if (opts.eventsPath) {
     return {
       events: loadBuyEventsFromJsonlLines(readJsonl(opts.eventsPath), {
         symbols: opts.symbols,
-        requireZhaoLock: false
+        clockKind: clock.t_msg_kind
       }),
       source: `jsonl:${opts.eventsPath}`,
-      speaker_lock: 'as-provided-jsonl'
+      speaker_lock: clock.t_msg_kind === T_MSG_KIND_MESSAGE_CLOCK ? ZHAO_SPEAKER_ID : 'as-provided-jsonl',
+      t_msg_kind: clock.t_msg_kind,
+      not_for_strategy: Boolean(clock.not_for_strategy)
     };
   }
-  if (fs.existsSync(opts.dbPath)) {
-    try {
-      return await loadSqliteEvents(opts.dbPath, opts.symbols);
-    } catch (err) {
-      console.warn(`[delayed-follow] sqlite failed: ${err.message}; falling back to L2A jsonl`);
-    }
+  if (clock.source === 'l2a_session_anchor_counterexample') {
+    return loadL2aEvents(opts.symbols);
   }
-  return loadL2aEvents(opts.symbols);
+  return loadSqliteEvents(opts.dbPath, opts.symbols);
+}
+
+async function probeMessagesCreatedAt(dbPath) {
+  const abs = path.resolve(dbPath);
+  const defaultAbs = path.resolve(ROOT, 'whop_archive.db');
+  let db;
+  let close = false;
+  try {
+    if (abs === defaultAbs) {
+      const { getReadOnlyArchiveDb } = await import('../../monitoring/db-readonly.js');
+      db = getReadOnlyArchiveDb(abs);
+      if (!db) return false;
+    } else {
+      const { default: Database } = await import('better-sqlite3');
+      db = new Database(abs, { readonly: true, timeout: 2000 });
+      close = true;
+    }
+    return hasMessagesCreatedAtColumn(db);
+  } catch {
+    return false;
+  } finally {
+    if (close && db) db.close();
+  }
 }
 
 function loadBarsFromDir(dir, symbol) {
@@ -214,14 +278,16 @@ async function barsForSymbol(symbol, opts) {
   }
 }
 
-function printBanner() {
+function printBanner(opts) {
   console.log('===========================================================');
   console.log('REQ-058 delayed-follow E-layer v0');
+  console.log(NEAR_END_BANNER);
   console.log('HYPOTHESIZED arrival  t_arrive_hat = t_msg + Δ');
   console.log('NOT observed t_arrive. NOT autonomous alpha. NOT Zhao PnL.');
   console.log('px_arrive = bar OPEN containing t_arrive_hat. Never px_zhao.');
   console.log('No t_fill field. Bar high/low is not a fill clock.');
-  console.log(`TZ=${BAR_TZ}  method=${METHOD_LABEL}`);
+  console.log(`t_msg_kind=${opts?.tMsgKind || T_MSG_KIND_MESSAGE_CLOCK}  TZ=${BAR_TZ}  method=${METHOD_LABEL}`);
+  console.log(FIVE_MIN_COALESCE_NOTE);
   console.log(`policy=${DELAYED_FOLLOW_POLICY.policy_id} (${DELAYED_FOLLOW_POLICY.policy_status})`);
   console.log('===========================================================');
 }
@@ -231,13 +297,18 @@ async function main() {
   const lookbackDays = opts.lookbackDays === 'all' || opts.lookbackDays === '0'
     ? 0
     : Number(opts.lookbackDays);
-  printBanner();
+  printBanner(opts);
+  if (opts.deltaSecsReserved != null) {
+    console.warn('[delayed-follow] --delta-secs is reserved; second-level Δ is not implemented. Sweep stays 0,1,3,5 min.');
+  }
   fs.mkdirSync(opts.outDir, { recursive: true });
 
   const pack = await resolveEvents(opts);
   const events = filterLookback(pack.events, lookbackDays);
   console.log(`events source: ${pack.source}`);
   console.log(`speaker lock: ${pack.speaker_lock}`);
+  console.log(`t_msg_kind: ${pack.t_msg_kind}`);
+  if (pack.not_for_strategy) console.log('not_for_strategy: true');
   console.log(`N buy events after lookback=${lookbackDays || 'all'}d: ${events.length} / raw ${pack.events.length}`);
   const nBySym = {};
   for (const e of events) nBySym[e.symbol] = (nBySym[e.symbol] || 0) + 1;
@@ -270,12 +341,16 @@ async function main() {
 
   const summary = {
     banner: {
+      near_end: NEAR_END_BANNER,
       hypothesized_arrival: true,
       observed_t_arrive: false,
       autonomous_alpha: false,
       zhao_own_pnl: false,
       invented_t_fill: false,
       timezone: BAR_TZ,
+      t_msg_kind: pack.t_msg_kind,
+      not_for_strategy: Boolean(pack.not_for_strategy),
+      five_min_coalesce: FIVE_MIN_COALESCE_NOTE,
       premarket_included: opts.includePrepost,
       premarket_note: opts.includePrepost
         ? 'Yahoo includePrePost=true (extended hours share unix timestamps; not a separate clock).'
@@ -286,9 +361,11 @@ async function main() {
     },
     policy: DELAYED_FOLLOW_POLICY,
     method: METHOD_LABEL,
-    command: `node scripts/knowledge/backtest_delayed_follow_e_v0.js --delta-mins ${opts.deltaMins.join(',')} --bar ${opts.bar} --symbols ${opts.symbols.join(',')}`,
+    command: `node scripts/knowledge/backtest_delayed_follow_e_v0.js --t-msg-kind ${opts.tMsgKind} --delta-mins ${opts.deltaMins.join(',')} --bar ${opts.bar} --symbols ${opts.symbols.join(',')}`,
     events_source: pack.source,
     speaker_lock: pack.speaker_lock,
+    t_msg_kind: pack.t_msg_kind,
+    not_for_strategy: Boolean(pack.not_for_strategy),
     lookback_days: lookbackDays || 'all',
     n_events: events.length,
     n_events_per_symbol: nBySym,
@@ -296,12 +373,20 @@ async function main() {
     stats: summarizeRows(rows)
   };
 
-  const eventsOut = path.join(opts.outDir, 'events.jsonl');
-  const summaryOut = path.join(opts.outDir, 'summary.json');
-  fs.writeFileSync(eventsOut, rows.map((r) => JSON.stringify(r)).join('\n') + (rows.length ? '\n' : ''), 'utf8');
-  fs.writeFileSync(summaryOut, JSON.stringify(summary, null, 2), 'utf8');
-  console.log(`wrote ${rows.length} rows → ${rel(eventsOut)}`);
-  console.log(`wrote summary → ${rel(summaryOut)}`);
+  const summaryName = pack.not_for_strategy
+    ? 'summary_session_anchor_counterexample.json'
+    : 'summary_message_clock.json';
+  const summaryOut = path.join(opts.outDir, summaryName);
+  if (pack.not_for_strategy) {
+    fs.writeFileSync(summaryOut, JSON.stringify(summary, null, 2), 'utf8');
+    console.log(`wrote summary → ${rel(summaryOut)} (not_for_strategy; no events.jsonl; no summary_message_clock.json)`);
+  } else {
+    const eventsOut = path.join(opts.outDir, 'events.jsonl');
+    fs.writeFileSync(eventsOut, rows.map((r) => JSON.stringify(r)).join('\n') + (rows.length ? '\n' : ''), 'utf8');
+    fs.writeFileSync(summaryOut, JSON.stringify(summary, null, 2), 'utf8');
+    console.log(`wrote ${rows.length} rows → ${rel(eventsOut)}`);
+    console.log(`wrote summary → ${rel(summaryOut)}`);
+  }
   console.log(JSON.stringify(summary.stats.per_delta, null, 2));
 }
 

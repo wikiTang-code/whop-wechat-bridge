@@ -5,9 +5,19 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
+import { spawnSync } from 'node:child_process';
+import Database from 'better-sqlite3';
 import {
   DELAYED_FOLLOW_POLICY,
+  MESSAGE_CLOCK_FAIL_ARCHIVE,
+  MESSAGE_CLOCK_FAIL_CREATED_AT,
+  NEAR_END_BANNER,
+  SESSION_ANCHOR_FLAG_REQUIRED,
+  SILENT_MESSAGE_CLOCK_FORBIDDEN,
+  T_MSG_KIND_MESSAGE_CLOCK,
+  T_MSG_KIND_SESSION_ANCHOR,
   ZHAO_SPEAKER_ID,
   assertNoOralPriceLeakage,
   buyEventFromNormalized,
@@ -16,10 +26,13 @@ import {
   extractBuysFromL2aRecord,
   findBarContaining,
   hypothesizedArrivalMs,
+  isZhaoSpeaker,
   loadBuyEventsFromJsonlLines,
+  loadBuyEventsFromSqliteRows,
   parseDeltaMins,
   parseSymbols,
   pxArriveFromBar,
+  resolveClockSource,
   signedSlipBps,
   sqliteBuyQuery,
   summarizeRows,
@@ -79,6 +92,7 @@ describe('REQ-058 delayed-follow E v0', () => {
       symbol: 'IREN',
       side: 'BUY',
       t_msg: T0,
+      t_msg_kind: 'message_clock',
       px_zhao: 100,
       speaker_id: ZHAO_SPEAKER_ID
     };
@@ -138,8 +152,27 @@ describe('REQ-058 delayed-follow E v0', () => {
     const q = sqliteBuyQuery();
     assert.match(q, /speaker_id = \?/);
     assert.match(q, /channel_id IN \(\?, \?\)/);
+    assert.match(q, /JOIN messages m/i);
+    assert.match(q, /m\.created_at/);
     assert.doesNotMatch(q, /LIKE/);
     assert.doesNotMatch(q, /赵/);
+    assert.equal(isZhaoSpeaker({ speaker_name: '赵哥' }), false);
+    assert.equal(isZhaoSpeaker({ speaker_name: 'xiaozhaolucky' }), false);
+    assert.equal(isZhaoSpeaker({ speaker_id: ZHAO_SPEAKER_ID }), true);
+    assert.equal(
+      buyEventFromNormalized(
+        { symbol: 'IREN', action: 'BUY', px_zhao: 1, t_msg: T0 },
+        ['IREN']
+      ),
+      null
+    );
+    assert.equal(
+      loadBuyEventsFromSqliteRows(
+        [{ signal_id: 'x', ticker: 'IREN', action: 'BUY', price: 1, created_at: T0, channel_id: 'forum_feed_1CTr7SqVMzFfuFiiRJLEHN' }],
+        { symbols: ['IREN'] }
+      ).length,
+      0
+    );
   });
 
   it('L2a ledger uses session_anchor, not invented fill seconds', () => {
@@ -190,5 +223,264 @@ describe('REQ-058 delayed-follow E v0', () => {
     assert.ok(aRow.costs);
     assert.equal(aRow.exit.kind, 'stub_horizon_bar_close');
     assert.ok('residual_after_costs_bps' in aRow.costs);
+  });
+
+  it('fail-closed message_clock: no archive / no messages.created_at; no silent L2a', () => {
+    assert.throws(
+      () =>
+        resolveClockSource({
+          tMsgKind: T_MSG_KIND_MESSAGE_CLOCK,
+          archiveExists: false,
+          hasMessagesCreatedAt: false
+        }),
+      (err) => String(err.message).includes('MESSAGE_CLOCK_FAIL_CLOSED') && String(err.message).includes(MESSAGE_CLOCK_FAIL_ARCHIVE)
+    );
+    assert.throws(
+      () =>
+        resolveClockSource({
+          tMsgKind: T_MSG_KIND_MESSAGE_CLOCK,
+          archiveExists: true,
+          hasMessagesCreatedAt: false
+        }),
+      (err) => String(err.message).includes(MESSAGE_CLOCK_FAIL_CREATED_AT)
+    );
+    assert.throws(
+      () =>
+        resolveClockSource({
+          tMsgKind: T_MSG_KIND_SESSION_ANCHOR,
+          allowSessionAnchorCounterexample: false
+        }),
+      (err) => String(err.message).includes(SESSION_ANCHOR_FLAG_REQUIRED)
+    );
+    const ok = resolveClockSource({
+      tMsgKind: T_MSG_KIND_MESSAGE_CLOCK,
+      archiveExists: true,
+      hasMessagesCreatedAt: true
+    });
+    assert.equal(ok.source, 'sqlite_messages_created_at');
+    assert.equal(ok.t_msg_kind, 'message_clock');
+    assert.equal(ok.not_for_strategy, false);
+    const cx = resolveClockSource({
+      tMsgKind: T_MSG_KIND_SESSION_ANCHOR,
+      allowSessionAnchorCounterexample: true
+    });
+    assert.equal(cx.source, 'l2a_session_anchor_counterexample');
+    assert.equal(cx.not_for_strategy, true);
+  });
+
+  it('does not silently treat L2a session_anchor as message_clock', () => {
+    const l2aLine = JSON.stringify({
+      cu_id: 'cu_silent',
+      channel: 'forum_feed_1CTr7SqVMzFfuFiiRJLEHN',
+      et_date: '2026-07-15',
+      et_session: 'regular',
+      parsed: { actions: [{ action: 'BUY', ticker: 'IREN', price: 42.7, status: 'filled' }] }
+    });
+    const asClock = loadBuyEventsFromJsonlLines([l2aLine], {
+      symbols: ['IREN'],
+      clockKind: T_MSG_KIND_MESSAGE_CLOCK
+    });
+    assert.equal(asClock.length, 0);
+    const asAnchor = loadBuyEventsFromJsonlLines([l2aLine], {
+      symbols: ['IREN'],
+      clockKind: T_MSG_KIND_SESSION_ANCHOR
+    });
+    assert.equal(asAnchor.length, 1);
+    assert.equal(asAnchor[0].t_msg_kind, T_MSG_KIND_SESSION_ANCHOR);
+    assert.equal(asAnchor[0].not_for_strategy, true);
+    const bars = loadBars('IREN');
+    assert.throws(
+      () =>
+        sweepEvent(
+          {
+            event_id: 'no_kind',
+            symbol: 'IREN',
+            side: 'BUY',
+            t_msg: T0,
+            px_zhao: 100,
+            speaker_id: ZHAO_SPEAKER_ID
+          },
+          bars,
+          [0],
+          { interval: '5m' }
+        ),
+      (err) => String(err.message).includes(SILENT_MESSAGE_CLOCK_FORBIDDEN)
+    );
+  });
+
+  it('px_arrive never sourced from oral px_zhao', () => {
+    assert.throws(
+      () =>
+        assertNoOralPriceLeakage({
+          px_arrive: 99,
+          px_zhao: 100,
+          px_arrive_source: 'oral',
+          arrival_kind: 'hypothesized'
+        }),
+      /oral price leakage/
+    );
+    assert.throws(
+      () =>
+        assertNoOralPriceLeakage({
+          px_arrive: 100,
+          px_zhao: 100,
+          px_arrive_source: 'px_zhao',
+          arrival_kind: 'hypothesized'
+        }),
+      /oral price leakage/
+    );
+  });
+
+  it('CLI fail-closed: missing archive and missing messages.created_at exit nonzero', () => {
+    const script = path.resolve('scripts/knowledge/backtest_delayed_follow_e_v0.js');
+    const missing = spawnSync(
+      process.execPath,
+      [
+        script,
+        '--t-msg-kind',
+        'message_clock',
+        '--db',
+        path.join(os.tmpdir(), 'no-such-whop_archive.db'),
+        '--no-fetch',
+        '--symbols',
+        'IREN',
+        '--lookback-days',
+        'all'
+      ],
+      { encoding: 'utf8' }
+    );
+    assert.notEqual(missing.status, 0);
+    const errText = `${missing.stderr || ''}${missing.stdout || ''}`;
+    assert.match(errText, /MESSAGE_CLOCK_FAIL_CLOSED/);
+    assert.match(errText, /readonly archive missing/);
+    assert.doesNotMatch(errText, /falling back to L2A/i);
+
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'df058-'));
+    const dbPath = path.join(dir, 'whop_archive.db');
+    const db = new Database(dbPath);
+    db.exec(`
+      CREATE TABLE messages (id TEXT PRIMARY KEY);
+      CREATE TABLE trade_signals (
+        signal_id TEXT PRIMARY KEY,
+        message_id TEXT,
+        channel_id TEXT,
+        speaker_id TEXT,
+        ticker TEXT,
+        action TEXT,
+        price REAL,
+        created_at INTEGER
+      );
+    `);
+    db.close();
+    const noCol = spawnSync(
+      process.execPath,
+      [
+        script,
+        '--t-msg-kind',
+        'message_clock',
+        '--db',
+        dbPath,
+        '--no-fetch',
+        '--symbols',
+        'IREN',
+        '--lookback-days',
+        'all'
+      ],
+      { encoding: 'utf8' }
+    );
+    assert.notEqual(noCol.status, 0);
+    const noColText = `${noCol.stderr || ''}${noCol.stdout || ''}`;
+    assert.match(noColText, /MESSAGE_CLOCK_FAIL_CLOSED/);
+    assert.match(noColText, /messages\.created_at unavailable/);
+    assert.doesNotMatch(noColText, /falling back to L2A/i);
+  });
+
+  it('CLI session_anchor counterexample writes only summary_session_anchor_counterexample.json', () => {
+    const script = path.resolve('scripts/knowledge/backtest_delayed_follow_e_v0.js');
+    const denied = spawnSync(
+      process.execPath,
+      [
+        script,
+        '--t-msg-kind',
+        'session_anchor',
+        '--no-fetch',
+        '--symbols',
+        'IREN',
+        '--lookback-days',
+        'all',
+        '--bars-dir',
+        path.join(FIXTURE_DIR, 'bars')
+      ],
+      { encoding: 'utf8' }
+    );
+    assert.notEqual(denied.status, 0);
+    assert.match(`${denied.stderr || ''}${denied.stdout || ''}`, /allow-session-anchor-counterexample/);
+
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'df058-cx-'));
+    const allowed = spawnSync(
+      process.execPath,
+      [
+        script,
+        '--t-msg-kind',
+        'session_anchor',
+        '--allow-session-anchor-counterexample',
+        '--no-fetch',
+        '--symbols',
+        'IREN',
+        '--lookback-days',
+        'all',
+        '--bars-dir',
+        path.join(FIXTURE_DIR, 'bars'),
+        '--out-dir',
+        outDir
+      ],
+      { encoding: 'utf8' }
+    );
+    assert.equal(allowed.status, 0, allowed.stderr);
+    assert.equal(fs.existsSync(path.join(outDir, 'summary_message_clock.json')), false);
+    const cxPath = path.join(outDir, 'summary_session_anchor_counterexample.json');
+    assert.equal(fs.existsSync(cxPath), true);
+    const cx = JSON.parse(fs.readFileSync(cxPath, 'utf8'));
+    assert.equal(cx.not_for_strategy, true);
+    assert.equal(cx.t_msg_kind, T_MSG_KIND_SESSION_ANCHOR);
+    assert.match(cx.banner.near_end, /近端 = 到达字段 \+ 真时钟校准/);
+    assert.equal(NEAR_END_BANNER, '近端 = 到达字段 + 真时钟校准');
+  });
+
+  it('CLI message_clock with --events writes summary_message_clock.json', () => {
+    const script = path.resolve('scripts/knowledge/backtest_delayed_follow_e_v0.js');
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'df058-mc-'));
+    const run = spawnSync(
+      process.execPath,
+      [
+        script,
+        '--t-msg-kind',
+        'message_clock',
+        '--delta-mins',
+        '0,1,3,5',
+        '--bar',
+        '5m',
+        '--symbols',
+        'IREN,SOXL,MU,CRWV,COHR',
+        '--events',
+        path.join(FIXTURE_DIR, 'events.jsonl'),
+        '--bars-dir',
+        path.join(FIXTURE_DIR, 'bars'),
+        '--no-fetch',
+        '--lookback-days',
+        'all',
+        '--out-dir',
+        outDir
+      ],
+      { encoding: 'utf8' }
+    );
+    assert.equal(run.status, 0, run.stderr);
+    assert.equal(fs.existsSync(path.join(outDir, 'summary_message_clock.json')), true);
+    assert.equal(fs.existsSync(path.join(outDir, 'summary_session_anchor_counterexample.json')), false);
+    const sum = JSON.parse(fs.readFileSync(path.join(outDir, 'summary_message_clock.json'), 'utf8'));
+    assert.equal(sum.t_msg_kind, T_MSG_KIND_MESSAGE_CLOCK);
+    assert.equal(sum.not_for_strategy, false);
+    assert.equal(sum.banner.near_end, NEAR_END_BANNER);
+    assert.match(run.stdout, /近端 = 到达字段 \+ 真时钟校准/);
   });
 });

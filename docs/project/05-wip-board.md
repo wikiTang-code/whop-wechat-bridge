@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-058** | L3 | 延迟跟单历史回测 v0（`t_arrive_hat` Δ 扫；非 alpha；不接 HUD/L2a） | `scripts/knowledge/backtest_delayed_follow_e_v0.js` | **done-eng (accepted-with-gap)** |
+| **1** | **REQ-058** | L3 | Plan B：`message_clock` fail-closed；L2a 仅 `--allow-session-anchor-counterexample` | `scripts/knowledge/backtest_delayed_follow_e_v0.js` | **done-eng (accepted-with-gap)** |
 | 2 | **CHG-051** | L0 | 三角色合同：跟单执行 vs 周哥QQQ模拟仓 vs 自研参考轨；P0 仍是夜盘 FILLED | `docs/project/dual-track-operating-contract.md` | **accepted** |
 | 3 | **CHG-050** | L3 | REQ-057 P2 exploratory holdout。Grok `221a559` ACCEPT WITH NOTES，拍板 B | `scripts/knowledge/lib/exploratory_is_oos.js` | **done-eng (accepted-with-gap)** |
 | 4 | **REQ-038-T2** | L3 | n_scored 扩样；03 已由 gemini1 关单 | `card_attribution.js` | **Done** |
@@ -165,7 +165,7 @@
 | REQ-040 | L3 | T2 扩样（gemini1 关单） | `agent:cursor` | Done | 03=`done` |
 | CHG-026 | L0 | 运行环境合同（compute vs SoR） | `agent:cursor` | Done | `environments.md` |
 | CHG-050 | L3 | REQ-057 P2 exploratory IS/OOS holdout | `agent:cursor` | done-eng | accepted-with-gap · 见 057/07 |
-| REQ-058 | L3 | 延迟跟单历史回测 v0（假设到达 Δ 扫） | `agent:cursor` | done-eng | accepted-with-gap · 见 058；不接 HUD/L2a |
+| REQ-058 | L3 | 延迟跟单历史回测 v0（message_clock fail-closed） | `agent:cursor` | done-eng | Plan B · 见 058；不接 HUD/L2a |
 | CHG-027 | L4/L0 | Local-Ops knowledge.promote HITL C2 | `agent:cursor` | Done | Gemini Accepted |
 | CHG-028 | L3 | T2 方向/点位消歧 | `agent:cursor` | Done | n_scored=5 |
 

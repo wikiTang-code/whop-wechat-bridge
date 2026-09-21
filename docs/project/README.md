@@ -87,7 +87,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **REQ-058** 延迟跟单 E v0（`t_arrive_hat`；done-eng）· CHG-051 合同仍 accepted | done-eng / accepted |
+| **§0.A `agent:cursor`** | **REQ-058** Plan B `message_clock` fail-closed（done-eng）· CHG-051 合同仍 accepted | done-eng / accepted |
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 
