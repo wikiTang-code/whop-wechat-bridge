@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { trackSlowOp } from './monitoring/slow-log-tracker.js';
-import { stampObservedArrival } from './tools/trade/observed_arrival.js';
+import { stampObservedArrival, isHistoricalSignalSource } from './tools/trade/observed_arrival.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -207,20 +207,39 @@ export function ensureObservedArrivalColumns(conn) {
     'ALTER TABLE trade_intents ADD COLUMN px_arrive_source TEXT',
     'ALTER TABLE trade_signals ADD COLUMN t_arrive INTEGER',
     'ALTER TABLE trade_signals ADD COLUMN px_arrive REAL',
-    'ALTER TABLE trade_signals ADD COLUMN px_arrive_source TEXT'
+    'ALTER TABLE trade_signals ADD COLUMN px_arrive_source TEXT',
+    'ALTER TABLE messages ADD COLUMN poll_seen_at INTEGER'
   ];
   for (const sql of alters) {
     try { conn.prepare(sql).run(); } catch (_) {}
   }
 }
 
+export function lookupPollSeenMs(conn, messageId) {
+  if (!conn || !messageId) return null;
+  try {
+    const row = conn.prepare('SELECT poll_seen_at FROM messages WHERE id = ?').get(messageId);
+    const n = Number(row?.poll_seen_at);
+    if (Number.isFinite(n) && n > 0) return Math.trunc(n);
+  } catch (_) {}
+  try {
+    const row = conn.prepare('SELECT created_ts FROM ingest_events WHERE message_id = ?').get(messageId);
+    const n = Number(row?.created_ts);
+    if (Number.isFinite(n) && n > 0) return Math.trunc(n);
+  } catch (_) {}
+  return null;
+}
+
 export function saveTradeIntent(intent, dbInstance = null) {
   const conn = dbInstance || getDb();
   ensurePaperTradingTables(conn);
   const now = Date.now();
-  const tArrive = Number.isFinite(Number(intent.t_arrive)) && Number(intent.t_arrive) > 0
-    ? Math.trunc(Number(intent.t_arrive))
-    : now;
+  const arrival = stampObservedArrival({
+    t_arrive: intent.t_arrive,
+    px_zhao: intent.px_zhao,
+    px_arrive: intent.px_arrive,
+    px_arrive_source: intent.px_arrive_source
+  }, now, { inventIfMissing: true });
   const stmt = conn.prepare(`
     INSERT INTO trade_intents (
       intent_id, source, ticker, side, quantity, order_type, price_limit,
@@ -243,14 +262,17 @@ export function saveTradeIntent(intent, dbInstance = null) {
     intent.reject_reason || null,
     intent.created_at || now,
     now,
-    tArrive,
-    intent.t_arrive_kind || 'observed',
-    intent.px_zhao != null && Number.isFinite(Number(intent.px_zhao)) ? Number(intent.px_zhao) : null,
-    intent.px_arrive != null && Number.isFinite(Number(intent.px_arrive)) ? Number(intent.px_arrive) : null,
-    intent.px_arrive_source || null
+    arrival.t_arrive,
+    arrival.t_arrive_kind || 'observed',
+    arrival.px_zhao,
+    arrival.px_arrive,
+    arrival.px_arrive_source
   );
-  intent.t_arrive = tArrive;
-  if (!intent.t_arrive_kind) intent.t_arrive_kind = 'observed';
+  intent.t_arrive = arrival.t_arrive;
+  intent.t_arrive_kind = arrival.t_arrive_kind || 'observed';
+  intent.px_zhao = arrival.px_zhao;
+  intent.px_arrive = arrival.px_arrive;
+  intent.px_arrive_source = arrival.px_arrive_source;
   return intent;
 }
 
@@ -1006,9 +1028,10 @@ export function getDb() {
 export async function saveMessages(messages, { chunkSize = 50, yieldEventLoop = true } = {}) {
   if (!messages || messages.length === 0) return 0;
   const conn = getDb();
+  ensureObservedArrivalColumns(conn);
   const insert = conn.prepare(`
-    INSERT INTO messages (id, channel_id, channel_name, sender_id, sender_name, content, created_at, tickers, sectors, strategies, attachments)
-    VALUES (@id, @channel_id, @channel_name, @sender_id, @sender_name, @content, @created_at, @tickers, @sectors, @strategies, @attachments)
+    INSERT INTO messages (id, channel_id, channel_name, sender_id, sender_name, content, created_at, tickers, sectors, strategies, attachments, poll_seen_at)
+    VALUES (@id, @channel_id, @channel_name, @sender_id, @sender_name, @content, @created_at, @tickers, @sectors, @strategies, @attachments, @poll_seen_at)
     ON CONFLICT(id) DO UPDATE SET
       attachments = COALESCE(excluded.attachments, messages.attachments)
   `);
@@ -1023,6 +1046,7 @@ export async function saveMessages(messages, { chunkSize = 50, yieldEventLoop = 
       if (msg.attachments) {
         attachJson = typeof msg.attachments === 'string' ? msg.attachments : JSON.stringify(msg.attachments);
       }
+      const pollSeenRaw = Number(msg.poll_seen_at || msg.t_arrive);
       insert.run({
         id: msg.id,
         channel_id: msg.channel_id,
@@ -1034,7 +1058,8 @@ export async function saveMessages(messages, { chunkSize = 50, yieldEventLoop = 
         tickers: dims.tickers,
         sectors: dims.sectors,
         strategies: dims.strategies,
-        attachments: attachJson
+        attachments: attachJson,
+        poll_seen_at: Number.isFinite(pollSeenRaw) && pollSeenRaw > 0 ? Math.trunc(pollSeenRaw) : Date.now()
       });
     }
   });
@@ -1510,12 +1535,13 @@ export function saveTradeSignal(signal, dbInstance = null) {
   ensureObservedArrivalColumns(conn);
   const signalId = signal.signal_id || `sig_${signal.ticker}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const oralPx = parseFloat(signal.price) || 0;
+  const pollSeen = lookupPollSeenMs(conn, signal.message_id);
   const arrival = stampObservedArrival({
-    t_arrive: signal.t_arrive,
+    t_arrive: signal.t_arrive || pollSeen,
     px_zhao: oralPx,
     px_arrive: signal.px_arrive,
     px_arrive_source: signal.px_arrive_source
-  });
+  }, Date.now(), { inventIfMissing: !isHistoricalSignalSource(signal.source) });
   conn.prepare(`
     INSERT INTO trade_signals (
       signal_id, message_id, channel_id, speaker_id, speaker_name,

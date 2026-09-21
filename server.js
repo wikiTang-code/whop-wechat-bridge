@@ -1649,7 +1649,7 @@ app.post('/api/follow/correct-submit', async (req, res) => {
 // POST /api/paper/intents/create - 创建交易意图 (默认状态 PENDING_HITL)
 app.post('/api/paper/intents/create', async (req, res) => {
   try {
-    const { ticker, side, quantity, price_limit, source, evidence, expires_in_sec } = req.body || {};
+    const { ticker, side, quantity, price_limit, source, evidence, expires_in_sec, t_arrive } = req.body || {};
     const intent = createTradeIntent({
       ticker,
       side,
@@ -1657,7 +1657,8 @@ app.post('/api/paper/intents/create', async (req, res) => {
       price_limit,
       source: source || 'manual_ops',
       evidence: evidence || [],
-      expires_in_sec: expires_in_sec || 900
+      expires_in_sec: expires_in_sec || 900,
+      t_arrive
     });
     res.json({ success: true, intent });
   } catch (err) {

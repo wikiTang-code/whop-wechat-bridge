@@ -11,6 +11,7 @@
     "test:chg050-is-oos": "node test/test_exploratory_is_oos_chg050.js",
     "test:delayed-follow-e-v0": "node --test test/test_delayed_follow_e_v0.js",
     "test:observed-t-arrive": "node --test test/test_observed_t_arrive_chg052.js",
+    "check:t-arrive": "node scripts/trade/check_observed_t_arrive.js",
     "test:audit-linked-pnl": "node test/test_audit_linked_pnl_pipeline.js",
     "test:position-lifecycle": "node test/test_position_lifecycle_manager.js",
     "test:long-article-distill": "node test/test_long_article_distill_debt019.js",
