@@ -38,6 +38,8 @@
 | DEBT-021 | **交易单人工审核未完工与利润重算联动债**（当前企微人工审核进行中；**严禁将未完工利润视作绝对定论**；已通过 `REQ-054` 落地 `audit_linked_pnl_pipeline.js` 联动流水线，实现人工纠偏权威优先覆盖、动态 FIFO 配对与胜率重算，并自动沉淀 90 组 SLM 微调问答对，单测 `test:audit-linked-pnl` 全绿） | `tools/trade/audit_linked_pnl_pipeline.js` · `054-audit-linked-pnl-report.md` | **Done (REQ-054)** |
 | DEBT-022 | **CHG-050 残留笔记（不挡收口）**：每标的单独冻参=多重选择；置换未保时段结构；cooldown=12 未按周期折算；历史文件名仍含 walk_forward；§4 检出率≠§6 precision；单测不证明 OOS 表。Grok 明确不要用滚动多折救期望（REJ-011） | `exploratory_is_oos.js` · 057 §6.3 | **P3 笔记** |
 | DEBT-023 | **REQ-058 假设到达时钟（不挡 done-eng）**：历史仍无观测 `t_arrive`（Appendix A = `t_arrive_hat` / `message_clock` 5m N=196 主校准；校准门禁 passed，`done-strat` 未过）。Appendix B = 1m resolution diagnostic（`n_scored=33`，Yahoo 约 7 个会话；不是 196 笔 1m 全样本；禁止与 5m 的 196 笔逐格当「同一批更精细」）。CHG-052 仅给**新** ingest 打观测 `t_arrive`（#16=`e54ffd70`），禁止回填历史。禁止把 C-rate / bar open 当成交秒或 alpha；禁止用 Appendix A/B 改 20/40 / HUD | `backtest_delayed_follow_e_v0.js` · 058 Appendix A/B · `observed_arrival.js` | **P3 笔记** |
+| DEBT-024 | **REQ-059 轨 2 G2 未过（不挡 done-eng）**：Cloud 只交夹具路径。全量 60d 须本机/GCP 读 `whop_archive.db` 后把摘要粘回 059。禁止把夹具 PF 当战略门禁；禁止合并 S/R 为一个头条 | `dual_ledger_track2.js` · 059 报告 · 09 合同 | **P3 笔记** |
+| DEBT-LLM-L2 | **禁止 LLM / L2a 文本 / 战法卡进入 OHLCV 检测器**（方法债；不是「AI 扫单」项目）。解冻须独立 REQ | 09 合同 §5 | **冻** |
 
 
 ### 2.2 本机 vs git vs 生产（2026-09-19 Cursor 盘点）

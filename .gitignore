@@ -93,6 +93,13 @@ data/runs/delayed_follow_e_v0/summary.json
 !data/runs/delayed_follow_e_v0/fixture_events.jsonl
 !data/runs/delayed_follow_e_v0/fixture_summary.json
 
+# REQ-059 Track 2 dual-ledger runtime (Yahoo / archive dumps)
+data/runs/dual_ledger_track2/bars/
+data/runs/dual_ledger_track2/style_ledger_s.jsonl
+data/runs/dual_ledger_track2/expectancy_ledger_r.jsonl
+data/runs/dual_ledger_track2/summary.json
+!data/runs/dual_ledger_track2/README.md
+
 
 # One-off debug/test scripts
 /test_*.js

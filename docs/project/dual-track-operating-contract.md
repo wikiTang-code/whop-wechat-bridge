@@ -67,3 +67,5 @@ A：限价接回抽，短 TTL。B：滑点上限内追。C：`MISSED_DUE_TO_LATE
 卡片形如：`time, ticker, side, horizon, px_ref, setup_id, evidence[], score, source=autonomous, status=REFERENCE_ONLY`。
 
 票池：近 60 天赵哥高频 IREN/SOXL/MU/CRWV/COHR + QQQ 对照。同一 Paper 账户若以后试纸面，必须 `source` 分账。默认不进 L2a 候选、禁止 `AUTO_SUBMIT`。
+
+规划合同（轨 0–5、下一刀只切轨 2 双账本）：[`09-development-plan-contract-20260921.md`](./09-development-plan-contract-20260921.md)。CHG-050 仍是负对照。轨 2 脚手架见 [`059-dual-ledger-track2-report.md`](./059-dual-ledger-track2-report.md)。

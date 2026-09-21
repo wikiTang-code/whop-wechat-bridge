@@ -3,7 +3,7 @@
 > 上级：[`README.md`](./README.md) · 遗留见 [`04`](./04-leftovers-problems.md) · 需求见 [`03`](./03-requirements.md)  
 > **刷新规则**：重大联调/发布后更新本页日期与表格；细节可链到专题方案。
 
-**快照日期**：2026-09-20
+**快照日期**：2026-09-21
 
 权威运行环境：[`environments.md`](./environments.md)（`CHG-026`）。生产双进程健康以 gcp `/health` 为准。
 
@@ -81,7 +81,7 @@
 | 项 | 值 |
 |----|-----|
 | 分支 | `main` |
-| HEAD / vs origin | 以 `git log -1` / `git status -sb` 为准；REQ-058 E-docs closed（Appendix A 主校准 / B 诊断；**done-strat 未过**）；CHG-054 ingest 落库观测 `t_arrive`（不回填） |
+| HEAD / vs origin | 以 `git log -1` / `git status -sb` 为准；CHG-055 规划合同 + REQ-059 轨2 双账本脚手架（`done-eng`，**done-strat 未过**）；REQ-058 E-docs closed；CHG-054 ingest 落库观测 `t_arrive`（不回填） |
 | 本机 OpenD `11111` | **2026-09-19 实测满血**：期权 24 到期日 / 单日 384 合约 + L2 五档（REQ-042） |
 | 长桥 Paper | **2026-09-19 实测通**：`lb_papertrading_*` 模拟仓；正股行情/账户只读（禁 catalog 下单） |
 | 券商互补 | 期权链/GEX→富途；正股模拟对账→长桥 |

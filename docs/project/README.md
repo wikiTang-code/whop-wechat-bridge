@@ -5,7 +5,7 @@
 
 | 字段 | 值 |
 |------|-----|
-| 最后审阅 | 2026-09-20 |
+| 最后审阅 | 2026-09-21 |
 | 审阅基准 HEAD | 以 `git log -1` 为准；**每次同步必重读 §0 队列**（`CHG-013`） |
 | Agent 治理真相源 | 根目录 [`AGENTS.md`](../../AGENTS.md)（Claude→`CLAUDE.md` 指针；Cursor→`.cursor/rules/agent-governance.mdc`） |
 | 权威方案 | [`../local-ops-mcp-skill-plan.md`](../local-ops-mcp-skill-plan.md) · [`../system-hardening-and-monitoring-plan.md`](../system-hardening-and-monitoring-plan.md) · [`../gex-sidecar.md`](../gex-sidecar.md) · [`zhao-knowledge-multimodal-plan.md`](./zhao-knowledge-multimodal-plan.md) · [`wsl-unified-ai-runtime-plan.md`](./wsl-unified-ai-runtime-plan.md) · [`gpu-shared-protocol.md`](./gpu-shared-protocol.md)（指针） |
@@ -25,6 +25,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── 05-wip-board.md                    ← 谁在做、做到哪（WIP 看板）
 ├── 06-process.md                      ← 开发流程框架 + 文档维护 SOP
 ├── 07-review-inbox.md                 ← 多 Agent 审阅意见与查漏清单
+├── 09-development-plan-contract-20260921.md ← CHG-055 规划合同（轨0–5；下一刀=轨2）
 ├── dual-track-operating-contract.md   ← CHG-051 跟单 / 周哥QQQ模拟仓 / 自研参考轨（accepted）
 ├── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
 ├── environments.md                    ← CHG-026 运行环境合同（compute vs SoR）
@@ -34,6 +35,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── 056-paper-trading-execution-loop-report.md   ← REQ-056 长桥Paper模拟执行闭环报告 (accepted-with-gap)
 ├── 057-turning-point-microstructure-report.md   ← REQ-057 微观转弯；CHG-050 exploratory holdout (accepted-with-gap)
 ├── 058-delayed-follow-e-v0-report.md            ← REQ-058 延迟跟单假设到达 Δ 扫（done-eng；Appendix A 5m 主校准；Appendix B 1m 诊断；非 done-strat）
+├── 059-dual-ledger-track2-report.md             ← REQ-059 轨2 双账本脚手架（done-eng；REFERENCE_ONLY；全量 archive 不在 Cloud）
 ├── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2/P3 Done）
 ├── wsl-unified-ai-runtime-plan.md     ← CHG-018 Done（Q-007；DEBT-014 代码路径 Done）
 └── gpu-shared-protocol.md             ← 跨仓库 GPU 协议指针（正文在 ~/.cursor/shared-protocols/；Cursor 2026-09-19 冻结 §7）
@@ -66,6 +68,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 认领任务、看谁在做 | [`05-wip-board.md`](./05-wip-board.md) |
 | 按流程开发、维护文档 | [`06-process.md`](./06-process.md) |
 | 提交/消化审阅意见 | [`07-review-inbox.md`](./07-review-inbox.md) |
+| 看 2026-09-21 规划合同（轨 0–5，下一刀=轨 2） | [`09-development-plan-contract-20260921.md`](./09-development-plan-contract-20260921.md) |
 
 ---
 
@@ -87,7 +90,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **CHG-054** ingest 落库观测 `t_arrive`（done-eng）· **CHG-053** Appendix B 1m diagnostic（done-eng；非主表）· **CHG-052** 观测 `t_arrive` ingest（done-eng · #16=`e54ffd70`）· **REQ-058** Appendix A 5m N=196 主校准（**done-strat 未过**）· CHG-051 accepted | done-eng / accepted |
+| **§0.A `agent:cursor`** | **REQ-059** 轨2 双账本脚手架（done-eng；非 done-strat）· **CHG-055** 规划合同 accepted · **CHG-054** ingest 落库观测 `t_arrive`（done-eng）· **CHG-053** Appendix B 1m diagnostic（done-eng；非主表）· **CHG-052** 观测 `t_arrive` ingest（done-eng · #16=`e54ffd70`）· **REQ-058** Appendix A 5m N=196 主校准（**done-strat 未过**）· CHG-051 accepted | done-eng / accepted |
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 
