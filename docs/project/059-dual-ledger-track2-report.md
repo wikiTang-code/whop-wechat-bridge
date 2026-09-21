@@ -113,6 +113,8 @@ node scripts/knowledge/backtest_dual_ledger_track2.js \
 - 未改 HUD / 20/40 / Δ / `place_order` / 市场采集。
 - **不是** `done-strat`。
 
+059 空窗只说明这四条量能规则**不能当频道**；自研参考轨**不是**永久停工。正确反应是停止改参 `T2R-*`；下一轮须**新**短窗假说 + **新** rule id（另立 CHG），仍用同一套双账本尺。跟单腿另证 `FILLED` + 自然 `t_arrive`；在此之前跟单只是 code-green。轨 3 仍封；`hint_only`；禁止拿 `n=27` 上 GPU。
+
 ---
 
 ## 3. 夹具路径核验（Cloud 已跑）
