@@ -1,7 +1,8 @@
 # REQ-058: 延迟跟单历史回测 v0（E-layer · 假设到达 Δ 扫）
 
 > **状态**：`done-eng`（accepted-with-gap · Plan B fail-closed）· **校准门禁 passed** · **`done-strat` 仍未过** · 研究专用 · **不是**自主 alpha · **不是**「赵哥本人那笔赚多少」  
-> **关联**：CHG-051 跟单轨 Intent 字段；CHG-052 前瞻观测 `t_arrive` ingest（新行 only，不回填历史）  
+> **主校准表**：**Appendix A / 5m N=196**。**Appendix B** 是 1m **resolution diagnostic**，不是主表。  
+> **关联**：CHG-051 跟单轨 Intent 字段；CHG-052 前瞻观测 `t_arrive` ingest（新行 only，不回填历史；merge #16 = `e54ffd70`）；CHG-053 Appendix B 诊断落盘  
 > **禁止**：接入 HUD / L2a 自动上柜 / `place_order` / `AUTO_SUBMIT` / 用本表改 20/40 / 宣称跟单可复制
 
 ---
@@ -20,7 +21,7 @@
 - L2a `session_anchor` **仅** `--allow-session-anchor-counterexample`：只写 `summary_session_anchor_counterexample.json`（`not_for_strategy`）；该路径永不写 `summary_message_clock.json`。
 - 5m coalesce：Δ=0/1/3 常落同一根 5m bar；Δ=5 才可能跨到下一根 open（箱边界，不是成交秒）。
 - 时区：`America/New_York`。默认 Yahoo `includePrePost=false`（**不含盘前**；`--include-prepost` 才对齐盘前/盘后同一 unix 轴）。
-- 1m：Yahoo 通常只有约 7 个会话；v0 默认 **5m / range=60d**。
+- 1m：Yahoo 通常只有约 7 个会话；v0 默认 **5m / range=60d**。1m 数字见 **Appendix B**（诊断，不是主校准）。
 
 ---
 
@@ -141,7 +142,7 @@ A/B/C stub（`policy_status=provisional`，常量只在 `DELAYED_FOLLOW_POLICY`�
 
 这 **不是**「延迟跟单工业级 C 率」。这是「会话桶时钟 × 口播价 × 开盘 5m open」的描述性错配。
 
-首份可信息 `message_clock` 校准表见 **Appendix A**（`arrival_kind=hypothesized` · `t_msg_kind=message_clock`）。L2a ~87% C **不得**当跟单校准。
+首份可信息 `message_clock` 校准表见 **Appendix A**（`arrival_kind=hypothesized` · `t_msg_kind=message_clock`；5m N=196）。L2a ~87% C **不得**当跟单校准。1m 分辨率诊断见 **Appendix B**（`n_scored=33`）；**禁止与 5m 的 196 笔逐格当「同一批更精细」**。
 
 ---
 
@@ -171,19 +172,19 @@ A/B/C stub（`policy_status=provisional`，常量只在 `DELAYED_FOLLOW_POLICY`�
 
 | 维度 | North Star | 当前 | 暗伤 | 提案 |
 |------|------------|------|------|------|
-| 到达时钟 | 观测 `t_arrive` + 真 `messages.created_at` | 历史仍 `t_arrive_hat`；Appendix A 为 `message_clock` 假设到达校准（门禁 passed）；CHG-052 仅给**新** Intent/signal 打观测 `t_arrive` | 历史行无观测到达；不回填 | 禁止把 Appendix A 当成交证明；1m 重跑另开 |
+| 到达时钟 | 观测 `t_arrive` + 真 `messages.created_at` | 历史仍 `t_arrive_hat`；Appendix A 为 `message_clock` 假设到达校准（门禁 passed）；Appendix B 为 1m 分辨率诊断（`n_scored=33`，不是主表）；CHG-052 仅给**新** Intent/signal 打观测 `t_arrive` | 历史行无观测到达；不回填；1m 不是 196 笔全样本 | 禁止把 Appendix A 当成交证明；禁止把 Appendix B 当新工业校准 |
 | 到达价 | 盘口 `px_arrive` | 校准表仍是 5m bar open；live `px_arrive` 默认为空（禁口播/K 线回填） | 5m open ≠ 可成交价 | 禁止 K 线 high/low 当 fill；禁止 oral→`px_arrive` |
 | A/B/C | 降 C / 改善 A | stub 20/40bp **未改**；Appendix A 见延迟梯度 | A 是 stub（瞬时 bar open，不是 reconnect-pull / 90s TTL） | **禁止**用本表重调 20/40；**不要**把 C 率写进 HUD |
 | 账本 | 赵哥硬锁 + 专属频道 | sqlite `speaker_id=?` + JOIN `messages.created_at` | L2a 反例仍无 speaker_id | 禁止 `LIKE '%赵%'` |
 | 柜台 | 非本任务 | Paper 桌是**另一条**工程线；本表不证明 fill | 回测≠成交 | 近端 = 到达字段 + 真时钟校准 |
 
-**Human / Grok 拍板**：收 `done-eng`；**校准门禁 passed**；**`done-strat` 仍未过**。禁止宣称可实盘指导 / 跟单可复制 / 自筹资 / alpha。未做：真 reconnect-pull / 90s TTL、改 20/40、HUD、1m 重跑 196、上传 DB。
+**Human / Grok 拍板**：收 `done-eng`；**校准门禁 passed**（Appendix A / 5m N=196）；**`done-strat` 仍未过**。禁止宣称可实盘指导 / 跟单可复制 / 自筹资 / alpha。未做：真 reconnect-pull / 90s TTL、改 20/40、HUD、把 1m `n_scored=33` 当全样本校准、上传 DB。阈值 / HUD / done-strat 仍冻。
 
 ---
 
 ## 8. 非目标（已遵守）
 
-未改 `public/radar_hud.html`、L2a pipeline、`catalog.yaml`、`place_order`。HITL 默认不动。未实现真 reconnect-pull / 90s TTL、**未改 20/40**、不上传 DB。CHG-052 只给新 ingest 打观测 `t_arrive`，**不**把历史假设行写成观测到达。
+未改 `public/radar_hud.html`、L2a pipeline、`catalog.yaml`、`place_order`。HITL 默认不动。未实现真 reconnect-pull / 90s TTL、**未改 20/40**、不上传 DB。CHG-052 只给新 ingest 打观测 `t_arrive`，**不**把历史假设行写成观测到达。CHG-053 仅文档 Appendix B（1m diagnostic），不改阈值 / HUD / A/B/C policy。
 
 ---
 
@@ -246,4 +247,60 @@ node scripts/knowledge/backtest_delayed_follow_e_v0.js --t-msg-kind message_cloc
 
 ### A.5 CHG-052 前瞻（与本表正交）
 
-新 Intent / `trade_signals` ingest 可写观测 `t_arrive`（墙钟；已有 poll-seen 则保留）。`px_arrive` 默认为空：禁止口播拷贝、禁止 K 线填入。历史 E-layer 行仍只有 `t_arrive_hat`，不回填、不假装观测。
+新 Intent / `trade_signals` ingest 可写观测 `t_arrive`（墙钟；已有 poll-seen 则保留）。`px_arrive` 默认为空：禁止口播拷贝、禁止 K 线填入。历史 E-layer 行仍只有 `t_arrive_hat`，不回填、不假装观测。merge #16 = `e54ffd70`；CHG-052 observed `t_arrive` for new rows only。
+
+1m 分辨率诊断（**不是**本表的「更精细同一批」）见 **Appendix B**。
+
+---
+
+## Appendix B — 1m resolution diagnostic（**不是**主校准表）
+
+> **横幅（强制）**：本附录是 **resolution diagnostic**，**不是**主校准表。  
+> **主基线仍是 Appendix A / 5m N=196**。禁止用本表替换 Appendix A，也禁止与 5m 的 196 笔逐格当「同一批更精细」。  
+> **战略门禁**：阈值 / HUD / done-strat 仍冻。禁止改 20/40、禁止 HUD、禁止宣称 `done-strat` / 跟单可复制。
+
+Grok 拍板后登记。数字不另造。merge #16 = `e54ffd70`；CHG-052 observed `t_arrive` for new rows only。
+
+### B.1 样本事实（强制读）
+
+- **n_scored=33，Yahoo 约 7 个会话；不是 196 笔 1m 全样本**。
+- `message_clock` 事件 **196/196**，但 scored **33**（`n_no_bar=163`）。
+- **禁止与 5m 的 196 笔逐格当「同一批更精细」**。
+- **`arrival_kind=hypothesized`；A 仍是 stub**。
+- **阈值 / HUD / done-strat 仍冻**。
+
+| 项 | 值 |
+|----|----|
+| 时钟 | `--t-msg-kind message_clock` · `arrival_kind=hypothesized` |
+| bar | **1m**（Yahoo 约 7 个会话） |
+| events | 196/196 |
+| n_scored | **33**（不是 196 笔 1m 全样本） |
+| n_no_bar | 163（不计入 C） |
+| 出场 | **0**（本表不评 exit） |
+| 非本表 | **不是** Appendix A 主校准；**不是**新的工业校准 |
+
+本地复现（本 Cloud 无 `whop_archive.db`；数字来自已跑 archive，不在本 PR 重算）：
+
+```bat
+node scripts/knowledge/backtest_delayed_follow_e_v0.js --t-msg-kind message_clock --db whop_archive.db --delta-mins 0,1,3,5 --bar 1m --symbols IREN,SOXL,MU,CRWV,COHR --lookback-days 60 --out-dir data/runs/delayed_follow_e_v0
+```
+
+### B.2 每 Δ（1m · exit 0 · 只报已给数字）
+
+| Δ | n_scored | A | B | C | n_no_bar | median slip bp |
+|---|---------:|--:|--:|--:|---------:|---------------:|
+| 0m | 33 | 39.4% | 12.1% | 48.5% | 163 | 28.2 |
+| 1m | 33 | 24.2% | 21.2% | 54.6% | 163 | 88.4 |
+| 3m | 33 | 27.3% | 12.1% | 60.6% | 163 | 53.4 |
+| 5m | 33 | 24.2% | 6.1% | 69.7% | 163 | 58.5 |
+
+### B.3 Grok 读法（强制）
+
+**1m median slip 不是单调的（0→1→3→5：28 / 88 / 53 / 59）。N=33 时 88bp 那格噪声很大，只能说「0m 与 1m 被拆开了」，不要写成「每多等 1 分钟滑点稳定变差」。并箱假说在 5m 上成立；1m 只说明那一档被掩盖，不是新的工业校准。**
+
+### B.4 显式禁令
+
+- 不得与 Appendix A 5m N=196 逐格并读成「同一批更精细」。
+- 不得用本表重调 20/40；不得 HUD；不得宣称 `done-strat`。
+- A 仍是 stub（瞬时 bar open，不是 reconnect-pull / 90s TTL）。
+- CHG-052 只给新行观测 `t_arrive`，不回填历史假设行。
