@@ -15,6 +15,7 @@ import { getDb, getPaperPositions, saveTradeIntent } from '../../database.js';
 import { createTradeIntent } from './paper_execution_engine.js';
 import { evaluatePreTradeRisk } from './paper_risk_guard.js';
 import { evaluateHardRules } from './hard_rules_engine.js';
+import { stampObservedArrival } from './observed_arrival.js';
 
 // 治理红线：大V身份与专属频道
 export const ZHAO_SENDER_ID = 'user_4yeplXgbguTu4';
@@ -116,6 +117,12 @@ export function convertSignalToTradeIntent(signal, { dbInstance = null, bypassCh
   }
 
   // 6. 生成规范的不可变 TradeIntent (强制 PENDING_HITL)
+  const arrival = stampObservedArrival({
+    t_arrive: signal.t_arrive,
+    px_zhao: price,
+    px_arrive: signal.px_arrive,
+    px_arrive_source: signal.px_arrive_source
+  });
   const intent = createTradeIntent({
     ticker,
     side,
@@ -130,7 +137,8 @@ export function convertSignalToTradeIntent(signal, { dbInstance = null, bypassCh
       { hard_rules_warnings: hardRulesResult.warnings },
       { hard_rules_verdict: hardRulesResult.verdict }
     ],
-    expires_in_sec: 1800
+    expires_in_sec: 1800,
+    ...arrival
   }, { dbInstance: db });
 
   return {

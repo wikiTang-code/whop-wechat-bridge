@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { trackSlowOp } from './monitoring/slow-log-tracker.js';
+import { stampObservedArrival } from './tools/trade/observed_arrival.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -192,18 +193,40 @@ export function ensurePaperTradingTables(conn) {
       updated_at INTEGER NOT NULL
     )
   `).run();
+  ensureObservedArrivalColumns(conn);
+}
+
+/** CHG-052: nullable observed arrival on live ingest. Historical rows stay NULL (no backfill). */
+export function ensureObservedArrivalColumns(conn) {
+  if (!conn) throw new Error('ensureObservedArrivalColumns requires db connection');
+  const alters = [
+    'ALTER TABLE trade_intents ADD COLUMN t_arrive INTEGER',
+    'ALTER TABLE trade_intents ADD COLUMN t_arrive_kind TEXT',
+    'ALTER TABLE trade_intents ADD COLUMN px_zhao REAL',
+    'ALTER TABLE trade_intents ADD COLUMN px_arrive REAL',
+    'ALTER TABLE trade_intents ADD COLUMN px_arrive_source TEXT',
+    'ALTER TABLE trade_signals ADD COLUMN t_arrive INTEGER',
+    'ALTER TABLE trade_signals ADD COLUMN px_arrive REAL',
+    'ALTER TABLE trade_signals ADD COLUMN px_arrive_source TEXT'
+  ];
+  for (const sql of alters) {
+    try { conn.prepare(sql).run(); } catch (_) {}
+  }
 }
 
 export function saveTradeIntent(intent, dbInstance = null) {
   const conn = dbInstance || getDb();
   ensurePaperTradingTables(conn);
   const now = Date.now();
+  const tArrive = Number.isFinite(Number(intent.t_arrive)) && Number(intent.t_arrive) > 0
+    ? Math.trunc(Number(intent.t_arrive))
+    : now;
   const stmt = conn.prepare(`
     INSERT INTO trade_intents (
       intent_id, source, ticker, side, quantity, order_type, price_limit,
       expires_at, evidence_json, status, broker_order_id, reject_reason,
-      created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      created_at, updated_at, t_arrive, t_arrive_kind, px_zhao, px_arrive, px_arrive_source
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   stmt.run(
     intent.intent_id,
@@ -219,8 +242,15 @@ export function saveTradeIntent(intent, dbInstance = null) {
     intent.broker_order_id || null,
     intent.reject_reason || null,
     intent.created_at || now,
-    now
+    now,
+    tArrive,
+    intent.t_arrive_kind || 'observed',
+    intent.px_zhao != null && Number.isFinite(Number(intent.px_zhao)) ? Number(intent.px_zhao) : null,
+    intent.px_arrive != null && Number.isFinite(Number(intent.px_arrive)) ? Number(intent.px_arrive) : null,
+    intent.px_arrive_source || null
   );
+  intent.t_arrive = tArrive;
+  if (!intent.t_arrive_kind) intent.t_arrive_kind = 'observed';
   return intent;
 }
 
@@ -419,6 +449,7 @@ export function initDb() {
     `).run();
     try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_created ON trade_signals (created_at DESC)`).run(); } catch (_) {}
     try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_ticker ON trade_signals (ticker)`).run(); } catch (_) {}
+    ensureObservedArrivalColumns(db);
     ensureMessageVisionMetaTable(db);
     ensureSemanticCuTables(db);
     ensureOntologyCardTable(db);
@@ -627,6 +658,8 @@ export function initDb() {
   `).run();
   try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_created ON trade_signals (created_at DESC)`).run(); } catch (_) {}
   try { db.prepare(`CREATE INDEX IF NOT EXISTS idx_trade_signals_ticker ON trade_signals (ticker)`).run(); } catch (_) {}
+  ensurePaperTradingTables(db);
+  ensureObservedArrivalColumns(db);
   ensureMessageVisionMetaTable(db);
   ensureSemanticCuTables(db);
   ensureOntologyCardTable(db);
@@ -1474,16 +1507,24 @@ export function getFollowDecisions({ limit = 50, offset = 0, accountType = null,
 /** REQ-031: 大V解析信号流水（与 follow_decisions / 个人仓正交） */
 export function saveTradeSignal(signal, dbInstance = null) {
   const conn = dbInstance || getDb();
+  ensureObservedArrivalColumns(conn);
   const signalId = signal.signal_id || `sig_${signal.ticker}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const oralPx = parseFloat(signal.price) || 0;
+  const arrival = stampObservedArrival({
+    t_arrive: signal.t_arrive,
+    px_zhao: oralPx,
+    px_arrive: signal.px_arrive,
+    px_arrive_source: signal.px_arrive_source
+  });
   conn.prepare(`
     INSERT INTO trade_signals (
       signal_id, message_id, channel_id, speaker_id, speaker_name,
       ticker, action, price, quantity, stop_loss, reason,
-      parse_status, source, created_at
+      parse_status, source, created_at, t_arrive, px_arrive, px_arrive_source
     ) VALUES (
       @signal_id, @message_id, @channel_id, @speaker_id, @speaker_name,
       @ticker, @action, @price, @quantity, @stop_loss, @reason,
-      @parse_status, @source, @created_at
+      @parse_status, @source, @created_at, @t_arrive, @px_arrive, @px_arrive_source
     )
     ON CONFLICT(signal_id) DO UPDATE SET
       message_id = COALESCE(excluded.message_id, trade_signals.message_id),
@@ -1497,7 +1538,10 @@ export function saveTradeSignal(signal, dbInstance = null) {
       stop_loss = excluded.stop_loss,
       reason = excluded.reason,
       parse_status = excluded.parse_status,
-      source = excluded.source
+      source = excluded.source,
+      t_arrive = COALESCE(trade_signals.t_arrive, excluded.t_arrive),
+      px_arrive = COALESCE(trade_signals.px_arrive, excluded.px_arrive),
+      px_arrive_source = COALESCE(trade_signals.px_arrive_source, excluded.px_arrive_source)
   `).run({
     signal_id: signalId,
     message_id: signal.message_id || null,
@@ -1506,13 +1550,16 @@ export function saveTradeSignal(signal, dbInstance = null) {
     speaker_name: signal.speaker_name || null,
     ticker: String(signal.ticker || '').toUpperCase(),
     action: String(signal.action || '').toUpperCase(),
-    price: parseFloat(signal.price) || 0,
+    price: oralPx,
     quantity: signal.quantity != null ? parseInt(signal.quantity, 10) : null,
     stop_loss: signal.stop_loss != null ? parseFloat(signal.stop_loss) : null,
     reason: signal.reason || null,
     parse_status: signal.parse_status || 'ok',
     source: signal.source || 'ai_extract',
-    created_at: signal.created_at || Date.now()
+    created_at: signal.created_at || Date.now(),
+    t_arrive: arrival.t_arrive,
+    px_arrive: arrival.px_arrive,
+    px_arrive_source: arrival.px_arrive_source
   });
   return signalId;
 }

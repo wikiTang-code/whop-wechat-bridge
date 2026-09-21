@@ -1,8 +1,8 @@
 # REQ-058: 延迟跟单历史回测 v0（E-layer · 假设到达 Δ 扫）
 
-> **状态**：`done-eng`（accepted-with-gap · Plan B fail-closed）· 研究专用 · **不是**自主 alpha · **不是**「赵哥本人那笔赚多少」  
-> **关联**：CHG-051 跟单轨 Intent 字段；`follow_execution_spec.md` 滑点带；L2a 离线账本只读（仅显式反例）  
-> **禁止**：接入 HUD / L2a 自动上柜 / `place_order` / `AUTO_SUBMIT`
+> **状态**：`done-eng`（accepted-with-gap · Plan B fail-closed）· **校准门禁 passed** · **`done-strat` 仍未过** · 研究专用 · **不是**自主 alpha · **不是**「赵哥本人那笔赚多少」  
+> **关联**：CHG-051 跟单轨 Intent 字段；CHG-052 前瞻观测 `t_arrive` ingest（新行 only，不回填历史）  
+> **禁止**：接入 HUD / L2a 自动上柜 / `place_order` / `AUTO_SUBMIT` / 用本表改 20/40 / 宣称跟单可复制
 
 ---
 
@@ -141,6 +141,8 @@ A/B/C stub（`policy_status=provisional`，常量只在 `DELAYED_FOLLOW_POLICY`�
 
 这 **不是**「延迟跟单工业级 C 率」。这是「会话桶时钟 × 口播价 × 开盘 5m open」的描述性错配。
 
+首份可信息 `message_clock` 校准表见 **Appendix A**（`arrival_kind=hypothesized` · `t_msg_kind=message_clock`）。L2a ~87% C **不得**当跟单校准。
+
 ---
 
 ## 5. 行字段（每事件）
@@ -169,22 +171,79 @@ A/B/C stub（`policy_status=provisional`，常量只在 `DELAYED_FOLLOW_POLICY`�
 
 | 维度 | North Star | 当前 | 暗伤 | 提案 |
 |------|------------|------|------|------|
-| 到达时钟 | 观测 `t_arrive` + 真 `messages.created_at` | `t_arrive_hat`；`message_clock` 缺库 fail-closed；L2a 仅显式反例 | 本环境无 archive；5m coalesce 使 Δ=0/1/3 同 bar | **A** Windows 对 `whop_archive.db` 跑 message_clock；**B** 维持夹具；**C** 把 session 锚当 t_msg（拒绝） |
-| 到达价 | 盘口 `px_arrive` | bar open，未用口播 | 5m open ≠ 可成交价 | 1m/券商 bar 另开 REQ；禁止 K 线 high/low 当 fill |
-| A/B/C | 降 C / 改善 A | stub 20/40bp 未改；反例 C 率不可读 | 无 90s TTL / 无真 reconnect-pull | 阈值保持 provisional；**不要**把 C 率写进 HUD |
-| 账本 | 赵哥硬锁 + 专属频道 | sqlite `speaker_id=?` + JOIN `messages.created_at`；缺 id 丢行 | L2a 反例仍无 speaker_id | 禁止 `LIKE '%赵%'`；观测 `t_arrive` ingest 另开；**DEBT-023** |
-| 柜台 | 非本任务 | 本 PR 零接线 | 回测≠成交 | 近端 = 到达字段 + 真时钟校准；不把回测当柜台证明 |
+| 到达时钟 | 观测 `t_arrive` + 真 `messages.created_at` | 历史仍 `t_arrive_hat`；Appendix A 为 `message_clock` 假设到达校准（门禁 passed）；CHG-052 仅给**新** Intent/signal 打观测 `t_arrive` | 历史行无观测到达；不回填 | 禁止把 Appendix A 当成交证明；1m 重跑另开 |
+| 到达价 | 盘口 `px_arrive` | 校准表仍是 5m bar open；live `px_arrive` 默认为空（禁口播/K 线回填） | 5m open ≠ 可成交价 | 禁止 K 线 high/low 当 fill；禁止 oral→`px_arrive` |
+| A/B/C | 降 C / 改善 A | stub 20/40bp **未改**；Appendix A 见延迟梯度 | A 是 stub（瞬时 bar open，不是 reconnect-pull / 90s TTL） | **禁止**用本表重调 20/40；**不要**把 C 率写进 HUD |
+| 账本 | 赵哥硬锁 + 专属频道 | sqlite `speaker_id=?` + JOIN `messages.created_at` | L2a 反例仍无 speaker_id | 禁止 `LIKE '%赵%'` |
+| 柜台 | 非本任务 | Paper 桌是**另一条**工程线；本表不证明 fill | 回测≠成交 | 近端 = 到达字段 + 真时钟校准 |
 
-**Human 拍板**：收 `done-eng`（Plan B fail-closed）；禁止宣称可实盘指导 / 自筹资 / alpha。未做：真 reconnect-pull / 90s TTL、改 20/40、HUD、观测 `t_arrive` ingest、上传 DB。
+**Human / Grok 拍板**：收 `done-eng`；**校准门禁 passed**；**`done-strat` 仍未过**。禁止宣称可实盘指导 / 跟单可复制 / 自筹资 / alpha。未做：真 reconnect-pull / 90s TTL、改 20/40、HUD、1m 重跑 196、上传 DB。
 
 ---
 
 ## 8. 非目标（已遵守）
 
-未改 `public/radar_hud.html`、L2a pipeline、`catalog.yaml`、`place_order`。HITL 默认不动。未实现真 reconnect-pull / 90s TTL、未改 20/40、无观测 `t_arrive` ingest、不上传 DB。
+未改 `public/radar_hud.html`、L2a pipeline、`catalog.yaml`、`place_order`。HITL 默认不动。未实现真 reconnect-pull / 90s TTL、**未改 20/40**、不上传 DB。CHG-052 只给新 ingest 打观测 `t_arrive`，**不**把历史假设行写成观测到达。
 
 ---
 
 ## 9. 本回合治理读盘（路径）
 
 `AGENTS.md` · `docs/project/BOOTSTRAP.md` · `README.md` · `01`/`02`/`03`/`04`/`05`/`06` · `dual-track-operating-contract.md` · `follow-hitl-plan.md` · `data/specs/follow_execution_spec.md` · `L2A_OFFLINE_PIPELINE.md` · `ASSET_USAGE_AND_NEXT_STEPS_20260830.md` · `CHANNEL_REGISTRY.md` · `STAGE3_execution_spec.md` · `056-paper-execution-engine-report.md`（索引名）· `057-turning-point-microstructure-report.md` · `research/ladder-chaodi/README.md` · 既有 `scripts/knowledge/backtest_*.js` / `train_recent_60d_microstructure.js` / `monitoring/db-readonly.js`。
+
+---
+
+## Appendix A — first informative E-layer calibration（`arrival_kind=hypothesized` · `t_msg_kind=message_clock`）
+
+> **横幅（强制）**：`arrival_kind=hypothesized` **AND** `t_msg_kind=message_clock`。  
+> **校准门禁**：passed（相对 L2a `session_anchor` 反例，本表才是可信息的 E-layer 延迟梯度）。  
+> **战略门禁**：`done-strat` **未过**。禁止 HUD、禁止改 20/40、禁止宣称跟单可复制 / 可实盘指导。
+
+Grok 拍板后登记。数字不另造。
+
+### A.1 样本事实
+
+| 项 | 值 |
+|----|----|
+| N | **196** BUY |
+| 窗 | **60d** |
+| 标的 | IREN, SOXL, MU, CRWV, COHR |
+| 出场 | **0**（本表不评 exit） |
+| 命令 | `--db whop_archive.db --t-msg-kind message_clock` |
+| 非本表 | **不是** `session_anchor`；L2a ~87% C 反例对本表作废 |
+
+本地复现（本 Cloud 无 `whop_archive.db`；数字来自已跑 archive，不在本 PR 重算）：
+
+```bat
+node scripts/knowledge/backtest_delayed_follow_e_v0.js --t-msg-kind message_clock --db whop_archive.db --delta-mins 0,1,3,5 --bar 5m --symbols IREN,SOXL,MU,CRWV,COHR --lookback-days 60 --out-dir data/runs/delayed_follow_e_v0
+```
+
+### A.2 每 Δ（只报已给数字）
+
+| Δ min | A rate | C rate | median slip bp |
+|------:|-------:|-------:|---------------:|
+| 0 | 53.7% | 39.5% | 17 |
+| 1 | 50.6% | 42.0% | 20 |
+| 3 | 42.5% | 48.1% | 33 |
+| 5 | 32.5% | 56.3% | 54 |
+
+**读法**：延迟梯度（更晚 → 相对口播更差 vs 5m open → 更多 C）。L2a ~87% C 反例对本钟作废。
+
+### A.3 强制折扣（读表前）
+
+- **A 是 stub**：瞬时 bar open，**不是** reconnect-pull / 90s TTL。
+- **残差 ~90bp 只在 A/B**：选择偏差；**永远不得**当跟单期望。
+- **n_no_bar≈34（~17%）**：单独列出，**不计入 C**。
+- **median 不是 mean**（口播脏点）。
+- **5m 分辨率**：Δ=1/3/5 是压力箱，**不是** 25s 轮询。
+
+### A.4 显式禁令
+
+- 不得用本表重调 20/40。
+- 不得 HUD。
+- 不得宣称跟单可复制 / `done-strat`。
+- Paper 桌是**另一条**工程线；本表**不证明 fill**。
+
+### A.5 CHG-052 前瞻（与本表正交）
+
+新 Intent / `trade_signals` ingest 可写观测 `t_arrive`（墙钟；已有 poll-seen 则保留）。`px_arrive` 默认为空：禁止口播拷贝、禁止 K 线填入。历史 E-layer 行仍只有 `t_arrive_hat`，不回填、不假装观测。

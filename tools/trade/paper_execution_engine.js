@@ -17,6 +17,7 @@ import {
 } from '../../database.js';
 import * as defaultBroker from '../../brokers/longbridge.js';
 import { evaluatePreTradeRisk } from './paper_risk_guard.js';
+import { stampObservedArrival } from './observed_arrival.js';
 
 export const AUTO_SUBMIT_ENABLED = false; // 硬编码安全门禁，禁止全自动报送柜台
 
@@ -41,7 +42,11 @@ export function createTradeIntent({
   price_limit,
   source = 'zhao_follow',
   evidence = [],
-  expires_in_sec = 900
+  expires_in_sec = 900,
+  t_arrive,
+  px_zhao,
+  px_arrive,
+  px_arrive_source
 }, { dbInstance = null } = {}) {
   const normTicker = String(ticker || '').trim().toUpperCase();
   const normSide = String(side || '').trim().toUpperCase();
@@ -61,6 +66,7 @@ export function createTradeIntent({
   const intentId = `intent_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   const now = Date.now();
   const expiresAt = new Date(now + expires_in_sec * 1000).toISOString();
+  const arrival = stampObservedArrival({ t_arrive, px_zhao, px_arrive, px_arrive_source }, now);
 
   // 因果与价格真实性检查：无有效限价直接标记拒单
   if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
@@ -76,7 +82,8 @@ export function createTradeIntent({
       evidence,
       status: 'REJECTED',
       reject_reason: 'NO_VALID_PRICE',
-      created_at: now
+      created_at: now,
+      ...arrival
     };
     saveTradeIntent(rejectedIntent, dbInstance);
     console.warn(`[TradeIntent] 拒绝生成有效意图 [${intentId}]: 缺乏有效价格 (price_limit=${price_limit})`);
@@ -104,7 +111,8 @@ export function createTradeIntent({
       evidence,
       status: 'REJECTED',
       reject_reason: riskCheck.reject_reason,
-      created_at: now
+      created_at: now,
+      ...arrival
     };
     saveTradeIntent(riskRejectedIntent, dbInstance);
     console.warn(`[TradeIntent 风控拦截] 意图 [${intentId}] 未通过事前硬风控: ${riskCheck.reject_reason}`);
@@ -123,7 +131,8 @@ export function createTradeIntent({
     evidence,
     status: 'PENDING_HITL',
     reject_reason: null,
-    created_at: now
+    created_at: now,
+    ...arrival
   };
 
   saveTradeIntent(intent, dbInstance);

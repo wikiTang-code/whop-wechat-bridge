@@ -81,7 +81,7 @@
 | 项 | 值 |
 |----|-----|
 | 分支 | `main` |
-| HEAD / vs origin | 以 `git log -1` / `git status -sb` 为准；REQ-058 研究专用 Δ 扫不改生产 HUD/L2a |
+| HEAD / vs origin | 以 `git log -1` / `git status -sb` 为准；REQ-058 Appendix A 校准门禁 passed、`done-strat` 未过；CHG-052 新行 `t_arrive` 不回填历史 |
 | 本机 OpenD `11111` | **2026-09-19 实测满血**：期权 24 到期日 / 单日 384 合约 + L2 五档（REQ-042） |
 | 长桥 Paper | **2026-09-19 实测通**：`lb_papertrading_*` 模拟仓；正股行情/账户只读（禁 catalog 下单） |
 | 券商互补 | 期权链/GEX→富途；正股模拟对账→长桥 |

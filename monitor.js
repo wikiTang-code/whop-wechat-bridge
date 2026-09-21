@@ -1239,7 +1239,8 @@ ${messagesText}`;
           reason,
           parse_status: 'ok',
           source: 'ai_extract',
-          created_at: latestMsgTime
+          created_at: latestMsgTime,
+          t_arrive: Date.now()
         });
       } catch (sigErr) {
         console.error('[REQ-031] 写入 trade_signals 失败:', sigErr.message);
