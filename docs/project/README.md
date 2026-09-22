@@ -93,7 +93,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **CHG-058** GEX 开盘 09:35 ET（done-eng）· **CHG-057** 矩阵扩赵哥高频正股（done-eng） | done-eng |
+| **§0.A `agent:cursor`** | **CHG-059** GEX 盘前 08:45/09:00/09:25 ET（done-eng）· **CHG-057** 矩阵扩赵哥高频正股（done-eng） | done-eng |
 | **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 

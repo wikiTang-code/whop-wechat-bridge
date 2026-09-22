@@ -27,7 +27,7 @@
 |------|----------|------------|------|--------|
 | 聊天归档 / 附件 | gcp-vm | **gcp-vm** `messages` + `data/media/zhao` | SQLite + 文件 | 已在生产 ingest |
 | 企微推送 / 回放 / 看板 | gcp-vm | gcp-vm | pm2 双进程 | 代码 ff（HITL restart） |
-| GEX 拉链 | **win-host** + OpenD | win-host `data/gex/latest.json` | json/html | 采集留本机 |
+| GEX 拉链 | **win-host** + OpenD | win-host `data/gex/latest.json` | json/html | 采集留本机。CHG-059 盘前：唤醒 08:45 ET，09:00 拉链，09:25 截止；禁止迁 gcp-vm |
 | GEX→看板 | win-host SCP | gcp-vm 副本 | `latest.json` | **已有** `gex:sync-gcp`（REQ-004） |
 | Local-Ops / 企微 `/ops` | win-host | win-host | catalog | 本机网关 |
 | 14B / 1.5B 推理 | **wsl-gpu** | 运行时（无库） | HTTP `:8080` | 切流 CHG-023 |
