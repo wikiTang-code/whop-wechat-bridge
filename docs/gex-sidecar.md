@@ -45,16 +45,16 @@ Dashboard **已挂只读消费**（v1）：
 
 不要把 GEX 当买卖指令。叠加赵哥点位时：墙对齐才加权；负 GEX 只表示波动放大。不要用 GEX 自动对齐或挡执行。
 
-## 开盘本机自动采集
+## 盘前本机自动采集
 
-推荐时刻：**美东 09:35（开盘后约 5 分钟）周一至周五**（CHG-058）。OI 是 T+1，再等 10 分钟不会刷新库存；赵哥今日首簇在 09:32–09:39。
+工作日（CHG-059，仍在 **win-host + OpenD**，不迁 GCP）：**08:45 ET 唤醒，09:00 ET 拉链，09:25 ET 截止**（目标写完窗口 09:20–09:25；错过则 `preopen.deadline_status=late`）。`spot_session=premarket`。OI 是前收 T+1，时刻服务于赵哥约 09:32 的时效，不是新 OI。09:31 若只刷新现货，用 `python tools/gex-sidecar/open_session_run.py --spot-only-refresh`（stub，不重拉 OI，不调 OpenD）；在能拆现货与 OI 之前不要另挂 09:31 任务。
 
 1. 复制配置：`tools/gex-sidecar/open_session_config.example.json` → `open_session_config.json`（已 gitignore）
-2. 改 `mode` / `zero_dte` / `matrix`（默认 SPY,QQQ,SPX + 赵哥高频正股矩阵；目标 09:35 ET）
+2. 改 `mode` / `zero_dte` / `matrix`（默认 SPY,QQQ,SPX + 赵哥高频正股矩阵；拉链目标 09:00 ET）
 3. 试跑：`python tools/gex-sidecar/open_session_run.py --dry-run`
-4. 安装计划任务：`powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1`  
-   - 安装器把 **美东 09:33 唤醒** 换算成**本机墙钟**（中国夏令约 21:33），Python 等到 09:35 ET。  
-   - **每次美国 DST 切换后请重跑安装器**。  
+4. 安装或更新计划任务（覆盖同名任务）：`powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1`  
+   - 安装器把夏令 **08:45 ET = 12:45 UTC** 换成本机墙钟（北京时间约 20:45）。Python 等到 09:00 ET。  
+   - 应用本次变更时重跑一次。之后 DST 由该锚点 + Python 等待吸收，不用按季重装。  
    - 验证：`Get-ScheduledTask -TaskName WhopGexOpenSession0940ET | Format-List TaskName,State`
 
 `mode`：

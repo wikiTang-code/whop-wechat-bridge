@@ -53,7 +53,7 @@
 | OpenD 采集 | ✅ | **最新里程碑 `2026-09-21T21:56:07`**；futu-opend；`errors=[]`；SPY/QQQ/SPX `0dte` + matrix 九标的（CHG-057） |
 | `/api/gex/latest` | ✅ | PR #12；无 ladder |
 | UI 摘要 + 规则引擎 | ✅ | King/Floor/Regime |
-| 开盘计划任务脚本 | ✅ | **已挂载** `WhopGexOpenSession0940ET`（CHG-058：美东 **09:35**→本地墙钟；DST 免疫） |
+| 开盘计划任务脚本 | ✅ | **脚本 CHG-059**（唤醒 08:45 / 拉链 09:00 / 截止 09:25 ET，`spot_session=premarket`）。任务名仍 `WhopGexOpenSession0940ET`。本机须重跑安装器后触发才换点 |
 | Git 中的 json | 📌 | 仅里程碑提交（Q-003）；盘中勿例行 commit |
 | 铁律 | 🔒 | 不在 GCP 拉链；不用于自动下单 |
 

@@ -55,20 +55,27 @@ python tools/gex-sidecar/summarize.py
 python tools/gex-sidecar/collect.py
 ```
 
-## 开盘自动采集（本机）
+## 盘前自动采集（本机 win-host + OpenD）
 
-推荐：**美东 09:35 工作日**（开盘后约 5 分钟；OI 为 T+1，不必为「墙更稳」再等到 09:40）。
+工作日（CHG-059）：**08:45 ET 唤醒 → 09:00 ET 才拉链 → 09:20–09:25 ET 写完 `latest.json`（截止 09:25，错过标 `preopen.deadline_status=late`）**。`spot_session=premarket`。OI 是前收 T+1 库存，时刻是为了赵哥约 09:32 之前有快照，不是新 OI。可选 09:31 只刷新现货，**禁止重拉 OI**（`collect_futu` 还不能拆开时，`--spot-only-refresh` 只打 stub，不调 OpenD）。不要把拉链迁到 GCP。
+
+本机应用（更新已有任务 `WhopGexOpenSession0940ET`，名字沿用）：
 
 ```powershell
 copy tools\gex-sidecar\open_session_config.example.json tools\gex-sidecar\open_session_config.json
-# 编辑 mode / zero_dte / matrix
 python tools/gex-sidecar/open_session_run.py --dry-run
 powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1
+Get-ScheduledTask -TaskName WhopGexOpenSession0940ET | Format-List TaskName,State
+python test/test_open_session_preopen.py
+python test/test_open_session_dst.py
 ```
 
-- `notify_then_auto`：企微预告后等待；本机创建 `data/gex/.skip_open_session` 可跳过本次。
-- `auto`：直接跑。
+安装器把夏令 08:45 ET（12:45 UTC）换成本机墙钟。Python 用 `America/New_York` 等到 09:00。应用本变更时重跑一次安装器；季节切换不用重装。09:31 现货刷新先不要另挂计划任务。
+
+- `notify_then_auto`：企微预告；预告等待不会把拉链推过 09:00。本机创建 `data/gex/.skip_open_session` 可跳过本次。
+- `auto`：等到 09:00 后拉链。
 - `ask_console`：仅手动确认。
+- `--spot-only-refresh`：不拉链。已有 `latest.json` 只写 `spot_refresh.repull_oi=false`。
 
 看板「完整信息」按钮可打开 `/gex-html/heatseeker_gex.html` 与矩阵 HTML。
 

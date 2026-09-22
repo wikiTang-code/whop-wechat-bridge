@@ -13,7 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **CHG-058** | L3 | 开盘 GEX 目标 09:35 ET（唤醒 09:33；预告 60s）。OI=T+1，对齐赵哥开盘簇 | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng** |
+| **1** | **CHG-059** | L2 | 盘前 GEX：唤醒 08:45 ET，09:00 拉链，09:25 截止标 late，`spot_session=premarket`。OI=前收 T+1。09:31 现货 stub 不重拉 OI。win-host/OpenD | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng** |
+| · | **CHG-058** | L3 | 开盘 GEX 目标 09:35 ET（已被 CHG-059 盘前时刻取代；任务名仍 `WhopGexOpenSession0940ET`） | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng** |
 | 1a | **CHG-057** | L3 | GEX 矩阵扩赵哥高频正股（TSLA+IREN/CRWV/MU/COHR/SOXL/COIN/NVDA/LITE；2×映正股）。L2 映证，不拦截不下单 | `collect_futu.py` · `gex-readonly.js` · `adapters/gex.js` | **done-eng** |
 | 1b | **CHG-056b** | L5 | collect_1s **live 订阅补丁**：dotenv + `subscribe(..., true)` isFirstPush（GCP-verified NAPI）失败回退两参。不改 `ohlcv_1s.js` / `brokers/longbridge.js`。夹具验收在 #21，不复称为 live。**阶段 A 四条验收全绿（2026-09-21）**：pm2 online ≥ 1h、热区行随成交增加、pm2 restart 追加同一 jsonl、git 无行情大文件。**阶段 B（rclone）待拍板** | `scripts/market/collect_1s_ohlcv.js` | **done-eng (stageA-passed)** |
 | 1c | **CHG-056** | L5 | 长桥 **trades-only** → 1s OHLCV hot jsonl（空秒不写行；`source=longbridge_trade_agg`；禁 Period.Second / 1m·5m 插值）。**GCP 常驻 pm2 `market-1s` @ `3614cef`**，Top5 盘前累计 1000+ bars/标的（SOXL 1476 行、IREN 473 行，2026-09-21 07:00 ET）。**阶段 B（rclone冷档）待拍板** | `scripts/market/collect_1s_ohlcv.js` · `scripts/market/lib/ohlcv_1s.js` | **done-eng (stageA-passed)** |

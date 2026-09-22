@@ -4,10 +4,16 @@
   "matrix": ["TSLA", "IREN", "CRWV", "MU", "COHR", "SOXL", "COIN", "NVDA", "LITE"],
   "skip_matrix": false,
   "expiries": 5,
-  "run_after_open_minutes": 5,
-  "target_eastern_time": "09:35",
+  "wake_eastern_time": "08:45",
+  "target_eastern_time": "09:00",
+  "deadline_eastern_time": "09:25",
+  "finish_window_et": "09:20-09:25",
+  "spot_session": "premarket",
+  "oi_inventory": "prior_close_t1",
+  "spot_only_refresh_et": "09:31",
   "ask_wait_seconds": 60,
+  "max_et_wait_seconds": 5400,
   "skip_flag_path": "data/gex/.skip_open_session",
   "webhook_env": "WECHAT_WORK_WEBHOOK_URL",
-  "note": "Copy to open_session_config.json (gitignored). CHG-058: collect ~09:35 ET; 60s skip window. Modes: auto | notify_then_auto | ask_console"
+  "note": "Copy to open_session_config.json (gitignored). CHG-059: wake 08:45 ET, pull chain at 09:00 ET, deadline 09:25 ET. OI is prior-close T+1. --spot-only-refresh must not repull OI."
 }

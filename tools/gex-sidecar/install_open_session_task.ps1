@@ -1,10 +1,15 @@
-# Register weekday GEX open-session Task Scheduler job at 09:35 Eastern Time.
-# Usage (from repo root):
+# Register or update the weekday GEX pre-open Task Scheduler job.
+# Wake 08:45 America/New_York; open_session_run.py waits until 09:00 ET to pull the chain.
+# Deadline 09:25 ET is enforced in Python (latest.json preopen.deadline_status=late).
+# Re-run this script to update the existing task in place. Do not run the collector on GCP.
+#
+# Usage (from repo root, on win-host):
 #   powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1
 #   powershell -File tools/gex-sidecar/install_open_session_task.ps1 -Uninstall
 #
-# Hosts not on US Eastern: trigger StartBoundary is converted to *current* local wall-clock
-# equivalent of Eastern 09:33 wake (re-run this script after DST transitions).
+# The trigger is the summer (EDT) UTC instant of 08:45 ET converted to this PC's wall clock.
+# Python then waits until 09:00 ET, so a later EST shift only wakes earlier. Re-run once to
+# apply CHG-059; do not re-install on every DST transition.
 
 param(
   [switch]$Uninstall,
@@ -47,12 +52,11 @@ if not defined LONGBRIDGE_REGION set LONGBRIDGE_REGION=global
 "@
 Set-Content -Path $Wrapper -Value $WrapperBody -Encoding ASCII
 
-# Convert Eastern 09:33 (EDT Summer earliest anchor) to local wall-clock for CalendarTrigger.
-# In Summer (EDT UTC-4), 09:33 ET = 13:33 UTC. In Winter (EST UTC-5), 09:33 ET = 14:33 UTC.
-# Anchoring to Summer 13:33 UTC ensures the task triggers early enough in all seasons,
-# and open_session_run.py waits until 09:35 ET (CHG-058 / DEBT-013).
+# Wake anchor: 08:45 ET. Summer EDT (UTC-4) 08:45 = 12:45 UTC; winter EST (UTC-5) 08:45 = 13:45 UTC.
+# Anchoring the trigger to summer 12:45 UTC wakes at 08:45 ET in summer and earlier in winter
+# on a fixed-offset host. open_session_run.py waits until 09:00 ET (CHG-059 / DEBT-013).
 $localTz = [System.TimeZoneInfo]::Local
-$summerRefUtc = [DateTime]::SpecifyKind([DateTime]"2026-07-01 13:33:00", [DateTimeKind]::Utc)
+$summerRefUtc = [DateTime]::SpecifyKind([DateTime]"2026-07-01 12:45:00", [DateTimeKind]::Utc)
 $summerLocal = [System.TimeZoneInfo]::ConvertTimeFromUtc($summerRefUtc, $localTz)
 $localHHmm = $summerLocal.ToString("HH:mm")
 
@@ -67,7 +71,7 @@ $xml = @"
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>Whop GEX open-session collect Mon-Fri ~09:35 Eastern (REQ-003, CHG-058, DEBT-013 DST-immune). Earliest local wall=$localHHmm; python waits until 09:35 ET.</Description>
+    <Description>Whop GEX pre-open collect Mon-Fri wake 08:45 Eastern, chain pull 09:00, deadline 09:25 (CHG-059, DEBT-013). Local wall=$localHHmm. Python waits until 09:00 ET. OI is prior-close T+1. win-host OpenD only.</Description>
   </RegistrationInfo>
   <Triggers>
     <CalendarTrigger>
@@ -119,10 +123,11 @@ Register-ScheduledTask -TaskName $TaskName -Xml $xml -Force | Out-Null
 
 Write-Host ""
 Write-Host "Installed task: $TaskName"
-  Write-Host "  Target: Mon-Fri Eastern 09:35 (DST-immune: local wall=$localHHmm, auto-aligns EDT/EST via open_session_run.py)"
-  Write-Host "  StartBoundary: $startBoundary"
-  Write-Host "  Wrapper: $Wrapper"
-  Write-Host "  Config: $Config"
-  Write-Host "  DST immune: no re-installation required across seasonal time changes (DEBT-013)."
+Write-Host "  Wake: Mon-Fri 08:45 ET (local wall=$localHHmm). Chain pull 09:00 ET. Deadline 09:25 ET."
+Write-Host "  StartBoundary: $startBoundary"
+Write-Host "  Wrapper: $Wrapper"
+Write-Host "  Config: $Config"
+Write-Host "  DST: summer UTC anchor 12:45; Python waits until 09:00 ET. Re-run this script once to apply; no seasonal reinstall."
+Write-Host "  OI: prior-close T+1. 09:31 spot-only refresh must not repull OI (python --spot-only-refresh is a stub)."
 Write-Host "Dry-run: python tools/gex-sidecar/open_session_run.py --dry-run"
 Write-Host "Uninstall: powershell -File tools/gex-sidecar/install_open_session_task.ps1 -Uninstall"
