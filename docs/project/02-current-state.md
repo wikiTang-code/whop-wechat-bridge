@@ -81,9 +81,9 @@
 | 项 | 值 |
 |----|-----|
 | 分支 | `main` |
-| HEAD / vs origin | 以 `git log -1` / `git status -sb` 为准；**CHG-058** 开盘 GEX 09:35 ET；**CHG-057** 九标的矩阵 + 2026-09-21 里程碑 `latest.json`；**CHG-056b** collect_1s dotenv + isFirstPush；**CHG-056** 1s OHLCV（非 done-strat）；REQ-059 轨2 `done-eng` / **done-strat 未过** |
+| HEAD / vs origin | 以 `git log -1` / `git status -sb` 为准；**CHG-061** 差速轮询（代码；GCP 未部署）；**CHG-060** persist（GCP 未 ingest）；**CHG-059** 盘前 GEX；REQ-059 G2 **负对照已粘**（非 done-strat） |
 | 本机 OpenD `11111` | **2026-09-19 实测满血**：期权 24 到期日 / 单日 384 合约 + L2 五档（REQ-042） |
-| 长桥 Paper | **2026-09-21 counter_smoke FILLED**：IREN 1 股 @ 47.075，订单 `1286688240727810048`，持仓 1。跟单 IREN 46.5=**C**（未绑 46.5、未写 `zhao_follow`）。禁 catalog 下单 |
+| 长桥 Paper | **两本账分开**：① 烟测 `counter_smoke` IREN 1 **FILLED** @ 47.075，持仓 1。② 跟单 IREN 46.5=**C**。`AUTO_SUBMIT=false` |
 | 券商互补 | 期权链/GEX→富途；正股模拟对账→长桥 |
 | 本机 `ops:http` `18789` + ssh -R | 联调日已通；靠自启任务保活 |
 | 企微可信 IP | 应以 **GCP 公网** 为准 |

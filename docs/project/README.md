@@ -38,7 +38,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── 056-paper-trading-execution-loop-report.md   ← REQ-056 长桥Paper模拟执行闭环报告 (accepted-with-gap)
 ├── 057-turning-point-microstructure-report.md   ← REQ-057 微观转弯；CHG-050 exploratory holdout (accepted-with-gap)
 ├── 058-delayed-follow-e-v0-report.md            ← REQ-058 延迟跟单假设到达 Δ 扫（done-eng；Appendix A 5m 主校准；Appendix B 1m 诊断；非 done-strat）
-├── 059-dual-ledger-track2-report.md             ← REQ-059 轨2 双账本脚手架（done-eng；REFERENCE_ONLY；全量 archive 不在 Cloud）
+├── 059-dual-ledger-track2-report.md             ← REQ-059 轨2 双账本（done-eng + 负对照；GCP G2 已粘；hint_only；轨3未开；非 done-strat）
 ├── zhao-knowledge-multimodal-plan.md  ← REQ-037 多模态知识图谱（accepted·P1/P2/P3 Done）
 ├── wsl-unified-ai-runtime-plan.md     ← CHG-018 Done（Q-007；DEBT-014 代码路径 Done）
 └── gpu-shared-protocol.md             ← 跨仓库 GPU 协议指针（正文在 ~/.cursor/shared-protocols/；Cursor 2026-09-19 冻结 §7）
@@ -93,12 +93,12 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
-| **§0.A `agent:cursor`** | **CHG-059** GEX 盘前 08:45/09:00/09:25 ET（done-eng）· **CHG-057** 矩阵扩赵哥高频正股（done-eng） | done-eng |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 done-eng** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
+| **§0.A `agent:cursor`** | **CHG-061** 差速轮询（done-eng · GCP 未部署）· **CHG-060** persist（GCP 未 ingest）· **CHG-059** GEX 盘前 | done-eng |
+| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 accepted-with-gap：烟测 FILLED** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001；**Paper 烟测 FILLED 过**（跟单本笔仍 C） | 等待 |
-| **§0.X Blocked** | 040=**Cleared**；033→human；**跟单 FILLED** 等下一笔 A/B；**DEBT-026** 信号链 | **见 05 §0.X** |
+| **§0.X Blocked** | 040=**Cleared**；033→human；**跟单 FILLED** 等下一笔 A/B；**DEBT-026** GCP 未 ingest | **见 05 §0.X** |
 | **§0.R-A** | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | Done |
 | **§0.R-A** | **REQ-042/CHG-034** accepted-with-gates | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |

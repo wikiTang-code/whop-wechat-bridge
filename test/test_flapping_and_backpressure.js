@@ -25,6 +25,7 @@ import {
   getEffectivePollIntervalSec,
   shouldPauseSecondaryWorkers,
   getBackpressureStatus,
+  shouldThrottleHot,
   _resetBackpressureForTests,
 } from '../monitoring/backpressure-controller.js';
 
@@ -159,6 +160,7 @@ updateBackpressureMetrics({ p99Ms: 22, httpOk: true });
 assert.strictEqual(getBackpressureStatus().tier, 'NORMAL', '再次满 3 周期回到 NORMAL');
 assert.strictEqual(getEffectivePollIntervalSec(), 25);
 assert.strictEqual(shouldPauseSecondaryWorkers(), false);
+assert.strictEqual(shouldThrottleHot(), false, 'CHG-061 HOT never throttles');
 console.log('   ✅ 三级阶梯背压控制器验证通过！');
 
 // ============================================================================
