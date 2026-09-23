@@ -98,7 +98,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001；**Paper 烟测 FILLED 过**（跟单本笔仍 C） | 等待 |
-| **§0.X Blocked** | 040=**Cleared**；033→human；**跟单 FILLED** 等下一笔 A/B；**DEBT-026** GCP 未 ingest | **见 05 §0.X** |
+| **§0.X Blocked** | 040=**Cleared**；033→human；**跟单 FILLED** 等下一笔 A/B；**DEBT-026** 9/21 六笔已回填，今日新口播 0 | **见 05 §0.X** |
 | **§0.R-A** | **Commit bf8d14b 量化驾驶舱与黄金战法加权抽审** | Done |
 | **§0.R-A** | **REQ-042/CHG-034** accepted-with-gates | Done |
 | **§0.R-B** | **REQ-039 / CHG-027** Accepted | Done |

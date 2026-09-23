@@ -41,7 +41,7 @@
 | DEBT-023 | **REQ-058 假设到达时钟（不挡 done-eng）**：历史仍无观测 `t_arrive`（Appendix A = `t_arrive_hat` / `message_clock` 5m N=196 主校准；校准门禁 passed，`done-strat` 未过）。Appendix B = 1m resolution diagnostic（`n_scored=33`，Yahoo 约 7 个会话；不是 196 笔 1m 全样本；禁止与 5m 的 196 笔逐格当「同一批更精细」）。CHG-052 仅给**新** ingest 打观测 `t_arrive`（#16=`e54ffd70`），禁止回填历史。禁止把 C-rate / bar open 当成交秒或 alpha；禁止用 Appendix A/B 改 20/40 / HUD | `backtest_delayed_follow_e_v0.js` · 058 Appendix A/B · `observed_arrival.js` | **P3 笔记** |
 | DEBT-024 | **REQ-059 轨 2 G2 已粘（负对照；不挡 done-eng）**：GCP 主跑 `n_events=27` ≠ E-layer N=196。S 30m prec≤~1%、perm p~0.5–1；R OOS PF≤~1；独立期望门未过。**轨 3 封**。禁止绿表改 `T2R-*`；禁止合并 S/R 头条；**非 done-strat** | `059-dual-ledger-track2-report.md` §2.3 · 09 合同 | **P3 笔记（G2 闭环为负对照）** |
 | DEBT-025 | **CHG-056 1s hot 未上 GCP live**（不挡 Cloud done-eng）：采集器+夹具在 #21/`969a175`；CHG-056b 只补 dotenv + subscribe isFirstPush fallback。当前 hot IREN/SOXL 为夹具行，**尚无非夹具 live bar**。采集进程不接 rclone、`cold_path=null`。合并后由 **Gemini 部署**。空秒不写行；禁止 1m/5m 插值 1s | `collect_1s_ohlcv.js` · `chg056-market-1s-ohlcv.md` | **P2 部署** |
-| DEBT-026 | **RTH 赵哥点位未进 GCP `trade_signals`（CHG-060 代码已交）**：persist 硬锁+正则已落地。GCP 仍 91 条/最新 9/18 直到 HITL restart。刀 2 仅 `zhao_follow`∧FILLED。烟测禁止冒充跟单 | CHG-060 · `zhao_print_persist.js` | **P1 待 GCP ingest** |
+| DEBT-026 | **RTH 赵哥点位**：2026-09-24 回填 9/21 开盘 6 笔（两频道各一行，共 12，`source=zhao_print`，`px_arrive` 空，`t_arrive=poll_seen`）。卖出 Intent 因无底仓拒绝；买入 NBIS/CRWV/IREN=`PENDING_HITL`，不是 `zhao_follow`、未 submit。今日新口播仍 0。刀 2 仍要 `zhao_follow`∧FILLED | CHG-060 · `zhao_print_persist.js` | **P1 回填过，实时落表未证** |
 | DEBT-LLM-L2 | **禁止 LLM / L2a 文本 / 战法卡进入 OHLCV 检测器**（方法债；不是「AI 扫单」项目）。解冻须独立 REQ | 09 合同 §5 | **冻** |
 
 
