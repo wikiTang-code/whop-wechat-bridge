@@ -13,7 +13,7 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **CHG-061** | L1 | 分频道差速轮询：HOT 2s（记录区+期权）；WARM 5s（美股发布实时信号+日内波段+股票分析）；COLD 30s。差分跳过、keepAlive、附件延迟、背压只打 COLD | `server.js` · `monitor.js` · `channel_registry.json` | **done-eng** |
+| **1** | **CHG-061** | L1 | 分频道差速轮询接到 **ingest_runner**：HOT 2s（记录区+期权）；WARM 5s（美股发布+日内波段+股票分析）；COLD 30s。新闻只跟 COLD | `tier_poller.js` · `ingest_runner.js` | **done-eng**（待 GCP 重启） |
 | · | **CHG-060** | L1 | DEBT-026 赵哥点位落 `trade_signals`+Intent（`zhao_print`；不 submit）。#23 原误标 CHG-059 | `zhao_print_persist.js` · `monitor.js` | **done-eng**（GCP 未落表） |
 | · | **CHG-059** | L2 | 盘前 GEX：唤醒 08:45 ET，09:00 拉链，09:25 截止标 late，`spot_session=premarket`。OI=前收 T+1。09:31 现货 stub 不重拉 OI。win-host/OpenD。**单测全绿（test_open_session_preopen + DST 各 pass）**；task=Ready，local wall=20:45 CST → 09:00 ET。下一交易日验 `latest.json.preopen.deadline_status` | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng (win-host-deployed)** |
 | · | **CHG-058** | L3 | 开盘 GEX 目标 09:35 ET（已被 CHG-059 盘前时刻取代；任务名仍 `WhopGexOpenSession0940ET`） | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng** |

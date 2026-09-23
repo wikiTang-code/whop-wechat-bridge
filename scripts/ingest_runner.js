@@ -128,8 +128,9 @@ export async function executeIngestTick({ dryRun = false, syncFn = null, autoSch
 }
 
 import { getSoftDegradeSnapshot } from '../monitoring/soft-degrade-registry.js';
-import { getEffectivePollIntervalSec, getBackpressureStatus } from '../monitoring/backpressure-controller.js';
+import { getEffectivePollIntervalSec } from '../monitoring/backpressure-controller.js';
 import { isOffMarketHours } from '../monitoring/market-calendar.js';
+import { startTierPollers, stopTierPollers } from '../tools/ingest/tier_poller.js';
 
 /**
  * 计算下一轮轮询自适应延迟 (对齐 server.js 既有策略)
@@ -199,26 +200,32 @@ export async function launchMonitoringProbes() {
 }
 
 /**
- * 启动自适应轮询主循环 (支持背压自适应周期退避)
+ * Production loop is CHG-061 tiers. computeNextPollDelayMs stays for the legacy tick test.
+ * News/persona housekeeping rides the COLD tick only — HOT 2s does not call the LLM.
  */
 export function startIngestLoop() {
-  console.log(`[IngestRunner] 启动 Ingest Worker 自适应轮询主循环 (交易时段 25s/60s/120s 背压退避，休市 60s)...`);
-
-  const scheduleNext = () => {
-    if (isShuttingDown) return;
-    const delayMs = computeNextPollDelayMs();
-    const bp = getBackpressureStatus();
-    console.log(`[IngestRunner] 下一轮调度将在 ${delayMs / 1000}s 后触发 (背压状态: ${bp.tier})`);
-
-    pollTimer = setTimeout(async () => {
-      await executeIngestTick();
-      scheduleNext();
-    }, delayMs);
-  };
-
-  // 立即触发首次 tick，之后按自适应周期调度
-  executeIngestTick().then(() => {
-    scheduleNext();
+  if (isShuttingDown) return;
+  console.log('[IngestRunner] CHG-061 tier pollers. HOT 2s / WARM 5s / COLD 30s. Backpressure throttles COLD only.');
+  startTierPollers({
+    onTick: async ({ tier, result, error, pollMs }) => {
+      recordIngestHeartbeat({
+        workerKey: process.env.INGEST_WORKER_KEY || 'primary',
+        outcome: error ? 'error' : 'ok',
+        pollMs,
+        detail: {
+          tier,
+          newMessagesCount: result?.newMessagesCount ?? 0,
+          error: error?.message || null
+        },
+        nowMs: Date.now()
+      });
+    },
+    runHousekeeping: async () => {
+      const { runPeriodicAutoSchedulers } = await import('../monitoring/auto-schedulers.js');
+      await runPeriodicAutoSchedulers().catch((err) => {
+        console.warn('[IngestRunner] 自动调度器执行警告:', err.message);
+      });
+    }
   });
 }
 
@@ -227,6 +234,7 @@ export function startIngestLoop() {
  */
 export function stopIngestLoop() {
   isShuttingDown = true;
+  stopTierPollers();
   if (pollTimer) {
     clearTimeout(pollTimer);
     pollTimer = null;

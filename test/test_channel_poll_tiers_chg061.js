@@ -8,6 +8,7 @@ import {
   shouldSkipUnchangedFeed,
   _resetLastSeenForTests
 } from '../tools/ingest/channel_poll_config.js';
+import { describeLiveTiers, startTierPollers, stopTierPollers } from '../tools/ingest/tier_poller.js';
 import { shouldThrottleHot, getEffectivePollIntervalSec, _resetBackpressureForTests, updateBackpressureMetrics } from '../monitoring/backpressure-controller.js';
 
 const FORUM = 'forum_feed_1CTr7SqVMzFfuFiiRJLEHN';
@@ -66,5 +67,31 @@ describe('CHG-061 channel poll tiers', () => {
     const hot = channelsForTier('hot');
     const sliced = intersectEnvChannels(hot, [FORUM]);
     assert.deepEqual(sliced.map((c) => c.id), [FORUM]);
+  });
+
+  it('live plan keeps 美股发布 on WARM and does not housekeeping on the first HOT tick', async () => {
+    const rows = describeLiveTiers(new Date('2026-09-23T15:00:00Z'));
+    const by = Object.fromEntries(rows.map((r) => [r.tier, r]));
+    assert.ok(by.hot.ids.includes(FORUM) && by.hot.ids.includes(OPTION));
+    assert.equal(by.hot.intervalMs, 2000);
+    assert.ok(by.warm.ids.includes(BROADCAST) && by.warm.ids.includes(INTRADAY));
+    assert.equal(by.warm.intervalMs, 5000);
+    assert.ok(!by.hot.ids.includes(BROADCAST));
+    assert.ok(by.cold.ids.includes(PICK));
+
+    const seen = [];
+    startTierPollers({
+      syncGroup: async (group) => {
+        seen.push(group.map((c) => c.id));
+        return { success: false, newMessagesCount: 0 };
+      },
+      runHousekeeping: async () => { seen.push(['housekeeping']); }
+    });
+    await new Promise((r) => setTimeout(r, 30));
+    stopTierPollers();
+    assert.ok(seen.length >= 1);
+    assert.ok(seen[0].includes(FORUM));
+    assert.ok(!seen[0].includes(BROADCAST));
+    assert.ok(!seen.flat().includes('housekeeping'));
   });
 });
