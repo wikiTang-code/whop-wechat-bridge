@@ -4,49 +4,66 @@
     "name": "历史股票期权记录区",
     "channel_class": "record",
     "purpose": "赵哥全量口播交易母库 + 战法长文（L2a/L2b 跟单与抽取主源）",
-    "is_l2a_primary": true
+    "is_l2a_primary": true,
+    "poll_tier": "hot",
+    "poll_limit": 5,
+    "is_realtime_signal": true
   },
   "chat_feed_1CTr7QocNpDZ9FXZ6fvWe4": {
     "feed_id": "chat_feed_1CTr7QocNpDZ9FXZ6fvWe4",
     "name": "不用翻墙美股发布",
     "channel_class": "broadcast",
-    "purpose": "实时短发布频道，独立 feed",
-    "is_l2a_primary": false
+    "purpose": "实时短发布频道，独立 feed；算实时交易信号，轮询 WARM 5s（不并入 HOT 2s）",
+    "is_l2a_primary": false,
+    "poll_tier": "warm",
+    "poll_limit": 10,
+    "is_realtime_signal": true
   },
   "chat_feed_1CTrCEx44dP13jW3RVkYiS": {
     "feed_id": "chat_feed_1CTrCEx44dP13jW3RVkYiS",
     "name": "不用翻墙期权",
     "channel_class": "option",
     "purpose": "期权讨论与实时短播，默认不进 L2a",
-    "is_l2a_primary": false
+    "is_l2a_primary": false,
+    "poll_tier": "hot",
+    "poll_limit": 5,
+    "is_realtime_signal": true
   },
   "chat_feed_1CTr5VAdNHtbZAFaTitvoT": {
     "feed_id": "chat_feed_1CTr5VAdNHtbZAFaTitvoT",
     "name": "不用翻墙美股讨论区",
     "channel_class": "discuss",
     "purpose": "群友美股综合讨论区，不进 L2a",
-    "is_l2a_primary": false
+    "is_l2a_primary": false,
+    "poll_tier": "cold",
+    "poll_limit": 20
   },
   "chat_feed_1CU95KbtifP1JtuqTiVXZb": {
     "feed_id": "chat_feed_1CU95KbtifP1JtuqTiVXZb",
     "name": "讨论区股票记录",
     "channel_class": "discuss_record",
     "purpose": "讨论区股票记录存档",
-    "is_l2a_primary": false
+    "is_l2a_primary": false,
+    "poll_tier": "cold",
+    "poll_limit": 20
   },
   "chat_feed_1CWLuNUVYVVYttro8gAvJ5": {
     "feed_id": "chat_feed_1CWLuNUVYVVYttro8gAvJ5",
     "name": "市值理论100跌50 公式记录",
     "channel_class": "formula",
     "purpose": "反弹一半 (高+低)/2 公式推导专项记录",
-    "is_l2a_primary": false
+    "is_l2a_primary": false,
+    "poll_tier": "cold",
+    "poll_limit": 20
   },
   "chat_feed_1CabPvHkbHhMwHft19jd83": {
     "feed_id": "chat_feed_1CabPvHkbHhMwHft19jd83",
     "name": "财报日提醒",
     "channel_class": "notification",
     "purpose": "财报日自动提醒",
-    "is_l2a_primary": false
+    "is_l2a_primary": false,
+    "poll_tier": "cold",
+    "poll_limit": 20
   },
   "chat_feed_1CaPyASfSWTuruMgL2u3sT": {
     "feed_id": "chat_feed_1CaPyASfSWTuruMgL2u3sT",
@@ -55,7 +72,9 @@
     "purpose": "周哥美股工具箱 · 大盘与标的结构分析与高低点预测（高价值参考参谋）",
     "owner": "Mrzhoulucky",
     "is_l2a_primary": false,
-    "is_quant_reference": true
+    "is_quant_reference": true,
+    "poll_tier": "warm",
+    "poll_limit": 10
   },
   "chat_feed_1CaEnj8BrNBr95YSbgabYZ": {
     "feed_id": "chat_feed_1CaEnj8BrNBr95YSbgabYZ",
@@ -64,7 +83,10 @@
     "purpose": "周哥美股工具箱 · 自研量化工具自动日内波段信号与杠杆点位（高胜率参考因子）",
     "owner": "Mrzhoulucky",
     "is_l2a_primary": false,
-    "is_quant_reference": true
+    "is_quant_reference": true,
+    "poll_tier": "warm",
+    "poll_limit": 10,
+    "is_realtime_signal": true
   },
   "chat_feed_1CaChz8Ru2cjRfAFKi7KbF": {
     "feed_id": "chat_feed_1CaChz8Ru2cjRfAFKi7KbF",
@@ -73,6 +95,8 @@
     "purpose": "周哥美股工具箱 · 每日精选股票推荐",
     "owner": "Mrzhoulucky",
     "is_l2a_primary": false,
-    "is_quant_reference": true
+    "is_quant_reference": true,
+    "poll_tier": "cold",
+    "poll_limit": 20
   }
 }

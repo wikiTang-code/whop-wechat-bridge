@@ -1,15 +1,16 @@
 # REQ-059: Track 2 双账本最小集（风格 S × 期望 R-precursor）
 
-> **状态**：`done-eng`（脚手架 + 夹具离线路径）· **`done-strat` 未过** · **不是** copytrade · **不是** 自主 alpha  
+> **状态**：`done-eng`（脚手架 + GCP G2 摘要已粘）· **负对照**（CHG-050 兄弟）· **`done-strat` 未过** · **轨 3 未开** · **不是** copytrade · **不是** 自主 alpha  
 > **合同**：[`09-development-plan-contract-20260921.md`](./09-development-plan-contract-20260921.md) §8  
 > **CHG-050 兄弟**：[`057-turning-point-microstructure-report.md`](./057-turning-point-microstructure-report.md) §6 = **负对照**（禁止当调参起点）  
-> **横幅**：`REFERENCE_ONLY` / `hint_only` / `not_copytrade` / `not_done_strat`
+> **横幅**：`REFERENCE_ONLY` / `hint_only` / `not_copytrade` / `not_done_strat`  
+> **Grok 拍板 A（2026-09-21）**：GCP 主跑摘要粘回；停在 `REFERENCE_ONLY` / `hint_only`。`T2R-*` **未改**。禁止绿表改参。禁止开轨 3 叙事。
 
 ---
 
 ## 0. 横幅（先读）
 
-本刀只交 **轨 2 脚手架**。Cloud / CI **没有** `whop_archive.db` 时只跑夹具。全量 60d 必须在**本机或 GCP** 跑，把 summary **粘回本节**；禁止在无库环境编造 N / PF。**GCP 生产 archive 是主跑；本机 deep-extract 是另一张表/另一本账，禁止混池。** (GCP production archive is the primary run; local deep-extract is a separate table/ledger and must not be pooled.)
+本刀交 **轨 2 脚手架 + GCP G2 摘要**。Cloud / CI **没有** `whop_archive.db` 时只跑夹具。全量 60d 已在 **GCP** 跑完，summary 粘在 **§2.3**；禁止在无库环境编造 N / PF。**GCP 生产 archive 是主跑；本机 deep-extract 是另一张表/另一本账，禁止混池。** (GCP production archive is the primary run; local deep-extract is a separate table/ledger and must not be pooled.)
 
 两本账**禁止**合成一个 PF 头条：
 
@@ -64,13 +65,55 @@ node scripts/knowledge/backtest_dual_ledger_track2.js \
 
 只读 archive；`t_msg` = `messages.created_at`（JOIN）。缺库或缺 `created_at` → 非零退出，禁止静默 L2a。
 
-**粘贴区（G2 · 人工/本机跑完后填）**：
+**粘贴区（G2）**：见下方 **§2.3**（已粘；Cloud 仍无 archive，不在 Cloud 重跑）。
 
-```
-archive run: NOT RUN IN CLOUD
-n_zhao / n_triggers / S.tp30 / S.fp30 / S.fn30 / S.perm_p30 / R.exitA_IS / R.exitA_OOS / R.exitB_IS / R.exitB_OOS
-= (paste here)
-```
+### 2.3 GCP 主跑摘要（G2 · 2026-09-21 · Grok 拍板 A）
+
+> **横幅**：`REFERENCE_ONLY` / `hint_only`。本段只记 provenance 与用户口述读法。**禁止**编造未给出的逐格数字。**禁止**把 S 与 R 合成一个 PF 头条。
+
+| 项 | 值 |
+|----|----|
+| Merge | PR #19 → `d902722` |
+| `db_path` | `/home/wikitang628/whop-wechat-bridge/whop_archive.db` |
+| `n_messages` | 109333 |
+| `n_events` | 27 |
+| `events_source` | `sqlite-ro#messages.created_at` |
+| Banner | `REFERENCE_ONLY` / `hint_only` |
+| 主跑 | GCP 生产 archive |
+| 禁混池 | 本机 deep-extract **不**与本表混池 |
+
+**契约对照（显式）**：`n_events=27` **≠** E-layer Appendix A `N=196`。两套合同不同：本跑是轨 2 双账本事件（JOIN `messages.created_at`）；196 是 REQ-058 延迟跟单 E-layer 主校准。禁止并读成「同一批更精细」。GCP prod 是主跑。
+
+#### S 账本（风格 · 不问赚不赚）
+
+用户口述（本回合未附分标的精确网格；**不编造** TP/FP/FN 逐格）：
+
+| 口径 | 读法 |
+|------|------|
+| 30m precision | ≤~1% |
+| permutation p-values | ~0.5–1 |
+| 结论 | 风格匹配 **没有**高于随机 |
+
+#### R 账本（期望前体 · 无视开口；禁止合成头条）
+
+用户口述（分标的 ExitA / ExitB **OOS PF**；本回合未附精确逐格表，**不编造** IREN/SOXL/MU/CRWV/COHR 数值）：
+
+| 口径 | 读法 |
+|------|------|
+| ExitA OOS PF（分标的） | **全部低于或约等于 1** |
+| ExitB OOS PF（分标的） | **全部低于或约等于 1** |
+| 独立期望门禁 | **未过** |
+
+禁止把 S 的 precision 写成 R 的期望，禁止把 R 的 PF 写成「像赵哥」。禁止单一 `profitFactor` / `merged_pf` 头条。
+
+#### 门禁关闭
+
+- **轨 3 封**：独立期望门未过；失败按合同闭环。禁止为绿表改 `T2R-*`。禁止开轨 3 叙事。
+- `T2R-VOL_EXPANSION_UP` / `DOWN` / `RANGE_BREAK_VOL` / `ATR_SHOCK_VOL` **未改**。
+- 未改 HUD / 20/40 / Δ / `place_order` / 市场采集。
+- **不是** `done-strat`。
+
+059 空窗只说明这四条量能规则**不能当频道**；自研参考轨**不是**永久停工。正确反应是停止改参 `T2R-*`；下一轮须**新**短窗假说 + **新** rule id（另立 CHG），仍用同一套双账本尺。跟单腿另证 `FILLED` + 自然 `t_arrive`；在此之前跟单只是 code-green。轨 3 仍封；`hint_only`；禁止拿 `n=27` 上 GPU。
 
 ---
 
@@ -88,17 +131,18 @@ n_zhao / n_triggers / S.tp30 / S.fp30 / S.fn30 / S.perm_p30 / R.exitA_IS / R.exi
 
 **当前与实战差距**：
 
-- 全量 archive 未在 Cloud 跑（G2 未过）。
-- 冻结规则是预注册脚手架，**未经**实盘 60d 证实，禁止当 alpha。
-- 未接 Paper FILLED / 观测 `t_arrive` 执行账（轨 3）。
+- G2 已在 GCP 粘摘要：`n_events=27`；S 30m precision ≤~1%、置换 p ~0.5–1 → 风格不高于随机；R OOS PF 全部低于或约等于 1 → **独立期望门未过**。这是 **负对照**，不是 alpha。
+- `n_events=27` ≠ E-layer `N=196`（不同合同）。禁止混池本机 deep-extract。
+- 冻结 `T2R-*` **未改**、**未经**正期望证实，禁止当发令枪。
+- **轨 3 未开**（观测到达 + Paper FILLED 执行账仍未授权）。
 - 未改 HUD / 20/40 / 雷达加权。
 
-**暗伤**：Yahoo 5m 60d 覆盖随标的而变；1m 更短；风格置换未保时段结构（与 CHG-050 同样限制）。
+**暗伤**：Yahoo 5m 60d 覆盖随标的而变；1m 更短；风格置换未保时段结构（与 CHG-050 同样限制）。本回合未附分标的精确 PF 网格，报告只记用户口述上下界，避免编造。
 
 **A/B/C 下一步（Human 拍板）**：
 
-- A：本机/GCP 跑 §2.2，粘摘要，停在 REFERENCE_ONLY。
-- B：否决某条 `T2R-*`（冻改，另开 CHG，禁止绿表改参）。
-- C：不进轨 4。禁止 HUD / place_order。
+- **A（已执行）**：GCP 跑 §2.2，粘摘要，停在 `REFERENCE_ONLY` / `hint_only`。
+- B：否决某条 `T2R-*`（冻改，另开 CHG，禁止绿表改参）。**本刀未做 B。**
+- C：不进轨 4。禁止 HUD / `place_order`。**轨 3 封。**
 
-**话术**：本交付是 `done-eng`。禁止「复现赵哥」「AI 扫单」「工业级 walk-forward」「已可实盘指导」。
+**话术**：本交付是 `done-eng` + **负对照**。禁止「复现赵哥」「AI 扫单」「工业级 walk-forward」「已可实盘指导」。Grok 拍板 A：停。

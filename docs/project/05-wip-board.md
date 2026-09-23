@@ -13,12 +13,14 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **CHG-059** | L2 | 盘前 GEX：唤醒 08:45 ET，09:00 拉链，09:25 截止标 late，`spot_session=premarket`。OI=前收 T+1。09:31 现货 stub 不重拉 OI。win-host/OpenD。**单测全绿（test_open_session_preopen + DST 各 pass）**；task=Ready，local wall=20:45 CST → 09:00 ET。下一交易日验 `latest.json.preopen.deadline_status` | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng (win-host-deployed)** |
+| **1** | **CHG-061** | L1 | 分频道差速轮询：HOT 2s（记录区+期权）；WARM 5s（美股发布实时信号+日内波段+股票分析）；COLD 30s。差分跳过、keepAlive、附件延迟、背压只打 COLD | `server.js` · `monitor.js` · `channel_registry.json` | **done-eng** |
+| · | **CHG-060** | L1 | DEBT-026 赵哥点位落 `trade_signals`+Intent（`zhao_print`；不 submit）。#23 原误标 CHG-059 | `zhao_print_persist.js` · `monitor.js` | **done-eng**（GCP 未落表） |
+| · | **CHG-059** | L2 | 盘前 GEX：唤醒 08:45 ET，09:00 拉链，09:25 截止标 late，`spot_session=premarket`。OI=前收 T+1。09:31 现货 stub 不重拉 OI。win-host/OpenD。**单测全绿（test_open_session_preopen + DST 各 pass）**；task=Ready，local wall=20:45 CST → 09:00 ET。下一交易日验 `latest.json.preopen.deadline_status` | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng (win-host-deployed)** |
 | · | **CHG-058** | L3 | 开盘 GEX 目标 09:35 ET（已被 CHG-059 盘前时刻取代；任务名仍 `WhopGexOpenSession0940ET`） | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng** |
 | 1a | **CHG-057** | L3 | GEX 矩阵扩赵哥高频正股（TSLA+IREN/CRWV/MU/COHR/SOXL/COIN/NVDA/LITE；2×映正股）。L2 映证，不拦截不下单 | `collect_futu.py` · `gex-readonly.js` · `adapters/gex.js` | **done-eng** |
 | 1b | **CHG-056b** | L5 | collect_1s **live 订阅补丁**：dotenv + `subscribe(..., true)` isFirstPush（GCP-verified NAPI）失败回退两参。不改 `ohlcv_1s.js` / `brokers/longbridge.js`。夹具验收在 #21，不复称为 live。**阶段 A 四条验收全绿（2026-09-21）**：pm2 online ≥ 1h、热区行随成交增加、pm2 restart 追加同一 jsonl、git 无行情大文件。**阶段 B（rclone）待拍板** | `scripts/market/collect_1s_ohlcv.js` | **done-eng (stageA-passed)** |
 | 1c | **CHG-056** | L5 | 长桥 **trades-only** → 1s OHLCV hot jsonl（空秒不写行；`source=longbridge_trade_agg`；禁 Period.Second / 1m·5m 插值）。**GCP 常驻 pm2 `market-1s` @ `3614cef`**，Top5 盘前累计 1000+ bars/标的（SOXL 1476 行、IREN 473 行，2026-09-21 07:00 ET）。**阶段 B（rclone冷档）待拍板** | `scripts/market/collect_1s_ohlcv.js` · `scripts/market/lib/ohlcv_1s.js` | **done-eng (stageA-passed)** |
-| 2 | **REQ-059** | L3 | 轨 2 双账本最小集（S 风格 × R-precursor；冻结 4 条 OHLCV；夹具离线路径）。**`done-strat` 未过** | `scripts/knowledge/lib/dual_ledger_track2.js` · `059-dual-ledger-track2-report.md` | **done-eng** |
+| 2 | **REQ-059** | L3 | 轨 2 双账本（S×R；GCP G2 已粘；**负对照**）。`hint_only`；轨 3 未开；`T2R-*` 未改；**`done-strat` 未过** | `059-dual-ledger-track2-report.md` | **done-eng + 负对照** |
 | 3 | **CHG-055** | L0 | 规划合同 2026-09-21 落盘（HEAD≈e1656af；下一刀=只切轨2；Cloud≠全量 archive） | `docs/project/09-development-plan-contract-20260921.md` | **accepted** |
 | 4 | **CHG-054** | L1 | ingest 落库：观测 `t_arrive` 真写入（first-see / poll-seen；禁回填；只读校验脚本）。**E-docs closed** | `database.js` · `monitor.js` · `scripts/trade/check_observed_t_arrive.js` | **done-eng** |
 | 5 | **CHG-053** | L0 | REQ-058 Appendix B 1m resolution diagnostic（docs-only；**不是**主校准表） | `docs/project/058-delayed-follow-e-v0-report.md` | **done-eng** |
@@ -85,7 +87,7 @@
 | **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini1`** | 赵哥 TSLA 图多为聊天截图无 SR | 关联 `source_text` 预富集修复，扩标池至 12 标的，全库评测 166 张（n_scored=147），提纯 108 张黄金战法 | **Cleared** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
 | **Paper FILLED（跟单）** | 跟单轨 | **下一笔 A\|B** | 本笔 IREN/CRWV/NBIS 均为 C；烟测 FILLED ≠ 追上赵哥 | 下一笔赵哥开口且 ask 相对口播 ≤40bp 才 `zhao_follow` 报送 | **Open** |
-| **DEBT-026 信号链断** | 跟单卡/企微 | **agent:cursor**（未开工，不挡烟测） | RTH 6 笔赵哥点位有 `poll_seen`，未进 GCP `trade_signals`（仍 91 / 最新 9/18） | 硬锁赵哥写入 `trade_signals`+Intent；另立 REQ/CHG | **Open** |
+| **DEBT-026 信号链断** | 跟单卡/企微 | **agent:cursor**（CHG-060 代码已交） | GCP `trade_signals` 仍 91 / 最新 9/18 | 合 PR + HITL restart ingest | **Open（待 GCP）** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 
 ### 0.R
@@ -181,11 +183,14 @@
 | CHG-053 | L0 | REQ-058 Appendix B 1m resolution diagnostic（docs-only） | `agent:cursor` | done-eng | 不是主校准；禁与 5m N=196 逐格并读 |
 | CHG-054 | L1 | 观测 `t_arrive` ingest 落库（first-see；只读校验） | `agent:cursor` | done-eng | E-docs closed；不回填；禁口播/K线 |
 | CHG-055 | L0 | 开发规划合同 2026-09-21（HEAD≈e1656af；下一刀=轨2） | `agent:cursor` | accepted | `09-development-plan-contract-20260921.md` |
-| REQ-059 | L3 | 轨 2 双账本最小集（S×R；夹具路径；非 done-strat） | `agent:cursor` | done-eng | `dual_ledger_track2.js` · `059-*`；禁 HUD/20/40 |
+| REQ-059 | L3 | 轨 2 双账本（S×R；GCP G2 已粘；负对照；轨 3 未开；非 done-strat） | `agent:cursor` | done-eng | `059-*` §2.3；禁 HUD/20/40/`T2R-*` 改参 |
 | CHG-056 | L5 | 长桥 trades-only 1s OHLCV hot jsonl（空秒不写行；`longbridge_trade_agg`） | `agent:cursor` | done-eng | `scripts/market/*` · 部署=Gemini after merge；夹具 #21；非 done-strat |
 | CHG-056b | L5 | collect_1s dotenv + subscribe isFirstPush fallback（GCP dirty diff） | `agent:cursor` | done-eng | 仅 `collect_1s_ohlcv.js`；hot IREN/SOXL=夹具；无非夹具 live bar |
 | CHG-057 | L3 | GEX 矩阵扩赵哥高频正股（L2 映证） | `agent:cursor` | done-eng | `latest.json` 2026-09-21 里程碑；对照包 `chg057-*`；**done-strat 未过** |
 | CHG-058 | L3 | 开盘 GEX 目标 09:35 ET（唤醒 09:33；预告 60s） | `agent:cursor` | done-eng | OI=T+1；任务名仍 `WhopGexOpenSession0940ET` |
+| CHG-059 | L2 | 盘前 GEX 08:45/09:00/09:25 ET | `agent:cursor` | done-eng | win-host-deployed；非 done-strat |
+| CHG-060 | L1 | DEBT-026 赵哥点位 persist（`zhao_print`） | `agent:cursor` | done-eng | GCP ingest 待 HITL；#23 改挂本号 |
+| CHG-061 | L1 | HOT/WARM/COLD 差速轮询（美股发布+日内波段=WARM 5s） | `agent:cursor` | done-eng | 不改 20/40；背压只打 COLD |
 | CHG-027 | L4/L0 | Local-Ops knowledge.promote HITL C2 | `agent:cursor` | Done | Gemini Accepted |
 | CHG-028 | L3 | T2 方向/点位消歧 | `agent:cursor` | Done | n_scored=5 |
 
@@ -256,7 +261,7 @@
 |----|-------|-----|------|
 | CHG-056b | `agent:cursor` | 2026-09-21 | collect_1s dotenv + subscribe isFirstPush fallback（GCP-verified）；#21 夹具不复称为 live；无非夹具 live bar；非 done-strat |
 | CHG-056 | `agent:cursor` | 2026-09-21 | trades-only 1s OHLCV（Grok 钉死：空秒不写；source=longbridge_trade_agg）；非 done-strat；GCP 部署=Gemini after merge；夹具 #21/`969a175` |
-| REQ-059 / CHG-055 | `agent:cursor` | 2026-09-21 | 规划合同落盘 + 轨2 双账本脚手架（夹具 13/13；非 done-strat） |
+| REQ-059 / CHG-055 | `agent:cursor` | 2026-09-21 | 规划合同 + 轨2 脚手架 + GCP G2 负对照摘要已粘（hint_only；轨 3 未开；非 done-strat） |
 | CHG-015 | `agent:gemini1` | 2026-09-15 | LM Studio 显存守卫与绝对防重加载机制落地，tools/lms-guard.js + 单测通过 |
 | REQ-036 | `agent:gemini1` | 2026-09-15 | 1030组SFT/DPO训练集导出+Unsloth微调配方+端侧双轨抽取器+100%Benchmark |
 | REQ-030 / CHG-010 | `agent:gemini` | 2026-09-15 | monitor.js 移除假跟单后缀，发言通知与交易解耦 |
@@ -286,6 +291,6 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**CHG-058** 开盘 GEX 09:35 ET；**CHG-057** 矩阵扩正股 `done-eng`。对照包已入库供 Grok。跟单本笔 IREN 46.5=**C**。`counter_smoke` FILLED ≠ 跟单。DEBT-026 信号链未开工。
+- cursor：**CHG-061** 差速轮询 `done-eng`（HOT 2s / WARM 5s 含美股发布+日内波段；GCP 未部署）。**CHG-060** persist 代码已交。跟单本笔仍 C。Paper IREN=1。
 - gemini：033 仍等 Human #91。
-- Human：企微 #91；下一笔赵哥开口且 ask∈40bp 才跟单报送。刀 2 企微回执未做。
+- Human：企微 #91；下一笔 ask∈40bp 才 `zhao_follow`。`AUTO_SUBMIT` false。刀 2 未做。#20 GCP G2 摘要 PR 仍开着。

@@ -6,6 +6,12 @@ import https from 'https';
 import crypto from 'crypto';
 import { saveMessages, saveReport, getLatestMessageId, getReports, isMessageArchived, getDb, markMessageTraded, markMessagePushed, extractTradingDimensions, getLatestPersonaPlaybook, updateMessageAttachments, saveTradeSignal } from './database.js';
 import { stampPollSeenOnNewMessages } from './tools/trade/observed_arrival.js';
+import { persistZhaoFilledPrints } from './tools/trade/zhao_print_persist.js';
+import {
+  getLastSeenRemoteId,
+  setLastSeenRemoteId,
+  shouldSkipUnchangedFeed
+} from './tools/ingest/channel_poll_config.js';
 
 import { executeOrder, getUnifiedPortfolio, processFollowDecision } from './trading.js';
 import { getMarketContextForTickers, fetchTickerKlineData } from './kline.js';
@@ -251,10 +257,26 @@ fragment ForumPostFragment on ForumPost {
 }`;
 
 // Helper to check and use global fetch or node-fetch
-async function webFetch(url, options) {
+let whopDispatcher = null;
+async function getWhopDispatcher() {
+  if (whopDispatcher !== null) return whopDispatcher;
+  try {
+    const { Agent } = await import('undici');
+    whopDispatcher = new Agent({ keepAliveTimeout: 30_000, connections: 8 });
+  } catch {
+    whopDispatcher = false;
+  }
+  return whopDispatcher;
+}
+
+async function webFetch(url, options = {}) {
   const f = globalThis.fetch;
   if (typeof f !== 'function') {
     throw new Error('globalThis.fetch is unavailable');
+  }
+  const dispatcher = await getWhopDispatcher();
+  if (dispatcher) {
+    return f(url, { ...options, dispatcher });
   }
   return f(url, options);
 }
@@ -1292,16 +1314,32 @@ ${messagesText}`;
 }
 
 // Core sync and analysis function
-export async function syncAndAnalyze({ backfill = false, skipTrades = false, skipWeChat = false, skipReport = false } = {}) {
+export async function syncAndAnalyze({
+  backfill = false,
+  skipTrades = false,
+  skipWeChat = false,
+  skipReport = false,
+  channelIds: overrideChannelIds = null,
+  pageLimit = null,
+  maxPages = null,
+  deferMedia = null
+} = {}) {
   const userToken = process.env.WHOP_USER_TOKEN;
   const cookie = process.env.WHOP_COOKIE;
 
   // Support multiple channels configuration
   const channelIdsStr = process.env.WHOP_CHAT_CHANNEL_IDS || process.env.WHOP_CHAT_CHANNEL_ID || '';
-  const channelIds = channelIdsStr
+  const envChannelIds = channelIdsStr
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
+  const channelIds = Array.isArray(overrideChannelIds) && overrideChannelIds.length > 0
+    ? overrideChannelIds.map((s) => String(s).trim()).filter(Boolean)
+    : envChannelIds;
+  const isTierPoll = Array.isArray(overrideChannelIds) && overrideChannelIds.length > 0;
+  const fetchLimit = Math.max(1, Math.min(100, parseInt(pageLimit, 10) || (backfill || !isTierPoll ? 100 : 20)));
+  const pagesToFetch = Math.max(1, parseInt(maxPages, 10) || (backfill || !isTierPoll ? 200 : 1));
+  const skipSyncMedia = deferMedia == null ? isTierPoll || !backfill : !!deferMedia;
 
   const targetSpeakers = (process.env.TARGET_SPEAKER_USER_IDS || '')
     .split(',')
@@ -1347,11 +1385,12 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       console.log(`Starting sync for channel: ${channelName} (${channelId})...`);
 
       let rawMessages = [];
+      let skippedUnchanged = false;
 
       if (cookie) {
         console.log(`Fetching messages from Whop GraphQL for channel: ${channelName}...`);
         let beforeCursor = null;
-        const pagesToFetch = 200; // Let's support up to 200 pages (20,000 messages) for deep backfill
+        const pagesToFetch = Math.max(1, parseInt(maxPages, 10) || (backfill ? 200 : 1));
         
         for (let page = 1; page <= pagesToFetch; page++) {
           console.log(`Fetching page ${page} of messages from Whop GraphQL for ${channelName} (before: ${beforeCursor})...`);
@@ -1368,7 +1407,7 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
                 variables: {
                   feedId: channelId,
                   feedType: channelId.startsWith('forum_feed_') ? 'forum_feed' : 'chat_feed',
-                  limit: 100,
+                  limit: fetchLimit,
                   before: beforeCursor,
                   direction: 'desc',
                   includeDeleted: false
@@ -1393,6 +1432,15 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
             if (posts.length === 0) {
               console.log(`No more posts found on page ${page} for ${channelName}.`);
               break;
+            }
+
+            const newestPost = posts[0];
+            if (page === 1 && !backfill && shouldSkipUnchangedFeed(getLastSeenRemoteId(channelId), newestPost?.id)) {
+              skippedUnchanged = true;
+              break;
+            }
+            if (page === 1 && newestPost?.id) {
+              setLastSeenRemoteId(channelId, newestPost.id);
             }
 
             // Check if the oldest message on this page is already in the database
@@ -1465,7 +1513,7 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
         }
       } else {
         console.log(`Fetching messages from Whop REST API for channel: ${channelName}...`);
-        const url = `https://api.whop.com/api/v1/messages?channel_id=${channelId}&limit=100`;
+        const url = `https://api.whop.com/api/v1/messages?channel_id=${channelId}&limit=${fetchLimit}`;
         try {
           const response = await webFetch(url, {
             headers: {
@@ -1516,6 +1564,10 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
         }
       }
 
+      if (skippedUnchanged) {
+        continue;
+      }
+
       if (rawMessages.length === 0) {
         console.log(`No messages found in channel: ${channelName}`);
         continue;
@@ -1555,18 +1607,20 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
       const actuallyNewMessages = normalizedMessages.filter(msg => !isMessageArchived(msg.id));
       stampPollSeenOnNewMessages(actuallyNewMessages);
 
-      // 行业标准正方案：在消息写入 SQLite 的同一秒，同步抓取活签下载附件并落盘！
-      for (const msg of actuallyNewMessages) {
-        try {
-          const persistedAttachments = await downloadAndPersistAttachments(msg);
-          if (persistedAttachments) {
-            msg.attachments = persistedAttachments;
-            try {
-              updateMessageAttachments(msg.id, persistedAttachments);
-            } catch (uErr) {}
+      // CHG-061: live path defers images to ISR→media_worker. Backfill can still sync-download.
+      if (!skipSyncMedia) {
+        for (const msg of actuallyNewMessages) {
+          try {
+            const persistedAttachments = await downloadAndPersistAttachments(msg);
+            if (persistedAttachments) {
+              msg.attachments = persistedAttachments;
+              try {
+                updateMessageAttachments(msg.id, persistedAttachments);
+              } catch (uErr) {}
+            }
+          } catch (e) {
+            console.error(`[MediaDownloader] 同步下载附件异常 (${msg.id}):`, e.message);
           }
-        } catch (e) {
-          console.error(`[MediaDownloader] 同步下载附件异常 (${msg.id}):`, e.message);
         }
       }
 
@@ -1591,6 +1645,11 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
     if (allNewMessages.length > 0) {
       allNewMessages.sort((a, b) => a.created_at - b.created_at);
       await saveMessages(allNewMessages);
+      try {
+        persistZhaoFilledPrints(allNewMessages);
+      } catch (persistErr) {
+        console.error('[CHG-060] Zhao print persist failed:', persistErr.message);
+      }
     }
 
     // 🏛️ 中断上半部 (Top Half / ISR): 全频道一视同仁快速打标分发 + 丢入下半部队列 (耗时 < 10ms，绝不调模型)
@@ -1770,6 +1829,24 @@ export async function syncAndAnalyze({ backfill = false, skipTrades = false, ski
     const detail = error.cause ? ` (原因: ${error.cause.message || error.cause})` : '';
     return { success: false, reason: error.message + detail };
   }
+}
+
+/** CHG-061: poll one tier without dragging the others. Live = 1 page, media deferred. */
+export async function syncChannelGroup(channelIds, { limit = 10, backfill = false, skipWeChat = false, skipTrades = false, skipReport = true } = {}) {
+  const ids = (channelIds || []).map((c) => (typeof c === 'string' ? c : c.id)).filter(Boolean);
+  if (ids.length === 0) {
+    return { success: true, newMessagesCount: 0, skipped: true, reason: 'empty_group' };
+  }
+  return syncAndAnalyze({
+    channelIds: ids,
+    pageLimit: limit,
+    maxPages: backfill ? 200 : 1,
+    backfill,
+    deferMedia: !backfill,
+    skipWeChat,
+    skipTrades,
+    skipReport
+  });
 }
 
 // --------------------------------------------------------------------------

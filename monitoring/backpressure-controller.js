@@ -63,6 +63,7 @@ export function updateBackpressureMetrics({ p99Ms, httpOk = true }) {
 
 /**
  * Returns effective polling interval in seconds.
+ * CHG-061: this overlay applies to COLD only. HOT/WARM never inherit it.
  */
 export function getEffectivePollIntervalSec() {
   switch (currentTier) {
@@ -73,6 +74,11 @@ export function getEffectivePollIntervalSec() {
     default:
       return BASE_POLL_INTERVAL_SEC;
   }
+}
+
+/** CHG-061: HOT (and WARM) never drop below their own interval. */
+export function shouldThrottleHot() {
+  return false;
 }
 
 /**
@@ -90,6 +96,7 @@ export function getBackpressureStatus() {
     tier: currentTier,
     pollIntervalSec: getEffectivePollIntervalSec(),
     pauseSecondaryWorkers: shouldPauseSecondaryWorkers(),
+    throttleHot: shouldThrottleHot(),
     highStreak,
     criticalStreak,
     healthyStreak,
