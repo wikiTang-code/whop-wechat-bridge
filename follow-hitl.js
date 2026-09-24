@@ -159,6 +159,14 @@ export async function handleFollowHitlCallback({
   // 6. 执行动作分流
   const act = String(action || '').toUpperCase();
 
+  if (act === 'EXECUTE' && decision.account_type === 'paper') {
+    return {
+      success: false,
+      code: 409,
+      error: `paper intent stays PENDING_HITL (${decision.reason || decision.decision_id}); confirm on the paper intent, not this real callback`
+    };
+  }
+
   if (act === 'EXECUTE') {
     // A: 批准实盘执行
     db.prepare(`

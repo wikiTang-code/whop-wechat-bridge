@@ -30,6 +30,7 @@ import {
   extractWebhookKey,
 } from './monitoring/wechat-image-prepare.js';
 import { dispatchIngestTopHalf } from './scripts/ingest_dispatcher.js';
+import { deferOffHot } from './tools/ingest/hot_defer.js';
 import { runMediaWorker } from './scripts/media_worker.js';
 import { generateQueueStatus } from './scripts/generate_queue_status.js';
 import {
@@ -1791,28 +1792,25 @@ export async function syncAndAnalyze({
       }
     }
 
-    // 3. Extract and execute trades on real-time messages
+    // 3. CHG-062: 14B extract leaves the HOT await. Mark traded first so [] cannot re-enter.
     let tradeResults = null;
     if (realTimeTradeMsgs.length > 0) {
-      if (!skipTrades) {
-        console.log(`[自动跟单] 发现 ${realTimeTradeMsgs.length} 条大V实时新发言，触发交易信号提取与执行...`);
-        const provider = process.env.AI_PROVIDER || 'lm-studio';
-        const primarySpeakerName = realTimeTradeMsgs[0].sender_name;
-        try {
-          tradeResults = await extractAndExecuteTrades(realTimeTradeMsgs, provider, primarySpeakerName);
-        } catch (tradeErr) {
-          console.error('Failed in extractAndExecuteTrades:', tradeErr);
-        }
-      } else {
-        console.log(`[自动跟单] 发现 ${realTimeTradeMsgs.length} 条新发言。已忽略自动跟单 (skipTrades = true)。`);
-      }
-      
       const updateTraded = conn.prepare('UPDATE messages SET is_traded = 1 WHERE id = ?');
       conn.transaction((msgs) => {
         for (const m of msgs) {
           updateTraded.run(m.id);
         }
       })(realTimeTradeMsgs);
+
+      if (!skipTrades) {
+        const provider = process.env.AI_PROVIDER || 'lm-studio';
+        const primarySpeakerName = realTimeTradeMsgs[0].sender_name;
+        const queued = realTimeTradeMsgs.slice();
+        console.log(`[CHG-062] extract deferred off HOT (${queued.length})`);
+        deferOffHot(() => extractAndExecuteTrades(queued, provider, primarySpeakerName));
+      } else {
+        console.log(`[自动跟单] 发现 ${realTimeTradeMsgs.length} 条新发言。已忽略自动跟单 (skipTrades = true)。`);
+      }
     }
 
     // 4. Trigger heavy AI report generation asynchronously in the background (Disabled in favor of Daily News Summary Integration)

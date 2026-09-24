@@ -1486,7 +1486,7 @@ app.get('/api/follow/pending-cards', async (req, res) => {
     const threshold = now - 90 * 1000;
     const rows = db.prepare(`
       SELECT * FROM follow_decisions
-      WHERE account_type = 'real' AND decision_state IN ('WAIT_MANUAL_CONFIRM', 'FIRE', 'SIZE_DOWN')
+      WHERE account_type IN ('real', 'paper') AND decision_state IN ('WAIT_MANUAL_CONFIRM', 'FIRE', 'SIZE_DOWN')
         AND created_at >= ?
       ORDER BY created_at DESC
     `).all(threshold);
