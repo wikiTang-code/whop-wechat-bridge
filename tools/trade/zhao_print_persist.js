@@ -9,11 +9,13 @@
 import { saveTradeSignal, getDb, ensurePaperTradingTables } from '../../database.js';
 import { convertSignalToTradeIntent, ZHAO_SENDER_ID, ALLOWED_CHANNELS } from './signal_intent_bridge.js';
 import { AUTO_SUBMIT_ENABLED } from './paper_execution_engine.js';
+import { generateFollowCardPayload } from '../../follow-hitl.js';
 
 export { ZHAO_SENDER_ID, ALLOWED_CHANNELS };
 
 export const PRINT_SOURCE = 'zhao_print';
 export const FORUM_CHANNEL = 'forum_feed_1CTr7SqVMzFfuFiiRJLEHN';
+export const FINGERPRINT_BUCKET_MS = 120_000;
 
 const BUY_RE = /^(\d+(?:\.\d+)?)(?:附近)?(加了|买了|加回|开了)(.*?)([A-Za-z]{2,6})$/;
 const SELL_RE = /^(\d+(?:\.\d+)?)(?:附近)?(出掉|出了一半|出一半|出了)(.*?)([A-Za-z]{2,6})$/;
@@ -63,7 +65,68 @@ function existingSignalForMessage(conn, messageId) {
   }
 }
 
-export function persistZhaoFilledPrints(messages, { dbInstance = null, createIntent = true } = {}) {
+export function zhaoPrintFingerprint({ senderId, ticker, side, pxZhao, createdAt }) {
+  const bucket = Math.floor(Number(createdAt) / FINGERPRINT_BUCKET_MS);
+  return `${senderId}|${String(ticker).toUpperCase()}|${String(side).toUpperCase()}|${Number(pxZhao)}|${bucket}`;
+}
+
+function fingerprintWindow(createdAt) {
+  const bucket = Math.floor(Number(createdAt) / FINGERPRINT_BUCKET_MS);
+  return { start: bucket * FINGERPRINT_BUCKET_MS, end: (bucket + 1) * FINGERPRINT_BUCKET_MS };
+}
+
+function findIntentForFingerprint(conn, { ticker, side, pxZhao, createdAt }) {
+  const { start, end } = fingerprintWindow(createdAt);
+  try {
+    return conn.prepare(`
+      SELECT intent_id, status, source, ticker, side, price_limit
+      FROM trade_intents
+      WHERE ticker = ? AND side = ? AND ABS(price_limit - ?) < 0.0001
+        AND created_at >= ? AND created_at < ?
+        AND source LIKE 'zhao_signal_%'
+        AND status != 'REJECTED_NO_UNDERLYING_POSITION'
+      ORDER BY created_at ASC
+      LIMIT 1
+    `).get(String(ticker).toUpperCase(), String(side).toUpperCase(), Number(pxZhao), start, end) || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+export function emitZhaoPrintHitlCard(intent, signal, db) {
+  const createdAt = Number(signal.t_arrive) || Date.now();
+  const decision = {
+    decision_id: `dec_${intent.intent_id}`,
+    signal_id: signal.signal_id,
+    message_id: signal.message_id,
+    account_type: 'paper',
+    decision_state: 'WAIT_MANUAL_CONFIRM',
+    ticker: intent.ticker,
+    side: intent.side,
+    call_price: intent.px_zhao ?? intent.price_limit,
+    arrival_price: null,
+    created_at: createdAt,
+    updated_at: createdAt,
+    reason: `zhao_print PENDING_HITL intent:${intent.intent_id}`
+  };
+  const card = generateFollowCardPayload(decision);
+  try {
+    db.prepare(`
+      INSERT INTO follow_decisions (
+        decision_id, signal_id, message_id, account_type, decision_state,
+        ticker, side, call_price, arrival_price, reason, created_at, updated_at
+      ) VALUES (
+        @decision_id, @signal_id, @message_id, @account_type, @decision_state,
+        @ticker, @side, @call_price, @arrival_price, @reason, @created_at, @updated_at
+      )
+    `).run(decision);
+  } catch (err) {
+    console.error('[CHG-062] HITL card row skipped:', err.message);
+  }
+  return card;
+}
+
+export function persistZhaoFilledPrints(messages, { dbInstance = null, createIntent = true, onHitlCard = null } = {}) {
   if (AUTO_SUBMIT_ENABLED === true) {
     throw new Error('REFUSE: AUTO_SUBMIT_ENABLED must stay false');
   }
@@ -126,8 +189,23 @@ export function persistZhaoFilledPrints(messages, { dbInstance = null, createInt
       intent_reason: null
     };
 
-    const wantIntent = createIntent && msg.channel_id === FORUM_CHANNEL;
-    if (wantIntent) {
+    const printAt = Number(msg.created_at) || Date.now();
+    const prior = findIntentForFingerprint(db, {
+      ticker: parsed.ticker,
+      side: parsed.action,
+      pxZhao: parsed.price,
+      createdAt: printAt
+    });
+    if (!createIntent || prior) {
+      out.intent_reason = prior ? 'SIGNAL_ONLY_DUPLICATE_FINGERPRINT' : 'INTENT_DISABLED';
+      out.fingerprint = zhaoPrintFingerprint({
+        senderId: ZHAO_SENDER_ID,
+        ticker: parsed.ticker,
+        side: parsed.action,
+        pxZhao: parsed.price,
+        createdAt: printAt
+      });
+    } else {
       const bridged = convertSignalToTradeIntent({
         ...signal,
         px_arrive: null,
@@ -141,8 +219,19 @@ export function persistZhaoFilledPrints(messages, { dbInstance = null, createInt
       if (out.intent && out.intent.status === 'SUBMITTED') {
         throw new Error('REFUSE: persist must not submit');
       }
-    } else {
-      out.intent_reason = 'SIGNAL_ONLY_DUPLICATE_CHANNEL';
+      if (out.intent && out.intent.status === 'PENDING_HITL') {
+        db.prepare('UPDATE trade_intents SET created_at = ? WHERE intent_id = ?').run(printAt, out.intent.intent_id);
+        out.intent.created_at = printAt;
+        out.fingerprint = zhaoPrintFingerprint({
+          senderId: ZHAO_SENDER_ID,
+          ticker: parsed.ticker,
+          side: parsed.action,
+          pxZhao: parsed.price,
+          createdAt: printAt
+        });
+        const emit = onHitlCard || ((intent, sig) => emitZhaoPrintHitlCard(intent, sig, db));
+        out.hitl_card = emit(out.intent, row);
+      }
     }
 
     results.push(out);
