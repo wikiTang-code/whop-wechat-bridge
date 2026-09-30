@@ -1572,7 +1572,7 @@ app.post('/api/paper/intents/create', async (req, res) => {
 });
 
 // GET /api/paper/wecom-card - 企微模拟盘确认/放弃（CHG-063，不是实盘 EXECUTE）
-app.get('/api/paper/wecom-card', async (req, res) => {
+app.get('/api/follow/paper-card', async (req, res) => {
   try {
     const { action, intent_id, token, t } = req.query || {};
     const { handlePaperWecomAction } = await import('./tools/trade/paper_wecom_card.js');

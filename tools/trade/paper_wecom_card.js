@@ -23,8 +23,8 @@ export function buildPaperWecomMarkdown({
 }) {
   const token = generateHitlToken(intentId, ticker, side, createdAt);
   const base = getBaseUrl();
-  const confirmUrl = `${base}/api/paper/wecom-card?action=CONFIRM&intent_id=${encodeURIComponent(intentId)}&token=${token}&t=${createdAt}`;
-  const skipUrl = `${base}/api/paper/wecom-card?action=SKIP&intent_id=${encodeURIComponent(intentId)}&token=${token}&t=${createdAt}`;
+  const confirmUrl = `${base}/api/follow/paper-card?action=CONFIRM&intent_id=${encodeURIComponent(intentId)}&token=${token}&t=${createdAt}`;
+  const skipUrl = `${base}/api/follow/paper-card?action=SKIP&intent_id=${encodeURIComponent(intentId)}&token=${token}&t=${createdAt}`;
   const delta = arriveDeltaSec == null ? '—' : `${arriveDeltaSec}s`;
   const askText = ask == null ? '—' : `$${ask}`;
   const text = [
@@ -74,7 +74,8 @@ export async function handlePaperWecomAction({
   createdAt,
   ask = null,
   dbInstance = null,
-  submit = null
+  submit = null,
+  quoteFn = null
 } = {}) {
   if (AUTO_SUBMIT_ENABLED === true) {
     throw new Error('REFUSE: AUTO_SUBMIT_ENABLED must stay false');
@@ -96,9 +97,26 @@ export async function handlePaperWecomAction({
   }
   if (act !== 'CONFIRM') return { ok: false, code: 400, error: 'unknown action' };
 
+  let pxAsk = Number(ask);
+  if (!(pxAsk > 0)) {
+    try {
+      const fn = quoteFn || (async (sym) => {
+        const { fetchTickerKlineData } = await import('../../kline.js');
+        const q = await fetchTickerKlineData(sym);
+        return parseFloat(q?.currentPrice);
+      });
+      pxAsk = Number(await fn(ticker));
+    } catch (err) {
+      console.error('[CHG-063] quote failed:', err.message);
+      pxAsk = NaN;
+    }
+  }
   const px = Number(intent.px_zhao ?? intent.price_limit);
-  const slip = calculateSlipBps(side, px, Number(ask));
-  if (!(Number(ask) > 0) || slip > FOLLOW_SPEC.SLIP_REJECT_BPS) {
+  if (!(pxAsk > 0)) {
+    return { ok: true, state: 'C', submitted: false, slip_bps: null, message: 'C: 无有效 ask，未报单' };
+  }
+  const slip = calculateSlipBps(side, px, pxAsk);
+  if (slip > FOLLOW_SPEC.SLIP_REJECT_BPS) {
     return {
       ok: true,
       state: 'C',
@@ -107,7 +125,16 @@ export async function handlePaperWecomAction({
       message: `C: ask slip ${slip}bp > ${FOLLOW_SPEC.SLIP_REJECT_BPS}bp，未报单`
     };
   }
+  const qty = Number(intent.quantity) || 1;
   const doSubmit = submit || ((id) => confirmAndSubmitIntent(id, { dbInstance, awaitFinalStatus: false }));
   const result = await doSubmit(intentId);
-  return { ok: true, state: 'PAPER_SUBMITTED', submitted: true, slip_bps: slip, result };
+  return {
+    ok: true,
+    state: 'PAPER_SUBMITTED',
+    submitted: true,
+    slip_bps: slip,
+    quantity: qty,
+    message: `模拟盘允许报送 ${qty} 股`,
+    result
+  };
 }
