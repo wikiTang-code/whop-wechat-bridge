@@ -1571,6 +1571,24 @@ app.post('/api/paper/intents/create', async (req, res) => {
   }
 });
 
+// GET /api/paper/wecom-card - 企微模拟盘确认/放弃（CHG-063，不是实盘 EXECUTE）
+app.get('/api/paper/wecom-card', async (req, res) => {
+  try {
+    const { action, intent_id, token, t } = req.query || {};
+    const { handlePaperWecomAction } = await import('./tools/trade/paper_wecom_card.js');
+    const result = await handlePaperWecomAction({
+      intentId: intent_id,
+      action,
+      token,
+      createdAt: Number(t)
+    });
+    if (!result.ok) return res.status(result.code || 400).send(result.error || 'failed');
+    res.type('text').send(result.message || result.state);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
 // POST /api/paper/intents/confirm - HITL 人工确认报送模拟柜台
 app.post('/api/paper/intents/confirm', async (req, res) => {
   try {

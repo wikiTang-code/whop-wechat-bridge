@@ -10,6 +10,7 @@ import { saveTradeSignal, getDb, ensurePaperTradingTables } from '../../database
 import { convertSignalToTradeIntent, ZHAO_SENDER_ID, ALLOWED_CHANNELS } from './signal_intent_bridge.js';
 import { AUTO_SUBMIT_ENABLED } from './paper_execution_engine.js';
 import { generateFollowCardPayload } from '../../follow-hitl.js';
+import { buildPaperWecomMarkdown, schedulePaperWecomPush, pushPaperWecomCard } from './paper_wecom_card.js';
 
 export { ZHAO_SENDER_ID, ALLOWED_CHANNELS };
 
@@ -126,7 +127,7 @@ export function emitZhaoPrintHitlCard(intent, signal, db) {
   return card;
 }
 
-export function persistZhaoFilledPrints(messages, { dbInstance = null, createIntent = true, onHitlCard = null } = {}) {
+export function persistZhaoFilledPrints(messages, { dbInstance = null, createIntent = true, onHitlCard = null, onWecomPush = null } = {}) {
   if (AUTO_SUBMIT_ENABLED === true) {
     throw new Error('REFUSE: AUTO_SUBMIT_ENABLED must stay false');
   }
@@ -231,6 +232,20 @@ export function persistZhaoFilledPrints(messages, { dbInstance = null, createInt
         });
         const emit = onHitlCard || ((intent, sig) => emitZhaoPrintHitlCard(intent, sig, db));
         out.hitl_card = emit(out.intent, row);
+        const arriveDeltaSec = (Number(msg.poll_seen_at) > 0 && Number(msg.created_at) > 0)
+          ? Math.round((Number(msg.poll_seen_at) - Number(msg.created_at)) / 1000)
+          : null;
+        const card = buildPaperWecomMarkdown({
+          intentId: out.intent.intent_id,
+          ticker: out.intent.ticker,
+          side: out.intent.side,
+          pxZhao: out.intent.px_zhao ?? parsed.price,
+          arriveDeltaSec,
+          createdAt: printAt
+        });
+        out.wecom_markdown = card.text;
+        const push = onWecomPush || ((text) => pushPaperWecomCard(text));
+        schedulePaperWecomPush(() => push(card.text));
       }
     }
 
