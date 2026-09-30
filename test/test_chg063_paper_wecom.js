@@ -53,6 +53,8 @@ describe('CHG-063 WeCom paper card', () => {
     assert.match(pushed[0], /模拟盘待确认/);
     assert.match(pushed[0], /确认Paper/);
     assert.match(pushed[0], /放弃/);
+    assert.match(pushed[0], /\/api\/follow\/paper-card/);
+    assert.equal(row.intent.quantity, 1);
     assert.doesNotMatch(pushed[0], /已跟单成功|跟单成功/);
   });
 

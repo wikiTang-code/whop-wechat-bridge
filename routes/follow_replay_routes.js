@@ -14,6 +14,7 @@ import {
   handleReplayConfirmSkip,
   handleReplayRejectNonTrade
 } from '../follow-replay-engine.js';
+import { handlePaperWecomAction } from '../tools/trade/paper_wecom_card.js';
 
 const router = express.Router();
 
@@ -158,6 +159,22 @@ router.post('/api/follow/replay-reject', async (req, res) => {
     res.json(result);
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.get('/api/follow/paper-card', async (req, res) => {
+  try {
+    const { action, intent_id, token, t } = req.query || {};
+    const result = await handlePaperWecomAction({
+      intentId: intent_id,
+      action,
+      token,
+      createdAt: Number(t)
+    });
+    const text = result.message || result.error || result.state || 'done';
+    res.type('html').send(`<!DOCTYPE html><meta charset="utf-8"><title>模拟盘</title><p>${text}</p>`);
+  } catch (err) {
+    res.status(500).send(err.message);
   }
 });
 
