@@ -11,6 +11,8 @@ import { convertSignalToTradeIntent, ZHAO_SENDER_ID, ALLOWED_CHANNELS } from './
 import { AUTO_SUBMIT_ENABLED } from './paper_execution_engine.js';
 import { generateFollowCardPayload } from '../../follow-hitl.js';
 import { buildPaperWecomMarkdown, schedulePaperWecomPush, pushPaperWecomCard } from './paper_wecom_card.js';
+import { parseAliasPrint } from './ticker_alias.js';
+import { scheduleSlmMissFill } from './slm_miss_fill.js';
 
 export { ZHAO_SENDER_ID, ALLOWED_CHANNELS };
 
@@ -127,7 +129,7 @@ export function emitZhaoPrintHitlCard(intent, signal, db) {
   return card;
 }
 
-export function persistZhaoFilledPrints(messages, { dbInstance = null, createIntent = true, onHitlCard = null, onWecomPush = null } = {}) {
+export function persistZhaoFilledPrints(messages, { dbInstance = null, createIntent = true, onHitlCard = null, onWecomPush = null, onSlmInfer = null, onSlmCard = null } = {}) {
   if (AUTO_SUBMIT_ENABLED === true) {
     throw new Error('REFUSE: AUTO_SUBMIT_ENABLED must stay false');
   }
@@ -141,9 +143,10 @@ export function persistZhaoFilledPrints(messages, { dbInstance = null, createInt
       results.push({ message_id: msg?.id, skipped: true, reason: 'NOT_ZHAO_TRADE_CHANNEL' });
       continue;
     }
-    const parsed = parseZhaoFilledPrint(msg.content);
+    const parsed = parseZhaoFilledPrint(msg.content) || parseAliasPrint(msg.content);
     if (!parsed) {
-      results.push({ message_id: msg.id, skipped: true, reason: 'NO_FILLED_PRINT' });
+      scheduleSlmMissFill(msg, { infer: onSlmInfer || undefined, onCard: onSlmCard });
+      results.push({ message_id: msg.id, skipped: true, reason: 'NO_FILLED_PRINT', slm: 'queued' });
       continue;
     }
 

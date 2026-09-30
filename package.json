@@ -21,6 +21,7 @@
     "test:channel-poll-tiers": "node --test test/test_channel_poll_tiers_chg061.js",
     "test:chg062-hot-hitl": "node --test test/test_chg062_hot_hitl.js",
     "test:chg063-paper-wecom": "node --test test/test_chg063_paper_wecom.js",
+    "test:chg064-offline": "node --test test/test_chg064_offline.js",
     "trade:persist-zhao-prints": "node scripts/trade/persist_zhao_prints.js",
     "test:audit-linked-pnl": "node test/test_audit_linked_pnl_pipeline.js",
     "test:position-lifecycle": "node test/test_position_lifecycle_manager.js",

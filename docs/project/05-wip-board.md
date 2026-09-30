@@ -13,7 +13,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **CHG-063** | L1 | 企微群机器人模拟盘待确认卡。`deferOffHot`。≤40bp 才提交 Paper，否则 C。未合入，确认链路未通 | `paper_wecom_card.js` · `zhao_print_persist.js` | **done-eng** |
+| **1** | **CHG-064** | L1 | 别名表 / 1.5B 漏检异步 / 刀2 回执默认关。只在分支，生产仍 `77182d49`，不重启 | `ticker_alias.js` · `slm_miss_fill.js` · `fill_receipt.js` | **branch-only** |
+| · | **CHG-063** | L1 | 企微群机器人模拟盘待确认卡。GCP `77182d49` | `paper_wecom_card.js` | **done-eng** |
 | · | **CHG-062** | L1 | HOT 释放后不 await 14B；点位指纹去重写 `PENDING_HITL` + 现有 HITL 卡。GCP `8919f32` ingest restarts 8 | `zhao_print_persist.js` · `hot_defer.js` · `monitor.js` | **done-eng** |
 | · | **CHG-061** | L1 | 分频道差速轮询接到 **ingest_runner**：HOT 2s（记录区+期权）；WARM 5s（美股发布+日内波段+股票分析）；COLD 30s。新闻只跟 COLD | `tier_poller.js` · `ingest_runner.js` | **done-eng**（待 GCP 重启） |
 | · | **CHG-060** | L1 | DEBT-026 赵哥点位落 `trade_signals`+Intent（`zhao_print`；不 submit）。#23 原误标 CHG-059 | `zhao_print_persist.js` · `monitor.js` | **done-eng**（GCP 未落表） |

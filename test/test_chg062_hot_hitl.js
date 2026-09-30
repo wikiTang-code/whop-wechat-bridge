@@ -92,16 +92,18 @@ describe('CHG-062 HOT release and fingerprint HITL', () => {
     assert.equal(db.prepare("SELECT COUNT(*) AS c FROM trade_intents WHERE status = 'PENDING_HITL'").get().c, 1);
   });
 
-  it('non-latin ticker stays a miss', () => {
+  it('regex still misses 谷歌A; alias table maps it to GOOGL', async () => {
+    const { parseZhaoFilledPrint } = await import('../tools/trade/zhao_print_persist.js');
+    assert.equal(parseZhaoFilledPrint('338加回357卖出的谷歌A'), null);
     const cards = [];
     const [row] = persistZhaoFilledPrints(
       [printMsg('post_goog', OPTION, '338加回357卖出的谷歌A', 1790190000000)],
-      { dbInstance: db, onHitlCard: () => cards.push(1) }
+      { dbInstance: db, onHitlCard: () => cards.push(1), onWecomPush: async () => {} }
     );
-    assert.equal(row.skipped, true);
-    assert.equal(row.reason, 'NO_FILLED_PRINT');
-    assert.equal(cards.length, 0);
-    assert.equal(db.prepare('SELECT COUNT(*) AS c FROM trade_signals').get().c, 0);
+    assert.equal(row.skipped, false);
+    assert.equal(row.signal.ticker, 'GOOGL');
+    assert.equal(row.signal.action, 'BUY');
+    assert.equal(cards.length, 1);
   });
 
   it('deferred extract does not hold the caller for 50s', async () => {
