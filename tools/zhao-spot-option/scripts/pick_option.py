@@ -276,7 +276,7 @@ def render(ticker: str, zhao_px: float, spot: float, side: str, result: dict, to
     if support is None:
         lines.append("失效：多单失守当日低点。现货下方没有可用 King，不能把窗口 King 当进场止损。")
     else:
-        lines.append(f"失效：多单失守当日低点，或现货跌破下方墙 {support:g}。窗口 King 在现货上或上方时，进场不算已失效。")
+        lines.append(f"失效：多单失守当日低点，或现货跌破下方墙 {support:g}。窗口 King 不低于现货时，进场不算已失效。")
     fb = result.get("fallback")
     if fb:
         fl = limit_price(fb["bid"], fb["ask"])
