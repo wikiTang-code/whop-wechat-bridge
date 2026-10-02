@@ -1,0 +1,1 @@
+OpenD 只读字段：`get_market_snapshot` 的 `last_price`、`bid_price`、`ask_price`、`option_delta`、`option_open_interest`、`option_gamma`。代码 `US.{TICKER}{yymmdd}{C|P}{strike*1000}`。链配额 10 次/30 秒。King = 窗口内最负 NetGEX，Floor = 最正。公式 `sign × gamma × OI × spot × 100`，Call 为正、Put 为负。

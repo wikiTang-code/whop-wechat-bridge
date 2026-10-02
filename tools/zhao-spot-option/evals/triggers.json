@@ -1,0 +1,10 @@
+{
+  "skill": "zhao-spot-option",
+  "test_cases": [
+    {"input": "赵哥 GLD 379.25，帮我出一张期权", "should_trigger": true},
+    {"input": "GOOGL 跟现货做一点杠杆，给行权价和到期", "should_trigger": true},
+    {"input": "按今天这套规则挂 380 call 限价", "should_trigger": true},
+    {"input": "把 ingest 重启一下", "should_trigger": false},
+    {"input": "解释一下什么是 gamma flip", "should_trigger": false}
+  ]
+}
