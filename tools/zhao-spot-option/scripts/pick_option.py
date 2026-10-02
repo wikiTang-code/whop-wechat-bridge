@@ -104,14 +104,37 @@ def normalize(row: dict) -> dict:
     return out
 
 
-def window_king(row: dict, chain: list[dict]) -> float | None:
+def norm_cdf(x: float) -> float:
+    return 0.5 * (1 + math.erf(x / math.sqrt(2)))
+
+
+def window_king(row: dict, chain: list[dict]) -> tuple[float | None, bool]:
+    """Most negative king at or before this expiry. Missing king_gex is not zero."""
     kings = []
+    missing = False
     for other in chain:
-        if other.get("expiry") and other["expiry"] <= row["expiry"] and other.get("king_strike") is not None:
-            kings.append((num(other.get("king_gex"), 0.0), float(other["king_strike"])))
-    if not kings:
-        return row.get("king_strike")
-    return min(kings, key=lambda item: item[0])[1]
+        if not other.get("expiry") or other["expiry"] > row["expiry"] or other.get("king_strike") is None:
+            continue
+        if other.get("king_gex") is None:
+            missing = True
+            continue
+        kings.append((float(other["king_gex"]), float(other["king_strike"])))
+    if missing or not kings:
+        return None, missing
+    return min(kings, key=lambda item: item[0])[1], False
+
+
+def support_strike(chain: list[dict], spot: float) -> float | None:
+    below = []
+    for row in chain:
+        king = row.get("king_strike")
+        gex = row.get("king_gex")
+        if king is None or gex is None or float(king) >= spot:
+            continue
+        below.append((float(gex), float(king)))
+    if not below:
+        return None
+    return min(below, key=lambda item: item[0])[1]
 
 
 def hard_fail(row: dict, today: date) -> list[str]:
@@ -137,11 +160,13 @@ def score_contract(row: dict, today: date, magnet: float | None) -> tuple[float,
     score = 100.0
     days = dte(row["expiry"], today)
     score -= abs(days - 24) * 0.8
+    if days < 15 or days > 32:
+        notes.append(f"DTE {days} 在硬门槛内，但不在 15-32 目标带")
     score -= abs(abs(num(row.get("delta"), 0)) - 0.50) * 40
     oi = int(num(row.get("oi"), 0))
     if oi < 1000:
         score -= 12
-        notes.append("OI<1000")
+        notes.append("OI<1000 扣12，这是流动性门槛，不是墙")
     score -= min(spread_pct(row["bid"], row["ask"]), 12) * 1.5
     if magnet is not None and float(row["strike"]) == float(magnet):
         score -= 6
@@ -152,23 +177,28 @@ def score_contract(row: dict, today: date, magnet: float | None) -> tuple[float,
 
 
 def daily_theta(row: dict, spot: float, today: date) -> float | None:
-    """Rough BS theta in $/contract/day. Needs iv. r=0.043."""
+    """BS theta in $/contract/day. r=0.043. Includes the rate term."""
     iv = num(row.get("iv"))
     if not iv or iv <= 0 or spot <= 0:
         return None
     t = max(dte(row["expiry"], today), 1) / 365
     k = float(row["strike"])
+    r = 0.043
     vol = iv * math.sqrt(t)
-    d1 = (math.log(spot / k) + (0.043 + 0.5 * iv * iv) * t) / vol
+    d1 = (math.log(spot / k) + (r + 0.5 * iv * iv) * t) / vol
+    d2 = d1 - vol
     pdf = math.exp(-0.5 * d1 * d1) / math.sqrt(2 * math.pi)
-    theta = -spot * pdf * iv / (2 * math.sqrt(t)) / 365
-    return round(theta * 100, 1)
+    variance = -spot * pdf * iv / (2 * math.sqrt(t))
+    discount = r * k * math.exp(-r * t)
+    rate = -discount * norm_cdf(d2) if row.get("cp") == "CALL" else discount * norm_cdf(-d2)
+    return round((variance + rate) / 365 * 100, 1)
 
 
-def pick(chain: list[dict], side: str, today: date) -> dict:
+def pick(chain: list[dict], side: str, today: date, spot: float) -> dict:
     cp = "CALL" if side == "long" else "PUT"
     rows = [normalize(r) for r in chain if normalize(r).get("cp") == cp]
     missing_king = [r for r in rows if r.get("king_strike") is None]
+    missing_gex = any(r.get("king_strike") is not None and r.get("king_gex") is None for r in rows)
     eligible = []
     rejected = []
     for row in rows:
@@ -176,9 +206,10 @@ def pick(chain: list[dict], side: str, today: date) -> dict:
         if why:
             rejected.append({"row": row, "why": why})
             continue
-        magnet = window_king(row, rows)
-        score, notes = score_contract(row, today, magnet)
-        eligible.append((score, notes, row, magnet))
+        magnet, gex_gap = window_king(row, rows)
+        missing_gex = missing_gex or gex_gap
+        score, notes = score_contract(row, today, None if missing_gex else magnet)
+        eligible.append((score, notes, row, None if missing_gex else magnet))
     eligible.sort(key=lambda item: item[0], reverse=True)
     primary = eligible[0] if eligible else None
     fallback = None
@@ -204,6 +235,8 @@ def pick(chain: list[dict], side: str, today: date) -> dict:
         "fallback": None if fallback is None else fallback[2],
         "rejected": rejected,
         "missing_king": bool(missing_king),
+        "missing_gex": missing_gex,
+        "support": None if missing_gex else support_strike(rows, spot),
         "do_not_use_as_order": True,
     }
 
@@ -216,8 +249,10 @@ def render(ticker: str, zhao_px: float, spot: float, side: str, result: dict, to
     ]
     if abs(gap) > 0.5:
         lines.append(f"WARNING 现货偏离赵哥价 {gap:+.2f}%，超过 0.5%。px_zhao 不是我们的成交。")
+    if result.get("missing_gex"):
+        lines.append("WARNING 缺 king_gex。缺失不当成 0，窗口 King 这次不算。")
     if result["missing_king"]:
-        lines.append("WARNING 链上缺 king_strike，窗口墙维度无效。先跑 gex-sidecar 再选。")
+        lines.append("WARNING 链上缺 king_strike，窗口墙维度无效。")
     p = result["primary"]
     if p is None:
         lines.append("无合格合约。硬门槛：DTE 10-45、|delta| 0.40-0.60、OI≥100、价差≤4%、有效买卖价。")
@@ -232,8 +267,16 @@ def render(ticker: str, zhao_px: float, spot: float, side: str, result: dict, to
         if theta is not None:
             lines.append(f"约 theta {theta} 美元/张/天。抵掉时间价值，现货每天大约要走 {abs(theta) / max(abs(num(p.get('delta'), 0.5)) * 100, 1):.2f} 美元。")
         if p.get("quoted_at"):
-            lines.append(f"报价时间 {p['quoted_at']}。周末 mid 不是周一成交价。")
-    lines.append("失效：多单失守当日低点，或现货跌破窗口 King；空单相反。")
+            lines.append(f"报价时间 {p['quoted_at']}。")
+        else:
+            lines.append("WARNING 无 quoted_at，不能证明这不是周末 mid。")
+        if today.weekday() >= 5:
+            lines.append("WARNING 美东今天是周末，mid 不能当周一成交价。")
+    support = result.get("support")
+    if support is None:
+        lines.append("失效：多单失守当日低点。现货下方没有可用 King，不能把窗口 King 当进场止损。")
+    else:
+        lines.append(f"失效：多单失守当日低点，或现货跌破下方墙 {support:g}。窗口 King 在现货上或上方时，进场不算已失效。")
     fb = result.get("fallback")
     if fb:
         fl = limit_price(fb["bid"], fb["ask"])
@@ -274,7 +317,7 @@ def main() -> int:
     else:
         print("没有链。给 --chain 加 --spot，或 --demo。不下单。", file=sys.stderr)
         return 2
-    result = pick(chain, args.side, today)
+    result = pick(chain, args.side, today, spot)
     print(render(args.ticker, args.zhao_px, spot, args.side, result, today))
     print("do_not_use_as_order=true")
     return 0
