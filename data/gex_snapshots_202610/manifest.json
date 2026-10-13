@@ -92,7 +92,52 @@
         "CBRS"
       ],
       "zero_dte_count": 3
+    },
+    {
+      "filename": "snapshot_20261013_154016.json",
+      "date": "20261013",
+      "generated_at": "2026-10-13T15:35:42",
+      "session": "closed_or_pre",
+      "size_bytes": 153233,
+      "tickers_count": 10,
+      "tickers": [
+        "RIOT",
+        "AEHR",
+        "NOK",
+        "PL",
+        "INTC",
+        "ONDS",
+        "WDC",
+        "GLW",
+        "AKAM",
+        "OKLO"
+      ],
+      "zero_dte_count": 3
+    },
+    {
+      "filename": "snapshot_20261013_combined.json",
+      "date": "20261013",
+      "generated_at": "2026-10-13T15:35:42",
+      "session": "closed_or_pre",
+      "size_bytes": 187875,
+      "tickers_count": 13,
+      "tickers": [
+        "NBIS",
+        "CIFR",
+        "CBRS",
+        "RIOT",
+        "AEHR",
+        "NOK",
+        "PL",
+        "INTC",
+        "ONDS",
+        "WDC",
+        "GLW",
+        "AKAM",
+        "OKLO"
+      ],
+      "note": "Combined snapshot covering all 13 active portfolio tickers pulled on 2026-10-13."
     }
   ],
-  "updated_at": "2026-10-13T04:05:44.855Z"
+  "updated_at": "2026-10-13T07:40:33.377Z"
 }
