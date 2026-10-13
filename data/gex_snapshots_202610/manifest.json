@@ -137,7 +137,41 @@
         "OKLO"
       ],
       "note": "Combined snapshot covering all 13 active portfolio tickers pulled on 2026-10-13."
+    },
+    {
+      "filename": "snapshot_20261013_210852.json",
+      "date": "20261013",
+      "generated_at": "2026-10-13T21:00:03",
+      "session": "closed_or_pre",
+      "size_bytes": 339664,
+      "tickers_count": 22,
+      "tickers": [
+        "TSLA",
+        "NBIS",
+        "IREN",
+        "CRWV",
+        "CIFR",
+        "CBRS",
+        "RIOT",
+        "AEHR",
+        "PL",
+        "INTC",
+        "NOK",
+        "WDC",
+        "GLW",
+        "AKAM",
+        "OKLO",
+        "ONDS",
+        "MU",
+        "COHR",
+        "SOXL",
+        "COIN",
+        "NVDA",
+        "LITE"
+      ],
+      "zero_dte_count": 3,
+      "note": "Official 09:00 ET / 21:00 CST pre-open scheduled chain pull covering all 22 expanded matrix tickers with 0 errors."
     }
   ],
-  "updated_at": "2026-10-13T07:40:33.377Z"
+  "updated_at": "2026-10-13T13:23:53.240Z"
 }
