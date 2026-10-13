@@ -1,0 +1,83 @@
+{
+  "title": "GEX Daily Snapshots Archive (2026-10-05 to 2026-10-12)",
+  "description": "Temporary archive of daily GEX option chain snapshots for cross-agent quantitative analysis.",
+  "created_at": "2026-10-13T02:35:50.864Z",
+  "period": {
+    "start": "2026-10-05",
+    "end": "2026-10-12"
+  },
+  "coverage": {
+    "matrix_tickers": [
+      "TSLA",
+      "IREN",
+      "CRWV",
+      "MU",
+      "COHR",
+      "SOXL",
+      "COIN",
+      "NVDA",
+      "LITE"
+    ],
+    "zero_dte_indices": [
+      "SPY",
+      "QQQ",
+      "SPX"
+    ]
+  },
+  "snapshots": [
+    {
+      "filename": "snapshot_20261005_210421.json",
+      "date": "20261005",
+      "generated_at": "2026-10-05T21:00:05",
+      "session": "closed_or_pre",
+      "size_bytes": 160002,
+      "tickers_count": 9,
+      "zero_dte_count": 3
+    },
+    {
+      "filename": "snapshot_20261006_210422.json",
+      "date": "20261006",
+      "generated_at": "2026-10-06T21:00:05",
+      "session": "closed_or_pre",
+      "size_bytes": 162762,
+      "tickers_count": 9,
+      "zero_dte_count": 3
+    },
+    {
+      "filename": "snapshot_20261007_210422.json",
+      "date": "20261007",
+      "generated_at": "2026-10-07T21:00:07",
+      "session": "closed_or_pre",
+      "size_bytes": 158877,
+      "tickers_count": 9,
+      "zero_dte_count": 3
+    },
+    {
+      "filename": "snapshot_20261008_210421.json",
+      "date": "20261008",
+      "generated_at": "2026-10-08T21:00:05",
+      "session": "closed_or_pre",
+      "size_bytes": 162215,
+      "tickers_count": 9,
+      "zero_dte_count": 3
+    },
+    {
+      "filename": "snapshot_20261009_210421.json",
+      "date": "20261009",
+      "generated_at": "2026-10-09T21:00:05",
+      "session": "closed_or_pre",
+      "size_bytes": 157285,
+      "tickers_count": 9,
+      "zero_dte_count": 3
+    },
+    {
+      "filename": "snapshot_20261012_210423.json",
+      "date": "20261012",
+      "generated_at": "2026-10-12T21:00:06",
+      "session": "closed_or_pre",
+      "size_bytes": 159733,
+      "tickers_count": 9,
+      "zero_dte_count": 3
+    }
+  ]
+}
