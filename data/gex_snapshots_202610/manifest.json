@@ -78,6 +78,21 @@
       "size_bytes": 159733,
       "tickers_count": 9,
       "zero_dte_count": 3
+    },
+    {
+      "filename": "snapshot_20261013_120530.json",
+      "date": "20261013",
+      "generated_at": "2026-10-13T12:03:22",
+      "session": "closed_or_pre",
+      "size_bytes": 59481,
+      "tickers_count": 3,
+      "tickers": [
+        "NBIS",
+        "CIFR",
+        "CBRS"
+      ],
+      "zero_dte_count": 3
     }
-  ]
+  ],
+  "updated_at": "2026-10-13T04:05:44.855Z"
 }
