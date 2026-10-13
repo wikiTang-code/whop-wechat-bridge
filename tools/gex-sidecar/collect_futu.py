@@ -38,6 +38,9 @@ OWNER = {
     "SOXL": "US.SOXL",
     "COIN": "US.COIN",
     "LITE": "US.LITE",
+    "NBIS": "US.NBIS",
+    "CIFR": "US.CIFR",
+    "CBRS": "US.CBRS",
     "SPX": "US..SPX",
     "VIX": "US..VIX",
     "NDX": "US..NDX",
@@ -47,8 +50,21 @@ SNAP_BATCH = 80
 SNAP_GAP = 0.6
 CHAIN_GAP = 3.5
 DEFAULT_ZERO_DTE = ("SPY", "QQQ", "SPX")
-# CHG-057: Zhao-freq underlyings (TSLL→TSLA, CONL→COIN, NVDL→NVDA).
-DEFAULT_MATRIX = ("TSLA", "IREN", "CRWV", "MU", "COHR", "SOXL", "COIN", "NVDA", "LITE")
+# CHG-057: Zhao-freq underlyings (TSLL→TSLA, CONL→COIN, NVDL→NVDA); AI cloud expanded (NBIS, CIFR, CBRS).
+DEFAULT_MATRIX = (
+    "TSLA",
+    "NBIS",
+    "IREN",
+    "CRWV",
+    "CIFR",
+    "CBRS",
+    "MU",
+    "COHR",
+    "SOXL",
+    "COIN",
+    "NVDA",
+    "LITE",
+)
 _last_chain_mono = 0.0
 
 

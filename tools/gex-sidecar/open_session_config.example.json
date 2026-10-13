@@ -1,7 +1,7 @@
 {
   "mode": "notify_then_auto",
   "zero_dte": ["SPY", "QQQ", "SPX"],
-  "matrix": ["TSLA", "IREN", "CRWV", "MU", "COHR", "SOXL", "COIN", "NVDA", "LITE"],
+  "matrix": ["TSLA", "NBIS", "IREN", "CRWV", "CIFR", "CBRS", "MU", "COHR", "SOXL", "COIN", "NVDA", "LITE"],
   "skip_matrix": false,
   "expiries": 5,
   "wake_eastern_time": "08:45",
