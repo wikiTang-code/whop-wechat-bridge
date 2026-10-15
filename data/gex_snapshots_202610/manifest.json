@@ -171,7 +171,41 @@
       ],
       "zero_dte_count": 3,
       "note": "Official 09:00 ET / 21:00 CST pre-open scheduled chain pull covering all 22 expanded matrix tickers with 0 errors."
+    },
+    {
+      "filename": "snapshot_20261015_212716.json",
+      "date": "20261015",
+      "generated_at": "2026-10-15T21:16:06",
+      "session": "closed_or_pre",
+      "size_bytes": 352618,
+      "tickers_count": 22,
+      "tickers": [
+        "TSLA",
+        "NBIS",
+        "IREN",
+        "CRWV",
+        "CIFR",
+        "CBRS",
+        "RIOT",
+        "AEHR",
+        "PL",
+        "INTC",
+        "NOK",
+        "WDC",
+        "GLW",
+        "AKAM",
+        "OKLO",
+        "ONDS",
+        "MU",
+        "COHR",
+        "SOXL",
+        "COIN",
+        "NVDA",
+        "LITE"
+      ],
+      "zero_dte_count": 3,
+      "note": "Official 2026-10-15 pre-open full matrix pull after Futu OPRA quota renewal (22 tickers full coverage, 0 errors)."
     }
   ],
-  "updated_at": "2026-10-13T13:23:53.240Z"
+  "updated_at": "2026-10-15T13:27:31.042Z"
 }
