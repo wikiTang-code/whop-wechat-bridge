@@ -271,7 +271,41 @@
         "LITE"
       ],
       "zero_dte_count": 3
+    },
+    {
+      "filename": "snapshot_20261020_162337.json",
+      "date": "20261020",
+      "generated_at": "2026-10-20T16:14:46",
+      "session": "closed_or_pre",
+      "size_bytes": 364667,
+      "tickers_count": 22,
+      "tickers": [
+        "TSLA",
+        "NBIS",
+        "IREN",
+        "CRWV",
+        "CIFR",
+        "CBRS",
+        "RIOT",
+        "AEHR",
+        "PL",
+        "INTC",
+        "NOK",
+        "WDC",
+        "GLW",
+        "AKAM",
+        "OKLO",
+        "ONDS",
+        "MU",
+        "COHR",
+        "SOXL",
+        "COIN",
+        "NVDA",
+        "LITE"
+      ],
+      "zero_dte_count": 3,
+      "note": "Early pulled post-market snapshot for 2026-10-19 close / 10-20 pre-market alignment."
     }
   ],
-  "updated_at": "2026-10-20T07:09:48.191Z"
+  "updated_at": "2026-10-20T08:23:49.330Z"
 }
