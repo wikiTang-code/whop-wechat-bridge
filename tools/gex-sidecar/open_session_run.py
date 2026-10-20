@@ -132,6 +132,14 @@ def deadline_status(finished_et: datetime, deadline_et: str = DEFAULT_DEADLINE_E
     return "late" if finished_et > deadline else "on_time"
 
 
+def session_label_for_target(target_et: str) -> str:
+    try:
+        hour = int(target_et.strip().split(":")[0])
+        return "盘后结算(早场)" if hour >= 16 else "盘前开盘(晚场)"
+    except Exception:
+        return "盘前"
+
+
 def spot_session_at(now_et: datetime) -> str:
     now_et = as_et(now_et)
     minutes = now_et.hour * 60 + now_et.minute + now_et.second / 60.0
@@ -139,6 +147,8 @@ def spot_session_at(now_et: datetime) -> str:
         return "premarket"
     if 9 * 60 + 30 <= minutes < 16 * 60:
         return "rth"
+    if 16 * 60 <= minutes < 20 * 60:
+        return "postmarket"
     return "closed_or_extended"
 
 
@@ -474,8 +484,9 @@ def run_preopen(
     if mode == "notify_then_auto" and not force:
         zero = cfg.get("zero_dte") or []
         matrix = [] if cfg.get("skip_matrix") else (cfg.get("matrix") or [])
+        lbl = session_label_for_target(target_et)
         preview = (
-            f"### GEX 盘前拉链预告\n"
+            f"### GEX {lbl}拉链预告\n"
             f"> 链拉取目标 **{target_et} ET**（唤醒 {cfg.get('wake_eastern_time') or DEFAULT_WAKE_ET}）\n"
             f"> 截止 {cfg.get('deadline_eastern_time') or DEFAULT_DEADLINE_ET} ET · spot_session=premarket\n"
             f"> OI=prior-close T+1，对齐赵哥约 {DEFAULT_ZHAO_TIMELINESS_ET}，不是新 OI\n"
@@ -495,7 +506,7 @@ def run_preopen(
                 print(f"[open_session] notify window {notify_sleep:.0f}s (clamped to chain pull {target_et} ET)")
                 if not _sleep_with_skip(notify_sleep, skip, force, sleep_fn):
                     if notify_fn:
-                        notify_fn("### GEX 盘前拉链已跳过\n> 检测到 skip 文件，本次未拉链。")
+                        notify_fn(f"### GEX {lbl}拉链已跳过\n> 检测到 skip 文件，本次未拉链。")
                     _clear_skip(skip)
                     return {"rc": 0, "collected": False, "aborted": "skip", "meta": None, "collect_at": None}
 
@@ -598,9 +609,10 @@ def main() -> int:
     def notify(text: str) -> None:
         send_wecom(webhook, text)
 
+    lbl = session_label_for_target(target_et)
     if mode == "auto" and not args.dry_run and not args.spot_only_refresh:
         notify(
-            f"### GEX 盘前拉链开始\n> chain_pull `{target_et} ET` · deadline `{deadline_et} ET`\n"
+            f"### GEX {lbl}拉链开始\n> chain_pull `{target_et} ET` · deadline `{deadline_et} ET`\n"
             f"> zero_dte: `{','.join(zero)}` · matrix: `{','.join(matrix) if matrix else '(skip)'}`\n"
             f"> OI=prior-close T+1 · 非买卖指令"
         )
@@ -628,12 +640,12 @@ def main() -> int:
     if args.dry_run:
         safe_print(
             "[open_session] dry-run result (no wecom, no latest.json write):\n",
-            f"### GEX 盘前拉链预演\n> exit={rc}\n> if pulled at this clock: "
+            f"### GEX {lbl}拉链预演\n> exit={rc}\n> if pulled at this clock: "
             f"deadline={late or 'n/a'} finished_at_et={pre.get('finished_at_et') or '—'}\n> 不是买卖指令",
         )
     else:
         summary = summarize_latest()
-        result_msg = f"### GEX 盘前拉链结束 ({status})\n> exit={rc}\n> {summary}\n> 不是买卖指令"
+        result_msg = f"### GEX {lbl}拉链结束 ({status})\n> exit={rc}\n> {summary}\n> 不是买卖指令"
         notify(result_msg)
     return rc
 

@@ -13,7 +13,8 @@
 
 param(
   [switch]$Uninstall,
-  [string]$TaskName = "WhopGexOpenSession0940ET"
+  [string]$TaskName = "WhopGexOpenSession0940ET",
+  [string]$MorningTaskName = "WhopGexMorningSession2100ET"
 )
 
 $ErrorActionPreference = "Stop"
@@ -38,7 +39,8 @@ if (-not (Test-Path $Config)) {
 
 if ($Uninstall) {
   Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
-  Write-Host "Removed task $TaskName"
+  Unregister-ScheduledTask -TaskName $MorningTaskName -Confirm:$false -ErrorAction SilentlyContinue
+  Write-Host "Removed tasks $TaskName and $MorningTaskName"
   exit 0
 }
 
@@ -121,13 +123,92 @@ $xml = @"
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 Register-ScheduledTask -TaskName $TaskName -Xml $xml -Force | Out-Null
 
+# --- 早场任务: 美东 20:45 ET 唤醒，21:00 ET 拉链 (对应北京时间 08:45 CST 唤醒，09:00 CST 拉链) ---
+$MorningWrapper = Join-Path $RepoRoot "tools\gex-sidecar\_morning_session_task.cmd"
+$MorningWrapperBody = @"
+@echo off
+cd /d "$RepoRoot"
+set PYTHONIOENCODING=utf-8
+if not defined LONGBRIDGE_REGION set LONGBRIDGE_REGION=global
+"$Python" "$Runner" --target-et 21:00 --deadline-et 21:25
+"@
+Set-Content -Path $MorningWrapper -Value $MorningWrapperBody -Encoding ASCII
+
+# 00:45 UTC anchor for 20:45 EDT (summer UTC-4: 20:45 EDT = 00:45 UTC; 北京时间 08:45 CST)
+$morningRefUtc = [DateTime]::SpecifyKind([DateTime]"2026-07-02 00:45:00", [DateTimeKind]::Utc)
+$morningLocal = [System.TimeZoneInfo]::ConvertTimeFromUtc($morningRefUtc, $localTz)
+$morningHHmm = $morningLocal.ToString("HH:mm")
+
+$nextMorning = (Get-Date).Date.AddHours($morningLocal.Hour).AddMinutes($morningLocal.Minute)
+while ($nextMorning.DayOfWeek -eq [DayOfWeek]::Sunday -or $nextMorning.DayOfWeek -eq [DayOfWeek]::Monday -or $nextMorning -le (Get-Date)) {
+  $nextMorning = $nextMorning.AddDays(1)
+}
+$startMorningBoundary = $nextMorning.ToString("yyyy-MM-ddTHH:mm:00")
+
+$morningWrapperEsc = [System.Security.SecurityElement]::Escape($MorningWrapper)
+$morningXml = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Whop GEX morning post-market collect Tue-Sat wake 20:45 Eastern (local wall=$morningHHmm), chain pull 21:00 ET, deadline 21:25 ET. Python waits until 21:00 ET. win-host OpenD only.</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>$startMorningBoundary</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByWeek>
+        <DaysOfWeek>
+          <Tuesday />
+          <Wednesday />
+          <Thursday />
+          <Friday />
+          <Saturday />
+        </DaysOfWeek>
+        <WeeksInterval>1</WeeksInterval>
+      </ScheduleByWeek>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <WakeToRun>false</WakeToRun>
+    <ExecutionTimeLimit>PT2H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>$morningWrapperEsc</Command>
+    </Exec>
+  </Actions>
+</Task>
+"@
+
+Unregister-ScheduledTask -TaskName $MorningTaskName -Confirm:$false -ErrorAction SilentlyContinue
+Register-ScheduledTask -TaskName $MorningTaskName -Xml $morningXml -Force | Out-Null
+
 Write-Host ""
-Write-Host "Installed task: $TaskName"
-Write-Host "  Wake: Mon-Fri 08:45 ET (local wall=$localHHmm). Chain pull 09:00 ET. Deadline 09:25 ET."
-Write-Host "  StartBoundary: $startBoundary"
-Write-Host "  Wrapper: $Wrapper"
-Write-Host "  Config: $Config"
-Write-Host "  DST: summer UTC anchor 12:45; Python waits until 09:00 ET. Re-run this script once to apply; no seasonal reinstall."
-Write-Host "  OI: prior-close T+1. 09:31 spot-only refresh must not repull OI (python --spot-only-refresh is a stub)."
-Write-Host "Dry-run: python tools/gex-sidecar/open_session_run.py --dry-run"
+Write-Host "Installed Dual-Session Tasks (方案 A 早晚双轨):"
+Write-Host "1. 晚场开盘前任务: $TaskName"
+Write-Host "   Wake: Mon-Fri 08:45 ET (local wall=$localHHmm). Chain pull 09:00 ET. Deadline 09:25 ET."
+Write-Host "   StartBoundary: $startBoundary"
+Write-Host "   Wrapper: $Wrapper"
+Write-Host "2. 早场盘后结算任务: $MorningTaskName"
+Write-Host "   Wake: Tue-Sat 20:45 ET (local wall=$morningHHmm). Chain pull 21:00 ET. Deadline 21:25 ET."
+Write-Host "   StartBoundary: $startMorningBoundary"
+Write-Host "   Wrapper: $MorningWrapper"
+Write-Host "Config: $Config"
 Write-Host "Uninstall: powershell -File tools/gex-sidecar/install_open_session_task.ps1 -Uninstall"
