@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-10-20T08:55:59.119Z",
+  "stage": "phase_1_feedback",
+  "acceptance_rate": "18/20 (90.0%)",
+  "ticker_distribution": {
+    "AAPU": 1,
+    "CRWV": 2,
+    "CIFR": 3,
+    "SOXL": 2,
+    "SOXS": 2,
+    "TSLA": 2,
+    "NVDA": 5,
+    "V": 1,
+    "BMNR": 7,
+    "CONL": 2,
+    "HIMS": 2,
+    "RDDT": 1,
+    "META": 1,
+    "RKLB": 3,
+    "TSLL": 7,
+    "APLD": 1,
+    "QQQ": 1,
+    "SPX": 1,
+    "OKLO": 1,
+    "RXRX4.22": 1,
+    "75.3-75.5": 1,
+    "360-358": 1,
+    "AMD": 1,
+    "MSFL": 1,
+    "GOOG": 1,
+    "Hood": 1,
+    "RXRX": 1,
+    "CONL26": 1,
+    "NBIS": 1,
+    "HOOD": 1
+  },
+  "positive_action_patterns": [
+    "分批低吸",
+    "二次探底",
+    "开盘回踩",
+    "冲高做T",
+    "止盈减仓",
+    "回踩转弯",
+    "破支撑止损"
+  ],
+  "positive_env_patterns": [
+    "冬令时分时",
+    "开盘半小时",
+    "财报博弈",
+    "期权强平时间段",
+    "美债事件冲击"
+  ],
+  "negative_filter_rules": [
+    {
+      "type": "pure_math",
+      "pattern": "^[0-9+\\-=\\s\\.\\*\\/]+$",
+      "desc": "纯点位加减草稿"
+    },
+    {
+      "type": "geopolitical_news",
+      "pattern": "(伊朗海军|快速攻击艇|巴以冲突|哈马斯)",
+      "desc": "无交易动作的外部地缘新闻转载"
+    }
+  ],
+  "multimodal_alignment_rules": {
+    "require_price_in_range": true,
+    "max_relative_price_diff": 0.05,
+    "trusted_labels": [
+      "一致",
+      "部分一致"
+    ]
+  }
+}

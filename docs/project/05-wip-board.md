@@ -40,7 +40,8 @@
 
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
-| **1** | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（队头 #91 CONL；**Blocked→Human 企微点击**） | `follow-replay-engine.js` · `server.js` | **Blocked (Active)** |
+| **1** | **REQ-060** | L3 | 全量分步飞轮战法蒸馏与图文对齐工程（阶段 1 种子完成：20窗口提炼+18张有效卡片+12条Few-Shot固化+rules_v1落盘） | `flywheel_window_pipeline.js` · `flywheel_feedback.js` | **done-eng** |
+| 2 | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（队头 #91 CONL；**Blocked→Human 企微点击**） | `follow-replay-engine.js` · `server.js` | **Blocked (Active)** |
 | 2 | **REQ-038-T1** | L3 | 432张真图云端VL批跑全部收工；422条视觉元数据+124张纯赵哥图卡，non_zhao=0，promote dump已出 | `batch_vision*` · `data/runtime/knowledge-promote.sqlite` | **Done** |
 | 3 | **REQ-041** | L3 | 盘口四维共振（含 2x ETF 折算） | `tape_confluence_detector*` | **Done** |
 | 4 | **REQ-042** | L3/L5 | 富途 OpenD + 长桥 Paper 双通道实测；空间印证引擎 | `brokers/longbridge.js` · `real_market_confluence_verifier*` | **Done** |

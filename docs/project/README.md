@@ -94,7 +94,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 队列 | 顺位 1 | 状态 |
 |------|--------|:----:|
 | **§0.A `agent:cursor`** | **CHG-064** 别名/漏检补卡/刀2回执（branch-only，不合入）· 生产跟单仍 `77182d49` | branch-only |
-| **§0.B `agent:gemini`** | **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 accepted-with-gap：烟测 FILLED** + **REQ-057 done-eng**（P2=CHG-050，禁止称工业级 WF） | Active / done-eng (accepted-with-gap) |
+| **§0.B `agent:gemini`** | **REQ-060 In-Flight**（近月赵哥真图VL多模态批跑与战法增量消费）+ **REQ-033** Blocked(#91) + **045~053 Done/done-eng** + **REQ-056 accepted-with-gap** + **REQ-057 done-eng** | Active (In-Flight) |
 | **§0.C `agent:gemini2`** | **REQ-055 (SLM)** done-eng (审核进度每10%里程碑自迭代微调与实战对账单生成机制 · 见 055 报告) + **REQ-054** done-eng | done-eng (accepted-with-gap) |
 
 | **§0.H `human`** | 企微 **#91 CONL**；Q-001；**Paper 烟测 FILLED 过**（跟单本笔仍 C） | 等待 |
