@@ -373,7 +373,41 @@
       ],
       "zero_dte_count": 3,
       "note": "Official evening pre-open session pull (09:00 ET / 21:00 CST) capturing live pre-market price alignment and Gamma shifts across all 22 matrix tickers with 0 errors."
+    },
+    {
+      "filename": "snapshot_20261022_090858.json",
+      "date": "20261022",
+      "generated_at": "2026-10-22T09:00:07",
+      "session": "morning_post_market",
+      "size_bytes": 374724,
+      "tickers_count": 22,
+      "tickers": [
+        "TSLA",
+        "NBIS",
+        "IREN",
+        "CRWV",
+        "CIFR",
+        "CBRS",
+        "RIOT",
+        "AEHR",
+        "PL",
+        "INTC",
+        "NOK",
+        "WDC",
+        "GLW",
+        "AKAM",
+        "OKLO",
+        "ONDS",
+        "MU",
+        "COHR",
+        "SOXL",
+        "COIN",
+        "NVDA",
+        "LITE"
+      ],
+      "zero_dte_count": 3,
+      "note": "Automated sidecar sync: morning_post_market pull (22 tickers, 3 0DTE)"
     }
   ],
-  "updated_at": "2026-10-21T13:12:02.986Z"
+  "updated_at": "2026-10-22T20:13:32.344093"
 }
