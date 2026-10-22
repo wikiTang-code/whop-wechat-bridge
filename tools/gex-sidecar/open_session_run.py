@@ -29,6 +29,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 HERE = Path(__file__).resolve().parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
 ROOT = HERE.parent.parent
 DEFAULT_CONFIG = HERE / "open_session_config.json"
 EXAMPLE_CONFIG = HERE / "open_session_config.example.json"
@@ -644,9 +646,16 @@ def main() -> int:
             f"deadline={late or 'n/a'} finished_at_et={pre.get('finished_at_et') or '—'}\n> 不是买卖指令",
         )
     else:
-        summary = summarize_latest()
-        result_msg = f"### GEX {lbl}拉链结束 ({status})\n> exit={rc}\n> {summary}\n> 不是买卖指令"
-        notify(result_msg)
+        # Trigger automated post-collect pipeline (archive, git commit/push, AI analysis, WeCom push)
+        try:
+            from post_collect_pipeline import run_pipeline as run_post_pipeline
+            print("[open_session] invoking post_collect_pipeline...")
+            run_post_pipeline()
+        except Exception as exc:
+            print(f"[open_session] post_collect_pipeline failed: {exc}", file=sys.stderr)
+            summary = summarize_latest()
+            result_msg = f"### GEX {lbl}拉链结束 ({status})\n> exit={rc}\n> {summary}\n> 不是买卖指令"
+            notify(result_msg)
     return rc
 
 
