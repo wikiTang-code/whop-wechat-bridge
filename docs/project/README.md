@@ -29,6 +29,7 @@ docs/project/                          ← 你在这里（总索引）
 ├── chg057-gex-zhao-corroboration-20260921.md ← 2026-09-21 GEX×赵哥点位对照包（Grok）
 ├── chg057-zhao-rth-20260921.json      ← 同上点位去重 JSON
 ├── 09-development-plan-contract-20260921.md ← CHG-055 规划合同（轨0–5；下一刀=轨2）
+├── 10-roadmap-hitl-and-offline-rag.md    ← REQ-061 HITL 跟单主链活验收与离线认知层演进规划（2026-10）
 ├── dual-track-operating-contract.md   ← CHG-051 跟单 / 周哥QQQ模拟仓 / 自研参考轨（accepted）
 ├── follow-hitl-plan.md                ← L1 跟单三账本/确认/Paper 对齐方案（accepted）
 ├── environments.md                    ← CHG-026 运行环境合同（compute vs SoR）
@@ -72,6 +73,7 @@ docs/project-progress.md               ← 兼容跳转页（指向本树）
 | 按流程开发、维护文档 | [`06-process.md`](./06-process.md) |
 | 提交/消化审阅意见 | [`07-review-inbox.md`](./07-review-inbox.md) |
 | 看 2026-09-21 规划合同（轨 0–5，下一刀=轨 2） | [`09-development-plan-contract-20260921.md`](./09-development-plan-contract-20260921.md) |
+| 看 2026-10 规划（HITL 活验收 + 离线 RAG） | [`10-roadmap-hitl-and-offline-rag.md`](./10-roadmap-hitl-and-offline-rag.md) |
 
 ---
 

@@ -41,6 +41,7 @@
 | 顺位 | ID | 车道 | 任务简述 | 热点占用 | 状态 |
 |:---:|----|:---:|----------|----------|:----:|
 | **1** | **REQ-060** | L3 | 全量分步飞轮战法蒸馏与图文对齐工程（阶段 1 种子完成：20窗口提炼+18张有效卡片+12条Few-Shot固化+rules_v1落盘） | `flywheel_window_pipeline.js` · `flywheel_feedback.js` | **done-eng** |
+| · | **REQ-061** | L1/L3 | 演进路线 2026-10：Phase 1 跟单主链活验收 + 1s 守护；Phase 2 企微卡片 1/3·1/6 股数与 GEX 旁注；Phase 3 离线图谱（严格 HITL/禁拦单/禁发令枪） | `10-roadmap-hitl-and-offline-rag.md` | **accepted** |
 | 2 | **REQ-033** | L1/L4 | 历史大V交易单回放与企微纠错（队头 #91 CONL；**Blocked→Human 企微点击**） | `follow-replay-engine.js` · `server.js` | **Blocked (Active)** |
 | 2 | **REQ-038-T1** | L3 | 432张真图云端VL批跑全部收工；422条视觉元数据+124张纯赵哥图卡，non_zhao=0，promote dump已出 | `batch_vision*` · `data/runtime/knowledge-promote.sqlite` | **Done** |
 | 3 | **REQ-041** | L3 | 盘口四维共振（含 2x ETF 折算） | `tape_confluence_detector*` | **Done** |
