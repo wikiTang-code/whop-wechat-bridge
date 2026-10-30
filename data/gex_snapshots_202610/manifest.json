@@ -747,7 +747,41 @@
       ],
       "zero_dte_count": 3,
       "note": "Automated sidecar sync: evening_pre_open pull (22 tickers, 3 0DTE)"
+    },
+    {
+      "filename": "snapshot_20261030_090854.json",
+      "date": "20261030",
+      "generated_at": "2026-10-30T09:00:05",
+      "session": "morning_post_market",
+      "size_bytes": 392691,
+      "tickers_count": 22,
+      "tickers": [
+        "TSLA",
+        "NBIS",
+        "IREN",
+        "CRWV",
+        "CIFR",
+        "CBRS",
+        "RIOT",
+        "AEHR",
+        "PL",
+        "INTC",
+        "NOK",
+        "WDC",
+        "GLW",
+        "AKAM",
+        "OKLO",
+        "ONDS",
+        "MU",
+        "COHR",
+        "SOXL",
+        "COIN",
+        "NVDA",
+        "LITE"
+      ],
+      "zero_dte_count": 3,
+      "note": "Automated sidecar sync: morning_post_market pull (22 tickers, 3 0DTE)"
     }
   ],
-  "updated_at": "2026-10-29T21:08:55.315276"
+  "updated_at": "2026-10-30T09:08:54.580208"
 }
