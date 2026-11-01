@@ -228,27 +228,49 @@ function generateCandidateWindows() {
   return windows;
 }
 
+// 加载已沉淀的 Few-Shot 示例
+function loadSeedExamples() {
+  const seedFile = path.join(ROOT_DIR, 'data/knowledge/seed_examples.json');
+  if (fs.existsSync(seedFile)) {
+    try {
+      const arr = JSON.parse(fs.readFileSync(seedFile, 'utf8'));
+      if (Array.isArray(arr) && arr.length > 0) return arr.slice(0, 3);
+    } catch {}
+  }
+  return [
+    {
+      excerpt: "周五盘前低点价格可以分2次加的点 一次盘前低点附近 一次盘中结算put的时候 tsll 15.6 rklb 38",
+      tickers: ["TSLL", "RKLB"],
+      trigger_env: "周五盘前低点及盘中结算put时段",
+      action_rhythm: "分2次加仓：一次盘前低点附近，一次盘中结算时",
+      risk_invalid: "仓位不要超过3成"
+    }
+  ];
+}
+
 // 阶段 1: 本地 LLM 战法提取
 async function extractStrategyLocalLLM(window) {
+  const seeds = loadSeedExamples();
+  let fewShotText = '';
+  for (const s of seeds) {
+    fewShotText += `发言原文片段：\n${s.excerpt}\n输出：\n${JSON.stringify({
+      valid: true,
+      tickers: s.tickers,
+      trigger_env: s.trigger_env,
+      action_rhythm: s.action_rhythm,
+      risk_invalid: s.risk_invalid,
+      excerpt: s.excerpt
+    }, null, 2)}\n\n`;
+  }
+
   const prompt = `你是一个资深美股量化与交易策略分析师。请对以下交易员的一组发言切片进行战法结构化提取。
 【重要约束】
 1. excerpt 必须且只能是直接从【发言原文】中原样复制出来的一句连续原话（禁止任何改写、拼凑或概括总结！必须一字不差！）。
 2. tickers 必须提取原文中提及的所有美股/期权/指数代码（包括 SOXL, SOXS, TSLA, NVDA 等杠杆ETF和正股）。
 3. 如果这组发言主要是闲聊、无明确交易时机或没有战术指导意义，valid 输出 false。
 
-【Few-Shot 范例】
-发言原文：
-周五盘前低点价格可以分2次加的点 一次盘前低点附近 一次盘中结算put的时候 tsll 15.6 rklb 38 仓位不要超过3成
-输出：
-{
-  "valid": true,
-  "tickers": ["TSLL", "RKLB"],
-  "trigger_env": "周五盘前低点及盘中结算put时段",
-  "action_rhythm": "分2次加仓：一次盘前低点附近，一次盘中结算时",
-  "risk_invalid": "仓位不要超过3成",
-  "excerpt": "周五盘前低点价格可以分2次加的点 一次盘前低点附近 一次盘中结算put的时候 tsll 15.6 rklb 38"
-}
-
+【真实范例 (Few-Shot)】
+${fewShotText}
 请对以下发言切片进行提取：
 ${window.combined_text}
 `;
@@ -260,14 +282,17 @@ ${window.combined_text}
       body: JSON.stringify({
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.1,
-        response_format: { type: 'json_object' }
+        max_tokens: 1024,
+        stop: ['<|im_end|>', '<|endoftext|>']
       })
     });
     if (!res.ok) {
       return { valid: false, error: `Local LLM HTTP ${res.status}` };
     }
     const data = await res.json();
-    const rawContent = data.choices?.[0]?.message?.content || '{}';
+    let rawContent = data.choices?.[0]?.message?.content || '{}';
+    // 容错: 去除 markdown 标记
+    rawContent = rawContent.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
     const parsed = JSON.parse(rawContent);
     return parsed;
   } catch (err) {
@@ -349,7 +374,20 @@ async function run() {
 
   const allWindows = generateCandidateWindows();
   console.log(`[Phase 0] 候选种子窗口生成总数: ${allWindows.length}`);
-  const seedWindows = allWindows.slice(0, LIMIT);
+
+  // 增量过滤：跳过 window_status.json 中已记录的窗口
+  const statusFile = path.join(ROOT_DIR, 'data/runtime/window_status.json');
+  let processedWindowIds = new Set();
+  if (fs.existsSync(statusFile)) {
+    try {
+      const statusMap = JSON.parse(fs.readFileSync(statusFile, 'utf8'));
+      processedWindowIds = new Set(Object.keys(statusMap));
+    } catch {}
+  }
+  const pendingWindows = allWindows.filter(w => !processedWindowIds.has(w.window_id));
+  console.log(`[Phase 0] 剔除已处理后，剩余增量待处理窗口: ${pendingWindows.length}`);
+
+  const seedWindows = pendingWindows.slice(0, LIMIT);
 
   if (DRY_RUN) {
     console.log(`[Dry-Run] 预览前 3 个种子窗口:`);
@@ -444,17 +482,31 @@ async function run() {
     await new Promise(r => setTimeout(r, 1000));
   }
 
+  // 合并已有审阅数据
+  let finalResults = reviewResults;
+  if (fs.existsSync(OUTPUT_FILE)) {
+    try {
+      const existing = JSON.parse(fs.readFileSync(OUTPUT_FILE, 'utf8'));
+      if (Array.isArray(existing)) {
+        const idMap = new Map();
+        for (const item of existing) idMap.set(item.window_id, item);
+        for (const item of reviewResults) idMap.set(item.window_id, item);
+        finalResults = Array.from(idMap.values());
+      }
+    } catch {}
+  }
+
   // 写入 JSON 待审清单
   fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
-  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(reviewResults, null, 2), 'utf8');
+  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(finalResults, null, 2), 'utf8');
   console.log(`\n============================================================`);
   console.log(`[完成] 审阅数据已落盘: ${OUTPUT_FILE}`);
-  console.log(`- 候选窗口数: ${seedWindows.length}`);
+  console.log(`- 本批候选窗口数: ${seedWindows.length} (累计入库: ${finalResults.length})`);
   console.log(`- 文本提取通过数: ${textValidCount}`);
   console.log(`- 多模态图文一致数: ${multimodalPassCount}`);
 
   // 生成 Markdown 审阅报告
-  generateMarkdownReport(reviewResults, REPORT_FILE);
+  generateMarkdownReport(finalResults, REPORT_FILE);
   console.log(`[完成] 可视化审阅报告已生成: ${REPORT_FILE}`);
 }
 

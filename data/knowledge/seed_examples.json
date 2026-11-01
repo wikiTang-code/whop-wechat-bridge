@@ -7,10 +7,10 @@
       "CRWV",
       "CIFR"
     ],
-    "trigger_env": "上周五的非农和ppi cpi调控，高点出大非农之后不断出清，再次回到7633等于开始新的一轮循环，但是每一轮我们的本金比前面更加强大",
-    "action_rhythm": "分批分时间轴：在高点出大非农之后不断出清，再次回到7633等于开始新的一轮循环，但是每一轮我们的本金比前面更加强大",
+    "trigger_env": "数据为主",
+    "action_rhythm": "分批分时间轴",
     "risk_invalid": "无",
-    "excerpt": "上周五的非农 这周的ppi cpi都是特朗普政府调控 上周五的第一个调控已经把方向归为降低指数也就是中选之前的最后一次回调压迫 股票基本和上几轮没太大出入 btc 大盘股 云光存 只是等低的价格和分批批次再次执行起来",
+    "excerpt": "在散户止损被大单一笔吃掉的时候进行最低点附近买入  在高点就依次把批次高的脱手",
     "multimodal_verified": true,
     "key_prices": []
   },
@@ -50,20 +50,6 @@
     "key_prices": []
   },
   {
-    "window_id": "win_post_1CUovesrifPKEenKQhpYyA",
-    "anchor_date": "2025-11-05",
-    "tickers": [
-      "BMNR",
-      "CONL"
-    ],
-    "trigger_env": "夜盘V模式",
-    "action_rhythm": "分批减成本，对应价格出对应数量",
-    "risk_invalid": "分批减成本，对应价格出对应数量",
-    "excerpt": "夜盘的量化回吸他要慢速的震荡上去 速度是很慢的      那样抛压小点",
-    "multimodal_verified": false,
-    "key_prices": []
-  },
-  {
     "window_id": "win_post_1CUmfq1T3WFzbUs5ss2Q88",
     "anchor_date": "2025-11-03",
     "tickers": [
@@ -72,113 +58,71 @@
       "BMNR",
       "META"
     ],
-    "trigger_env": "盘中和rddt那天一样二次握手就博了下",
-    "action_rhythm": "盘中和rddt那天一样二次握手就博了下",
-    "risk_invalid": "无",
-    "excerpt": "hims 每涨1元就出点  46-50的区间 自己把握 然后一有转弯往下很大都出",
+    "trigger_env": "盘中二次握手波动",
+    "action_rhythm": "盘中和rddt那天一样二次握手就博了下，rddt那天收盘也最低价收盘，盘后还185杀设置止损的拉203",
+    "risk_invalid": "盘中涨了，先博弈冲高，兑现",
+    "excerpt": "今天抓了波44的二次握手的波动",
     "multimodal_verified": false,
     "key_prices": []
   },
   {
-    "window_id": "win_post_1CUBCYdKvG8yNYSGMb64CY",
-    "anchor_date": "2025-10-16",
+    "window_id": "win_post_1CZf3DbM8JHzvX2hCuhqqR",
+    "anchor_date": "2026-04-02",
     "tickers": [
-      "RKLB"
+      "QQQ"
     ],
-    "trigger_env": "今天",
-    "action_rhythm": "分批加仓：盘中跳到66附近配置，跳水再加",
+    "trigger_env": "收盘后",
+    "action_rhythm": "被动减开盘半小时和1小时冲下才能减，和周五最后天相当于平常周五了",
     "risk_invalid": "无",
-    "excerpt": "rklb属于 振幅比较宽这几天都在测试73阻力到阻力就往下测支撑 之前支撑64今天看收盘价会抬高下",
+    "excerpt": "今天基金被动减 说过了",
     "multimodal_verified": false,
     "key_prices": []
   },
   {
-    "window_id": "win_post_1CVkLuuSnmcZizRxfUxJ3n",
-    "anchor_date": "2025-12-03",
+    "window_id": "win_post_1CTvD6aBEYzdvkfVwy2jAA",
+    "anchor_date": "2025-10-08",
     "tickers": [
+      "QQQ",
+      "TESLA",
+      "BMNR",
+      "SOXL",
+      "SOXS",
+      "TSLA",
       "NVDA"
     ],
-    "trigger_env": "盘后",
-    "action_rhythm": "盘前和开盘回踩可以买",
-    "risk_invalid": "资金预留点",
-    "excerpt": "盘后  nvdl可以83附近 吸 昨天83.5吸过的就不加了  到盘前和开盘回踩也可以买",
+    "trigger_env": "盘前注意下，盘中他有些会平仓掉，对高度就是put的，增减情况，尾盘附近看看，兑现一部分，明天讲话中性的概率大，中性讲话开盘就小高开，mstr比较适合低吸模型，因为他是用股票去买btc的，突破时候他正好卖股票拿现金了，属于反人性的，mstr他公告里面有很多轮高点卖股票转btc，对每个股票监测和买卖方式要因股票而异，先对他历史规律摸一下，mstr是股票去买btc，bmnr是股票去买eth，两个类似性质，最高时候put和他买完btc了 call最好，上轮那个mstr293就是刚买完币，btc 11-12就涨了，350他出售股份去买币就回调了，他这种公告可以雪球之类网站看，有些日k低位的 rddt upst和过几天看看微牛，长拿的选超跌的，微牛现在做的美国市场开户做期权的多，和当时的hood差不多，属于刚起步，他现在没过审核期，要明年1月份，12月6号微牛还有次发行后的审核期复核，先做到12月5日前，最近逆回购撤离会反弹下，有些逆回购盘后撤离，这几天会压到一个低的价格，可能就是11.4 明天再看看机会，今天鲍威尔不讲话，QQQ应该尾盘附近是高点，可能最后5分钟会有小抛售跌幅不会很大，明天只要不讲估值也不会很大影响，因为现在政府停摆，停摆公务员资金入市7天了，跌了用利润发工资的计划就打破了，因为这轮涨主要是停摆后裁员，公务员资金缓发和补发，现存待发资金先入市，利润到了就发工资了，也就是政府的资金不能有损伤，打比方，比如有10万人要发10万工资，先裁员3-4万晚点补发，工作岗位上欢5发，10万先去投股市，说的少点赚个20%，2万先发裁员的，就是短put，因为一路往上，最后10分钟或者5分钟小回调下，可以富途看，应该是多腿，27.5附近可以最近学贷利好消化了，他要等房贷政策，这次政府资金入市，很多讲话都会管控变中性发言，都不得罪，可以这个支撑在128-130附近，可以回调接近在吸回，这些讲过就玩上市那波，后续等运行了差不多7个月在发行价附近再入，没有，那有些是机构对冲的速度很快，最好做就是那时候tsla X吵架了，利好兑现了开盘的put，这个后面等回调下70附近入，最近和sofi一样因为学费贷款和学费支付炒高了，微牛盘后拉升至我们的成本13.1，仓位重的可以减持到自己心里价位能承受的仓位范围，微牛盘后拉升至我们的成本13.1，仓位重的可以减持到自己心里价位能承受的仓位范围，微牛昨天的跌在讨论区，解释了下，因为它属于中概股，昨天有个小额解禁，但是小额解禁卖出是随个人意愿分批的不会上公告",
     "multimodal_verified": false,
     "key_prices": []
   },
   {
-    "window_id": "win_post_1CZq2m7hBSNMXWZk87yaS4",
-    "anchor_date": "2026-04-07",
+    "window_id": "win_post_1CeMrsh2ZdHTvAX1n4Zs9d",
+    "anchor_date": "2026-08-24",
     "tickers": [
-      "TSLL",
-      "NVDA"
+      "SPX",
+      "AAPL",
+      "GOOGL",
+      "MSFT"
     ],
-    "trigger_env": "尾盘强平时",
-    "action_rhythm": "分2次加仓：一次收盘结算时，一次盘后",
-    "risk_invalid": "仓位不要超过7成",
-    "excerpt": "尾盘强平时候V了下 把73.8 的nvdl剩下一半在75出",
+    "trigger_env": "开盘回踩，盘中异动",
+    "action_rhythm": "开盘回踩，盘中异动",
+    "risk_invalid": "无",
+    "excerpt": "A股港股跌了就看盘前1小时和开盘附近有没有回踩，有回踩在spx7640极限位置就低吸低吸低吸，然后就是轻松看有没有直线异动，直线异动出个一半，负循环，夜盘跌一点就一直吸，开盘回踩，问要不要止损啊，中选是不是不好了，是不是战争加剧了，没资金加了怎么办，反弹上去夜盘买的还没回本怎么办，等等之类的问题",
     "multimodal_verified": false,
     "key_prices": []
   },
   {
-    "window_id": "win_post_1CWoLfEvuv9t9bYWbBtN8o",
-    "anchor_date": "2026-01-05",
+    "window_id": "win_post_1Cb2p8jSjJ16KSGk4d1wxk",
+    "anchor_date": "2026-05-14",
     "tickers": [
       "SOXL",
       "SOXS",
       "TSLA",
       "NVDA"
     ],
-    "trigger_env": "收盘附近最低卡机制",
-    "action_rhythm": "普跌同沉不用慌，收盘寻底看稳当；普涨我跌要提防，减持利空细查详；事件来临莫急闯，尾二收盘低吸仓；靴子落地迎反弹，持股静待红盘扬；节日前夕别乱抢，节前两日布局忙；节后资金回流至，顺势吃肉把利装；币市波动要盯紧，首阴一跌需警醒，首阳一涨别贪猛，信号初现辨分明。",
-    "excerpt": "大家跌就不慌 收盘附近最低卡机制 反弹出 节日前夕别乱抢，节前两日布局忙 节后资金回流至，顺势吃肉把利装",
-    "multimodal_verified": false,
-    "key_prices": []
-  },
-  {
-    "window_id": "win_post_1CVwWAYD2U3YSjHdykBEZg",
-    "anchor_date": "2025-12-09",
-    "tickers": [
-      "APLD",
-      "BMNR",
-      "CONL",
-      "CRWV"
-    ],
-    "trigger_env": "日本央行加息后，币市场和部分股冲高，需等鲍威尔讲话看鲍威尔会不会鹰派下",
-    "action_rhythm": "一般盘前会压下，利率出来前2-3点会拉下，鲍威尔讲话鹰派的话会再跌，可以盘前低的时候低吸做小T，买回踩今天低点的2点左右拉升都日内出避开下讲话，讲话完等反应完再分批吸回到17号在总体降点规避日本加息",
+    "trigger_env": "周末特朗普回国说谈话的具体内容",
+    "action_rhythm": "周末特朗普回国说谈话的具体内容",
     "risk_invalid": "无",
-    "excerpt": "日本央行上一次加息是在2025年1月24日，当时将政策利率从0.25%上调至0.50%。上次加息时间：2025年1月24日。上次利率调整：从0.25%上调至0.50%。这次12月17号收盘前 18 19号日本加息，上次加息的时候 纳斯达克2天跌了4% 跌完又小碎步往上了。圣诞到元旦期间跌完就在慢慢回吸回来。美联储利率讲话 前一天 如果先涨的 会议讲话不超预期会回踩2天。美联储利率讲话 前一天 如果先跌的 会议讲话会靴子落地当天反弹下。今天币市场和部分股冲了下指数带高了 就要等明天3点讲话看鲍威尔会不会鹰派下。给回踩机会。明天三点有美联储利率决议。一般盘前会压下 利率出来前2-3点会拉下。鲍威尔讲话鹰派的话会再跌。可以盘前低的时候低吸做小T，买回踩今天低点的2点左右拉升都日内出避开下讲话，讲话完等反应完再分批吸回到17号在总体降点规避日本加息。",
-    "multimodal_verified": false,
-    "key_prices": []
-  },
-  {
-    "window_id": "win_post_1CTyivwDE5hcRQ5q4Ny1Rz",
-    "anchor_date": "2025-10-10",
-    "tickers": [
-      "QQQ",
-      "SPX"
-    ],
-    "trigger_env": "盘前17.01附近减仓一半",
-    "action_rhythm": "分两次减仓：一次盘前17.01附近，一次盘中",
-    "risk_invalid": "无",
-    "excerpt": "盘前17.01附近可以减仓一半sbet",
-    "multimodal_verified": false,
-    "key_prices": []
-  },
-  {
-    "window_id": "win_post_1CWiHteibFiRJNazVo1TL8",
-    "anchor_date": "2026-01-02",
-    "tickers": [
-      "TSLL",
-      "OKLO",
-      "CIFR",
-      "RXRX4.22",
-      "75.3-75.5",
-      "360-358"
-    ],
-    "trigger_env": "节前被动减仓，节后看反弹大点",
-    "action_rhythm": "节前被动减仓，节后看反弹大点",
-    "risk_invalid": "节前被动减仓，节后看反弹大点",
-    "excerpt": "和上次加息一样的  都是压了2周 开盘最高收盘最低 就是理由换了  加息是清理旧的利息杠杆  节前被动减仓  节后就是相当于加息的靴子落地没有被动减了",
+    "excerpt": "周末特朗普回国说谈话的具体内容",
     "multimodal_verified": false,
     "key_prices": []
   }
