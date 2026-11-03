@@ -16,7 +16,7 @@
 | **1** | **CHG-063** | L1 | 企微群机器人模拟盘待确认卡。`deferOffHot`。≤40bp 才提交 Paper，否则 C。未合入，确认链路未通 | `paper_wecom_card.js` · `zhao_print_persist.js` | **done-eng** |
 | · | **CHG-062** | L1 | HOT 释放后不 await 14B；点位指纹去重写 `PENDING_HITL` + 现有 HITL 卡。GCP `8919f32` ingest restarts 8 | `zhao_print_persist.js` · `hot_defer.js` · `monitor.js` | **done-eng** |
 | · | **CHG-061** | L1 | 分频道差速轮询接到 **ingest_runner**：HOT 2s（记录区+期权）；WARM 5s（美股发布+日内波段+股票分析）；COLD 30s。新闻只跟 COLD | `tier_poller.js` · `ingest_runner.js` | **done-eng**（待 GCP 重启） |
-| · | **CHG-060** | L1 | DEBT-026 赵哥点位落 `trade_signals`+Intent（`zhao_print`；不 submit）。#23 原误标 CHG-059 | `zhao_print_persist.js` · `monitor.js` | **done-eng**（GCP 未落表） |
+| · | **CHG-060** | L1 | DEBT-026 赵哥点位落 `trade_signals`+Intent（`zhao_print`；不 submit）。#23 原误标 CHG-059 | `zhao_print_persist.js` · `monitor.js` | **done-eng**（2026-09-24 回填 9/21 开盘 6 笔，12 行 `zhao_print`，`px_arrive` 空，买入 Intent=`PENDING_HITL`，未 submit） |
 | · | **CHG-059** | L2 | 盘前 GEX：唤醒 08:45 ET，09:00 拉链，09:25 截止标 late，`spot_session=premarket`。OI=前收 T+1。09:31 现货 stub 不重拉 OI。win-host/OpenD。**单测全绿（test_open_session_preopen + DST 各 pass）**；task=Ready，local wall=20:45 CST → 09:00 ET。下一交易日验 `latest.json.preopen.deadline_status` | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng (win-host-deployed)** |
 | · | **CHG-058** | L3 | 开盘 GEX 目标 09:35 ET（已被 CHG-059 盘前时刻取代；任务名仍 `WhopGexOpenSession0940ET`） | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng** |
 | 1a | **CHG-057** | L3 | GEX 矩阵扩赵哥高频正股（TSLA+IREN/CRWV/MU/COHR/SOXL/COIN/NVDA/LITE；2×映正股）。L2 映证，不拦截不下单 | `collect_futu.py` · `gex-readonly.js` · `adapters/gex.js` | **done-eng** |
@@ -89,7 +89,7 @@
 | **REQ-040 / T2 扩样** | `agent:cursor` | **`agent:gemini1`** | 赵哥 TSLA 图多为聊天截图无 SR | 关联 `source_text` 预富集修复，扩标池至 12 标的，全库评测 166 张（n_scored=147），提纯 108 张黄金战法 | **Cleared** |
 | **REQ-033 #91 CONL** | `agent:gemini` | **`human`** | 企微专属回放群等待卡片点击 | Human 在企微点 #91 CONL 确认/纠错 | **Open** |
 | **Paper FILLED（跟单）** | 跟单轨 | **下一笔 A\|B** | 本笔 IREN/CRWV/NBIS 均为 C；烟测 FILLED ≠ 追上赵哥 | 下一笔赵哥开口且 ask 相对口播 ≤40bp 才 `zhao_follow` 报送 | **Open** |
-| **DEBT-026 信号链断** | 跟单卡/企微 | **agent:cursor**（CHG-060 代码已交） | GCP `trade_signals` 仍 91 / 最新 9/18 | 合 PR + HITL restart ingest | **Open（待 GCP）** |
+| **DEBT-026 信号链断** | 跟单卡/企微 | **agent:cursor**（CHG-060 代码已交） | 2026-09-24 回填 9/21 开盘 6 笔，12 行 `zhao_print`，`px_arrive` 空，买入 Intent=`PENDING_HITL`，未 submit | 等下一笔 HOT 口播看是否自动落表 | **Open（9/21 已回填）** |
 | **DEBT-014 HIP** | `agent:cursor`（候选） | **环境/Human** | WSL HIP/ROCm 编译链未就绪；CPU llama 已满血 | 备齐 ROCm 后再编 `/root/llama.cpp/build-hip` | **Deferred** |
 
 ### 0.R
@@ -191,7 +191,7 @@
 | CHG-057 | L3 | GEX 矩阵扩赵哥高频正股（L2 映证） | `agent:cursor` | done-eng | `latest.json` 2026-09-21 里程碑；对照包 `chg057-*`；**done-strat 未过** |
 | CHG-058 | L3 | 开盘 GEX 目标 09:35 ET（唤醒 09:33；预告 60s） | `agent:cursor` | done-eng | OI=T+1；任务名仍 `WhopGexOpenSession0940ET` |
 | CHG-059 | L2 | 盘前 GEX 08:45/09:00/09:25 ET | `agent:cursor` | done-eng | win-host-deployed；非 done-strat |
-| CHG-060 | L1 | DEBT-026 赵哥点位 persist（`zhao_print`） | `agent:cursor` | done-eng | GCP ingest 待 HITL；#23 改挂本号 |
+| CHG-060 | L1 | DEBT-026 赵哥点位 persist（`zhao_print`） | `agent:cursor` | done-eng | 2026-09-24 回填 9/21 开盘 6 笔，12 行 `zhao_print`，`px_arrive` 空，买入 Intent=`PENDING_HITL`，未 submit；#23 改挂本号 |
 | CHG-061 | L1 | HOT/WARM/COLD 差速轮询（美股发布+日内波段=WARM 5s） | `agent:cursor` | done-eng | 不改 20/40；背压只打 COLD |
 | CHG-027 | L4/L0 | Local-Ops knowledge.promote HITL C2 | `agent:cursor` | Done | Gemini Accepted |
 | CHG-028 | L3 | T2 方向/点位消歧 | `agent:cursor` | Done | n_scored=5 |
@@ -293,6 +293,6 @@
 
 ## 6. 会话交接（自主跑队续）
 
-- cursor：**CHG-061** 差速轮询 `done-eng`（HOT 2s / WARM 5s 含美股发布+日内波段；GCP 未部署）。**CHG-060** persist 代码已交。跟单本笔仍 C。Paper IREN=1。
+- cursor：**CHG-061** 差速轮询 `done-eng`（差速轮询已在 GCP ingest 跑过：HOT 2s / WARM 5s / COLD 30s；WARM 含美股发布+日内波段）。**CHG-060** persist 代码已交。跟单本笔仍 C。Paper IREN=1。
 - gemini：033 仍等 Human #91。
 - Human：企微 #91；下一笔 ask∈40bp 才 `zhao_follow`。`AUTO_SUBMIT` false。刀 2 未做。#20 GCP G2 摘要 PR 仍开着。
