@@ -20,7 +20,10 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 from gex_paths import (  # noqa: E402
+    CST_ZONE,
+    ET_ZONE,
     day_dir_for_generated_at as shared_day_dir,
+    is_legacy_generated_at,
     et_hour,
     et_iso_now,
     parse_generated_at,
@@ -32,8 +35,13 @@ LEGACY_ARCHIVE_DIR = ROOT / "data" / "gex_snapshots_202610"
 GEX_DIR = ROOT / "data" / "gex"
 
 def day_dir_for_generated_at(gen_at: str, snapshot_name: str | None = None) -> Path:
-    """Resolve data/gex/YYYYMMDD via shared ET helper."""
-    return shared_day_dir(GEX_DIR, gen_at, snapshot_name)
+    """Resolve data/gex/YYYYMMDD via shared ET helper.
+
+    Filename-stamp fallback: legacy snapshots (no offset in generated_at) were
+    stamped on the Shanghai box; new ET-writer stamps are already ET.
+    """
+    stamp_tz = CST_ZONE if is_legacy_generated_at(gen_at) else ET_ZONE
+    return shared_day_dir(GEX_DIR, gen_at, snapshot_name, stamp_tz)
 
 FOCUS_TICKERS = [
     "NBIS", "CRWV", "IREN", "CIFR", "CBRS", "SOXL", "MU", "LITE", "NVDA", "TSLA", "COIN",
@@ -97,8 +105,9 @@ def archive_and_git_sync(snapshot_file: Path | None = None, do_git: bool = True)
     except Exception as exc:
         return {"ok": False, "error": f"Failed to parse snapshot: {exc}"}
 
-    gen_at = snap_data.get("generated_at") or et_iso_now()
-    day_dir = day_dir_for_generated_at(gen_at, snapshot_file.name)
+    raw_gen_at = snap_data.get("generated_at") or ""
+    day_dir = day_dir_for_generated_at(raw_gen_at, snapshot_file.name)
+    gen_at = raw_gen_at or et_iso_now()
     day_dir.mkdir(parents=True, exist_ok=True)
     dt_str = day_dir.name
 
@@ -294,7 +303,7 @@ def generate_gex_analysis_digest(latest_data: dict, prev_data: dict | None = Non
     """Generates rich quantitative & AI market maker博弈 analysis for WeChat Work."""
     gen_at = latest_data.get("generated_at") or et_iso_now()
     hour = et_hour(gen_at, default=21)
-    session_title = "🌅 盘后结算·早场全天基准 (09:00 CST / 21:00 ET)" if hour < 15 else "🌃 开盘前·晚场即时微调 (21:00 CST / 09:00 ET)"
+    session_title = "🌅 美东早场 09:00 ET" if hour < 15 else "🌃 美东盘前 21:00 ET"
 
     matrix = latest_data.get("matrix") or {}
     zero_dte = latest_data.get("zero_dte") or {}

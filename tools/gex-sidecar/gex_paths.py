@@ -51,23 +51,45 @@ def parse_generated_at(gen_at: str) -> datetime | None:
     return dt.astimezone(ET)
 
 
-def day_key_for_generated_at(gen_at: str, snapshot_name: str | None = None) -> str:
-    """Return YYYYMMDD (America/New_York) for a snapshot."""
+def day_key_for_generated_at(
+    gen_at: str, snapshot_name: str | None = None, stamp_tz: str = ET_ZONE
+) -> str:
+    """Return YYYYMMDD (America/New_York) for a snapshot.
+
+    Primary: generated_at. Fallback (missing/unparseable): filename stamp
+    snapshot_YYYYMMDD_HHMMSS interpreted in ``stamp_tz`` then converted to ET.
+    New writer stamps are ET (default); pass Asia/Shanghai for legacy files.
+    """
     dt = parse_generated_at(gen_at)
     if dt is not None:
         return dt.strftime("%Y%m%d")
     if snapshot_name:
-        m = re.search(r"snapshot_(\d{8})_", snapshot_name)
+        m = re.search(r"snapshot_(\d{8})_(\d{6})", snapshot_name)
+        if m:
+            local = datetime.strptime(m.group(1) + m.group(2), "%Y%m%d%H%M%S")
+            return local.replace(tzinfo=ZoneInfo(stamp_tz)).astimezone(ET).strftime("%Y%m%d")
+        m = re.search(r"snapshot_(\d{8})", snapshot_name)
         if m:
             return m.group(1)
     return now_et().strftime("%Y%m%d")
 
 
+def is_legacy_generated_at(gen_at: str | None) -> bool:
+    """True when generated_at is missing or has no UTC offset (pre-ET writer)."""
+    raw = (gen_at or "").strip()
+    if not raw:
+        return True
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00")).tzinfo is None
+    except Exception:
+        return True
+
+
 def day_dir_for_generated_at(
-    gex_dir: Path, gen_at: str, snapshot_name: str | None = None
+    gex_dir: Path, gen_at: str, snapshot_name: str | None = None, stamp_tz: str = ET_ZONE
 ) -> Path:
     """Resolve data/gex/YYYYMMDD from generated_at (ET calendar day)."""
-    return Path(gex_dir) / day_key_for_generated_at(gen_at, snapshot_name)
+    return Path(gex_dir) / day_key_for_generated_at(gen_at, snapshot_name, stamp_tz)
 
 
 def et_hour(gen_at: str, default: int = 21) -> int:
