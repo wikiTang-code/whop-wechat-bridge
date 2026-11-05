@@ -17,17 +17,23 @@ import shutil
 import subprocess
 import sys
 import urllib.request
-import zipfile
 from datetime import datetime
 from pathlib import Path
-from zoneinfo import ZoneInfo
+from gex_paths import (  # noqa: E402
+    day_dir_for_generated_at as shared_day_dir,
+    et_hour,
+    et_iso_now,
+    parse_generated_at,
+)
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 # Legacy monthly archive kept in-repo for history; NEW runs write under data/gex/YYYYMMDD/.
 LEGACY_ARCHIVE_DIR = ROOT / "data" / "gex_snapshots_202610"
 GEX_DIR = ROOT / "data" / "gex"
-ET_ZONE = "America/New_York"
-CST_ZONE = "Asia/Shanghai"
+
+def day_dir_for_generated_at(gen_at: str, snapshot_name: str | None = None) -> Path:
+    """Resolve data/gex/YYYYMMDD via shared ET helper."""
+    return shared_day_dir(GEX_DIR, gen_at, snapshot_name)
 
 FOCUS_TICKERS = [
     "NBIS", "CRWV", "IREN", "CIFR", "CBRS", "SOXL", "MU", "LITE", "NVDA", "TSLA", "COIN",
@@ -55,27 +61,6 @@ def fmt_money(val: float | int | None) -> str:
 def find_latest_snapshot_file() -> Path | None:
     snaps = sorted(GEX_DIR.glob("snapshot_*.json"))
     return snaps[-1] if snaps else None
-
-
-def day_dir_for_generated_at(gen_at: str, snapshot_name: str | None = None) -> Path:
-    """Resolve data/gex/YYYYMMDD from snapshot generated_at (prefer America/New_York when tz-aware)."""
-    raw = (gen_at or "").strip()
-    dt = None
-    try:
-        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
-    except Exception:
-        dt = None
-    if dt is not None:
-        if dt.tzinfo is not None:
-            dt_et = dt.astimezone(ZoneInfo(ET_ZONE))
-            return GEX_DIR / dt_et.strftime("%Y%m%d")
-        # Naive timestamps: use calendar date from the string (matches existing stamp filenames).
-        return GEX_DIR / dt.strftime("%Y%m%d")
-    if snapshot_name:
-        m = re.search(r"snapshot_(\d{8})_", snapshot_name)
-        if m:
-            return GEX_DIR / m.group(1)
-    return GEX_DIR / datetime.now(ZoneInfo(ET_ZONE)).strftime("%Y%m%d")
 
 
 def get_previous_snapshot_file(current_name: str) -> Path | None:
@@ -112,7 +97,7 @@ def archive_and_git_sync(snapshot_file: Path | None = None, do_git: bool = True)
     except Exception as exc:
         return {"ok": False, "error": f"Failed to parse snapshot: {exc}"}
 
-    gen_at = snap_data.get("generated_at") or datetime.now().isoformat()
+    gen_at = snap_data.get("generated_at") or et_iso_now()
     day_dir = day_dir_for_generated_at(gen_at, snapshot_file.name)
     day_dir.mkdir(parents=True, exist_ok=True)
     dt_str = day_dir.name
@@ -140,12 +125,10 @@ def archive_and_git_sync(snapshot_file: Path | None = None, do_git: bool = True)
 
     matrix_keys = list((snap_data.get("matrix") or {}).keys())
     zero_keys = list((snap_data.get("zero_dte") or {}).keys())
-    hour_token = gen_at[11:13] if len(gen_at) >= 13 else ""
-    session_type = (
-        "morning_post_market"
-        if "0909" in snapshot_file.name or hour_token in {"09", "08", "10"}
-        else "evening_pre_open"
-    )
+    # Session label from America/New_York hour (not Shanghai wall / raw string slice).
+    hour_et = et_hour(gen_at, default=21)
+    # Morning post-market pull ~09:00 ET; evening pre-open ~21:00 ET local / morning ET.
+    session_type = "morning_post_market" if 7 <= hour_et <= 12 else "evening_pre_open"
 
     entry = {
         "filename": snapshot_file.name,
@@ -215,10 +198,37 @@ def archive_and_git_sync(snapshot_file: Path | None = None, do_git: bool = True)
     }
 
 
+def _current_git_branch() -> str:
+    try:
+        return subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+    except Exception:
+        return ""
+
+
 def git_sync_day_dir(day_dir: Path, snapshot_name: str) -> dict:
-    """Isolated git add/commit/push for one data/gex/YYYYMMDD/ folder (JSON + analysis)."""
+    """Isolated git add/commit/push for one data/gex/YYYYMMDD/ folder (JSON + analysis).
+
+    Push only when the current branch equals GEX_GIT_PUSH_BRANCH (default feat/chg064-offline).
+    Otherwise commit locally and skip push with a logged reason.
+    """
     rel_day = f"data/gex/{day_dir.name}/"
-    git_res = {"committed": False, "pushed": False, "commit_hash": None, "error": None, "path": rel_day}
+    allowed = (os.environ.get("GEX_GIT_PUSH_BRANCH") or "feat/chg064-offline").strip()
+    branch = _current_git_branch()
+    git_res = {
+        "committed": False,
+        "pushed": False,
+        "commit_hash": None,
+        "error": None,
+        "path": rel_day,
+        "branch": branch,
+        "allowed_branch": allowed,
+    }
     try:
         subprocess.run(["git", "add", rel_day], cwd=str(ROOT), check=True)
         staged = subprocess.run(
@@ -228,13 +238,26 @@ def git_sync_day_dir(day_dir: Path, snapshot_name: str) -> dict:
             commit_msg = f"data(gex): archive and sync snapshot {snapshot_name}"
             subprocess.run(["git", "commit", "-m", commit_msg], cwd=str(ROOT), check=True)
             git_res["committed"] = True
-            push_proc = subprocess.run(
-                ["git", "push", "origin", "HEAD"], cwd=str(ROOT), capture_output=True, text=True
-            )
-            if push_proc.returncode == 0:
-                git_res["pushed"] = True
+
+            if branch == allowed:
+                push_proc = subprocess.run(
+                    ["git", "push", "origin", f"HEAD:refs/heads/{allowed}"],
+                    cwd=str(ROOT),
+                    capture_output=True,
+                    text=True,
+                )
+                if push_proc.returncode == 0:
+                    git_res["pushed"] = True
+                else:
+                    git_res["error"] = push_proc.stderr
             else:
-                git_res["error"] = push_proc.stderr
+                reason = (
+                    f"skip push: current branch {branch!r} != allowed {allowed!r} "
+                    f"(set GEX_GIT_PUSH_BRANCH to override)"
+                )
+                git_res["push_skipped"] = reason
+                print(f"[post_collect] {reason}", flush=True)
+
         rev_proc = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"], cwd=str(ROOT), capture_output=True, text=True, check=True
         )
@@ -269,8 +292,8 @@ def append_analysis_daily(day_dir: Path, digest: str, gen_at: str) -> Path:
 
 def generate_gex_analysis_digest(latest_data: dict, prev_data: dict | None = None) -> str:
     """Generates rich quantitative & AI market maker博弈 analysis for WeChat Work."""
-    gen_at = latest_data.get("generated_at") or datetime.now().isoformat()
-    hour = int(gen_at[11:13]) if len(gen_at) >= 13 and gen_at[11:13].isdigit() else 21
+    gen_at = latest_data.get("generated_at") or et_iso_now()
+    hour = et_hour(gen_at, default=21)
     session_title = "🌅 盘后结算·早场全天基准 (09:00 CST / 21:00 ET)" if hour < 15 else "🌃 开盘前·晚场即时微调 (21:00 CST / 09:00 ET)"
 
     matrix = latest_data.get("matrix") or {}
@@ -439,7 +462,7 @@ def run_pipeline() -> int:
         )
     analysis_path = None
     if day_dir is not None:
-        gen_at = latest_data.get("generated_at") or datetime.now().isoformat()
+        gen_at = latest_data.get("generated_at") or et_iso_now()
         analysis_path = append_analysis_daily(day_dir, digest, gen_at)
         print(f"[post_collect] Wrote analysis: {analysis_path}")
         # TODO(weekly): generate analysis_weekly.md rollup across the ISO week; reserved path only for now.

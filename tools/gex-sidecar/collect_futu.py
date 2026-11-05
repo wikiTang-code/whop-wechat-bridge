@@ -26,6 +26,8 @@ spec = importlib.util.spec_from_file_location("gex_collect", HERE / "collect.py"
 gex = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gex)
 
+from gex_paths import day_dir_for_generated_at, et_iso_now, et_stamp_now  # noqa: E402
+
 OWNER = {
     "SPY": "US.SPY",
     "QQQ": "US.QQQ",
@@ -403,7 +405,7 @@ def main() -> int:
         zero_tickers = [t.strip().upper() for t in args.zero_dte.split(",") if t.strip()]
         matrix_tickers = [] if args.skip_matrix else [t.strip().upper() for t in args.matrix.split(",") if t.strip()]
         snapshot = {
-            "generated_at": datetime.now().isoformat(timespec="seconds"),
+            "generated_at": et_iso_now(),
             "session": gex.session_label(),
             "source": "futu-opend",
             "disclaimer": "结构快照，不是预测，不构成投资建议。GEX 正负依赖做市商净卖期权的常见假设。",
@@ -451,12 +453,11 @@ def main() -> int:
         latest = gex.OUTPUT_DIR / "latest.json"
         payload = json.dumps(snapshot, ensure_ascii=False, indent=2)
         latest.write_text(payload, encoding="utf-8")
-        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        stamp = et_stamp_now()
         stamped = gex.OUTPUT_DIR / f"snapshot_{stamp}.json"
         stamped.write_text(payload, encoding="utf-8")
-        # Daily archive under data/gex/YYYYMMDD/ (raw JSON lands even if pipeline is skipped).
-        day = stamp[:8]
-        day_dir = gex.OUTPUT_DIR / day
+        # Daily archive under data/gex/YYYYMMDD/ via shared ET helper (even if pipeline skipped).
+        day_dir = day_dir_for_generated_at(gex.OUTPUT_DIR, snapshot["generated_at"], stamped.name)
         day_dir.mkdir(parents=True, exist_ok=True)
         day_stamped = day_dir / stamped.name
         if not day_stamped.exists():

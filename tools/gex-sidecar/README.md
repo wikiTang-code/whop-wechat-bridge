@@ -96,7 +96,7 @@ python test/test_open_session_dst.py
 
 ### 按日归档约定
 
-- 新采集写入 `data/gex/YYYYMMDD/`（日期优先取 `generated_at`；带时区则转 `America/New_York` 日历日）。
+- 新采集写入 `data/gex/YYYYMMDD/`：`generated_at` 与 `snapshot_*.json` 文件名均用 **America/New_York**（`collect_futu` 写带 ET offset 的 ISO；日目录由共享 `gex_paths.day_dir_for_generated_at` 计算）。遗留无时区时间戳按 Asia/Shanghai 墙钟再转 ET。
 - `post_collect_pipeline.py` 只对 **该日目录** 做隔离 `git add` / commit / push；旧的 `data/gex_snapshots_202610/` 历史保留、不再刷新。
 - 矩阵默认标的已扩：原有 Zhao/AI 名单 + `SOXX` + 七姐妹缺票（`AAPL,MSFT,GOOGL,AMZN,META`）+ `SPCX`（SpaceX 代理）；`NVDA`/`TSLA` 原本就有，不重复。
 - GCP sync（`sync_latest_to_gcp.js`）仍只传 `data/gex/latest.json`，不传日目录；默认保持可选/关闭。
