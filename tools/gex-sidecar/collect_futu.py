@@ -26,6 +26,8 @@ spec = importlib.util.spec_from_file_location("gex_collect", HERE / "collect.py"
 gex = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gex)
 
+from gex_paths import day_dir_for_generated_at, et_iso_now, et_stamp_now  # noqa: E402
+
 OWNER = {
     "SPY": "US.SPY",
     "QQQ": "US.QQQ",
@@ -59,6 +61,14 @@ OWNER = {
     "SPX": "US..SPX",
     "VIX": "US..VIX",
     "NDX": "US..NDX",
+    # Expanded matrix (七姐妹缺票 + SOXX + SPCX); NVDA/TSLA already above — do not duplicate.
+    "SOXX": "US.SOXX",
+    "AAPL": "US.AAPL",
+    "MSFT": "US.MSFT",
+    "GOOGL": "US.GOOGL",
+    "AMZN": "US.AMZN",
+    "META": "US.META",
+    "SPCX": "US.SPCX",
 }
 INDEX_TICKERS = {"SPX", "VIX", "NDX"}
 SNAP_BATCH = 80
@@ -89,6 +99,14 @@ DEFAULT_MATRIX = (
     "COIN",
     "NVDA",
     "LITE",
+    # Expanded: SOXX + 七姐妹缺票 + SPCX / SpaceX proxy
+    "SOXX",
+    "AAPL",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "SPCX",
 )
 _last_chain_mono = 0.0
 
@@ -387,7 +405,7 @@ def main() -> int:
         zero_tickers = [t.strip().upper() for t in args.zero_dte.split(",") if t.strip()]
         matrix_tickers = [] if args.skip_matrix else [t.strip().upper() for t in args.matrix.split(",") if t.strip()]
         snapshot = {
-            "generated_at": datetime.now().isoformat(timespec="seconds"),
+            "generated_at": et_iso_now(),
             "session": gex.session_label(),
             "source": "futu-opend",
             "disclaimer": "结构快照，不是预测，不构成投资建议。GEX 正负依赖做市商净卖期权的常见假设。",
@@ -433,9 +451,18 @@ def main() -> int:
 
         gex.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         latest = gex.OUTPUT_DIR / "latest.json"
-        latest.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2), encoding="utf-8")
-        stamped = gex.OUTPUT_DIR / f"snapshot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        stamped.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2), encoding="utf-8")
+        payload = json.dumps(snapshot, ensure_ascii=False, indent=2)
+        latest.write_text(payload, encoding="utf-8")
+        stamp = et_stamp_now()
+        stamped = gex.OUTPUT_DIR / f"snapshot_{stamp}.json"
+        stamped.write_text(payload, encoding="utf-8")
+        # Daily archive under data/gex/YYYYMMDD/ via shared ET helper (even if pipeline skipped).
+        day_dir = day_dir_for_generated_at(gex.OUTPUT_DIR, snapshot["generated_at"], stamped.name)
+        day_dir.mkdir(parents=True, exist_ok=True)
+        day_stamped = day_dir / stamped.name
+        if not day_stamped.exists():
+            day_stamped.write_text(payload, encoding="utf-8")
+        (day_dir / "latest.json").write_text(payload, encoding="utf-8")
         if zero_items:
             html = gex.render_zero_dte_html(zero_items)
             html = html.replace("Heatseeker — SPY/QQQ NetGEX", "Heatseeker — NetGEX (Futu OpenD)")

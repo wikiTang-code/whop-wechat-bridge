@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * REQ-004 — sync local data/gex/latest.json → gcp-vm (SCP), after REQ-022 validation.
- * Never syncs HTML / snapshots / .env. Does not run OpenD on GCP.
+ * Never syncs HTML / snapshots / day folders (data/gex/YYYYMMDD/) / .env. Does not run OpenD on GCP.
+ * Daily archives stay on the feature branch; this helper only copies the rolling latest.json pointer.
  *
  * Usage:
  *   node tools/gex-sidecar/sync_latest_to_gcp.js
