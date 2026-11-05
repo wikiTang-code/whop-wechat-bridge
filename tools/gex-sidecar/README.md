@@ -44,7 +44,8 @@ token 在 `~/.longbridge`，不要提交。长桥 OpenAPI 的 OPRA 是另一张�
 $env:PYTHONIOENCODING='utf-8'
 $env:LONGBRIDGE_REGION='global'
 python tools/gex-sidecar/collect_futu.py
-# 默认: --zero-dte SPY,QQQ,SPX --matrix TSLA,IREN,CRWV,MU,COHR,SOXL,COIN,NVDA,LITE --expiries 5
+# 默认: --zero-dte SPY,QQQ,SPX --matrix TSLA,...,NVDA,LITE,SOXX,AAPL,MSFT,GOOGL,AMZN,META,SPCX --expiries 5
+# 完整 DEFAULT_MATRIX 见 collect_futu.py（含七姐妹缺票 + SOXX + SPCX；NVDA/TSLA 不重复）
 
 python tools/gex-sidecar/summarize.py
 ```
@@ -83,10 +84,23 @@ python test/test_open_session_dst.py
 
 | 文件 | 用途 |
 |---|---|
-| `data/gex/latest.json` | 给后续嵌入用的结构快照 |
+| `data/gex/latest.json` | 滚动指针（可覆盖），给后续嵌入用的结构快照 |
 | `data/gex/heatseeker_gex.html` | SPY/QQQ/SPX 阶梯 |
 | `data/gex/gex_matrix_TSLA.html` | TSLA 到期日 × 行权价 |
-| `data/gex/snapshot_*.json` | 带时间戳备份（默认不入库） |
+| `data/gex/snapshot_*.json` | 本地带时间戳备份（短时；入库以日目录为准） |
+| `data/gex/YYYYMMDD/snapshot_*.json` | **按日归档**原始 JSON（不覆盖同名文件） |
+| `data/gex/YYYYMMDD/latest.json` | 当日指针（可覆盖） |
+| `data/gex/YYYYMMDD/analysis_daily.md` | 日分析报告（同日多次追加，`---` 分隔） |
+| `data/gex/YYYYMMDD/analysis_weekly.md` | 周报预留路径（暂不自动生成） |
+| `data/gex/YYYYMMDD/manifest.json` | 当日快照索引 |
+
+### 按日归档约定
+
+- 新采集写入 `data/gex/YYYYMMDD/`（日期优先取 `generated_at`；带时区则转 `America/New_York` 日历日）。
+- `post_collect_pipeline.py` 只对 **该日目录** 做隔离 `git add` / commit / push；旧的 `data/gex_snapshots_202610/` 历史保留、不再刷新。
+- 矩阵默认标的已扩：原有 Zhao/AI 名单 + `SOXX` + 七姐妹缺票（`AAPL,MSFT,GOOGL,AMZN,META`）+ `SPCX`（SpaceX 代理）；`NVDA`/`TSLA` 原本就有，不重复。
+- GCP sync（`sync_latest_to_gcp.js`）仍只传 `data/gex/latest.json`，不传日目录；默认保持可选/关闭。
+
 
 公式：`NetGEX = sign × gamma × OI × spot × 100`（Call+ / Put−）。OI 是 T+1。周末/闭市时 `kind=nearest`，不一定是 0DTE。
 

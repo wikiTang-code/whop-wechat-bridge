@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Post-collection pipeline for GEX sidecar:
-1. Archives new snapshots to data/gex_snapshots_YYYYMM/ (manifest, README, zip).
-2. Performs isolated Git commit and push for the archive directory only.
-3. Generates rich quantitative & AI market maker博弈 analysis digest.
+1. Archives new snapshots to data/gex/YYYYMMDD/ (day folder: stamped JSON, day latest, manifest, analysis).
+2. Performs isolated Git commit and push for that day directory only (leaves old data/gex_snapshots_* alone).
+3. Generates rich quantitative & AI market maker digest and lands analysis_daily.md in the day folder.
 4. Pushes the digest with Git commit hash to WeChat Work (WeCom) webhook.
 """
 
@@ -23,13 +23,16 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent.parent.parent
-ARCHIVE_DIR = ROOT / "data" / "gex_snapshots_202610"
+# Legacy monthly archive kept in-repo for history; NEW runs write under data/gex/YYYYMMDD/.
+LEGACY_ARCHIVE_DIR = ROOT / "data" / "gex_snapshots_202610"
 GEX_DIR = ROOT / "data" / "gex"
 ET_ZONE = "America/New_York"
 CST_ZONE = "Asia/Shanghai"
 
 FOCUS_TICKERS = [
-    "NBIS", "CRWV", "IREN", "CIFR", "CBRS", "SOXL", "MU", "LITE", "NVDA", "TSLA", "COIN"
+    "NBIS", "CRWV", "IREN", "CIFR", "CBRS", "SOXL", "MU", "LITE", "NVDA", "TSLA", "COIN",
+    # Expanded mega-cap / semi / SpaceX proxy for digest
+    "AAPL", "MSFT", "GOOGL", "AMZN", "META", "SOXX", "SPCX",
 ]
 ZERO_DTE_TICKERS = ["SPY", "QQQ", "SPX"]
 
@@ -54,14 +57,47 @@ def find_latest_snapshot_file() -> Path | None:
     return snaps[-1] if snaps else None
 
 
+def day_dir_for_generated_at(gen_at: str, snapshot_name: str | None = None) -> Path:
+    """Resolve data/gex/YYYYMMDD from snapshot generated_at (prefer America/New_York when tz-aware)."""
+    raw = (gen_at or "").strip()
+    dt = None
+    try:
+        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except Exception:
+        dt = None
+    if dt is not None:
+        if dt.tzinfo is not None:
+            dt_et = dt.astimezone(ZoneInfo(ET_ZONE))
+            return GEX_DIR / dt_et.strftime("%Y%m%d")
+        # Naive timestamps: use calendar date from the string (matches existing stamp filenames).
+        return GEX_DIR / dt.strftime("%Y%m%d")
+    if snapshot_name:
+        m = re.search(r"snapshot_(\d{8})_", snapshot_name)
+        if m:
+            return GEX_DIR / m.group(1)
+    return GEX_DIR / datetime.now(ZoneInfo(ET_ZONE)).strftime("%Y%m%d")
+
+
 def get_previous_snapshot_file(current_name: str) -> Path | None:
-    snaps = sorted(ARCHIVE_DIR.glob("snapshot_*.json"))
-    prev = [s for s in snaps if s.name != current_name]
+    """Find prior stamped snapshot across day folders, flat gex dir, then legacy monthly archive."""
+    snaps: list[Path] = []
+    for day_dir in sorted(GEX_DIR.glob("[0-9]" * 8)):
+        if day_dir.is_dir():
+            snaps.extend(day_dir.glob("snapshot_*.json"))
+    snaps.extend(GEX_DIR.glob("snapshot_*.json"))
+    if LEGACY_ARCHIVE_DIR.is_dir():
+        snaps.extend(LEGACY_ARCHIVE_DIR.glob("snapshot_*.json"))
+    # de-dupe by name, keep last path for each name then sort by name
+    by_name: dict[str, Path] = {}
+    for s in snaps:
+        by_name[s.name] = s
+    ordered = sorted(by_name.values(), key=lambda p: p.name)
+    prev = [s for s in ordered if s.name != current_name]
     return prev[-1] if prev else None
 
 
-def archive_and_git_sync(snapshot_file: Path | None = None) -> dict:
-    """Copies snapshot to archive, updates manifest, README, zip, and does isolated git push."""
+def archive_and_git_sync(snapshot_file: Path | None = None, do_git: bool = True) -> dict:
+    """Copy snapshot into data/gex/YYYYMMDD/, update day manifest, isolated git add of that day path."""
     if snapshot_file is None:
         snapshot_file = find_latest_snapshot_file()
     if snapshot_file is None or not snapshot_file.is_file():
@@ -71,26 +107,31 @@ def archive_and_git_sync(snapshot_file: Path | None = None) -> dict:
     if not latest_file.is_file():
         return {"ok": False, "error": "latest.json not found"}
 
-    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
-
-    # 1. Copy snapshot file
-    dest_snapshot = ARCHIVE_DIR / snapshot_file.name
-    shutil.copy2(snapshot_file, dest_snapshot)
-
-    # 2. Copy latest_snapshot_YYYYMMDD.json
     try:
         snap_data = json.loads(snapshot_file.read_text(encoding="utf-8"))
     except Exception as exc:
         return {"ok": False, "error": f"Failed to parse snapshot: {exc}"}
 
     gen_at = snap_data.get("generated_at") or datetime.now().isoformat()
-    dt_str = gen_at[:10].replace("-", "")
-    dest_latest = ARCHIVE_DIR / f"latest_snapshot_{dt_str}.json"
+    day_dir = day_dir_for_generated_at(gen_at, snapshot_file.name)
+    day_dir.mkdir(parents=True, exist_ok=True)
+    dt_str = day_dir.name
+
+    # 1. Non-overwriting stamped snapshot into day folder
+    dest_snapshot = day_dir / snapshot_file.name
+    if not dest_snapshot.exists():
+        shutil.copy2(snapshot_file, dest_snapshot)
+    else:
+        # Same filename already archived — keep original bytes, still refresh pointers below.
+        pass
+
+    # 2. Day-folder latest pointer (overwrite OK)
+    dest_latest = day_dir / "latest.json"
     shutil.copy2(latest_file, dest_latest)
 
-    # 3. Update manifest.json
-    manifest_path = ARCHIVE_DIR / "manifest.json"
-    manifest = {"snapshots": [], "updated_at": datetime.now().isoformat()}
+    # 3. Update day manifest.json
+    manifest_path = day_dir / "manifest.json"
+    manifest = {"date": dt_str, "snapshots": [], "updated_at": datetime.now().isoformat()}
     if manifest_path.is_file():
         try:
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -99,87 +140,131 @@ def archive_and_git_sync(snapshot_file: Path | None = None) -> dict:
 
     matrix_keys = list((snap_data.get("matrix") or {}).keys())
     zero_keys = list((snap_data.get("zero_dte") or {}).keys())
-    session_type = "morning_post_market" if "0909" in snapshot_file.name or "09" in gen_at[11:13] else "evening_pre_open"
+    hour_token = gen_at[11:13] if len(gen_at) >= 13 else ""
+    session_type = (
+        "morning_post_market"
+        if "0909" in snapshot_file.name or hour_token in {"09", "08", "10"}
+        else "evening_pre_open"
+    )
 
     entry = {
         "filename": snapshot_file.name,
         "date": dt_str,
         "generated_at": gen_at,
         "session": session_type,
-        "size_bytes": dest_snapshot.stat().st_size,
+        "size_bytes": dest_snapshot.stat().st_size if dest_snapshot.exists() else snapshot_file.stat().st_size,
         "tickers_count": len(matrix_keys),
         "tickers": matrix_keys,
         "zero_dte_count": len(zero_keys),
-        "note": f"Automated sidecar sync: {session_type} pull ({len(matrix_keys)} tickers, {len(zero_keys)} 0DTE)"
+        "note": f"Daily archive: {session_type} ({len(matrix_keys)} matrix, {len(zero_keys)} 0DTE)",
+        "files": [
+            snapshot_file.name,
+            "latest.json",
+            "analysis_daily.md",
+            "manifest.json",
+        ],
     }
 
+    manifest["date"] = dt_str
     manifest["snapshots"] = [s for s in manifest.get("snapshots", []) if s.get("filename") != snapshot_file.name]
     manifest["snapshots"].append(entry)
     manifest["snapshots"].sort(key=lambda x: x.get("generated_at", ""))
     manifest["updated_at"] = datetime.now().isoformat()
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # 4. Update README.md
-    readme_path = ARCHIVE_DIR / "README.md"
-    if readme_path.is_file():
-        readme_text = readme_path.read_text(encoding="utf-8")
-        row_str = f"| **{dt_str[:4]}-{dt_str[4:6]}-{dt_str[6:]}** ({session_type}) | `{snapshot_file.name}` | {gen_at} | **全量 {len(matrix_keys)} 矩阵标的 + {len(zero_keys)} 0DTE** | ~{dest_snapshot.stat().st_size // 1024} KB |"
-        if snapshot_file.name not in readme_text:
-            # Insert before the last list markers
-            if "| **" in readme_text:
-                lines = readme_text.splitlines()
-                table_end_idx = -1
-                for idx, line in enumerate(lines):
-                    if line.strip().startswith("| **"):
-                        table_end_idx = idx
-                if table_end_idx != -1:
-                    lines.insert(table_end_idx + 1, row_str)
-                    readme_text = "\n".join(lines)
-            readme_path.write_text(readme_text, encoding="utf-8")
+    # 4. Lightweight day README (no monthly zip for new runs)
+    readme_path = day_dir / "README.md"
+    readme_lines = [
+        f"# GEX daily archive `{dt_str}`",
+        "",
+        f"- Day folder: `data/gex/{dt_str}/`",
+        f"- Rolling pointer (repo root of gex): `data/gex/latest.json`",
+        f"- Analysis: `analysis_daily.md` (append per run); reserved `analysis_weekly.md`",
+        "",
+        "| Session | Snapshot | generated_at | Coverage |",
+        "| --- | --- | --- | --- |",
+    ]
+    for s in manifest["snapshots"]:
+        readme_lines.append(
+            f"| {s.get('session')} | `{s.get('filename')}` | {s.get('generated_at')} | "
+            f"{s.get('tickers_count')} matrix + {s.get('zero_dte_count')} 0DTE |"
+        )
+    readme_path.write_text("\n".join(readme_lines) + "\n", encoding="utf-8")
 
-    # 5. Refresh zip archive safely
-    zip_path = ARCHIVE_DIR / "gex_snapshots_20261005_20261012.zip"
-    try:
-        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-            for f in ARCHIVE_DIR.glob("*"):
-                if f.name != zip_path.name and f.is_file():
-                    zf.write(f, arcname=f.name)
-    except Exception as exc:
-        print(f"[post_collect] Warning: failed to rebuild zip: {exc}", file=sys.stderr)
+    # 5. Isolated Git Commit & Push — only this day path under data/gex/YYYYMMDD/
+    #    (skipped when do_git=False so caller can land analysis_daily.md first)
+    rel_day = f"data/gex/{dt_str}/"
+    git_res = {
+        "committed": False,
+        "pushed": False,
+        "commit_hash": None,
+        "error": None,
+        "path": rel_day,
+        "skipped": not do_git,
+    }
+    if do_git:
+        git_res = git_sync_day_dir(day_dir, snapshot_file.name)
 
-    # 6. Isolated Git Commit & Push (STRICT REDLINE: only data/gex_snapshots_202610/)
-    git_res = {"committed": False, "pushed": False, "commit_hash": None, "error": None}
+    return {
+        "ok": True,
+        "snapshot": snapshot_file.name,
+        "day_dir": str(day_dir),
+        "date": dt_str,
+        "size": dest_snapshot.stat().st_size if dest_snapshot.exists() else snapshot_file.stat().st_size,
+        "git": git_res,
+    }
+
+
+def git_sync_day_dir(day_dir: Path, snapshot_name: str) -> dict:
+    """Isolated git add/commit/push for one data/gex/YYYYMMDD/ folder (JSON + analysis)."""
+    rel_day = f"data/gex/{day_dir.name}/"
+    git_res = {"committed": False, "pushed": False, "commit_hash": None, "error": None, "path": rel_day}
     try:
-        subprocess.run(["git", "add", "data/gex_snapshots_202610/"], cwd=str(ROOT), check=True)
-        # Check if there are staged changes
+        subprocess.run(["git", "add", rel_day], cwd=str(ROOT), check=True)
         staged = subprocess.run(
             ["git", "diff", "--cached", "--name-only"], cwd=str(ROOT), capture_output=True, text=True, check=True
         ).stdout.strip()
-
         if staged:
-            commit_msg = f"data(gex): archive and sync snapshot {snapshot_file.name}"
+            commit_msg = f"data(gex): archive and sync snapshot {snapshot_name}"
             subprocess.run(["git", "commit", "-m", commit_msg], cwd=str(ROOT), check=True)
             git_res["committed"] = True
-
-            push_proc = subprocess.run(["git", "push", "origin", "HEAD"], cwd=str(ROOT), capture_output=True, text=True)
+            push_proc = subprocess.run(
+                ["git", "push", "origin", "HEAD"], cwd=str(ROOT), capture_output=True, text=True
+            )
             if push_proc.returncode == 0:
                 git_res["pushed"] = True
             else:
                 git_res["error"] = push_proc.stderr
-
         rev_proc = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"], cwd=str(ROOT), capture_output=True, text=True, check=True
         )
         git_res["commit_hash"] = rev_proc.stdout.strip()
     except Exception as exc:
         git_res["error"] = str(exc)
+    return git_res
 
-    return {
-        "ok": True,
-        "snapshot": snapshot_file.name,
-        "size": dest_snapshot.stat().st_size,
-        "git": git_res,
-    }
+
+
+def append_analysis_daily(day_dir: Path, digest: str, gen_at: str) -> Path:
+    """Append WeCom markdown digest into data/gex/YYYYMMDD/analysis_daily.md (multi-session safe)."""
+    day_dir.mkdir(parents=True, exist_ok=True)
+    path = day_dir / "analysis_daily.md"
+    header = f"## Session digest @ {gen_at}\n\n"
+    block = header + digest.rstrip() + "\n"
+    if path.is_file() and path.stat().st_size > 0:
+        existing = path.read_text(encoding="utf-8")
+        path.write_text(existing.rstrip() + "\n\n---\n\n" + block, encoding="utf-8")
+    else:
+        path.write_text(block, encoding="utf-8")
+    # Reserved weekly path documented; create empty stub once so layout is discoverable.
+    weekly = day_dir / "analysis_weekly.md"
+    if not weekly.exists():
+        weekly.write_text(
+            "# analysis_weekly.md (reserved)\n\n"
+            "Weekly rollup hook — not generated yet. Downstream may read this path later.\n",
+            encoding="utf-8",
+        )
+    return path
 
 
 def generate_gex_analysis_digest(latest_data: dict, prev_data: dict | None = None) -> str:
@@ -242,7 +327,7 @@ def generate_gex_analysis_digest(latest_data: dict, prev_data: dict | None = Non
     # Section 1: Raw Data Board
     header = [
         f"### {session_title}",
-        f"> **生成时刻**: `{gen_at}` · **标的覆盖**: 22 正股 + 3 指数 0DTE",
+        f"> **生成时刻**: `{gen_at}` · **标的覆盖**: {len(matrix)} 矩阵标的 + {len(zero_dte)} 0DTE / FOCUS {len(FOCUS_TICKERS)}",
         f"> **OI 性质**: T+1 收盘清算锁死 · 盘前交易不改 OI 墙",
         "",
         "#### 📊 核心持仓与大盘做市商墙位看板",
@@ -321,10 +406,10 @@ def push_to_wecom(webhook: str, content: str) -> bool:
 
 
 def run_pipeline() -> int:
-    """Executes the full post-collection pipeline: archive, git sync, digest, and wecom push."""
+    """Executes the full post-collection pipeline: archive, digest land, git sync, wecom push."""
     print("[post_collect] Starting post-collection pipeline...")
-    # 1. Archive & Git
-    archive_res = archive_and_git_sync()
+    # 1. Archive files into data/gex/YYYYMMDD/ (defer git so analysis lands in same commit)
+    archive_res = archive_and_git_sync(do_git=False)
     print(f"[post_collect] Archive result: {archive_res}")
 
     # 2. Load latest and previous snapshot
@@ -346,13 +431,35 @@ def run_pipeline() -> int:
     # 3. Generate Digest
     digest = generate_gex_analysis_digest(latest_data, prev_data)
 
-    # 4. Append Git Commit Info
-    commit_hash = (archive_res.get("git") or {}).get("commit_hash")
+    # 3b. Land analysis_daily.md (+ reserved analysis_weekly.md stub) into the day folder
+    day_dir = Path(archive_res["day_dir"]) if archive_res.get("day_dir") else None
+    if day_dir is None and archive_res.get("ok"):
+        day_dir = day_dir_for_generated_at(
+            latest_data.get("generated_at") or "", archive_res.get("snapshot")
+        )
+    analysis_path = None
+    if day_dir is not None:
+        gen_at = latest_data.get("generated_at") or datetime.now().isoformat()
+        analysis_path = append_analysis_daily(day_dir, digest, gen_at)
+        print(f"[post_collect] Wrote analysis: {analysis_path}")
+        # TODO(weekly): generate analysis_weekly.md rollup across the ISO week; reserved path only for now.
+
+    # 4. Git sync day folder (JSON + analysis together)
+    git_res = {"committed": False, "pushed": False, "commit_hash": None, "error": None}
+    if day_dir is not None and archive_res.get("ok"):
+        git_res = git_sync_day_dir(day_dir, archive_res.get("snapshot") or day_dir.name)
+        archive_res["git"] = git_res
+        print(f"[post_collect] Git result: {git_res}")
+
+    commit_hash = git_res.get("commit_hash")
     if commit_hash:
-        digest += f"\n\n---\n> 📦 **Git 同步就绪**: Commit `{commit_hash}` (`feat/chg064-offline`)\n> 💻 可直接在本地终端执行 `git pull` 拉取最新全量原始 JSON 数据。"
+        digest += (
+            f"\n\n---\n> 📦 **Git 同步就绪**: Commit `{commit_hash}` (`feat/chg064-offline`)\n"
+            f"> 💻 可直接在本地终端执行 `git pull` 拉取最新全量原始 JSON 数据。"
+            f"\n> 📁 日归档: `data/gex/{day_dir.name}/` · `analysis_daily.md`"
+        )
 
     # 5. Push to WeCom
-    # Try reading from config or .env
     webhook = os.environ.get("WECHAT_WORK_WEBHOOK_URL") or os.environ.get("WECHAT_ALERT_WEBHOOK_URL") or ""
     if not webhook:
         env_path = ROOT / ".env"
@@ -368,6 +475,7 @@ def run_pipeline() -> int:
     push_to_wecom(webhook, digest)
     print("[post_collect] Post-collection pipeline finished successfully.")
     return 0
+
 
 
 if __name__ == "__main__":

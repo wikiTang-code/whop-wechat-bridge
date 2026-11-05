@@ -59,6 +59,14 @@ OWNER = {
     "SPX": "US..SPX",
     "VIX": "US..VIX",
     "NDX": "US..NDX",
+    # Expanded matrix (七姐妹缺票 + SOXX + SPCX); NVDA/TSLA already above — do not duplicate.
+    "SOXX": "US.SOXX",
+    "AAPL": "US.AAPL",
+    "MSFT": "US.MSFT",
+    "GOOGL": "US.GOOGL",
+    "AMZN": "US.AMZN",
+    "META": "US.META",
+    "SPCX": "US.SPCX",
 }
 INDEX_TICKERS = {"SPX", "VIX", "NDX"}
 SNAP_BATCH = 80
@@ -89,6 +97,14 @@ DEFAULT_MATRIX = (
     "COIN",
     "NVDA",
     "LITE",
+    # Expanded: SOXX + 七姐妹缺票 + SPCX / SpaceX proxy
+    "SOXX",
+    "AAPL",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "SPCX",
 )
 _last_chain_mono = 0.0
 
@@ -433,9 +449,19 @@ def main() -> int:
 
         gex.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         latest = gex.OUTPUT_DIR / "latest.json"
-        latest.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2), encoding="utf-8")
-        stamped = gex.OUTPUT_DIR / f"snapshot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        stamped.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2), encoding="utf-8")
+        payload = json.dumps(snapshot, ensure_ascii=False, indent=2)
+        latest.write_text(payload, encoding="utf-8")
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        stamped = gex.OUTPUT_DIR / f"snapshot_{stamp}.json"
+        stamped.write_text(payload, encoding="utf-8")
+        # Daily archive under data/gex/YYYYMMDD/ (raw JSON lands even if pipeline is skipped).
+        day = stamp[:8]
+        day_dir = gex.OUTPUT_DIR / day
+        day_dir.mkdir(parents=True, exist_ok=True)
+        day_stamped = day_dir / stamped.name
+        if not day_stamped.exists():
+            day_stamped.write_text(payload, encoding="utf-8")
+        (day_dir / "latest.json").write_text(payload, encoding="utf-8")
         if zero_items:
             html = gex.render_zero_dte_html(zero_items)
             html = html.replace("Heatseeker — SPY/QQQ NetGEX", "Heatseeker — NetGEX (Futu OpenD)")
