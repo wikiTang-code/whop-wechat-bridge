@@ -1121,7 +1121,41 @@
       ],
       "zero_dte_count": 3,
       "note": "Automated sidecar sync: evening_pre_open pull (22 tickers, 3 0DTE)"
+    },
+    {
+      "filename": "snapshot_20261106_220854.json",
+      "date": "20261106",
+      "generated_at": "2026-11-06T22:00:05",
+      "session": "evening_pre_open",
+      "size_bytes": 385856,
+      "tickers_count": 22,
+      "tickers": [
+        "TSLA",
+        "NBIS",
+        "IREN",
+        "CRWV",
+        "CIFR",
+        "CBRS",
+        "RIOT",
+        "AEHR",
+        "PL",
+        "INTC",
+        "NOK",
+        "WDC",
+        "GLW",
+        "AKAM",
+        "OKLO",
+        "ONDS",
+        "MU",
+        "COHR",
+        "SOXL",
+        "COIN",
+        "NVDA",
+        "LITE"
+      ],
+      "zero_dte_count": 3,
+      "note": "Automated sidecar sync: evening_pre_open pull (22 tickers, 3 0DTE)"
     }
   ],
-  "updated_at": "2026-11-06T10:08:53.509620"
+  "updated_at": "2026-11-06T22:08:54.586721"
 }
