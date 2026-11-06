@@ -10,16 +10,16 @@
       "role": "morning_baseline",
       "generated_at": "2026-11-06T10:00:05",
       "session": "closed_or_pre",
-      "size_bytes": 372085,
-      "sha256": "02695d6f6c660de228e039ac2dec1f7489fe1af74bf7e90cc78061d5d86001b6"
+      "size_bytes": 358077,
+      "sha256": "b3c119b1aa9c8a5187be2bee5e4d07b4cfaff9582bcaa1d4b50f5d242c4a0255"
     },
     {
       "filename": "snapshot_20261106_220854.json",
       "role": "evening_preopen",
       "generated_at": "2026-11-06T22:00:05",
       "session": "rth_or_weekend_proxy",
-      "size_bytes": 385856,
-      "sha256": "9d1475f358f792bc5c39d3568e8c5447e7be90fc497ef4b14a502c30778b5dcc"
+      "size_bytes": 371342,
+      "sha256": "7983be202ad2e24f5d5410c887e1144f2fb6e40ea558957bde602a46da60da92"
     },
     {
       "filename": "latest.json",
@@ -27,8 +27,8 @@
       "copy_of": "snapshot_20261106_220854.json",
       "generated_at": "2026-11-06T22:00:05",
       "session": "rth_or_weekend_proxy",
-      "size_bytes": 385856,
-      "sha256": "9d1475f358f792bc5c39d3568e8c5447e7be90fc497ef4b14a502c30778b5dcc"
+      "size_bytes": 371342,
+      "sha256": "7983be202ad2e24f5d5410c887e1144f2fb6e40ea558957bde602a46da60da92"
     }
   ],
   "coverage": {
