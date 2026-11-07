@@ -38,10 +38,10 @@
   ],
   "skip_matrix": false,
   "expiries": 5,
-  "wake_eastern_time": "08:45",
-  "target_eastern_time": "09:00",
-  "deadline_eastern_time": "09:25",
-  "finish_window_et": "09:20-09:25",
+  "wake_eastern_time": "07:45",
+  "target_eastern_time": "08:00",
+  "deadline_eastern_time": "08:25",
+  "finish_window_et": "08:20-08:25",
   "spot_session": "premarket",
   "oi_inventory": "prior_close_t1",
   "spot_only_refresh_et": "09:31",
@@ -49,5 +49,5 @@
   "max_et_wait_seconds": 5400,
   "skip_flag_path": "data/gex/.skip_open_session",
   "webhook_env": "WECHAT_WORK_WEBHOOK_URL",
-  "note": "Copy to open_session_config.json (gitignored). CHG-059: wake 08:45 ET, pull chain at 09:00 ET, deadline 09:25 ET. OI is prior-close T+1. --spot-only-refresh must not repull OI."
+  "note": "Copy to open_session_config.json (gitignored). CHG-059: wake 07:45 ET, pull chain at 08:00 ET, deadline 08:25 ET. OI is prior-close T+1. --spot-only-refresh must not repull OI."
 }
