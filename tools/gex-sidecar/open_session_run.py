@@ -2,8 +2,9 @@
 """Windows pre-open GEX collector (win-host + Futu OpenD only — do not run on GCP).
 
 Schedule (America/New_York, DST-aware via ZoneInfo):
-  wake 08:45 ET (Task Scheduler) → pull chain at 09:00 ET →
-  finish latest.json inside 09:20–09:25 ET (deadline 09:25, mark late).
+  wake 07:45 ET (Task Scheduler) → pull chain at 08:00 ET →
+  finish latest.json inside 08:20–08:25 ET (deadline 08:25, mark late).
+  Post-close override: wake 20:10 ET → target 20:15 ET → finish 20:35–20:40 ET.
 
 OI is prior-close T+1 inventory. The clock is so the snapshot exists before
 Zhao ~09:32; it is not a fresh OI print. A 09:31 spot-only refresh must not
@@ -36,17 +37,17 @@ DEFAULT_CONFIG = HERE / "open_session_config.json"
 EXAMPLE_CONFIG = HERE / "open_session_config.example.json"
 COLLECT = HERE / "collect_futu.py"
 ET_ZONE = "America/New_York"
-DEFAULT_WAKE_ET = "08:45"
-DEFAULT_CHAIN_PULL_ET = "09:00"
-DEFAULT_DEADLINE_ET = "09:25"
-DEFAULT_FINISH_WINDOW_ET = "09:20-09:25"
+DEFAULT_WAKE_ET = "07:45"
+DEFAULT_CHAIN_PULL_ET = "08:00"
+DEFAULT_DEADLINE_ET = "08:25"
+DEFAULT_FINISH_WINDOW_ET = "08:20-08:25"
 DEFAULT_SPOT_REFRESH_ET = "09:31"
 DEFAULT_ZHAO_TIMELINESS_ET = "09:32"
 OI_AS_OF = "yesterday_close"
 OI_INVENTORY = "prior_close_t1"
 OI_NOTE = (
     "OI is prior-close T+1 inventory. "
-    "The 09:00 ET pull is timed so the snapshot exists before Zhao ~09:32; it is not a new OI print."
+    "The 08:00 ET pull is timed so the snapshot exists before Zhao ~09:32; it is not a new OI print."
 )
 SPOT_REFRESH_NOTE = (
     "09:31 ET spot-only refresh must not repull OI. "
@@ -80,6 +81,7 @@ def load_config(path: Path) -> dict:
     cfg.setdefault("wake_eastern_time", DEFAULT_WAKE_ET)
     cfg.setdefault("target_eastern_time", DEFAULT_CHAIN_PULL_ET)
     cfg.setdefault("deadline_eastern_time", DEFAULT_DEADLINE_ET)
+    cfg.setdefault("finish_window_et", DEFAULT_FINISH_WINDOW_ET)
     cfg.setdefault("spot_session", "premarket")
     cfg.setdefault("oi_inventory", OI_INVENTORY)
     cfg.setdefault("max_et_wait_seconds", 5400)
@@ -173,7 +175,7 @@ def build_preopen_metadata(pull_started: datetime, finished: datetime, cfg: dict
         "preopen": {
             "wake_et": str(cfg.get("wake_eastern_time") or DEFAULT_WAKE_ET),
             "chain_pull_et": chain_pull,
-            "finish_window_et": DEFAULT_FINISH_WINDOW_ET,
+            "finish_window_et": str(cfg.get("finish_window_et") or DEFAULT_FINISH_WINDOW_ET),
             "deadline_et": deadline,
             "deadline_status": status,
             "late": status == "late",
@@ -233,7 +235,7 @@ def wait_for_eastern_market(
     sleep_fn=None,
     early_pull: str = "proceed",
 ) -> bool:
-    """Align execution with US Eastern time (default chain pull 09:00 America/New_York).
+    """Align execution with US Eastern time (default chain pull 08:00 America/New_York).
 
     Immunizes Windows Task Scheduler from seasonal DST shifts (EDT vs EST).
     Returns True if the caller may pull, False if aborted (skip flag, or early_pull=abort).
@@ -578,9 +580,11 @@ def main() -> int:
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     ap.add_argument("--dry-run", action="store_true", help="Print plan only; do not call OpenD")
     ap.add_argument("--force", action="store_true", help="Ignore skip flag and ask_wait")
-    ap.add_argument("--no-wait-et", action="store_true", help="Skip waiting for the 09:00 ET chain pull")
-    ap.add_argument("--target-et", type=str, default="", help="Override chain-pull Eastern time (HH:MM, default 09:00)")
-    ap.add_argument("--deadline-et", type=str, default="", help="Override deadline Eastern time (HH:MM, default 09:25)")
+    ap.add_argument("--no-wait-et", action="store_true", help="Skip waiting for the 08:00 ET chain pull")
+    ap.add_argument("--target-et", type=str, default="", help="Override chain-pull Eastern time (HH:MM, default 08:00)")
+    ap.add_argument("--wake-et", type=str, default="", help="Override scheduled wake ET (HH:MM)")
+    ap.add_argument("--finish-window-et", type=str, default="", help="Override finish window ET (HH:MM-HH:MM)")
+    ap.add_argument("--deadline-et", type=str, default="", help="Override deadline Eastern time (HH:MM, default 08:25)")
     ap.add_argument(
         "--spot-only-refresh",
         action="store_true",
@@ -595,6 +599,10 @@ def main() -> int:
     wait_sec = int(cfg.get("ask_wait_seconds") or 0)
     skip = skip_path(cfg)
     webhook = resolve_webhook(cfg)
+    if args.wake_et:
+        cfg["wake_eastern_time"] = args.wake_et.strip()
+    if args.finish_window_et:
+        cfg["finish_window_et"] = args.finish_window_et.strip()
     if args.target_et:
         cfg["target_eastern_time"] = args.target_et.strip()
     if args.deadline_et:

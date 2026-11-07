@@ -18,7 +18,7 @@
 | · | **CHG-062** | L1 | HOT 释放后不 await 14B；点位指纹去重写 `PENDING_HITL` + 现有 HITL 卡。GCP `8919f32` ingest restarts 8 | `zhao_print_persist.js` · `hot_defer.js` · `monitor.js` | **done-eng** |
 | · | **CHG-061** | L1 | 分频道差速轮询接到 **ingest_runner**：HOT 2s（记录区+期权）；WARM 5s（美股发布+日内波段+股票分析）；COLD 30s。新闻只跟 COLD | `tier_poller.js` · `ingest_runner.js` | **done-eng**（待 GCP 重启） |
 | · | **CHG-060** | L1 | DEBT-026 赵哥点位落 `trade_signals`+Intent（`zhao_print`；不 submit）。#23 原误标 CHG-059 | `zhao_print_persist.js` · `monitor.js` | **done-eng**（GCP 未落表） |
-| · | **CHG-059** | L2 | 盘前 GEX：唤醒 08:45 ET，09:00 拉链，09:25 截止标 late，`spot_session=premarket`。OI=前收 T+1。09:31 现货 stub 不重拉 OI。win-host/OpenD。**单测全绿（test_open_session_preopen + DST 各 pass）**；task=Ready，local wall=20:45 CST → 09:00 ET。下一交易日验 `latest.json.preopen.deadline_status` | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng (win-host-deployed)** |
+| · | **CHG-059** | L2 | 盘前 GEX：唤醒 07:45 ET，08:00 拉链，08:25 截止标 late，`spot_session=premarket`。OI=前收 T+1。09:31 现货 stub 不重拉 OI。win-host/OpenD。**单测全绿（test_open_session_preopen + DST 各 pass）**；task=Ready，冬令 Asia/Shanghai 唤醒=20:45 → 拉链=21:00 (08:00 ET)；此次仅源码更新，部署由运维处理。下一交易日验 `latest.json.preopen.deadline_status` | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng (win-host-deployed)** |
 | · | **CHG-058** | L3 | 开盘 GEX 目标 09:35 ET（已被 CHG-059 盘前时刻取代；任务名仍 `WhopGexOpenSession0940ET`） | `open_session_run.py` · `install_open_session_task.ps1` | **done-eng** |
 | 1a | **CHG-057** | L3 | GEX 矩阵扩赵哥高频正股（TSLA+IREN/CRWV/MU/COHR/SOXL/COIN/NVDA/LITE；2×映正股）。L2 映证，不拦截不下单 | `collect_futu.py` · `gex-readonly.js` · `adapters/gex.js` | **done-eng** |
 | 1b | **CHG-056b** | L5 | collect_1s **live 订阅补丁**：dotenv + `subscribe(..., true)` isFirstPush（GCP-verified NAPI）失败回退两参。不改 `ohlcv_1s.js` / `brokers/longbridge.js`。夹具验收在 #21，不复称为 live。**阶段 A 四条验收全绿（2026-09-21）**：pm2 online ≥ 1h、热区行随成交增加、pm2 restart 追加同一 jsonl、git 无行情大文件。**阶段 B（rclone）待拍板** | `scripts/market/collect_1s_ohlcv.js` | **done-eng (stageA-passed)** |
@@ -194,7 +194,7 @@
 | CHG-056b | L5 | collect_1s dotenv + subscribe isFirstPush fallback（GCP dirty diff） | `agent:cursor` | done-eng | 仅 `collect_1s_ohlcv.js`；hot IREN/SOXL=夹具；无非夹具 live bar |
 | CHG-057 | L3 | GEX 矩阵扩赵哥高频正股（L2 映证） | `agent:cursor` | done-eng | `latest.json` 2026-09-21 里程碑；对照包 `chg057-*`；**done-strat 未过** |
 | CHG-058 | L3 | 开盘 GEX 目标 09:35 ET（唤醒 09:33；预告 60s） | `agent:cursor` | done-eng | OI=T+1；任务名仍 `WhopGexOpenSession0940ET` |
-| CHG-059 | L2 | 盘前 GEX 08:45/09:00/09:25 ET | `agent:cursor` | done-eng | win-host-deployed；非 done-strat |
+| CHG-059 | L2 | 盘前 GEX 07:45/08:00/08:25 ET | `agent:cursor` | done-eng | win-host-deployed；非 done-strat |
 | CHG-060 | L1 | DEBT-026 赵哥点位 persist（`zhao_print`） | `agent:cursor` | done-eng | GCP ingest 待 HITL；#23 改挂本号 |
 | CHG-061 | L1 | HOT/WARM/COLD 差速轮询（美股发布+日内波段=WARM 5s） | `agent:cursor` | done-eng | 不改 20/40；背压只打 COLD |
 | CHG-027 | L4/L0 | Local-Ops knowledge.promote HITL C2 | `agent:cursor` | Done | Gemini Accepted |
