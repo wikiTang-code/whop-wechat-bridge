@@ -12,7 +12,6 @@ web_modules/
 # Runtime-generated data (derived from DB / media downloads; not source code)
 data/queue_status.json
 data/media/zhao/media_manifest.json
-data/gex/
 
 # Local Longbridge CLI binary (downloaded by the GEX sidecar)
 tools/gex-sidecar/bin/
@@ -24,6 +23,8 @@ data/gex/*
 !data/gex/heatseeker_gex.html
 !data/gex/gex_matrix_*.html
 !data/gex/snapshot_20260905_235029.json
+!data/gex/[0-9]*/
+!data/gex/[0-9]*/**
 tools/gex-sidecar/bin/
 tools/gex-sidecar/__pycache__/
 tools/gex-sidecar/open_session_config.json

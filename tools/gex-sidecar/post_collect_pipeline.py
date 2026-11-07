@@ -239,6 +239,9 @@ def git_sync_day_dir(day_dir: Path, snapshot_name: str) -> dict:
         "allowed_branch": allowed,
     }
     try:
+        if branch == allowed:
+            subprocess.run(["git", "pull", "--rebase", "origin", allowed], cwd=str(ROOT), capture_output=True, text=True)
+
         subprocess.run(["git", "add", rel_day], cwd=str(ROOT), check=True)
         staged = subprocess.run(
             ["git", "diff", "--cached", "--name-only"], cwd=str(ROOT), capture_output=True, text=True, check=True
@@ -484,11 +487,18 @@ def run_pipeline() -> int:
         print(f"[post_collect] Git result: {git_res}")
 
     commit_hash = git_res.get("commit_hash")
-    if commit_hash:
+    if commit_hash and git_res.get("pushed"):
         digest += (
             f"\n\n---\n> 📦 **Git 同步就绪**: Commit `{commit_hash}` (`feat/chg064-offline`)\n"
             f"> 💻 可直接在本地终端执行 `git pull` 拉取最新全量原始 JSON 数据。"
             f"\n> 📁 日归档: `data/gex/{day_dir.name}/` · `analysis_daily.md`"
+        )
+    elif commit_hash and not git_res.get("pushed"):
+        err = (git_res.get("error") or git_res.get("push_skipped") or "未知原因").strip()
+        digest += (
+            f"\n\n---\n> ⚠️ **Git 远端推送未成功**: {err}\n"
+            f"> 💻 本地已生成 Commit `{commit_hash}`，但未能推送到 GitHub，请注意排查。"
+            f"\n> 📁 日归档: `data/gex/{day_dir.name}/`"
         )
 
     # 5. Push to WeCom

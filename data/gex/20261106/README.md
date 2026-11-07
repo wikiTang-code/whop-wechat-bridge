@@ -1,16 +1,12 @@
-# GEX · 2026-11-06
+# GEX daily archive `20261106`
 
-日归档（PR#32 布局）：早晚 zipper 快照 + 晚场差异简报。
+- Day folder: `data/gex/20261106/`
+- Rolling pointer (repo root of gex): `data/gex/latest.json`
+- Analysis: `analysis_daily.md` (append per run); reserved `analysis_weekly.md`
 
-| 文件 | 说明 |
-|------|------|
-| `snapshot_20261106_100853.json` | 早场基线（BJT 10:00:05，`closed_or_pre`） |
-| `snapshot_20261106_220854.json` | 晚场/盘前（BJT 22:00:05，`rth_or_weekend_proxy`） |
-| `latest.json` | 指向晚场快照的副本 |
-| `analysis_daily.md` | 日分析（含晚场差异章节） |
-| `analysis_evening_diff.md` | 晚场 vs 早场差异简报原文 |
-| `manifest.json` | 清单与哈希 |
-
-覆盖：0DTE 指数 SPY/QQQ/SPX + 矩阵 22 只。PR#32 扩表标的本轮尚未入库。
-
-> 结构快照，不是预测，不构成投资建议。
+| Session | Snapshot | generated_at | Coverage |
+| --- | --- | --- | --- |
+| closed_or_pre | `snapshot_20261106_100853.json` | 2026-11-06T10:00:05 | None matrix + None 0DTE |
+| rth_or_weekend_proxy | `snapshot_20261106_220854.json` | 2026-11-06T22:00:05 | None matrix + None 0DTE |
+| rth_or_weekend_proxy | `latest.json` | 2026-11-06T22:00:05 | None matrix + None 0DTE |
+| evening_pre_open | `snapshot_20261107_100857.json` | 2026-11-07T10:00:05 | 22 matrix + 3 0DTE |
