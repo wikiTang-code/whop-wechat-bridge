@@ -58,6 +58,7 @@ OWNER = {
     "CWVX": "US.CWVX",
     "IRE": "US.IRE",
     "WDCX": "US.WDCX",
+    "SNDK": "US.SNDK",
     "SPX": "US..SPX",
     "VIX": "US..VIX",
     "NDX": "US..NDX",

@@ -56,9 +56,17 @@ python tools/gex-sidecar/summarize.py
 python tools/gex-sidecar/collect.py
 ```
 
-## 盘前自动采集（本机 win-host + OpenD）
+## 自动拉链双轨调度（本机 win-host + OpenD）
 
-工作日（CHG-059）：**08:45 ET 唤醒 → 09:00 ET 才拉链 → 09:20–09:25 ET 写完 `latest.json`（截止 09:25，错过标 `preopen.deadline_status=late`）**。`spot_session=premarket`。OI 是前收 T+1 库存，时刻是为了赵哥约 09:32 之前有快照，不是新 OI。可选 09:31 只刷新现货，**禁止重拉 OI**（`collect_futu` 还不能拆开时，`--spot-only-refresh` 只打 stub，不调 OpenD）。不要把拉链迁到 GCP。
+系统采用**早晚双轨拉链机制**，由 Windows 任务计划与 Python `America/New_York` 时区自适应联动，支持冬夏令时自动切换：
+
+| 场次 | 美东时间 (ET) | 夏令时北京时间 (EDT, UTC-4) | 冬令时北京时间 (EST, UTC-5) | 核心用途与实战意义 |
+| :--- | :--- | :--- | :--- | :--- |
+| **晚场 (开盘前即时)** | 08:45 唤醒<br>**09:00 拉链**<br>09:25 截止 | 20:45 唤醒<br>**21:00 拉链**<br>(美股 21:30 开盘) | 21:45 唤醒<br>**22:00 拉链**<br>(美股 22:30 开盘) | 美股开盘前 30 分钟微调，反映经过盘前 9.5 小时交易后的最新现货价与做市商 Gamma 重构 |
+| **早场 (盘后清算版)** | 20:45 唤醒<br>**21:00 拉链**<br>21:25 截止 | 08:45 唤醒<br>**09:00 拉链** | 09:45 唤醒<br>**10:00 拉链** | 美股盘后结算完成、OCC 全量 OI 固化，作为中午 12:00 长桥盘前期权开闸及全天主基准 |
+
+> **安装与冬夏令时切换**：  
+> `install_open_session_task.ps1` 现已内置时区感知（`-Season auto` / `winter` / `summer`）。进入冬令时后重新执行即可将本地唤醒壁钟时间无缝对齐至冬令时点位。
 
 本机应用（更新已有任务 `WhopGexOpenSession0940ET`，名字沿用）：
 
