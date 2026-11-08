@@ -98,5 +98,14 @@
     "is_quant_reference": true,
     "poll_tier": "cold",
     "poll_limit": 20
+  },
+  "chat_feed_1Cgh4nm3Ko7yLVQ25wDjP1": {
+    "feed_id": "chat_feed_1Cgh4nm3Ko7yLVQ25wDjP1",
+    "name": "日常讨论",
+    "channel_class": "discuss",
+    "purpose": "群友日常讨论区（猪脚哥whop讨论），不进 L2a",
+    "is_l2a_primary": false,
+    "poll_tier": "cold",
+    "poll_limit": 20
   }
 }

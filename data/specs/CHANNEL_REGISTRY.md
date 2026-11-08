@@ -10,6 +10,7 @@
 | `chat_feed_1CTrCEx44dP13jW3RVkYiS` | **不用翻墙期权** | `option` | 期权讨论与实时短播，默认不进 L2a |
 | `chat_feed_1CWLuNUVYVVYttro8gAvJ5` | **市值理论100跌50 公式记录** | `formula` | 反弹一半 (高+低)/2 公式推导专项记录 (共8条) |
 | `chat_feed_1CTr5VAdNHtbZAFaTitvoT` | **不用翻墙美股讨论区** | `discuss` | 群友美股综合讨论区，不进 L2a |
+| `chat_feed_1Cgh4nm3Ko7yLVQ25wDjP1` | **日常讨论** | `discuss` | 群友日常讨论区（猪脚哥whop讨论），不进 L2a |
 | `chat_feed_1CU95KbtifP1JtuqTiVXZb` | **讨论区股票记录** | `discuss_record` | 讨论区股票记录存档 |
 | `chat_feed_1CabPvHkbHhMwHft19jd83` | **财报日提醒** | `notification` | 财报日自动提醒 |
 | `chat_feed_1CaPyASfSWTuruMgL2u3sT` | **股票分析** | `analysis` | 股票分析专区 |
