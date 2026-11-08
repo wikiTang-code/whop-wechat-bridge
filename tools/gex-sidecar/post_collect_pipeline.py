@@ -136,8 +136,8 @@ def archive_and_git_sync(snapshot_file: Path | None = None, do_git: bool = True)
     zero_keys = list((snap_data.get("zero_dte") or {}).keys())
     # Session label from America/New_York hour (not Shanghai wall / raw string slice).
     hour_et = et_hour(gen_at, default=21)
-    # Morning post-market pull ~09:00 ET; evening pre-open ~21:00 ET local / morning ET.
-    session_type = "morning_post_market" if 7 <= hour_et <= 12 else "evening_pre_open"
+    # US morning 08:00 ET = Beijing evening/pre-open; US evening 20:15 ET = Beijing morning/post-close.
+    session_type = "evening_pre_open" if hour_et < 15 else "morning_post_market"
 
     entry = {
         "filename": snapshot_file.name,
@@ -306,7 +306,7 @@ def generate_gex_analysis_digest(latest_data: dict, prev_data: dict | None = Non
     """Generates rich quantitative & AI market maker博弈 analysis for WeChat Work."""
     gen_at = latest_data.get("generated_at") or et_iso_now()
     hour = et_hour(gen_at, default=21)
-    session_title = "🌅 美东早场 09:00 ET" if hour < 15 else "🌃 美东盘前 21:00 ET"
+    session_title = "🌃 开盘前·晚场即时微调 (08:00 ET)" if hour < 15 else "🌅 盘后结算·早场全天基准 (20:15 ET)"
 
     matrix = latest_data.get("matrix") or {}
     zero_dte = latest_data.get("zero_dte") or {}

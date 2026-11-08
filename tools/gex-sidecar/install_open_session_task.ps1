@@ -1,7 +1,9 @@
 # Register or update the weekday GEX pre-open Task Scheduler jobs (Auto EDT/EST DST aware).
-# Wake 08:45 America/New_York (Winter EST: 21:45 CST / Summer EDT: 20:45 CST).
-# Pull chain 09:00 America/New_York (Winter EST: 22:00 CST / Summer EDT: 21:00 CST).
-# Morning post-market collect (Winter EST: 09:45 CST wake / 10:00 CST pull).
+# Pre-open: wake 07:45 ET -> pull 08:00 ET -> deadline 08:25 ET.
+# Winter EST (Asia/Shanghai): 20:45 -> 21:00 -> 21:25; summer EDT: 19:45 -> 20:00 -> 20:25.
+# Post-close: wake 20:10 ET -> pull 20:15 ET -> deadline 20:40 ET.
+# Winter EST (Asia/Shanghai): next-day 09:10 -> 09:15 -> 09:40; summer EDT: 08:10 -> 08:15 -> 08:40.
+# Source update only in this change; live task installation is handled separately by ops.
 # Re-run this script to update the existing tasks in place. Do not run on GCP.
 #
 # Usage (from repo root, on win-host):
@@ -49,7 +51,7 @@ $WrapperBody = @"
 cd /d "$RepoRoot"
 set PYTHONIOENCODING=utf-8
 if not defined LONGBRIDGE_REGION set LONGBRIDGE_REGION=global
-"$Python" "$Runner"
+"$Python" "$Runner" --wake-et 07:45 --target-et 08:00 --deadline-et 08:25 --finish-window-et 08:20-08:25
 "@
 Set-Content -Path $Wrapper -Value $WrapperBody -Encoding ASCII
 
@@ -64,12 +66,10 @@ $seasonLabel = if ($useWinter) { "冬令时 EST (UTC-5)" } else { "夏令时 EDT
 
 $localTz = [System.TimeZoneInfo]::Local
 
-# 晚场唤醒: 美东 08:45 ET.
-# 冬令时 EST: 08:45 EST = 13:45 UTC -> 北京时间 21:45 CST (拉链 22:00 CST, 美股 22:30 CST 开盘)
-# 夏令时 EDT: 08:45 EDT = 12:45 UTC -> 北京时间 20:45 CST (拉链 21:00 CST, 美股 21:30 CST 开盘)
-# Summer anchor: 2026-07-01 12:45:00 UTC (08:45 EDT -> 20:45 CST)
-# Winter anchor: 2026-12-01 13:45:00 UTC (08:45 EST -> 21:45 CST)
-$eveningRefUtcStr = if ($useWinter) { "2026-12-01 13:45:00" } else { "2026-07-01 12:45:00" }
+# 晚场唤醒 07:45 ET；08:00 ET 拉链，08:25 ET 截止。
+# 冬令 EST: wake 12:45 UTC = 北京 20:45；pull 北京 21:00；deadline 北京 21:25。
+# 夏令 EDT: wake 11:45 UTC = 北京 19:45；pull 北京 20:00；deadline 北京 20:25。
+$eveningRefUtcStr = if ($useWinter) { "2026-12-01 12:45:00" } else { "2026-07-01 11:45:00" }
 $eveningRefUtc = [DateTime]::SpecifyKind([DateTime]$eveningRefUtcStr, [DateTimeKind]::Utc)
 $eveningLocal = [System.TimeZoneInfo]::ConvertTimeFromUtc($eveningRefUtc, $localTz)
 $localHHmm = $eveningLocal.ToString("HH:mm")
@@ -85,7 +85,7 @@ $xml = @"
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>Whop GEX pre-open collect Mon-Fri wake 08:45 Eastern ($seasonLabel, local wall=$localHHmm), chain pull 09:00 ET, deadline 09:25 ET. win-host OpenD only.</Description>
+    <Description>Whop GEX pre-open collect Mon-Fri wake 07:45 Eastern ($seasonLabel, local wall=$localHHmm), chain pull 08:00 ET, deadline 08:25 ET. win-host OpenD only.</Description>
   </RegistrationInfo>
   <Triggers>
     <CalendarTrigger>
@@ -135,20 +135,20 @@ $xml = @"
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 Register-ScheduledTask -TaskName $TaskName -Xml $xml -Force | Out-Null
 
-# --- 早场任务: 美东 20:45 ET 唤醒，21:00 ET 拉链 ---
-# 冬令时 EST: 20:45 EST = 01:45 UTC (次日) -> 北京时间 09:45 CST (拉链 10:00 CST, 次日全天基准)
-# 夏令时 EDT: 20:45 EDT = 00:45 UTC (次日) -> 北京时间 08:45 CST (拉链 09:00 CST)
+# --- 早场任务: 美东 20:10 ET 唤醒，20:15 ET 拉链，20:40 ET 截止 ---
+# 冬令 EST: wake 01:10 UTC (次日) = 北京 09:10；pull 北京 09:15；deadline 北京 09:40。
+# 夏令 EDT: wake 00:10 UTC (次日) = 北京 08:10；pull 北京 08:15；deadline 北京 08:40。
 $MorningWrapper = Join-Path $RepoRoot "tools\gex-sidecar\_morning_session_task.cmd"
 $MorningWrapperBody = @"
 @echo off
 cd /d "$RepoRoot"
 set PYTHONIOENCODING=utf-8
 if not defined LONGBRIDGE_REGION set LONGBRIDGE_REGION=global
-"$Python" "$Runner" --target-et 21:00 --deadline-et 21:25
+"$Python" "$Runner" --wake-et 20:10 --target-et 20:15 --deadline-et 20:40 --finish-window-et 20:35-20:40
 "@
 Set-Content -Path $MorningWrapper -Value $MorningWrapperBody -Encoding ASCII
 
-$morningRefUtcStr = if ($useWinter) { "2026-12-02 01:45:00" } else { "2026-07-02 00:45:00" }
+$morningRefUtcStr = if ($useWinter) { "2026-12-02 01:10:00" } else { "2026-07-02 00:10:00" }
 $morningRefUtc = [DateTime]::SpecifyKind([DateTime]$morningRefUtcStr, [DateTimeKind]::Utc)
 $morningLocal = [System.TimeZoneInfo]::ConvertTimeFromUtc($morningRefUtc, $localTz)
 $morningHHmm = $morningLocal.ToString("HH:mm")
@@ -164,7 +164,7 @@ $morningXml = @"
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>Whop GEX morning post-market collect Tue-Sat wake 20:45 Eastern ($seasonLabel, local wall=$morningHHmm), chain pull 21:00 ET, deadline 21:25 ET. win-host OpenD only.</Description>
+    <Description>Whop GEX morning post-market collect Tue-Sat wake 20:10 Eastern ($seasonLabel, local wall=$morningHHmm), chain pull 20:15 ET, deadline 20:40 ET. win-host OpenD only.</Description>
   </RegistrationInfo>
   <Triggers>
     <CalendarTrigger>
@@ -217,11 +217,11 @@ Register-ScheduledTask -TaskName $MorningTaskName -Xml $morningXml -Force | Out-
 Write-Host ""
 Write-Host "Installed Dual-Session Tasks (方案 A 早晚双轨 - $seasonLabel):"
 Write-Host "1. 晚场开盘前任务: $TaskName"
-Write-Host "   Wake: Mon-Fri 08:45 ET (本地北京时间壁钟=$localHHmm). Chain pull 09:00 ET (本地=$($eveningLocal.AddMinutes(15).ToString('HH:mm'))). Deadline 09:25 ET."
+Write-Host "   Wake: Mon-Fri 07:45 ET (本地北京时间壁钟=$localHHmm). Chain pull 08:00 ET (本地=$($eveningLocal.AddMinutes(15).ToString('HH:mm'))). Deadline 08:25 ET."
 Write-Host "   StartBoundary: $startBoundary"
 Write-Host "   Wrapper: $Wrapper"
 Write-Host "2. 早场盘后结算任务: $MorningTaskName"
-Write-Host "   Wake: Tue-Sat 20:45 ET (本地北京时间壁钟=$morningHHmm). Chain pull 21:00 ET (本地=$($morningLocal.AddMinutes(15).ToString('HH:mm'))). Deadline 21:25 ET."
+Write-Host "   Wake: Tue-Sat 20:10 ET (本地北京时间壁钟=$morningHHmm). Chain pull 20:15 ET (本地=$($morningLocal.AddMinutes(5).ToString('HH:mm'))). Deadline 20:40 ET."
 Write-Host "   StartBoundary: $startMorningBoundary"
 Write-Host "   Wrapper: $MorningWrapper"
 Write-Host "Config: $Config"

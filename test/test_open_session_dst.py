@@ -21,46 +21,46 @@ from open_session_run import wait_for_eastern_market, load_config, DEFAULT_CONFI
 
 def test_dst_summer_edt():
     tz_et = ZoneInfo("America/New_York")
-    mock_now = datetime(2026, 7, 15, 9, 38, 0, tzinfo=tz_et)
+    mock_now = datetime(2026, 7, 15, 7, 58, 0, tzinfo=tz_et)
     assert mock_now.tzname() == "EDT"
 
     res = wait_for_eastern_market(
-        target_et_str="09:40",
+        target_et_str="08:00",
         max_wait_seconds=5400,
         dry_run=True,
         now_fn=lambda: mock_now,
     )
     assert res is True, "Summer EDT alignment should proceed"
-    print("  [PASS] Summer EDT (09:38 -> 09:40) simulated wait passed")
+    print("  [PASS] Summer EDT (07:58 -> 08:00) simulated wait passed")
 
 
 def test_dst_winter_est():
     tz_et = ZoneInfo("America/New_York")
-    mock_now = datetime(2026, 12, 15, 8, 38, 0, tzinfo=tz_et)
+    mock_now = datetime(2026, 12, 15, 7, 45, 0, tzinfo=tz_et)
     assert mock_now.tzname() == "EST"
 
     res = wait_for_eastern_market(
-        target_et_str="09:40",
+        target_et_str="08:00",
         max_wait_seconds=5400,
         dry_run=True,
         now_fn=lambda: mock_now,
     )
     assert res is True, "Winter EST alignment should proceed"
-    print("  [PASS] Winter EST (08:38 -> 09:40) simulated wait passed")
+    print("  [PASS] Winter EST (07:45 -> 08:00) simulated wait passed")
 
 
 def test_market_already_open():
     tz_et = ZoneInfo("America/New_York")
-    mock_now = datetime(2026, 7, 15, 9, 45, 0, tzinfo=tz_et)
+    mock_now = datetime(2026, 7, 15, 8, 5, 0, tzinfo=tz_et)
 
     res = wait_for_eastern_market(
-        target_et_str="09:40",
+        target_et_str="08:00",
         max_wait_seconds=5400,
         dry_run=True,
         now_fn=lambda: mock_now,
     )
     assert res is True, "Should proceed immediately when past market target"
-    print("  [PASS] Past target (09:45 > 09:40) immediate execution passed")
+    print("  [PASS] Past target (08:05 > 08:00) immediate execution passed")
 
 
 def test_force_flag_bypass():
@@ -68,7 +68,7 @@ def test_force_flag_bypass():
     mock_now = datetime(2026, 7, 15, 8, 0, 0, tzinfo=tz_et)
 
     res = wait_for_eastern_market(
-        target_et_str="09:40",
+        target_et_str="08:00",
         force=True,
         now_fn=lambda: mock_now,
     )
@@ -82,10 +82,10 @@ def test_skip_flag_during_wait():
         skip_file.write_text("skip", encoding="utf-8")
 
         tz_et = ZoneInfo("America/New_York")
-        mock_now = datetime(2026, 7, 15, 9, 39, 58, tzinfo=tz_et)
+        mock_now = datetime(2026, 7, 15, 7, 59, 58, tzinfo=tz_et)
 
         res = wait_for_eastern_market(
-            target_et_str="09:40",
+            target_et_str="08:00",
             skip=skip_file,
             dry_run=False,
             now_fn=lambda: mock_now,
@@ -99,7 +99,7 @@ def test_max_wait_exceeded():
     mock_now = datetime(2026, 7, 15, 5, 0, 0, tzinfo=tz_et)
 
     res = wait_for_eastern_market(
-        target_et_str="09:40",
+        target_et_str="08:00",
         max_wait_seconds=3600,
         dry_run=True,
         now_fn=lambda: mock_now,

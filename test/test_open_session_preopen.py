@@ -44,9 +44,9 @@ def _cfg(**overrides) -> dict:
         "matrix": ["TSLA"],
         "skip_matrix": False,
         "expiries": 5,
-        "wake_eastern_time": "08:45",
-        "target_eastern_time": "09:00",
-        "deadline_eastern_time": "09:25",
+        "wake_eastern_time": "07:45",
+        "target_eastern_time": "08:00",
+        "deadline_eastern_time": "08:25",
         "ask_wait_seconds": 0,
         "max_et_wait_seconds": 5400,
         "oi_inventory": "prior_close_t1",
@@ -79,56 +79,56 @@ def _run(clock: FakeClock, latest: Path, collect, cfg=None, **kwargs) -> dict:
 
 
 def test_plan_dst_and_gate():
-    summer = datetime(2026, 7, 15, 8, 45, tzinfo=ET)
-    winter = datetime(2026, 1, 15, 8, 45, tzinfo=ET)
+    summer = datetime(2026, 7, 15, 7, 45, tzinfo=ET)
+    winter = datetime(2026, 1, 15, 7, 45, tzinfo=ET)
     assert summer.tzname() == "EDT"
     assert winter.tzname() == "EST"
     for now in (summer, winter):
-        plan = eastern_wait_plan(now, "09:00", 5400)
+        plan = eastern_wait_plan(now, "08:00", 5400)
         assert plan["action"] == "wait", plan
         assert plan["wait_sec"] == 15 * 60, plan
         assert plan["tzname"] == now.tzname()
-    at_pull = datetime(2026, 7, 15, 9, 0, tzinfo=ET)
-    assert eastern_wait_plan(at_pull, "09:00", 5400)["action"] == "proceed"
-    early = eastern_wait_plan(datetime(2026, 7, 15, 5, 0, tzinfo=ET), "09:00", 5400)
+    at_pull = datetime(2026, 7, 15, 8, 0, tzinfo=ET)
+    assert eastern_wait_plan(at_pull, "08:00", 5400)["action"] == "proceed"
+    early = eastern_wait_plan(datetime(2026, 7, 15, 5, 0, tzinfo=ET), "08:00", 5400)
     assert early["action"] == "exceeded"
-    print("  [PASS] DST wait plan 08:45 → 09:00 (EDT and EST)")
+    print("  [PASS] DST wait plan 07:45 → 08:00 (EDT and EST)")
 
 
 def test_deadline_boundaries():
     day = datetime(2026, 7, 15, tzinfo=ET)
-    assert deadline_status(day.replace(hour=9, minute=20), "09:25") == "on_time"
-    assert deadline_status(day.replace(hour=9, minute=25), "09:25") == "on_time"
-    assert deadline_status(day.replace(hour=9, minute=25, second=1), "09:25") == "late"
-    print("  [PASS] deadline inclusive at 09:25:00, late after")
+    assert deadline_status(day.replace(hour=8, minute=20), "08:25") == "on_time"
+    assert deadline_status(day.replace(hour=8, minute=25), "08:25") == "on_time"
+    assert deadline_status(day.replace(hour=8, minute=25, second=1), "08:25") == "late"
+    print("  [PASS] deadline inclusive at 08:25:00, late after")
 
 
-def test_chain_pull_waits_until_0900_and_stamps():
-    clock = FakeClock(datetime(2026, 7, 15, 8, 45, tzinfo=ET))
+def test_chain_pull_waits_until_0800_and_stamps():
+    clock = FakeClock(datetime(2026, 7, 15, 7, 45, tzinfo=ET))
     calls = []
 
     def collect(cfg, dry_run):
         calls.append(clock.now)
         latest.write_text(json.dumps(_chain(clock)), encoding="utf-8")
-        clock.now = datetime(2026, 7, 15, 9, 22, tzinfo=ET)
+        clock.now = datetime(2026, 7, 15, 8, 22, tzinfo=ET)
         return 0
 
     with tempfile.TemporaryDirectory() as tmp:
         latest = Path(tmp) / "latest.json"
         result = _run(clock, latest, collect)
-        assert calls == [datetime(2026, 7, 15, 9, 0, tzinfo=ET)], calls
+        assert calls == [datetime(2026, 7, 15, 8, 0, tzinfo=ET)], calls
         assert result["rc"] == 0
         data = json.loads(latest.read_text(encoding="utf-8"))
         assert data["spot_session"] == "premarket"
         assert data["oi_as_of"] == "yesterday_close"
         assert data["oi_inventory"] == "prior_close_t1"
         assert "09:32" in data["oi_note"]
-        assert data["preopen"]["wake_et"] == "08:45"
-        assert data["preopen"]["chain_pull_et"] == "09:00"
-        assert data["preopen"]["deadline_et"] == "09:25"
+        assert data["preopen"]["wake_et"] == "07:45"
+        assert data["preopen"]["chain_pull_et"] == "08:00"
+        assert data["preopen"]["deadline_et"] == "08:25"
         assert data["preopen"]["deadline_status"] == "on_time"
         assert data["preopen"]["late"] is False
-        assert data["preopen"]["finished_at_et"] == "09:22:00"
+        assert data["preopen"]["finished_at_et"] == "08:22:00"
         assert data["preopen"]["host"] == "win-host"
         assert data["preopen"]["gateway"] == "futu-opend"
         assert data["preopen"]["zhao_timeliness_et"] == "09:32"
@@ -136,17 +136,17 @@ def test_chain_pull_waits_until_0900_and_stamps():
         assert data["spot_refresh"]["repull_oi"] is False
         assert data["spot_refresh"]["status"] == "not_this_run"
         assert clock.now.tzname() == "EDT"
-    print("  [PASS] fake clock holds chain pull until 09:00 ET and stamps on_time")
+    print("  [PASS] fake clock holds chain pull until 08:00 ET and stamps on_time")
 
 
 def test_winter_clock_and_late_mark():
-    clock = FakeClock(datetime(2026, 1, 15, 8, 45, tzinfo=ET))
+    clock = FakeClock(datetime(2026, 1, 15, 7, 45, tzinfo=ET))
     assert clock.now.tzname() == "EST"
 
     def collect(cfg, dry_run):
-        assert clock.now == datetime(2026, 1, 15, 9, 0, tzinfo=ET)
+        assert clock.now == datetime(2026, 1, 15, 8, 0, tzinfo=ET)
         latest.write_text(json.dumps(_chain(clock)), encoding="utf-8")
-        clock.now = datetime(2026, 1, 15, 9, 25, 1, tzinfo=ET)
+        clock.now = datetime(2026, 1, 15, 8, 25, 1, tzinfo=ET)
         return 0
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -156,13 +156,13 @@ def test_winter_clock_and_late_mark():
         assert result["meta"]["spot_session"] == "premarket"
         assert data["preopen"]["deadline_status"] == "late"
         assert data["preopen"]["late"] is True
-        assert data["preopen"]["finished_at_et"] == "09:25:01"
-    print("  [PASS] EST winter pull and late mark after 09:25")
+        assert data["preopen"]["finished_at_et"] == "08:25:01"
+    print("  [PASS] EST winter pull and late mark after 08:25")
 
 
 def test_deadline_exact_and_window():
     def finish_at(hour, minute, second=0):
-        clock = FakeClock(datetime(2026, 7, 15, 9, 0, tzinfo=ET))
+        clock = FakeClock(datetime(2026, 7, 15, 8, 0, tzinfo=ET))
 
         def collect(cfg, dry_run):
             latest.write_text(json.dumps(_chain(clock)), encoding="utf-8")
@@ -174,14 +174,14 @@ def test_deadline_exact_and_window():
             result = _run(clock, latest, collect)
             return result["meta"]["preopen"]["deadline_status"]
 
-    assert finish_at(9, 20) == "on_time"
-    assert finish_at(9, 25, 0) == "on_time"
-    assert finish_at(9, 25, 1) == "late"
-    print("  [PASS] 09:20 and 09:25:00 on_time; 09:25:01 late")
+    assert finish_at(8, 20) == "on_time"
+    assert finish_at(8, 25, 0) == "on_time"
+    assert finish_at(8, 25, 1) == "late"
+    print("  [PASS] 08:20 and 08:25:00 on_time; 08:25:01 late")
 
 
-def test_notify_window_cannot_delay_past_0900():
-    clock = FakeClock(datetime(2026, 7, 15, 8, 45, tzinfo=ET))
+def test_notify_window_cannot_delay_past_0800():
+    clock = FakeClock(datetime(2026, 7, 15, 7, 45, tzinfo=ET))
     calls = []
 
     def collect(cfg, dry_run):
@@ -192,8 +192,8 @@ def test_notify_window_cannot_delay_past_0900():
     with tempfile.TemporaryDirectory() as tmp:
         latest = Path(tmp) / "latest.json"
         _run(clock, latest, collect, cfg=_cfg(mode="notify_then_auto", ask_wait_seconds=60))
-        assert calls == [datetime(2026, 7, 15, 9, 0, tzinfo=ET)], calls
-    print("  [PASS] 60s notify window still pulls at 09:00 ET")
+        assert calls == [datetime(2026, 7, 15, 8, 0, tzinfo=ET)], calls
+    print("  [PASS] 60s notify window still pulls at 08:00 ET")
 
 
 def test_refuse_early_pull():
@@ -256,16 +256,16 @@ def test_spot_only_does_not_repull_oi():
 
 def test_example_config_and_installer():
     cfg = load_config(EXAMPLE_CONFIG)
-    assert cfg["wake_eastern_time"] == "08:45"
-    assert cfg["target_eastern_time"] == "09:00"
-    assert cfg["deadline_eastern_time"] == "09:25"
+    assert cfg["wake_eastern_time"] == "07:45"
+    assert cfg["target_eastern_time"] == "08:00"
+    assert cfg["deadline_eastern_time"] == "08:25"
     assert cfg["spot_session"] == "premarket"
     assert cfg["oi_inventory"] == "prior_close_t1"
     text = (ROOT / "tools" / "gex-sidecar" / "install_open_session_task.ps1").read_text(encoding="utf-8")
-    assert "2026-07-01 12:45:00" in text
-    assert "08:45" in text
-    assert "09:00" in text
-    assert "09:25" in text
+    assert "2026-07-01 11:45:00" in text
+    assert "07:45" in text
+    assert "08:00" in text
+    assert "08:25" in text
     assert "WhopGexOpenSession0940ET" in text
     assert "13:33:00" not in text
     assert "09:35" not in text
@@ -278,10 +278,10 @@ def main():
     print("===========================================================")
     test_plan_dst_and_gate()
     test_deadline_boundaries()
-    test_chain_pull_waits_until_0900_and_stamps()
+    test_chain_pull_waits_until_0800_and_stamps()
     test_winter_clock_and_late_mark()
     test_deadline_exact_and_window()
-    test_notify_window_cannot_delay_past_0900()
+    test_notify_window_cannot_delay_past_0800()
     test_refuse_early_pull()
     test_spot_only_does_not_repull_oi()
     test_example_config_and_installer()

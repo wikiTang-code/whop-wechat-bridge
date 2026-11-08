@@ -47,13 +47,13 @@ Dashboard **已挂只读消费**（v1）：
 
 ## 盘前本机自动采集
 
-工作日（CHG-059，仍在 **win-host + OpenD**，不迁 GCP）：**08:45 ET 唤醒，09:00 ET 拉链，09:25 ET 截止**（目标写完窗口 09:20–09:25；错过则 `preopen.deadline_status=late`）。`spot_session=premarket`。OI 是前收 T+1，时刻服务于赵哥约 09:32 的时效，不是新 OI。09:31 若只刷新现货，用 `python tools/gex-sidecar/open_session_run.py --spot-only-refresh`（stub，不重拉 OI，不调 OpenD）；在能拆现货与 OI 之前不要另挂 09:31 任务。
+工作日（CHG-059，仍在 **win-host + OpenD**，不迁 GCP）：**07:45 ET 唤醒，08:00 ET 拉链，08:25 ET 截止**（目标写完窗口 08:20–08:25；错过则 `preopen.deadline_status=late`）。`spot_session=premarket`。OI 是前收 T+1，时刻服务于赵哥约 09:32 的时效，不是新 OI。09:31 若只刷新现货，用 `python tools/gex-sidecar/open_session_run.py --spot-only-refresh`（stub，不重拉 OI，不调 OpenD）；在能拆现货与 OI 之前不要另挂 09:31 任务。
 
 1. 复制配置：`tools/gex-sidecar/open_session_config.example.json` → `open_session_config.json`（已 gitignore）
-2. 改 `mode` / `zero_dte` / `matrix`（默认 SPY,QQQ,SPX + 赵哥高频正股矩阵；拉链目标 09:00 ET）
+2. 改 `mode` / `zero_dte` / `matrix`（默认 SPY,QQQ,SPX + 赵哥高频正股矩阵；拉链目标 08:00 ET）
 3. 试跑：`python tools/gex-sidecar/open_session_run.py --dry-run`
 4. 安装或更新计划任务（覆盖同名任务）：`powershell -ExecutionPolicy Bypass -File tools/gex-sidecar/install_open_session_task.ps1`  
-   - 安装器把夏令 **08:45 ET = 12:45 UTC** 换成本机墙钟（北京时间约 20:45）。Python 等到 09:00 ET。  
+   - 安装器把夏令 **07:45 ET = 11:45 UTC** 换成本机墙钟（北京时间约 19:45）。Python 等到 08:00 ET。
    - 应用本次变更时重跑一次。之后 DST 由该锚点 + Python 等待吸收，不用按季重装。  
    - 验证：`Get-ScheduledTask -TaskName WhopGexOpenSession0940ET | Format-List TaskName,State`
 
@@ -68,3 +68,5 @@ Dashboard **已挂只读消费**（v1）：
 企微 webhook 读仓库 `.env` 的 `WECHAT_WORK_WEBHOOK_URL`（或配置里的 `webhook_env`）。机器人无法可靠收「回复同意」，故用 **预告 + skip 文件**。
 
 环境与读图细节见 `tools/gex-sidecar/README.md`。第一版样例在 `data/gex/latest.json`（2026-09-05 周末快照）。
+
+2026-11-07 调度源码更新：晚场 07:45/08:00/08:25 ET（写完 08:20–08:25），早场 20:10/20:15/20:40 ET（写完 20:35–20:40）。冬令北京时间分别为 20:45/21:00/21:25 与次日 09:10/09:15/09:40；仅源码/示例，安装由运维另行处理。09:31 现货刷新不变。
