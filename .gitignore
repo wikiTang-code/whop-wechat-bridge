@@ -73,6 +73,9 @@ scripts/*
 !scripts/game_mode.bat
 !scripts/work_mode.bat
 !scripts/whop-lm-tunnel.bat
+!scripts/level_chart.py
+!scripts/level_sources/
+!scripts/level_sources/**
 !scripts/start-tunnel.bat
 !scripts/WhopTunnelGuard.ps1
 !scripts/lm_bridge.js
@@ -171,3 +174,6 @@ models/**/*.gguf
 # REQ-037 local CU golden labeling worksheet (may contain chat previews)
 tools/knowledge/semantic_cu_golden_filled.json
 
+ 
+**/__pycache__/
+*.pyc

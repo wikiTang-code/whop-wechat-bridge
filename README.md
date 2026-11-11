@@ -130,3 +130,34 @@ python tools/gex-sidecar/summarize.py
 ```
 
 环境变量模板：`tools/gex-sidecar/env.example`。读图与 JSON 字段：`tools/gex-sidecar/README.md`。接入边界：`docs/gex-sidecar.md`。
+
+---
+
+## 交互式点位 K 线图看板 (Level Chart)
+
+基于 Plotly 离线渲染的交互式美股 K 线图，深度融合多源点位数据（GEX 矩阵、波动哥日内点位、SPXL 3x 杠杆非线性映射与交易员手动标记），支持图层分组显隐与日内最近上下支撑阻力实时距离测算。
+
+### 核心特性
+- **周期无缝切换**：内嵌日线 (1D) 与 1 小时线 (1H) 按钮，一键动态切换视图。
+- **可插拔点位源协议 (`LevelSource`)**：
+  - `GexLevelSource`：自动提取 0DTE / Matrix 快照中 KING、FLOOR、前 3 大正墙及负墙（标注金额与到期日）。
+  - `BodonggeLevelSource`：解析外部专家（波动哥）最新日内 5 档点位，并在 SPXL 图上自动按 3x 公式非线性映射。
+  - `SPXLMappingLevelSource`：实现 `SPXL = 246.75 * (1 + 3 * (SPX / 7376.86 - 1))`，展示关键锚点。
+  - `ManualLevelSource`：支持在 `config/level_chart.yaml` 中随时追加自定义点位。
+- **现价最近阻力/支撑高亮**：自动识别离现价最近的上下各一条关键线，加粗发光高亮并展示差值点数与百分比。
+- **离线内嵌单文件**：纯静态 HTML，顶部配备标的下拉选择、直达输入框与复选框图层控制器。
+
+### 依赖与运行
+```bash
+# 安装依赖 (建议 yfinance，Windows 免依赖 OpenD 服务)
+pip install plotly kaleido yfinance pandas pyyaml
+
+# 1. 运行核心验收标的 (SPY, SPX, SPXL, NVDA) 并导出 PNG 静态图
+python scripts/level_chart.py --symbols SPY,SPX,SPXL,NVDA --png
+
+# 2. 绘制任意不在快照内的代码 (优雅降级只画 K 线与手动点位)
+python scripts/level_chart.py --symbol PLTR --png
+
+# 3. 运行全量单元测试
+python -m pytest test/test_level_chart.py
+```
