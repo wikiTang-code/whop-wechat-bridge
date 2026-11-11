@@ -47,7 +47,52 @@
         "analysis_daily.md",
         "manifest.json"
       ]
+    },
+    {
+      "filename": "snapshot_20261110_204055.json",
+      "date": "20261110",
+      "generated_at": "2026-11-10T20:15:20-05:00",
+      "session": "morning_post_market",
+      "size_bytes": 455869,
+      "tickers_count": 27,
+      "tickers": [
+        "TSLA",
+        "NBIS",
+        "IREN",
+        "CRWV",
+        "CBRS",
+        "RIOT",
+        "AEHR",
+        "PL",
+        "INTC",
+        "NOK",
+        "WDC",
+        "GLW",
+        "AKAM",
+        "OKLO",
+        "ONDS",
+        "MU",
+        "COHR",
+        "SOXL",
+        "COIN",
+        "LITE",
+        "SOXX",
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "AMZN",
+        "META",
+        "SPCX"
+      ],
+      "zero_dte_count": 3,
+      "note": "Daily archive: morning_post_market (27 matrix, 3 0DTE)",
+      "files": [
+        "snapshot_20261110_204055.json",
+        "latest.json",
+        "analysis_daily.md",
+        "manifest.json"
+      ]
     }
   ],
-  "updated_at": "2026-11-10T21:10:39.983066"
+  "updated_at": "2026-11-11T09:40:55.916980"
 }
