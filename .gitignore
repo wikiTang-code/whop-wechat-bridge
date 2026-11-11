@@ -177,3 +177,7 @@ tools/knowledge/semantic_cu_golden_filled.json
  
 **/__pycache__/
 *.pyc
+ 
+data/level_chart/out/
+ 
+!requirements-level-chart.txt

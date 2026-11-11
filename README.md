@@ -139,25 +139,26 @@ python tools/gex-sidecar/summarize.py
 
 ### 核心特性
 - **周期无缝切换**：内嵌日线 (1D) 与 1 小时线 (1H) 按钮，一键动态切换视图。
+- **真离线独立渲染**：输出目录自动生成并共用本地 `plotly.min.js`，无外部 CDN 依赖，页面轻量且在离线环境可完整交互。
 - **可插拔点位源协议 (`LevelSource`)**：
-  - `GexLevelSource`：自动提取 0DTE / Matrix 快照中 KING、FLOOR、前 3 大正墙及负墙（标注金额与到期日）。
-  - `BodonggeLevelSource`：解析外部专家（波动哥）最新日内 5 档点位，并在 SPXL 图上自动按 3x 公式非线性映射。
-  - `SPXLMappingLevelSource`：实现 `SPXL = 246.75 * (1 + 3 * (SPX / 7376.86 - 1))`，展示关键锚点。
+  - `GexLevelSource`：自动提取 0DTE / Matrix 快照中 KING（最负 Gamma 磁吸点）、FLOOR（正 Gamma 顶部阻尼）、前 3 大正墙及负墙（排除 KING/FLOOR 叠线，标注金额与到期日）。默认寻址最新快照，支持 `--snapshot` 手动覆盖复现。
+  - `BodonggeLevelSource`：解析外部专家最新日内 5 档点位（支持环境变量 `BODONGGE_PATH` 配置），并在 SPXL 图上自动按 3x 公式非线性映射。
+  - `SPXLMappingLevelSource`：动态依据参数生成并计算 `SPXL = base_spxl * (1 + factor * (SPX / base_spx - 1))` 关键锚点。
   - `ManualLevelSource`：支持在 `config/level_chart.yaml` 中随时追加自定义点位。
-- **现价最近阻力/支撑高亮**：自动识别离现价最近的上下各一条关键线，加粗发光高亮并展示差值点数与百分比。
-- **离线内嵌单文件**：纯静态 HTML，顶部配备标的下拉选择、直达输入框与复选框图层控制器。
+- **现价最近阻力/支撑高亮**：以最新收盘价为基准自动识别离现价最近的上下各一条关键线，加粗高亮并显示点数与百分比（快照 spot 作为参考展示）。
+- **标的快速切换与防 404**：下拉列表仅列出实际已生成的标的，直达框输入未生成标的时给出指引提示，避免 404 错误。
 
 ### 依赖与运行
 ```bash
-# 安装依赖 (建议 yfinance，Windows 免依赖 OpenD 服务)
-pip install plotly kaleido yfinance pandas pyyaml
+# 安装依赖 (建议 yfinance，跨平台开箱即用；kaleido 为可选无头图片渲染引擎，无需 Chrome)
+pip install -r requirements-level-chart.txt
 
-# 1. 运行核心验收标的 (SPY, SPX, SPXL, NVDA) 并导出 PNG 静态图
-python scripts/level_chart.py --symbols SPY,SPX,SPXL,NVDA --png
+# 1. 运行核心验收标的 (SPY, SPX, SPXL, NVDA) 并导出 PNG 静态图 (可指定快照复现)
+python scripts/level_chart.py --symbols SPY,SPX,SPXL,NVDA --snapshot data/gex/20261111/snapshot_20261111_081039.json --png
 
 # 2. 绘制任意不在快照内的代码 (优雅降级只画 K 线与手动点位)
 python scripts/level_chart.py --symbol PLTR --png
 
-# 3. 运行全量单元测试
+# 3. 运行全量单元测试 (基于 test/fixtures 纯相对路径独立样本)
 python -m pytest test/test_level_chart.py
 ```

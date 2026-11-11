@@ -38,9 +38,9 @@ default_symbols:
 
 # 行情数据源配置
 market_data:
-  provider: yfinance # 选用 yfinance: 独立无外部服务依赖，Windows/Linux 开箱即用
+  provider: yfinance # 选用 yfinance: 独立无外部服务依赖，跨平台开箱即用
   symbol_map:
-    SPX: "^GSPC"     # yfinance 中标普500指数代码映射
+    SPX: "^GSPC"     # yfinance 中标普500指数映射代码
   periods:
     daily:
       period: "3mo"
@@ -49,22 +49,22 @@ market_data:
       period: "1mo"
       interval: "1h"
 
-# GEX 关键点位数据源配置
+# GEX 关键点位数据源配置 (相对路径)
 gex:
   enabled: true
-  snapshot_path: "data/gex/snapshot_20261111_081039.json" # 优先读此路径，若无自动回退 20261111 目录
-  fallback_paths:
-    - "data/gex/20261111/snapshot_20261111_081039.json"
-    - "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\level-chart-20261111\\snapshot_20261111_081039.json"
+  snapshot_path: "data/gex/latest.json" # 默认读最新快照，可用 --snapshot 覆盖
+  fallback_patterns:
+    - "data/gex/*/latest.json"
+    - "data/gex/*/snapshot_*.json"
+    - "data/gex/snapshot_*.json"
 
-# 外部专家/KOL点位数据源 (通过 LevelSource 协议解耦，可扩展 API / JSON / Markdown)
+# 外部专家/KOL点位数据源 (通过 LevelSource 协议解耦，可从环境变量或相对路径读取)
 level_sources:
   bodongge:
     enabled: true
     provider: markdown_file # 可替换为 api 或 json_file
-    path: "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\level-chart-20261111\\stockrocks-波动哥.md"
-    fallback_paths:
-      - "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\level-chart-20261111\\bodongge-latest-20261109.md"
+    path: "data/level_chart/bodongge_sample.json" # 可通过环境变量 BODONGGE_PATH 覆盖
+    env_var: "BODONGGE_PATH"
     target_symbol: "SPX"
 
 # SPXL 3倍杠杆非线性映射参数
@@ -74,7 +74,7 @@ spxl_mapping:
   base_spxl: 246.75
   base_spx: 7376.86
   factor: 3.0
-  # 关键映射基准抽样点（在 SPXL 图上直观展示）
+  # 关键映射基准参考点
   reference_points:
     - spx: 7376.86
       label: "基准锚点"
@@ -91,7 +91,7 @@ manual_levels:
   SPXL: []
   NVDA: []
 
-# 输出配置
+# 输出配置 (默认输出到 gitignore 的 data/level_chart/out，真离线共用 plotly.min.js)
 output:
-  dir: "C:\\Users\\86597\\.gemini\\antigravity\\scratch\\level-chart-20261111\\out"
+  dir: "data/level_chart/out"
   export_png: true

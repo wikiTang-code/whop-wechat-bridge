@@ -24,11 +24,18 @@ class SPXLMappingLevelSource(LevelSource):
     def map_spx_to_spxl(self, spx_price: float) -> float:
         return self.base_spxl * (1.0 + self.factor * (spx_price / self.base_spx - 1.0))
 
+    def get_formula_string(self) -> str:
+        return f"SPXL = {self.base_spxl} * (1 + {self.factor} * (SPX / {self.base_spx} - 1))"
+
     def get_levels(self, symbol: str) -> List[KeyLevel]:
         if symbol.upper() != "SPXL":
             return []
 
         levels: List[KeyLevel] = []
+        formula_str = self.get_formula_string()
+
+        # 尝试获取基准发布日期
+        fallback_pub_date = getattr(self.gex_source, "published_date", "") if self.gex_source else ""
 
         # 1. 静态基准参考点
         for ref in self.reference_points:
@@ -36,16 +43,17 @@ class SPXLMappingLevelSource(LevelSource):
             if spx_val is not None:
                 spxl_val = self.map_spx_to_spxl(spx_val)
                 label_desc = ref.get("label", "基准锚点")
+                ref_date = ref.get("published_at") or fallback_pub_date
                 levels.append(KeyLevel(
                     symbol="SPXL",
                     price=spxl_val,
                     label=f"SPXL映射: {label_desc} (SPX={spx_val:g})",
-                    published_at="2026-11-11",
+                    published_at=ref_date,
                     group="spxl_mapped",
-                    note=f"换算公式: SPXL=246.75*(1+3*(SPX/7376.86-1))"
+                    note=f"换算公式: {formula_str}"
                 ))
 
-        # 2. 如果关联了 GEX，把 SPX 的 KING 与 FLOOR 也映射并归入 spxl_mapped
+        # 2. 如果关联了 GEX，把 SPX 的 KING 与 FLOOR 映射并归入 spxl_mapped
         if self.gex_source:
             spx_levels = self.gex_source.get_levels("SPX")
             for sl in spx_levels:
@@ -59,7 +67,7 @@ class SPXLMappingLevelSource(LevelSource):
                         group="spxl_mapped",
                         amount=sl.amount,
                         expiry=sl.expiry,
-                        note=f"由 SPX {sl.label} 3x映射"
+                        note=f"由 SPX {sl.label} 3x映射 ({formula_str})"
                     ))
 
         return levels
