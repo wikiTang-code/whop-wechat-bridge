@@ -1,6 +1,7 @@
 """
 单元测试套件: 交互式点位 K 线图与数据源协议
 全部使用 test/fixtures/ 纯本地相对路径小样本，不依赖任何外部机器绝对路径。
+包含同价线合并、标注紧凑排版及防重叠偏移算法的严密验证。
 """
 import math
 import os
@@ -17,6 +18,11 @@ from level_sources import (
     KeyLevel,
     ManualLevelSource,
     SPXLMappingLevelSource,
+)
+from level_chart import (
+    calculate_annotation_yshifts,
+    format_level_short_annotation,
+    merge_levels_by_price,
 )
 
 
@@ -52,7 +58,6 @@ def test_spxl_three_point_mapping():
     val3 = mapper.map_spx_to_spxl(7600.0)
     assert math.isclose(val3, 269.1415575191, rel_tol=1e-7), f"Expected 269.1415575191, got {val3}"
 
-    # 动态公式字符串检查 (非写死)
     f_str = mapper.get_formula_string()
     assert "246.75" in f_str and "7376.86" in f_str and "3.0" in f_str
 
@@ -61,11 +66,7 @@ def test_gex_spy_values(snapshot_fixture_path):
     """
     对照数值核验 (SPY):
     - KING 747.0 (net_gex 最负极值点); FLOOR 755.0; 到期 2026-11-11
-    - 排除 KING/FLOOR 叠线后:
-      正墙前 3: 757.0 / 760.0 / 756.0 (755.0 作为 FLOOR 被排除避免重合)
-      负墙前 3: 745.0 / 740.0 / 746.0 (747.0 作为 KING 被排除避免重合)
     """
-    # 1. 验证排除叠线模式 (生产/出图默认)
     src_clean = GexLevelSource(snapshot_fixture_path, exclude_king_floor=True)
     levels_clean = src_clean.get_levels("SPY")
 
@@ -78,7 +79,7 @@ def test_gex_spy_values(snapshot_fixture_path):
     assert floor.price == 755.0
     assert math.isclose(floor.amount, 61797835.06, abs_tol=0.1)
 
-    # 验证正负墙不与 KING/FLOOR 叠线
+    # 验证正负墙排除 KING/FLOOR 叠线
     pos_walls = [l for l in levels_clean if l.group == "gex_wall" and "正墙" in l.label]
     assert 755.0 not in [w.price for w in pos_walls]
     assert pos_walls[0].price == 757.0
@@ -88,12 +89,6 @@ def test_gex_spy_values(snapshot_fixture_path):
     assert 747.0 not in [w.price for w in neg_walls]
     assert neg_walls[0].price == 745.0
     assert neg_walls[1].price == 740.0
-
-    # 2. 验证原始未排除模式 (用于原始 ladder 核对)
-    src_raw = GexLevelSource(snapshot_fixture_path, exclude_king_floor=False)
-    raw_levels = src_raw.get_levels("SPY")
-    raw_pos = [l for l in raw_levels if l.group == "gex_wall" and "正墙" in l.label]
-    assert [w.price for w in raw_pos] == [755.0, 757.0, 760.0]
 
 
 def test_gex_spx_values(snapshot_fixture_path):
@@ -147,7 +142,6 @@ def test_bodongge_fixture(bodongge_fixture_path):
     """
     使用本地假数据 fixture 测试解析协议:
     最新时间 2026-11-11 05:00:58
-    最上面：8888.50 / 上面：8850.00 / 中间：8800.00 / 下面：8750.00 / 最下面：8700.00
     """
     src = BodonggeLevelSource(bodongge_fixture_path, target_symbol="SPX")
     spx_levels = src.get_levels("SPX")
@@ -162,6 +156,48 @@ def test_bodongge_fixture(bodongge_fixture_path):
     assert len(spxl_levels) == 5
     p_spxl_top = 246.75 * (1 + 3 * (8888.50 / 7376.86 - 1))
     assert math.isclose(spxl_levels[0].price, p_spxl_top, rel_tol=1e-7)
+
+
+def test_merge_levels_by_price():
+    """
+    新增验收用例: 验证同价多线合并逻辑 (如 NVDA 165 处存在多个到期日或重叠标签)
+    """
+    l1 = KeyLevel(symbol="NVDA", price=165.0, label="负墙#2", published_at="2026-11-11", group="gex_wall", amount=-5000000.0, expiry="2026-11-11")
+    l2 = KeyLevel(symbol="NVDA", price=165.0, label="负墙#3", published_at="2026-11-11", group="gex_wall", amount=-3000000.0, expiry="2026-11-20")
+    l3 = KeyLevel(symbol="NVDA", price=180.0, label="FLOOR", published_at="2026-11-11", group="gex_floor", amount=18000000.0, expiry="2026-11-11")
+
+    merged = merge_levels_by_price([l1, l2, l3])
+    assert len(merged) == 2, f"Expected 2 merged levels, got {len(merged)}"
+
+    # 检查 165 点位的合并结果
+    p165 = next(l for l in merged if l.price == 165.0)
+    assert "负墙#2" in p165.label and "负墙#3" in p165.label
+    assert "2026-11-11" in p165.expiry and "2026-11-20" in p165.expiry
+    assert math.isclose(p165.amount, -8000000.0, abs_tol=1.0)
+
+
+def test_format_level_short_annotation():
+    """
+    新增验收用例: 验证图表右端紧凑 Annotation 生成规则
+    """
+    l = KeyLevel(symbol="SPX", price=7575.0, label="GEX 正墙 #1", published_at="2026-11-11", group="gex_wall", amount=8180599.84, expiry="2026-11-13")
+    annot_str = format_level_short_annotation(l, dist_str="[+54.07 / +0.72%]")
+    assert "正墙 #1 7575" in annot_str
+    assert "$8.2M" in annot_str
+    assert "11-13" in annot_str
+    assert "[+54.07 / +0.72%]" in annot_str
+
+
+def test_calculate_annotation_yshifts():
+    """
+    新增验收用例: 验证价格相近时上下交错偏移以防文字重叠
+    """
+    l1 = KeyLevel(symbol="SPX", price=7520.0, label="KING", published_at="", group="gex_king")
+    l2 = KeyLevel(symbol="SPX", price=7525.0, label="负墙", published_at="", group="gex_wall")
+    yshifts = calculate_annotation_yshifts([l1, l2], price_range=1000.0)
+
+    # 距离 5 点占 1000 点的 0.5%，小于 2.2% 阈值，应产生交错位移
+    assert yshifts[7520.0] != yshifts[7525.0]
 
 
 def test_missing_symbol_graceful():

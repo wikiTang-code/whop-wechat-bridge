@@ -59,6 +59,8 @@ class BodonggeLevelSource(LevelSource):
     def _parse_source(self):
         resolved = self._resolve_path()
         if not resolved:
+            if not os.getenv(self.env_var):
+                print(f"[BodonggeLevelSource] 提示: 未设置 {self.env_var} 环境变量且未找到点位文件，跳过外部点位")
             return
 
         try:

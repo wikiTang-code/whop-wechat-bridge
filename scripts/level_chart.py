@@ -3,33 +3,39 @@
 交互式点位 K 线图生成器 (Interactive Level Chart Generator)
 ============================================================
 功能特性：
-1. 日线 / 小时线 (1D / 1H) 双周期动态切换；
+1. 日线 / 小时线 (1D / 1H) 双周期动态切换 (按钮布局优化，杜绝遮挡标题)；
 2. 真离线单文件 HTML：共用输出目录下的本地 plotly.min.js，免外部 CDN，体积轻量；
 3. 多源点位叠加与独立分组显隐控制：
    - 1) GEX KING (最负 Gamma 极值磁吸点)
    - 2) GEX FLOOR (正 Gamma 顶部阻尼地板)
-   - 3) GEX 前 3 大正墙与前 3 大负墙 (排除 KING/FLOOR 叠线，标注金额与到期日)
-   - 4) 外部专家/波动哥最新日内点位 (标注发布日期)
+   - 3) GEX 阶梯墙 (按正墙1/2/3、负墙1/2/3区分深浅红绿与线型，排除与KING/FLOOR叠线)
+   - 4) 外部专家/波动哥最新日内点位 (按级别区分紫色系深浅)
    - 5) SPXL 3x 杠杆非线性映射线 (根据基准参数动态换算)
    - 6) 手动点位配置
-4. 现价 (最新收盘价) 最近上下两条关键线高亮并实时计算点数差与百分比；
-5. 标的快捷下拉选择与全局总览门户 (仅展示已生成标的，防止 404)；
-6. 支持 CLI 参数绘制任意代码 (如 --symbol PLTR)。
+4. 增强图面可读性 (却华用户体验优化)：
+   - 每条水平线在图右端直接加文字标注 (Annotation)，显示短名+价格+金额+到期日；
+   - 同价多条线合并 (如 NVDA 负墙 165 多到期日)；
+   - 标注防重叠：价格相近时上下交错错开；
+   - 现价 (最新收盘价) 最近上下两条关键线加粗发光高亮并标出距离 (+点数 / +百分比)；
+5. 手机竖屏版 PNG (1080x1600, scale=2)：
+   - 截取最近 60 根 K 线，极大字号与高清晰度，解决手机无法打开 HTML 的痛点；
+   - 桌面版 PNG 与手机版 PNG 同时输出；
+6. 标的快捷下拉选择与全局总览门户 (全部生成完成后统一回写，彻底杜绝 404)；
+7. 支持 CLI 参数绘制任意代码 (如 --symbol PLTR)。
 
 用法示例：
-  # 1. 为验收四标的生成 HTML 与 PNG (指定 11-11 快照)：
+  # 1. 为验收四标的生成 HTML、桌面版与手机版 PNG：
   python scripts/level_chart.py --symbols SPY,SPX,SPXL,NVDA --snapshot data/gex/20261111/snapshot_20261111_081039.json --png
 
   # 2. 绘制任意标的 (如不在默认列表的 PLTR)：
   python scripts/level_chart.py --symbol PLTR --png
-
-  # 3. 批量生成全部标的及索引页面：
-  python scripts/level_chart.py --all
 """
 
 import argparse
+import copy
 import io
 import json
+import math
 import os
 import sys
 import time
@@ -81,16 +87,146 @@ def load_config(config_path: str = DEFAULT_CONFIG_PATH) -> dict:
         return yaml.safe_load(f) or {}
 
 
+def merge_levels_by_price(levels: List[KeyLevel], tolerance: float = 0.05) -> List[KeyLevel]:
+    """
+    同价多条线合并为一条 (例如同价格存在多个到期日或重叠墙)
+    价格非常接近 (abs(p1 - p2) <= tolerance) 的点位进行智能合并
+    """
+    if not levels:
+        return []
+
+    # 按价格升序排序
+    sorted_lvls = sorted(levels, key=lambda x: x.price)
+    merged: List[KeyLevel] = []
+
+    curr = sorted_lvls[0]
+    curr_labels = [curr.label]
+    curr_expiries = [curr.expiry] if curr.expiry else []
+    curr_amounts = [curr.amount] if curr.amount is not None else []
+    curr_notes = [curr.note] if curr.note else []
+
+    for nxt in sorted_lvls[1:]:
+        if abs(nxt.price - curr.price) <= tolerance:
+            # 价格重叠，执行合并
+            if nxt.label not in curr_labels:
+                curr_labels.append(nxt.label)
+            if nxt.expiry and nxt.expiry not in curr_expiries:
+                curr_expiries.append(nxt.expiry)
+            if nxt.amount is not None:
+                curr_amounts.append(nxt.amount)
+            if nxt.note and nxt.note not in curr_notes:
+                curr_notes.append(nxt.note)
+        else:
+            # 结算前一个合并对象
+            merged.append(_build_merged_level(curr, curr_labels, curr_expiries, curr_amounts, curr_notes))
+            # 开启新一组
+            curr = nxt
+            curr_labels = [curr.label]
+            curr_expiries = [curr.expiry] if curr.expiry else []
+            curr_amounts = [curr.amount] if curr.amount is not None else []
+            curr_notes = [curr.note] if curr.note else []
+
+    merged.append(_build_merged_level(curr, curr_labels, curr_expiries, curr_amounts, curr_notes))
+    return merged
+
+
+def _build_merged_level(
+    base: KeyLevel,
+    labels: List[str],
+    expiries: List[str],
+    amounts: List[float],
+    notes: List[str],
+) -> KeyLevel:
+    combined_label = " / ".join(labels)
+    combined_expiry = ", ".join(expiries) if expiries else None
+    combined_amount = sum(amounts) if amounts else None
+    combined_note = " | ".join(notes) if notes else None
+
+    return KeyLevel(
+        symbol=base.symbol,
+        price=base.price,
+        label=combined_label,
+        published_at=base.published_at,
+        group=base.group,
+        amount=combined_amount,
+        expiry=combined_expiry,
+        note=combined_note,
+    )
+
+
+def format_level_short_annotation(level: KeyLevel, dist_str: str = "") -> str:
+    """
+    生成紧凑易读的右端文字标注 (Annotation):
+    短名 + 价格 + (金额 + 到期日) + (最近阻力/支撑测距)
+    """
+    # 格式化短标签
+    label_short = level.label
+    label_short = label_short.replace("GEX ", "")
+    label_short = label_short.replace("外部专家点位-", "专家-")
+    label_short = label_short.replace("波动哥-", "波动哥-")
+
+    parts = [f"{label_short} {level.price:g}"]
+
+    # 格式化金额
+    if level.amount is not None:
+        if abs(level.amount) >= 1e6:
+            parts.append(f"${level.amount/1e6:.1f}M")
+        elif abs(level.amount) >= 1e3:
+            parts.append(f"${level.amount/1e3:.0f}K")
+
+    # 格式化到期日 (精简为 MM-DD)
+    if level.expiry:
+        exp_parts = []
+        for exp in level.expiry.split(", "):
+            if len(exp) == 10 and exp[4] == "-" and exp[7] == "-":
+                exp_parts.append(exp[5:])
+            else:
+                exp_parts.append(exp)
+        parts.append(",".join(exp_parts))
+
+    res = " ".join(parts)
+    if dist_str:
+        res += f" {dist_str}"
+    return res
+
+
+def calculate_annotation_yshifts(levels: List[KeyLevel], price_range: float) -> Dict[float, int]:
+    """
+    针对价格过于接近的相邻点位，计算错开的 Y 轴像素偏移 (yshift)
+    避免文字在图表右端叠压遮挡
+    """
+    if not levels or price_range <= 0:
+        return {}
+
+    sorted_lvls = sorted(levels, key=lambda x: x.price)
+    threshold = price_range * 0.022  # 相对价格范围 2.2% 以内视为容易叠压
+    yshifts: Dict[float, int] = {}
+
+    prev_p = -999999.0
+    shift_toggle = False
+    for lvl in sorted_lvls:
+        if (lvl.price - prev_p) < threshold:
+            # 开启交错
+            shift_toggle = not shift_toggle
+            yshifts[lvl.price] = 13 if shift_toggle else -13
+        else:
+            yshifts[lvl.price] = 0
+            shift_toggle = False
+        prev_p = lvl.price
+
+    return yshifts
+
+
 class LevelChartBuilder:
     def __init__(self, config: dict, snapshot_path: Optional[str] = None, out_dir: Optional[str] = None):
         self.config = config
 
-        # 确定输出目录 (相对仓库路径默认 data/level_chart/out)
+        # 确定输出目录
         raw_out_dir = out_dir or config.get("output", {}).get("dir", "data/level_chart/out")
         self.out_dir = raw_out_dir if os.path.isabs(raw_out_dir) else os.path.join(PROJECT_ROOT, raw_out_dir)
         os.makedirs(self.out_dir, exist_ok=True)
 
-        # 准备离线 plotly.min.js
+        # 准备本地离线 plotly.min.js
         self._ensure_offline_plotly_js()
 
         # 1. 初始化 GEX 数据源
@@ -99,9 +235,9 @@ class LevelChartBuilder:
         patterns = gex_cfg.get("fallback_patterns", [])
         self.gex_source = GexLevelSource(snap_path, patterns, exclude_king_floor=True)
 
-        # 2. 初始化 波动哥数据源
+        # 2. 初始化 外部专家/波动哥数据源
         bdg_cfg = config.get("level_sources", {}).get("bodongge", {})
-        bdg_path = bdg_cfg.get("path", "")
+        bdg_path = bdg_cfg.get("path", "data/level_chart/bodongge_sample.md")
         bdg_fallbacks = bdg_cfg.get("fallback_paths", [])
         spxl_cfg = config.get("spxl_mapping", {})
         self.bodongge_source = BodonggeLevelSource(
@@ -168,17 +304,19 @@ class LevelChartBuilder:
             return None, None
 
     def aggregate_levels(self, symbol: str) -> List[KeyLevel]:
-        """汇总该标的所有源的关键点位"""
-        levels: List[KeyLevel] = []
+        """汇总该标的所有源的关键点位，并合并同价点位"""
+        raw_levels: List[KeyLevel] = []
         sym = symbol.upper()
 
-        levels.extend(self.gex_source.get_levels(sym))
-        levels.extend(self.bodongge_source.get_levels(sym))
+        raw_levels.extend(self.gex_source.get_levels(sym))
+        raw_levels.extend(self.bodongge_source.get_levels(sym))
         if sym == "SPXL":
-            levels.extend(self.spxl_source.get_levels(sym))
-        levels.extend(self.manual_source.get_levels(sym))
+            raw_levels.extend(self.spxl_source.get_levels(sym))
+        raw_levels.extend(self.manual_source.get_levels(sym))
 
-        return levels
+        # 执行同价多线合并
+        merged_levels = merge_levels_by_price(raw_levels)
+        return merged_levels
 
     def _determine_nearest_levels(
         self, spot: float, levels: List[KeyLevel]
@@ -192,54 +330,96 @@ class LevelChartBuilder:
 
         return nearest_above, nearest_below
 
-    def generate_chart(
+    def _get_level_visual_style(self, lvl: KeyLevel) -> dict:
+        """为不同点位分组和级别赋予区分度极高的颜色与线型"""
+        label = lvl.label
+        group = lvl.group
+
+        # 1. GEX KING (明亮金色加粗实线)
+        if "KING" in label or group == "gex_king":
+            return {"color": "#ffd700", "dash": "solid", "width": 2.6}
+
+        # 2. GEX FLOOR (青碧水蓝加粗实线)
+        if "FLOOR" in label or group == "gex_floor":
+            return {"color": "#00e5ff", "dash": "solid", "width": 2.6}
+
+        # 3. GEX 阶梯正墙 (正墙1/2/3 不同深浅绿与线型)
+        if "正墙" in label:
+            if "#1" in label or "1" in label:
+                return {"color": "#00e676", "dash": "solid", "width": 2.2}  # 鲜亮绿
+            elif "#2" in label or "2" in label:
+                return {"color": "#00b248", "dash": "dash", "width": 1.8}   # 中绿
+            else:
+                return {"color": "#00796b", "dash": "dot", "width": 1.6}    # 青深绿
+
+        # 4. GEX 阶梯负墙 (负墙1/2/3 不同深浅红与线型)
+        if "负墙" in label:
+            if "#1" in label or "1" in label:
+                return {"color": "#ff5252", "dash": "solid", "width": 2.2}  # 珊瑚亮红
+            elif "#2" in label or "2" in label:
+                return {"color": "#d50000", "dash": "dash", "width": 1.8}   # 绯红
+            else:
+                return {"color": "#880e4f", "dash": "dot", "width": 1.6}    # 暗酒红
+
+        # 5. 波动哥/外部专家点位 (紫色系不同深浅与点划线)
+        if group == "bodongge":
+            if "最上面" in label:
+                return {"color": "#ff4081", "dash": "dashdot", "width": 2.2}
+            elif "上面" in label:
+                return {"color": "#e040fb", "dash": "dashdot", "width": 2.0}
+            elif "中" in label:
+                return {"color": "#ba68c8", "dash": "dot", "width": 1.8}
+            elif "最下面" in label:
+                return {"color": "#6a1b9a", "dash": "dashdot", "width": 2.2}
+            else:
+                return {"color": "#9c27b0", "dash": "dashdot", "width": 2.0}
+
+        # 6. SPXL 映射线 (亮橙黄双点划线)
+        if group == "spxl_mapped":
+            return {"color": "#ffab00", "dash": "dashdot", "width": 2.0}
+
+        # 7. 手动点位 (天蓝色虚线)
+        if group == "manual":
+            return {"color": "#64b5f6", "dash": "dash", "width": 1.6}
+
+        return {"color": "#b0bec5", "dash": "dash", "width": 1.5}
+
+    def build_figure(
         self,
         symbol: str,
-        export_png: bool = False,
-        generated_symbols: Optional[List[str]] = None
-    ) -> str:
+        df_daily: Optional[pd.DataFrame],
+        df_hourly: Optional[pd.DataFrame],
+        all_levels: List[KeyLevel],
+        current_price: float,
+        gex_spot: Optional[float],
+        is_mobile: bool = False,
+    ) -> go.Figure:
+        """
+        构建 Plotly 图表对象 (支持桌面版与手机大字号竖屏版)
+        """
         sym = symbol.upper()
-        print(f"\n================ 正在生成标的: {sym} ================")
-        start_t = time.time()
-
-        # 1. 获取行情
-        df_daily, df_hourly = self.fetch_klines(sym)
-        if df_daily is None and df_hourly is None:
-            raise RuntimeError(f"无法拉取 {sym} 的行情数据")
-
-        # 基础行情与最新收盘价 (优先作为现价计算基准)
         base_df = df_daily if df_daily is not None else df_hourly
-        last_close = float(base_df["Close"].iloc[-1])
 
-        # 快照参考 spot (仅作标注对比)
-        gex_spot = None
-        if sym in self.gex_source.data.get("zero_dte", {}):
-            gex_spot = self.gex_source.data["zero_dte"][sym].get("spot")
-        elif sym in self.gex_source.data.get("matrix", {}):
-            gex_spot = self.gex_source.data["matrix"][sym].get("spot")
+        # 如果是手机版，截取最近约 60 根 K 线，使得走势与点位异常清晰
+        plot_df_daily = df_daily.iloc[-60:] if (df_daily is not None and is_mobile and len(df_daily) > 60) else df_daily
+        plot_df_hourly = df_hourly.iloc[-60:] if (df_hourly is not None and is_mobile and len(df_hourly) > 60) else df_hourly
+        active_plot_df = plot_df_daily if plot_df_daily is not None else plot_df_hourly
 
-        current_price = last_close
+        x_min = active_plot_df.index.min()
+        x_max = active_plot_df.index.max()
 
-        # 2. 收集各源点位并计算最近上下支撑阻力 (按最新收盘价)
-        all_levels = self.aggregate_levels(sym)
-        nearest_above, nearest_below = self._determine_nearest_levels(current_price, all_levels)
-
-        # 3. 创建 Plotly 图表
         fig = go.Figure()
 
-        x_min = base_df.index.min()
-        x_max = base_df.index.max()
-
-        # Trace 0: 日线 K 线 (初始显示)
-        has_daily = df_daily is not None and not df_daily.empty
+        # Trace 0: 日线 Candlestick
+        has_daily = plot_df_daily is not None and not plot_df_daily.empty
         if has_daily:
             fig.add_trace(
                 go.Candlestick(
-                    x=df_daily.index,
-                    open=df_daily["Open"],
-                    high=df_daily["High"],
-                    low=df_daily["Low"],
-                    close=df_daily["Close"],
+                    x=plot_df_daily.index,
+                    open=plot_df_daily["Open"],
+                    high=plot_df_daily["High"],
+                    low=plot_df_daily["Low"],
+                    close=plot_df_daily["Close"],
                     name="日K (1D)",
                     increasing_line_color="#26a69a",
                     decreasing_line_color="#ef5350",
@@ -248,16 +428,16 @@ class LevelChartBuilder:
                 )
             )
 
-        # Trace 1: 小时线 K 线 (初始隐藏)
-        has_hourly = df_hourly is not None and not df_hourly.empty
+        # Trace 1: 小时线 Candlestick
+        has_hourly = plot_df_hourly is not None and not plot_df_hourly.empty
         if has_hourly:
             fig.add_trace(
                 go.Candlestick(
-                    x=df_hourly.index,
-                    open=df_hourly["Open"],
-                    high=df_hourly["High"],
-                    low=df_hourly["Low"],
-                    close=df_hourly["Close"],
+                    x=plot_df_hourly.index,
+                    open=plot_df_hourly["Open"],
+                    high=plot_df_hourly["High"],
+                    low=plot_df_hourly["Low"],
+                    close=plot_df_hourly["Close"],
                     name="1小时K (1H)",
                     increasing_line_color="#26a69a",
                     decreasing_line_color="#ef5350",
@@ -266,23 +446,26 @@ class LevelChartBuilder:
                 )
             )
 
-        # 点位配色
-        style_map = {
-            "gex_king": {"color": "#ff9800", "dash": "solid", "width": 2.2, "name": "GEX KING"},
-            "gex_floor": {"color": "#00e676", "dash": "solid", "width": 2.2, "name": "GEX FLOOR"},
-            "gex_wall": {"color": "#00b0ff", "dash": "dash", "width": 1.5, "name": "GEX 关键墙"},
-            "bodongge": {"color": "#e040fb", "dash": "dot", "width": 1.8, "name": "外部专家点位"},
-            "spxl_mapped": {"color": "#ffd600", "dash": "dashdot", "width": 1.8, "name": "SPXL映射线"},
-            "manual": {"color": "#90a4ae", "dash": "dash", "width": 1.5, "name": "自定义点位"},
-        }
+        # 测算最近上下阻力/支撑
+        nearest_above, nearest_below = self._determine_nearest_levels(current_price, all_levels)
 
-        # 4. 绘制水平点位线并标记高亮最近线
+        # 计算价格范围供 yshift 错开防重叠
+        p_min = active_plot_df["Low"].min()
+        p_max = active_plot_df["High"].max()
+        all_prices = [lvl.price for lvl in all_levels] + [current_price]
+        p_range = max(max(all_prices), p_max) - min(min(all_prices), p_min)
+        yshifts = calculate_annotation_yshifts(all_levels, p_range)
+
+        # 收集右侧 annotations
+        annotations = []
+
+        # 绘制水平点位线
         for lvl in all_levels:
             is_above_hit = nearest_above is not None and lvl == nearest_above
             is_below_hit = nearest_below is not None and lvl == nearest_below
             is_nearest = is_above_hit or is_below_hit
 
-            s_cfg = style_map.get(lvl.group, {"color": "#bdbdbd", "dash": "dash", "width": 1.5})
+            s_cfg = self._get_level_visual_style(lvl)
             line_color = s_cfg["color"]
             line_dash = s_cfg["dash"]
             line_width = s_cfg["width"]
@@ -291,17 +474,17 @@ class LevelChartBuilder:
             if is_above_hit:
                 pts = lvl.price - current_price
                 pct = pts / current_price * 100.0
-                dist_str = f" [最近阻力 +{pts:.2f} / +{pct:.2f}%]"
-                line_width = 3.2
+                dist_str = f"[+{pts:.2f} / +{pct:.2f}%]"
+                line_width = 3.6
                 line_color = "#ff1744"
             elif is_below_hit:
                 pts = lvl.price - current_price
                 pct = pts / current_price * 100.0
-                dist_str = f" [最近支撑 {pts:.2f} / {pct:.2f}%]"
-                line_width = 3.2
+                dist_str = f"[{pts:.2f} / {pct:.2f}%]"
+                line_width = 3.6
                 line_color = "#00e676"
 
-            hover_text = f"<b>{lvl.label}</b>{dist_str}<br>价格: <b>{lvl.price:.2f}</b>"
+            hover_text = f"<b>{lvl.label}</b> {dist_str}<br>价格: <b>{lvl.price:.2f}</b>"
             if lvl.amount is not None:
                 hover_text += f"<br>金额: ${lvl.amount/1e6:.2f}M" if abs(lvl.amount) >= 1e6 else f"<br>金额: ${lvl.amount:.2f}"
             if lvl.expiry:
@@ -316,7 +499,7 @@ class LevelChartBuilder:
                     x=[x_min, x_max],
                     y=[lvl.price, lvl.price],
                     mode="lines",
-                    name=f"{lvl.label} ({lvl.price:.2f}){dist_str}",
+                    name=f"{lvl.label} ({lvl.price:g}) {dist_str}",
                     legendgroup=lvl.group,
                     line=dict(color=line_color, width=line_width, dash=line_dash),
                     hovertext=hover_text,
@@ -325,7 +508,32 @@ class LevelChartBuilder:
                 )
             )
 
-        # 5. 现价水平基准线 (最新收盘价)
+            # 右端 Annotation 标注 (清晰短名+价格+金额+到期日)
+            annot_text = format_level_short_annotation(lvl, dist_str)
+            annot_bg = "rgba(255, 23, 68, 0.25)" if is_above_hit else ("rgba(0, 230, 118, 0.25)" if is_below_hit else "rgba(19, 23, 34, 0.7)")
+            annot_border = line_color if is_nearest else "rgba(255, 255, 255, 0.15)"
+            font_size = 13 if is_mobile else 11
+
+            annotations.append(
+                dict(
+                    x=x_max,
+                    y=lvl.price,
+                    xref="x",
+                    yref="y",
+                    text=f"<b>{annot_text}</b>",
+                    showarrow=False,
+                    xanchor="left",
+                    xshift=6,
+                    yshift=yshifts.get(lvl.price, 0),
+                    bgcolor=annot_bg,
+                    bordercolor=annot_border,
+                    borderwidth=1.5 if is_nearest else 1,
+                    borderpad=3,
+                    font=dict(color=line_color if is_nearest else "#f0f3f6", size=font_size),
+                )
+            )
+
+        # 现价水平基准线 (纯白点线)
         fig.add_trace(
             go.Scatter(
                 x=[x_min, x_max],
@@ -333,16 +541,34 @@ class LevelChartBuilder:
                 mode="lines",
                 name=f"现价 (最新收盘): {current_price:.2f}",
                 legendgroup="spot",
-                line=dict(color="#ffffff", width=1.5, dash="dot"),
+                line=dict(color="#ffffff", width=2.0, dash="dashdot"),
                 hovertext=f"<b>现价 (最新收盘)</b>: {current_price:.2f}" + (f"<br>快照参考价: {gex_spot:.2f}" if gex_spot else ""),
                 hoverinfo="text",
                 meta={"group": "spot"},
             )
         )
+        annotations.append(
+            dict(
+                x=x_max,
+                y=current_price,
+                xref="x",
+                yref="y",
+                text=f"<b>现价 {current_price:.2f}</b>",
+                showarrow=False,
+                xanchor="left",
+                xshift=6,
+                yshift=0,
+                bgcolor="#2a2e39",
+                bordercolor="#ffffff",
+                borderwidth=1.5,
+                borderpad=3,
+                font=dict(color="#ffffff", size=13 if is_mobile else 11),
+            )
+        )
 
-        # 6. 配置交互按钮 (日线 / 小时线切换)
+        # 配置 1D / 1H 按钮 (避让标题，桌面版放置在右上区域)
         updatemenus = []
-        if has_daily and has_hourly:
+        if (not is_mobile) and has_daily and has_hourly:
             total_traces = len(fig.data)
             daily_vis = [True, False] + [True] * (total_traces - 2)
             hourly_vis = [False, True] + [True] * (total_traces - 2)
@@ -351,8 +577,8 @@ class LevelChartBuilder:
                 dict(
                     type="buttons",
                     direction="left",
-                    x=0.01,
-                    y=1.12,
+                    x=0.84,
+                    y=1.07,
                     showactive=True,
                     bgcolor="#2a2e39",
                     bordercolor="#4f5966",
@@ -372,14 +598,19 @@ class LevelChartBuilder:
                 )
             ]
 
-        # 7. 布局与样式设计
-        title_suffix = f" (现价: {current_price:.2f}" + (f", 快照参考: {gex_spot:.2f})" if gex_spot else ")")
+        # 整体布局 (手机版与桌面版差异化适配)
+        title_text = f"<b>{sym}</b> 关键点位结构 K 线图 (现价: {current_price:.2f})"
+        if gex_spot:
+            title_text += f" <span style='font-size:13px;color:#90a4ae;'>[快照参考: {gex_spot:.2f}]</span>"
+
+        margin_dict = dict(l=30, r=260 if not is_mobile else 280, t=110, b=50 if not is_mobile else 80)
+
         fig.update_layout(
             title=dict(
-                text=f"<b>{sym}</b> 关键点位与结构 K 线图{title_suffix}",
-                font=dict(size=18, color="#f0f3f6"),
+                text=title_text,
+                font=dict(size=22 if is_mobile else 18, color="#f0f3f6"),
                 x=0.02,
-                y=0.96,
+                y=0.98,
             ),
             template="plotly_dark",
             paper_bgcolor="#131722",
@@ -391,6 +622,7 @@ class LevelChartBuilder:
                 gridcolor="#1f2430",
                 showgrid=True,
                 zeroline=False,
+                tickfont=dict(size=13 if is_mobile else 11),
             ),
             yaxis=dict(
                 side="right",
@@ -398,42 +630,72 @@ class LevelChartBuilder:
                 showgrid=True,
                 zeroline=False,
                 tickformat=".2f",
+                tickfont=dict(size=13 if is_mobile else 11),
             ),
             legend=dict(
-                orientation="v",
-                x=1.06,
-                y=1.0,
+                orientation="h" if is_mobile else "v",
+                x=0.02 if is_mobile else 1.08,
+                y=-0.08 if is_mobile else 1.0,
                 bgcolor="rgba(19, 23, 34, 0.8)",
                 bordercolor="#2a2e39",
                 font=dict(color="#c4cad4", size=11),
-                groupclick="toggleitem",
+                visible=not is_mobile,  # 手机版线上标注已极度清晰，隐藏图例保持屏效
             ),
-            margin=dict(l=40, r=120, t=100, b=40),
+            margin=margin_dict,
             updatemenus=updatemenus,
+            annotations=annotations,
         )
 
-        # 8. 包装 HTML 页面 (真离线引用本地 plotly.min.js)
-        chart_div = fig.to_html(full_html=False, include_plotlyjs=False)
+        return fig
+
+    def render_and_save_artifacts(
+        self,
+        symbol: str,
+        fig_desktop: go.Figure,
+        fig_mobile: go.Figure,
+        current_price: float,
+        gex_spot: Optional[float],
+        all_levels: List[KeyLevel],
+        export_png: bool,
+        all_successful_symbols: List[str],
+    ) -> Tuple[str, Optional[str], Optional[str]]:
+        """
+        导出 HTML、桌面版 PNG 与手机竖屏版 PNG
+        """
+        sym = symbol.upper()
+        nearest_above, nearest_below = self._determine_nearest_levels(current_price, all_levels)
+
+        # 1. 保存 HTML (使用包含全部成功标的的下拉列表)
+        chart_div = fig_desktop.to_html(full_html=False, include_plotlyjs=False)
         html_content = self._wrap_html(
-            sym, current_price, gex_spot, nearest_above, nearest_below, chart_div, generated_symbols
+            sym, current_price, gex_spot, nearest_above, nearest_below, chart_div, all_successful_symbols
         )
-
         out_html_path = os.path.join(self.out_dir, f"{sym}.html")
         with open(out_html_path, "w", encoding="utf-8") as f:
             f.write(html_content)
 
-        # 9. 导出静态 PNG
-        if export_png:
-            out_png_path = os.path.join(self.out_dir, f"{sym}.png")
-            try:
-                fig.write_image(out_png_path, width=1400, height=850, scale=1.5)
-                print(f"   [PNG] 静态 PNG 已生成: {out_png_path}")
-            except Exception as e:
-                print(f"   [WARN] PNG 导出未执行: {e}")
+        desktop_png_path = None
+        mobile_png_path = None
 
-        elapsed = time.time() - start_t
-        print(f"   [SUCCESS] HTML 图表已生成: {out_html_path} (耗时: {elapsed:.2f}s)")
-        return out_html_path
+        # 2. 导出 PNG
+        if export_png:
+            # 桌面版 PNG
+            desktop_png_path = os.path.join(self.out_dir, f"{sym}.png")
+            try:
+                fig_desktop.write_image(desktop_png_path, width=1400, height=850, scale=1.5)
+                print(f"   [PNG-Desktop] 桌面版已生成: {desktop_png_path}")
+            except Exception as e:
+                print(f"   [WARN] 桌面版 PNG 导出提示: {e}")
+
+            # 手机竖屏版 PNG (1080x1600, scale=2, 极大字号)
+            mobile_png_path = os.path.join(self.out_dir, f"{sym}_mobile.png")
+            try:
+                fig_mobile.write_image(mobile_png_path, width=1080, height=1600, scale=2.0)
+                print(f"   [PNG-Mobile] 手机竖屏版已生成: {mobile_png_path}")
+            except Exception as e:
+                print(f"   [WARN] 手机版 PNG 导出提示: {e}")
+
+        return out_html_path, desktop_png_path, mobile_png_path
 
     def _wrap_html(
         self,
@@ -443,13 +705,12 @@ class LevelChartBuilder:
         above: Optional[KeyLevel],
         below: Optional[KeyLevel],
         chart_div: str,
-        generated_symbols: Optional[List[str]] = None,
+        generated_symbols: List[str],
     ) -> str:
-        # 下拉列表严格只列出本次实际生成的标的，避免 404
-        active_symbols = generated_symbols or [symbol]
+        # 下拉列表严格只列出本次实际生成成功的标的，彻底杜绝 404
         options_html = "".join(
             f'<option value="{s}.html" {"selected" if s==symbol else ""}>{s}</option>'
-            for s in active_symbols
+            for s in generated_symbols
         )
 
         above_desc = "无明显上方阻力"
@@ -466,7 +727,7 @@ class LevelChartBuilder:
 
         snapshot_tag = f'<div class="kpi-badge spot" style="background:#1e2430;color:#90a4ae;">快照参考价: {gex_spot:.2f}</div>' if gex_spot else ""
 
-        available_js_array = json.dumps(active_symbols)
+        available_js_array = json.dumps(generated_symbols)
 
         return f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -568,6 +829,7 @@ class LevelChartBuilder:
       <input type="text" id="symbolInput" class="select-box" style="width: 110px;" placeholder="任意代码 (如PLTR)" onkeydown="if(event.key==='Enter') goToSymbol()">
       <button class="select-box" style="background: #2962ff; border-color: #2962ff;" onclick="goToSymbol()">直达</button>
       <a href="index.html" style="color: #2962ff; font-size: 13px; text-decoration: none; margin-left: 8px;">总索引门户 ↗</a>
+      <a href="{symbol}_mobile.png" target="_blank" style="color: #00e676; font-size: 13px; text-decoration: none; margin-left: 8px;">📱手机竖屏版图片 ↗</a>
     </div>
     <div style="font-size: 12px; color: #787b86;">
       数据源: yfinance & 本地离线 Plotly
@@ -583,12 +845,12 @@ class LevelChartBuilder:
 
   <div class="filter-bar">
     <span style="color: #787b86;">点位图层过滤:</span>
-    <label class="filter-item"><input type="checkbox" checked onchange="toggleGroup('gex_king', this.checked)"> <span style="color: #ff9800;">■</span> GEX KING</label>
-    <label class="filter-item"><input type="checkbox" checked onchange="toggleGroup('gex_floor', this.checked)"> <span style="color: #00e676;">■</span> GEX FLOOR</label>
-    <label class="filter-item"><input type="checkbox" checked onchange="toggleGroup('gex_wall', this.checked)"> <span style="color: #00b0ff;">■</span> GEX 前3正/负墙</label>
+    <label class="filter-item"><input type="checkbox" checked onchange="toggleGroup('gex_king', this.checked)"> <span style="color: #ffd700;">■</span> GEX KING</label>
+    <label class="filter-item"><input type="checkbox" checked onchange="toggleGroup('gex_floor', this.checked)"> <span style="color: #00e5ff;">■</span> GEX FLOOR</label>
+    <label class="filter-item"><input type="checkbox" checked onchange="toggleGroup('gex_wall', this.checked)"> <span style="color: #00e676;">■</span> GEX 阶梯墙</label>
     <label class="filter-item"><input type="checkbox" checked onchange="toggleGroup('bodongge', this.checked)"> <span style="color: #e040fb;">■</span> 外部专家点位</label>
-    <label class="filter-item"><input type="checkbox" checked onchange="toggleGroup('spxl_mapped', this.checked)"> <span style="color: #ffd600;">■</span> SPXL映射线</label>
-    <label class="filter-item"><input type="checkbox" checked onchange="toggleGroup('manual', this.checked)"> <span style="color: #90a4ae;">■</span> 手动点位</label>
+    <label class="filter-item"><input type="checkbox" checked onchange="toggleGroup('spxl_mapped', this.checked)"> <span style="color: #ffab00;">■</span> SPXL映射线</label>
+    <label class="filter-item"><input type="checkbox" checked onchange="toggleGroup('manual', this.checked)"> <span style="color: #64b5f6;">■</span> 手动点位</label>
   </div>
 
   <div class="chart-container">
@@ -633,11 +895,14 @@ class LevelChartBuilder:
         cards_html = ""
         for sym in generated_symbols:
             cards_html += f"""
-            <a href="{sym}.html" class="symbol-card">
+            <div class="symbol-card">
               <div class="card-title">{sym}</div>
               <div class="card-desc">交互式点位 K 线图与结构分析 (离线就绪)</div>
-              <div class="card-link">进入图表 →</div>
-            </a>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+                <a href="{sym}.html" class="card-link">网页交互版 →</a>
+                <a href="{sym}_mobile.png" target="_blank" class="card-link" style="color:#00e676;">📱 手机海报 ↗</a>
+              </div>
+            </div>
             """
 
         content = f"""<!DOCTYPE html>
@@ -678,7 +943,6 @@ class LevelChartBuilder:
       background: #131722;
       border: 1px solid #232733;
       border-radius: 8px;
-      text-decoration: none;
       color: inherit;
       transition: all 0.2s ease;
     }}
@@ -696,12 +960,16 @@ class LevelChartBuilder:
     .card-desc {{
       font-size: 13px;
       color: #787b86;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
     }}
     .card-link {{
       font-size: 13px;
       color: #2962ff;
       font-weight: 600;
+      text-decoration: none;
+    }}
+    .card-link:hover {{
+      text-decoration: underline;
     }}
     .cli-box {{
       background: #131722;
@@ -721,7 +989,7 @@ class LevelChartBuilder:
 <body>
   <div class="header">
     <h1>📊 交互式点位 K 线图看板总览</h1>
-    <div class="subtitle">集成 GEX KING / FLOOR / 阶梯墙、外部点位、SPXL 3x 非线性映射及手动自定义点位 (真离线版本)</div>
+    <div class="subtitle">集成 GEX KING / FLOOR / 阶梯墙、外部点位、SPXL 3x 非线性映射及手动自定义点位 (支持手机竖屏版海报)</div>
   </div>
 
   <h2>已就绪标的 ({len(generated_symbols)})</h2>
@@ -751,7 +1019,7 @@ def parse_args():
     parser.add_argument("--all", action="store_true", help="批量生成配置中所有默认标的")
     parser.add_argument("--snapshot", type=str, help="指定 GEX 快照 JSON 路径 (手动覆盖)")
     parser.add_argument("--out-dir", type=str, help="输出目录路径 (默认相对路径)")
-    parser.add_argument("--png", action="store_true", help="同时导出静态 PNG 图表")
+    parser.add_argument("--png", action="store_true", help="同时导出桌面版与手机版 PNG 图表")
     parser.add_argument("--config", type=str, default=DEFAULT_CONFIG_PATH, help="指定配置文件路径")
     return parser.parse_args()
 
@@ -771,23 +1039,77 @@ def main():
     else:
         target_symbols = ["SPY", "SPX", "SPXL", "NVDA"]
 
-    generated = []
     total_start = time.time()
+
+    # 第一阶段: 拉取数据与构建 Figure 对象
+    prepared_data = []
     for sym in target_symbols:
         try:
-            builder.generate_chart(sym, export_png=args.png, generated_symbols=target_symbols)
-            generated.append(sym)
-        except Exception as e:
-            print(f"[Error] 生成 {sym} 失败: {e}")
+            print(f"\n================ 正在准备标的: {sym} ================")
+            t0 = time.time()
+            df_daily, df_hourly = builder.fetch_klines(sym)
+            if df_daily is None and df_hourly is None:
+                print(f"[Error] 无法获取 {sym} 行情，跳过")
+                continue
 
-    if not generated:
+            base_df = df_daily if df_daily is not None else df_hourly
+            last_close = float(base_df["Close"].iloc[-1])
+
+            gex_spot = None
+            if sym in builder.gex_source.data.get("zero_dte", {}):
+                gex_spot = builder.gex_source.data["zero_dte"][sym].get("spot")
+            elif sym in builder.gex_source.data.get("matrix", {}):
+                gex_spot = builder.gex_source.data["matrix"][sym].get("spot")
+
+            current_price = last_close
+            all_levels = builder.aggregate_levels(sym)
+
+            # 构建桌面版图表
+            fig_desktop = builder.build_figure(
+                sym, df_daily, df_hourly, all_levels, current_price, gex_spot, is_mobile=False
+            )
+            # 构建手机竖屏版图表 (最近 60 根 K 线，大字号)
+            fig_mobile = builder.build_figure(
+                sym, df_daily, df_hourly, all_levels, current_price, gex_spot, is_mobile=True
+            )
+
+            prepared_data.append({
+                "symbol": sym,
+                "fig_desktop": fig_desktop,
+                "fig_mobile": fig_mobile,
+                "current_price": current_price,
+                "gex_spot": gex_spot,
+                "all_levels": all_levels,
+                "prep_time": time.time() - t0,
+            })
+        except Exception as e:
+            print(f"[Error] 处理标的 {sym} 失败: {e}")
+
+    successful_symbols = [item["symbol"] for item in prepared_data]
+    if not successful_symbols:
         print("[Fatal] 所有目标标的生成均失败，退出。")
         sys.exit(1)
 
+    # 第二阶段: 统一写入磁盘并渲染包含实际成功标的的下拉列表
+    print(f"\n▶ 正在输出 HTML 与图片产物 (共 {len(successful_symbols)} 个成功标的)...")
+    for item in prepared_data:
+        sym = item["symbol"]
+        builder.render_and_save_artifacts(
+            symbol=sym,
+            fig_desktop=item["fig_desktop"],
+            fig_mobile=item["fig_mobile"],
+            current_price=item["current_price"],
+            gex_spot=item["gex_spot"],
+            all_levels=item["all_levels"],
+            export_png=args.png,
+            all_successful_symbols=successful_symbols,
+        )
+
     # 生成总导航页面
-    builder.generate_index_page(generated)
+    builder.generate_index_page(successful_symbols)
+
     total_elapsed = time.time() - total_start
-    print(f"\n[DONE] 全部任务完成！共生成 {len(generated)} 个标的，总耗时: {total_elapsed:.2f}s")
+    print(f"\n[DONE] 全部任务完成！共生成 {len(successful_symbols)} 个标的，总耗时: {total_elapsed:.2f}s")
 
 
 if __name__ == "__main__":

@@ -63,7 +63,7 @@ level_sources:
   bodongge:
     enabled: true
     provider: markdown_file # 可替换为 api 或 json_file
-    path: "data/level_chart/bodongge_sample.json" # 可通过环境变量 BODONGGE_PATH 覆盖
+    path: "data/level_chart/bodongge_sample.md" # 可通过环境变量 BODONGGE_PATH 覆盖
     env_var: "BODONGGE_PATH"
     target_symbol: "SPX"
 
@@ -74,14 +74,10 @@ spxl_mapping:
   base_spxl: 246.75
   base_spx: 7376.86
   factor: 3.0
-  # 关键映射基准参考点
+  # 关键映射基准参考点 (仅保留基准锚点，其余由动态映射生成)
   reference_points:
     - spx: 7376.86
       label: "基准锚点"
-    - spx: 7520.93
-      label: "SPX当前KING/现价锚点"
-    - spx: 7600.0
-      label: "SPX上方FLOOR强阻力锚点"
 
 # 手动自定义点位配置 (随时追加监控点)
 manual_levels:
@@ -91,7 +87,7 @@ manual_levels:
   SPXL: []
   NVDA: []
 
-# 输出配置 (默认输出到 gitignore 的 data/level_chart/out，真离线共用 plotly.min.js)
+# 输出配置 (默认输出到 gitignore 的 data/level_chart/out)
 output:
   dir: "data/level_chart/out"
   export_png: true
