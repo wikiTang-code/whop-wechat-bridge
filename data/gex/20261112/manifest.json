@@ -1,0 +1,53 @@
+{
+  "date": "20261112",
+  "snapshots": [
+    {
+      "filename": "snapshot_20261112_082117.json",
+      "date": "20261112",
+      "generated_at": "2026-11-12T08:10:38-05:00",
+      "session": "evening_pre_open",
+      "size_bytes": 479665,
+      "tickers_count": 29,
+      "tickers": [
+        "TSLA",
+        "NBIS",
+        "IREN",
+        "CRWV",
+        "CIFR",
+        "CBRS",
+        "RIOT",
+        "AEHR",
+        "PL",
+        "INTC",
+        "NOK",
+        "WDC",
+        "GLW",
+        "AKAM",
+        "OKLO",
+        "ONDS",
+        "MU",
+        "COHR",
+        "SOXL",
+        "COIN",
+        "NVDA",
+        "LITE",
+        "SOXX",
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "AMZN",
+        "META",
+        "SPCX"
+      ],
+      "zero_dte_count": 3,
+      "note": "Daily archive: evening_pre_open (29 matrix, 3 0DTE)",
+      "files": [
+        "snapshot_20261112_082117.json",
+        "latest.json",
+        "analysis_daily.md",
+        "manifest.json"
+      ]
+    }
+  ],
+  "updated_at": "2026-11-12T21:21:17.604179"
+}
