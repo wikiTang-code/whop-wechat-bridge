@@ -1,0 +1,93 @@
+# 交互式点位 K 线图配置 (Interactive Level Chart Configuration)
+
+# 默认标的列表（包含大盘 ETF、杠杆 ETF 及 DEFAULT_MATRIX 全量）
+default_symbols:
+  - SPY
+  - QQQ
+  - SPX
+  - SPXL
+  - TSLA
+  - NBIS
+  - IREN
+  - CRWV
+  - CIFR
+  - CBRS
+  - RIOT
+  - AEHR
+  - PL
+  - INTC
+  - NOK
+  - WDC
+  - GLW
+  - AKAM
+  - OKLO
+  - ONDS
+  - MU
+  - COHR
+  - SOXL
+  - COIN
+  - NVDA
+  - LITE
+  - SOXX
+  - AAPL
+  - MSFT
+  - GOOGL
+  - AMZN
+  - META
+  - SPCX
+
+# 行情数据源配置
+market_data:
+  provider: yfinance # 选用 yfinance: 独立无外部服务依赖，跨平台开箱即用
+  symbol_map:
+    SPX: "^GSPC"     # yfinance 中标普500指数映射代码
+  periods:
+    daily:
+      period: "3mo"
+      interval: "1d"
+    hourly:
+      period: "1mo"
+      interval: "1h"
+
+# GEX 关键点位数据源配置 (相对路径)
+gex:
+  enabled: true
+  snapshot_path: "data/gex/latest.json" # 默认读最新快照，可用 --snapshot 覆盖
+  fallback_patterns:
+    - "data/gex/*/latest.json"
+    - "data/gex/*/snapshot_*.json"
+    - "data/gex/snapshot_*.json"
+
+# 外部专家/KOL点位数据源 (通过 LevelSource 协议解耦，可从环境变量或相对路径读取)
+level_sources:
+  bodongge:
+    enabled: true
+    provider: markdown_file # 可替换为 api 或 json_file
+    path: "data/level_chart/bodongge_sample.md" # 可通过环境变量 BODONGGE_PATH 覆盖
+    env_var: "BODONGGE_PATH"
+    target_symbol: "SPX"
+
+# SPXL 3倍杠杆非线性映射参数
+# 公式: SPXL = base_spxl * (1 + factor * (SPX / base_spx - 1))
+spxl_mapping:
+  enabled: true
+  base_spxl: 246.75
+  base_spx: 7376.86
+  factor: 3.0
+  # 关键映射基准参考点 (仅保留基准锚点，其余由动态映射生成)
+  reference_points:
+    - spx: 7376.86
+      label: "基准锚点"
+
+# 手动自定义点位配置 (随时追加监控点)
+manual_levels:
+  SPX: []
+  SPY: []
+  QQQ: []
+  SPXL: []
+  NVDA: []
+
+# 输出配置 (默认输出到 gitignore 的 data/level_chart/out)
+output:
+  dir: "data/level_chart/out"
+  export_png: true
