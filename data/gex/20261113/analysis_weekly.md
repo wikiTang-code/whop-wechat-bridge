@@ -1,3 +1,4 @@
-# analysis_weekly.md (reserved)
+# GEX一周总结-20261109至20261113
 
-Weekly rollup hook — not generated yet. Downstream may read this path later.
+本周周报已生成，见同目录 GEX一周总结-20261109至20261113.md。
+覆盖美东交易日 2026-11-09 至 2026-11-13 全部十场快照。
