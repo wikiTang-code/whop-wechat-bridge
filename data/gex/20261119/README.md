@@ -2,7 +2,7 @@
 
 - Day folder: `data/gex/20261119/`
 - Rolling pointer (repo root of gex): `data/gex/latest.json`
-- Analysis: `analysis_daily.md` (append per run); reserved `analysis_weekly.md`
+- Analysis: `analysis_daily.md` (pipeline digest); `analysis_evening_diff.md` (晚场相对早场差异); reserved `analysis_weekly.md`
 
 | Session | Snapshot | generated_at | Coverage |
 | --- | --- | --- | --- |
