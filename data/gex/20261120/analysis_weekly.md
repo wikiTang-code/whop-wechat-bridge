@@ -1,3 +1,4 @@
-# analysis_weekly.md (reserved)
+# GEX一周总结-20261116至20261120
 
-Weekly rollup hook — not generated yet. Downstream may read this path later.
+本周周报已生成，见同目录 GEX一周总结-20261116至20261120.md。
+覆盖美东交易日 2026-11-16 至 2026-11-20：成功 9 场快照；周一晚场缺失，周一盘后为延迟补采；周二晚场至周三早场连续四场缺 SPX。
