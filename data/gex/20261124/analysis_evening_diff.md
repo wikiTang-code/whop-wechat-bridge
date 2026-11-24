@@ -57,15 +57,15 @@
 - 指数链：SPY / QQQ 并排，青绿正 GEX、品红负 GEX，标出现价、KING、FLOOR；白虚线为早场盘后同一 11-24 列的对照。第三格是 SPX 缺失说明，**不是**任何一场旧图。本场图按晚场快照新绘。
 - 个股到期矩阵（结构变化大的才附）：NVDA（近端大幅变薄并多档翻负）、AAPL（近端仍负、11-27 翻正）、SPCX（近端翻负与 11-27 翻正交织）、SOXX（145 加厚、KING 下移）。列头附早场同列合计。
 
-![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261124/gex-chain-20261124-evening.png)
+![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/3d853b3832cb804acc8a98861f6d1f116a2b8fca/data/gex/20261124/gex-chain-20261124-evening.png)
 
-![NVDA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261124/gex-matrix-20261124-evening-NVDA.png)
+![NVDA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/3d853b3832cb804acc8a98861f6d1f116a2b8fca/data/gex/20261124/gex-matrix-20261124-evening-NVDA.png)
 
-![AAPL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261124/gex-matrix-20261124-evening-AAPL.png)
+![AAPL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/3d853b3832cb804acc8a98861f6d1f116a2b8fca/data/gex/20261124/gex-matrix-20261124-evening-AAPL.png)
 
-![SPCX GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261124/gex-matrix-20261124-evening-SPCX.png)
+![SPCX GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/3d853b3832cb804acc8a98861f6d1f116a2b8fca/data/gex/20261124/gex-matrix-20261124-evening-SPCX.png)
 
-![SOXX GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261124/gex-matrix-20261124-evening-SOXX.png)
+![SOXX GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/3d853b3832cb804acc8a98861f6d1f116a2b8fca/data/gex/20261124/gex-matrix-20261124-evening-SOXX.png)
 
 ## 4) 差异的可能含义，以及开盘观察短清单（非荐股）
 
