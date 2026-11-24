@@ -63,17 +63,17 @@
 ## 5) 附图
 - 指数链：SPY / QQQ 并排，青绿正 GEX、品红负 GEX，标出现价、KING、FLOOR。到期日写 **11-24**，不标 0DTE。与晚场不是同一列，故**不叠加虚线对照**。第三格是 SPX 缺失说明，不是任何一场旧图。
 
-![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/7eb6c2550d57b9f94852816b9cdc4683e4202cba/data/gex/20261123/gex-chain-20261123-morning.png)
+![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/1a6ba9117220ec813200a8df549aaa2d4aebefe7/data/gex/20261123/gex-chain-20261123-morning.png)
 
 - 个股到期矩阵（结论依赖矩阵或窗口分解的才附）：NVDA（官方大翻正几乎全是窗口）、SOXX（12-18 官方翻正、重叠格仍负）、TSLA（11-27 重叠格加厚）、AAPL（小涨幅下近端仍深负）。列头附晚场同列合计（若该列当时可见）。
 
-![NVDA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/7eb6c2550d57b9f94852816b9cdc4683e4202cba/data/gex/20261123/gex-matrix-20261123-morning-NVDA.png)
+![NVDA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/1a6ba9117220ec813200a8df549aaa2d4aebefe7/data/gex/20261123/gex-matrix-20261123-morning-NVDA.png)
 
-![SOXX GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/7eb6c2550d57b9f94852816b9cdc4683e4202cba/data/gex/20261123/gex-matrix-20261123-morning-SOXX.png)
+![SOXX GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/1a6ba9117220ec813200a8df549aaa2d4aebefe7/data/gex/20261123/gex-matrix-20261123-morning-SOXX.png)
 
-![TSLA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/7eb6c2550d57b9f94852816b9cdc4683e4202cba/data/gex/20261123/gex-matrix-20261123-morning-TSLA.png)
+![TSLA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/1a6ba9117220ec813200a8df549aaa2d4aebefe7/data/gex/20261123/gex-matrix-20261123-morning-TSLA.png)
 
-![AAPL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/7eb6c2550d57b9f94852816b9cdc4683e4202cba/data/gex/20261123/gex-matrix-20261123-morning-AAPL.png)
+![AAPL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/1a6ba9117220ec813200a8df549aaa2d4aebefe7/data/gex/20261123/gex-matrix-20261123-morning-AAPL.png)
 
 ## 6) 波动哥点位 vs GEX
 点位来源：Discord stockrocks「🌟波动哥」。撰写时没有更新的 Discord 导出（本地最新完整窗口仍是 `/workspace/discord-daily-20261121/`，覆盖 11-20 09:00 至 11-21 09:00 北京；11-21 之后到本场之间的频道记录尚未见到）。该窗口内没有新的五点位，只有 11-20 晚间到 11-21 凌晨关于 SPY 755C / 补仓 SPYU 的讨论。因此仍采用 **11-19 至 11-20 窗口**里最后一份五点位，并注明日期；若今日 Discord 例行随后给出新点位，以新导出为准。
