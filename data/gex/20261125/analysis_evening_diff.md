@@ -55,17 +55,17 @@
 - 指数链：SPY / QQQ 并排，青绿正 GEX、品红负 GEX，标出现价、KING、FLOOR；白虚线为早场盘后同一 11-25 列的对照。第三格是 SPX 缺失说明，**不是**任何一场旧图。本场图按晚场快照新绘，不复用早场那张。
 - 个股到期矩阵（结构变化大的才附）：NVDA（近端加深但现价附近翻正）、SOXL（11-27 真实翻正、KING 下移到现价下方）、AAPL（355 / 350 对调、周列变薄）、TSLA（近端翻负、周列仍正）、GOOGL（周列由厚正翻负）。列头附早场同列合计。
 
-![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-chain-20261125-evening.png)
+![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/a881aa24b745d94e68023126ce67401e715cef03/data/gex/20261125/gex-chain-20261125-evening.png)
 
-![NVDA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-matrix-20261125-evening-NVDA.png)
+![NVDA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/a881aa24b745d94e68023126ce67401e715cef03/data/gex/20261125/gex-matrix-20261125-evening-NVDA.png)
 
-![SOXL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-matrix-20261125-evening-SOXL.png)
+![SOXL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/a881aa24b745d94e68023126ce67401e715cef03/data/gex/20261125/gex-matrix-20261125-evening-SOXL.png)
 
-![AAPL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-matrix-20261125-evening-AAPL.png)
+![AAPL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/a881aa24b745d94e68023126ce67401e715cef03/data/gex/20261125/gex-matrix-20261125-evening-AAPL.png)
 
-![TSLA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-matrix-20261125-evening-TSLA.png)
+![TSLA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/a881aa24b745d94e68023126ce67401e715cef03/data/gex/20261125/gex-matrix-20261125-evening-TSLA.png)
 
-![GOOGL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-matrix-20261125-evening-GOOGL.png)
+![GOOGL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/a881aa24b745d94e68023126ce67401e715cef03/data/gex/20261125/gex-matrix-20261125-evening-GOOGL.png)
 
 ## 4) 差异的可能含义，以及开盘观察短清单（非荐股）
 
