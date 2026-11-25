@@ -57,17 +57,17 @@
 - 指数链：SPY / QQQ 并排，青绿正 GEX、品红负 GEX，标出现价、KING、FLOOR。第三格是 SPX 缺失说明，**不是**任何一场旧图。本场图按早场盘后快照新绘。因为近端已经换到 11-25，与晚场 11-24 列不是同一到期，**不叠加虚线对照**。到期日按 11-25 标注，不写成 0DTE。
 - 个股到期矩阵（结构变化大的才附）：NVDA（近端真实翻负，周列仍正但 160/155 翻负）、SOXX（官方翻负几乎全是窗口下移）、SOXL（现货暴跌，重叠格明显走弱，KING 已在现价之上）、SPCX（近端加深，且晚场刚翻正的 11-27 又翻负）、AAPL（与半导体反向，11-27 大幅加厚）。列头附晚场同列合计。
 
-![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261124/gex-chain-20261124-morning.png)
+![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f5d0bb670c7b50de0d066f7cd0f2922c912dfd02/data/gex/20261124/gex-chain-20261124-morning.png)
 
-![NVDA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261124/gex-matrix-20261124-morning-NVDA.png)
+![NVDA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f5d0bb670c7b50de0d066f7cd0f2922c912dfd02/data/gex/20261124/gex-matrix-20261124-morning-NVDA.png)
 
-![SOXX GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261124/gex-matrix-20261124-morning-SOXX.png)
+![SOXX GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f5d0bb670c7b50de0d066f7cd0f2922c912dfd02/data/gex/20261124/gex-matrix-20261124-morning-SOXX.png)
 
-![SOXL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261124/gex-matrix-20261124-morning-SOXL.png)
+![SOXL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f5d0bb670c7b50de0d066f7cd0f2922c912dfd02/data/gex/20261124/gex-matrix-20261124-morning-SOXL.png)
 
-![SPCX GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261124/gex-matrix-20261124-morning-SPCX.png)
+![SPCX GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f5d0bb670c7b50de0d066f7cd0f2922c912dfd02/data/gex/20261124/gex-matrix-20261124-morning-SPCX.png)
 
-![AAPL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261124/gex-matrix-20261124-morning-AAPL.png)
+![AAPL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f5d0bb670c7b50de0d066f7cd0f2922c912dfd02/data/gex/20261124/gex-matrix-20261124-morning-AAPL.png)
 
 ## 4) 对照说明（再压缩一句）
 同日晚场是 11-24 的第一份周一清算 OI，指数局部已经翻负、可见列净额很负。本场是换月后的 11-25 新列，再加上周一 OI 按周二收盘价重定价。指数官方体制翻正，描述的是这条新列在新现货上的样子，不是把晚场那条 0DTE 负链「盘中修回去了」。个股里，NVDA / SOXL / SPCX / COIN / INTC 的近端或周列重叠格变化值得单独看；SOXX / MU 的官方符号则先当成窗口滑动。
