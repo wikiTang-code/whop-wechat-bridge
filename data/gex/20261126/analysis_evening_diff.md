@@ -30,7 +30,7 @@
 ## 3) 附图
 指数链按本场晚场快照新绘，不复用早场那张图。青绿正 GEX、品红负 GEX，标出现价、KING、FLOOR；白虚线是早场盘后基准，几乎与本场重合。第三格是 SPX 缺失说明，**不是**任何一场旧图。到期日按 11-27 标注，不写成 0DTE。因结构无显著变化，不附个股矩阵。
 
-![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261126/gex-chain-20261126-evening.png)
+![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/779f2debab330f702346972f0fb71c12fec1f23e/data/gex/20261126/gex-chain-20261126-evening.png)
 
 ## 4) 可能含义与观察短清单（非荐股）
 本场不是盘前漂移，也不是 Gamma 结构重构，只是假日里同一份周二清算 OI 的再打印。`spot_session=premarket` 在感恩节 08:00 并不表示今天还有盘前交易可改墙；现货锁在周三收盘。自动摘要仍按常规开盘前口吻写「限价单 / 北京 12:00 开闸」，今天用不上。
