@@ -56,17 +56,17 @@
 - 指数链：SPY / QQQ 并排，青绿正 GEX、品红负 GEX，标出现价、KING、FLOOR。第三格是 SPX 缺失说明，**不是**任何一场旧图。本场图按早场盘后快照新绘。因为近端已经换到 11-27，与晚场 11-25 列不是同一到期，**不叠加虚线对照**。到期日按 11-27 标注，不写成 0DTE。
 - 个股到期矩阵（结构变化大的才附）：NVDA（官方翻正来自换月，周五列仍正但 150 负 KING 贴着现价）、AAPL（11-27 大幅加厚，355 负口袋加深）、META（11-27 重叠格主导翻正，现货 +3.4%）、TSLA（官方翻正来自换月，周五列已正并加厚）、AMZN（11-27 重叠格翻负，体量不大，245 负 KING 贴着现价）。列头附晚场同列合计。
 
-![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-chain-20261125-morning.png)
+![GEX链分布 SPY/QQQ/SPX](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f997bda58dadba578a8e19a373093a1ce5b7d258/data/gex/20261125/gex-chain-20261125-morning.png)
 
-![NVDA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-matrix-20261125-morning-NVDA.png)
+![NVDA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f997bda58dadba578a8e19a373093a1ce5b7d258/data/gex/20261125/gex-matrix-20261125-morning-NVDA.png)
 
-![AAPL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-matrix-20261125-morning-AAPL.png)
+![AAPL GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f997bda58dadba578a8e19a373093a1ce5b7d258/data/gex/20261125/gex-matrix-20261125-morning-AAPL.png)
 
-![META GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-matrix-20261125-morning-META.png)
+![META GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f997bda58dadba578a8e19a373093a1ce5b7d258/data/gex/20261125/gex-matrix-20261125-morning-META.png)
 
-![TSLA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-matrix-20261125-morning-TSLA.png)
+![TSLA GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f997bda58dadba578a8e19a373093a1ce5b7d258/data/gex/20261125/gex-matrix-20261125-morning-TSLA.png)
 
-![AMZN GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/PLACEHOLDER_SHA/data/gex/20261125/gex-matrix-20261125-morning-AMZN.png)
+![AMZN GEX矩阵](https://raw.githubusercontent.com/wikiTang-code/whop-wechat-bridge/f997bda58dadba578a8e19a373093a1ce5b7d258/data/gex/20261125/gex-matrix-20261125-morning-AMZN.png)
 
 ## 4) 对照说明（再压缩一句）
 同日晚场是 11-25 的第一份周二清算 OI，指数局部已经偏正，但可见列净额仍负，SPOT 还是周二收盘。本场是换月后的 11-27 新列，再加上同一份周二 OI 按周三收盘价重定价。SPY 官方体制仍正、QQQ 官方体制翻负，描述的都是这条新列在新现货上的样子，不是把晚场那条 0DTE「盘中修回去了」。个股里，META 的周五列重叠格翻正、AAPL 周五列继续加厚、AMZN 周五列小额翻负，值得单独看；NVDA / TSLA / AAPL 自动摘要里的「强力翻正」先当成换月。
