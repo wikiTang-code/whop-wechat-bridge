@@ -7,3 +7,4 @@
 | Session | Snapshot | generated_at | Coverage |
 | --- | --- | --- | --- |
 | evening_pre_open | `snapshot_20261126_081031.json` | 2026-11-26T08:00:01-05:00 | 29 matrix + 2 0DTE |
+| morning_post_market | `snapshot_20261126_202654.json` | 2026-11-26T20:16:06-05:00 | 29 matrix + 3 0DTE |
